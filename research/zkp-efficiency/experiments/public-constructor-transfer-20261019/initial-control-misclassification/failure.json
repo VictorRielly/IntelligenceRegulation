@@ -1,0 +1,13 @@
+{
+  "exit": 1,
+  "command": [
+    "python3",
+    "-B",
+    "experiments/public-constructor-transfer-20261019/experiment.py"
+  ],
+  "sha256": "23d14a8f1f1c29b5fa0465f4f96c3fe6ea7aa63081cd2d3613ccb710f7eedfc3",
+  "elapsed_seconds": 0.237048949,
+  "exception": "AssertionError at check(wrong != ref)",
+  "cause": "A single KV group has tail-only head padding, so prefix mapping equals native mapping. Refine negative eligibility to multiple KV groups. No candidate/result acceptance was saved.",
+  "stderr_note": "stderr.log transcribes the observed tool exception; paths shortened. Exact failing source is preserved."
+}

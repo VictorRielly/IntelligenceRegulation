@@ -1,0 +1,599 @@
+{
+ "attribution_logs": {
+  "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round10/r10-pr4-9-8b.log": "35a27405bfc1c66ebc21c43f7ddca0bd1841c855ecbb00a08934d8ee32e4c6b5",
+  "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round10/r10-pr4-9-tinyllama.log": "7e521cc1832cb41ac6c8988ad718ad58c6fcef4a57d1e0cfe7000b09e8497085"
+ },
+ "attributions": 5,
+ "captures": [
+  {
+   "A1_profile_matches": true,
+   "A2_python_composition_equals_rust": true,
+   "A3_word_equals_the_absorbed_calibration": true,
+   "A4_replay_reproduces_the_binding": true,
+   "A5_block_digests_equal": true,
+   "absorbed_calibration": "45537596c8bf1c21e1263c4ff622902adf8abc67ba75092632d6a0f6917a2d65",
+   "attribution": {
+    "calibration_word_composed": "45537596c8bf1c21e1263c4ff622902adf8abc67ba75092632d6a0f6917a2d65",
+    "emb_dir": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128",
+    "export": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128",
+    "head_dir": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r2_inputs",
+    "layers": [
+     0
+    ],
+    "run_profile": "hashline-zk-mr1/private-token-io-run-tinyllama-1.1b-t32-trained-statement-public-row/1",
+    "statement_header_word_equal": true,
+    "tag": "tinyllama-b4-L1",
+    "token_profile_digest": "5857be9d700085dcefa1cefefa1e5a4c9ba40b79c5513631d04dd2b73c3e08d1",
+    "trained_statement_identity": "4ee1fd185fae467f513acdcc71d195cf7b2debb40ec8bdd752d50e248839e868"
+   },
+   "bundle": "tinyllama-t32-L1-dense-pt1",
+   "controls": {
+    "K1_identity_bit_flipped": {
+     "fires": true
+    },
+    "K2_another_layer_range": {
+     "fires": true,
+     "with": "tinyllama-b4-L2"
+    },
+    "K3_another_export": {
+     "fires": true,
+     "with": "llama3-8b-b7voc0-L1"
+    },
+    "K4_profile_digest_bit_flipped": {
+     "fires": true
+    }
+   },
+   "controls_ok": true,
+   "findings": [],
+   "ok": true,
+   "readme": {
+    "export": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128",
+    "layers": [
+     0
+    ],
+    "variant": "pg_rot1_b4_T32_cal128"
+   }
+  },
+  {
+   "A1_profile_matches": true,
+   "A2_python_composition_equals_rust": true,
+   "A3_word_equals_the_absorbed_calibration": true,
+   "A4_replay_reproduces_the_binding": true,
+   "A5_block_digests_equal": true,
+   "absorbed_calibration": "45537596c8bf1c21e1263c4ff622902adf8abc67ba75092632d6a0f6917a2d65",
+   "attribution": {
+    "calibration_word_composed": "45537596c8bf1c21e1263c4ff622902adf8abc67ba75092632d6a0f6917a2d65",
+    "emb_dir": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128",
+    "export": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128",
+    "head_dir": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r2_inputs",
+    "layers": [
+     0
+    ],
+    "run_profile": "hashline-zk-mr1/private-token-io-run-tinyllama-1.1b-t32-trained-statement-public-row/1",
+    "statement_header_word_equal": true,
+    "tag": "tinyllama-b4-L1",
+    "token_profile_digest": "5857be9d700085dcefa1cefefa1e5a4c9ba40b79c5513631d04dd2b73c3e08d1",
+    "trained_statement_identity": "4ee1fd185fae467f513acdcc71d195cf7b2debb40ec8bdd752d50e248839e868"
+   },
+   "bundle": "tinyllama-t32-L1-fixed-pt1",
+   "controls": {
+    "K1_identity_bit_flipped": {
+     "fires": true
+    },
+    "K2_another_layer_range": {
+     "fires": true,
+     "with": "tinyllama-b4-L2"
+    },
+    "K3_another_export": {
+     "fires": true,
+     "with": "llama3-8b-b7voc0-L1"
+    },
+    "K4_profile_digest_bit_flipped": {
+     "fires": true
+    }
+   },
+   "controls_ok": true,
+   "findings": [],
+   "ok": true,
+   "readme": {
+    "export": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128",
+    "layers": [
+     0
+    ],
+    "variant": "pg_rot1_b4_T32_cal128"
+   }
+  },
+  {
+   "A1_profile_matches": true,
+   "A2_python_composition_equals_rust": true,
+   "A3_word_equals_the_absorbed_calibration": true,
+   "A4_replay_reproduces_the_binding": true,
+   "A5_block_digests_equal": true,
+   "absorbed_calibration": "3287884ae33ac5a4c21dbfcc6c59fb2fc5aec3846c53f64df7983fea0975d952",
+   "attribution": {
+    "calibration_word_composed": "3287884ae33ac5a4c21dbfcc6c59fb2fc5aec3846c53f64df7983fea0975d952",
+    "emb_dir": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128",
+    "export": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128",
+    "head_dir": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r2_inputs",
+    "layers": [
+     0,
+     1
+    ],
+    "run_profile": "hashline-zk-mr1/private-token-io-run-tinyllama-1.1b-t32-trained-statement-public-row/1",
+    "statement_header_word_equal": true,
+    "tag": "tinyllama-b4-L2",
+    "token_profile_digest": "5857be9d700085dcefa1cefefa1e5a4c9ba40b79c5513631d04dd2b73c3e08d1",
+    "trained_statement_identity": "a4604eedcf39319347b91894aa4cee50964246178687cd63020c24aa965ef2ac"
+   },
+   "bundle": "tinyllama-t32-L2-dense-pt1",
+   "controls": {
+    "K1_identity_bit_flipped": {
+     "fires": true
+    },
+    "K2_another_layer_range": {
+     "fires": true,
+     "with": "tinyllama-b4-L1"
+    },
+    "K3_another_export": {
+     "fires": true,
+     "with": "llama3-8b-b7voc0-L1"
+    },
+    "K4_profile_digest_bit_flipped": {
+     "fires": true
+    }
+   },
+   "controls_ok": true,
+   "findings": [],
+   "ok": true,
+   "readme": {
+    "export": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128",
+    "layers": [
+     0,
+     1
+    ],
+    "variant": "pg_rot1_b4_T32_cal128"
+   }
+  },
+  {
+   "A1_profile_matches": true,
+   "A2_python_composition_equals_rust": true,
+   "A3_word_equals_the_absorbed_calibration": true,
+   "A4_replay_reproduces_the_binding": true,
+   "A5_block_digests_equal": true,
+   "absorbed_calibration": "3287884ae33ac5a4c21dbfcc6c59fb2fc5aec3846c53f64df7983fea0975d952",
+   "attribution": {
+    "calibration_word_composed": "3287884ae33ac5a4c21dbfcc6c59fb2fc5aec3846c53f64df7983fea0975d952",
+    "emb_dir": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128",
+    "export": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128",
+    "head_dir": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r2_inputs",
+    "layers": [
+     0,
+     1
+    ],
+    "run_profile": "hashline-zk-mr1/private-token-io-run-tinyllama-1.1b-t32-trained-statement-public-row/1",
+    "statement_header_word_equal": true,
+    "tag": "tinyllama-b4-L2",
+    "token_profile_digest": "5857be9d700085dcefa1cefefa1e5a4c9ba40b79c5513631d04dd2b73c3e08d1",
+    "trained_statement_identity": "a4604eedcf39319347b91894aa4cee50964246178687cd63020c24aa965ef2ac"
+   },
+   "bundle": "tinyllama-t32-L2-fixed-pt1",
+   "controls": {
+    "K1_identity_bit_flipped": {
+     "fires": true
+    },
+    "K2_another_layer_range": {
+     "fires": true,
+     "with": "tinyllama-b4-L1"
+    },
+    "K3_another_export": {
+     "fires": true,
+     "with": "llama3-8b-b7voc0-L1"
+    },
+    "K4_profile_digest_bit_flipped": {
+     "fires": true
+    }
+   },
+   "controls_ok": true,
+   "findings": [],
+   "ok": true,
+   "readme": {
+    "export": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128",
+    "layers": [
+     0,
+     1
+    ],
+    "variant": "pg_rot1_b4_T32_cal128"
+   }
+  },
+  {
+   "A1_profile_matches": true,
+   "A2_python_composition_equals_rust": true,
+   "A3_word_equals_the_absorbed_calibration": true,
+   "A4_replay_reproduces_the_binding": true,
+   "A5_block_digests_equal": true,
+   "absorbed_calibration": "5a89f1d35f17cc63131978fe9fe9e613836d375c1b15a4390cfaad04ec76cc83",
+   "attribution": {
+    "calibration_word_composed": "5a89f1d35f17cc63131978fe9fe9e613836d375c1b15a4390cfaad04ec76cc83",
+    "emb_dir": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128",
+    "export": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128",
+    "head_dir": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r2_inputs",
+    "layers": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21
+    ],
+    "run_profile": "hashline-zk-mr1/private-token-io-run-tinyllama-1.1b-t32-trained-statement-public-row/1",
+    "statement_header_word_equal": true,
+    "tag": "tinyllama-b4-L22",
+    "token_profile_digest": "5857be9d700085dcefa1cefefa1e5a4c9ba40b79c5513631d04dd2b73c3e08d1",
+    "trained_statement_identity": "78ccaba56b145aefb18987738b9fe0329c06bdd727bcd3336db524edcd13c514"
+   },
+   "bundle": "tinyllama-t32-L22-dense-pt1",
+   "controls": {
+    "K1_identity_bit_flipped": {
+     "fires": true
+    },
+    "K2_another_layer_range": {
+     "fires": true,
+     "with": "tinyllama-b4-L1"
+    },
+    "K3_another_export": {
+     "fires": true,
+     "with": "llama3-8b-b7voc0-L1"
+    },
+    "K4_profile_digest_bit_flipped": {
+     "fires": true
+    }
+   },
+   "controls_ok": true,
+   "findings": [],
+   "ok": true,
+   "readme": {
+    "export": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128",
+    "layers": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21
+    ],
+    "variant": "pg_rot1_b4_T32_cal128"
+   }
+  },
+  {
+   "A1_profile_matches": true,
+   "A2_python_composition_equals_rust": true,
+   "A3_word_equals_the_absorbed_calibration": true,
+   "A4_replay_reproduces_the_binding": true,
+   "A5_block_digests_equal": true,
+   "absorbed_calibration": "5a89f1d35f17cc63131978fe9fe9e613836d375c1b15a4390cfaad04ec76cc83",
+   "attribution": {
+    "calibration_word_composed": "5a89f1d35f17cc63131978fe9fe9e613836d375c1b15a4390cfaad04ec76cc83",
+    "emb_dir": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128",
+    "export": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128",
+    "head_dir": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r2_inputs",
+    "layers": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21
+    ],
+    "run_profile": "hashline-zk-mr1/private-token-io-run-tinyllama-1.1b-t32-trained-statement-public-row/1",
+    "statement_header_word_equal": true,
+    "tag": "tinyllama-b4-L22",
+    "token_profile_digest": "5857be9d700085dcefa1cefefa1e5a4c9ba40b79c5513631d04dd2b73c3e08d1",
+    "trained_statement_identity": "78ccaba56b145aefb18987738b9fe0329c06bdd727bcd3336db524edcd13c514"
+   },
+   "bundle": "tinyllama-t32-L22-fixed-pt1",
+   "controls": {
+    "K1_identity_bit_flipped": {
+     "fires": true
+    },
+    "K2_another_layer_range": {
+     "fires": true,
+     "with": "tinyllama-b4-L1"
+    },
+    "K3_another_export": {
+     "fires": true,
+     "with": "llama3-8b-b7voc0-L1"
+    },
+    "K4_profile_digest_bit_flipped": {
+     "fires": true
+    }
+   },
+   "controls_ok": true,
+   "findings": [],
+   "ok": true,
+   "readme": {
+    "export": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128",
+    "layers": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21
+    ],
+    "variant": "pg_rot1_b4_T32_cal128"
+   }
+  },
+  {
+   "A1_profile_matches": true,
+   "A2_python_composition_equals_rust": true,
+   "A3_word_equals_the_absorbed_calibration": true,
+   "A4_replay_reproduces_the_binding": true,
+   "A5_block_digests_equal": true,
+   "absorbed_calibration": "c47635ce45ce057c0822b36dfb0aa89c93f9c335ada1087874104b9444626fa1",
+   "attribution": {
+    "calibration_word_composed": "c47635ce45ce057c0822b36dfb0aa89c93f9c335ada1087874104b9444626fa1",
+    "emb_dir": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32/token_io",
+    "export": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32",
+    "head_dir": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32/token_io",
+    "layers": [
+     0
+    ],
+    "run_profile": "hashline-zk-mr1/private-token-io-run-llama-3-8b-t32-trained-statement-public-row/1",
+    "statement_header_word_equal": true,
+    "tag": "llama3-8b-b7voc0-L1",
+    "token_profile_digest": "e8238cf130a36f369d6453e5579ba294e9eac4ae4b47de5815cc7ef7ac297132",
+    "trained_statement_identity": "e42b9efc74a79ba618e78d9fc8daf8faca74fada0f220de45daad95586c30213"
+   },
+   "bundle": "llama3-8b-t32-L1-dense-pt1",
+   "controls": {
+    "K1_identity_bit_flipped": {
+     "fires": true
+    },
+    "K2_another_layer_range": {
+     "fires": true,
+     "with": "llama3-8b-b7voc0-L2"
+    },
+    "K3_another_export": {
+     "fires": true,
+     "with": "tinyllama-b4-L1"
+    },
+    "K4_profile_digest_bit_flipped": {
+     "fires": true
+    }
+   },
+   "controls_ok": true,
+   "findings": [],
+   "ok": true,
+   "readme": {
+    "export": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32",
+    "layers": [
+     0
+    ],
+    "variant": "llama3_8b_pg_rot1_b7voc0_T32"
+   }
+  },
+  {
+   "A1_profile_matches": true,
+   "A2_python_composition_equals_rust": true,
+   "A3_word_equals_the_absorbed_calibration": true,
+   "A4_replay_reproduces_the_binding": true,
+   "A5_block_digests_equal": true,
+   "absorbed_calibration": "c47635ce45ce057c0822b36dfb0aa89c93f9c335ada1087874104b9444626fa1",
+   "attribution": {
+    "calibration_word_composed": "c47635ce45ce057c0822b36dfb0aa89c93f9c335ada1087874104b9444626fa1",
+    "emb_dir": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32/token_io",
+    "export": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32",
+    "head_dir": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32/token_io",
+    "layers": [
+     0
+    ],
+    "run_profile": "hashline-zk-mr1/private-token-io-run-llama-3-8b-t32-trained-statement-public-row/1",
+    "statement_header_word_equal": true,
+    "tag": "llama3-8b-b7voc0-L1",
+    "token_profile_digest": "e8238cf130a36f369d6453e5579ba294e9eac4ae4b47de5815cc7ef7ac297132",
+    "trained_statement_identity": "e42b9efc74a79ba618e78d9fc8daf8faca74fada0f220de45daad95586c30213"
+   },
+   "bundle": "llama3-8b-t32-L1-fixed-pt1",
+   "controls": {
+    "K1_identity_bit_flipped": {
+     "fires": true
+    },
+    "K2_another_layer_range": {
+     "fires": true,
+     "with": "llama3-8b-b7voc0-L2"
+    },
+    "K3_another_export": {
+     "fires": true,
+     "with": "tinyllama-b4-L1"
+    },
+    "K4_profile_digest_bit_flipped": {
+     "fires": true
+    }
+   },
+   "controls_ok": true,
+   "findings": [],
+   "ok": true,
+   "readme": {
+    "export": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32",
+    "layers": [
+     0
+    ],
+    "variant": "llama3_8b_pg_rot1_b7voc0_T32"
+   }
+  },
+  {
+   "A1_profile_matches": true,
+   "A2_python_composition_equals_rust": true,
+   "A3_word_equals_the_absorbed_calibration": true,
+   "A4_replay_reproduces_the_binding": true,
+   "A5_block_digests_equal": true,
+   "absorbed_calibration": "c7e855195790682cbdfa815f8e8e710c211169d8432ba8c23e2f4466b9f6e7c3",
+   "attribution": {
+    "calibration_word_composed": "c7e855195790682cbdfa815f8e8e710c211169d8432ba8c23e2f4466b9f6e7c3",
+    "emb_dir": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32/token_io",
+    "export": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32",
+    "head_dir": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32/token_io",
+    "layers": [
+     0,
+     1
+    ],
+    "run_profile": "hashline-zk-mr1/private-token-io-run-llama-3-8b-t32-trained-statement-public-row/1",
+    "statement_header_word_equal": true,
+    "tag": "llama3-8b-b7voc0-L2",
+    "token_profile_digest": "e8238cf130a36f369d6453e5579ba294e9eac4ae4b47de5815cc7ef7ac297132",
+    "trained_statement_identity": "e3893d010d7b98ce9226091c811193f8bc2b1db3f2c8f95f4b7a65523d6c4e8d"
+   },
+   "bundle": "llama3-8b-t32-L2-dense-pt1",
+   "controls": {
+    "K1_identity_bit_flipped": {
+     "fires": true
+    },
+    "K2_another_layer_range": {
+     "fires": true,
+     "with": "llama3-8b-b7voc0-L1"
+    },
+    "K3_another_export": {
+     "fires": true,
+     "with": "tinyllama-b4-L1"
+    },
+    "K4_profile_digest_bit_flipped": {
+     "fires": true
+    }
+   },
+   "controls_ok": true,
+   "findings": [],
+   "ok": true,
+   "readme": {
+    "export": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32",
+    "layers": [
+     0,
+     1
+    ],
+    "variant": "llama3_8b_pg_rot1_b7voc0_T32"
+   }
+  },
+  {
+   "A1_profile_matches": true,
+   "A2_python_composition_equals_rust": true,
+   "A3_word_equals_the_absorbed_calibration": true,
+   "A4_replay_reproduces_the_binding": true,
+   "A5_block_digests_equal": true,
+   "absorbed_calibration": "c7e855195790682cbdfa815f8e8e710c211169d8432ba8c23e2f4466b9f6e7c3",
+   "attribution": {
+    "calibration_word_composed": "c7e855195790682cbdfa815f8e8e710c211169d8432ba8c23e2f4466b9f6e7c3",
+    "emb_dir": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32/token_io",
+    "export": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32",
+    "head_dir": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32/token_io",
+    "layers": [
+     0,
+     1
+    ],
+    "run_profile": "hashline-zk-mr1/private-token-io-run-llama-3-8b-t32-trained-statement-public-row/1",
+    "statement_header_word_equal": true,
+    "tag": "llama3-8b-b7voc0-L2",
+    "token_profile_digest": "e8238cf130a36f369d6453e5579ba294e9eac4ae4b47de5815cc7ef7ac297132",
+    "trained_statement_identity": "e3893d010d7b98ce9226091c811193f8bc2b1db3f2c8f95f4b7a65523d6c4e8d"
+   },
+   "bundle": "llama3-8b-t32-L2-fixed-pt1",
+   "controls": {
+    "K1_identity_bit_flipped": {
+     "fires": true
+    },
+    "K2_another_layer_range": {
+     "fires": true,
+     "with": "llama3-8b-b7voc0-L1"
+    },
+    "K3_another_export": {
+     "fires": true,
+     "with": "tinyllama-b4-L1"
+    },
+    "K4_profile_digest_bit_flipped": {
+     "fires": true
+    }
+   },
+   "controls_ok": true,
+   "findings": [],
+   "ok": true,
+   "readme": {
+    "export": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32",
+    "layers": [
+     0,
+     1
+    ],
+    "variant": "llama3_8b_pg_rot1_b7voc0_T32"
+   }
+  }
+ ],
+ "ok": true,
+ "privacy_acceptance": false,
+ "seconds": 30.2,
+ "status": "PASS",
+ "tool_sha256": {
+  "zk60_native_rg_tokencal.py": "d6fb455407e9f5c283eb2def5e922f0fb3783c31a3daee750de5ebead72cdf71"
+ },
+ "what": "PR4-9: the token captures' absorbed calibration words recomputed from the export and the named tables; NOT a privacy result"
+}

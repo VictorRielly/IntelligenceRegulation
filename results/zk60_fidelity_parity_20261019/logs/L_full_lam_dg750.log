@@ -1,0 +1,28 @@
+[21:30:21Z] fp_eval tinyllama export tinyllama_dg_rot1_T128 T 128 corpora lambada:250@750 relax [] threads 4
+[21:30:22Z] corpora built: (250, 128), {'lambada': {'n': 250, 'offset': 750, 'source': '/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/data/lambada_openai/en_test.parquet', 'sha256_expected': '99d8a9e54cda761c6340ddd4fa6feda7f846ffb0e716afa52968dea75495eea7', 'truncated_items': 3}} (0s)
+[21:30:22Z] float final residual from cache float_T128_6d3fe0c3c577.npy
+[21:31:07Z] L00 violations 0 refused so far 0 (43s)
+[21:31:44Z] L01 violations 0 refused so far 0 (36s)
+[21:32:19Z] L02 violations 0 refused so far 0 (36s)
+[21:32:55Z] L03 violations 0 refused so far 0 (35s)
+[21:33:30Z] L04 violations 0 refused so far 0 (36s)
+[21:34:06Z] L05 violations 0 refused so far 0 (36s)
+[21:34:42Z] L06 violations 0 refused so far 0 (35s)
+[21:35:17Z] L07 violations 0 refused so far 0 (35s)
+[21:35:51Z] L08 violations 0 refused so far 0 (34s)
+[21:36:24Z] L09 violations 0 refused so far 0 (33s)
+[21:36:57Z] L10 violations 0 refused so far 0 (33s)
+[21:37:30Z] L11 violations 0 refused so far 0 (33s)
+[21:38:02Z] L12 violations 0 refused so far 0 (33s)
+[21:38:35Z] L13 violations 0 refused so far 0 (33s)
+[21:39:09Z] L14 violations 0 refused so far 0 (34s)
+[21:39:42Z] L15 violations 0 refused so far 0 (33s)
+[21:40:16Z] L16 violations 0 refused so far 0 (34s)
+[21:40:51Z] L17 violations 0 refused so far 0 (35s)
+[21:41:24Z] L18 violations 0 refused so far 0 (33s)
+[21:41:57Z] L19 violations 0 refused so far 0 (33s)
+[21:42:30Z] L20 violations 0 refused so far 0 (33s)
+[21:43:03Z] L21 violations 0 refused so far 0 (33s)
+[21:43:04Z] lambada: acc float 0.5880 int 0.5120 diff -0.0760 CI [-0.1266411153496388, -0.0253588846503612] top1 0.840 refused 0
+[21:43:04Z] done (763s) -> /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/runs/tinyllama/full_lam_dg750
+[21:43:05Z] ALREADY DONE: runs/tinyllama/full_lam_dg750/summary.json exists (set FP_RERUN=1 to recompute)

@@ -1,0 +1,218 @@
+{
+  "schema": "zk60-trained-profile-export/1",
+  "kind": "layer",
+  "variant": "dg",
+  "layer": 17,
+  "constants": {
+    "norm_tn": 9,
+    "norm_cn_a": 2430,
+    "norm_cn_m": 1435,
+    "norm_ceps": 2439,
+    "sh_qkv": 8,
+    "sh_rope": 7,
+    "sh_s": 7,
+    "sh_o": 9,
+    "sh_ao": 7,
+    "sh_g": 8,
+    "sh_u": 0,
+    "sh_h": 14,
+    "sh_z": 8,
+    "f_e": 9,
+    "f_p": 9,
+    "f_ro": 7,
+    "sh_r2": 0,
+    "silu_member": [
+      -3,
+      -11
+    ],
+    "exp_e_s": 2,
+    "rope_theta": 1000000.0
+  },
+  "tables": {
+    "exp": {
+      "generator": "hashline tables_attn.rs exp_member(e_s, head_dim 128, f_e)",
+      "e_s": 2,
+      "spec_digest": "423a43e7b2cfdd6022c642930bfee973effc51462c883b108de3a24ff9fa7ab6"
+    },
+    "act": {
+      "generator": "zkp-core tables.rs int16out_member(Silu, e_in, e_out) (frozen registry)",
+      "silu_member": [
+        -3,
+        -11
+      ],
+      "spec_digest": "1001c138ce0d00f09390b36178044d72712fbdca1071467ea274dc980bd9a3f7"
+    },
+    "rope": {
+      "generator": "Shieldstral YaRN float64, factor16/original16384/beta32,1/mscale1,1; same native digest framing",
+      "t_max": 256,
+      "spec_digest": "1bac594fed92bb79c12275ece2f33f93ac624fd3f9400788f8cc336098a797be"
+    }
+  },
+  "orientation": {
+    "wq/wk/wv/wo": "(output, input) row-major",
+    "wg_t/wu_t": "(input d, output f) row-major",
+    "wd_t": "(input f, output d) row-major",
+    "padding": "none (true extents)"
+  },
+  "arrays": {
+    "wq": {
+      "file": "wq.bin",
+      "dtype": "int8",
+      "shape": [
+        4096,
+        3072
+      ],
+      "sha256": "946fde5526a30cf32a65de7cd139207efa731684db1fb5a1588242d083d7d31c"
+    },
+    "wk": {
+      "file": "wk.bin",
+      "dtype": "int8",
+      "shape": [
+        1024,
+        3072
+      ],
+      "sha256": "235f8625c98da5fbf97a4b69c2d538d7df9a968fd4a207809726357b9f5a4eda"
+    },
+    "wv": {
+      "file": "wv.bin",
+      "dtype": "int8",
+      "shape": [
+        1024,
+        3072
+      ],
+      "sha256": "f2d7a69ef194a58ef1abf4b92347a97dfeef569662e549ccfcdf70868e4b009e"
+    },
+    "wo": {
+      "file": "wo.bin",
+      "dtype": "int8",
+      "shape": [
+        3072,
+        4096
+      ],
+      "sha256": "ecd106a591f55a4dd61e2aac8130eea0fdfbe5192c7ab3c33264809fe913c6f9"
+    },
+    "gamma_a": {
+      "file": "gamma_a.bin",
+      "dtype": "int8",
+      "shape": [
+        3072
+      ],
+      "sha256": "3f8b96eaaebf88e8707f02ef05a2f74437dbdf44082a1e31442b2ba8c6e4224a"
+    },
+    "gamma_m": {
+      "file": "gamma_m.bin",
+      "dtype": "int8",
+      "shape": [
+        3072
+      ],
+      "sha256": "fc8ae4319055fdcde434fdd25d50556fb206b6680b6485f2bbe110a38a810c99"
+    },
+    "wg_t": {
+      "file": "wg_t.bin",
+      "dtype": "int8",
+      "shape": [
+        3072,
+        9216
+      ],
+      "sha256": "b7cec1df23f19f6e83ab0632fd10416223bbd64b3177778891b4f5b647573719"
+    },
+    "wu_t": {
+      "file": "wu_t.bin",
+      "dtype": "int8",
+      "shape": [
+        3072,
+        9216
+      ],
+      "sha256": "c5e64214815d9ee7593dd2acd8b5f1b02a5d71a5a73f3ec85a905340d770d151"
+    },
+    "wd_t": {
+      "file": "wd_t.bin",
+      "dtype": "int8",
+      "shape": [
+        9216,
+        3072
+      ],
+      "sha256": "8e36bd5246cfb72eaf0ca9257183b4fe21ae41ee02def5d0b1429dd17cec2419"
+    },
+    "exp": {
+      "file": "exp.bin",
+      "dtype": "int64",
+      "shape": [
+        256
+      ],
+      "sha256": "eff5f616f1ab89ff9a53de312daa47adcd0722909626120e6532b923c0588ec3"
+    },
+    "act": {
+      "file": "act.bin",
+      "dtype": "int16",
+      "shape": [
+        256
+      ],
+      "sha256": "6d2a512bb132519a3f62c6d08ed6e24dd8c19a82d203992a2fa86763bb6293a7"
+    },
+    "rope_cos": {
+      "file": "rope_cos.bin",
+      "dtype": "int64",
+      "shape": [
+        256,
+        64
+      ],
+      "sha256": "a65d4aa210b95f4a557b88d9f6cd5e987d6db05170ade2c38a3573f504466ae0"
+    },
+    "rope_sin": {
+      "file": "rope_sin.bin",
+      "dtype": "int64",
+      "shape": [
+        256,
+        64
+      ],
+      "sha256": "f0cbf9bba2aee8689463f233527b6448187082f43c176e6bdc440c32227be8b1"
+    }
+  },
+  "metadata_out_of_proof": {
+    "scales": {
+      "s_x_in": 0.0035486477726047977,
+      "s_x_out": 0.0035486477726047977,
+      "score_scale": 4.0,
+      "gate_scale": 0.125,
+      "act_scale": 0.00048828125,
+      "s_q": [
+        0.12757984394995142,
+        0.23566106896697966
+      ],
+      "s_k": [
+        0.1326056957009674,
+        0.24494464824913198
+      ],
+      "s_v": [
+        0.03235735855703279,
+        0.06048010465667004
+      ],
+      "s_u": [
+        0.00044297825431350934,
+        0.00210425759877353
+      ],
+      "s_h": [
+        0.0035438260345080747,
+        0.01683406079018824
+      ]
+    },
+    "norm_consts": {
+      "cn_a": 2430,
+      "cn_m": 1435,
+      "K_a": 11.678156556052874,
+      "K_m": 19.775554307462357,
+      "ceps": 2439,
+      "ceps_exact": 2439.469663568048
+    },
+    "weights_clipped": {
+      "wq": 0,
+      "wk": 0,
+      "wv": 0,
+      "wo": 0,
+      "wg": 0,
+      "wu": 0,
+      "wd": 0
+    }
+  }
+}

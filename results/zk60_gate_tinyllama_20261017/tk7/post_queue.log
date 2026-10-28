@@ -1,0 +1,14 @@
+[zk60-guard 16:41:55] START gate-predict-validated-dense class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=e583fcaf9471
+[zk60-guard 16:41:56] END gate-predict-validated-dense exit=0 child_wall=1s peak_rss=0.11G min_avail=10.74G
+[zk60-guard 16:41:56] START gate-predict-validated-zero class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=ae875cd40817
+[zk60-guard 16:41:57] END gate-predict-validated-zero exit=0 child_wall=1s peak_rss=0.11G min_avail=10.90G
+[zk60-guard 16:41:57] START gate-predict-validated-dense class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=16cd3feaca4d
+[zk60-guard 16:41:59] END gate-predict-validated-dense exit=0 child_wall=2s peak_rss=0.16G min_avail=10.57G
+[zk60-guard 16:41:59] START gate-predict-validated-zero class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=95ae0e1db605
+[zk60-guard 16:42:00] END gate-predict-validated-zero exit=0 child_wall=2s peak_rss=0.16G min_avail=10.51G
+[zk60-guard 16:42:01] START gate-predict-validated-dense class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=3a24eb083cfd
+[zk60-guard 16:42:17] END gate-predict-validated-dense exit=0 child_wall=16s peak_rss=1.08G min_avail=10.30G
+[zk60-guard 16:42:17] START gate-predict-validated-zero class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=1993cb30d04d
+[zk60-guard 16:42:31] END gate-predict-validated-zero exit=0 child_wall=15s peak_rss=1.09G min_avail=10.59G
+[zk60-guard 16:42:32] START gate-unittests-v11 class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=33c863bd8548
+[zk60-guard 16:42:53] END gate-unittests-v11 exit=0 child_wall=22s peak_rss=0.41G min_avail=10.90G

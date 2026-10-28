@@ -197,6 +197,38 @@ TOOLS = [
     "zk60_native_privacy_gate.py",
     "zk60_native_profile_pins.py",
     "zk60_native_rg_tinyllama_r7_pins.py",
+    "zk60_native_rg_tinyllama_tk7_pins.py",  # [v11, round 8]
+    # [v9, gate round 7] the token-I/O stages: geometry, gate, token pins
+    "zk60_native_rg_tokenio.py",
+    "zk60_native_rg_tokengate.py",
+    "zk60_native_rg_tokenio_r7c_pins.py",
+    # [v10, gate round 7 step 2] the new slots' terminal identity and NL-1,
+    # and the block-stage terminal identity inside a token run
+    "zk60_native_rg_tokenterminals.py",
+    "zk60_native_rg_tokenblocks.py",
+    # [v12, gate round 10] NL-1 S1-S5 on the new slots, the terminal
+    # surjection on the token stages' commitments, the calibration attribution
+    "zk60_native_rg_tokennl.py",
+    "zk60_native_rg_tokents.py",
+    "zk60_native_rg_tokencal.py",
+    # [v13, gate round 10] the readings of the token lane's round-9 files
+    "zk60_native_rg_tokenio_r9_pins.py",
+    # [v15, gate round 10] the readings of the frozen-r9 (tk9) block bundles
+    "zk60_native_rg_tinyllama_tk9_pins.py",
+    # [v17, gate round 14] the readings of the native R9 (DD) bundles
+    "zk60_native_rg_tinyllama_r9_pins.py",
+    # [v17, gate round 14] each stage's calibration (native R8 / R9
+    # `stage_shape`), imported by the terminals port and the export check
+    "zk60_native_rg_stagecal.py",
+    # [v18, gate round 15] the readings of the token lane's frozen round-11 files
+    "zk60_native_rg_tokenio_r11_pins.py",
+    # [v19, gate round 16] the classifier profile family (D38 / D40 / D41):
+    # its geometry and expectations, its slot ports, and the R-C1 readings
+    "zk60_native_rg_classify.py",
+    "zk60_native_rg_classterminals.py",
+    "zk60_native_rg_classpins.py",
+    # [v20, gate round 17] the classifier capture reader and gate
+    "zk60_native_rg_classgate.py",
 ]
 
 EXPECTED_DISCLOSED = {
@@ -449,6 +481,15 @@ def stage8(bundle, replay, old=None, do_controls=True):
             **({"refused_before_any_slot_was_evaluated":
                 terms["refused_before_any_slot_was_evaluated"]}
                if "refused_before_any_slot_was_evaluated" in terms else {}),
+            # [v17, gate round 14] present only where they apply, so no
+            # earlier record gains a leaf: the stages evaluated at their
+            # layer's own calibration (bound to the schedule digest), and at
+            # a DD bundle the e column's attribution to each stage's exp table
+            **({"stage_calibration": terms["stage_calibration"]}
+               if (terms.get("stage_calibration") or {}).get("stages_at_their_own_calibration")
+               else {}),
+            **({"dd_e_column_attribution": terms["dd_e_column_attribution"]}
+               if "dd_e_column_attribution" in terms else {}),
         },
         "controls": ctl,
         "channel_status": "derived" if covered_ok else "open",

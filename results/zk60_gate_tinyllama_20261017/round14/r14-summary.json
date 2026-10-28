@@ -1,0 +1,3313 @@
+{
+ "what": "[gate round 14] One summary of the round's records (frozen tools v17 on",
+ "privacy_acceptance": false,
+ "v17_manifest_sha256": "ff68af54fe16af6fb1c8f577cdbf5939315a48088f27293a342efbd4d6aab371",
+ "staged": [
+  {
+   "record": "round14/v17/dd-rung-l1-dense-a.json",
+   "bundle": "dd-rung-l1-dense",
+   "ok": true,
+   "status": "PASS",
+   "unexplained_false_leaves": 0,
+   "false_leaves_explained": 2,
+   "tools_equal_v17": true,
+   "seconds": 7.6,
+   "peak_rss_mb": 76,
+   "replay": [
+    2735,
+    132,
+    true
+   ],
+   "terminals": [
+    24,
+    24
+   ],
+   "stages_at_own_calibration": null,
+   "dd_e_column_attribution_ok": true,
+   "per_commitment": [
+    [
+     "A@0",
+     907,
+     0,
+     0,
+     125,
+     38
+    ],
+    [
+     "H@0",
+     928,
+     2,
+     2,
+     55,
+     10
+    ],
+    [
+     "E-Input",
+     13,
+     0,
+     0,
+     1,
+     1
+    ],
+    [
+     "E-Output",
+     13,
+     0,
+     0,
+     1,
+     1
+    ]
+   ]
+  },
+  {
+   "record": "round14/v17/dd-rung-l1-dense-everything.json",
+   "bundle": "dd-rung-l1-dense",
+   "ok": true,
+   "status": "PASS",
+   "unexplained_false_leaves": 0,
+   "false_leaves_explained": 0,
+   "tools_equal_v17": true,
+   "seconds": 280.3,
+   "peak_rss_mb": 527,
+   "replay": [
+    2735,
+    132,
+    true
+   ],
+   "terminals": [
+    24,
+    24
+   ],
+   "stages_at_own_calibration": null,
+   "dd_e_column_attribution_ok": true,
+   "per_commitment": [
+    [
+     "A@0",
+     907,
+     0,
+     0,
+     125,
+     38
+    ],
+    [
+     "H@0",
+     928,
+     2,
+     2,
+     55,
+     10
+    ],
+    [
+     "E-Input",
+     13,
+     0,
+     0,
+     1,
+     1
+    ],
+    [
+     "E-Output",
+     13,
+     0,
+     0,
+     1,
+     1
+    ]
+   ],
+   "full_preimage": {
+    "commitments": 4,
+    "salted_leaves_authenticated": 1024,
+    "entries_compared": 534573,
+    "entries_differing": 0,
+    "all_solved_and_exhibited": true,
+    "ok": true
+   },
+   "mask_cfs": {
+    "entries_recomputed": 16499,
+    "entries_differing": 0,
+    "ok": true
+   },
+   "joint": {
+    "entries_compared": 551072,
+    "entries_differing": 0,
+    "couplings_respected": true,
+    "ok": true
+   },
+   "negative_controls_ok": true
+  },
+  {
+   "record": "round14/v17/dd-rung-l1-zero-a.json",
+   "bundle": "dd-rung-l1-zero",
+   "ok": true,
+   "status": "PASS",
+   "unexplained_false_leaves": 0,
+   "false_leaves_explained": 2,
+   "tools_equal_v17": true,
+   "seconds": 7.9,
+   "peak_rss_mb": 77,
+   "replay": [
+    2735,
+    132,
+    true
+   ],
+   "terminals": [
+    24,
+    24
+   ],
+   "stages_at_own_calibration": null,
+   "dd_e_column_attribution_ok": true,
+   "per_commitment": [
+    [
+     "A@0",
+     907,
+     0,
+     0,
+     125,
+     38
+    ],
+    [
+     "H@0",
+     928,
+     2,
+     2,
+     55,
+     10
+    ],
+    [
+     "E-Input",
+     13,
+     0,
+     0,
+     1,
+     1
+    ],
+    [
+     "E-Output",
+     13,
+     0,
+     0,
+     1,
+     1
+    ]
+   ]
+  },
+  {
+   "record": "round14/v17/dd-rung-l1-zero-everything.json",
+   "bundle": "dd-rung-l1-zero",
+   "ok": true,
+   "status": "PASS",
+   "unexplained_false_leaves": 0,
+   "false_leaves_explained": 0,
+   "tools_equal_v17": true,
+   "seconds": 282.8,
+   "peak_rss_mb": 527,
+   "replay": [
+    2735,
+    132,
+    true
+   ],
+   "terminals": [
+    24,
+    24
+   ],
+   "stages_at_own_calibration": null,
+   "dd_e_column_attribution_ok": true,
+   "per_commitment": [
+    [
+     "A@0",
+     907,
+     0,
+     0,
+     125,
+     38
+    ],
+    [
+     "H@0",
+     928,
+     2,
+     2,
+     55,
+     10
+    ],
+    [
+     "E-Input",
+     13,
+     0,
+     0,
+     1,
+     1
+    ],
+    [
+     "E-Output",
+     13,
+     0,
+     0,
+     1,
+     1
+    ]
+   ],
+   "full_preimage": {
+    "commitments": 4,
+    "salted_leaves_authenticated": 1024,
+    "entries_compared": 532649,
+    "entries_differing": 0,
+    "all_solved_and_exhibited": true,
+    "ok": true
+   },
+   "mask_cfs": {
+    "entries_recomputed": 16499,
+    "entries_differing": 0,
+    "ok": true
+   },
+   "joint": {
+    "entries_compared": 549148,
+    "entries_differing": 0,
+    "couplings_respected": true,
+    "ok": true
+   },
+   "negative_controls_ok": true
+  },
+  {
+   "record": "round14/v17/dd-rung-l2-dense-a.json",
+   "bundle": "dd-rung-l2-dense",
+   "ok": true,
+   "status": "PASS",
+   "unexplained_false_leaves": 0,
+   "false_leaves_explained": 2,
+   "tools_equal_v17": true,
+   "seconds": 11.8,
+   "peak_rss_mb": 123,
+   "replay": [
+    5458,
+    261,
+    true
+   ],
+   "terminals": [
+    48,
+    48
+   ],
+   "stages_at_own_calibration": null,
+   "dd_e_column_attribution_ok": true,
+   "per_commitment": [
+    [
+     "A@0",
+     907,
+     0,
+     0,
+     125,
+     38
+    ],
+    [
+     "H@0",
+     928,
+     2,
+     2,
+     55,
+     10
+    ],
+    [
+     "E-Input",
+     13,
+     0,
+     0,
+     1,
+     1
+    ],
+    [
+     "A@1",
+     907,
+     0,
+     0,
+     125,
+     38
+    ],
+    [
+     "H@1",
+     928,
+     2,
+     2,
+     55,
+     10
+    ],
+    [
+     "B0",
+     14,
+     0,
+     0,
+     2,
+     2
+    ],
+    [
+     "E-Output",
+     13,
+     0,
+     0,
+     1,
+     1
+    ]
+   ]
+  },
+  {
+   "record": "round14/v17/dd-rung-l2-dense-everything.json",
+   "bundle": "dd-rung-l2-dense",
+   "ok": true,
+   "status": "PASS",
+   "unexplained_false_leaves": 0,
+   "false_leaves_explained": 0,
+   "tools_equal_v17": true,
+   "seconds": 360.5,
+   "peak_rss_mb": 572,
+   "replay": [
+    5458,
+    261,
+    true
+   ],
+   "terminals": [
+    48,
+    48
+   ],
+   "stages_at_own_calibration": null,
+   "dd_e_column_attribution_ok": true,
+   "per_commitment": [
+    [
+     "A@0",
+     907,
+     0,
+     0,
+     125,
+     38
+    ],
+    [
+     "H@0",
+     928,
+     2,
+     2,
+     55,
+     10
+    ],
+    [
+     "E-Input",
+     13,
+     0,
+     0,
+     1,
+     1
+    ],
+    [
+     "A@1",
+     907,
+     0,
+     0,
+     125,
+     38
+    ],
+    [
+     "H@1",
+     928,
+     2,
+     2,
+     55,
+     10
+    ],
+    [
+     "B0",
+     14,
+     0,
+     0,
+     2,
+     2
+    ],
+    [
+     "E-Output",
+     13,
+     0,
+     0,
+     1,
+     1
+    ]
+   ],
+   "full_preimage": {
+    "commitments": 7,
+    "salted_leaves_authenticated": 1792,
+    "entries_compared": 1060276,
+    "entries_differing": 0,
+    "all_solved_and_exhibited": true,
+    "ok": true
+   },
+   "mask_cfs": {
+    "entries_recomputed": 32998,
+    "entries_differing": 0,
+    "ok": true
+   },
+   "joint": {
+    "entries_compared": 1093274,
+    "entries_differing": 0,
+    "couplings_respected": true,
+    "ok": true
+   },
+   "negative_controls_ok": true
+  },
+  {
+   "record": "round14/v17/dd-rung-l2-zero-a.json",
+   "bundle": "dd-rung-l2-zero",
+   "ok": true,
+   "status": "PASS",
+   "unexplained_false_leaves": 0,
+   "false_leaves_explained": 2,
+   "tools_equal_v17": true,
+   "seconds": 11.1,
+   "peak_rss_mb": 123,
+   "replay": [
+    5458,
+    261,
+    true
+   ],
+   "terminals": [
+    48,
+    48
+   ],
+   "stages_at_own_calibration": null,
+   "dd_e_column_attribution_ok": true,
+   "per_commitment": [
+    [
+     "A@0",
+     907,
+     0,
+     0,
+     125,
+     38
+    ],
+    [
+     "H@0",
+     928,
+     2,
+     2,
+     55,
+     10
+    ],
+    [
+     "E-Input",
+     13,
+     0,
+     0,
+     1,
+     1
+    ],
+    [
+     "A@1",
+     907,
+     0,
+     0,
+     125,
+     38
+    ],
+    [
+     "H@1",
+     928,
+     2,
+     2,
+     55,
+     10
+    ],
+    [
+     "B0",
+     14,
+     0,
+     0,
+     2,
+     2
+    ],
+    [
+     "E-Output",
+     13,
+     0,
+     0,
+     1,
+     1
+    ]
+   ]
+  },
+  {
+   "record": "round14/v17/tl128dd-l1-dense-a.json",
+   "bundle": "tl128dd-l1-dense",
+   "ok": true,
+   "status": "PASS",
+   "unexplained_false_leaves": 0,
+   "false_leaves_explained": 2,
+   "tools_equal_v17": true,
+   "seconds": 88.0,
+   "peak_rss_mb": 420,
+   "replay": [
+    5002,
+    132,
+    true
+   ],
+   "terminals": [
+    24,
+    24
+   ],
+   "stages_at_own_calibration": null,
+   "dd_e_column_attribution_ok": true,
+   "per_commitment": [
+    [
+     "A@0",
+     1871,
+     0,
+     0,
+     123,
+     38
+    ],
+    [
+     "H@0",
+     2026,
+     2,
+     2,
+     52,
+     10
+    ],
+    [
+     "E-Input",
+     21,
+     0,
+     0,
+     1,
+     1
+    ],
+    [
+     "E-Output",
+     21,
+     0,
+     0,
+     1,
+     1
+    ]
+   ],
+   "export": {
+    "ok": true,
+    "findings": [],
+    "layers": [
+     0
+    ],
+    "map_source": "E3b (the gains)",
+    "run_calibration": {
+     "norm_ceps": 74429,
+     "norm_cn_a": 1253,
+     "norm_cn_m": 1444,
+     "norm_tn": 10,
+     "sh_ao": 7,
+     "sh_g": 8,
+     "sh_h": 14,
+     "sh_o": 9,
+     "sh_qkv": 8,
+     "sh_s": 6,
+     "sh_z": 8
+    },
+    "E5": [
+     [
+      0,
+      0,
+      false,
+      true
+     ]
+    ],
+    "E4_checked": true
+   }
+  },
+  {
+   "record": "round14/v17/tl128dd-l1-dense-everything.json",
+   "bundle": "tl128dd-l1-dense",
+   "ok": true,
+   "status": "PASS",
+   "unexplained_false_leaves": 0,
+   "false_leaves_explained": 0,
+   "tools_equal_v17": true,
+   "seconds": 6375.3,
+   "peak_rss_mb": 1831,
+   "replay": [
+    5002,
+    132,
+    true
+   ],
+   "terminals": [
+    24,
+    24
+   ],
+   "stages_at_own_calibration": null,
+   "dd_e_column_attribution_ok": true,
+   "per_commitment": [
+    [
+     "A@0",
+     1871,
+     0,
+     0,
+     123,
+     38
+    ],
+    [
+     "H@0",
+     2026,
+     2,
+     2,
+     52,
+     10
+    ],
+    [
+     "E-Input",
+     21,
+     0,
+     0,
+     1,
+     1
+    ],
+    [
+     "E-Output",
+     21,
+     0,
+     0,
+     1,
+     1
+    ]
+   ],
+   "full_preimage": {
+    "commitments": 4,
+    "salted_leaves_authenticated": 1024,
+    "entries_compared": 1905229,
+    "entries_differing": 0,
+    "all_solved_and_exhibited": true,
+    "ok": true
+   },
+   "mask_cfs": {
+    "entries_recomputed": 16906,
+    "entries_differing": 0,
+    "ok": true
+   },
+   "joint": {
+    "entries_compared": 1922135,
+    "entries_differing": 0,
+    "couplings_respected": true,
+    "ok": true
+   },
+   "export": {
+    "ok": true,
+    "findings": [],
+    "layers": [
+     0
+    ],
+    "map_source": "E3b (the gains)",
+    "run_calibration": {
+     "norm_ceps": 74429,
+     "norm_cn_a": 1253,
+     "norm_cn_m": 1444,
+     "norm_tn": 10,
+     "sh_ao": 7,
+     "sh_g": 8,
+     "sh_h": 14,
+     "sh_o": 9,
+     "sh_qkv": 8,
+     "sh_s": 6,
+     "sh_z": 8
+    },
+    "E5": [
+     [
+      0,
+      0,
+      false,
+      true
+     ]
+    ],
+    "E4_checked": true
+   },
+   "negative_controls_ok": true
+  },
+  {
+   "record": "round14/v17/tl128dd-l1-zero-a.json",
+   "bundle": "tl128dd-l1-zero",
+   "ok": true,
+   "status": "PASS",
+   "unexplained_false_leaves": 0,
+   "false_leaves_explained": 2,
+   "tools_equal_v17": true,
+   "seconds": 87.6,
+   "peak_rss_mb": 419,
+   "replay": [
+    5002,
+    132,
+    true
+   ],
+   "terminals": [
+    24,
+    24
+   ],
+   "stages_at_own_calibration": null,
+   "dd_e_column_attribution_ok": true,
+   "per_commitment": [
+    [
+     "A@0",
+     1871,
+     0,
+     0,
+     123,
+     38
+    ],
+    [
+     "H@0",
+     2026,
+     2,
+     2,
+     52,
+     10
+    ],
+    [
+     "E-Input",
+     21,
+     0,
+     0,
+     1,
+     1
+    ],
+    [
+     "E-Output",
+     21,
+     0,
+     0,
+     1,
+     1
+    ]
+   ],
+   "export": {
+    "ok": true,
+    "findings": [],
+    "layers": [
+     0
+    ],
+    "map_source": "E3b (the gains)",
+    "run_calibration": {
+     "norm_ceps": 74429,
+     "norm_cn_a": 1253,
+     "norm_cn_m": 1444,
+     "norm_tn": 10,
+     "sh_ao": 7,
+     "sh_g": 8,
+     "sh_h": 14,
+     "sh_o": 9,
+     "sh_qkv": 8,
+     "sh_s": 6,
+     "sh_z": 8
+    },
+    "E5": [
+     [
+      0,
+      0,
+      false,
+      true
+     ]
+    ],
+    "E4_checked": true
+   }
+  },
+  {
+   "record": "round14/v17/tl128dd-l2-dense-a.json",
+   "bundle": "tl128dd-l2-dense",
+   "ok": true,
+   "status": "PASS",
+   "unexplained_false_leaves": 0,
+   "false_leaves_explained": 2,
+   "tools_equal_v17": true,
+   "seconds": 115.4,
+   "peak_rss_mb": 462,
+   "replay": [
+    9984,
+    261,
+    true
+   ],
+   "terminals": [
+    48,
+    48
+   ],
+   "stages_at_own_calibration": [
+    1
+   ],
+   "dd_e_column_attribution_ok": true,
+   "per_commitment": [
+    [
+     "A@0",
+     1871,
+     0,
+     0,
+     123,
+     38
+    ],
+    [
+     "H@0",
+     2026,
+     2,
+     2,
+     52,
+     10
+    ],
+    [
+     "E-Input",
+     21,
+     0,
+     0,
+     1,
+     1
+    ],
+    [
+     "A@1",
+     1871,
+     0,
+     0,
+     123,
+     38
+    ],
+    [
+     "H@1",
+     2026,
+     2,
+     2,
+     52,
+     10
+    ],
+    [
+     "B0",
+     22,
+     0,
+     0,
+     2,
+     2
+    ],
+    [
+     "E-Output",
+     21,
+     0,
+     0,
+     1,
+     1
+    ]
+   ],
+   "export": {
+    "ok": true,
+    "findings": [],
+    "layers": [
+     0,
+     1
+    ],
+    "map_source": "E3b (the gains)",
+    "run_calibration": {
+     "norm_ceps": 74429,
+     "norm_cn_a": 1253,
+     "norm_cn_m": 1444,
+     "norm_tn": 10,
+     "sh_ao": 7,
+     "sh_g": 8,
+     "sh_h": 14,
+     "sh_o": 9,
+     "sh_qkv": 8,
+     "sh_s": 6,
+     "sh_z": 8
+    },
+    "E5": [
+     [
+      0,
+      0,
+      false,
+      true
+     ],
+     [
+      1,
+      1,
+      true,
+      true
+     ]
+    ],
+    "E4_checked": true
+   }
+  },
+  {
+   "record": "round14/v17/tl128dd-l2-dense-everything.json",
+   "bundle": "tl128dd-l2-dense",
+   "ok": true,
+   "status": "PASS",
+   "unexplained_false_leaves": 0,
+   "false_leaves_explained": 0,
+   "tools_equal_v17": true,
+   "seconds": 5522.4,
+   "peak_rss_mb": 1955,
+   "replay": [
+    9984,
+    261,
+    true
+   ],
+   "terminals": [
+    48,
+    48
+   ],
+   "stages_at_own_calibration": [
+    1
+   ],
+   "dd_e_column_attribution_ok": true,
+   "per_commitment": [
+    [
+     "A@0",
+     1871,
+     0,
+     0,
+     123,
+     38
+    ],
+    [
+     "H@0",
+     2026,
+     2,
+     2,
+     52,
+     10
+    ],
+    [
+     "E-Input",
+     21,
+     0,
+     0,
+     1,
+     1
+    ],
+    [
+     "A@1",
+     1871,
+     0,
+     0,
+     123,
+     38
+    ],
+    [
+     "H@1",
+     2026,
+     2,
+     2,
+     52,
+     10
+    ],
+    [
+     "B0",
+     22,
+     0,
+     0,
+     2,
+     2
+    ],
+    [
+     "E-Output",
+     21,
+     0,
+     0,
+     1,
+     1
+    ]
+   ],
+   "full_preimage": {
+    "commitments": 7,
+    "salted_leaves_authenticated": 1792,
+    "entries_compared": 3786805,
+    "entries_differing": 0,
+    "all_solved_and_exhibited": true,
+    "ok": true
+   },
+   "mask_cfs": {
+    "entries_recomputed": 33812,
+    "entries_differing": 0,
+    "ok": true
+   },
+   "joint": {
+    "entries_compared": 3820617,
+    "entries_differing": 0,
+    "couplings_respected": true,
+    "ok": true
+   },
+   "export": {
+    "ok": true,
+    "findings": [],
+    "layers": [
+     0,
+     1
+    ],
+    "map_source": "E3b (the gains)",
+    "run_calibration": {
+     "norm_ceps": 74429,
+     "norm_cn_a": 1253,
+     "norm_cn_m": 1444,
+     "norm_tn": 10,
+     "sh_ao": 7,
+     "sh_g": 8,
+     "sh_h": 14,
+     "sh_o": 9,
+     "sh_qkv": 8,
+     "sh_s": 6,
+     "sh_z": 8
+    },
+    "E5": [
+     [
+      0,
+      0,
+      false,
+      true
+     ],
+     [
+      1,
+      1,
+      true,
+      true
+     ]
+    ],
+    "E4_checked": true
+   },
+   "negative_controls_ok": true
+  },
+  {
+   "record": "round14/v17/tl128dd-l2-zero-a.json",
+   "bundle": "tl128dd-l2-zero",
+   "ok": true,
+   "status": "PASS",
+   "unexplained_false_leaves": 0,
+   "false_leaves_explained": 2,
+   "tools_equal_v17": true,
+   "seconds": 116.7,
+   "peak_rss_mb": 461,
+   "replay": [
+    9984,
+    261,
+    true
+   ],
+   "terminals": [
+    48,
+    48
+   ],
+   "stages_at_own_calibration": [
+    1
+   ],
+   "dd_e_column_attribution_ok": true,
+   "per_commitment": [
+    [
+     "A@0",
+     1871,
+     0,
+     0,
+     123,
+     38
+    ],
+    [
+     "H@0",
+     2026,
+     2,
+     2,
+     52,
+     10
+    ],
+    [
+     "E-Input",
+     21,
+     0,
+     0,
+     1,
+     1
+    ],
+    [
+     "A@1",
+     1871,
+     0,
+     0,
+     123,
+     38
+    ],
+    [
+     "H@1",
+     2026,
+     2,
+     2,
+     52,
+     10
+    ],
+    [
+     "B0",
+     22,
+     0,
+     0,
+     2,
+     2
+    ],
+    [
+     "E-Output",
+     21,
+     0,
+     0,
+     1,
+     1
+    ]
+   ],
+   "export": {
+    "ok": true,
+    "findings": [],
+    "layers": [
+     0,
+     1
+    ],
+    "map_source": "E3b (the gains)",
+    "run_calibration": {
+     "norm_ceps": 74429,
+     "norm_cn_a": 1253,
+     "norm_cn_m": 1444,
+     "norm_tn": 10,
+     "sh_ao": 7,
+     "sh_g": 8,
+     "sh_h": 14,
+     "sh_o": 9,
+     "sh_qkv": 8,
+     "sh_s": 6,
+     "sh_z": 8
+    },
+    "E5": [
+     [
+      0,
+      0,
+      false,
+      true
+     ],
+     [
+      1,
+      1,
+      true,
+      true
+     ]
+    ],
+    "E4_checked": true
+   }
+  }
+ ],
+ "dd": [
+  {
+   "record": "round14/dd/ddcontrols-dd-rung-l1-dense.json",
+   "ok": true,
+   "tools_equal_v17": true,
+   "controls": [
+    [
+     "DT-1",
+     true,
+     null
+    ],
+    [
+     "DT-2",
+     true,
+     null
+    ],
+    [
+     "DT-3",
+     true,
+     null
+    ],
+    [
+     "DT-4",
+     true,
+     null
+    ],
+    [
+     "DT-5",
+     true,
+     null
+    ],
+    [
+     "DT-6",
+     true,
+     null
+    ],
+    [
+     "DT-7",
+     true,
+     null
+    ]
+   ]
+  },
+  {
+   "record": "round14/dd/ddcontrols-dd-rung-l1-zero.json",
+   "ok": true,
+   "tools_equal_v17": true,
+   "controls": [
+    [
+     "DT-1",
+     true,
+     null
+    ],
+    [
+     "DT-2",
+     true,
+     null
+    ],
+    [
+     "DT-3",
+     true,
+     null
+    ],
+    [
+     "DT-4",
+     true,
+     null
+    ],
+    [
+     "DT-5",
+     true,
+     null
+    ],
+    [
+     "DT-6",
+     true,
+     null
+    ],
+    [
+     "DT-7",
+     true,
+     null
+    ]
+   ]
+  },
+  {
+   "record": "round14/dd/ddcontrols-dd-rung-l2-dense.json",
+   "ok": true,
+   "tools_equal_v17": true,
+   "controls": [
+    [
+     "DT-1",
+     true,
+     null
+    ],
+    [
+     "DT-2",
+     true,
+     null
+    ],
+    [
+     "DT-3",
+     true,
+     null
+    ],
+    [
+     "DT-4",
+     true,
+     null
+    ],
+    [
+     "DT-5",
+     true,
+     null
+    ],
+    [
+     "DT-6",
+     true,
+     null
+    ],
+    [
+     "DT-7",
+     true,
+     null
+    ]
+   ]
+  },
+  {
+   "record": "round14/dd/ddcontrols-dd-rung-l2-zero.json",
+   "ok": true,
+   "tools_equal_v17": true,
+   "controls": [
+    [
+     "DT-1",
+     true,
+     null
+    ],
+    [
+     "DT-2",
+     true,
+     null
+    ],
+    [
+     "DT-3",
+     true,
+     null
+    ],
+    [
+     "DT-4",
+     true,
+     null
+    ],
+    [
+     "DT-5",
+     true,
+     null
+    ],
+    [
+     "DT-6",
+     true,
+     null
+    ],
+    [
+     "DT-7",
+     true,
+     null
+    ]
+   ]
+  },
+  {
+   "record": "round14/dd/ddcontrols-tl128dd-l1-dense.json",
+   "ok": true,
+   "tools_equal_v17": true,
+   "controls": [
+    [
+     "DT-1",
+     true,
+     null
+    ],
+    [
+     "DT-2",
+     true,
+     null
+    ],
+    [
+     "DT-3",
+     true,
+     null
+    ],
+    [
+     "DT-4",
+     true,
+     null
+    ],
+    [
+     "DT-5",
+     true,
+     null
+    ],
+    [
+     "DT-6",
+     true,
+     null
+    ],
+    [
+     "DT-7",
+     true,
+     null
+    ]
+   ]
+  },
+  {
+   "record": "round14/dd/ddcontrols-tl128dd-l1-zero.json",
+   "ok": true,
+   "tools_equal_v17": true,
+   "controls": [
+    [
+     "DT-1",
+     true,
+     null
+    ],
+    [
+     "DT-2",
+     true,
+     null
+    ],
+    [
+     "DT-3",
+     true,
+     null
+    ],
+    [
+     "DT-4",
+     true,
+     null
+    ],
+    [
+     "DT-5",
+     true,
+     null
+    ],
+    [
+     "DT-6",
+     true,
+     null
+    ],
+    [
+     "DT-7",
+     true,
+     null
+    ]
+   ]
+  },
+  {
+   "record": "round14/dd/ddcontrols-tl128dd-l2-dense.json",
+   "ok": true,
+   "tools_equal_v17": true,
+   "controls": [
+    [
+     "DT-1",
+     true,
+     null
+    ],
+    [
+     "DT-2",
+     true,
+     null
+    ],
+    [
+     "DT-3",
+     true,
+     null
+    ],
+    [
+     "DT-4",
+     true,
+     null
+    ],
+    [
+     "DT-5",
+     true,
+     null
+    ],
+    [
+     "DT-6",
+     true,
+     null
+    ],
+    [
+     "DT-7",
+     true,
+     null
+    ]
+   ]
+  },
+  {
+   "record": "round14/dd/ddcontrols-tl128dd-l2-zero.json",
+   "ok": true,
+   "tools_equal_v17": true,
+   "controls": [
+    [
+     "DT-1",
+     true,
+     null
+    ],
+    [
+     "DT-2",
+     true,
+     null
+    ],
+    [
+     "DT-3",
+     true,
+     null
+    ],
+    [
+     "DT-4",
+     true,
+     null
+    ],
+    [
+     "DT-5",
+     true,
+     null
+    ],
+    [
+     "DT-6",
+     true,
+     null
+    ],
+    [
+     "DT-7",
+     true,
+     null
+    ]
+   ]
+  },
+  {
+   "record": "round14/dd/ddnl-dd-rung-l1-dense.json",
+   "ok": true,
+   "tools_equal_v17": true,
+   "summary": {
+    "dd_slot_instances": 2,
+    "T0": "2/2",
+    "per_mode": {
+     "run": {
+      "X0": "2/2",
+      "F0": "2/2",
+      "S1": {
+       "premise_holds": 2,
+       "public_factor_every_monomial": 2,
+       "degree_fits": 2,
+       "budget_ok": 2,
+       "of": 2
+      },
+      "S4": {
+       "miniatures_pass": 2,
+       "terminal_map_onto": 2,
+       "of": 2
+      }
+     },
+     "random-1": {
+      "X0": "2/2",
+      "F0": "2/2",
+      "S1": {
+       "premise_holds": 2,
+       "public_factor_every_monomial": 2,
+       "degree_fits": 2,
+       "budget_ok": 2,
+       "of": 2
+      },
+      "S4": {
+       "miniatures_pass": 2,
+       "terminal_map_onto": 2,
+       "of": 2
+      }
+     },
+     "random-2": {
+      "X0": "2/2",
+      "F0": "2/2",
+      "S1": {
+       "premise_holds": 2,
+       "public_factor_every_monomial": 2,
+       "degree_fits": 2,
+       "budget_ok": 2,
+       "of": 2
+      },
+      "S4": {
+       "miniatures_pass": 2,
+       "terminal_map_onto": 2,
+       "of": 2
+      }
+     },
+     "random-3": {
+      "X0": "2/2",
+      "F0": "2/2",
+      "S1": {
+       "premise_holds": 2,
+       "public_factor_every_monomial": 2,
+       "degree_fits": 2,
+       "budget_ok": 2,
+       "of": 2
+      },
+      "S4": {
+       "miniatures_pass": 2,
+       "terminal_map_onto": 2,
+       "of": 2
+      }
+     }
+    },
+    "S3_tight": "5/5",
+    "S5": {
+     "N5_1_fires": "2/2",
+     "N5_2_fires": "2/2 (not applicable at slack > 0: 0)",
+     "N5_3_fires": true,
+     "N5_4_fires": true,
+     "F_1_fires": "2/2",
+     "X_1_fires": "2/2"
+    }
+   }
+  },
+  {
+   "record": "round14/dd/ddnl-dd-rung-l1-zero.json",
+   "ok": true,
+   "tools_equal_v17": true,
+   "summary": {
+    "dd_slot_instances": 2,
+    "T0": "2/2",
+    "per_mode": {
+     "run": {
+      "X0": "2/2",
+      "F0": "2/2",
+      "S1": {
+       "premise_holds": 2,
+       "public_factor_every_monomial": 2,
+       "degree_fits": 2,
+       "budget_ok": 2,
+       "of": 2
+      },
+      "S4": {
+       "miniatures_pass": 2,
+       "terminal_map_onto": 2,
+       "of": 2
+      }
+     },
+     "random-1": {
+      "X0": "2/2",
+      "F0": "2/2",
+      "S1": {
+       "premise_holds": 2,
+       "public_factor_every_monomial": 2,
+       "degree_fits": 2,
+       "budget_ok": 2,
+       "of": 2
+      },
+      "S4": {
+       "miniatures_pass": 2,
+       "terminal_map_onto": 2,
+       "of": 2
+      }
+     },
+     "random-2": {
+      "X0": "2/2",
+      "F0": "2/2",
+      "S1": {
+       "premise_holds": 2,
+       "public_factor_every_monomial": 2,
+       "degree_fits": 2,
+       "budget_ok": 2,
+       "of": 2
+      },
+      "S4": {
+       "miniatures_pass": 2,
+       "terminal_map_onto": 2,
+       "of": 2
+      }
+     },
+     "random-3": {
+      "X0": "2/2",
+      "F0": "2/2",
+      "S1": {
+       "premise_holds": 2,
+       "public_factor_every_monomial": 2,
+       "degree_fits": 2,
+       "budget_ok": 2,
+       "of": 2
+      },
+      "S4": {
+       "miniatures_pass": 2,
+       "terminal_map_onto": 2,
+       "of": 2
+      }
+     }
+    },
+    "S3_tight": "5/5",
+    "S5": {
+     "N5_1_fires": "2/2",
+     "N5_2_fires": "2/2 (not applicable at slack > 0: 0)",
+     "N5_3_fires": true,
+     "N5_4_fires": true,
+     "F_1_fires": "2/2",
+     "X_1_fires": "2/2"
+    }
+   }
+  },
+  {
+   "record": "round14/dd/ddnl-dd-rung-l2-dense.json",
+   "ok": true,
+   "tools_equal_v17": true,
+   "summary": {
+    "dd_slot_instances": 4,
+    "T0": "4/4",
+    "per_mode": {
+     "run": {
+      "X0": "4/4",
+      "F0": "4/4",
+      "S1": {
+       "premise_holds": 4,
+       "public_factor_every_monomial": 4,
+       "degree_fits": 4,
+       "budget_ok": 4,
+       "of": 4
+      },
+      "S4": {
+       "miniatures_pass": 4,
+       "terminal_map_onto": 4,
+       "of": 4
+      }
+     },
+     "random-1": {
+      "X0": "4/4",
+      "F0": "4/4",
+      "S1": {
+       "premise_holds": 4,
+       "public_factor_every_monomial": 4,
+       "degree_fits": 4,
+       "budget_ok": 4,
+       "of": 4
+      },
+      "S4": {
+       "miniatures_pass": 4,
+       "terminal_map_onto": 4,
+       "of": 4
+      }
+     },
+     "random-2": {
+      "X0": "4/4",
+      "F0": "4/4",
+      "S1": {
+       "premise_holds": 4,
+       "public_factor_every_monomial": 4,
+       "degree_fits": 4,
+       "budget_ok": 4,
+       "of": 4
+      },
+      "S4": {
+       "miniatures_pass": 4,
+       "terminal_map_onto": 4,
+       "of": 4
+      }
+     },
+     "random-3": {
+      "X0": "4/4",
+      "F0": "4/4",
+      "S1": {
+       "premise_holds": 4,
+       "public_factor_every_monomial": 4,
+       "degree_fits": 4,
+       "budget_ok": 4,
+       "of": 4
+      },
+      "S4": {
+       "miniatures_pass": 4,
+       "terminal_map_onto": 4,
+       "of": 4
+      }
+     }
+    },
+    "S3_tight": "5/5",
+    "S5": {
+     "N5_1_fires": "4/4",
+     "N5_2_fires": "4/4 (not applicable at slack > 0: 0)",
+     "N5_3_fires": true,
+     "N5_4_fires": true,
+     "F_1_fires": "4/4",
+     "X_1_fires": "4/4"
+    }
+   }
+  },
+  {
+   "record": "round14/dd/ddnl-dd-rung-l2-zero.json",
+   "ok": true,
+   "tools_equal_v17": true,
+   "summary": {
+    "dd_slot_instances": 4,
+    "T0": "4/4",
+    "per_mode": {
+     "run": {
+      "X0": "4/4",
+      "F0": "4/4",
+      "S1": {
+       "premise_holds": 4,
+       "public_factor_every_monomial": 4,
+       "degree_fits": 4,
+       "budget_ok": 4,
+       "of": 4
+      },
+      "S4": {
+       "miniatures_pass": 4,
+       "terminal_map_onto": 4,
+       "of": 4
+      }
+     },
+     "random-1": {
+      "X0": "4/4",
+      "F0": "4/4",
+      "S1": {
+       "premise_holds": 4,
+       "public_factor_every_monomial": 4,
+       "degree_fits": 4,
+       "budget_ok": 4,
+       "of": 4
+      },
+      "S4": {
+       "miniatures_pass": 4,
+       "terminal_map_onto": 4,
+       "of": 4
+      }
+     },
+     "random-2": {
+      "X0": "4/4",
+      "F0": "4/4",
+      "S1": {
+       "premise_holds": 4,
+       "public_factor_every_monomial": 4,
+       "degree_fits": 4,
+       "budget_ok": 4,
+       "of": 4
+      },
+      "S4": {
+       "miniatures_pass": 4,
+       "terminal_map_onto": 4,
+       "of": 4
+      }
+     },
+     "random-3": {
+      "X0": "4/4",
+      "F0": "4/4",
+      "S1": {
+       "premise_holds": 4,
+       "public_factor_every_monomial": 4,
+       "degree_fits": 4,
+       "budget_ok": 4,
+       "of": 4
+      },
+      "S4": {
+       "miniatures_pass": 4,
+       "terminal_map_onto": 4,
+       "of": 4
+      }
+     }
+    },
+    "S3_tight": "5/5",
+    "S5": {
+     "N5_1_fires": "4/4",
+     "N5_2_fires": "4/4 (not applicable at slack > 0: 0)",
+     "N5_3_fires": true,
+     "N5_4_fires": true,
+     "F_1_fires": "4/4",
+     "X_1_fires": "4/4"
+    }
+   }
+  },
+  {
+   "record": "round14/dd/ddnl-tl128dd-l1-dense.json",
+   "ok": true,
+   "tools_equal_v17": true,
+   "summary": {
+    "dd_slot_instances": 2,
+    "T0": "2/2",
+    "per_mode": {
+     "run": {
+      "X0": "2/2",
+      "F0": "2/2",
+      "S1": {
+       "premise_holds": 2,
+       "public_factor_every_monomial": 2,
+       "degree_fits": 2,
+       "budget_ok": 2,
+       "of": 2
+      },
+      "S4": {
+       "miniatures_pass": 2,
+       "terminal_map_onto": 2,
+       "of": 2
+      }
+     },
+     "random-1": {
+      "X0": "2/2",
+      "F0": "2/2",
+      "S1": {
+       "premise_holds": 2,
+       "public_factor_every_monomial": 2,
+       "degree_fits": 2,
+       "budget_ok": 2,
+       "of": 2
+      },
+      "S4": {
+       "miniatures_pass": 2,
+       "terminal_map_onto": 2,
+       "of": 2
+      }
+     },
+     "random-2": {
+      "X0": "2/2",
+      "F0": "2/2",
+      "S1": {
+       "premise_holds": 2,
+       "public_factor_every_monomial": 2,
+       "degree_fits": 2,
+       "budget_ok": 2,
+       "of": 2
+      },
+      "S4": {
+       "miniatures_pass": 2,
+       "terminal_map_onto": 2,
+       "of": 2
+      }
+     },
+     "random-3": {
+      "X0": "2/2",
+      "F0": "2/2",
+      "S1": {
+       "premise_holds": 2,
+       "public_factor_every_monomial": 2,
+       "degree_fits": 2,
+       "budget_ok": 2,
+       "of": 2
+      },
+      "S4": {
+       "miniatures_pass": 2,
+       "terminal_map_onto": 2,
+       "of": 2
+      }
+     }
+    },
+    "S3_tight": "10/10",
+    "S5": {
+     "N5_1_fires": "2/2",
+     "N5_2_fires": "2/2 (not applicable at slack > 0: 0)",
+     "N5_3_fires": true,
+     "N5_4_fires": true,
+     "F_1_fires": "2/2",
+     "X_1_fires": "2/2"
+    }
+   }
+  },
+  {
+   "record": "round14/dd/ddnl-tl128dd-l1-zero.json",
+   "ok": true,
+   "tools_equal_v17": true,
+   "summary": {
+    "dd_slot_instances": 2,
+    "T0": "2/2",
+    "per_mode": {
+     "run": {
+      "X0": "2/2",
+      "F0": "2/2",
+      "S1": {
+       "premise_holds": 2,
+       "public_factor_every_monomial": 2,
+       "degree_fits": 2,
+       "budget_ok": 2,
+       "of": 2
+      },
+      "S4": {
+       "miniatures_pass": 2,
+       "terminal_map_onto": 2,
+       "of": 2
+      }
+     },
+     "random-1": {
+      "X0": "2/2",
+      "F0": "2/2",
+      "S1": {
+       "premise_holds": 2,
+       "public_factor_every_monomial": 2,
+       "degree_fits": 2,
+       "budget_ok": 2,
+       "of": 2
+      },
+      "S4": {
+       "miniatures_pass": 2,
+       "terminal_map_onto": 2,
+       "of": 2
+      }
+     },
+     "random-2": {
+      "X0": "2/2",
+      "F0": "2/2",
+      "S1": {
+       "premise_holds": 2,
+       "public_factor_every_monomial": 2,
+       "degree_fits": 2,
+       "budget_ok": 2,
+       "of": 2
+      },
+      "S4": {
+       "miniatures_pass": 2,
+       "terminal_map_onto": 2,
+       "of": 2
+      }
+     },
+     "random-3": {
+      "X0": "2/2",
+      "F0": "2/2",
+      "S1": {
+       "premise_holds": 2,
+       "public_factor_every_monomial": 2,
+       "degree_fits": 2,
+       "budget_ok": 2,
+       "of": 2
+      },
+      "S4": {
+       "miniatures_pass": 2,
+       "terminal_map_onto": 2,
+       "of": 2
+      }
+     }
+    },
+    "S3_tight": "10/10",
+    "S5": {
+     "N5_1_fires": "2/2",
+     "N5_2_fires": "2/2 (not applicable at slack > 0: 0)",
+     "N5_3_fires": true,
+     "N5_4_fires": true,
+     "F_1_fires": "2/2",
+     "X_1_fires": "2/2"
+    }
+   }
+  },
+  {
+   "record": "round14/dd/ddnl-tl128dd-l2-dense.json",
+   "ok": true,
+   "tools_equal_v17": true,
+   "summary": {
+    "dd_slot_instances": 4,
+    "T0": "4/4",
+    "per_mode": {
+     "run": {
+      "X0": "4/4",
+      "F0": "4/4",
+      "S1": {
+       "premise_holds": 4,
+       "public_factor_every_monomial": 4,
+       "degree_fits": 4,
+       "budget_ok": 4,
+       "of": 4
+      },
+      "S4": {
+       "miniatures_pass": 4,
+       "terminal_map_onto": 4,
+       "of": 4
+      }
+     },
+     "random-1": {
+      "X0": "4/4",
+      "F0": "4/4",
+      "S1": {
+       "premise_holds": 4,
+       "public_factor_every_monomial": 4,
+       "degree_fits": 4,
+       "budget_ok": 4,
+       "of": 4
+      },
+      "S4": {
+       "miniatures_pass": 4,
+       "terminal_map_onto": 4,
+       "of": 4
+      }
+     },
+     "random-2": {
+      "X0": "4/4",
+      "F0": "4/4",
+      "S1": {
+       "premise_holds": 4,
+       "public_factor_every_monomial": 4,
+       "degree_fits": 4,
+       "budget_ok": 4,
+       "of": 4
+      },
+      "S4": {
+       "miniatures_pass": 4,
+       "terminal_map_onto": 4,
+       "of": 4
+      }
+     },
+     "random-3": {
+      "X0": "4/4",
+      "F0": "4/4",
+      "S1": {
+       "premise_holds": 4,
+       "public_factor_every_monomial": 4,
+       "degree_fits": 4,
+       "budget_ok": 4,
+       "of": 4
+      },
+      "S4": {
+       "miniatures_pass": 4,
+       "terminal_map_onto": 4,
+       "of": 4
+      }
+     }
+    },
+    "S3_tight": "10/10",
+    "S5": {
+     "N5_1_fires": "4/4",
+     "N5_2_fires": "4/4 (not applicable at slack > 0: 0)",
+     "N5_3_fires": true,
+     "N5_4_fires": true,
+     "F_1_fires": "4/4",
+     "X_1_fires": "4/4"
+    }
+   }
+  },
+  {
+   "record": "round14/dd/ddnl-tl128dd-l2-zero.json",
+   "ok": true,
+   "tools_equal_v17": true,
+   "summary": {
+    "dd_slot_instances": 4,
+    "T0": "4/4",
+    "per_mode": {
+     "run": {
+      "X0": "4/4",
+      "F0": "4/4",
+      "S1": {
+       "premise_holds": 4,
+       "public_factor_every_monomial": 4,
+       "degree_fits": 4,
+       "budget_ok": 4,
+       "of": 4
+      },
+      "S4": {
+       "miniatures_pass": 4,
+       "terminal_map_onto": 4,
+       "of": 4
+      }
+     },
+     "random-1": {
+      "X0": "4/4",
+      "F0": "4/4",
+      "S1": {
+       "premise_holds": 4,
+       "public_factor_every_monomial": 4,
+       "degree_fits": 4,
+       "budget_ok": 4,
+       "of": 4
+      },
+      "S4": {
+       "miniatures_pass": 4,
+       "terminal_map_onto": 4,
+       "of": 4
+      }
+     },
+     "random-2": {
+      "X0": "4/4",
+      "F0": "4/4",
+      "S1": {
+       "premise_holds": 4,
+       "public_factor_every_monomial": 4,
+       "degree_fits": 4,
+       "budget_ok": 4,
+       "of": 4
+      },
+      "S4": {
+       "miniatures_pass": 4,
+       "terminal_map_onto": 4,
+       "of": 4
+      }
+     },
+     "random-3": {
+      "X0": "4/4",
+      "F0": "4/4",
+      "S1": {
+       "premise_holds": 4,
+       "public_factor_every_monomial": 4,
+       "degree_fits": 4,
+       "budget_ok": 4,
+       "of": 4
+      },
+      "S4": {
+       "miniatures_pass": 4,
+       "terminal_map_onto": 4,
+       "of": 4
+      }
+     }
+    },
+    "S3_tight": "10/10",
+    "S5": {
+     "N5_1_fires": "4/4",
+     "N5_2_fires": "4/4 (not applicable at slack > 0: 0)",
+     "N5_3_fires": true,
+     "N5_4_fires": true,
+     "F_1_fires": "4/4",
+     "X_1_fires": "4/4"
+    }
+   }
+  },
+  {
+   "record": "round14/dd/ddts-dd-rung-l1-dense.json",
+   "ok": null,
+   "tools_equal_v17": true,
+   "summary": {
+    "stage0:A": {
+     "groups": 38,
+     "surjective": 38,
+     "disclosed_Fp": 0,
+     "disclosed_by_group": {},
+     "joint": [],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage0:H": {
+     "groups": 10,
+     "surjective": 9,
+     "disclosed_Fp": 2,
+     "disclosed_by_group": {
+      "9": 2
+     },
+     "joint": [
+      [
+       [
+        7,
+        9
+       ],
+       2
+      ]
+     ],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage0:Input": {
+     "groups": 1,
+     "surjective": 1,
+     "disclosed_Fp": 0,
+     "disclosed_by_group": {},
+     "joint": [],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage0:Output": {
+     "groups": 1,
+     "surjective": 1,
+     "disclosed_Fp": 0,
+     "disclosed_by_group": {},
+     "joint": [],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    }
+   },
+   "controls_ok": true
+  },
+  {
+   "record": "round14/dd/ddts-dd-rung-l1-zero.json",
+   "ok": null,
+   "tools_equal_v17": true,
+   "summary": {
+    "stage0:A": {
+     "groups": 38,
+     "surjective": 38,
+     "disclosed_Fp": 0,
+     "disclosed_by_group": {},
+     "joint": [],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage0:H": {
+     "groups": 10,
+     "surjective": 9,
+     "disclosed_Fp": 2,
+     "disclosed_by_group": {
+      "9": 2
+     },
+     "joint": [
+      [
+       [
+        7,
+        9
+       ],
+       2
+      ]
+     ],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage0:Input": {
+     "groups": 1,
+     "surjective": 1,
+     "disclosed_Fp": 0,
+     "disclosed_by_group": {},
+     "joint": [],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage0:Output": {
+     "groups": 1,
+     "surjective": 1,
+     "disclosed_Fp": 0,
+     "disclosed_by_group": {},
+     "joint": [],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    }
+   },
+   "controls_ok": true
+  },
+  {
+   "record": "round14/dd/ddts-dd-rung-l2-dense.json",
+   "ok": null,
+   "tools_equal_v17": true,
+   "summary": {
+    "stage0:A": {
+     "groups": 38,
+     "surjective": 38,
+     "disclosed_Fp": 0,
+     "disclosed_by_group": {},
+     "joint": [],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage0:H": {
+     "groups": 10,
+     "surjective": 9,
+     "disclosed_Fp": 2,
+     "disclosed_by_group": {
+      "9": 2
+     },
+     "joint": [
+      [
+       [
+        7,
+        9
+       ],
+       2
+      ]
+     ],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage0:Input": {
+     "groups": 1,
+     "surjective": 1,
+     "disclosed_Fp": 0,
+     "disclosed_by_group": {},
+     "joint": [],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage1:A": {
+     "groups": 38,
+     "surjective": 38,
+     "disclosed_Fp": 0,
+     "disclosed_by_group": {},
+     "joint": [],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage1:H": {
+     "groups": 10,
+     "surjective": 9,
+     "disclosed_Fp": 2,
+     "disclosed_by_group": {
+      "9": 2
+     },
+     "joint": [
+      [
+       [
+        7,
+        9
+       ],
+       2
+      ]
+     ],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage1:Input": {
+     "groups": 2,
+     "surjective": 2,
+     "disclosed_Fp": 0,
+     "disclosed_by_group": {},
+     "joint": [],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage1:Output": {
+     "groups": 1,
+     "surjective": 1,
+     "disclosed_Fp": 0,
+     "disclosed_by_group": {},
+     "joint": [],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    }
+   },
+   "controls_ok": true
+  },
+  {
+   "record": "round14/dd/ddts-dd-rung-l2-zero.json",
+   "ok": null,
+   "tools_equal_v17": true,
+   "summary": {
+    "stage0:A": {
+     "groups": 38,
+     "surjective": 38,
+     "disclosed_Fp": 0,
+     "disclosed_by_group": {},
+     "joint": [],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage0:H": {
+     "groups": 10,
+     "surjective": 9,
+     "disclosed_Fp": 2,
+     "disclosed_by_group": {
+      "9": 2
+     },
+     "joint": [
+      [
+       [
+        7,
+        9
+       ],
+       2
+      ]
+     ],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage0:Input": {
+     "groups": 1,
+     "surjective": 1,
+     "disclosed_Fp": 0,
+     "disclosed_by_group": {},
+     "joint": [],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage1:A": {
+     "groups": 38,
+     "surjective": 38,
+     "disclosed_Fp": 0,
+     "disclosed_by_group": {},
+     "joint": [],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage1:H": {
+     "groups": 10,
+     "surjective": 9,
+     "disclosed_Fp": 2,
+     "disclosed_by_group": {
+      "9": 2
+     },
+     "joint": [
+      [
+       [
+        7,
+        9
+       ],
+       2
+      ]
+     ],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage1:Input": {
+     "groups": 2,
+     "surjective": 2,
+     "disclosed_Fp": 0,
+     "disclosed_by_group": {},
+     "joint": [],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage1:Output": {
+     "groups": 1,
+     "surjective": 1,
+     "disclosed_Fp": 0,
+     "disclosed_by_group": {},
+     "joint": [],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    }
+   },
+   "controls_ok": true
+  },
+  {
+   "record": "round14/dd/ddts-tl128dd-l1-dense.json",
+   "ok": null,
+   "tools_equal_v17": true,
+   "summary": {
+    "stage0:A": {
+     "groups": 38,
+     "surjective": 38,
+     "disclosed_Fp": 0,
+     "disclosed_by_group": {},
+     "joint": [],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage0:H": {
+     "groups": 10,
+     "surjective": 9,
+     "disclosed_Fp": 2,
+     "disclosed_by_group": {
+      "9": 2
+     },
+     "joint": [
+      [
+       [
+        7,
+        9
+       ],
+       2
+      ]
+     ],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage0:Input": {
+     "groups": 1,
+     "surjective": 1,
+     "disclosed_Fp": 0,
+     "disclosed_by_group": {},
+     "joint": [],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage0:Output": {
+     "groups": 1,
+     "surjective": 1,
+     "disclosed_Fp": 0,
+     "disclosed_by_group": {},
+     "joint": [],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    }
+   },
+   "controls_ok": true
+  },
+  {
+   "record": "round14/dd/ddts-tl128dd-l1-zero.json",
+   "ok": null,
+   "tools_equal_v17": true,
+   "summary": {
+    "stage0:A": {
+     "groups": 38,
+     "surjective": 38,
+     "disclosed_Fp": 0,
+     "disclosed_by_group": {},
+     "joint": [],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage0:H": {
+     "groups": 10,
+     "surjective": 9,
+     "disclosed_Fp": 2,
+     "disclosed_by_group": {
+      "9": 2
+     },
+     "joint": [
+      [
+       [
+        7,
+        9
+       ],
+       2
+      ]
+     ],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage0:Input": {
+     "groups": 1,
+     "surjective": 1,
+     "disclosed_Fp": 0,
+     "disclosed_by_group": {},
+     "joint": [],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    },
+    "stage0:Output": {
+     "groups": 1,
+     "surjective": 1,
+     "disclosed_Fp": 0,
+     "disclosed_by_group": {},
+     "joint": [],
+     "census_identical_claims": [],
+     "census_equal_published_values": []
+    }
+   },
+   "controls_ok": true
+  }
+ ],
+ "controls": {},
+ "failing_first": [
+  {
+   "record": "round14/ff/ff-v16-rung-l1-dense.json",
+   "ok": false,
+   "pins_that_moved": [
+    "src/private_block/argument.rs: the bundle pins 112352bc35c8, which is neither definition of the bilinear attention slots this port has read (909670c96562, dd8469cb0279, ec3f97443245, f7fa2ad4213d, 2cee0a2253d6, 9b26bda8105c, 02df55ebec4d)",
+    "src/private_block/layout.rs: the bundle pins 9332802e597b, the port was read at fec2e6476f16",
+    "src/private_block/protocol.rs: the bundle pins c482402329e4, the port was read at 4e916c693ad8",
+    "src/private_block/plane_index.rs: the bundle pins 0fe9eb4d3cd8, the port was read at 9de8320a8477",
+    "src/private_block/shape.rs: the bundle pins e214db86945e, which is not one this port has read",
+    "src/private_block/pad.rs: the bundle pins 20afa04f6418, which is not one this port has read"
+   ],
+   "refused": "a moved or missing source pin: NO slot of any stage was checked, and the zeros above are the absence of a check, not a passing one.  Nothing here says the bundle is bad -- it says this port has not read the Rust that made it"
+  },
+  {
+   "record": "round14/ff/ff-v16-tl128dd-l2-dense.json",
+   "ok": false,
+   "pins_that_moved": [
+    "src/private_block/argument.rs: the bundle pins 112352bc35c8, which is neither definition of the bilinear attention slots this port has read (909670c96562, dd8469cb0279, ec3f97443245, f7fa2ad4213d, 2cee0a2253d6, 9b26bda8105c, 02df55ebec4d)",
+    "src/private_block/layout.rs: the bundle pins 9332802e597b, the port was read at fec2e6476f16",
+    "src/private_block/protocol.rs: the bundle pins c482402329e4, the port was read at 4e916c693ad8",
+    "src/private_block/plane_index.rs: the bundle pins 0fe9eb4d3cd8, the port was read at 9de8320a8477",
+    "src/private_block/shape.rs: the bundle pins e214db86945e, which is not one this port has read",
+    "src/private_block/pad.rs: the bundle pins 20afa04f6418, which is not one this port has read"
+   ],
+   "refused": "a moved or missing source pin: NO slot of any stage was checked, and the zeros above are the absence of a check, not a passing one.  Nothing here says the bundle is bad -- it says this port has not read the Rust that made it"
+  }
+ ],
+ "predictions": [
+  {
+   "record": "round14/v17/prediction-dd-rung-l1-dense-validated.json",
+   "ok": true,
+   "validation": [
+    {
+     "bundle": "dd-rung-l1-dense",
+     "figures": [
+      {
+       "equal": true,
+       "figure": "replay.positions_checked",
+       "predicted": 132,
+       "recorded": 132
+      },
+      {
+       "equal": true,
+       "figure": "replay.challenges_checked",
+       "predicted": 2735,
+       "recorded": 2735
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.openings",
+       "predicted": 5,
+       "recorded": 5
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.columns",
+       "predicted": 1280,
+       "recorded": 1280
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.column_bytes",
+       "predicted": 3917824,
+       "recorded": 3917824
+      },
+      {
+       "equal": true,
+       "figure": "terminals.slot_checks_expected",
+       "predicted": 24,
+       "recorded": 24
+      },
+      {
+       "equal": true,
+       "figure": "masking.rows",
+       "predicted": 52,
+       "recorded": 52
+      },
+      {
+       "equal": true,
+       "figure": "joint.whole_run_joint",
+       "predicted": 2,
+       "recorded": 2
+      },
+      {
+       "equal": true,
+       "figure": "joint.sum_of_the_parts",
+       "predicted": 2,
+       "recorded": 2
+      },
+      {
+       "equal": true,
+       "figure": "joint.whole_run_generators",
+       "predicted": 110,
+       "recorded": 110
+      },
+      {
+       "equal": true,
+       "figure": "joint.identified_row_pairs",
+       "predicted": 16,
+       "recorded": 16
+      },
+      {
+       "equal": true,
+       "figure": "terminals.slot_checks_equal",
+       "predicted": 24,
+       "recorded": 24
+      }
+     ],
+     "mismatches": [],
+     "ok": true,
+     "record": "dd-rung-l1-dense-a.json"
+    }
+   ]
+  },
+  {
+   "record": "round14/v17/prediction-dd-rung-l1-zero-validated.json",
+   "ok": true,
+   "validation": [
+    {
+     "bundle": "dd-rung-l1-zero",
+     "figures": [
+      {
+       "equal": true,
+       "figure": "replay.positions_checked",
+       "predicted": 132,
+       "recorded": 132
+      },
+      {
+       "equal": true,
+       "figure": "replay.challenges_checked",
+       "predicted": 2735,
+       "recorded": 2735
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.openings",
+       "predicted": 5,
+       "recorded": 5
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.columns",
+       "predicted": 1280,
+       "recorded": 1280
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.column_bytes",
+       "predicted": 3917824,
+       "recorded": 3917824
+      },
+      {
+       "equal": true,
+       "figure": "terminals.slot_checks_expected",
+       "predicted": 24,
+       "recorded": 24
+      },
+      {
+       "equal": true,
+       "figure": "masking.rows",
+       "predicted": 52,
+       "recorded": 52
+      },
+      {
+       "equal": true,
+       "figure": "joint.whole_run_joint",
+       "predicted": 2,
+       "recorded": 2
+      },
+      {
+       "equal": true,
+       "figure": "joint.sum_of_the_parts",
+       "predicted": 2,
+       "recorded": 2
+      },
+      {
+       "equal": true,
+       "figure": "joint.whole_run_generators",
+       "predicted": 110,
+       "recorded": 110
+      },
+      {
+       "equal": true,
+       "figure": "joint.identified_row_pairs",
+       "predicted": 16,
+       "recorded": 16
+      },
+      {
+       "equal": true,
+       "figure": "terminals.slot_checks_equal",
+       "predicted": 24,
+       "recorded": 24
+      }
+     ],
+     "mismatches": [],
+     "ok": true,
+     "record": "dd-rung-l1-zero-a.json"
+    }
+   ]
+  },
+  {
+   "record": "round14/v17/prediction-dd-rung-l2-dense-validated.json",
+   "ok": true,
+   "validation": [
+    {
+     "bundle": "dd-rung-l2-dense",
+     "figures": [
+      {
+       "equal": true,
+       "figure": "replay.positions_checked",
+       "predicted": 261,
+       "recorded": 261
+      },
+      {
+       "equal": true,
+       "figure": "replay.challenges_checked",
+       "predicted": 5458,
+       "recorded": 5458
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.openings",
+       "predicted": 9,
+       "recorded": 9
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.columns",
+       "predicted": 2304,
+       "recorded": 2304
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.column_bytes",
+       "predicted": 7811072,
+       "recorded": 7811072
+      },
+      {
+       "equal": true,
+       "figure": "terminals.slot_checks_expected",
+       "predicted": 48,
+       "recorded": 48
+      },
+      {
+       "equal": true,
+       "figure": "masking.rows",
+       "predicted": 52,
+       "recorded": 52
+      },
+      {
+       "equal": true,
+       "figure": "joint.whole_run_joint",
+       "predicted": 4,
+       "recorded": 4
+      },
+      {
+       "equal": true,
+       "figure": "joint.sum_of_the_parts",
+       "predicted": 4,
+       "recorded": 4
+      },
+      {
+       "equal": true,
+       "figure": "joint.whole_run_generators",
+       "predicted": 218,
+       "recorded": 218
+      },
+      {
+       "equal": true,
+       "figure": "joint.identified_row_pairs",
+       "predicted": 32,
+       "recorded": 32
+      },
+      {
+       "equal": true,
+       "figure": "terminals.slot_checks_equal",
+       "predicted": 48,
+       "recorded": 48
+      }
+     ],
+     "mismatches": [],
+     "ok": true,
+     "record": "dd-rung-l2-dense-a.json"
+    }
+   ]
+  },
+  {
+   "record": "round14/v17/prediction-dd-rung-l2-zero-validated.json",
+   "ok": true,
+   "validation": [
+    {
+     "bundle": "dd-rung-l2-zero",
+     "figures": [
+      {
+       "equal": true,
+       "figure": "replay.positions_checked",
+       "predicted": 261,
+       "recorded": 261
+      },
+      {
+       "equal": true,
+       "figure": "replay.challenges_checked",
+       "predicted": 5458,
+       "recorded": 5458
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.openings",
+       "predicted": 9,
+       "recorded": 9
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.columns",
+       "predicted": 2304,
+       "recorded": 2304
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.column_bytes",
+       "predicted": 7811072,
+       "recorded": 7811072
+      },
+      {
+       "equal": true,
+       "figure": "terminals.slot_checks_expected",
+       "predicted": 48,
+       "recorded": 48
+      },
+      {
+       "equal": true,
+       "figure": "masking.rows",
+       "predicted": 52,
+       "recorded": 52
+      },
+      {
+       "equal": true,
+       "figure": "joint.whole_run_joint",
+       "predicted": 4,
+       "recorded": 4
+      },
+      {
+       "equal": true,
+       "figure": "joint.sum_of_the_parts",
+       "predicted": 4,
+       "recorded": 4
+      },
+      {
+       "equal": true,
+       "figure": "joint.whole_run_generators",
+       "predicted": 218,
+       "recorded": 218
+      },
+      {
+       "equal": true,
+       "figure": "joint.identified_row_pairs",
+       "predicted": 32,
+       "recorded": 32
+      },
+      {
+       "equal": true,
+       "figure": "terminals.slot_checks_equal",
+       "predicted": 48,
+       "recorded": 48
+      }
+     ],
+     "mismatches": [],
+     "ok": true,
+     "record": "dd-rung-l2-zero-a.json"
+    }
+   ]
+  },
+  {
+   "record": "round14/v17/prediction-tl128dd-l1-dense-validated.json",
+   "ok": true,
+   "validation": [
+    {
+     "bundle": "tl128dd-l1-dense",
+     "figures": [
+      {
+       "equal": true,
+       "figure": "replay.positions_checked",
+       "predicted": 132,
+       "recorded": 132
+      },
+      {
+       "equal": true,
+       "figure": "replay.challenges_checked",
+       "predicted": 5002,
+       "recorded": 5002
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.openings",
+       "predicted": 5,
+       "recorded": 5
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.columns",
+       "predicted": 1280,
+       "recorded": 1280
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.column_bytes",
+       "predicted": 8173568,
+       "recorded": 8173568
+      },
+      {
+       "equal": true,
+       "figure": "terminals.slot_checks_expected",
+       "predicted": 24,
+       "recorded": 24
+      },
+      {
+       "equal": true,
+       "figure": "masking.rows",
+       "predicted": 52,
+       "recorded": 52
+      },
+      {
+       "equal": true,
+       "figure": "joint.whole_run_joint",
+       "predicted": 2,
+       "recorded": 2
+      },
+      {
+       "equal": true,
+       "figure": "joint.sum_of_the_parts",
+       "predicted": 2,
+       "recorded": 2
+      },
+      {
+       "equal": true,
+       "figure": "joint.whole_run_generators",
+       "predicted": 110,
+       "recorded": 110
+      },
+      {
+       "equal": true,
+       "figure": "joint.identified_row_pairs",
+       "predicted": 32,
+       "recorded": 32
+      },
+      {
+       "equal": true,
+       "figure": "terminals.slot_checks_equal",
+       "predicted": 24,
+       "recorded": 24
+      }
+     ],
+     "mismatches": [],
+     "ok": true,
+     "record": "tl128dd-l1-dense-a.json"
+    }
+   ]
+  },
+  {
+   "record": "round14/v17/prediction-tl128dd-l1-zero-validated.json",
+   "ok": true,
+   "validation": [
+    {
+     "bundle": "tl128dd-l1-zero",
+     "figures": [
+      {
+       "equal": true,
+       "figure": "replay.positions_checked",
+       "predicted": 132,
+       "recorded": 132
+      },
+      {
+       "equal": true,
+       "figure": "replay.challenges_checked",
+       "predicted": 5002,
+       "recorded": 5002
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.openings",
+       "predicted": 5,
+       "recorded": 5
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.columns",
+       "predicted": 1280,
+       "recorded": 1280
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.column_bytes",
+       "predicted": 8173568,
+       "recorded": 8173568
+      },
+      {
+       "equal": true,
+       "figure": "terminals.slot_checks_expected",
+       "predicted": 24,
+       "recorded": 24
+      },
+      {
+       "equal": true,
+       "figure": "masking.rows",
+       "predicted": 52,
+       "recorded": 52
+      },
+      {
+       "equal": true,
+       "figure": "joint.whole_run_joint",
+       "predicted": 2,
+       "recorded": 2
+      },
+      {
+       "equal": true,
+       "figure": "joint.sum_of_the_parts",
+       "predicted": 2,
+       "recorded": 2
+      },
+      {
+       "equal": true,
+       "figure": "joint.whole_run_generators",
+       "predicted": 110,
+       "recorded": 110
+      },
+      {
+       "equal": true,
+       "figure": "joint.identified_row_pairs",
+       "predicted": 32,
+       "recorded": 32
+      },
+      {
+       "equal": true,
+       "figure": "terminals.slot_checks_equal",
+       "predicted": 24,
+       "recorded": 24
+      }
+     ],
+     "mismatches": [],
+     "ok": true,
+     "record": "tl128dd-l1-zero-a.json"
+    }
+   ]
+  },
+  {
+   "record": "round14/v17/prediction-tl128dd-l2-dense-validated.json",
+   "ok": true,
+   "validation": [
+    {
+     "bundle": "tl128dd-l2-dense",
+     "figures": [
+      {
+       "equal": true,
+       "figure": "replay.positions_checked",
+       "predicted": 261,
+       "recorded": 261
+      },
+      {
+       "equal": true,
+       "figure": "replay.challenges_checked",
+       "predicted": 9984,
+       "recorded": 9984
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.openings",
+       "predicted": 9,
+       "recorded": 9
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.columns",
+       "predicted": 2304,
+       "recorded": 2304
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.column_bytes",
+       "predicted": 16306176,
+       "recorded": 16306176
+      },
+      {
+       "equal": true,
+       "figure": "terminals.slot_checks_expected",
+       "predicted": 48,
+       "recorded": 48
+      },
+      {
+       "equal": true,
+       "figure": "masking.rows",
+       "predicted": 52,
+       "recorded": 52
+      },
+      {
+       "equal": true,
+       "figure": "joint.whole_run_joint",
+       "predicted": 4,
+       "recorded": 4
+      },
+      {
+       "equal": true,
+       "figure": "joint.sum_of_the_parts",
+       "predicted": 4,
+       "recorded": 4
+      },
+      {
+       "equal": true,
+       "figure": "joint.whole_run_generators",
+       "predicted": 218,
+       "recorded": 218
+      },
+      {
+       "equal": true,
+       "figure": "joint.identified_row_pairs",
+       "predicted": 64,
+       "recorded": 64
+      },
+      {
+       "equal": true,
+       "figure": "terminals.slot_checks_equal",
+       "predicted": 48,
+       "recorded": 48
+      }
+     ],
+     "mismatches": [],
+     "ok": true,
+     "record": "tl128dd-l2-dense-a.json"
+    }
+   ]
+  },
+  {
+   "record": "round14/v17/prediction-tl128dd-l2-zero-validated.json",
+   "ok": true,
+   "validation": [
+    {
+     "bundle": "tl128dd-l2-zero",
+     "figures": [
+      {
+       "equal": true,
+       "figure": "replay.positions_checked",
+       "predicted": 261,
+       "recorded": 261
+      },
+      {
+       "equal": true,
+       "figure": "replay.challenges_checked",
+       "predicted": 9984,
+       "recorded": 9984
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.openings",
+       "predicted": 9,
+       "recorded": 9
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.columns",
+       "predicted": 2304,
+       "recorded": 2304
+      },
+      {
+       "equal": true,
+       "figure": "hash_layer.column_bytes",
+       "predicted": 16306176,
+       "recorded": 16306176
+      },
+      {
+       "equal": true,
+       "figure": "terminals.slot_checks_expected",
+       "predicted": 48,
+       "recorded": 48
+      },
+      {
+       "equal": true,
+       "figure": "masking.rows",
+       "predicted": 52,
+       "recorded": 52
+      },
+      {
+       "equal": true,
+       "figure": "joint.whole_run_joint",
+       "predicted": 4,
+       "recorded": 4
+      },
+      {
+       "equal": true,
+       "figure": "joint.sum_of_the_parts",
+       "predicted": 4,
+       "recorded": 4
+      },
+      {
+       "equal": true,
+       "figure": "joint.whole_run_generators",
+       "predicted": 218,
+       "recorded": 218
+      },
+      {
+       "equal": true,
+       "figure": "joint.identified_row_pairs",
+       "predicted": 64,
+       "recorded": 64
+      },
+      {
+       "equal": true,
+       "figure": "terminals.slot_checks_equal",
+       "predicted": 48,
+       "recorded": 48
+      }
+     ],
+     "mismatches": [],
+     "ok": true,
+     "record": "tl128dd-l2-zero-a.json"
+    }
+   ]
+  }
+ ]
+}

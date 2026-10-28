@@ -39,7 +39,7 @@
 //! imported from; the verifier must still hold (or recompute) the integer
 //! words it trusts. It is not a privacy statement.
 
-use super::shape::Shape;
+use super::shape::{NormCalibration, Shape};
 use super::BlockPublic;
 use crate::merkle::Digest;
 use sha2::{Digest as _, Sha256};
@@ -360,13 +360,94 @@ pub(crate) struct LayerRecord {
     /// table's score exponent `e_s`
     pub silu_member: (i32, i32),
     pub exp_e_s: i32,
-    /// **NATIVE R6: this layer's OWN softmax score shift**, when it is not
-    /// the run's (`calibration.sh_s`): `None` for every layer of a run-wide
-    /// export (so its encoding, and every identity made before R6, does not
-    /// move), `Some(v)` with `v != calibration.sh_s` and `v` in the one-limb
-    /// window for a per-layer export. The run proves that block's stage at
-    /// `Shape::with_score_shift(v)`.
-    pub sh_s: Option<u32>,
+    /// **NATIVE R8 (R6 for `sh_s` alone): this layer's OWN calibration
+    /// constants**, one entry per [`OWN_FIELDS`] in that order, each `Some`
+    /// only where the layer's value is not the run's: all `None` for every
+    /// layer of a run-wide export (so its encoding, and every identity made
+    /// before R6, does not move); a value equal to the run's is refused
+    /// (one encoding per statement); the layer's whole calibration
+    /// ([`apply_own`]) must pass the trained door
+    /// (`Shape::with_layer_calibration`). The run proves that block's stage at
+    /// that shape.
+    pub own: [Option<i64>; 11],
+}
+
+/// **NATIVE R8: the eleven export-chosen calibration constants a layer may
+/// carry as its own**, in their canonical order: the export key, the
+/// identity encoding's label, the stage schedule line's label. `sh_s` is
+/// FIRST and keeps R6's labels, so a statement or schedule whose only
+/// per-layer constant is `sh_s` encodes exactly as in R6 (the b7 identity
+/// 97c4acda... and its stage lines do not move).
+pub(crate) const OWN_FIELDS: [(&str, &str, &str); 11] = [
+    ("sh_s", "sh-score-layer", "score shift"),
+    ("norm_tn", "norm-tn-layer", "norm tn"),
+    ("norm_cn_a", "norm-cn-a-layer", "norm cn_a"),
+    ("norm_cn_m", "norm-cn-m-layer", "norm cn_m"),
+    ("norm_ceps", "norm-ceps-layer", "norm ceps"),
+    ("sh_ao", "sh-ao-layer", "ao shift"),
+    ("sh_qkv", "sh-qkv-layer", "qkv shift"),
+    ("sh_o", "sh-o-layer", "o shift"),
+    ("sh_g", "sh-gate-layer", "gate shift"),
+    ("sh_h", "sh-product-layer", "product shift"),
+    ("sh_z", "sh-down-layer", "down shift"),
+];
+
+/// field `i` of [`OWN_FIELDS`] in a calibration
+pub(crate) fn cal_field(c: &NormCalibration, i: usize) -> i64 {
+    match i {
+        0 => i64::from(c.sh_s),
+        1 => i64::from(c.tn),
+        2 => c.cn_a,
+        3 => c.cn_m,
+        4 => c.ceps,
+        5 => i64::from(c.sh_ao),
+        6 => i64::from(c.sh_qkv),
+        7 => i64::from(c.sh_o),
+        8 => i64::from(c.sh_g),
+        9 => i64::from(c.sh_h),
+        _ => i64::from(c.sh_z),
+    }
+}
+
+/// the run's calibration with a layer's own values applied (a `u32` field
+/// out of range is refused, never wrapped)
+pub(crate) fn apply_own(base: &NormCalibration, own: &[Option<i64>; 11]) -> Result<NormCalibration, String> {
+    let mut c = *base;
+    for (i, v) in own.iter().enumerate() {
+        let Some(v) = *v else { continue };
+        let u = || u32::try_from(v).map_err(|_| format!("trained calibration: a per-layer {} {v} is out of range", OWN_FIELDS[i].0));
+        match i {
+            0 => c.sh_s = u()?,
+            1 => c.tn = u()?,
+            2 => c.cn_a = v,
+            3 => c.cn_m = v,
+            4 => c.ceps = v,
+            5 => c.sh_ao = u()?,
+            6 => c.sh_qkv = u()?,
+            7 => c.sh_o = u()?,
+            8 => c.sh_g = u()?,
+            9 => c.sh_h = u()?,
+            _ => c.sh_z = u()?,
+        }
+    }
+    Ok(c)
+}
+
+/// a layer's own values against the run's: `Some` exactly where they differ
+pub(crate) fn own_of(base: &NormCalibration, layer: &NormCalibration) -> [Option<i64>; 11] {
+    let mut own = [None; 11];
+    for (i, o) in own.iter_mut().enumerate() {
+        let v = cal_field(layer, i);
+        if v != cal_field(base, i) {
+            *o = Some(v);
+        }
+    }
+    own
+}
+
+/// whether a layer record carries any own constant
+pub(crate) fn has_own(own: &[Option<i64>; 11]) -> bool {
+    own.iter().any(|v| v.is_some())
 }
 
 fn sha(bytes: &[u8]) -> [u8; 32] {
@@ -387,7 +468,7 @@ impl LayerRecord {
     /// ROUND 5 (R5-2): the record of a proving-pass RELOAD, which keeps only
     /// the block (its digest is compared with the digest pass's record)
     pub(crate) fn unhashed(index: u32) -> LayerRecord {
-        LayerRecord { index, block_digest: [0; 32], word_sha256: [[0; 32]; 9], table_sha256: [[0; 32]; 3], source_tensors: vec![], manifest_sha256: [0; 32], silu_member: (0, 0), exp_e_s: 0, sh_s: None }
+        LayerRecord { index, block_digest: [0; 32], word_sha256: [[0; 32]; 9], table_sha256: [[0; 32]; 3], source_tensors: vec![], manifest_sha256: [0; 32], silu_member: (0, 0), exp_e_s: 0, own: [None; 11] }
     }
 
     pub(crate) fn of_block(index: u32, blk: &BlockPublic, source_tensors: Vec<(String, [u8; 32])>) -> LayerRecord {
@@ -407,7 +488,7 @@ impl LayerRecord {
         // a recipe block's tables are the frozen SiLU member (-3, -11) and
         // `exp_member(0, ..)` (`dense_tests::statement_of_words`); the export
         // loader overwrites both with the manifest's members
-        LayerRecord { index, block_digest: blk.digest(), word_sha256, table_sha256, source_tensors, manifest_sha256: [0; 32], silu_member: (-3, -11), exp_e_s: 0, sh_s: None }
+        LayerRecord { index, block_digest: blk.digest(), word_sha256, table_sha256, source_tensors, manifest_sha256: [0; 32], silu_member: (-3, -11), exp_e_s: 0, own: [None; 11] }
     }
 }
 
@@ -548,16 +629,22 @@ impl TrainedModelStatement {
         // value through each block digest, and the loader checks them against
         // these generator members)
         for r in &self.layers {
-            // NATIVE R6: a per-layer score shift is canonical (never equal to
-            // the run's, which would be a second encoding of one statement)
-            // and inside the one-limb window
-            if let Some(v) = r.sh_s {
-                if v == self.calibration.sh_s {
-                    return Err(format!("trained statement: layer {}'s own sh_s {v} equals the run's; a run-wide value is recorded once, in the calibration", r.index));
+            // NATIVE R8 (R6 for sh_s): a layer's own constants are canonical
+            // (never equal to the run's, which would be a second encoding of
+            // one statement) and its whole calibration passes the trained
+            // door at the run's shape (every class, the four-limb norm window,
+            // the plane list unmoved)
+            if has_own(&r.own) {
+                let base = sh.norm_calibration();
+                for (i, v) in r.own.iter().enumerate() {
+                    if let Some(v) = v {
+                        if *v == cal_field(&base, i) {
+                            return Err(format!("trained statement: layer {}'s own {} {v} equals the run's; a run-wide value is recorded once, in the calibration", r.index, OWN_FIELDS[i].0));
+                        }
+                    }
                 }
-                if !super::shape::ONE_LIMB_SHIFT.contains(&v) {
-                    return Err(format!("trained statement: layer {}'s sh_s {v} is outside its structure-preserving window {:?}", r.index, super::shape::ONE_LIMB_SHIFT));
-                }
+                let cal = apply_own(&base, &r.own).map_err(|e| format!("trained statement: layer {}: {e}", r.index))?;
+                sh.with_layer_calibration(&cal).map_err(|e| format!("trained statement: layer {}'s own calibration: {e}", r.index))?;
             }
             if !super::shape::TRAINED_EXP_E_S_RANGE.contains(&r.exp_e_s) {
                 return Err(format!("trained statement: layer {}'s exp e_s {} is outside its declared class {:?}", r.index, r.exp_e_s, super::shape::TRAINED_EXP_E_S_RANGE));
@@ -635,10 +722,13 @@ impl TrainedModelStatement {
             e.i64("silu-member-e-in", i64::from(r.silu_member.0));
             e.i64("silu-member-e-out", i64::from(r.silu_member.1));
             e.i64("exp-e-s", i64::from(r.exp_e_s));
-            // NATIVE R6: present ONLY for a layer whose score shift is its
-            // own, so a run-wide statement's bytes are what they were
-            if let Some(v) = r.sh_s {
-                e.u64("sh-score-layer", u64::from(v));
+            // NATIVE R8 (R6 for sh_s): present ONLY for a layer's own
+            // constants, in the canonical order, so a run-wide statement's
+            // bytes are what they were and an sh_s-only one is R6's
+            for (i, v) in r.own.iter().enumerate() {
+                if let Some(v) = v {
+                    e.u64(OWN_FIELDS[i].1, u64::try_from(*v).unwrap_or(u64::MAX));
+                }
             }
             for (k, d) in r.word_sha256.iter().enumerate() {
                 e.field(&format!("word-{k}-sha256"), d);

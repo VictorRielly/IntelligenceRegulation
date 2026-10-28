@@ -94,6 +94,19 @@ pub(crate) const RUN_PROFILE_LLAMA3_8B_T64_TRAINED: &str = "hashline-zk-mr1/priv
 pub(crate) const RUN_PROFILE_LLAMA3_8B_T128_TRAINED: &str = "hashline-zk-mr1/private-run-llama-3-8b-t128-trained-statement/1";
 /// NATIVE LANE: the run profile of the trained-calibration development rung.
 pub(crate) const RUN_PROFILE_RUNG_TC: &str = "hashline-zk-mr1/private-run-rung-tc-t32-dev/1";
+/// **NATIVE R9 (D30): the run profiles of the three DD block profiles** (one
+/// per shape, D17), at the lengths of their non-DD twins' (67 / 63 / 45)
+pub(crate) const RUN_PROFILE_TINYLLAMA_T128_DD: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-ddict32-statement/1";
+pub(crate) const RUN_PROFILE_LLAMA3_8B_T128_DD: &str = "hashline-zk-mr1/private-run-llama-3-8b-t128-ddict32-statement/1";
+pub(crate) const RUN_PROFILE_RUNG_DD: &str = "hashline-zk-mr1/private-run-rung-dd-t32-dev/1";
+/// **NATIVE R12 (D38): the run profiles of the Shieldstral block profiles**
+/// (one per shape, D17), each 67 bytes as the TinyLlama T128 run profiles,
+/// and the decoupled-head development rung's (45 bytes, as the other rungs')
+pub(crate) const RUN_PROFILE_SHIELDSTRAL_T128_TRAINED: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t128-trained-statement/1";
+pub(crate) const RUN_PROFILE_SHIELDSTRAL_T256_TRAINED: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t256-trained-statement/1";
+pub(crate) const RUN_PROFILE_SHIELDSTRAL_T128_DD: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t128-ddict32-statement/1";
+pub(crate) const RUN_PROFILE_SHIELDSTRAL_T256_DD: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t256-ddict32-statement/1";
+pub(crate) const RUN_PROFILE_RUNG_HD: &str = "hashline-zk-mr1/private-run-rung-hd-t32-dev/1";
 
 /// One run's geometry: the per-block shape, how many blocks, and the run's own
 /// profile id. A run is a NEW profile under D17 — its own transcript, its own
@@ -133,6 +146,15 @@ fn registered_block_shape(profile: &str, sh: &Shape) -> Option<Result<Shape, Str
         RUN_PROFILE_LLAMA3_8B_T32_TRAINED => Shape::llama3_8b_t32_trained(&cal, sh.f_e),
         RUN_PROFILE_LLAMA3_8B_T64_TRAINED => Shape::llama3_8b_trained(64, &cal, sh.f_e),
         RUN_PROFILE_LLAMA3_8B_T128_TRAINED => Shape::llama3_8b_trained(128, &cal, sh.f_e),
+        RUN_PROFILE_TINYLLAMA_T128_DD => Shape::tinyllama_t128_trained_dd(&cal, sh.f_e),
+        RUN_PROFILE_LLAMA3_8B_T128_DD => Shape::llama3_8b_t128_trained_dd(&cal, sh.f_e),
+        RUN_PROFILE_RUNG_DD => Shape::rung_dd(&cal),
+        // NATIVE R12 (D38, F2)
+        RUN_PROFILE_SHIELDSTRAL_T128_TRAINED => Shape::shieldstral_trained(128, &cal, sh.f_e),
+        RUN_PROFILE_SHIELDSTRAL_T256_TRAINED => Shape::shieldstral_trained(256, &cal, sh.f_e),
+        RUN_PROFILE_SHIELDSTRAL_T128_DD => Shape::shieldstral_trained_dd(128, &cal, sh.f_e),
+        RUN_PROFILE_SHIELDSTRAL_T256_DD => Shape::shieldstral_trained_dd(256, &cal, sh.f_e),
+        RUN_PROFILE_RUNG_HD => Shape::rung_hd(&cal),
         #[cfg(test)]
         RUN_PROFILE_TINYLLAMA_T32_DEV => Ok(Shape::tinyllama_t32_dev()),
         _ => return None,
@@ -223,12 +245,34 @@ impl RunShape {
             p if p == super::shape::LLAMA3_8B_T32_TRAINED_PROFILE => RUN_PROFILE_LLAMA3_8B_T32_TRAINED,
             p if p == super::shape::LLAMA3_8B_T64_TRAINED_PROFILE => RUN_PROFILE_LLAMA3_8B_T64_TRAINED,
             p if p == super::shape::LLAMA3_8B_T128_TRAINED_PROFILE => RUN_PROFILE_LLAMA3_8B_T128_TRAINED,
-            _ => return Err("private run: a trained-model run profile needs a trained TinyLlama or Llama-3-8B shape".into()),
+            // NATIVE R9: the DD profiles (D30)
+            p if p == super::shape::TINYLLAMA_T128_DD_TRAINED_PROFILE => RUN_PROFILE_TINYLLAMA_T128_DD,
+            p if p == super::shape::LLAMA3_8B_T128_DD_TRAINED_PROFILE => RUN_PROFILE_LLAMA3_8B_T128_DD,
+            // NATIVE R12 (D38): the Shieldstral profiles
+            p if p == super::shape::SHIELDSTRAL_T128_TRAINED_PROFILE => RUN_PROFILE_SHIELDSTRAL_T128_TRAINED,
+            p if p == super::shape::SHIELDSTRAL_T256_TRAINED_PROFILE => RUN_PROFILE_SHIELDSTRAL_T256_TRAINED,
+            p if p == super::shape::SHIELDSTRAL_T128_DD_TRAINED_PROFILE => RUN_PROFILE_SHIELDSTRAL_T128_DD,
+            p if p == super::shape::SHIELDSTRAL_T256_DD_TRAINED_PROFILE => RUN_PROFILE_SHIELDSTRAL_T256_DD,
+            _ => return Err("private run: a trained-model run profile needs a trained TinyLlama, Llama-3-8B or Shieldstral shape".into()),
         };
         if !sh.trained_calibration {
             return Err("private run: a trained TinyLlama run profile needs a trained TinyLlama shape".into());
         }
         RunShape::new(sh, l, rp)
+    }
+    /// NATIVE R9: a run at the DD development rung (D30).
+    pub(crate) fn rung_dd(sh: Shape, l: usize) -> Result<RunShape, String> {
+        if sh.profile != super::shape::TRAINED_DD_RUNG_PROFILE || !sh.trained_calibration {
+            return Err("private run: the DD rung run profile needs its shape".into());
+        }
+        RunShape::new(sh, l, RUN_PROFILE_RUNG_DD)
+    }
+    /// NATIVE R12 (F2): a run at the decoupled-head development rung.
+    pub(crate) fn rung_hd(sh: Shape, l: usize) -> Result<RunShape, String> {
+        if sh.profile != super::shape::TRAINED_HD_RUNG_PROFILE || !sh.trained_calibration {
+            return Err("private run: the decoupled-head rung run profile needs its shape".into());
+        }
+        RunShape::new(sh, l, RUN_PROFILE_RUNG_HD)
     }
     /// NATIVE LANE: a run at the trained-calibration development rung.
     pub(crate) fn rung_tc(sh: Shape, l: usize) -> Result<RunShape, String> {
@@ -290,7 +334,10 @@ impl RunStatement {
         // the SHAPE's own flag (it was a substring test on the run profile,
         // which let an unbound run at the trained-calibration rung absorb
         // `calibration_identity()`), and on the trained run profile by name.
-        if rs.sh.trained_calibration || [RUN_PROFILE_TINYLLAMA_T32_TRAINED, RUN_PROFILE_TINYLLAMA_T64_TRAINED, RUN_PROFILE_TINYLLAMA_T128_TRAINED, RUN_PROFILE_LLAMA3_8B_T32_TRAINED, RUN_PROFILE_LLAMA3_8B_T64_TRAINED, RUN_PROFILE_LLAMA3_8B_T128_TRAINED, RUN_PROFILE_RUNG_TC].contains(&rs.profile) {
+        if rs.sh.trained_calibration
+            || [RUN_PROFILE_TINYLLAMA_T32_TRAINED, RUN_PROFILE_TINYLLAMA_T64_TRAINED, RUN_PROFILE_TINYLLAMA_T128_TRAINED, RUN_PROFILE_LLAMA3_8B_T32_TRAINED, RUN_PROFILE_LLAMA3_8B_T64_TRAINED, RUN_PROFILE_LLAMA3_8B_T128_TRAINED, RUN_PROFILE_RUNG_TC].contains(&rs.profile)
+            || [RUN_PROFILE_SHIELDSTRAL_T128_TRAINED, RUN_PROFILE_SHIELDSTRAL_T256_TRAINED, RUN_PROFILE_SHIELDSTRAL_T128_DD, RUN_PROFILE_SHIELDSTRAL_T256_DD, RUN_PROFILE_RUNG_HD].contains(&rs.profile)
+        {
             return Err(format!("private run: {} is a trained-calibration run; it needs its trained-model statement (RunStatement::new_bound)", rs.profile));
         }
         if blocks.len() != rs.l || block_scales.len() != rs.l {
@@ -426,7 +473,7 @@ impl RunStatement {
         let facts = super::hash_domain::RunFacts { profile: st.rs.profile, l: st.rs.l, parameter_line: line.as_str() };
         let set = super::hash_domain::imposed_at_shape_with(&st.rs.sh, Some(&facts));
         let lay = Layout::for_shape(&st.rs.sh)?;
-        let mut commitments = vec![("A", lay.a_rows), ("H", lay.h_rows), ("M", super::layout::M_ROWS), ("external endpoint", st.rs.sh.endpoint_rows)];
+        let mut commitments = vec![("A", lay.a_rows), ("H", lay.h_rows), ("M", lay.m_rows()), ("external endpoint", st.rs.sh.endpoint_rows)];
         if st.rs.l > 1 {
             commitments.push(("internal boundary", st.boundary_spec(0)?.commitment_rows()));
         }

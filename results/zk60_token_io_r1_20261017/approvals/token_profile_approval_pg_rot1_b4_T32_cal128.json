@@ -1,0 +1,39 @@
+{
+ "V": 32000,
+ "approved_by": "coordinator, 2026-10-20 ~03:05 UTC (round-10 instruction: the presenter demo's TinyLlama option); written for the demo",
+ "bos": 1,
+ "evidence": [
+  "calibration lane ledger results/zk60_1b_calibration_20260929/PROGRESS.md: export/pg_rot1_b4_T32_cal128, profile sha256 826f7641... (the TinyLlama-1.1B T32 export of the token lane's R2 / R3 rounds)",
+  "tables: the embedding in the export root (token_io.json embedding_table sha256 ad68c716...) and the R2 head in results/zk60_token_io_r1_20261017/r2_inputs (head_manifest.json: head_int8_perrow b99cbec5..., head_mult12 7824019e...), each re-hashed by this tool against its own manifest",
+  "pins: zk60_token_io profile (round-9 binary b56f1b71..., cli/binaries_r9.sha256) over the VERIFIER copy's public files (~/zk60-artifacts/token-io/demo-present/verifier-export-pg_rot1_b4_T32_cal128; log ~/zk60-artifacts/token-io/demo-present/logs/r10-profile-tl32.log); run profile hashline-zk-mr1/private-token-io-run-tinyllama-1.1b-t32-trained-statement-public-row/1",
+  "scope: b4 calibration, outside D33's accepted artifact (pg_rot1); the next-token stages are not covered by any privacy acceptance"
+ ],
+ "export": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128",
+ "export_profile_json_sha256": "826f7641672ffad0ecbf1cc71cfd0d7fa94add50464ac3bc504f1fdec2e30d0a",
+ "final_norm": {
+  "ceps": 74429,
+  "cn": 5664,
+  "g0": 127,
+  "tn": 10
+ },
+ "not": "not a privacy acceptance and not a ruling; a pin fixes which public tables a verifier accepts",
+ "pins": {
+  "expect_statement": "78ccaba56b145aefb18987738b9fe0329c06bdd727bcd3336db524edcd13c514",
+  "expect_token_profile": "5857be9d700085dcefa1cefefa1e5a4c9ba40b79c5513631d04dd2b73c3e08d1"
+ },
+ "record": "approved token-profile pins for the token I/O tables of the export pg_rot1_b4_T32_cal128",
+ "table_dirs": {
+  "emb": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128",
+  "head": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r2_inputs"
+ },
+ "table_files_checked_against": "each binary table against the sha256 its own manifest records (token_io.json embedding_table; head_manifest.json); no SHA256SUMS in this layout",
+ "table_files_sha256": {
+  "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/embedding_int16.bin": "ad68c716693f12d17cd19c957fbe84ca0f94d79063735f7eb84ead8063d9ab06",
+  "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/token_io.json": "900797e0df111232d16b08ddb889cde5dbee614332a2c28cdde2ee9c96ff3065",
+  "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r2_inputs/head_int8_perrow.bin": "b99cbec5f457e47ca2441de517135ba1bd1870e2ae8abe2038dbd84617436280",
+  "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r2_inputs/head_manifest.json": "0f44b6e9f6e72eaa50b165416d1e11988c7fc223bfcbd16c1de4c9fdb6fd9604",
+  "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r2_inputs/head_mult12.bin": "7824019e82a62fd6e36c165b9aabfd3711d03b815731e298b356a734a7ea663f"
+ },
+ "use": "a verifier reads --expect-statement / --expect-token-profile from `pins`; never from `zk60_token_io profile` over the prover's files (review TR5-3)",
+ "written_by": "token-I/O lane, at that instruction, from this export's own token_io/ files and its SHA256SUMS (below); where the table files are another lane's, the evidence says so"
+}

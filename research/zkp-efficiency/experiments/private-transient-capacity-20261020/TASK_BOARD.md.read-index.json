@@ -1,0 +1,126 @@
+[
+  {
+    "line": 1,
+    "text": "# TASK BOARD \u2014 the standing queue of small, self-checking tasks"
+  },
+  {
+    "line": 515,
+    "text": "## 0. HANDOFF STATE (the orchestrator keeps this current at every push)"
+  },
+  {
+    "line": 2272,
+    "text": "## 1. Rules (read once)"
+  },
+  {
+    "line": 2304,
+    "text": "## 2. Box facts and recipes"
+  },
+  {
+    "line": 2306,
+    "text": "### 2.1 The two boxes"
+  },
+  {
+    "line": 2323,
+    "text": "### 2.2 Commands (all from the repo root unless noted)"
+  },
+  {
+    "line": 2326,
+    "text": "# build (from zkmatrix-rs/)"
+  },
+  {
+    "line": 2328,
+    "text": "# gates"
+  },
+  {
+    "line": 2332,
+    "text": "# profiles (MAC only; minutes to ~1.5 h)"
+  },
+  {
+    "line": 2347,
+    "text": "### 2.3 The EVAL-PROOF DIGEST (the composed-pass differential gate) and the two env knobs"
+  },
+  {
+    "line": 2370,
+    "text": "## 3. The queue (ordered; take the first OPEN task your box can do)"
+  },
+  {
+    "line": 2378,
+    "text": "### T0 \u2014 hygiene at every commit  `STANDING`  WHO: ANY  KIND: RUN"
+  },
+  {
+    "line": 2386,
+    "text": "### T1 \u2014 pass-profile BASELINE + AFTER (attribution table + digest)  `OPEN`  WHO: MAC  KIND: RUN"
+  },
+  {
+    "line": 2422,
+    "text": "### T2 \u2014 the h cross-garbage in the NTT domain (O2)  `LANDED 2026-08-17 (Claude, WSL) \u2014 rig A/B = T4`  WHO: ANY  KIND: CODE"
+  },
+  {
+    "line": 2452,
+    "text": "### T3 \u2014 matvecs in the NTT domain (O3)  `LANDED 2026-08-17 (Claude, WSL) \u2014 rig A/B = T4`  WHO: ANY  KIND: CODE"
+  },
+  {
+    "line": 2471,
+    "text": "### T4 \u2014 the rest of the rig gates after T1  `OPEN (after T1)`  WHO: MAC  KIND: RUN"
+  },
+  {
+    "line": 2482,
+    "text": "### T5 \u2014 the two claim-kernel passes, factored (rows pass + phi pass)  `LANDED 2026-08-17 (Claude, WSL) \u2014 rig A/B = T4`  WHO: Claude preferred (ANY with care)  KIND: CODE"
+  },
+  {
+    "line": 2527,
+    "text": "### T6 \u2014 multithread the kernels (rayon, deterministic)  `LANDED for the Phase-0 kernels 2026-08-17 (Claude, WSL); the rest OPEN`  WHO: ANY  KIND: CODE"
+  },
+  {
+    "line": 2544,
+    "text": "### T7 \u2014 `bg_fold` / `agg_fold` in the NTT domain (small)  `OPEN`  WHO: ANY  KIND: CODE"
+  },
+  {
+    "line": 2553,
+    "text": "### T8 \u2014 verifier attribution toward the <= 2 s line  `OPEN`  WHO: MAC  KIND: RUN"
+  },
+  {
+    "line": 2563,
+    "text": "### T8b \u2014 the verifier's `psi_level0_factored_multi`, factored  `LANDED 2026-08-17 (Claude, WSL)`  WHO: ANY  KIND: CODE"
+  },
+  {
+    "line": 2570,
+    "text": "### T3b \u2014 `transport_level_from_psi` in the NTT domain  `OPEN`  WHO: ANY  KIND: CODE"
+  },
+  {
+    "line": 2581,
+    "text": "### T9 \u2014 memory diet for the 15 GB reference box  `OPEN`  WHO: ANY (c: Claude preferred)  KIND: CODE"
+  },
+  {
+    "line": 2621,
+    "text": "### T10 \u2014 copy the m125 export to the WSL box  `MOSTLY DONE 2026-08-17`  WHO: Victor  KIND: RUN"
+  },
+  {
+    "line": 2633,
+    "text": "### T11 \u2014 DESIGN items (not for a mechanical agent)  `OPEN`  WHO: Claude/Victor  KIND: DESIGN"
+  },
+  {
+    "line": 2666,
+    "text": "### T12 \u2014 the 8B FFN calibration + export on the Mac  `OPEN \u2014 DOWNLOAD APPROVED (Victor, console 2026-08-24: \"Go ahead with the mistral download\")`  WHO: MAC  KIND: RUN"
+  },
+  {
+    "line": 2700,
+    "text": "### T13 \u2014 download Gemma 4 12B QAT on the Mac  `OPEN`  WHO: MAC  KIND: RUN"
+  },
+  {
+    "line": 2722,
+    "text": "### T14 \u2014 the Gemma 4 qualification-gate run on the Mac  `GATED (watch for scripts/m8b_gemma4_walker.py on main)`  WHO: MAC  KIND: RUN"
+  },
+  {
+    "line": 2764,
+    "text": "## 4. Baselines and digests (append-only)"
+  },
+  {
+    "line": 2770,
+    "text": "## 4b. Round 2 + 3 (U-PERF2, 2026-08-17 \u2014 PROGRESS_UPERF2.md)"
+  },
+  {
+    "line": 2891,
+    "text": "## 5. Log (append-only, newest last)"
+  }
+]

@@ -1,0 +1,11 @@
+{
+ "copy": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-gate-r11/",
+ "manifest": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/manifest_final_r11.sha256",
+ "manifest_sha256": "d8075d76a32ed2483d600ebf511181247254b21413aee93c565dffbeecbd4cbe",
+ "listed": 237,
+ "moved": [],
+ "files_on_disk": 237,
+ "not_listed": [],
+ "patched": false,
+ "what": "an unmodified copy of frozen-r11 (no gate patch), so its CLI-path capture pins exactly frozen-r11 files"
+}

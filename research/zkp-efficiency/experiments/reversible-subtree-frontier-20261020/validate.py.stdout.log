@@ -1,0 +1,1 @@
+{"status": "PASS", "checks": 6280, "consumer_cases": 354, "layer_cases": 444, "capacity_events": 528, "prior_profiles_checked": 10, "source_pins": 22, "elapsed_s": 0.34901624100166373, "maxrss_KiB": 16696, "scope": "Independent tuple immutable tree/cubic/Boolean MLE/MSB ordering, enumerated operation graph, payload events and hashes; no native proof"}

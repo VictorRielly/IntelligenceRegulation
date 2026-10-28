@@ -1,0 +1,5 @@
+openai_mod/cat_violence: 612 selected, 538 done, 74 to do
+prefix 73 tokens K/V in 17.3s
+batch 1/2: 57 items, 4089 tail tokens, 141.2s (29.0 tok/s); total done 57
+batch 2/2: 17 items, 1106 tail tokens, 54.4s (20.3 tok/s); total done 74
+all 74 items done in 3.7 min

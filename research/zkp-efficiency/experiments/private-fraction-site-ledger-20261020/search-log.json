@@ -1,0 +1,20 @@
+{
+  "run_id": "20261020T171854Z-0041295d",
+  "access_date": "2026-10-20",
+  "native_live_tool": "web__run",
+  "queries": [
+    "LogUp GKR lookup zero knowledge fraction tree commitments 2026",
+    "site.github.com stwo prover logup gkr fraction layer point ordering",
+    "zero knowledge GKR masking polynomial commitments streaming lookup 2026 October",
+    "site:github.com/starkware-libs/stwo \"gkr\" \"logup\"",
+    "site:eprint.iacr.org/2026 GKR zero-knowledge streaming commitments lookup October",
+    "site:arxiv.org \"A Zero Knowledge Sumcheck and its Applications\"",
+    "Virgo zero knowledge GKR 2019 masking prover polynomial commitments paper",
+    "site:eprint.iacr.org GKR \"zero knowledge\" \"linear\" 2018 Libra",
+    "\"2020/1247\" \"zero\" \"mask\"",
+    "\"Doubly Efficient Interactive Proofs for General Arithmetic Circuits\" masking"
+  ],
+  "query_count": 10,
+  "source_records": 11,
+  "notes": "All substantive claims use opened primary sources. Search-only Stwo migration/cache inconsistencies not used. No downloaded scripts or external code executed; exact metadata/fetch limits retained per record."
+}

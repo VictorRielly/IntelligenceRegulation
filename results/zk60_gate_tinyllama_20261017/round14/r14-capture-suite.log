@@ -1,0 +1,32 @@
+
+running 27 tests
+test private_block::run_capture_tests::a_capture_directory_inside_the_repository_is_refused ... ok
+test private_block::run_capture_tests::a_run_verifies_the_same_with_and_without_a_recorder ... ok
+test private_block::run_capture_tests::a_tampered_run_is_refused_and_no_bundle_is_written ... ok
+test private_block::run_capture_tests::a_three_block_rung_g_run_is_captured_and_the_bundle_is_self_consistent ... ok
+test private_block::run_capture_tests::capture_a_125m_run ... ignored, captures a 125M run; heavy. set HL_PB_CAPTURE_DIR (outside the repo) and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::run_capture_tests::capture_a_dd_rung_run ... ignored, captures a DD rung run; set HL_PB_CAPTURE_DIR (outside the repo) and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::run_capture_tests::capture_a_tinyllama_t128_dd_run ... ignored, captures a TinyLlama T128 DD run; set HL_PB_CAPTURE_DIR (outside the repo) and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::run_capture_tests::each_slots_terminal_vector_is_as_long_as_its_plane_list ... ok
+test private_block::run_capture_tests::every_key_of_a_bundle_is_on_the_allow_list ... ok
+test private_block::run_capture_tests::every_plane_a_slot_references_is_in_the_plane_index ... ok
+test private_block::run_capture_tests::the_array_store_and_the_classic_encoding_carry_the_same_values ... ok
+test private_block::run_capture_tests::the_bundle_pins_every_source_file_that_decides_its_contents ... ok
+test private_block::run_capture_tests::the_heavy_captures_code_path_works_at_a_development_shape ... ok
+test private_block::run_capture_tests::the_plane_index_builds_at_the_dd_layouts ... ok
+test private_block::run_capture_tests::the_plane_index_is_the_same_in_two_independent_bundles ... ok
+test private_block::run_capture_tests::the_plane_index_tiles_the_a_and_h_commitments_of_the_rung_layout ... ok
+test private_block::run_capture_tests::the_refusal_replay_evaluates_in_the_order_the_openings_challenges_are_drawn ... ok
+test private_block::run_capture_tests::the_replay_refuses_a_header_that_is_not_the_verifiers ... ok
+test private_block::run_capture_tests::the_run_file_names_the_hash_rule_and_the_rebuilt_header_matched_under_it ... ok
+test private_block::run_capture_tests::write_the_c6_gate_bundles ... ignored, writes the stage-31 rung-C6 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_e32_gate_bundles ... ignored, writes the stage-33 rung-E32 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_gate_bundles ... ignored, writes the gate bundles; set HL_RUN_CAPTURE_DIR
+test private_block::run_capture_tests::write_the_k4_gate_bundles ... ignored, writes the stage-22 rung-K4 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_p2_gate_bundles ... ignored, writes the stage-30 rung-P2 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_s20_gate_bundles ... ignored, writes the stage-21 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_tagged_gate_bundles ... ignored, writes the tagged gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_w14_gate_bundles ... ignored, writes the stage-32 rung-W14 gate bundles (about 130 MB each, so OUTSIDE the repository); set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+
+test result: ok. 16 passed; 0 failed; 11 ignored; 0 measured; 581 filtered out; finished in 30.72s
+

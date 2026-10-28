@@ -1,0 +1,13 @@
+fn pool_take(dev: &Arc<CudaDevice>, len: usize) -> Result<CudaSlice<u64>, String> {
+    if POOL_REUSE_ENABLED.load(Ordering::SeqCst) {
+        let mut pool = POOL.lock().unwrap();
+        if let Some(i) = pool.iter().position(|b| b.len() == len) {
+            note_reuse(len, len);
+            return Ok(pool.swap_remove(i));
+        }
+    }
+    fresh_alloc_gate(len)?;
+    let b = unsafe { dev.alloc::<u64>(len) }.map_err(|e| format!("cuMemAlloc({} MB): {e}", len * 8 >> 20))?;
+    FRESH_ALLOC_BYTES.fetch_add(len * 8, Ordering::SeqCst);
+    Ok(b)
+}

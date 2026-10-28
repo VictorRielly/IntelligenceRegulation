@@ -1,0 +1,2 @@
+{"event": "layer0-precheck", "status": "clear", "prompt_tokens": 32, "known_refusing": [662, 16309], "fingerprint": "f8086a4022bade60f010077a0b72a66b382df2178afe3eb93178fc49c310df39", "scan": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/runs/llama3-8b/vocab0_llama3_8b_pg_rot1_b7_T128.json"}
+k1b exit 0

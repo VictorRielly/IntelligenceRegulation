@@ -1,0 +1,42 @@
+[zk60-guard 20:14:58] START gate-probe-v14-tk9-l2-dense class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=c1d3504085fe
+[zk60-guard 20:14:59] END gate-probe-v14-tk9-l2-dense exit=1 child_wall=1s peak_rss=0.07G min_avail=9.22G
+[zk60-guard 20:14:59] START gate-tk9-l2-dense-a class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=297612458162
+[zk60-guard 20:15:38] END gate-tk9-l2-dense-a exit=0 child_wall=39s peak_rss=0.18G min_avail=9.09G
+[zk60-guard 20:15:38] START gate-tk9-l2-zero-a class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=bbdddbdc7d59
+[zk60-guard 20:16:13] END gate-tk9-l2-zero-a exit=0 child_wall=34s peak_rss=0.18G min_avail=8.94G
+[zk60-guard 20:16:13] START gate-predict-validated-dense class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=90d8d73b48a3
+[zk60-guard 20:16:15] END gate-predict-validated-dense exit=0 child_wall=2s peak_rss=0.16G min_avail=9.69G
+[zk60-guard 20:16:15] START gate-predict-validated-zero class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=8b4faa587a61
+[zk60-guard 20:16:16] END gate-predict-validated-zero exit=0 child_wall=2s peak_rss=0.16G min_avail=9.69G
+[zk60-guard 20:16:16] START gate-tk9-tl-controls-l2-dense class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=2b78d4d611e3
+[zk60-guard 20:17:23] END gate-tk9-tl-controls-l2-dense exit=0 child_wall=66s peak_rss=0.16G min_avail=8.91G
+[zk60-guard 20:17:23] START gate-tk9-tl-controls-l2-zero class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=0043a9aac4c1
+[zk60-guard 20:18:15] END gate-tk9-tl-controls-l2-zero exit=0 child_wall=52s peak_rss=0.16G min_avail=10.13G
+[zk60-guard 20:18:15] START gate-tk9-witcmp-l2 class=light need=0.3G cap=1G enforce=cgroup+watchdog waited=0s run=a6c722d3b7f5
+[zk60-guard 20:18:15] END gate-tk9-witcmp-l2 exit=0 child_wall=0s peak_rss=0.00G min_avail=10.67G
+[zk60-guard 20:18:16] START gate-tk9-g10-l2 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=d79dbd80022a
+[zk60-guard 20:18:18] END gate-tk9-g10-l2 exit=0 child_wall=2s peak_rss=0.17G min_avail=10.37G
+[zk60-guard 20:18:28] START gate-tk9-l1-dense-a class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=4c7be6fa3754
+[zk60-guard 20:18:49] END gate-tk9-l1-dense-a exit=0 child_wall=21s peak_rss=0.13G min_avail=10.06G
+[zk60-guard 20:18:49] START gate-tk9-l1-zero-a class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=7da34782acbb
+[zk60-guard 20:19:19] END gate-tk9-l1-zero-a exit=0 child_wall=30s peak_rss=0.14G min_avail=9.69G
+[zk60-guard 20:19:19] START gate-predict-validated-dense class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=1b3455b73405
+[zk60-guard 20:19:21] END gate-predict-validated-dense exit=0 child_wall=1s peak_rss=0.10G min_avail=10.83G
+[zk60-guard 20:19:21] START gate-predict-validated-zero class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=39ffcc50c510
+[zk60-guard 20:19:22] END gate-predict-validated-zero exit=0 child_wall=1s peak_rss=0.07G min_avail=10.56G
+[zk60-guard 20:19:22] START gate-tk9-tl-controls-l1-dense class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=0b2fe0f8c027
+[zk60-guard 20:19:48] END gate-tk9-tl-controls-l1-dense exit=0 child_wall=26s peak_rss=0.14G min_avail=10.11G
+[zk60-guard 20:19:48] START gate-tk9-g10-l1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=d108ba863a11
+[zk60-guard 20:19:50] END gate-tk9-g10-l1 exit=0 child_wall=2s peak_rss=0.14G min_avail=9.85G
+[zk60-guard 20:19:50] START gate-tk9-pincontrols-l1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=2165d35c0dc6
+[zk60-guard 20:22:47] END gate-tk9-pincontrols-l1 exit=0 child_wall=177s peak_rss=0.14G min_avail=9.85G
+[zk60-guard 20:22:47] START gate-tk9-l1-dense-everything class=light need=1.2G cap=2G enforce=cgroup+watchdog waited=0s run=62506673ab68
+[zk60-guard 20:36:28] END gate-tk9-l1-dense-everything exit=0 child_wall=821s peak_rss=0.63G min_avail=5.56G
+[zk60-guard 20:36:28] START gate-tk9-l1-zero-everything class=light need=1.2G cap=2G enforce=cgroup+watchdog waited=0s run=d1ee93a884b9
+[zk60-guard 20:50:21] END gate-tk9-l1-zero-everything exit=0 child_wall=833s peak_rss=0.79G min_avail=5.51G
+[zk60-guard 20:50:21] START gate-tk9-l2-dense-everything class=light need=1.2G cap=2G enforce=cgroup+watchdog waited=0s run=0086cc56800c
+[zk60-guard 21:06:48] END gate-tk9-l2-dense-everything exit=0 child_wall=987s peak_rss=0.76G min_avail=10.00G
+[zk60-guard 21:06:48] START gate-tk9-l2-zero-everything class=light need=1.2G cap=2G enforce=cgroup+watchdog waited=0s run=0bb0f8499908
+[zk60-guard 21:22:58] END gate-tk9-l2-zero-everything exit=0 child_wall=970s peak_rss=0.76G min_avail=10.11G
+[zk60-guard 21:22:58] START gate-unittests-v15 class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=355263e5233c
+[zk60-guard 21:23:25] END gate-unittests-v15 exit=0 child_wall=27s peak_rss=0.46G min_avail=10.72G

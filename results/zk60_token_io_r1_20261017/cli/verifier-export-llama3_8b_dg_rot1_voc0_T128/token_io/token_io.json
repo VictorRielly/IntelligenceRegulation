@@ -1,0 +1,62 @@
+{
+ "T": 128,
+ "bos": 128000,
+ "checked_against": {
+  "checks": [
+   "table[token_ids] == x_in_L00 == the TOKEN_IO_SPEC rule recomputed from the checkpoint rows",
+   "x_out of every layer chained through tlcalib.i_block at this export's words (accepted at every layer)"
+  ],
+  "exported_sequences": [
+   "seq_ho00",
+   "seq_ho09"
+  ]
+ },
+ "embedding_table": {
+  "dtype": "int16",
+  "file": "embedding_int16.bin",
+  "rule": "floor(float64(float32(R.fwd(float64(float32(E[t]))))) / s_in + 0.5), refuse outside int16",
+  "sha256": "be317b7edf4e7ddf7591f4a7467b0305262ab9822ce713ee0eeeb648f0ab012f",
+  "shape": [
+   128256,
+   4096
+  ]
+ },
+ "export": "llama3_8b_dg_rot1_voc0_T128",
+ "kind": "token_io",
+ "mode": "rebuilt at this export's residual scale (fidelity lane fp_export.py --rebuild-token-io)",
+ "model": {
+  "licence": "Meta Llama 3 Community License: LICENSE (sha256 475211637354ce4c...) and USE_POLICY.md (sha256 003513f595a20b7d...) from the pinned revision, copied into each export with NOTICE",
+  "name": "Llama-3-8B (Meta Llama 3)",
+  "repo": "NousResearch/Meta-Llama-3-8B",
+  "revision": "315b20096dc791d381d514deb5f8bd9c8d6d3061",
+  "shards_sha256": {
+   "model-00001-of-00004.safetensors": "f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33",
+   "model-00002-of-00004.safetensors": "d9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c",
+   "model-00003-of-00004.safetensors": "4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc",
+   "model-00004-of-00004.safetensors": "5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb"
+  }
+ },
+ "notes": [
+  "embedding_int16.bin rebuilt by the TOKEN_IO_SPEC rule at s_in; head_manifest.json final_norm Ceps / Cn re-derived by the b8_token_io rule at s_out; head_int8_perrow.bin, head_mult12.bin, calib_final_xhat_rot_absmax.bin are the reference's files (scale-free, hard links); f2_fidelity.json not carried (it measured the reference stack)"
+ ],
+ "reused_from": {
+  "token_io": "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T128/token_io",
+  "token_io_json_sha256": "d7c99b3c41b9f10b8d5c49722f08f93cefb668dc2d257f7ca6d73cc534800522"
+ },
+ "rms_norm_eps": 1e-05,
+ "rotation": {
+  "file": "../rotation_sign.bin (see ../rotation.json)",
+  "seed": 1,
+  "sign_sha256": "776bc978e8ed8fc21d948d7f83deb6b5178a9ba94205a6924d10f3945e26d08b"
+ },
+ "s_x_in_layer0": 0.0013919520589849622,
+ "s_x_out_layer31": 0.0013919520589849622,
+ "schema": "zk60-trained-profile-export/1",
+ "scope": "public model data + calibration data; not a proof",
+ "source_tensors_sha256": {
+  "lm_head.weight": "7841ae24b8ecbbbab57b3be2061258591e717e30d3d6afff6ad3842937824312",
+  "model.embed_tokens.weight": "b720254ab5cbcde36637b8cd543ed1dfc3f13f0360a27d422681f2f4dd942438",
+  "model.norm.weight": "91daaec9b09e78f092f88d959082d2449f98543d95c61bbd341c38f3b166c9ae"
+ },
+ "spec": "results/zk60_1b_calibration_20260929/export/TOKEN_IO_SPEC.md (8B: d 4096, V 128256, BOS 128000, 32 layers)"
+}

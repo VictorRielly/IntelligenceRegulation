@@ -1,0 +1,36 @@
+[
+  {
+    "argv": [
+      "timeout",
+      "60s",
+      "python3",
+      "-B",
+      "experiments/public-layer-dd-caps-20261020/probe.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 1.8167210879910272
+  },
+  {
+    "argv": [
+      "timeout",
+      "60s",
+      "python3",
+      "-B",
+      "experiments/public-layer-dd-caps-20261020/audit.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 0.04051976100890897
+  },
+  {
+    "argv": [
+      "timeout",
+      "60s",
+      "python3",
+      "-B",
+      "experiments/public-layer-dd-caps-20261020/audit.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 0.043836839991854504,
+    "note": "Added every slot M-row budget check"
+  }
+]

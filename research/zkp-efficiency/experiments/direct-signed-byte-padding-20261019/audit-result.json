@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "checks": 2725,
+  "output_corruption_controls": 864,
+  "wall_seconds": 0.08699876299942844,
+  "rss_kib": 19196,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "source_pins": 18,
+  "scope": "Independent reconstruction of synthetic artifacts and full-lifetime count. No native proof."
+}

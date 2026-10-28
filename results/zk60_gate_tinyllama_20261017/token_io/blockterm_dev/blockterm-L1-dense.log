@@ -1,0 +1,1 @@
+blockterm-L1-dense: status PASS; false parts []; per block stage (token stage, equal, expected) [(1, 23, 23)]; controls True; 4.4 s; peak 173 MB; record /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/token_io/blockterm_dev/blockterm-L1-dense.json

@@ -1,0 +1,22 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/logs/t20-r3-trained-prove.log",
+    "sha256": "e9d36dc63706d6a56063391c5b1a69eb1a586d433fc168bf73f703eb079d451f"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/logs/t21-r3-trained-verify.log",
+    "sha256": "298622f165ce19a3a59598e9b0ca0594bb5173195b14f81032c792e75af97788"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/logs/t20-r3-trained-prove.guard.json",
+    "sha256": "0be25e71e0adb351c5180280ca4441c38508dc1e7085b05e06196a90c622092b"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/logs/t21-r3-trained-verify.guard.json",
+    "sha256": "9c0a35b447da2a37e69ff93bfcfa1c5dc379615dd68e09cd68987d86146e752f"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_token_io_review_r1_20261017/REVIEW3.md",
+    "sha256": "3f26d1a157a1e94e8c01a83c518495b3fa0502c20db029b5de12f9f289fd3a35"
+  }
+]

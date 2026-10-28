@@ -1,0 +1,10 @@
+
+running 1 test
+test private_block::run_capture_tests::capture_a_tinyllama_trained_run ... CAPTURE TinyLlama-trained L=22 layers 0..22 zero: witness=all-zero (degenerate), public tables=values, parity words 0, prove+verify+record 71.69 s, high-water mark 2.47 GiB
+CAPTURE TinyLlama-trained L=22 layers 0..22 zero: run.json 52521 B, stage files [3601298, 3609943, 3609795, 3612482, 3608924, 3608999, 3609622, 3607556, 3608160, 3610994, 3608914, 3608699, 3608363, 3609974, 3611864, 3607018, 3609572, 3610212, 3608413, 3606125, 3611571, 4309606] B; arrays.bin 290446072 B over 12606 distinct arrays, 12937 references (331 deduplicated), 11543 inline
+CAPTURE TinyLlama-trained L=22 layers 0..22 zero: segments 250855088 B (pinned by digest)
+CAPTURE TinyLlama-trained L=22 layers 0..22 zero RESULT: 370600728 B (370.6 MB) at /home/victor/zk60-artifacts/tinyllama-trained-tk7-capture-zero-l22, self-consistent, every key on the allow-list — a CAPTURE, not a privacy result
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 650 filtered out; finished in 75.63s
+

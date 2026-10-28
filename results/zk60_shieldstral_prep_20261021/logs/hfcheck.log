@@ -1,0 +1,6 @@
+cb_safe: T=84 12.8s argmax=2649
+cb_unsafe: T=83 12.6s argmax=13059
+cb_borderline: T=97 12.7s argmax=13059
+card_benign: T=102 12.0s argmax=2649
+card_toxic: T=102 12.6s argmax=13059
+wrote /home/victor/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/crosscheck/hf_transformers.npz

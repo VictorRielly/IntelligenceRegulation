@@ -1,0 +1,49 @@
+--- a/zkp-core/src/merkle.rs
++++ b/zkp-core/src/merkle.rs
+@@ -59,6 +59,34 @@
+                 .par_chunks(2)
+                 .map(|pair| hash_pair_keyed(&pair[0], &pair[1], key))
+                 .collect();
++            levels.push(next);
++        }
++        MerkleTree { levels }
++    }
++
++    /// Research candidate: retain every level, fuse salting and first parent.
++    /// Native build, byte/receipt, failure, privacy and timing gates still owed.
++    pub fn build_salted_keyed(leaves: &[Digest], salts: &[Digest], leaf_key: Option<&Digest>, node_key: Option<&Digest>) -> MerkleTree {
++        let n = leaves.len();
++        assert!(n.is_power_of_two() && n >= 1 && salts.len() == n);
++        if n == 1 {
++            return MerkleTree { levels: vec![vec![crate::pcs::salt_leaf_keyed(&leaves[0], &salts[0], leaf_key)]] };
++        }
++        let mut pairs: Vec<[Digest; 2]> = Vec::new();
++        let mut first: Vec<Digest> = Vec::new();
++        leaves.par_chunks(2).zip(salts.par_chunks(2)).map(|(l, s)| {
++            let a = crate::pcs::salt_leaf_keyed(&l[0], &s[0], leaf_key);
++            let b = crate::pcs::salt_leaf_keyed(&l[1], &s[1], leaf_key);
++            let p = hash_pair_keyed(&a, &b, node_key);
++            ([a, b], p)
++        }).unzip_into_vecs(&mut pairs, &mut first);
++        // Stable since Rust 1.80; reuses the pair buffer without a copy.
++        // Indexed Rayon unzip fills both outputs without explicit zeroing.
++        let mut levels = vec![pairs.into_flattened(), first];
++        while levels.last().unwrap().len() > 1 {
++            let prev = levels.last().unwrap();
++            let next: Vec<Digest> = prev.par_chunks(2)
++                .map(|pair| hash_pair_keyed(&pair[0], &pair[1], node_key)).collect();
+             levels.push(next);
+         }
+         MerkleTree { levels }
+--- a/zkp-core/src/pcs.rs
++++ b/zkp-core/src/pcs.rs
+@@ -787,8 +787,7 @@
+             (Store::Host { encoded }, leaves)
+         }
+     };
+-    let salted: Vec<Digest> = leaves.par_iter().zip(salts.par_iter()).map(|(l, s)| salt_leaf_keyed(l, s, tag.leaf_key())).collect();
+-    let tree = MerkleTree::build_keyed(salted, tag.node_key());
++    let tree = MerkleTree::build_salted_keyed(&leaves, &salts, tag.leaf_key(), tag.node_key());
+     CommittedZk {
+         cm: Committed { params: *params, rows, store, tree },
+         zk: *zk,

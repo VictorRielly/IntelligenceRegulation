@@ -1,0 +1,99 @@
+
+== TinyLlama-1.1B T128 | R9 non-DD: committed 68,403,200  U8 28,999,680  element-terms 122,977,536 (review conv. 47,349,760)
+  a_need committed  +8.29%  U8 +13.79%  e-terms  +6.55% (rev  +8.51%)  A {'D': 1, 'Q': 1, 'Kv': 2, 'F': 2} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 1, 'Kv': 1, 'F': 1}  receipt +3.13%  time[M] +6.87%  arg-time[M] +7.16%
+  a1    committed  +3.59%  U8  +5.65%  e-terms  +3.14% (rev  +4.08%)  A {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1} lk {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1} help {'D': 1, 'Kv': 1}  receipt +1.36%  time[M] +3.70%  arg-time[M] +3.85%
+  a1z   committed  +3.59%  U8  +6.55%  e-terms  +3.14% (rev  +4.08%)  A {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 1} help {'D': 1, 'Kv': 1}  receipt +1.36%  time[M] +3.74%  arg-time[M] +3.90%
+  a2    committed  +4.02%  U8  +6.55%  e-terms  +3.57% (rev  +4.64%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 1} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 1} help {'D': 1, 'Kv': 1}  receipt +1.52%  time[M] +4.24%  arg-time[M] +4.42%
+  a3_1  committed  +8.72%  U8 +13.79%  e-terms  +6.98% (rev  +9.07%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 2} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 1, 'Kv': 1, 'F': 1}  receipt +3.30%  time[M] +7.36%  arg-time[M] +7.67%
+  a3    committed +13.41%  U8 +17.40%  e-terms +10.39% (rev +13.49%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 4} help {'D': 1, 'Kv': 1, 'F': 2}  receipt +5.07%  time[M] +10.29%  arg-time[M] +10.73%
+  b_need committed +19.07%  U8 +24.86%  e-terms +14.81% (rev +19.24%)  A {'D': 4, 'Q': 2, 'Kv': 4, 'F': 4} lk {'D': 5, 'Q': 2, 'Kv': 4, 'F': 5} help {'D': 3, 'Q': 1, 'Kv': 2, 'F': 2}  receipt +7.21%  time[M] +15.66%  arg-time[M] +16.33%
+  b3    committed +22.95%  U8 +27.57%  e-terms +17.80% (rev +23.11%)  A {'D': 4, 'Q': 2, 'Kv': 4, 'F': 5} lk {'D': 4, 'Q': 2, 'Kv': 4, 'F': 6} help {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3}  receipt +8.67%  time[M] +18.00%  arg-time[M] +18.76%
+  b3m   committed +18.25%  U8 +23.95%  e-terms +14.39% (rev +18.69%)  A {'D': 4, 'Q': 2, 'Kv': 4, 'F': 4} lk {'D': 4, 'Q': 2, 'Kv': 4, 'F': 5} help {'D': 2, 'Q': 1, 'Kv': 2, 'F': 2}  receipt +6.90%  time[M] +15.06%  arg-time[M] +15.71%
+  b4    committed +31.66%  U8 +37.74%  e-terms +24.78% (rev +32.18%)  A {'D': 6, 'Q': 3, 'Kv': 6, 'F': 7} lk {'D': 6, 'Q': 3, 'Kv': 6, 'F': 8} help {'D': 3, 'Q': 1, 'Kv': 3, 'F': 4}  receipt +11.97%  time[M] +25.17%  arg-time[M] +26.24%
+  b3_5  committed +10.30%  U8 +11.30%  e-terms  +7.99% (rev +10.38%)  A {'D': 2, 'Q': 2, 'Kv': 4, 'F': 2} lk {'D': 2, 'Q': 2, 'Kv': 4, 'F': 2} help {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1}  receipt +3.89%  time[M] +8.87%  arg-time[M] +9.24%
+  c3_int12 committed  +9.53%  U8 +14.69%  e-terms  +7.41% (rev  +9.62%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 2} lk {'D': 3, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 2, 'Kv': 1, 'F': 1}  receipt +3.60%  time[M] +7.96%  arg-time[M] +8.30%
+  c_fused committed +10.30%  U8 +13.79%  e-terms  +8.69% (rev +11.28%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 1, 'Kv': 1, 'F': 1}  receipt +3.89%  time[M] +8.61%  arg-time[M] +8.98%
+
+== TinyLlama-1.1B T128 | R9 DD: committed 63,848,448  U8 25,460,736  element-terms 116,948,224 (review conv. 44,072,960)
+  a_need committed  +8.88%  U8 +15.70%  e-terms  +6.89% (rev  +9.14%)  A {'D': 1, 'Q': 1, 'Kv': 2, 'F': 2} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 1, 'Kv': 1, 'F': 1}  receipt +3.10%  time[M] +7.19%  arg-time[M] +7.47%
+  a1    committed  +3.85%  U8  +6.44%  e-terms  +3.31% (rev  +4.39%)  A {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1} lk {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1} help {'D': 1, 'Kv': 1}  receipt +1.34%  time[M] +3.88%  arg-time[M] +4.04%
+  a1z   committed  +3.85%  U8  +7.46%  e-terms  +3.31% (rev  +4.39%)  A {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 1} help {'D': 1, 'Kv': 1}  receipt +1.34%  time[M] +3.93%  arg-time[M] +4.09%
+  a2    committed  +4.31%  U8  +7.46%  e-terms  +3.75% (rev  +4.98%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 1} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 1} help {'D': 1, 'Kv': 1}  receipt +1.51%  time[M] +4.44%  arg-time[M] +4.62%
+  a3_1  committed  +9.34%  U8 +15.70%  e-terms  +7.34% (rev  +9.74%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 2} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 1, 'Kv': 1, 'F': 1}  receipt +3.26%  time[M] +7.70%  arg-time[M] +8.01%
+  a3    committed +14.37%  U8 +19.82%  e-terms +10.93% (rev +14.50%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 4} help {'D': 1, 'Kv': 1, 'F': 2}  receipt +5.02%  time[M] +10.77%  arg-time[M] +11.20%
+  b_need committed +20.43%  U8 +28.31%  e-terms +15.58% (rev +20.67%)  A {'D': 4, 'Q': 2, 'Kv': 4, 'F': 4} lk {'D': 5, 'Q': 2, 'Kv': 4, 'F': 5} help {'D': 3, 'Q': 1, 'Kv': 2, 'F': 2}  receipt +7.13%  time[M] +16.36%  arg-time[M] +17.01%
+  b3    committed +24.58%  U8 +31.40%  e-terms +18.72% (rev +24.83%)  A {'D': 4, 'Q': 2, 'Kv': 4, 'F': 5} lk {'D': 4, 'Q': 2, 'Kv': 4, 'F': 6} help {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3}  receipt +8.59%  time[M] +18.81%  arg-time[M] +19.56%
+  b3m   committed +19.55%  U8 +27.28%  e-terms +15.13% (rev +20.07%)  A {'D': 4, 'Q': 2, 'Kv': 4, 'F': 4} lk {'D': 4, 'Q': 2, 'Kv': 4, 'F': 5} help {'D': 2, 'Q': 1, 'Kv': 2, 'F': 2}  receipt +6.83%  time[M] +15.75%  arg-time[M] +16.37%
+  b4    committed +33.92%  U8 +42.99%  e-terms +26.06% (rev +34.57%)  A {'D': 6, 'Q': 3, 'Kv': 6, 'F': 7} lk {'D': 6, 'Q': 3, 'Kv': 6, 'F': 8} help {'D': 3, 'Q': 1, 'Kv': 3, 'F': 4}  receipt +11.85%  time[M] +26.33%  arg-time[M] +27.37%
+  b3_5  committed +11.03%  U8 +12.87%  e-terms  +8.41% (rev +11.15%)  A {'D': 2, 'Q': 2, 'Kv': 4, 'F': 2} lk {'D': 2, 'Q': 2, 'Kv': 4, 'F': 2} help {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1}  receipt +3.85%  time[M] +9.29%  arg-time[M] +9.66%
+  c3_int12 committed +10.21%  U8 +16.73%  e-terms  +7.79% (rev +10.33%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 2} lk {'D': 3, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 2, 'Kv': 1, 'F': 1}  receipt +3.57%  time[M] +8.32%  arg-time[M] +8.65%
+  c_fused committed +11.03%  U8 +15.70%  e-terms  +9.13% (rev +12.12%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 1, 'Kv': 1, 'F': 1}  receipt +3.85%  time[M] +9.02%  arg-time[M] +9.37%
+
+== Llama-3-8B T128 | R9 non-DD: committed 117,882,880  U8 51,937,280  element-terms 217,315,584 (review conv. 84,541,440)
+  a_need committed  +9.59%  U8 +15.65%  e-terms  +7.60% (rev  +9.77%)  A {'D': 1, 'Q': 1, 'Kv': 2, 'F': 2} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 1, 'Kv': 1, 'F': 1}  receipt +4.90%  time[M] +6.05%  arg-time[M] +8.27%
+  a1    committed  +4.20%  U8  +6.56%  e-terms  +3.74% (rev  +4.81%)  A {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1} lk {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1} help {'D': 1, 'Kv': 1}  receipt +2.15%  time[M] +3.11%  arg-time[M] +4.25%
+  a1z   committed  +4.20%  U8  +7.57%  e-terms  +3.74% (rev  +4.81%)  A {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 1} help {'D': 1, 'Kv': 1}  receipt +2.15%  time[M] +3.15%  arg-time[M] +4.31%
+  a2    committed  +4.67%  U8  +7.57%  e-terms  +4.22% (rev  +5.43%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 1} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 1} help {'D': 1, 'Kv': 1}  receipt +2.39%  time[M] +3.52%  arg-time[M] +4.82%
+  a3_1  committed +10.06%  U8 +15.65%  e-terms  +8.08% (rev +10.39%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 2} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 1, 'Kv': 1, 'F': 1}  receipt +5.14%  time[M] +6.42%  arg-time[M] +8.78%
+  a3    committed +15.46%  U8 +19.68%  e-terms +11.94% (rev +15.35%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 4} help {'D': 1, 'Kv': 1, 'F': 2}  receipt +7.90%  time[M] +9.15%  arg-time[M] +12.51%
+  b_need committed +21.96%  U8 +28.26%  e-terms +17.13% (rev +22.02%)  A {'D': 4, 'Q': 2, 'Kv': 4, 'F': 4} lk {'D': 5, 'Q': 2, 'Kv': 4, 'F': 5} help {'D': 3, 'Q': 1, 'Kv': 2, 'F': 2}  receipt +11.22%  time[M] +13.63%  arg-time[M] +18.62%
+  b3    committed +26.44%  U8 +31.29%  e-terms +20.51% (rev +26.36%)  A {'D': 4, 'Q': 2, 'Kv': 4, 'F': 5} lk {'D': 4, 'Q': 2, 'Kv': 4, 'F': 6} help {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3}  receipt +13.51%  time[M] +15.85%  arg-time[M] +21.66%
+  b3m   committed +21.04%  U8 +27.26%  e-terms +16.65% (rev +21.40%)  A {'D': 4, 'Q': 2, 'Kv': 4, 'F': 4} lk {'D': 4, 'Q': 2, 'Kv': 4, 'F': 5} help {'D': 2, 'Q': 1, 'Kv': 2, 'F': 2}  receipt +10.75%  time[M] +13.12%  arg-time[M] +17.93%
+  b4    committed +36.50%  U8 +42.90%  e-terms +28.59% (rev +36.74%)  A {'D': 6, 'Q': 3, 'Kv': 6, 'F': 7} lk {'D': 6, 'Q': 3, 'Kv': 6, 'F': 8} help {'D': 3, 'Q': 1, 'Kv': 3, 'F': 4}  receipt +18.65%  time[M] +22.10%  arg-time[M] +30.20%
+  b3_5  committed +11.98%  U8 +13.12%  e-terms  +9.41% (rev +12.09%)  A {'D': 2, 'Q': 2, 'Kv': 4, 'F': 2} lk {'D': 2, 'Q': 2, 'Kv': 4, 'F': 2} help {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1}  receipt +6.12%  time[M] +7.67%  arg-time[M] +10.47%
+  c3_int12 committed +10.98%  U8 +16.66%  e-terms  +8.56% (rev +11.01%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 2} lk {'D': 3, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 2, 'Kv': 1, 'F': 1}  receipt +5.61%  time[M] +6.93%  arg-time[M] +9.47%
+  c_fused committed +11.87%  U8 +15.65%  e-terms +10.01% (rev +12.87%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 1, 'Kv': 1, 'F': 1}  receipt +6.07%  time[M] +7.52%  arg-time[M] +10.27%
+
+== Llama-3-8B T128 | R9 DD: committed 113,328,128  U8 48,398,336  element-terms 211,286,272 (review conv. 81,264,640)
+  a_need committed  +9.98%  U8 +16.79%  e-terms  +7.82% (rev +10.16%)  A {'D': 1, 'Q': 1, 'Kv': 2, 'F': 2} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 1, 'Kv': 1, 'F': 1}  receipt +4.86%  time[M] +6.15%  arg-time[M] +8.43%
+  a1    committed  +4.37%  U8  +7.04%  e-terms  +3.85% (rev  +5.00%)  A {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1} lk {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1} help {'D': 1, 'Kv': 1}  receipt +2.13%  time[M] +3.16%  arg-time[M] +4.33%
+  a1z   committed  +4.37%  U8  +8.12%  e-terms  +3.85% (rev  +5.00%)  A {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 1} help {'D': 1, 'Kv': 1}  receipt +2.13%  time[M] +3.20%  arg-time[M] +4.39%
+  a2    committed  +4.86%  U8  +8.12%  e-terms  +4.34% (rev  +5.65%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 1} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 1} help {'D': 1, 'Kv': 1}  receipt +2.37%  time[M] +3.58%  arg-time[M] +4.90%
+  a3_1  committed +10.47%  U8 +16.79%  e-terms  +8.31% (rev +10.81%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 2} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 1, 'Kv': 1, 'F': 1}  receipt +5.10%  time[M] +6.52%  arg-time[M] +8.94%
+  a3    committed +16.08%  U8 +21.12%  e-terms +12.28% (rev +15.97%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 4} help {'D': 1, 'Kv': 1, 'F': 2}  receipt +7.83%  time[M] +9.29%  arg-time[M] +12.74%
+  b_need committed +22.84%  U8 +30.33%  e-terms +17.62% (rev +22.90%)  A {'D': 4, 'Q': 2, 'Kv': 4, 'F': 4} lk {'D': 5, 'Q': 2, 'Kv': 4, 'F': 5} help {'D': 3, 'Q': 1, 'Kv': 2, 'F': 2}  receipt +11.13%  time[M] +13.84%  arg-time[M] +18.97%
+  b3    committed +27.50%  U8 +33.58%  e-terms +21.09% (rev +27.42%)  A {'D': 4, 'Q': 2, 'Kv': 4, 'F': 5} lk {'D': 4, 'Q': 2, 'Kv': 4, 'F': 6} help {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3}  receipt +13.40%  time[M] +16.10%  arg-time[M] +22.06%
+  b3m   committed +21.89%  U8 +29.25%  e-terms +17.12% (rev +22.26%)  A {'D': 4, 'Q': 2, 'Kv': 4, 'F': 4} lk {'D': 4, 'Q': 2, 'Kv': 4, 'F': 5} help {'D': 2, 'Q': 1, 'Kv': 2, 'F': 2}  receipt +10.67%  time[M] +13.32%  arg-time[M] +18.26%
+  b4    committed +37.96%  U8 +46.04%  e-terms +29.40% (rev +38.23%)  A {'D': 6, 'Q': 3, 'Kv': 6, 'F': 7} lk {'D': 6, 'Q': 3, 'Kv': 6, 'F': 8} help {'D': 3, 'Q': 1, 'Kv': 3, 'F': 4}  receipt +18.50%  time[M] +22.44%  arg-time[M] +30.76%
+  b3_5  committed +12.46%  U8 +14.08%  e-terms  +9.68% (rev +12.58%)  A {'D': 2, 'Q': 2, 'Kv': 4, 'F': 2} lk {'D': 2, 'Q': 2, 'Kv': 4, 'F': 2} help {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1}  receipt +6.07%  time[M] +7.79%  arg-time[M] +10.67%
+  c3_int12 committed +11.42%  U8 +17.87%  e-terms  +8.81% (rev +11.45%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 2} lk {'D': 3, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 2, 'Kv': 1, 'F': 1}  receipt +5.57%  time[M] +7.04%  arg-time[M] +9.65%
+  c_fused committed +12.35%  U8 +16.79%  e-terms +10.30% (rev +13.39%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 1, 'Kv': 1, 'F': 1}  receipt +6.02%  time[M] +7.63%  arg-time[M] +10.46%
+
+== Llama-3-8B T512 | R9 non-DD: committed 663,257,088  U8 306,249,728  element-terms 1,282,790,400 (review conv. 495,452,160)
+  a_need committed  +6.73%  U8 +10.61%  e-terms  +5.15% (rev  +6.67%)  A {'D': 1, 'Q': 1, 'Kv': 2, 'F': 2} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 1, 'Kv': 1, 'F': 1}  arg-time[M] +5.91%
+  a1    committed  +2.91%  U8  +4.45%  e-terms  +2.53% (rev  +3.28%)  A {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1} lk {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1} help {'D': 1, 'Kv': 1}  arg-time[M] +3.02%
+  a1z   committed  +2.91%  U8  +5.14%  e-terms  +2.53% (rev  +3.28%)  A {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 1} help {'D': 1, 'Kv': 1}  arg-time[M] +3.07%
+  a2    committed  +3.24%  U8  +5.14%  e-terms  +2.86% (rev  +3.70%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 1} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 1} help {'D': 1, 'Kv': 1}  arg-time[M] +3.43%
+  a3_1  committed  +7.05%  U8 +10.61%  e-terms  +5.48% (rev  +7.09%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 2} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 1, 'Kv': 1, 'F': 1}  arg-time[M] +6.27%
+  a3    committed +10.87%  U8 +13.35%  e-terms  +8.09% (rev +10.48%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 4} help {'D': 1, 'Kv': 1, 'F': 2}  arg-time[M] +8.95%
+  b_need committed +15.39%  U8 +19.17%  e-terms +11.61% (rev +15.03%)  A {'D': 4, 'Q': 2, 'Kv': 4, 'F': 4} lk {'D': 5, 'Q': 2, 'Kv': 4, 'F': 5} help {'D': 3, 'Q': 1, 'Kv': 2, 'F': 2}  arg-time[M] +13.31%
+  b3    committed +18.57%  U8 +21.23%  e-terms +13.90% (rev +17.99%)  A {'D': 4, 'Q': 2, 'Kv': 4, 'F': 5} lk {'D': 4, 'Q': 2, 'Kv': 4, 'F': 6} help {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3}  arg-time[M] +15.49%
+  b3m   committed +14.75%  U8 +18.49%  e-terms +11.28% (rev +14.60%)  A {'D': 4, 'Q': 2, 'Kv': 4, 'F': 4} lk {'D': 4, 'Q': 2, 'Kv': 4, 'F': 5} help {'D': 2, 'Q': 1, 'Kv': 2, 'F': 2}  arg-time[M] +12.81%
+  b4    committed +25.62%  U8 +29.10%  e-terms +19.37% (rev +25.08%)  A {'D': 6, 'Q': 3, 'Kv': 6, 'F': 7} lk {'D': 6, 'Q': 3, 'Kv': 6, 'F': 8} help {'D': 3, 'Q': 1, 'Kv': 3, 'F': 4}  arg-time[M] +21.60%
+  b3_5  committed  +8.37%  U8  +8.90%  e-terms  +6.38% (rev  +8.25%)  A {'D': 2, 'Q': 2, 'Kv': 4, 'F': 2} lk {'D': 2, 'Q': 2, 'Kv': 4, 'F': 2} help {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1}  arg-time[M] +7.47%
+  c3_int12 committed  +7.70%  U8 +11.30%  e-terms  +5.80% (rev  +7.51%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 2} lk {'D': 3, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 2, 'Kv': 1, 'F': 1}  arg-time[M] +6.77%
+  c_fused committed  +8.33%  U8 +10.61%  e-terms  +6.78% (rev  +8.78%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 1, 'Kv': 1, 'F': 1}  arg-time[M] +7.35%
+
+== Llama-3-8B T512 | R9 DD: committed 525,172,736  U8 219,742,208  element-terms 1,085,658,112 (review conv. 395,837,440)
+  a_need committed  +8.50%  U8 +14.79%  e-terms  +6.08% (rev  +8.34%)  A {'D': 1, 'Q': 1, 'Kv': 2, 'F': 2} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 1, 'Kv': 1, 'F': 1}  arg-time[M] +7.14%
+  a1    committed  +3.68%  U8  +6.20%  e-terms  +2.99% (rev  +4.11%)  A {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1} lk {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1} help {'D': 1, 'Kv': 1}  arg-time[M] +3.65%
+  a1z   committed  +3.68%  U8  +7.16%  e-terms  +2.99% (rev  +4.11%)  A {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 1} help {'D': 1, 'Kv': 1}  arg-time[M] +3.70%
+  a2    committed  +4.09%  U8  +7.16%  e-terms  +3.38% (rev  +4.64%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 1} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 1} help {'D': 1, 'Kv': 1}  arg-time[M] +4.14%
+  a3_1  committed  +8.91%  U8 +14.79%  e-terms  +6.47% (rev  +8.87%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 2} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 1, 'Kv': 1, 'F': 1}  arg-time[M] +7.58%
+  a3    committed +13.73%  U8 +18.61%  e-terms  +9.56% (rev +13.11%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 4} help {'D': 1, 'Kv': 1, 'F': 2}  arg-time[M] +10.81%
+  b_need committed +19.44%  U8 +26.72%  e-terms +13.71% (rev +18.81%)  A {'D': 4, 'Q': 2, 'Kv': 4, 'F': 4} lk {'D': 5, 'Q': 2, 'Kv': 4, 'F': 5} help {'D': 3, 'Q': 1, 'Kv': 2, 'F': 2}  arg-time[M] +16.07%
+  b3    committed +23.45%  U8 +29.59%  e-terms +16.42% (rev +22.52%)  A {'D': 4, 'Q': 2, 'Kv': 4, 'F': 5} lk {'D': 4, 'Q': 2, 'Kv': 4, 'F': 6} help {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3}  arg-time[M] +18.71%
+  b3m   committed +18.63%  U8 +25.77%  e-terms +13.33% (rev +18.28%)  A {'D': 4, 'Q': 2, 'Kv': 4, 'F': 4} lk {'D': 4, 'Q': 2, 'Kv': 4, 'F': 5} help {'D': 2, 'Q': 1, 'Kv': 2, 'F': 2}  arg-time[M] +15.47%
+  b4    committed +32.36%  U8 +40.56%  e-terms +22.89% (rev +31.39%)  A {'D': 6, 'Q': 3, 'Kv': 6, 'F': 7} lk {'D': 6, 'Q': 3, 'Kv': 6, 'F': 8} help {'D': 3, 'Q': 1, 'Kv': 3, 'F': 4}  arg-time[M] +26.08%
+  b3_5  committed +10.57%  U8 +12.41%  e-terms  +7.53% (rev +10.33%)  A {'D': 2, 'Q': 2, 'Kv': 4, 'F': 2} lk {'D': 2, 'Q': 2, 'Kv': 4, 'F': 2} help {'D': 1, 'Q': 1, 'Kv': 2, 'F': 1}  arg-time[M] +9.02%
+  c3_int12 committed  +9.72%  U8 +15.75%  e-terms  +6.86% (rev  +9.40%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 2} lk {'D': 3, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 2, 'Kv': 1, 'F': 1}  arg-time[M] +8.17%
+  c_fused committed +10.52%  U8 +14.79%  e-terms  +8.02% (rev +10.99%)  A {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} lk {'D': 2, 'Q': 1, 'Kv': 2, 'F': 3} help {'D': 1, 'Kv': 1, 'F': 1}  arg-time[M] +8.87%
+
+no-wrap (log2 of the largest host term; p = 2^64 - 2^32 + 1):
+  R9 (one byte, sh <= 8; up u16 = acc) {'q/k/v': 25.99, 'ao': 26.16, 'gate': 25.99, 'down': 36.0}
+  (a) two-byte sh <= 16, up one byte {'q/k/v': 26.16, 'ao': 31.04, 'gate': 26.16, 'down': 36.04, 'up (new requant)': 26.16}
+  (b) 12-bit m, s <= 24 (up s <= 24) {'q/k/v': 38.0, 'ao': 39.58, 'gate': 38.0, 'down': 48.0, 'up (new requant)': 39.58}
+  (b) 12-bit m, s <= 32 {'q/k/v': 39.58, 'ao': 47.0, 'gate': 39.59, 'down': 48.58, 'up (new requant)': 47.0}
+  (c) int12 words, sh <= 16, up one byte {'q/k/v': 30.0, 'ao': 31.58, 'gate': 30.0, 'down': 40.0, 'up (new requant)': 30.0}
+  int16 words, sh <= 16 (reference) {'q/k/v': 33.99, 'ao': 34.16, 'gate': 33.99, 'down': 44.0, 'up (new requant)': 34.16}
+  p 64.0

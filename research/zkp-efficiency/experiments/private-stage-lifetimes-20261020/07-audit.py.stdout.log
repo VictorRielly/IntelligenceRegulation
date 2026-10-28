@@ -1,0 +1,1 @@
+{"status": "PASS", "checks": 182348, "negative_controls": 330, "traces": 6, "capacity_cases": 36, "synthetic_byte_fixtures": 36, "seed": 2026102094, "wall_seconds": 0.43980364900198765, "rss_kib": 20572, "threads": 1, "affinity": [0], "scope": "Independent authored single-agent dependency/interval/byte oracle; no native proof or external security review"}

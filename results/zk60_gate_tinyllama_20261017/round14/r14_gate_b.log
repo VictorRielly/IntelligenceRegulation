@@ -1,0 +1,27 @@
+[zk60-guard 17:45:42] START gate-dd-rung-l1-dense-everything class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=7bca8fcc0e38
+[zk60-guard 17:50:23] END gate-dd-rung-l1-dense-everything exit=0 child_wall=281s peak_rss=0.52G min_avail=7.78G
+[zk60-guard 17:50:23] START gate-dd-rung-l1-zero-everything class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=b8787a64ae96
+[zk60-guard 17:55:07] END gate-dd-rung-l1-zero-everything exit=0 child_wall=283s peak_rss=0.52G min_avail=7.39G
+[zk60-guard 17:55:07] START gate-dd-rung-l2-dense-everything class=light need=1.2G cap=2.5G enforce=cgroup+watchdog waited=0s run=03e4b6971e4d
+[zk60-guard 18:01:08] END gate-dd-rung-l2-dense-everything exit=0 child_wall=361s peak_rss=0.56G min_avail=7.51G
+[zk60-guard 18:01:08] admission waiting: budget: 10.1+2.5 GiB > 11.9 GiB with live [gate-ddcontrols-tl128dd-l1-dense(light,0.6G), fp-L_e8_LOWs4f(light,5G), gate-dev11-tl128-l1-everything(light,3G), gate-dev10-ddts-l2(light,1.5G)]
+[zk60-guard 18:02:08] admission waiting: budget: 10.1+2.5 GiB > 11.9 GiB with live [gate-ddcontrols-tl128dd-l1-dense(light,0.6G), fp-L_e8_LOWs4f(light,5G), gate-dev11-tl128-l1-everything(light,3G), gate-dev10-ddts-l2(light,1.5G)]
+[zk60-guard 18:03:08] admission waiting: budget: 10.5+2.5 GiB > 11.9 GiB with live [fp-L_e8_LOWs4f(light,5G), gate-ddts-tl128dd-l1-dense(light,1G), gate-dev11-tl128-l1-everything(light,3G), gate-dev10-ddts-l2(light,1.5G)]
+[zk60-guard 18:04:08] admission waiting: budget: 10.5+2.5 GiB > 11.9 GiB with live [fp-L_e8_LOWs4f(light,5G), gate-ddts-tl128dd-l1-dense(light,1G), gate-dev11-tl128-l1-everything(light,3G), gate-dev10-ddts-l2(light,1.5G)]
+[zk60-guard 18:05:08] admission waiting: budget: 10.5+2.5 GiB > 11.9 GiB with live [fp-L_e8_LOWs4f(light,5G), gate-ddts-tl128dd-l1-dense(light,1G), gate-dev11-tl128-l1-everything(light,3G), gate-dev10-ddts-l2(light,1.5G)]
+[zk60-guard 18:06:08] admission waiting: budget: 11.5+2.5 GiB > 11.9 GiB with live [fp-L_t_LOWs4f(light,3G), fp-L_t_P1(light,3G), gate-ddts-tl128dd-l1-dense(light,1G), gate-dev11-tl128-l1-everything(light,3G), gate-dev10-ddts-l2(light,1.5G)]
+[zk60-guard 18:07:09] admission waiting: budget: 11.5+2.5 GiB > 11.9 GiB with live [fp-L_t_LOWs4f(light,3G), fp-L_t_P1(light,3G), gate-ddts-tl128dd-l1-dense(light,1G), gate-dev11-tl128-l1-everything(light,3G), gate-dev10-ddts-l2(light,1.5G)]
+[zk60-guard 18:08:09] admission waiting: budget: 11.5+2.5 GiB > 11.9 GiB with live [fp-L_t_LOWs4f(light,3G), fp-L_t_P1(light,3G), gate-ddts-tl128dd-l1-dense(light,1G), gate-dev11-tl128-l1-everything(light,3G), gate-dev10-ddts-l2(light,1.5G)]
+[zk60-guard 18:09:09] admission waiting: budget: 11.5+2.5 GiB > 11.9 GiB with live [fp-L_t_LOWs4f(light,3G), fp-L_t_P1(light,3G), gate-ddts-tl128dd-l1-dense(light,1G), gate-dev11-tl128-l1-everything(light,3G), gate-dev10-ddts-l2(light,1.5G)]
+[zk60-guard 18:10:09] admission waiting: budget: 11.5+2.5 GiB > 11.9 GiB with live [fp-L_t_LOWs4f(light,3G), fp-L_t_P1(light,3G), gate-ddts-tl128dd-l1-dense(light,1G), gate-dev11-tl128-l1-everything(light,3G), gate-dev10-ddts-l2(light,1.5G)]
+[zk60-guard 18:11:09] admission waiting: budget: 11.5+2.5 GiB > 11.9 GiB with live [fp-L_t_LOWs4f(light,3G), fp-L_t_P1(light,3G), gate-ddts-tl128dd-l1-dense(light,1G), gate-dev11-tl128-l1-everything(light,3G), gate-dev10-ddts-l2(light,1.5G)]
+[zk60-guard 18:12:10] admission waiting: budget: 11.1+2.5 GiB > 11.9 GiB with live [fp-L_t_LOWs4f(light,3G), gate-r15-build(build,2.6G), fp-L_t_P1(light,3G), gate-ddts-tl128dd-l1-dense(light,1G), gate-dev10-ddts-l2(light,1.5G)]
+[zk60-guard 18:13:10] admission waiting: budget: 11.1+2.5 GiB > 11.9 GiB with live [fp-L_t_LOWs4f(light,3G), gate-r15-build(build,2.6G), fp-L_t_P1(light,3G), gate-ddts-tl128dd-l1-dense(light,1G), gate-dev10-ddts-l2(light,1.5G)]
+[zk60-guard 18:14:10] admission waiting: budget: 11.1+2.5 GiB > 11.9 GiB with live [fp-L_t_LOWs4f(light,3G), gate-r15-build(build,2.6G), fp-L_t_P1(light,3G), gate-ddts-tl128dd-l1-dense(light,1G), gate-dev10-ddts-l2(light,1.5G)]
+[zk60-guard 18:15:10] admission waiting: budget: 11.1+2.5 GiB > 11.9 GiB with live [fp-L_t_LOWs4f(light,3G), gate-r15-build(build,2.6G), fp-L_t_P1(light,3G), gate-ddts-tl128dd-l1-dense(light,1G), gate-dev10-ddts-l2(light,1.5G)]
+[zk60-guard 18:16:10] admission waiting: budget: 11.1+2.5 GiB > 11.9 GiB with live [fp-L_t_LOWs4f(light,3G), gate-r15-build(build,2.6G), fp-L_t_P1(light,3G), gate-ddts-tl128dd-l1-dense(light,1G), gate-dev10-ddts-l2(light,1.5G)]
+[zk60-guard 18:17:10] admission waiting: budget: 10.5+2.5 GiB > 11.9 GiB with live [gate-cap-tinyllama-t32-L2-dense-pt1-cli-r11(cpu,2G), fp-L_t_LOWg(light,3G), fp-L_t_P2(light,3G), gate-ddts-tl128dd-l1-dense(light,1G), gate-dev10-ddts-l2(light,1.5G)]
+[zk60-guard 18:17:25] START gate-tl128dd-l2-dense-everything class=light need=2.5G cap=5G enforce=cgroup+watchdog waited=978s run=55e75c68999f
+[zk60-guard 19:49:28] END gate-tl128dd-l2-dense-everything exit=0 child_wall=5523s peak_rss=1.91G min_avail=6.86G
+[zk60-guard 19:49:28] START gate-tl128dd-l1-dense-everything class=light need=2G cap=4G enforce=cgroup+watchdog waited=0s run=4145b1cccd50
+[zk60-guard 21:35:45] END gate-tl128dd-l1-dense-everything exit=0 child_wall=6376s peak_rss=1.79G min_avail=6.46G

@@ -1,0 +1,58 @@
+--- a/hashline/src/private_block/trained_block.rs
++++ b/hashline/src/private_block/trained_block.rs
+@@ -346,9 +346,6 @@
+ }
+ 
+ impl Array {
+-    fn i8s(&self) -> Vec<i8> {
+-        self.bytes.iter().map(|b| *b as i8).collect()
+-    }
+     fn i16s(&self) -> Vec<i16> {
+         self.bytes.chunks_exact(2).map(|c| i16::from_le_bytes([c[0], c[1]])).collect()
+     }
+@@ -1035,13 +1032,13 @@
+         let id = |i: usize| i;
+         let q = |j: usize| sh.head_slot(j / sh.head_dim) * sh.head_dim + j % sh.head_dim;
+         let aw = [
+-            pad_matrix(&wq.i8s(), d, d, dp, dp, &q, &id),
+-            pad_matrix(&wk.i8s(), kvw, d, kvw, dp, &id, &id),
+-            pad_matrix(&wv.i8s(), kvw, d, kvw, dp, &id, &id),
+-            pad_matrix(&wo.i8s(), d, d, dp, dp, &id, &q),
+-            pad_matrix(&ga.i8s(), 1, d, 1, dp, &id, &id),
++            pad_matrix_bytes(&wq.bytes, d, d, dp, dp, &q, &id),
++            pad_matrix_bytes(&wk.bytes, kvw, d, kvw, dp, &id, &id),
++            pad_matrix_bytes(&wv.bytes, kvw, d, kvw, dp, &id, &id),
++            pad_matrix_bytes(&wo.bytes, d, d, dp, dp, &id, &q),
++            pad_matrix_bytes(&ga.bytes, 1, d, 1, dp, &id, &id),
+         ];
+-        let fw = [pad_matrix(&gm.i8s(), 1, d, 1, dp, &id, &id), pad_matrix(&wg.i8s(), d, f, dp, fp, &id, &id), pad_matrix(&wu.i8s(), d, f, dp, fp, &id, &id), pad_matrix(&wd.i8s(), f, d, fp, dp, &id, &id)];
++        let fw = [pad_matrix_bytes(&gm.bytes, 1, d, 1, dp, &id, &id), pad_matrix_bytes(&wg.bytes, d, f, dp, fp, &id, &id), pad_matrix_bytes(&wu.bytes, d, f, dp, fp, &id, &id), pad_matrix_bytes(&wd.bytes, f, d, fp, dp, &id, &id)];
+         let public = AttentionPublic::new_shaped(sh, &aw[0], &aw[1], &aw[2], &aw[3], &aw[4], &cos, &sin, &exp.i64s()).map_err(ctx)?;
+         let ff = FeedForwardPublic::new_shaped(sh, &fw[0], &fw[1], &fw[2], &fw[3], &act.i16s()).map_err(ctx)?;
+         let blk = BlockPublic::new(public, ff);
+@@ -1128,7 +1125,7 @@
+ 
+ /// a true `(to, ti)` row-major matrix placed into the padded `(po, pi)` one
+ /// through the two index maps (ruling P-2; the same map as the driver's)
+-fn pad_matrix(w: &[i8], to: usize, ti: usize, po: usize, pi: usize, omap: &(dyn Fn(usize) -> usize + Sync), imap: &(dyn Fn(usize) -> usize + Sync)) -> Vec<i8> {
++fn pad_matrix_bytes(w: &[u8], to: usize, ti: usize, po: usize, pi: usize, omap: &(dyn Fn(usize) -> usize + Sync), imap: &(dyn Fn(usize) -> usize + Sync)) -> Vec<i8> {
+     // ROUND 5 (R5-2): the same placement, made row by row in PARALLEL over
+     // the destination rows, with a straight row copy where the inner map is
+     // the identity (every map here is injective; the pad stays zero)
+@@ -1144,10 +1141,14 @@
+         let Some(o) = src_of[r] else { return };
+         let src = &w[o * ti..(o + 1) * ti];
+         if identity {
+-            row[..ti].copy_from_slice(src);
++            // The loader already checked dtype, shape and exact byte length.
++            // Cast each source byte at its destination; no complete decode Vec.
++            for (dst, value) in row[..ti].iter_mut().zip(src.iter()) {
++                *dst = *value as i8;
++            }
+         } else {
+             for (i, v) in src.iter().enumerate() {
+-                row[inner[i]] = *v;
++                row[inner[i]] = *v as i8;
+             }
+         }
+     });

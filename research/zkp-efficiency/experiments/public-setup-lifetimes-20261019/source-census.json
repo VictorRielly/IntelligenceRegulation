@@ -1,0 +1,123 @@
+[
+  {
+    "anchor": "let ntt = NttTables::new(si.enc_log().max(so.enc_log()));",
+    "file": "hashline/src/private_block.rs",
+    "finding": "One NTT for BOTH external endpoints; dropped on return.",
+    "lines": [
+      1057
+    ]
+  },
+  {
+    "anchor": "let ntt = NttTables::new(st.rs.ntt_log());",
+    "file": "hashline/src/private_block/run.rs",
+    "finding": "One NTT for all blocks and internal boundaries per proving invocation (also one per verifier).",
+    "lines": [
+      932,
+      1076
+    ]
+  },
+  {
+    "anchor": "let mut lays: Vec<(NormCalibration, super::layout::Layout)> = Vec::new();",
+    "file": "hashline/src/private_block/trained_block.rs",
+    "finding": "Sealing already deduplicates layout by entire calibration, within fixed run shape; dropped after sealing.",
+    "lines": [
+      2051
+    ]
+  },
+  {
+    "anchor": "let lay = match lays.iter().position",
+    "file": "hashline/src/private_block/trained_block.rs",
+    "finding": "Existing per-calibration sealing cache, not per-layer NTT construction.",
+    "lines": [
+      2082
+    ]
+  },
+  {
+    "anchor": "fn stage_layout(&self, k: usize)",
+    "file": "hashline/src/private_block/run.rs",
+    "finding": "Fresh layout per stage plus mandatory IO row overlay.",
+    "lines": [
+      660
+    ]
+  },
+  {
+    "anchor": "let fresh = Layout::for_shape(sh)?;",
+    "file": "hashline/src/private_block/layout.rs",
+    "finding": "CS-8 independently rebuilds layout. Cache cannot silently remove this gate.",
+    "lines": [
+      1075
+    ]
+  },
+  {
+    "anchor": "if let Some(w) = self.chain.kept[k].take()",
+    "file": "hashline/src/private_block/trained_block.rs",
+    "finding": "Witness cache is input-local and consumed; never immutable public setup.",
+    "lines": [
+      1889
+    ]
+  },
+  {
+    "anchor": "let mut rng = ZkRng::from_os",
+    "file": "hashline/src/private_block/run.rs",
+    "finding": "Fresh OS stream per proof; never part of reusable public context.",
+    "lines": [
+      929
+    ]
+  },
+  {
+    "anchor": "if blk.digest() != self.digests[k]",
+    "file": "hashline/src/private_block/trained_block.rs",
+    "finding": "Reload digest check still binds the actual bytes; retaining mutable export path is insufficient.",
+    "lines": [
+      1813
+    ]
+  },
+  {
+    "anchor": "pub(crate) fn run_constants(&self, layers:",
+    "file": "hashline/src/private_block/trained_block.rs",
+    "finding": "Base calibration depends on selected ordered layer range, not export path alone.",
+    "lines": [
+      850
+    ]
+  },
+  {
+    "anchor": "let mut rng = ZkRng::from_os",
+    "file": "hashline/src/private_block/endpoint_g.rs",
+    "finding": "Fresh endpoint role-separated OS stream; reusable NTT is not reusable prepared endpoint.",
+    "lines": [
+      269
+    ]
+  },
+  {
+    "anchor": "let bytes = wire::encode_segment",
+    "file": "hashline/src/private_block/run.rs",
+    "finding": "Serialization occurs after block phase reporting and before sink; recurring, currently unisolated.",
+    "lines": [
+      1026
+    ]
+  },
+  {
+    "anchor": "static GPU: OnceLock<Option<Mutex<Gpu>>>",
+    "file": "hashline/src/gpu/cuda.rs",
+    "finding": "Device owner already persists for process lifetime; no new initialization removal claimed.",
+    "lines": [
+      255
+    ]
+  },
+  {
+    "anchor": "fn ensure_twiddles(&mut self, ntt:",
+    "file": "hashline/src/gpu/cuda.rs",
+    "finding": "Device stage-major twiddles already cached monotonically by capacity. CPU NTT reuse removes no already avoided upload.",
+    "lines": [
+      1659
+    ]
+  },
+  {
+    "anchor": "if *ml >= ntt.max_log",
+    "file": "hashline/src/gpu/cuda.rs",
+    "finding": "Existing sufficient-capacity cache hit, including a smaller later request.",
+    "lines": [
+      1661
+    ]
+  }
+]

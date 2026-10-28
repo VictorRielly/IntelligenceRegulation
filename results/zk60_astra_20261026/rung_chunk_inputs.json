@@ -1,0 +1,61 @@
+{
+  "scope": "candidate synthetic two-chunk activations; Python matches retained native sequence bitwise; fresh native proof pending",
+  "content_ids": [
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    33,
+    34,
+    35,
+    36
+  ],
+  "ranges": [
+    [
+      0,
+      23
+    ],
+    [
+      4,
+      27
+    ]
+  ],
+  "source_manifest_sha256": "3542c004b4ccb0c2ac86c200a9ff33e370858f6ac5b808557671bd5d4c030a32",
+  "tool_sha256": "cd08cc09687462b238259247e2b240a0b1318819899604ec5341cef2686863ff",
+  "integer_kernel_sha256": "2441cc4072c0d4b4cf3f07779a3323ad066ced9eaa6aa31eeb757e0362d94738",
+  "sequences": [
+    {
+      "dir": "/tmp/zk60-astra-classifier-owner-20261026/multi-sequences/0",
+      "sha256": {
+        "x_in_L00.bin": "265540bc35bd630d02cf4bac36b6e55f44f5576b364b95262e2790e98fe23275",
+        "x_out_L00.bin": "6c9b43bb65888b167dda10d400aeb661e42d34c6c3ba224974911277214cc24e"
+      }
+    },
+    {
+      "dir": "/tmp/zk60-astra-classifier-owner-20261026/multi-sequences/1",
+      "sha256": {
+        "x_in_L00.bin": "17fe6bf570091aa170293c9f194b10ead63f4b1ff5d4758265ffa900dceff096",
+        "x_out_L00.bin": "d7b8133802b34376ca323f516fd65d2b7efcdbe1cd5050381ba492e0c28b61d8"
+      }
+    }
+  ]
+}

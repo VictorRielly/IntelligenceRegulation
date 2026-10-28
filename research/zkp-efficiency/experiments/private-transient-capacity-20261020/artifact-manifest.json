@@ -1,0 +1,542 @@
+[
+  {
+    "path": "experiments/private-transient-capacity-20261020/00-model.py.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/00-model.py.stdout.log",
+    "bytes": 797,
+    "sha256": "d87a591127f63f985729953daa9c29e4acaff367050b7084889c403891125198"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/01-model.py.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/01-model.py.stdout.log",
+    "bytes": 797,
+    "sha256": "53be8c6481ad6dcee3517bbc2105deb58ffe13492cc79b3e9eda6c5814de3aa6"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/02-audit.py.stderr.log",
+    "bytes": 844,
+    "sha256": "eb6852378262ca2980b1c11dcab887c236b0bc9662dbf94943825173aa412d8c"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/02-audit.py.stdout.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/03-audit.py.stderr.log",
+    "bytes": 844,
+    "sha256": "eb6852378262ca2980b1c11dcab887c236b0bc9662dbf94943825173aa412d8c"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/03-audit.py.stdout.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/04-audit.py.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/04-audit.py.stdout.log",
+    "bytes": 377,
+    "sha256": "515e35be5b0a09a91afe7f7b6eaea647e88094c7977d798294ee41082d4a547e"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/05-layout_probe.py.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/05-layout_probe.py.stdout.log",
+    "bytes": 453,
+    "sha256": "9c54729f6cce18c3e705f80cd14575eaf94dd11a5b07f79a9195f340973022e5"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/06-model.py.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/06-model.py.stdout.log",
+    "bytes": 797,
+    "sha256": "ff2e06804eab3d709f97d3af66a19a40512273e0b9a09fd3eddfd5fabcfb8c71"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/07-audit.py.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/07-audit.py.stdout.log",
+    "bytes": 377,
+    "sha256": "0587b2f72a6f80dfd669bc45da5bb96c9ba3d7eefb167bfad856db3f15664e0f"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/08-layout_probe.py.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/08-layout_probe.py.stdout.log",
+    "bytes": 453,
+    "sha256": "17898233510b5d2cb170bed7c8e1a76677c797d9d1ab317706dcbdb4e5f70661"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/09-model.py.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/09-model.py.stdout.log",
+    "bytes": 823,
+    "sha256": "85c104a795494e4240947d361ccc1a32f6a16be769a92edbabce3716a70fd672"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/10-audit.py.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/10-audit.py.stdout.log",
+    "bytes": 377,
+    "sha256": "901c6d2a7d9893e6402f0267e96c10824522bd486b2e4c2fe41c7110079b1e11"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/11-layout_probe.py.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/11-layout_probe.py.stdout.log",
+    "bytes": 454,
+    "sha256": "4153066288f0d224403c40de4bae317f3b869ab61e9465c8044b3e1942ff0cb0"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/AGENDA.md.read-index.json",
+    "bytes": 218,
+    "sha256": "41dea4b12f4f77fe808b73347305db55b098650ee396ad2e4a7d539c80ae8c87"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/CLAUDE.md.read-index.json",
+    "bytes": 675,
+    "sha256": "eb178b483885a431174d64f187cf8358f55a5853ff6bd7d7a92dcc03296d8b3a"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/FINDINGS.md.read-index.json",
+    "bytes": 14061,
+    "sha256": "5e9322cc24c3487ab8906f3878c1140c52d5420e09277e95f037d00b6233f278"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/MVP_STATUS.md.read-index.json",
+    "bytes": 525,
+    "sha256": "04796b22cdc0181d83d9c31044c168da609b2439a84b3c71311b04de80664dd6"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/PROGRESS.md.read-index.json",
+    "bytes": 67,
+    "sha256": "95131fa1e86188f88271ea2d1d3eb4c469077fd7d5a8fb425023a57595637d59"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/README.md",
+    "bytes": 8738,
+    "sha256": "ee7aac4cfc92bb57fa55bf75178c643adfeca036d9385a9aa579e1214028141d"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/START_HERE.md.read-index.json",
+    "bytes": 1270,
+    "sha256": "210f76ac77fc9722620564daf2ffc9a171416b4d11e02a42d151e510ee3fe2e9"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/STATE.md.read-index.json",
+    "bytes": 88,
+    "sha256": "d625a35979f85df957181c63e32f363fe5954c6d83b21296ea07ac705e01785c"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/TASK_BOARD.md.read-index.json",
+    "bytes": 3879,
+    "sha256": "33449c7b984bea4567e54820c79c9686ea9db4598b40c7b91b833120a3920ffa"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/ZK60_CODEX_FABLE_COORDINATION.md.read-index.json",
+    "bytes": 532,
+    "sha256": "af6720e9ba3b883b92f80df5da0726a0d9d02adf7dde0e49914d813738b38474"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/ZK60_DECISIONS.md.read-index.json",
+    "bytes": 2602,
+    "sha256": "754bcee95c12e444712f55de71bb1de62f45edbdd1836d0d79a761669ccda87d"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/ZK60_THROUGHPUT_TARGET.md.read-index.json",
+    "bytes": 291,
+    "sha256": "7d87cdedaa2ce67fd5484d4c885a3b553a2500f18c7514017917930e3b22d074"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/audit-result.json",
+    "bytes": 413,
+    "sha256": "bcf9533ec1174bee139568a129eea9e252280af8b740118b8cf50a7adc30d46a"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/audit.py",
+    "bytes": 8147,
+    "sha256": "00d369ca87aed3f145f42ecfc3e350c6c3792173db1c2c6bc52c6df87a41935d"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/capacity.json",
+    "bytes": 52482,
+    "sha256": "61eeb57bccbb1fa72738461a1f48d22ebd3609c93a1061fe004d1addd8cf3c09"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/checkpoint.py",
+    "bytes": 14318,
+    "sha256": "b9af847ba338b2ccd9edb14144685f31e3e067e3b7189eec9c68fca68c14fbc7"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/completion.json",
+    "bytes": 363,
+    "sha256": "f1a7fdc74b1225b6c268161aa9cb8f4ebffec6f102e5c2c3d03160d2d7b374a6"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/extra-source-manifest.json",
+    "bytes": 1038,
+    "sha256": "46b32592be1e898de0aec8b99b67ef514b88d94059b5fa437f78a945d5f76479"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/final-direction-manifest.json",
+    "bytes": 1634,
+    "sha256": "f3de192936ae5209c02f2bd53441955025ae19c21404005a75a144984ecd6dec"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/hypotheses.json",
+    "bytes": 11438,
+    "sha256": "2d952c91e8a7420b2340dde5371fc6ac56a3ac869c39d55cdde52f5b8f2168a9"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/input-manifest.json",
+    "bytes": 3108,
+    "sha256": "ff3ffa46bcc74322e3231a3cc9a9353c9df9aff5986bcda9c7bc0ff89a781677"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/layout-cases.json",
+    "bytes": 5421,
+    "sha256": "4b00d65a04a4b34630563253607b0e4a79667d28ea41753fc4ba79238019a4b1"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/layout-projection.json",
+    "bytes": 23845,
+    "sha256": "77d5bd59d313ade2b53085566c297ad1c93300936cf51dda657bfd3a7df9e19b"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/layout-result.json",
+    "bytes": 488,
+    "sha256": "41d1010dcfa66d497fa089c1c23d1f6518a8cadf904b6415633c959e71a6a5ac"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/layout_probe.py",
+    "bytes": 5325,
+    "sha256": "021f06493d2da599927be09043843979826c7a793f7b8ddc879d164cc3eda3e5"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/model-result.json",
+    "bytes": 947,
+    "sha256": "0a8dd5bd0b7e46c2c6343cd467af58995f1853f3378d7cbacc2e8a9100e84abe"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/model.py",
+    "bytes": 8964,
+    "sha256": "9bb0e4e341de3085231331486aedc692261bea97b13ffb54ead5c7d904ebdda0"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/record_sources.py",
+    "bytes": 9343,
+    "sha256": "d90d50dcaa62f039801c7a213a839275f9e3a3eac8430901725c475e1af819ed"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/result.json",
+    "bytes": 2145,
+    "sha256": "489326507f47c673857d38fdbb7e40b4b44d9cc1dae1a4c0ff87d7aed26b9ec7"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/run_bounded.py",
+    "bytes": 1415,
+    "sha256": "a86bfcc43309d037ae6b3c64808db2a3bb61d7e1d1a508a97241238e56d3d133"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/search-log.json",
+    "bytes": 3027,
+    "sha256": "69a8337a9db83060ae77eb129eb0ceb2c20ff143dc7f5cb9f9303bec6c0c6c66"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source/gpu__gpu__cuda.rs",
+    "bytes": 258588,
+    "sha256": "dcc0e4bcd76c009827d30d8b1547e043118619948f59e63e75b132c5e6a38629"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source/gpu__gpu__fzc.rs",
+    "bytes": 15913,
+    "sha256": "af3cd6ac97f85347ed95ebac732c920a18ab921013be3ec31657e28cfb35ecc1"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source/gpu__gpu__fzc_kernels.cu",
+    "bytes": 50114,
+    "sha256": "7109e9cbba958876db03f538715258d07d2976c12b3959a293d2371c64bf356e"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source/gpu__gpu__mod.rs",
+    "bytes": 37362,
+    "sha256": "f14964ed2103f3281c18456d9b61fb953e4100ec531106224d37cbe7082266f1"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source/gpu__pcs.rs",
+    "bytes": 6900,
+    "sha256": "8b14096b66f6597e3cdfe239a7359457dd17dfd475c2a5d0f4e112a41342127f"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source/gpu__private_block__argument.rs",
+    "bytes": 109208,
+    "sha256": "9e70bbe558d7771b16f2a6f7f526ad3e548895d32ed0f6b897b85d0dd48b29b5"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source/gpu__private_block__boundary.rs",
+    "bytes": 36123,
+    "sha256": "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source/gpu__private_block__layout.rs",
+    "bytes": 64489,
+    "sha256": "fcf9dda4e507d2a347f786ddc537feff3ac57779abae88cea91ee48d4b34c855"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source/gpu__private_block__protocol.rs",
+    "bytes": 63656,
+    "sha256": "4612a955a1148ba821e3d8722684ccb1d73304bb34955dcd3be28cafdbdc8e7d"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source/gpu__private_block__run.rs",
+    "bytes": 56637,
+    "sha256": "9d324ad0871f8932c5e872f74f6aa01e6e4120b8d23cea6771cddccd2e9c4daa"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source/gpu__private_block__shape.rs",
+    "bytes": 102462,
+    "sha256": "e6c7290b5c2d897ccaaa6284c813bbcfea563aaef7594c309b955a5588c1e073"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source/gpu__zk.rs",
+    "bytes": 254060,
+    "sha256": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source/r8__gpu__cuda.rs",
+    "bytes": 205193,
+    "sha256": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source/r8__pcs.rs",
+    "bytes": 6900,
+    "sha256": "8b14096b66f6597e3cdfe239a7359457dd17dfd475c2a5d0f4e112a41342127f"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source/r8__private_block__boundary.rs",
+    "bytes": 36123,
+    "sha256": "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source/r8__private_block__layout.rs",
+    "bytes": 66327,
+    "sha256": "ee871fff7eed377cafcb05ec0438df95a70695ae8fdcd5b5822f5f40663b0ee9"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source/r8__private_block__protocol.rs",
+    "bytes": 71311,
+    "sha256": "85ca893173c4bfc0d8c88be69dbd0834831d4aec4ec9783c66e0b61d614615f6"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source/r8__private_block__run.rs",
+    "bytes": 77515,
+    "sha256": "d913a081b82d54b6a1a67cd938afe1700910e820d9b3a97019a398f8b61ea609"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source/r8__private_block__shape.rs",
+    "bytes": 119159,
+    "sha256": "8c62519c98e36ae966b7f9480e1d47884c57526c2ccf0288deb1286ca1a0fb34"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source/r8__zk.rs",
+    "bytes": 254060,
+    "sha256": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source-facts.json",
+    "bytes": 1181,
+    "sha256": "e4b2f1f96e2fd0d5b978fdc945fad18394c1495dd6449cc2bce0ed73eb33007f"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source-ledger-index.json",
+    "bytes": 13069,
+    "sha256": "b606b67b47d5e672800aa1cc5c4515574a8843f99f4a759fedf9d931979300b1"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source-manifest.json",
+    "bytes": 4775,
+    "sha256": "27b83667c3563ca96b2a4a15ddc520f8e9740021b2cf062e46fc9364a3271093"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source-records.initial.json",
+    "bytes": 12128,
+    "sha256": "508c0d7693d22e03eb9945a033d3be7f3c456e52c9484e2d91df117237584d3e"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/source-records.json",
+    "bytes": 12395,
+    "sha256": "f72ee398171d5148f0c17ea4a67d00652ba3ff409faa8b527b4087f8a9981e07"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/startup/CLAUDE.md",
+    "bytes": 14089,
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/startup/docs__zkmatrix-poc__MVP_STATUS.md",
+    "bytes": 81342,
+    "sha256": "333aa069afe29baed67702d4d1e87c7af2405f83ee2623aa2e51174aed83c417"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/startup/docs__zkmatrix-poc__START_HERE.md",
+    "bytes": 42025,
+    "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/startup/docs__zkmatrix-poc__TASK_BOARD.md",
+    "bytes": 186876,
+    "sha256": "d96f67dd1d199ffc31672974dad5bd8c8d6453f2f7bab6a4849d229a91bef953"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/startup/docs__zkmatrix-poc__ZK60_CODEX_FABLE_COORDINATION.md",
+    "bytes": 64889,
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/startup/docs__zkmatrix-poc__ZK60_DECISIONS.md",
+    "bytes": 98326,
+    "sha256": "ef005e3448496ece9088c6433626bfa2f30242bf817aa7f1578898efbd1b0f2e"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/startup/docs__zkmatrix-poc__ZK60_THROUGHPUT_TARGET.md",
+    "bytes": 4941,
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/startup/prior__README.md",
+    "bytes": 8363,
+    "sha256": "6efa0c0a66de54e7c129241271515c33cdb82a0ef85328bfbf49269e73c789e4"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/startup/prior__capacity.json",
+    "bytes": 1095930,
+    "sha256": "4267c278baa0a350e02063e5a6f9df86aa6fecdc66314d5d1b8d4caaadd821e5"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/startup/prior__events.json",
+    "bytes": 78696,
+    "sha256": "61dfe9366bc38c35668dcc1f3700683b382a0e1eadf84ef97a290203eee5e3c4"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/startup/prior__hypotheses.json",
+    "bytes": 8093,
+    "sha256": "3fd2a83664bf309579a07180863b0add3a9d055fe17302e2706066bae01c19f4"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/startup/prior__model-result.json",
+    "bytes": 735,
+    "sha256": "c44c90b641ca86d238b5f5f8b04c4a92bb59e26394e1ee07575c8b75a045dd46"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/startup/prior__source-facts.json",
+    "bytes": 4710,
+    "sha256": "405cdf2753d9057aa9bdcf4a4a89afff81d0f1f419c32903ca0bc78dd6ca0ba9"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/startup/prior__source-manifest.json",
+    "bytes": 4343,
+    "sha256": "3efda918f1f7a78ee2d6392274c1ecc75d89d350ac6f5741b7f449a8c42cecfa"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/startup/prior__validation-result.json",
+    "bytes": 425,
+    "sha256": "d0dd1f83072f998a338701a665a0b7d6b4b488e25bf61398bc5d1fd581cbecc9"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/startup/research__zkp-efficiency__AGENDA.md",
+    "bytes": 5603,
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/startup/research__zkp-efficiency__FINDINGS.md",
+    "bytes": 681629,
+    "sha256": "cc07a8f5a6c4027b90b22c5545c493b96ce19d566d7a793cb33cc788ff665ca0"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/startup/research__zkp-efficiency__PROGRESS.md",
+    "bytes": 1871,
+    "sha256": "9f7254086cc45b9c39bdabfae6b724fc98baea5512d309c213305f42afb1a7c7"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/startup/research__zkp-efficiency__STATE.md",
+    "bytes": 3646,
+    "sha256": "13ad273207be1e8f5e1f7f9347b028097c9df55f4590f3f2f074e8d294fac97c"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/startup/research__zkp-efficiency__sources.jsonl",
+    "bytes": 690310,
+    "sha256": "2d847d66234012e1bbf46912a23810a40d4e667e4a60aa4162a522f56c28f69a"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/traces.json",
+    "bytes": 8829383,
+    "sha256": "67b67f2b56211a050c9405e90d847b35209d7e765c4c85c7b82ac9c80a32379e"
+  },
+  {
+    "path": "experiments/private-transient-capacity-20261020/validate.py",
+    "bytes": 5116,
+    "sha256": "42dd0b2e1406c30d11f3c4279c7f54ce5915b3a3e2d771cf932deacfcd71fdd8"
+  },
+  {
+    "path": "STATE.md",
+    "bytes": 4111,
+    "sha256": "a2d4adf9b74e501fc6e4ee538014703a0bfef6277f98055bc75de5a8f0b1ff0f"
+  },
+  {
+    "path": "PROGRESS.md",
+    "bytes": 2132,
+    "sha256": "b5a940c44cd6e6b1f2efcccb8bcfb65a40cc79a1466dffd323da720af71fe271"
+  },
+  {
+    "path": "FINDINGS.md",
+    "bytes": 688876,
+    "sha256": "72f8cc953e7d22cf419266045dccb0867894a0286c6b4acea335aa377edeee4d"
+  },
+  {
+    "path": "sources.jsonl",
+    "bytes": 701782,
+    "sha256": "5c5c5b9326eb54a7bd0ccfe12d92f9e15b2be10d115ddae592ec10e422662af3"
+  },
+  {
+    "path": "handoffs/20261020-mixed-fzc-arena.md",
+    "bytes": 3795,
+    "sha256": "21554931beb67bf08dbfce06c60a246df049b3db3eecdf3087608afe975f509c"
+  },
+  {
+    "path": "progress/20261020T031854Z-e03e28dc.md",
+    "bytes": 9380,
+    "sha256": "c1b9c31eaf27eb618a9bdd3b339ded5ba820df17fb933780f8ebddaf85b8b9f5"
+  }
+]

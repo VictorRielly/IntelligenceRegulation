@@ -1,0 +1,58 @@
+{
+  "cycle": "0104",
+  "run_id": "20261020T121854Z-ee6ad7b9",
+  "status": "complete",
+  "completed_utc": "2026-10-20T12:33:03.861562+00:00",
+  "result": {
+    "seed": 20261020104,
+    "checks": 959,
+    "tiny_schedule_cases": 116,
+    "fixtures": 10,
+    "negative_controls": [
+      "wrong_site_survives_root_only_check",
+      "ordered_leaf_binding_detects_wrong_site",
+      "drop_multiplicity",
+      "duplicate_global_histogram",
+      "zero_denominator_even_if_multiplicity_zero",
+      "degenerate_fraction_root_can_erase_nonzero_refusal",
+      "fresh_challenge_changes_cached_denominators",
+      "stack_all_floor_width_is_not_geometric",
+      "cross_field_does_not_authorize_native_privacy"
+    ],
+    "elapsed_s": 0.0662020719901193,
+    "maxrss_KiB": 16284,
+    "scope": "Integer arithmetic-layer lifetime/work upper bounds and tiny synthetic F65537 equality/refusal controls. No actual GKR/mask/PCS/native proof.",
+    "full_stack": {
+      "proofs": 0,
+      "passes": 0,
+      "positions": 0,
+      "context_length": null,
+      "device": null,
+      "witness_s": null,
+      "proof_s": null,
+      "serialization_s": null,
+      "verification_s": null,
+      "startup_s": null,
+      "startup_fraction": null,
+      "steady_rate": null,
+      "total_rate": null
+    }
+  },
+  "validation": {
+    "status": "PASS",
+    "checks": 5641,
+    "cost_mutation_controls": 1500,
+    "tiny_column_services": 1000,
+    "mixed_height_root_checks": 30,
+    "source_pins": 5,
+    "elapsed_s": 0.16596910697990097,
+    "maxrss_KiB": 14980,
+    "scope": "Independent small topology/lifetime and direct-inverse arithmetic, altered cost rejection, unchanged native-source pins. Not native protocol validation."
+  },
+  "hypotheses": 20,
+  "source_records_before": 605,
+  "source_records_after": 613,
+  "next_cycle_not_before": "2026-10-20T13:18:54Z",
+  "handoff": "handoffs/20261020-lookup-forest-schedules.md",
+  "final_checkpoint_utc": "2026-10-20T12:34:55.002388+00:00"
+}

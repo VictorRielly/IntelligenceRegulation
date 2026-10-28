@@ -1,0 +1,47 @@
+moved []
+[zk60-guard 17:58:25] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 17:59:25] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 18:00:25] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 18:01:26] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 18:02:26] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 18:03:26] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 18:04:26] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 18:05:26] waiting for /tmp/zk-heavy.lock (421s)
+[zk60-guard 18:06:26] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 18:07:26] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 18:08:26] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 18:09:26] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 18:10:26] waiting for /tmp/zk-heavy.lock (721s)
+[zk60-guard 18:11:26] waiting for /tmp/zk-heavy.lock (781s)
+[zk60-guard 18:12:20] START gate-r10-build class=build need=3G cap=5G enforce=cgroup+watchdog waited=835s run=3dbb4cd69213
+[zk60-guard 18:16:13] END gate-r10-build exit=0 child_wall=232s peak_rss=1.97G min_avail=8.90G
+[zk60-guard 18:16:13] START gate-r10-pr4-9-tinyllama class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=bbfcd59092ac
+[zk60-guard 18:16:26] END gate-r10-pr4-9-tinyllama exit=0 child_wall=14s peak_rss=0.57G min_avail=11.49G
+[zk60-guard 18:16:27] START gate-r10-pr4-9-8b class=cpu need=5G cap=8G enforce=cgroup+watchdog waited=0s run=4518c0fd5b18
+[zk60-guard 18:17:14] END gate-r10-pr4-9-8b exit=0 child_wall=47s peak_rss=1.67G min_avail=10.45G
+[zk60-guard 18:17:14] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 18:18:14] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 18:19:14] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 18:20:14] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 18:20:59] START gate-r10-l1_dense_ho00_commits_exactly_the_predicted_stream class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=225s run=d65ab6865d02
+[zk60-guard 18:21:16] END gate-r10-l1_dense_ho00_commits_exactly_the_predicted_stream exit=0 child_wall=17s peak_rss=1.05G min_avail=11.03G
+[zk60-guard 18:21:16] START gate-r10-l1_fixed_commits_exactly_the_predicted_stream class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=3b74e8a133de
+[zk60-guard 18:21:32] END gate-r10-l1_fixed_commits_exactly_the_predicted_stream exit=0 child_wall=16s peak_rss=1.04G min_avail=10.96G
+[zk60-guard 18:21:32] START gate-r10-l2_dense_ho00_commits_exactly_the_predicted_stream class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=4bb124a64673
+[zk60-guard 18:21:57] END gate-r10-l2_dense_ho00_commits_exactly_the_predicted_stream exit=0 child_wall=25s peak_rss=1.21G min_avail=10.89G
+[zk60-guard 18:21:57] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 18:22:57] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 18:23:57] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 18:24:57] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 18:25:57] START gate-r10-l2_fixed_commits_exactly_the_predicted_stream class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=239s run=9a1b714cc7a6
+[zk60-guard 18:26:23] END gate-r10-l2_fixed_commits_exactly_the_predicted_stream exit=0 child_wall=26s peak_rss=1.22G min_avail=10.91G
+[zk60-guard 18:26:23] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 18:27:23] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 18:28:23] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 18:29:23] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 18:30:23] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 18:31:23] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 18:32:23] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 18:33:23] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 18:34:11] START gate-r10-pr4-2-cli-capture class=cpu need=2.5G cap=4G enforce=cgroup+watchdog waited=469s run=9359133749d6
+[zk60-guard 18:34:13] END gate-r10-pr4-2-cli-capture exit=0 child_wall=2s peak_rss=0.34G min_avail=12.08G

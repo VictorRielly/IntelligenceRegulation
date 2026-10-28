@@ -1,0 +1,9 @@
+{
+  "at": "2026-10-26T20:09:09.604432+00:00",
+  "tests": 72,
+  "passed": true,
+  "seconds": 5.304,
+  "scope": "app unit/controlled RPC tests, no real proof/testnet transaction",
+  "command": "apps/proven-media/.venv/bin/python -m unittest discover -s apps/proven-media/tests",
+  "regressions": "publication snapshot survives source edits, mutation between precheck/copy refuses, classifier inventories do not create native segments.json, stale collector statement/receipt/manifest refuse; development-only still excluded"
+}

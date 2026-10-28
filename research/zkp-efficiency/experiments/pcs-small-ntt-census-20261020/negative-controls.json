@@ -1,0 +1,38 @@
+[
+  {
+    "name": "expanded-log-only misses trained small inverse",
+    "rejected": true
+  },
+  {
+    "name": "message-width labels forward incorrectly",
+    "rejected": true
+  },
+  {
+    "name": "M log12 does not imply CUDA execution",
+    "rejected": true
+  },
+  {
+    "name": "context128 is not transform_log128",
+    "rejected": true
+  },
+  {
+    "name": "frozenR9 8B T128 remains outside inverse guard",
+    "rejected": true
+  },
+  {
+    "name": "DD adds M rows without device routing",
+    "rejected": true
+  },
+  {
+    "name": "too_few_pads",
+    "rejected": true
+  },
+  {
+    "name": "over_capacity",
+    "rejected": true
+  },
+  {
+    "name": "non_power_rate",
+    "rejected": true
+  }
+]

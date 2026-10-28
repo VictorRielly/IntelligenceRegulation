@@ -1,0 +1,89 @@
+{
+ "Llama-3-8B T512 (the review's anchor, row 2^15)": {
+  "today": {
+   "a_rows": 9185,
+   "h_rows": 11056,
+   "elems": 663257088,
+   "u8": 306249728,
+   "eterms": 495452160
+  },
+  "dd": {
+   "a_rows": 7303,
+   "h_rows": 8724,
+   "elems": 525172736,
+   "u8": 219742208,
+   "eterms": 395837440
+  },
+  "d_elems_pct": -20.82,
+  "d_u8_pct": -28.25,
+  "d_eterms_pct": -20.11
+ },
+ "Llama-3-8B T128 (row 2^14)": {
+  "today": {
+   "a_rows": 3405,
+   "h_rows": 3790,
+   "elems": 117882880,
+   "u8": 51937280,
+   "eterms": 84541440
+  },
+  "dd": {
+   "a_rows": 3283,
+   "h_rows": 3634,
+   "elems": 113328128,
+   "u8": 48398336,
+   "eterms": 81264640
+  },
+  "d_elems_pct": -3.86,
+  "d_u8_pct": -6.81,
+  "d_eterms_pct": -3.88,
+  "built_matches_model": true,
+  "built": {
+   "a": [
+    3405,
+    3283
+   ],
+   "h": [
+    3790,
+    3634
+   ],
+   "u8": [
+    51937280,
+    48398336
+   ]
+  }
+ },
+ "TinyLlama-1.1B T128 (row 2^14)": {
+  "today": {
+   "a_rows": 1993,
+   "h_rows": 2182,
+   "elems": 68403200,
+   "u8": 28999680,
+   "eterms": 47349760
+  },
+  "dd": {
+   "a_rows": 1871,
+   "h_rows": 2026,
+   "elems": 63848448,
+   "u8": 25460736,
+   "eterms": 44072960
+  },
+  "d_elems_pct": -6.66,
+  "d_u8_pct": -12.2,
+  "d_eterms_pct": -6.92,
+  "built_matches_model": true,
+  "built": {
+   "a": [
+    1993,
+    1871
+   ],
+   "h": [
+    2182,
+    2026
+   ],
+   "u8": [
+    28999680,
+    25460736
+   ]
+  }
+ }
+}

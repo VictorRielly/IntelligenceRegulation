@@ -1,0 +1,86 @@
+{
+  "status": "COMPLETE",
+  "cycle": "0112",
+  "run_id": "20261020T201854Z-91cdb36a",
+  "checkpoint_utc": "2026-10-20T20:30:39.619045+00:00",
+  "probe": {
+    "status": "PASS",
+    "seed": 20261020112,
+    "checks": 486630,
+    "synthetic_row_cases": 1080,
+    "negative_controls": [
+      "33_public_outputs",
+      "S12_keeps_cap32",
+      "omits_masked_zero",
+      "zero_sum",
+      "round_cap_down",
+      "merge_equal_quotients",
+      "forget_S12_e_s_shift"
+    ],
+    "elapsed_s": 0.3080503469973337,
+    "maxrss_KiB": 15928,
+    "scope": "Public LUT and synthetic exact integer arithmetic; zero proofs",
+    "limits": {
+      "threads": 1,
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_wall_s": 60,
+      "address_space_MiB": 512,
+      "estimate_MiB": 64
+    }
+  },
+  "audit": {
+    "status": "PASS",
+    "checks": 1927,
+    "enumerated_entries": 265728,
+    "public_export_layers": 410,
+    "source_pins": 16,
+    "metadata_negative_controls": 10,
+    "Decimal_precision": 90,
+    "repeated_precision": 130,
+    "minimum_half_integer_margin": "0.000055323927640514224172925767071571344059922608362133248345738299415130741906212277978",
+    "elapsed_s": 0.44454239500919357,
+    "maxrss_KiB": 16004,
+    "scope": "Independent high precision public table/pin audit; no native proof"
+  },
+  "cost": {
+    "status": "PASS",
+    "checks": 612,
+    "owner_phase_anchor_runs": 4,
+    "elapsed_s": 0.0439558060024865,
+    "maxrss_KiB": 14688,
+    "scope": "Exact layout counts on owner replica plus independent affine delta identities; no runtime model"
+  },
+  "source_records": 10,
+  "source_ledger": 692,
+  "ranked_hypotheses": 24,
+  "new_verified_full_stack": {
+    "proofs": 0,
+    "passes": 0,
+    "positions": 0,
+    "context_length": null,
+    "accelerator": null,
+    "research_device": "Intel Core Ultra9 185H CPU; no GPU",
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "startup_s": null,
+    "startup_fraction": null,
+    "steady_rate": null,
+    "total_rate": null
+  },
+  "next_local": "Public uniform vs per-layer DD cap schedule, masks/slot/receipt and payload lifetimes; actual fidelity tables required before promotion.",
+  "next_owner": "Whole GPU phase/capacity clocks, independently verified fixed-context resident1/2/4/8, DD scaling/fidelity and all-eleven FZC A/B under shared locks.",
+  "artifact_audit": {
+    "status": "PASS",
+    "checks": 93,
+    "elapsed_s": 0.010769148007966578,
+    "maxrss_KiB": 19956,
+    "source_ledger": 692,
+    "original_source_records_preserved": 682,
+    "prior_findings_prefix_preserved": true,
+    "agenda_unchanged": true
+  },
+  "finished_utc": "2026-10-20T20:31:19.143777+00:00"
+}

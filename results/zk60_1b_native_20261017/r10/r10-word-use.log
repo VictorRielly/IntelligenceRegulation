@@ -1,0 +1,24 @@
+== llama3_8b_dg_rot1_voc0_T128 (32 layers)
+  q  tmax [11, 23]  k_t [2, 3]  sh_r9 [8, 8]  sh_a [10, 11] -> limbs [2, 2]  s_b [22, 23] -> limbs [3, 3]  median channel max 6.0
+  k  tmax [10, 23]  k_t [2, 3]  sh_r9 [8, 8]  sh_a [10, 11] -> limbs [2, 2]  s_b [22, 23] -> limbs [3, 3]  median channel max 7.0
+  v  tmax [37, 52]  k_t [1, 1]  sh_r9 [8, 8]  sh_a [9, 9] -> limbs [2, 2]  s_b [21, 21] -> limbs [3, 3]  median channel max 25.0
+  ao tmax [67, 122]  k_t [0, 0]  sh_r9 [4, 8]  sh_a [4, 8] -> limbs [1, 1]  s_b [16, 20] -> limbs [2, 3]  median channel max 48.0
+  g  tmax [18, 63]  k_t [1, 2]  sh_r9 [8, 8]  sh_a [9, 10] -> limbs [2, 2]  s_b [21, 22] -> limbs [3, 3]  median channel max 12.0
+  u  tmax [13, 57]  k_t [1, 3]  sh_r9 [0, 0]  sh_a [1, 3] -> limbs [1, 1]  s_b [13, 15] -> limbs [2, 2]  median channel max 16.0
+  z  tmax [22, 127]  k_t [0, 2]  sh_r9 [5, 8]  sh_a [5, 10] -> limbs [1, 2]  s_b [17, 22] -> limbs [3, 3]  median channel max 20.0
+== tinyllama_dg_rot1_T128 (22 layers)
+  q  tmax [14, 40]  k_t [1, 3]  sh_r9 [8, 8]  sh_a [9, 11] -> limbs [2, 2]  s_b [21, 23] -> limbs [3, 3]  median channel max 6.0
+  k  tmax [12, 49]  k_t [1, 3]  sh_r9 [8, 8]  sh_a [9, 11] -> limbs [2, 2]  s_b [21, 23] -> limbs [3, 3]  median channel max 8.0
+  v  tmax [38, 64]  k_t [0, 1]  sh_r9 [8, 8]  sh_a [8, 9] -> limbs [1, 2]  s_b [20, 21] -> limbs [3, 3]  median channel max 28.0
+  ao tmax [65, 125]  k_t [0, 0]  sh_r9 [3, 7]  sh_a [3, 7] -> limbs [1, 1]  s_b [15, 19] -> limbs [2, 3]  median channel max 50.0
+  g  tmax [20, 82]  k_t [0, 2]  sh_r9 [8, 8]  sh_a [8, 10] -> limbs [1, 2]  s_b [20, 22] -> limbs [3, 3]  median channel max 16.0
+  u  tmax [21, 127]  k_t [0, 2]  sh_r9 [0, 0]  sh_a [0, 2] -> limbs [0, 1]  s_b [12, 14] -> limbs [2, 2]  median channel max 21.5
+  z  tmax [24, 127]  k_t [0, 2]  sh_r9 [4, 8]  sh_a [4, 10] -> limbs [1, 2]  s_b [16, 22] -> limbs [2, 3]  median channel max 25.0
+== llama3_8b_pg_rot1_b7voc0_T128 (32 layers)
+  q  tmax [9, 27]  k_t [2, 3]  sh_r9 [8, 8]  sh_a [10, 11] -> limbs [2, 2]  s_b [22, 23] -> limbs [3, 3]  median channel max 6.0
+  k  tmax [11, 28]  k_t [2, 3]  sh_r9 [8, 8]  sh_a [10, 11] -> limbs [2, 2]  s_b [22, 23] -> limbs [3, 3]  median channel max 6.0
+  v  tmax [38, 76]  k_t [0, 1]  sh_r9 [8, 8]  sh_a [8, 9] -> limbs [1, 2]  s_b [20, 21] -> limbs [3, 3]  median channel max 26.0
+  ao tmax [8, 78]  k_t [0, 3]  sh_r9 [3, 3]  sh_a [3, 6] -> limbs [1, 1]  s_b [15, 18] -> limbs [2, 3]  median channel max 13.0
+  g  tmax [25, 122]  k_t [0, 2]  sh_r9 [8, 8]  sh_a [8, 10] -> limbs [1, 2]  s_b [20, 22] -> limbs [3, 3]  median channel max 17.0
+  u  tmax [4, 40]  k_t [1, 4]  sh_r9 [0, 0]  sh_a [1, 4] -> limbs [1, 1]  s_b [13, 16] -> limbs [2, 2]  median channel max 6.5
+  z  tmax [10, 72]  k_t [0, 3]  sh_r9 [4, 4]  sh_a [4, 7] -> limbs [1, 1]  s_b [16, 19] -> limbs [2, 3]  median channel max 8.0

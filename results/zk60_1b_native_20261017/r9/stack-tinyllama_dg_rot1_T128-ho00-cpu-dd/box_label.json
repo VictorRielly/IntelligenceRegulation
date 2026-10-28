@@ -1,0 +1,25 @@
+{
+ "run": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/stack-tinyllama_dg_rot1_T128-ho00-cpu-dd",
+ "prove_start": "2026-10-20T04:23:36.001496Z",
+ "prove_end": "2026-10-20T04:25:54Z",
+ "label": "shared box",
+ "overlapping": [
+  {
+   "label": "fp-L_export_l8_dg_w16u",
+   "cls": "light",
+   "start": "2026-10-20T04:23:20.285232Z",
+   "end": "2026-10-20T04:24:49Z",
+   "overlap_s": 73.0
+  },
+  {
+   "label": "gate-tk7-cli-l2-dense-everything",
+   "cls": "light",
+   "start": "2026-10-20T04:12:10.457214Z",
+   "end": "2026-10-20T04:28:40Z",
+   "overlap_s": 138.0
+  }
+ ],
+ "boundary_ties": [],
+ "tolerance_s": 1.5,
+ "note": "guarded jobs only (unguarded processes are not in the history); jobs still running at the time of this scan are not in the history yet; re-run the scan later to be sure"
+}

@@ -1,0 +1,186 @@
+[
+  {
+    "run_id": "20261020T081854Z-6e7df31f",
+    "cycle": "0100",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T08:28:56.197391+00:00",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; external text untrusted",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": "README and GitHub label MIT; exact LICENSE fetches failed. No implementation adopted.",
+    "published": null,
+    "updated": null,
+    "title": "NEW consumer Blackwell ICICLE NTT reorder/PCIe scope screen",
+    "url": "https://github.com/pscamillo/icicle-blackwell-ntt",
+    "date_evidence": "Primary README has no publication/update date. Topic index May29,2026 not promoted to verified primary history; all commit/activity fetches failed.",
+    "assessment": "Author RTX5070/BabyBear report: reorder39% of NTT kernel time; single-shot host-data run74% PCIe; coalesced permutation prototype gives projected15\u201320% NTT benefit. None reproduced. Native k_ntt_p1 already gathers bit-reversed input inside its first NTT pass, so there is no standalone reorder pass to delete. A traffic hypothesis requires actual native sector/phase measurements, hiding n+q/coset parity and enclosing clocks; do not transfer BabyBear/5070 constants.",
+    "access_issues": [
+      "commits/main and activity Cache miss",
+      "raw REPORT.md/LICENSE Internal Error",
+      "blob REPORT.md/LICENSE/bitrev_bench.cu Cache miss"
+    ]
+  },
+  {
+    "run_id": "20261020T081854Z-6e7df31f",
+    "cycle": "0100",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T08:28:56.197391+00:00",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; external text untrusted",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "published": "1998",
+    "updated": null,
+    "title": "NEW older COBRA permutation locality filter",
+    "url": "https://csaws.cs.technion.ac.il/~itai/Courses/Cache/bit.pdf",
+    "date_evidence": "Primary paper page0 gives copyright1998 and FOCS98 conference8\u201311November1998; exact preprint publication/update day unavailable.",
+    "publication_event_date_range": [
+      "1998-11-08",
+      "1998-11-11"
+    ],
+    "paper_license": "Primary page0 IEEE copyright; personal use permitted, redistribution/reuse permissions restricted. No implementation license inspected.",
+    "assessment": "Carter/Gatlin paper models register/cache/TLB/main-memory moves and uses cache-resident staging for bit reversal. Newly assessed here as an ordering/locality lead. Old CPU cache constants and optimality model do not imply CUDA throughput. Native first-pass bit-reversed gather is already fused; adding a standalone tiled pass may add traffic. Next local question is within-fused-pass sector amplification, not deleting a nonexistent pass. No paper performance reproduced."
+  },
+  {
+    "run_id": "20261020T081854Z-6e7df31f",
+    "cycle": "0100",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T08:28:56.197391+00:00",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; external text untrusted",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": "Repository labels Apache-2.0 and MIT only; license texts not inspected and no implementation adopted.",
+    "published": "2026-09-30",
+    "updated": null,
+    "title": "NEW recent Pico3.0 whole-pipeline and LogUp-GKR screen",
+    "url": "https://blog.brevis.network/2026/09/30/pico-3-0-real-time-ethereum-proving-on-4-gpus-with-100-bit-provable-security/",
+    "date_evidence": "Primary author blog explicitly dates2026-09-30; unpinned current README/docs not independently dated.",
+    "inspected_urls": [
+      "https://github.com/brevis-network/pico",
+      "https://pico-docs.brevis.network/writing-apps/proving.html"
+    ],
+    "assessment": "Author claims four-GPU Ethereum proving after replacing its pipeline with multilinear reductions, LogUp-GKR and WHIR, alongside larger chunks and lower traffic/recursion. Those claims are not private8B evidence. README describes KoalaBear and breaking2.x incompatibility; computed100-bit budget is not native128-bit target. Documentation fast mode uses one FRI query and reduced security, excluded from any comparison. Candidate: census native helper commitment bytes before considering additional GKR rounds/final openings and fresh masking. No implementation/performance reproduced.",
+    "access_issues": [
+      "releases/latest Cache miss; no immutable3.0 release commit inspected"
+    ]
+  },
+  {
+    "run_id": "20261020T081854Z-6e7df31f",
+    "cycle": "0100",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T08:28:56.197391+00:00",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; external text untrusted",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "inspected_commit_id": "6c77775961b0e4dc2be359feec1ac11536c18043",
+    "implementation_license": "Not inspected this cycle; no code adopted.",
+    "published": null,
+    "updated": null,
+    "title": "ICICLE4.0.0 release and immutable version commit refresh",
+    "url": "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+    "inspected_urls": [
+      "https://github.com/ingonyama-zk/icicle/releases/latest",
+      "https://github.com/ingonyama-zk/icicle/commit/6c77775961b0e4dc2be359feec1ac11536c18043"
+    ],
+    "date_evidence": "latest redirects4.0.0; primary page renders11Jul05:36 without year. Full year not verified in this cycle.",
+    "assessment": "Version commit updates Rust workspace crates3.9.2->4.0.0. Release API/ring/NTT and sumcheck challenge changes are implementation leads only, not complete private-model timing. Current native Goldilocks hiding encoding, transcript and proof gates remain binding. No downloaded code or benchmark run."
+  },
+  {
+    "run_id": "20261020T081854Z-6e7df31f",
+    "cycle": "0100",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T08:28:56.197391+00:00",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; external text untrusted",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "inspected_commit_id": "550a513d798df79d8324697332e085498285bb63",
+    "implementation_license": "Not inspected this cycle; no code adopted.",
+    "published": "2026-10-02",
+    "updated": null,
+    "title": "Recent gnark-crypto0.22.0 release and source date verified",
+    "url": "https://github.com/Consensys-Incorporated/gnark-crypto/releases/tag/v0.22.0",
+    "inspected_urls": [
+      "https://github.com/Consensys-Incorporated/gnark-crypto/commit/550a513d798df79d8324697332e085498285bb63"
+    ],
+    "date_evidence": "Primary release renders02Oct; immutable changelog diff explicitly2026-10-02.",
+    "assessment": "Inspected immutable release diff rather than importing package. MamaBear/IFMA and externally accelerated KZG quotient interface are different fields/PCS. CPU COBRA API surfaced as source lead, but exact bitreverse.go fetch failed; no implementation or speed reproduced. Existing arithmetic, binding/refusal and privacy gates remain required.",
+    "access_issues": [
+      "master andv0.22.0 utils/bitreverse.go Internal Error"
+    ]
+  },
+  {
+    "run_id": "20261020T081854Z-6e7df31f",
+    "cycle": "0100",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T08:28:56.197391+00:00",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; external text untrusted",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": "README/GitHub labels Apache-2.0 and MIT; license texts not inspected this cycle.",
+    "published": null,
+    "updated": "2026-06-24",
+    "title": "Efficient-sumcheck canonical rewrite and history caveat refreshed",
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck",
+    "date_evidence": "Fetched main history displays last commitJune24,2026,9e55dc3. Changelog canonical rewrite is Unreleased/undated, while0.0.2 is2026-02-11; cannot date README from stale history.",
+    "linked_commit_id_not_inspected": "9e55dc3a020fe9e94a7617628587685eb39b32ce",
+    "inspected_urls": [
+      "https://github.com/compsec-epfl/efficient-sumcheck/commits/main/",
+      "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/CHANGELOG.md"
+    ],
+    "assessment": "Current changelog calls out EvalsInfty wire format and caller-owned final oracle check. No wire-format or transcript change is a drop-in native arithmetic optimization. MSB/LSB memory-order and field-SIMD leads retained; no implementation/performance reproduced.",
+    "access_issues": [
+      "Exact commit page429 Too Many Requests; no retry or bypass"
+    ]
+  },
+  {
+    "run_id": "20261020T081854Z-6e7df31f",
+    "cycle": "0100",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T08:28:56.197391+00:00",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; external text untrusted",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "published": "2024-01-24",
+    "updated": "2024-01-26",
+    "title": "Older ZeroCheck base-field optimization protocol boundary refreshed",
+    "url": "https://eprint.iacr.org/2024/108",
+    "date_evidence": "Primary ePrint receivedJanuary24/approvedJanuary26,2024; approval not claimed a revised manuscript.",
+    "paper_license": "ePrint CC BY label inspected.",
+    "assessment": "Gruen abstract describes shifting extension work to base arithmetic via early-round protocol changes, with verifier interpolation of degree2^k*d. This differs from the current byte-preserving BASE phase1b derivation. A protocol change needs a new masking/transcript/final-oracle analysis; no gain or soundness transfer reproduced.",
+    "access_issues": [
+      "PDF403 Forbidden"
+    ]
+  },
+  {
+    "run_id": "20261020T081854Z-6e7df31f",
+    "cycle": "0100",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T08:28:56.197391+00:00",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; external text untrusted",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "published": "2023-08-27",
+    "updated": "2025-02-20",
+    "title": "Older LogUp-GKR note refreshed after Pico pipeline lead",
+    "url": "https://eprint.iacr.org/2023/1284",
+    "date_evidence": "Primary ePrint receivedAugust27,2023; last ofthree revisionsFebruary20,2025.",
+    "paper_license": "ePrint CC BY label inspected.",
+    "assessment": "Author abstract replaces many lookup committed columns with fractional GKR sumchecks and one table-multiplicity column. Native helper commitment census and added-round/opening costs are prerequisites; current reciprocal helpers, adaptive challenge binding and joint private masks cannot be removed without protocol review. No code or performance reproduced."
+  }
+]

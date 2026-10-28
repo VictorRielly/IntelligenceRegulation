@@ -1,0 +1,37 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-tiled-prefix-20261020/checkpoint.py",
+    "sha256": "4ff4283f99dcd47427db8abf62762fa1558e127ccf1bcdc7f3e731e3ed677d8f",
+    "bytes": 21088
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-tiled-prefix-20261020/prior_owned.py",
+    "sha256": "6b537ea1afb71f4afa601f0fb81ee750ceafc91bc6dfe377fb9cb61031116cab",
+    "bytes": 6649
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-tiled-prefix-20261020/probe.py",
+    "sha256": "0939a3f3f3c46c4504dfd31c3820bbef01b3a5ea515113edf63cdd2d9bfeedba",
+    "bytes": 6775
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-tiled-prefix-20261020/reference.py",
+    "sha256": "34a4012dcbdcfdb7c9b434271e650318a4f06554ad69f0b5c5e1c9924581b731",
+    "bytes": 2568
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-tiled-prefix-20261020/run_bounded.py",
+    "sha256": "0811a4c0743744fb7b0084964d8188340a164b3e6aa73434f5d2363f5086b9e6",
+    "bytes": 1369
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-tiled-prefix-20261020/tiled.py",
+    "sha256": "c2a41b489f28c87a962a10bd48f018835afc12be8a0e0894a660398038a131cc",
+    "bytes": 10061
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-tiled-prefix-20261020/validate.py",
+    "sha256": "d30173904544bae7f042c5b35cc0442ff2467fec96e9ac0cb9fc5b0a2272098b",
+    "bytes": 6261
+  }
+]

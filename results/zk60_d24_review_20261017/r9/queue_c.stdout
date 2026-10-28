@@ -1,0 +1,20 @@
+[zk60-guard 22:41:50] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 22:42:50] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 22:43:50] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 22:44:50] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 22:45:50] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 22:46:50] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 22:47:50] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 22:48:50] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 22:49:50] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 22:50:50] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 22:51:50] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 22:52:50] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 22:53:50] waiting for /tmp/zk-heavy.lock (721s)
+[zk60-guard 22:54:51] waiting for /tmp/zk-heavy.lock (781s)
+[zk60-guard 22:55:51] waiting for /tmp/zk-heavy.lock (841s)
+[zk60-guard 22:56:51] waiting for /tmp/zk-heavy.lock (901s)
+[zk60-guard 22:57:50] START r9-author-r9tests-nocapture class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=960s run=f2a38d134920
+[zk60-guard 22:58:06] END r9-author-r9tests-nocapture exit=0 child_wall=16s peak_rss=0.17G min_avail=9.87G
+[zk60-guard 22:58:06] START r9-xr-sb-as-plain class=cpu need=2G cap=5G enforce=cgroup+watchdog waited=0s run=c799a3a80fde
+[zk60-guard 22:58:07] END r9-xr-sb-as-plain exit=1 child_wall=0s peak_rss=0.00G min_avail=10.62G

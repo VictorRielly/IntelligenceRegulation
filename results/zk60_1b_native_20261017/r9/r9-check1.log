@@ -1,0 +1,758 @@
+    Checking typenum v1.20.1
+    Checking crossbeam-utils v0.8.22
+    Checking crossbeam-epoch v0.9.20
+    Checking generic-array v0.14.7
+    Checking crossbeam-deque v0.8.7
+    Checking cfg-if v1.0.4
+    Checking rayon-core v1.13.0
+    Checking block-buffer v0.10.4
+    Checking crypto-common v0.1.7
+    Checking digest v0.10.7
+    Checking either v1.18.0
+    Checking cpufeatures v0.2.17
+    Checking constant_time_eq v0.4.2
+    Checking arrayvec v0.7.8
+    Checking cpufeatures v0.3.1
+    Checking sha2 v0.10.9
+    Checking blake3 v1.8.7
+    Checking rayon v1.12.0
+    Checking private-block-kernel-shaped v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/private-block-kernel-shaped)
+    Checking private-block-kernel v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/private-block-kernel)
+    Checking zkp-core v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core)
+    Checking hashline v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline)
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/private_block/protocol.rs:1067:9
+     |
+1067 |     let mut m_u8 = byte_histogram_at(&looked, lookup_words, HISTOGRAM_PAR_MIN);
+     |         ----^^^^
+     |         |
+     |         help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/private_block/protocol.rs:1070:10
+     |
+1070 |     let (mut m_exp, exp_missed) = exp_histogram(&deltas, &wit.planes[ids.at(A_E)], &public.exp);
+     |          ----^^^^^
+     |          |
+     |          help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/private_block/protocol.rs:1072:10
+     |
+1072 |     let (mut m_act, act_missed) = act_histogram(&act_idx, &wit.planes[ids.at(A_A16)], &ff.act);
+     |          ----^^^^^
+     |          |
+     |          help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1097:13
+     |
+1097 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: associated items `to_bytes_at` and `from_bytes_at` are never used
+    --> src/private_block.rs:1195:19
+     |
+1178 | impl Receipt {
+     | ------------ associated items in this implementation
+...
+1195 |     pub(crate) fn to_bytes_at(&self, sh: &shape::Shape, public: &BlockPublic, expected: &ExpectedIo) -> Result<Vec<u8>, String> {
+     |                   ^^^^^^^^^^^
+...
+1204 |     pub(crate) fn from_bytes_at(sh: &shape::Shape, public: &BlockPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<Self, Stri...
+     |                   ^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `verify_bytes_at` is never used
+    --> src/private_block.rs:1215:15
+     |
+1215 | pub(crate) fn verify_bytes_at(sh: &shape::Shape, public: &BlockPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<(), String> {
+     |               ^^^^^^^^^^^^^^^
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:905:4
+    |
+905 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+
+warning: function `causal_mask` is never used
+    --> src/private_block/argument.rs:1042:15
+     |
+1042 | pub(crate) fn causal_mask() -> Vec<Fp2> {
+     |               ^^^^^^^^^^^
+
+warning: function `rope_tables` is never used
+    --> src/private_block/argument.rs:1102:15
+     |
+1102 | pub(super) fn rope_tables(sh: &Shape, public: &AttentionPublic, heads: usize) -> (Vec<Fp2>, Vec<Fp2>) {
+     |               ^^^^^^^^^^^
+
+warning: associated items `new`, `index`, and `scale` are never used
+   --> src/private_block/boundary.rs:108:19
+    |
+ 99 | impl BoundarySpec {
+    | ----------------- associated items in this implementation
+...
+108 |     pub(crate) fn new(context: Digest, rows: usize, cols: usize, scale: i32, index: u64, sites: usize, log_n: usize, inv_rate: usiz...
+    |                   ^^^
+...
+174 |     pub(crate) fn index(&self) -> u64 {
+    |                   ^^^^^
+...
+177 |     pub(crate) fn scale(&self) -> i32 {
+    |                   ^^^^^
+
+warning: method `commitment` is never used
+   --> src/private_block/boundary.rs:250:19
+    |
+249 | impl PreparedBoundary {
+    | --------------------- method in this implementation
+250 |     pub(crate) fn commitment(&self) -> Commitment {
+    |                   ^^^^^^^^^^
+
+warning: associated function `new` is never used
+   --> src/private_block/endpoint_g.rs:126:19
+    |
+120 | impl EndpointSpecG {
+    | ------------------ associated function in this implementation
+...
+126 |     pub(crate) fn new(context: Digest, rows: usize, cols: usize, scale: i32, left_slot: u64, right_slot: u64, log_n: usize, inv_rat...
+    |                   ^^^
+
+warning: constant `SEED_USE_BOUNDARY` is never used
+   --> src/private_block/hash_domain.rs:192:7
+    |
+192 | const SEED_USE_BOUNDARY: &[u8] = b"hashline-zk-rng/private-block/run-boundary/v1/";
+    |       ^^^^^^^^^^^^^^^^^
+
+warning: function `boundary_seed_domain` is never used
+   --> src/private_block/hash_domain.rs:226:15
+    |
+226 | pub(crate) fn boundary_seed_domain(index: u64, spec_digest: &[u8; 32]) -> Vec<u8> {
+    |               ^^^^^^^^^^^^^^^^^^^^
+
+warning: function `boundary_seed_input_len` is never used
+   --> src/private_block/hash_domain.rs:270:15
+    |
+270 | pub(crate) fn boundary_seed_input_len() -> usize {
+    |               ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `at_shape` is never used
+   --> src/private_block/hash_domain.rs:547:15
+    |
+547 | pub(crate) fn at_shape(sh: &Shape) -> HashInputs {
+    |               ^^^^^^^^
+
+warning: function `full_at_shape` is never used
+   --> src/private_block/hash_domain.rs:566:15
+    |
+566 | pub(crate) fn full_at_shape(sh: &Shape) -> HashInputs {
+    |               ^^^^^^^^^^^^^
+
+warning: constant `D` is never used
+  --> src/private_block/layout.rs:41:18
+   |
+41 | pub(crate) const D: usize = 16;
+   |                  ^
+
+warning: constant `H` is never used
+  --> src/private_block/layout.rs:42:18
+   |
+42 | pub(crate) const H: usize = 2;
+   |                  ^
+
+warning: constant `HALF` is never used
+  --> src/private_block/layout.rs:44:18
+   |
+44 | pub(crate) const HALF: usize = DH / 2;
+   |                  ^^^^
+
+warning: constant `KV` is never used
+  --> src/private_block/layout.rs:45:18
+   |
+45 | pub(crate) const KV: usize = 8;
+   |                  ^^
+
+warning: constant `F` is never used
+  --> src/private_block/layout.rs:47:18
+   |
+47 | pub(crate) const F: usize = 16;
+   |                  ^
+
+warning: constant `NORM_WRHO` is never used
+  --> src/private_block/layout.rs:65:18
+   |
+65 | pub(crate) const NORM_WRHO: u32 = 29;
+   |                  ^^^^^^^^^
+
+warning: constant `WRHO_S` is never used
+  --> src/private_block/layout.rs:74:18
+   |
+74 | pub(crate) const WRHO_S: u32 = 14;
+   |                  ^^^^^^
+
+warning: constant `SH_G` is never used
+  --> src/private_block/layout.rs:78:18
+   |
+78 | pub(crate) const SH_G: u32 = 7;
+   |                  ^^^^
+
+warning: constant `SH_H_PROD` is never used
+  --> src/private_block/layout.rs:79:18
+   |
+79 | pub(crate) const SH_H_PROD: u32 = 14;
+   |                  ^^^^^^^^^
+
+warning: constant `SH_Z` is never used
+  --> src/private_block/layout.rs:80:18
+   |
+80 | pub(crate) const SH_Z: u32 = 6;
+   |                  ^^^^
+
+warning: constant `A_PL1` is never used
+   --> src/private_block/layout.rs:272:18
+    |
+272 | pub(crate) const A_PL1: usize = 62;
+    |                  ^^^^^
+
+warning: constant `A_SR1` is never used
+   --> src/private_block/layout.rs:274:18
+    |
+274 | pub(crate) const A_SR1: usize = 64;
+    |                  ^^^^^
+
+warning: function `is_multiplicity` is never used
+   --> src/private_block/layout.rs:315:15
+    |
+315 | pub(crate) fn is_multiplicity(plane: usize) -> bool {
+    |               ^^^^^^^^^^^^^^^
+
+warning: associated function `toy` is never used
+   --> src/private_block/layout.rs:459:19
+    |
+359 | impl Ids {
+    | -------- associated function in this implementation
+...
+459 |     pub(crate) fn toy() -> Ids {
+    |                   ^^^
+
+warning: constant `H_GU8` is never used
+   --> src/private_block/layout.rs:523:18
+    |
+523 | pub(crate) const H_GU8: usize = 47;
+    |                  ^^^^^
+
+warning: constant `H_GEXP` is never used
+   --> src/private_block/layout.rs:524:18
+    |
+524 | pub(crate) const H_GEXP: usize = 48;
+    |                  ^^^^^^
+
+warning: constant `H_GACT` is never used
+   --> src/private_block/layout.rs:525:18
+    |
+525 | pub(crate) const H_GACT: usize = 49;
+    |                  ^^^^^^
+
+warning: constant `H_U` is never used
+   --> src/private_block/layout.rs:527:18
+    |
+527 | pub(crate) const H_U: usize = 50;
+    |                  ^^^
+
+warning: function `h_is_table` is never used
+   --> src/private_block/layout.rs:543:15
+    |
+543 | pub(crate) fn h_is_table(plane: usize) -> bool {
+    |               ^^^^^^^^^^
+
+warning: function `lookups` is never used
+   --> src/private_block/layout.rs:770:15
+    |
+770 | pub(crate) fn lookups(dom: Dom) -> Vec<Lk> {
+    |               ^^^^^^^
+
+warning: function `helpers` is never used
+   --> src/private_block/layout.rs:896:15
+    |
+896 | pub(crate) fn helpers(dom: Dom) -> (usize, usize) {
+    |               ^^^^^^^
+
+warning: constant `M_ROWS` is never used
+    --> src/private_block/layout.rs:1062:18
+     |
+1062 | pub(crate) const M_ROWS: usize = 2 * N_SLOTS + 4;
+     |                  ^^^^^^
+
+warning: function `slot_terms` is never used
+    --> src/private_block/layout.rs:1072:15
+     |
+1072 | pub(crate) fn slot_terms(slot: usize) -> usize {
+     |               ^^^^^^^^^^
+
+warning: function `mask_specs` is never used
+    --> src/private_block/layout.rs:1076:15
+     |
+1076 | pub(crate) fn mask_specs() -> Vec<(usize, usize)> {
+     |               ^^^^^^^^^^
+
+warning: function `rows_of` is never used
+    --> src/private_block/layout.rs:1084:15
+     |
+1084 | pub(crate) fn rows_of(log: usize) -> usize {
+     |               ^^^^^^^
+
+warning: function `no_commitment_has_a_node_shaped_column` is never used
+    --> src/private_block/layout.rs:1106:15
+     |
+1106 | pub(crate) fn no_commitment_has_a_node_shaped_column(rows: &[(&str, usize)]) -> Result<(), String> {
+     |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `pcs_params` is never used
+  --> src/private_block/protocol.rs:77:15
+   |
+77 | pub(crate) fn pcs_params() -> PcsParams {
+   |               ^^^^^^^^^^
+
+warning: multiple associated items are never used
+   --> src/private_block/run.rs:170:19
+    |
+150 | impl RunShape {
+    | ------------- associated items in this implementation
+...
+170 |     pub(crate) fn sh(&self) -> &Shape {
+    |                   ^^
+...
+174 |     pub(crate) fn l(&self) -> usize {
+    |                   ^
+...
+181 |     pub(crate) fn rung_g(l: usize) -> Result<RunShape, String> {
+    |                   ^^^^^^
+...
+185 |     pub(crate) fn rung_k4(l: usize) -> Result<RunShape, String> {
+    |                   ^^^^^^^
+...
+193 |     pub(crate) fn rung_c6(l: usize) -> Result<RunShape, String> {
+    |                   ^^^^^^^
+...
+197 |     pub(crate) fn rung_w14(l: usize) -> Result<RunShape, String> {
+    |                   ^^^^^^^^
+...
+201 |     pub(crate) fn rung_e32(l: usize) -> Result<RunShape, String> {
+    |                   ^^^^^^^^
+...
+217 |     pub(crate) fn tinyllama_t32_trained(sh: Shape, l: usize) -> Result<RunShape, String> {
+    |                   ^^^^^^^^^^^^^^^^^^^^^
+
+warning: method `rs` is never used
+   --> src/private_block/run.rs:297:19
+    |
+295 | impl RunStatement {
+    | ----------------- method in this implementation
+296 |     /// the run's geometry (ruling CS-8: read-only outside this module)
+297 |     pub(crate) fn rs(&self) -> &RunShape {
+    |                   ^^
+
+warning: struct `MemorySink` is never constructed
+   --> src/private_block/run_sink.rs:116:19
+    |
+116 | pub(crate) struct MemorySink {
+    |                   ^^^^^^^^^^
+
+warning: method `segments` is never used
+   --> src/private_block/run_sink.rs:121:19
+    |
+120 | impl MemorySink {
+    | --------------- method in this implementation
+121 |     pub(crate) fn segments(&self) -> &[Vec<u8>] {
+    |                   ^^^^^^^^
+
+warning: multiple associated items are never used
+    --> src/private_block/shape.rs:1536:19
+     |
+ 524 | impl Shape {
+     | ---------- associated items in this implementation
+...
+1536 |     pub(crate) fn with_score_shift(&self, sh_s: u32) -> Result<Shape, String> {
+     |                   ^^^^^^^^^^^^^^^^
+...
+1604 |     pub(crate) fn tinyllama_t32_trained(cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
+     |                   ^^^^^^^^^^^^^^^^^^^^^
+...
+1808 |     pub(crate) fn log_slots_per_kv_group(&self) -> usize {
+     |                   ^^^^^^^^^^^^^^^^^^^^^^
+...
+1829 |     pub(crate) fn kv_of_slot(&self, sl: usize) -> usize {
+     |                   ^^^^^^^^^^
+...
+2204 |     pub(crate) fn totals(&self) -> Totals {
+     |                   ^^^^^^
+...
+2293 |     pub(crate) fn logup_sum_claim_keys(&self) -> usize {
+     |                   ^^^^^^^^^^^^^^^^^^^^
+...
+2388 |     pub(crate) fn padded_domains(&self) -> Vec<Dom> {
+     |                   ^^^^^^^^^^^^^^
+
+warning: struct `Totals` is never constructed
+    --> src/private_block/shape.rs:2425:19
+     |
+2425 | pub(crate) struct Totals {
+     |                   ^^^^^^
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:259:19
+    |
+216 | impl Phases {
+    | ----------- method in this implementation
+...
+259 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+
+warning: function `timed` is never used
+   --> src/private_block/timing.rs:427:15
+    |
+427 | pub(crate) fn timed<T>(side: &str, label: &str, size: u64, unit: &str, f: impl FnOnce() -> T) -> T {
+    |               ^^^^^
+
+warning: associated function `recipe` is never used
+   --> src/private_block/trained_statement.rs:244:19
+    |
+240 | impl Provenance {
+    | --------------- associated function in this implementation
+...
+244 |     pub(crate) fn recipe(label: &str, residual_unit: f64, quantizer_sha256: [u8; 32], calibration_set_sha256: [u8; 32]) -> Provenan...
+    |                   ^^^^^^
+
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:554:19
+    |
+529 | impl Geometry {
+    | ------------- method in this implementation
+...
+554 |     pub(crate) fn is_dd(self) -> bool {
+    |                   ^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib) generated 62 warnings (run `cargo fix --lib -p hashline` to apply 10 suggestions)
+warning: `hashline` (lib) generated 62 warnings (62 duplicates)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+error[E0308]: mismatched types
+   --> src/private_block/grow_tests.rs:559:34
+    |
+559 |     assert_eq!(sh.claim_sites(), (A_SITES, H_SITES));
+    |                                  ^^^^^^^^^^^^^^^^^^ expected an array with a size of 24, found one with a size of 23
+    |
+    = note: expected tuple `([usize; 24], [usize; 24])`
+               found tuple `([usize; 23], [usize; 23])`
+
+error[E0277]: can't compare `[(usize, usize, usize); 24]` with `[(usize, usize, usize); 23]`
+   --> src/private_block/grow_tests.rs:560:5
+    |
+560 |     assert_eq!(sh.slots(), SLOTS);
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no implementation for `[(usize, usize, usize); 24] == [(usize, usize, usize); 23]`
+    |
+    = help: the trait `PartialEq<[(usize, usize, usize); 23]>` is not implemented for `[(usize, usize, usize); 24]`
+    = help: the following other types implement trait `PartialEq<Rhs>`:
+              `&[T]` implements `PartialEq<Vec<U, A>>`
+              `&[T]` implements `PartialEq<[U; N]>`
+              `&[u8; N]` implements `PartialEq<ByteStr>`
+              `&[u8; N]` implements `PartialEq<ByteString>`
+              `&[u8]` implements `PartialEq<ByteStr>`
+              `&[u8]` implements `PartialEq<ByteString>`
+              `&mut [T]` implements `PartialEq<Vec<U, A>>`
+              `&mut [T]` implements `PartialEq<[U; N]>`
+            and 11 others
+
+error[E0277]: can't compare `[usize; 24]` with `[usize; 23]`
+    --> src/private_block/grow_tests.rs:1376:17
+     |
+1376 | ...   assert_eq!(super::pad::indicator_tables_per_slot(&sh), [0usize; N_SLOTS], "the frozen toy profile declares an indicator table");
+     |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no implementation for `[usize; 24] == [usize; 23]`
+     |
+     = help: the trait `PartialEq<[usize; 23]>` is not implemented for `[usize; 24]`
+     = help: the following other types implement trait `PartialEq<Rhs>`:
+               `&[T]` implements `PartialEq<Vec<U, A>>`
+               `&[T]` implements `PartialEq<[U; N]>`
+               `&[u8; N]` implements `PartialEq<ByteStr>`
+               `&[u8; N]` implements `PartialEq<ByteString>`
+               `&[u8]` implements `PartialEq<ByteStr>`
+               `&[u8]` implements `PartialEq<ByteString>`
+               `&mut [T]` implements `PartialEq<Vec<U, A>>`
+               `&mut [T]` implements `PartialEq<[U; N]>`
+             and 11 others
+
+error[E0277]: can't compare `[&str; 10]` with `[&str; 7]`
+   --> src/private_block/trained_calib_tests.rs:225:5
+    |
+225 |     assert_eq!(TRAINED_CALIBRATION_PROFILES, [TI...per::shape::LLAMA3_8B_T128_TRAINED_PROFILE]);
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^...^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ no implementation for `[&str; 10] == [&str; 7]`
+    |
+    = help: the trait `PartialEq<[&str; 7]>` is not implemented for `[&str; 10]`
+    = help: the following other types implement trait `PartialEq<Rhs>`:
+              `&[T]` implements `PartialEq<Vec<U, A>>`
+              `&[T]` implements `PartialEq<[U; N]>`
+              `&[u8; N]` implements `PartialEq<ByteStr>`
+              `&[u8; N]` implements `PartialEq<ByteString>`
+              `&[u8]` implements `PartialEq<ByteStr>`
+              `&[u8]` implements `PartialEq<ByteString>`
+              `&mut [T]` implements `PartialEq<Vec<U, A>>`
+              `&mut [T]` implements `PartialEq<[U; N]>`
+            and 11 others
+
+error[E0063]: missing field `g_dd` in initializer of `private_block::argument::Ctx<'_>`
+   --> src/private_block/trained_calib_tests.rs:815:15
+    |
+815 |     let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha: c(7, 1), beta: c(11, 2), g_u8: c(13, 3), g_exp: c(17, 5), g_act: c(...
+    |               ^^^ missing `g_dd`
+
+error[E0277]: `private_block::witness::Witness` doesn't implement `Debug`
+    --> src/private_block/r9_tests.rs:197:85
+     |
+ 197 | ...d_forward(), &input).expect_err("the builder admitted an over-cap table");
+     |                         ^^^^^^^^^^ the trait `Debug` is not implemented for `private_block::witness::Witness`
+     |
+     = note: add `#[derive(Debug)]` to `private_block::witness::Witness` or manually `impl Debug for private_block::witness::Witness`
+note: required by a bound in `Result::<T, E>::expect_err`
+    --> /home/victor/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/result.rs:1295:12
+     |
+1293 |     pub fn expect_err(self, msg: &str) -> E
+     |            ---------- required by a bound in this associated function
+1294 |     where
+1295 |         T: fmt::Debug,
+     |            ^^^^^^^^^^ required by this bound in `Result::<T, E>::expect_err`
+help: consider annotating `private_block::witness::Witness` with `#[derive(Debug)]`
+    -->  src/private_block/witness.rs:41:1
+     |
+  41 + #[derive(Debug)]
+  42 | pub(crate) struct Witness {
+     |
+
+error[E0614]: type `private_block::layout::Dom` cannot be dereferenced
+   --> src/private_block/rung_tests.rs:293:66
+    |
+293 |         for (k, col) in super::protocol::lookup_values(&lay, &w, *dom).iter().enumerate() {
+    |                                                                  ^^^^ can't be dereferenced
+
+error[E0063]: missing field `g_dd` in initializer of `private_block::argument::Ctx<'_>`
+   --> src/private_block/s20_review_tests.rs:266:15
+    |
+266 |     let ctx = Ctx {
+    |               ^^^ missing `g_dd`
+
+error[E0063]: missing field `g_dd` in initializer of `private_block::argument::Ctx<'_>`
+   --> src/private_block/s20_review_tests.rs:415:19
+    |
+415 |         let ctx = Ctx {
+    |                   ^^^ missing `g_dd`
+
+error[E0063]: missing field `g_dd` in initializer of `private_block::argument::Ctx<'_>`
+   --> src/private_block/s24_tests.rs:105:15
+    |
+105 |     let ctx = Ctx {
+    |               ^^^ missing `g_dd`
+
+error[E0614]: type `private_block::layout::Dom` cannot be dereferenced
+   --> src/private_block/s28_tests.rs:440:40
+    |
+440 |             let len = lay.shape().size(*dom);
+    |                                        ^^^^ can't be dereferenced
+
+error[E0614]: type `private_block::layout::Dom` cannot be dereferenced
+   --> src/private_block/s28_tests.rs:442:26
+    |
+442 |                 .lookups(*dom)
+    |                          ^^^^ can't be dereferenced
+
+error[E0614]: type `private_block::layout::Dom` cannot be dereferenced
+   --> src/private_block/s28_tests.rs:446:65
+    |
+446 |             assert_eq!(super::protocol::lookup_values(&lay, &w, *dom), want, "{}: the looked columns of {dom:?} moved", sh.name);
+    |                                                                 ^^^^ can't be dereferenced
+
+error[E0614]: type `private_block::layout::Dom` cannot be dereferenced
+   --> src/private_block/s28_review_tests.rs:342:40
+    |
+342 |             let len = lay.shape().size(*dom);
+    |                                        ^^^^ can't be dereferenced
+
+error[E0614]: type `private_block::layout::Dom` cannot be dereferenced
+   --> src/private_block/s28_review_tests.rs:344:26
+    |
+344 |                 .lookups(*dom)
+    |                          ^^^^ can't be dereferenced
+
+error[E0614]: type `private_block::layout::Dom` cannot be dereferenced
+   --> src/private_block/s28_review_tests.rs:350:67
+    |
+350 |                 let got = pool.install(|| lookup_values(&lay, &w, *dom));
+    |                                                                   ^^^^ can't be dereferenced
+
+error[E0614]: type `private_block::layout::Dom` cannot be dereferenced
+   --> src/private_block/s28_review_tests.rs:443:40
+    |
+443 |             let len = lay.shape().size(*dom);
+    |                                        ^^^^ can't be dereferenced
+
+error[E0614]: type `private_block::layout::Dom` cannot be dereferenced
+   --> src/private_block/s28_review_tests.rs:444:36
+    |
+444 |             let cols = lay.lookups(*dom).len();
+    |                                    ^^^^ can't be dereferenced
+
+error[E0614]: type `private_block::layout::Dom` cannot be dereferenced
+   --> src/private_block/s29_tests.rs:310:56
+    |
+310 |             let want = lookup_values_79f0726(&lay, &w, *dom);
+    |                                                        ^^^^ can't be dereferenced
+
+error[E0614]: type `private_block::layout::Dom` cannot be dereferenced
+   --> src/private_block/s29_tests.rs:311:51
+    |
+311 |             assert_eq!(lookup_values_at(&lay, &w, *dom, usize::MAX), want, "{} {dom:?}: the forced-serial columns moved", sh.name);
+    |                                                   ^^^^ can't be dereferenced
+
+error[E0614]: type `private_block::layout::Dom` cannot be dereferenced
+   --> src/private_block/s29_tests.rs:312:51
+    |
+312 |             assert_eq!(lookup_values_at(&lay, &w, *dom, 0), want, "{} {dom:?}: the forced-parallel columns moved", sh.name);
+    |                                                   ^^^^ can't be dereferenced
+
+error[E0614]: type `private_block::layout::Dom` cannot be dereferenced
+   --> src/private_block/s29_tests.rs:313:51
+    |
+313 | ...   assert_eq!(lookup_values_at(&lay, &w, *dom, LOOKUP_PAR_MIN), want, "{} {dom:?}: the production threshold moved a column", sh....
+    |                                             ^^^^ can't be dereferenced
+
+error[E0614]: type `private_block::layout::Dom` cannot be dereferenced
+   --> src/private_block/s29_tests.rs:314:37
+    |
+314 |             let words = lay.lookups(*dom).len() * lay.shape().size(*dom);
+    |                                     ^^^^ can't be dereferenced
+
+error[E0614]: type `private_block::layout::Dom` cannot be dereferenced
+   --> src/private_block/s29_tests.rs:314:68
+    |
+314 |             let words = lay.lookups(*dom).len() * lay.shape().size(*dom);
+    |                                                                    ^^^^ can't be dereferenced
+
+error[E0614]: type `private_block::layout::Dom` cannot be dereferenced
+   --> src/private_block/s29_tests.rs:315:28
+    |
+315 |             if lay.lookups(*dom).len() > 1 && words >= LOOKUP_PAR_MIN {
+    |                            ^^^^ can't be dereferenced
+
+error[E0614]: type `private_block::layout::Dom` cannot be dereferenced
+   --> src/private_block/s29_tests.rs:320:85
+    |
+320 |             in_pools(&format!("{} {dom:?}", sh.name), || lookup_values_at(&lay, &w, *dom, 0));
+    |                                                                                     ^^^^ can't be dereferenced
+
+error[E0063]: missing field `g_dd` in initializer of `private_block::argument::Ctx<'_>`
+   --> src/private_block/tests.rs:397:15
+    |
+397 |     let ctx = Ctx { lay: &lay, public: blk.attention(), ff: blk.feed_forward(), alpha, beta, g_u8, g_exp, g_act };
+    |               ^^^ missing `g_dd`
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1097:13
+     |
+1097 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+Some errors have detailed explanations: E0063, E0277, E0308, E0614.
+For more information about an error, try `rustc --explain E0063`.
+warning: `hashline` (lib test) generated 9 warnings (5 duplicates)
+error: could not compile `hashline` (lib test) due to 27 previous errors; 9 warnings emitted

@@ -1,0 +1,33 @@
+[
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "experiments/public-raw-last-use-20261019/prepare.py"
+    ],
+    "exit_code": 0,
+    "source_sha256": "8495afde5c6fac692b25c21dd0d5942973d63e0e0bc1171e895c32427f877be0",
+    "evidence": "tool result:18 pins,14 matches,21 patch lines; unbuilt/unapplied"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "experiments/public-raw-last-use-20261019/report_cycle.py"
+    ],
+    "exit_code": 1,
+    "source_sha256": "9198d897b52b234b2e0fae56aa6e9bf3040d4501ce23634009eb7c89664d7839",
+    "stderr": "before-report-encoding-fix/stderr.log",
+    "evidence": "Parse-time encoding failure, retained and corrected; no report mutation"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "experiments/public-raw-last-use-20261019/report_cycle.py"
+    ],
+    "exit_code": 0,
+    "source_sha256": "ee9c9b1c742f9c5304927c8bbb3ffd5ed15177f175e702cfed7c621da02b88cd",
+    "evidence": "Reports/source append485->493; rerun also passed, preserved source timestamps"
+  }
+]

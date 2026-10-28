@@ -1,0 +1,16 @@
+{
+  "status": "PASS_SOURCE_ORDER_AND_ROLE_FORMULAS_ONLY",
+  "checks": 59,
+  "source_pins": 3,
+  "source_findings": [
+    "constructor timer excludes prior GPU init/lock/memory diagnosis/optional warmup",
+    "build timer combines allocation, transfer, module work and synchronize",
+    "success-only total sampled before report overhead, transcript assignment and evaluator destruction",
+    "tail sample precedes local pin and d_pack scope destruction",
+    "profile-only round synchronization changes timing boundaries",
+    "constructor and round errors can return without ev.report; enclosing caller attempt timer must survive early returns"
+  ],
+  "wall_seconds": 0.03152435799711384,
+  "rss_kib": 18636,
+  "caveat": "Source order and conditional request formulas only. Rust drop/API timing, driver fences, actual incidence and performance not executed."
+}

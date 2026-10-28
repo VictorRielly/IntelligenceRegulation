@@ -1,0 +1,49 @@
+{
+  "run_id": "20261020T051854Z-d5b6bbb8",
+  "new_work": {
+    "scope": "CPU-only synthetic affine field/reference and source-accounting study",
+    "verified_full_stack_proofs": 0,
+    "complete_model_passes": 0,
+    "proved_positions": 0,
+    "actual_model_context_length": null,
+    "accelerator": null,
+    "witness_seconds": null,
+    "proof_seconds": null,
+    "serialization_seconds": null,
+    "verification_seconds": null,
+    "startup_fraction": null,
+    "steady_proved_positions_per_second": null,
+    "total_workload_proved_positions_per_second": null,
+    "long_context_prefill": false,
+    "resident_model_sweep": false,
+    "decode": false,
+    "synthetic_table_cube_logs": [
+      3,
+      4,
+      5
+    ]
+  },
+  "carried_owner_baseline": {
+    "scope": "Previously independently verified non-DD complete8B block stack;not rerun/reverified here",
+    "context_length": 128,
+    "layers": 32,
+    "complete_passes": 1,
+    "cpu_threads": 16,
+    "gpu_used": false,
+    "total_seconds": 478.737,
+    "total_rate": 0.267370184464539,
+    "prove_run_seconds": 393.785,
+    "witness_seconds": 98.348,
+    "load_seconds": 17.595,
+    "sealing_seconds": 84.824,
+    "sealing_overlaps": true,
+    "serialization_seconds": null,
+    "startup_fraction": null,
+    "steady_rate": null,
+    "receipt_bytes": 922711264,
+    "fresh_verify_seconds": 42.709,
+    "fresh_verify_load_seconds": 13.681,
+    "recheck_seconds": 34.395,
+    "recheck_load_seconds": 10.739
+  }
+}

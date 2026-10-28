@@ -1,0 +1,3 @@
+{"event":"prover_start","gpu":"gpu: off (built without --features gpu-cuda)","hl_gpu_required":false}
+{"event":"refused","error":"trained export: DD (D30) is registered only at TinyLlama T128, Llama-3-8B T128, Shieldstral T128 / T256 and the DD development rung, not at Llama3_8B(32)"}
+exit 1 dir no

@@ -1,0 +1,9 @@
+[
+  "unweighted_pad_coefficients",
+  "prepared_coefficients_reused_after_new_mu_pad",
+  "affine_constant_added_to_difference",
+  "missing_extension_delta",
+  "drop_nonzero_public_pad_support",
+  "store_low_endpoint_in_high_half",
+  "componentwise_extension_multiply"
+]

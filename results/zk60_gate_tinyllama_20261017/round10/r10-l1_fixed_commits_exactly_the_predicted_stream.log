@@ -1,0 +1,16 @@
+
+running 1 test
+test private_block::run_capture_tests::gr4_trained_tests::gr4_token_tests::gr4_token_t32_l1_fixed_commits_exactly_the_predicted_stream ... GR4 TOKEN replay [TinyLlama T32 token run (b4 export), layers [0], fixed: 32 x BOS]: header rebuilt = binding: true; 3 segments, lengths = the statement's counted lengths: true; verified by the production token-run verifier = true; token endpoints in situ: 5632 drawn field values and 4096 salts, all distinct
+GR4 TOKEN replay [TinyLlama T32 token run (b4 export), layers [0], fixed: 32 x BOS]: stage IN roots rebuilt B_in/A_in/M_in/H_in = [true, true, true, true]; block roots B_k+1/A/M/H = [[true, true, true, true]]; stage OUT roots A_out/M_out/H_out = [true, true, true]
+GR4 TOKEN replay [TinyLlama T32 token run (b4 export), layers [0], fixed: 32 x BOS]: replay stream ends where the prover's did (next-draw probe) = true; prover consumed exactly the predicted 54185024 bytes = true; probe non-vacuity (16 bytes further differs) = true
+GR4 TOKEN replay [TinyLlama T32 token run (b4 export), layers [0], fixed: 32 x BOS]: non-vacuity InAProxZero moves the A_in root(s) = true
+GR4 TOKEN replay [TinyLlama T32 token run (b4 export), layers [0], fixed: 32 x BOS]: non-vacuity BinAfterAin moves the B_in and A_in root(s) = true
+GR4 TOKEN replay [TinyLlama T32 token run (b4 export), layers [0], fixed: 32 x BOS]: non-vacuity InZeroSumReset moves the H_in root(s) = true
+GR4 TOKEN replay [TinyLlama T32 token run (b4 export), layers [0], fixed: 32 x BOS]: non-vacuity ResetBeforeOut moves the A_out root(s) = true
+GR4 TOKEN replay [TinyLlama T32 token run (b4 export), layers [0], fixed: 32 x BOS]: non-vacuity OutCopyAIntoH moves the H_out root(s) = true
+GR4 TOKEN replay [TinyLlama T32 token run (b4 export), layers [0], fixed: 32 x BOS]: non-vacuity OutAlphaCopy moves the M_out root(s) = true
+GR4 TOKEN replay [TinyLlama T32 token run (b4 export), layers [0], fixed: 32 x BOS]: PASS. seconds: seeded prove 2.99, production token-run verify 1.67, one prediction 1.15, whole test 16.04; process high-water mark 1.04 GiB [MEASURED, shared box, n=1]. Not a privacy result.
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 657 filtered out; finished in 16.06s
+

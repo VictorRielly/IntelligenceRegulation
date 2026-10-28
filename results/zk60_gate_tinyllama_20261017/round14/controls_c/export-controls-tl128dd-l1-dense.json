@@ -1,0 +1,251 @@
+{
+ "E0_export_integrity": {
+  "layers": 22,
+  "ok": true,
+  "per_layer_constants_differ": [
+   "exp_e_s",
+   "norm_cn_a",
+   "norm_cn_m",
+   "sh_ao",
+   "sh_h",
+   "sh_s",
+   "sh_z",
+   "silu_member"
+  ]
+ },
+ "E1_constants": {
+  "f_e": {
+   "bundle": 9,
+   "equal": true,
+   "export": 9
+  },
+  "norm_ceps": {
+   "bundle": 74429,
+   "equal": true,
+   "export": 74429
+  },
+  "norm_cn_a": {
+   "bundle": 1253,
+   "equal": true,
+   "export": null,
+   "per_layer": true,
+   "run_calibration": 1253
+  },
+  "norm_cn_m": {
+   "bundle": 1444,
+   "equal": true,
+   "export": null,
+   "per_layer": true,
+   "run_calibration": 1444
+  },
+  "norm_tn": {
+   "bundle": 10,
+   "equal": true,
+   "export": 10
+  },
+  "sh_ao": {
+   "bundle": 7,
+   "equal": true,
+   "export": null,
+   "per_layer": true,
+   "run_calibration": 7
+  },
+  "sh_g": {
+   "bundle": 8,
+   "equal": true,
+   "export": 8
+  },
+  "sh_h": {
+   "bundle": 14,
+   "equal": true,
+   "export": null,
+   "per_layer": true,
+   "run_calibration": 14
+  },
+  "sh_o": {
+   "bundle": 9,
+   "equal": true,
+   "export": 9
+  },
+  "sh_qkv": {
+   "bundle": 8,
+   "equal": true,
+   "export": 8
+  },
+  "sh_s": {
+   "bundle": 6,
+   "equal": true,
+   "export": null,
+   "per_layer": true,
+   "run_calibration": 6
+  },
+  "sh_z": {
+   "bundle": 8,
+   "equal": true,
+   "export": null,
+   "per_layer": true,
+   "run_calibration": 8
+  }
+ },
+ "E1_run_calibration": {
+  "layers": [
+   0
+  ],
+  "per_layer_fields": [
+   "sh_s",
+   "norm_cn_a",
+   "norm_cn_m",
+   "sh_ao",
+   "sh_h",
+   "sh_z"
+  ],
+  "rule": "the profile's constants; each per-layer field the value tuple most of the run's layers carry (ties: the smallest), trained_block.rs run_constants",
+  "run_values": {
+   "norm_ceps": 74429,
+   "norm_cn_a": 1253,
+   "norm_cn_m": 1444,
+   "norm_tn": 10,
+   "sh_ao": 7,
+   "sh_g": 8,
+   "sh_h": 14,
+   "sh_o": 9,
+   "sh_qkv": 8,
+   "sh_s": 6,
+   "sh_z": 8
+  },
+  "tally": {
+   "sh_s,norm_cn_a,norm_cn_m,sh_ao,sh_h,sh_z": {
+    "[6, 1253, 1444, 7, 14, 8]": 1
+   }
+  }
+ },
+ "E2_parameter_line": {
+  "equal_to_the_shape": true,
+  "found": true,
+  "sh_g_h_z": [
+   8,
+   14,
+   8
+  ]
+ },
+ "E3_statement": {
+  "checked": false,
+  "why": "no --statement given (stage-to-layer map and identity not checked)"
+ },
+ "E3b_layers_by_gamma": {
+  "identified": {
+   "findings": [],
+   "layer_of_stage": [
+    0
+   ],
+   "ok": true,
+   "per_stage": [
+    {
+     "layers_matching": [
+      0
+     ],
+     "stage": 0
+    }
+   ]
+  },
+  "layer_of_stage": [
+   0
+  ],
+  "map_source": "E3b (the gains)",
+  "readme_declared_layers": [
+   0
+  ],
+  "what": "slot 14's two public gamma tables of each stage against every export layer's gamma_a / gamma_m; the README list is not transcript-bound and is only compared"
+ },
+ "E4_tables": {
+  "checked": true,
+  "from": "stage8_plane_index_and_terminals/terminal_identity",
+  "per_stage": [
+   {
+    "act_128_is_zero": true,
+    "act_equal": true,
+    "exp_0_is_2_to_f_e": true,
+    "exp_equal": true,
+    "layer": 0,
+    "stage": 0
+   }
+  ],
+  "stages": 1
+ },
+ "E5_stage_calibration": {
+  "per_stage": [
+   {
+    "at_its_own_calibration": false,
+    "differing": [],
+    "layer": 0,
+    "ok": true,
+    "stage": 0
+   }
+  ],
+  "stage_lines": {
+   "own_clauses": {},
+   "run_shape_derivation_equal": true,
+   "schedule_digest": {
+    "equal": true,
+    "recomputed": "6077e5170de810e41444bea7b80466a611609bc15f1e693e749093253f0fcf7b",
+    "run_json": "6077e5170de810e41444bea7b80466a611609bc15f1e693e749093253f0fcf7b",
+    "what": "blake3('hashline/private-run-schedule/1' + length-framed parameter_line, layout_description, stage_lines), run.rs:572-587"
+   },
+   "stage_lines": 1,
+   "stages_at_their_own_calibration": []
+  }
+ },
+ "bundle": "tl128dd-l1-dense",
+ "controls": {
+  "all_fire": true,
+  "controls": [
+   {
+    "control": "EX-1",
+    "findings_naming_it": [
+     "E1: sh_qkv is 7 in the bundle and 8 in the export"
+    ],
+    "fires": true,
+    "ok_under_perturbation": false,
+    "what": "sh_qkv moved by one in run.json's shape"
+   },
+   {
+    "control": "EX-2",
+    "findings_naming_it": [
+     "E1: norm_ceps is 74430 in the bundle and 74429 in the export"
+    ],
+    "fires": true,
+    "ok_under_perturbation": false,
+    "what": "norm_ceps moved by one in run.json's shape"
+   },
+   {
+    "control": "EX-3",
+    "findings_naming_it": [
+     "E2: the absorbed parameter line says sh g/h/z = 9/14/8, the shape 8/14/8"
+    ],
+    "fires": true,
+    "ok_under_perturbation": false,
+    "what": "the parameter line's sh-g field moved by one"
+   },
+   {
+    "control": "EX-6",
+    "findings_naming_it": [
+     "E4: stage 0 (layer 0): act_equal is false"
+    ],
+    "fires": true,
+    "ok_under_perturbation": false,
+    "what": "stage 0's recovered SiLU table digest replaced"
+   }
+  ],
+  "honest_ok": true,
+  "ok": true
+ },
+ "export": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/tinyllama_dg_rot1_T128",
+ "export_profile_sha256": "b01a6db14ad93319286fe32bcdf4827e9a41bcee2609cc63e25cdf19609e6b8a",
+ "export_variant": "tinyllama_dg_rot1_T128",
+ "findings": [],
+ "ok": true,
+ "privacy_acceptance": false,
+ "privacy_property_established": false,
+ "tool_sha256": "f825be16db7a50c7b96103c1be5acc0ba79f646cdf3096837c99ba7bb7162314",
+ "what": "the bundle's trained calibration against the export it claims and an independent statement (finding P-9)"
+}

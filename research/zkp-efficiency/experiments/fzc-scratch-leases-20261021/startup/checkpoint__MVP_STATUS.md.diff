@@ -1,0 +1,28 @@
+--- startup/MVP_STATUS.md
++++ current/MVP_STATUS.md
+@@ -1,4 +1,25 @@
+ # Where the MVP stands, in plain words
++
++**2026-10-21 02:40 UTC — the full MVP is now a proven-safe media app (D37, D38).**
++- **Direction (Victor):** the first application is safety classification: a
++  media app whose posts carry public proofs that they passed a
++  harmful-content classifier. **Model (D38):** Mistral's open classifier
++  Shieldstral-1.0-3B (Apache 2.0), text only; the proof states that its
++  yes-score beat its no-score by a public threshold; only the verdict, model
++  and policy are public, the content stays hidden. Survey:
++  `results/zk60_classifier_survey_20261021/REPORT.md`.
++- **Lanes started:** model import + float reference + benchmark F1
++  (calibration prep); prover features for Shieldstral's shapes (decoupled
++  head size, YaRN rotary table, tied embedding; native R12); the classifier
++  verdict stage with a public verdict bit (token round 12, design first);
++  the media app with proof badges (`apps/proven-media/`, stub prover first).
++- **Privacy:** D33 and D36 extended to frozen-r11 — both now cover the
++  demo's exact binaries. DD passed the privacy gate on its first 8
++  captures (gate evidence).
++- **Fidelity:** 8B meets the amended bar (≤1.02x, zero refusals) with the
++  LOW + 12-bit-score stack (1.011x / 1.010x); TinyLlama with LOW (1.009x /
++  1.010x); cheapest DD-compatible 8B stack being measured; the chosen stack
++  becomes the native build spec.
+ 
+ **2026-10-21 00:20 UTC — privacy accepted for a whole AI answer (D36); D33
+ extended to the current code.** Victor accepted both in the console:

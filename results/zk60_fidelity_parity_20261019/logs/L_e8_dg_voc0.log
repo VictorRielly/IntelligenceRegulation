@@ -1,0 +1,50 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/fp_eval.py", line 381, in <module>
+    main()
+  File "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/fp_eval.py", line 227, in main
+    ex = fl.Export(Path(a.export), verify=not a.no_verify)
+  File "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/fp_lib.py", line 120, in __init__
+    self.prof = json.loads((self.root / "profile.json").read_text())
+  File "/usr/lib/python3.10/pathlib.py", line 1134, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/usr/lib/python3.10/pathlib.py", line 1119, in open
+    return self._accessor.open(self, mode, buffering, encoding, errors,
+FileNotFoundError: [Errno 2] No such file or directory: '/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128/profile.json'
+[18:43:01Z] fp_eval llama3-8b export llama3_8b_dg_rot1_voc0_T128 T 128 corpora fineweb:48,wikitext:48 relax [] threads 4
+[18:43:03Z] corpora built: (96, 128), {'fineweb': {'n': 48, 'offset': 0, 'source': '/home/victor/models/fineweb-edu/sample/10BT/000_00000.parquet', 'sha256_expected': 'b1ba7b2ce4cb5ea6ef42dca40263eabb85f37700d01693a68e9b30a31d78e871'}, 'wikitext': {'n': 48, 'offset': 0, 'source': '/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/data/wikitext2/test.parquet', 'sha256_expected': '5f1bea067869d04849c0f975a2b29c4ff47d867f484f5010ea5e861eab246d91'}} (2s)
+[18:43:03Z] float final residual from cache float_T128_d662e41ff52f.npy
+[18:44:47Z] L00 violations 0 refused so far 0 (77s)
+[18:46:05Z] L01 violations 0 refused so far 0 (78s)
+[18:47:22Z] L02 violations 0 refused so far 0 (77s)
+[18:48:39Z] L03 violations 0 refused so far 0 (77s)
+[18:49:57Z] L04 violations 0 refused so far 0 (77s)
+[18:51:21Z] L05 violations 0 refused so far 0 (84s)
+[18:52:53Z] L06 violations 0 refused so far 0 (93s)
+[18:54:23Z] L07 violations 0 refused so far 0 (90s)
+[18:55:46Z] L08 violations 0 refused so far 0 (83s)
+[18:57:05Z] L09 violations 0 refused so far 0 (78s)
+[18:58:11Z] L10 violations 0 refused so far 0 (66s)
+[18:59:14Z] L11 violations 0 refused so far 0 (63s)
+[19:00:19Z] L12 violations 0 refused so far 0 (65s)
+[19:01:19Z] L13 violations 0 refused so far 0 (60s)
+[19:02:41Z] L14 violations 0 refused so far 0 (82s)
+[19:04:08Z] L15 violations 0 refused so far 0 (87s)
+[19:05:32Z] L16 violations 0 refused so far 0 (84s)
+[19:06:48Z] L17 violations 0 refused so far 0 (76s)
+[19:07:52Z] L18 violations 0 refused so far 0 (64s)
+[19:08:59Z] L19 violations 0 refused so far 0 (67s)
+[19:10:14Z] L20 violations 0 refused so far 0 (74s)
+[19:11:29Z] L21 violations 0 refused so far 0 (75s)
+[19:12:44Z] L22 violations 0 refused so far 0 (76s)
+[19:14:02Z] L23 violations 0 refused so far 0 (78s)
+[19:15:22Z] L24 violations 0 refused so far 0 (79s)
+[19:16:33Z] L25 violations 2 refused so far 2 (71s)
+[19:17:39Z] L26 violations 0 refused so far 2 (67s)
+[19:18:45Z] L27 violations 0 refused so far 2 (65s)
+[19:19:56Z] L28 violations 0 refused so far 2 (71s)
+[19:21:09Z] L29 violations 0 refused so far 2 (74s)
+[19:22:26Z] L30 violations 0 refused so far 2 (77s)
+[19:23:41Z] L31 violations 0 refused so far 2 (75s)
+[19:28:32Z] fineweb: ppl float 9.588 int 12.284 ratio 1.2812 CI [1.1923676746889234, 1.3765893609272675] top1 0.766 KL 0.2698 refused 0
+[19:28:32Z] wikitext: ppl float 15.419 int 19.692 ratio 1.2771 CI [1.2305313015141066, 1.325487899544182] top1 0.731 KL 0.3304 refused 2
+[19:28:32Z] done (2731s) -> /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/runs/llama3-8b/e8_dg_voc0

@@ -1,0 +1,15 @@
+openai_mod/cat_hate: 612 selected, 0 done, 612 to do
+prefix 79 tokens K/V in 15.0s
+batch 1/12: 59 items, 4068 tail tokens, 97.5s (41.7 tok/s); total done 59
+batch 2/12: 52 items, 4027 tail tokens, 100.2s (40.2 tok/s); total done 111
+batch 3/12: 56 items, 4058 tail tokens, 98.9s (41.0 tok/s); total done 167
+batch 4/12: 48 items, 3984 tail tokens, 99.0s (40.2 tok/s); total done 215
+batch 5/12: 55 items, 4025 tail tokens, 103.3s (39.0 tok/s); total done 270
+batch 6/12: 55 items, 4085 tail tokens, 110.6s (36.9 tok/s); total done 325
+batch 7/12: 54 items, 4035 tail tokens, 167.8s (24.0 tok/s); total done 379
+batch 8/12: 50 items, 4086 tail tokens, 138.8s (29.4 tok/s); total done 429
+batch 9/12: 56 items, 4041 tail tokens, 111.4s (36.3 tok/s); total done 485
+batch 10/12: 53 items, 4065 tail tokens, 92.6s (43.9 tok/s); total done 538
+batch 11/12: 57 items, 4089 tail tokens, 85.1s (48.0 tok/s); total done 595
+batch 12/12: 17 items, 1106 tail tokens, 30.2s (36.7 tok/s); total done 612
+all 612 items done in 21.3 min

@@ -1,0 +1,12 @@
+{
+  "written_utc": "2026-10-26T17:41:12.012763+00:00",
+  "sha256": {
+    "scripts/zk60_resource_guard.py": "f0b87668b9ad3bc42683d95a16314b54973b8e36be576b25183302287168e772",
+    "results/zk60_guard_fix_20261021/zk60_resource_guard.py.new": "87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c",
+    "results/zk60_guard_fix_20261021/tests/test_zk60_guard_fix.py": "7814c8f43f8ab5fc337fbe1ffa1c1740f8eb812ca58e93bd90a59747cff512c9",
+    "results/zk60_sol_20261026/guard-backup/zk60_resource_guard.py": "f0b87668b9ad3bc42683d95a16314b54973b8e36be576b25183302287168e772",
+    "results/zk60_sol_20261026/guard-backup/zk60_guarded_command.py": "6241567b99e7f9ee8bfa31731b1a2be233020a83ecfb870f5fc6f813e5abdc88",
+    "results/zk60_sol_20261026/guard-backup/zk60_techweek_demo.py": "f3a99bf6fb1eef7be5560b1254bcd1e43545587678628f3c044696c21d00068c",
+    "results/zk60_sol_20261026/guard-backup/zk60_private_stack_benchmark.py": "b883c56d9bfa126913ab6697fdac6b20b0c896de497f4d348f4cbfc2e444c21a"
+  }
+}

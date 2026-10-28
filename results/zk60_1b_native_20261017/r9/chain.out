@@ -1,0 +1,131 @@
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/manifest_check.json: 222 files, tree af90c703ed7b2791d1771dd6e443edf4339bf5fa84a32e0d4a57ed38c3b0a41a
+[zk60-guard 15:38:55] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 15:39:55] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 15:40:55] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 15:41:55] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 15:42:55] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 15:43:55] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 15:44:56] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 15:45:56] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 15:46:56] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 15:47:56] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 15:48:56] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 15:49:56] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 15:50:56] waiting for /tmp/zk-heavy.lock (721s)
+[zk60-guard 15:51:56] waiting for /tmp/zk-heavy.lock (781s)
+[zk60-guard 15:52:56] waiting for /tmp/zk-heavy.lock (841s)
+[zk60-guard 15:53:56] waiting for /tmp/zk-heavy.lock (901s)
+[zk60-guard 15:54:56] waiting for /tmp/zk-heavy.lock (961s)
+[zk60-guard 15:55:56] waiting for /tmp/zk-heavy.lock (1021s)
+[zk60-guard 15:56:56] waiting for /tmp/zk-heavy.lock (1081s)
+[zk60-guard 15:57:56] waiting for /tmp/zk-heavy.lock (1141s)
+[zk60-guard 15:58:57] waiting for /tmp/zk-heavy.lock (1201s)
+[zk60-guard 15:59:57] waiting for /tmp/zk-heavy.lock (1261s)
+[zk60-guard 16:00:57] waiting for /tmp/zk-heavy.lock (1322s)
+[zk60-guard 16:01:57] waiting for /tmp/zk-heavy.lock (1382s)
+[zk60-guard 16:02:57] waiting for /tmp/zk-heavy.lock (1442s)
+[zk60-guard 16:03:57] waiting for /tmp/zk-heavy.lock (1502s)
+[zk60-guard 16:04:57] waiting for /tmp/zk-heavy.lock (1562s)
+[zk60-guard 16:05:57] waiting for /tmp/zk-heavy.lock (1622s)
+[zk60-guard 16:06:57] waiting for /tmp/zk-heavy.lock (1682s)
+[zk60-guard 16:07:57] waiting for /tmp/zk-heavy.lock (1742s)
+[zk60-guard 16:08:57] waiting for /tmp/zk-heavy.lock (1802s)
+[zk60-guard 16:09:57] waiting for /tmp/zk-heavy.lock (1862s)
+[zk60-guard 16:10:57] waiting for /tmp/zk-heavy.lock (1922s)
+[zk60-guard 16:11:57] waiting for /tmp/zk-heavy.lock (1982s)
+[zk60-guard 16:12:57] waiting for /tmp/zk-heavy.lock (2042s)
+[zk60-guard 16:13:58] waiting for /tmp/zk-heavy.lock (2102s)
+[zk60-guard 16:14:58] waiting for /tmp/zk-heavy.lock (2163s)
+[zk60-guard 16:15:58] waiting for /tmp/zk-heavy.lock (2223s)
+[zk60-guard 16:16:58] waiting for /tmp/zk-heavy.lock (2283s)
+[zk60-guard 16:17:58] waiting for /tmp/zk-heavy.lock (2343s)
+[zk60-guard 16:18:58] waiting for /tmp/zk-heavy.lock (2403s)
+[zk60-guard 16:19:58] waiting for /tmp/zk-heavy.lock (2463s)
+[zk60-guard 16:20:58] waiting for /tmp/zk-heavy.lock (2523s)
+[zk60-guard 16:21:58] waiting for /tmp/zk-heavy.lock (2583s)
+[zk60-guard 16:22:58] waiting for /tmp/zk-heavy.lock (2643s)
+[zk60-guard 16:23:58] waiting for /tmp/zk-heavy.lock (2703s)
+[zk60-guard 16:24:59] waiting for /tmp/zk-heavy.lock (2763s)
+[zk60-guard 16:25:59] waiting for /tmp/zk-heavy.lock (2824s)
+[zk60-guard 16:26:59] waiting for /tmp/zk-heavy.lock (2884s)
+[zk60-guard 16:27:59] waiting for /tmp/zk-heavy.lock (2944s)
+[zk60-guard 16:28:59] waiting for /tmp/zk-heavy.lock (3004s)
+[zk60-guard 16:29:59] waiting for /tmp/zk-heavy.lock (3064s)
+[zk60-guard 16:30:59] waiting for /tmp/zk-heavy.lock (3124s)
+[zk60-guard 16:31:59] waiting for /tmp/zk-heavy.lock (3184s)
+[zk60-guard 16:32:59] waiting for /tmp/zk-heavy.lock (3244s)
+[zk60-guard 16:33:59] waiting for /tmp/zk-heavy.lock (3304s)
+[zk60-guard 16:34:59] waiting for /tmp/zk-heavy.lock (3364s)
+[zk60-guard 16:35:59] waiting for /tmp/zk-heavy.lock (3424s)
+[zk60-guard 16:36:59] waiting for /tmp/zk-heavy.lock (3484s)
+[zk60-guard 16:37:59] waiting for /tmp/zk-heavy.lock (3544s)
+[zk60-guard 16:39:00] waiting for /tmp/zk-heavy.lock (3604s)
+[zk60-guard 16:40:00] waiting for /tmp/zk-heavy.lock (3665s)
+[zk60-guard 16:41:00] waiting for /tmp/zk-heavy.lock (3725s)
+[zk60-guard 16:42:00] waiting for /tmp/zk-heavy.lock (3785s)
+[zk60-guard 16:43:00] waiting for /tmp/zk-heavy.lock (3845s)
+[zk60-guard 16:44:00] waiting for /tmp/zk-heavy.lock (3905s)
+[zk60-guard 16:45:00] waiting for /tmp/zk-heavy.lock (3965s)
+[zk60-guard 16:46:00] waiting for /tmp/zk-heavy.lock (4025s)
+[zk60-guard 16:47:00] waiting for /tmp/zk-heavy.lock (4085s)
+[zk60-guard 16:48:00] waiting for /tmp/zk-heavy.lock (4145s)
+[zk60-guard 16:49:00] waiting for /tmp/zk-heavy.lock (4205s)
+[zk60-guard 16:50:00] waiting for /tmp/zk-heavy.lock (4265s)
+[zk60-guard 16:51:00] waiting for /tmp/zk-heavy.lock (4325s)
+[zk60-guard 16:52:00] waiting for /tmp/zk-heavy.lock (4385s)
+[zk60-guard 16:53:01] waiting for /tmp/zk-heavy.lock (4445s)
+[zk60-guard 16:54:01] waiting for /tmp/zk-heavy.lock (4506s)
+[zk60-guard 16:55:01] waiting for /tmp/zk-heavy.lock (4566s)
+[zk60-guard 16:56:01] waiting for /tmp/zk-heavy.lock (4626s)
+[zk60-guard 16:56:16] START r9-check class=cpu need=4G cap=7G enforce=cgroup+watchdog waited=4641s run=faa9afae54d2
+[zk60-guard 16:57:03] END r9-check exit=0 child_wall=47s peak_rss=1.23G min_avail=11.54G
+[23:57:03] r9-check exit 0
+[zk60-guard 19:57:24] START r9-golden class=cpu need=7.5G cap=10.5G enforce=cgroup+watchdog waited=0s run=9bfa9fb003dd
+[zk60-guard 19:57:49] END r9-golden exit=0 child_wall=25s peak_rss=6.11G min_avail=6.56G
+[02:57:49] r9-golden exit 0
+test private_block::r9_golden_tests::r9_golden_seeded_llama3_8b_t128_block_is_byte_identical ... R9-GOLDEN 8B bands Bands { attn: 6, gate: 8, down: 2, gains: (40, 127), xmag: 6000 }
+R9-GOLDEN hashline-zk-mr1/private-block-llama-3-8b-t128-trained/1: 23 slots, 69 absorbs, debug text 101397813 B
+R9-GOLDEN-DIGEST llama3-8b-t128 05a22d72a892aff5fb2e35da4d0ab0c894d696f2e6afa542b6ecece5aeb9f4db
+test private_block::r9_golden_tests::r9_golden_seeded_tinyllama_t128_block_is_byte_identical ... R9-GOLDEN hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-block/1: 23 slots, 69 absorbs, debug text 81760821 B
+R9-GOLDEN-DIGEST tinyllama-t128 782b64c97a88cba4c6c34a2fecb73132f26d5f54adc9bd159f3d6cf9df4205c0
+[zk60-guard 19:57:49] START r9-cli-build class=build need=2.5G cap=5G enforce=cgroup+watchdog waited=0s run=ca1c19c4ecd6
+[zk60-guard 19:58:59] END r9-cli-build exit=0 child_wall=70s peak_rss=1.06G min_avail=11.70G
+[02:58:59] r9-cli-build exit 0
+[zk60-guard 19:58:59] START r9-gpu-cli-build class=build need=3G cap=5G enforce=cgroup+watchdog waited=0s run=2e3f07cc6f9a
+[zk60-guard 20:00:16] END r9-gpu-cli-build exit=0 child_wall=76s peak_rss=1.12G min_avail=11.63G
+[03:00:16] r9-gpu-cli-build exit 0
+[zk60-guard 20:00:16] START r9-compat-tl class=cpu need=2.5G cap=8G enforce=cgroup+watchdog waited=0s run=16fcaf399d9b
+[zk60-guard 20:00:32] END r9-compat-tl exit=0 child_wall=16s peak_rss=0.74G min_avail=11.83G
+[03:00:32] r9-compat-tl exit 0
+[zk60-guard 20:00:32] START r9-compat-8b class=cpu need=3G cap=8G enforce=cgroup+watchdog waited=0s run=2043700d69ec
+[zk60-guard 20:01:23] END r9-compat-8b exit=0 child_wall=51s peak_rss=2.03G min_avail=10.80G
+[03:01:23] r9-compat-8b exit 0
+dd refusal probe exit 1 (want 1); dir exists: no
+DD (D30) is registered only at TinyLlama T128, Llama-3-8B T128 and the DD development rung, not at Llama3_8B(32)
+verifier copy /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/verifier-exports/tinyllama_dg_rot1_T128 ['embedding_int16.bin', 'layer_00', 'layer_01', 'layer_02', 'layer_03', 'layer_04']
+[zk60-guard 21:23:36] START r9-stack-dd-tinyllama_dg_rot1_T128 class=cpu need=8G cap=10.5G enforce=cgroup+watchdog waited=0s run=40238b4623c6
+[zk60-guard 21:25:54] END r9-stack-dd-tinyllama_dg_rot1_T128 exit=0 child_wall=138s peak_rss=7.28G min_avail=5.17G
+[zk60-guard 21:25:54] START r9-stack-dd-verify-tinyllama_dg_rot1_T128 class=cpu need=2.5G cap=8G enforce=cgroup+watchdog waited=0s run=08a90a37f098
+[zk60-guard 21:26:37] END r9-stack-dd-verify-tinyllama_dg_rot1_T128 exit=0 child_wall=43s peak_rss=1.30G min_avail=11.63G
+stack-verify tinyllama_dg_rot1_T128 exit 0
+[zk60-guard 21:26:37] START r9-stack-dd-recheck-tinyllama_dg_rot1_T128 class=cpu need=2.5G cap=8G enforce=cgroup+watchdog waited=0s run=dd858c2b99de
+[zk60-guard 21:26:50] END r9-stack-dd-recheck-tinyllama_dg_rot1_T128 exit=0 child_wall=13s peak_rss=0.83G min_avail=12.26G
+stack-recheck tinyllama_dg_rot1_T128 exit 0
+tinyllama dg T128 DD script exit 0
+verifier copy /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/verifier-exports/llama3_8b_pg_rot1_b7voc0_T128 ['LICENSE', 'NOTICE', 'USE_POLICY.md', 'layer_00', 'layer_01', 'layer_02']
+[zk60-guard 21:29:24] START r9-stack-dd-llama3_8b_pg_rot1_b7voc0_T128 class=cpu need=8G cap=10.5G enforce=cgroup+watchdog waited=0s run=ea5a65a59966
+[zk60-guard 21:37:19] END r9-stack-dd-llama3_8b_pg_rot1_b7voc0_T128 exit=0 child_wall=475s peak_rss=6.56G min_avail=5.55G
+[zk60-guard 21:37:20] START r9-stack-dd-verify-llama3_8b_pg_rot1_b7voc0_T128 class=cpu need=3G cap=8G enforce=cgroup+watchdog waited=0s run=85e09a671d48
+[zk60-guard 21:39:58] END r9-stack-dd-verify-llama3_8b_pg_rot1_b7voc0_T128 exit=0 child_wall=159s peak_rss=2.24G min_avail=9.84G
+stack-verify llama3_8b_pg_rot1_b7voc0_T128 exit 0
+[zk60-guard 21:39:58] START r9-stack-dd-recheck-llama3_8b_pg_rot1_b7voc0_T128 class=cpu need=3G cap=8G enforce=cgroup+watchdog waited=0s run=5b7cce7d2b43
+[zk60-guard 21:40:46] END r9-stack-dd-recheck-llama3_8b_pg_rot1_b7voc0_T128 exit=0 child_wall=47s peak_rss=2.01G min_avail=10.02G
+stack-recheck llama3_8b_pg_rot1_b7voc0_T128 exit 0
+8b b7voc0 T128 DD script exit 0
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/manifest_suite.json: 222 files, tree af90c703ed7b2791d1771dd6e443edf4339bf5fa84a32e0d4a57ed38c3b0a41a
+[zk60-guard 21:40:46] START r9-suite class=cpu need=4.5G cap=8G enforce=cgroup+watchdog waited=0s run=935cad14c6b3
+[zk60-guard 21:52:07] END r9-suite exit=0 child_wall=681s peak_rss=4.38G min_avail=7.93G
+[04:52:07] r9-suite exit 0
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/manifest_frozen_working.json: 222 files, tree af90c703ed7b2791d1771dd6e443edf4339bf5fa84a32e0d4a57ed38c3b0a41a
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/manifest_frozen.json: 222 files, tree af90c703ed7b2791d1771dd6e443edf4339bf5fa84a32e0d4a57ed38c3b0a41a
+R9 frozen 2026-10-20T04:52:07Z tree af90c703ed7b2791d1771dd6e443edf4339bf5fa84a32e0d4a57ed38c3b0a41a; patch 2911 lines

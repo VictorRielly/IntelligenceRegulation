@@ -5,22 +5,29 @@
 //!
 //! ```text
 //! zk60_token_io prove   --export DIR --emb DIR --head DIR (--seq ID | --seq-dir DIR)
-//!                       [--prompt ID,ID,...] --out DIR [--owner-dir DIR] [--label L]
+//!                       [--prompt-file FILE|-] --out DIR [--owner-dir DIR] [--label L]
 //! zk60_token_io profile --export DIR --emb DIR --head DIR [--label L]
 //! zk60_token_io verify  --export DIR --emb DIR --head DIR --artifact DIR
 //!                       --expect-statement HEX --expect-token-profile HEX
 //!                       [--label L] [--min-bits N]
-//! zk60_token_io owner   (verify's arguments) --decommitment FILE
-//! zk60_token_io input-owner (verify's arguments) --decommitment FILE --prompt ID,ID,...
+//! zk60_token_io owner   (verify's arguments) --decommitment FILE [--token-out FILE] [--print]
+//! zk60_token_io input-owner (verify's arguments) --decommitment FILE --prompt-file FILE|-
 //! ```
 //!
-//! * `prove` reads the prover-private prompt (`--prompt`, or the sequence
-//!   manifest's `token_ids`) and hidden activations (`--seq` / `--seq-dir`,
-//!   privacy review P-5), seals the two token endpoints from the export's own
-//!   words (B_in = the embedded prompt, which must be the export's x_in_L00;
-//!   the next token from its last layer's x_out row T - 1), proves with ONE
-//!   block resident, checks every block's output against the export bit for
-//!   bit in the proving pass, and writes the segments into `<out>/` (built
+//! * `prove` reads the prover-private prompt (`--prompt-file` FILE, mode 0600
+//!   checked, or `-` for stdin; else the sequence manifest's `token_ids`;
+//!   privacy review round 4 PR4-17: never on the command line) and hidden
+//!   activations (`--seq` / `--seq-dir`, privacy review P-5). Its SEALING
+//!   PASS (PR4-4, as native R5b / R6 seal the stack CLI) runs BEFORE any
+//!   header: stage IN's checks (ids, BOS, B_in = the embedded prompt = the
+//!   export's x_in_L00), every block's witness built by the builder from the
+//!   builder's own chain (its refusals), every output inside int16, bit-exact
+//!   parity against the export's x_out at every layer (the reference is used
+//!   for parity only), ruling CS-3's lookup-miss check on every witness, and
+//!   stage OUT from the BUILDER's last plane (the next token computed by the
+//!   integer pipeline, D20's final-norm refusals, the byte lookups); then it
+//!   seals the two token endpoints and proves with ONE block resident (each
+//!   witness rebuilt), and writes the segments into `<out>/` (built
 //!   as `<out>.incomplete/` and renamed only after the run returns Ok:
 //!   review TR3-1's sink contract), an UNVERIFIED statement into
 //!   `<out>.unverified-statement/`, and the two owners' decommitments into
@@ -42,17 +49,37 @@
 //!   canonical statement, every segment re-read and verified, `segments.json`
 //!   = the verified bytes' hashes); then the decommitment must rebuild the
 //!   verified output root and carry one id below V and zero pads; it prints
-//!   that id. `input-owner` does the same for the input endpoint and the
-//!   owner's own prompt.
+//!   that id into a 0600 file (`--token-out`, default `next_token` beside the
+//!   decommitment; it must not exist, and an existing one is refused before
+//!   the re-verification: review TR7-6), printing it only with `--print`
+//!   (PR4-17). `input-owner`
+//!   does the same for the input endpoint and the owner's own prompt
+//!   (`--prompt-file`).
 //! * the pins (review TR4-2): `--expect-statement` = the trained-model
 //!   statement's identity (blocks, calibration, source); `--expect-token-
 //!   profile` = the token profile's digest (V, BOS, the final norm, the
 //!   embedding and head digests with the multipliers, the tier). `profile`
 //!   prints both from an approved export and table set.
 //! * the owners' decommitments (review TR4-3, D21) go to `--owner-dir`, by
-//!   default `$HOME/zk60-artifacts/token-io/<run>.owner-private`, never inside
-//!   the run's parent, created 0700 (files 0600), before the run is renamed
-//!   into place (TR4-4).
+//!   default `$HOME/zk60-owner-private/token-io/<run>-<key>.owner-private`
+//!   (PR4-16: a base of its own, 0700 at both levels, a looser pre-existing
+//!   one tightened to 0700 on use and said so (TR7-7), outside every
+//!   artifacts tree; never
+//!   inside a git working tree, explicit or default (TR5-3 (a), TR6-3: a
+//!   `.git` directory holding `HEAD` or a `.git` file `gitdir:`; a work tree
+//!   driven by `GIT_DIR` / `--git-dir` is NOT detected); key:
+//!   12 hex digits of SHA-256 of the run's canonical path, review TR5-1),
+//!   never inside the run's parent (except the default of a run directly
+//!   under `$HOME`, review TR5-3 (b)), an explicit one never inside a git
+//!   working tree (TR5-3 (a)), created 0700 (files 0600), before the run
+//!   is renamed into place (TR4-4). `prove` claims the owner, unverified and
+//!   incomplete directories atomically at its start and, on a refusal,
+//!   removes only the directories it created (TR5-1), saying what it removed
+//!   and loudly what it could not (PR4-15). A killed prove (SIGKILL, an OOM
+//!   kill, power loss) leaves `<out>.incomplete/` (prover-private segments):
+//!   the next prove to the same `--out` refuses by name until it is removed
+//!   by hand; never sync a run's parent directory while such a sibling
+//!   exists.
 //!
 //! JSON lines on stdout. Exit 0 = done, 1 = refused (a JSON `refused` line),
 //! 2 = bad arguments.
@@ -65,13 +92,16 @@ use super::*;
 use super::super::layout::{Ids, A_X2};
 use super::super::run::{read_regular_file_bounded, RunShape};
 use super::super::run_sink::{self, SegmentSink};
+use super::super::trained_statement::{has_own, OWN_FIELDS};
 use super::super::trained_block::{backend_of_this_process, check_prover_reported, check_statement_dir, clear_stale_writing_dirs, flag, flags, js, need, parse_json, publish_statement_dir, refuse_prover_private_entries, render_segments_json, stack_context, unhex32, write_new, TrainedExport, J};
 use super::super::BlockPublic;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
 /// the statement schema of a token-I/O run
-pub(crate) const TOKEN_STATEMENT_SCHEMA: &str = "zk60-token-io-run/1";
+/// (round 7, native R8: `/2` lists each layer's own calibration constants
+/// under `layers_with_own_calibration`; `/1` listed only own score shifts)
+pub(crate) const TOKEN_STATEMENT_SCHEMA: &str = "zk60-token-io-run/2";
 /// the run context labels this build admits (ruling C-R4: a deployment
 /// constant, never request text)
 pub(crate) const TOKEN_LABELS: [&str; 1] = ["zk60-token-io-next-token"];
@@ -126,10 +156,21 @@ fn sibling(out: &Path, suffix: &str) -> PathBuf {
 /// (or the prover's) own data; the only writer of the file
 #[allow(clippy::too_many_arguments)]
 fn render(p: &ExportPublic, tm: &TableManifest, st: &TokenRunStatement, label: &str, writer: Writer, backend: &str, declines: u64) -> Result<String, String> {
-    let own: Vec<String> = p.model.layers.iter().filter_map(|r| r.sh_s.map(|v| format!("{{\"layer\": {}, \"sh_s\": {v}}}", r.index))).collect();
+    // NATIVE R8 ported (round 7): every layer with own calibration constants,
+    // each under its export key in the canonical order (`sh_s` first)
+    let own: Vec<String> = p
+        .model
+        .layers
+        .iter()
+        .filter(|r| has_own(&r.own))
+        .map(|r| {
+            let fields: String = r.own.iter().enumerate().filter_map(|(i, v)| v.map(|v| format!(", \"{}\": {v}", OWN_FIELDS[i].0))).collect();
+            format!("{{\"layer\": {}{fields}}}", r.index)
+        })
+        .collect();
     let (ir, or) = st.roots();
     Ok(format!(
-        "{{\n \"schema\": {},\n \"scope\": {},\n \"statement_written_by\": {},\n \"prover_reported\": {{\"backend\": {}, \"gpu_declines\": {}, \"what\": {}}},\n \"run_profile\": {},\n \"block_profile\": {},\n \"blocks\": {},\n \"export_variant\": {},\n \"export_profile_sha256\": {},\n \"trained_statement_identity\": {},\n \"layers_with_own_score_shift\": [{}],\n \"tables\": {{\"embedding_int16_sha256\": {}, \"head_int8_perrow_sha256\": {}, \"head_mult12_sha256\": {}, \"V\": {}, \"d\": {}}},\n \"bos\": {},\n \"final_norm\": {{\"g0\": {}, \"cn\": {}, \"tn\": {}, \"ceps\": {}}},\n \"token_profile_digest\": {},\n \"context_label\": {},\n \"context\": {},\n \"input_token_endpoint_root\": {},\n \"output_token_endpoint_root\": {},\n \"whole_run_floor_bits\": {},\n \"parameter_line\": {}\n}}\n",
+        "{{\n \"schema\": {},\n \"scope\": {},\n \"statement_written_by\": {},\n \"prover_reported\": {{\"backend\": {}, \"gpu_declines\": {}, \"what\": {}}},\n \"run_profile\": {},\n \"block_profile\": {},\n \"blocks\": {},\n \"export_variant\": {},\n \"export_profile_sha256\": {},\n \"trained_statement_identity\": {},\n \"layers_with_own_calibration\": [{}],\n \"tables\": {{\"embedding_int16_sha256\": {}, \"head_int8_perrow_sha256\": {}, \"head_mult12_sha256\": {}, \"V\": {}, \"d\": {}}},\n \"bos\": {},\n \"final_norm\": {{\"g0\": {}, \"cn\": {}, \"tn\": {}, \"ceps\": {}}},\n \"token_profile_digest\": {},\n \"context_label\": {},\n \"context\": {},\n \"input_token_endpoint_root\": {},\n \"output_token_endpoint_root\": {},\n \"whole_run_floor_bits\": {},\n \"parameter_line\": {}\n}}\n",
         js(TOKEN_STATEMENT_SCHEMA),
         js(TOKEN_SCOPE),
         js(writer.text()),
@@ -165,16 +206,16 @@ fn render(p: &ExportPublic, tm: &TableManifest, st: &TokenRunStatement, label: &
 
 /// what a found statement names: its writer, the prover's claims (checked
 /// against the build's names), its label, context and roots
-struct Found {
+pub(super) struct Found {
     writer: Writer,
     backend: String,
     declines: u64,
-    label: String,
-    context: Digest,
-    roots: (Digest, Digest),
+    pub(super) label: String,
+    pub(super) context: Digest,
+    pub(super) roots: (Digest, Digest),
 }
 
-fn found_statement(bytes: &[u8]) -> Result<Found, String> {
+pub(super) fn found_statement(bytes: &[u8]) -> Result<Found, String> {
     let j = parse_json(bytes).map_err(|e| format!("statement.json: {e}"))?;
     let s = |k: &str| j.get(k).and_then(J::str).map_err(|e| format!("statement.json: {k}: {e}"));
     if s("schema")? != TOKEN_STATEMENT_SCHEMA {
@@ -198,7 +239,7 @@ fn found_statement(bytes: &[u8]) -> Result<Found, String> {
 }
 
 /// the run statement rebuilt from PUBLIC files and a found context / roots
-fn statement_of(p: &ExportPublic, tables: &TokenTables, tm: &TableManifest, label: &str, context: Digest, roots: (Digest, Digest)) -> Result<TokenRunStatement, String> {
+pub(super) fn statement_of(p: &ExportPublic, tables: &TokenTables, tm: &TableManifest, label: &str, context: Digest, roots: (Digest, Digest)) -> Result<TokenRunStatement, String> {
     let want = stack_context(&p.ex.variant, &p.layers, label)?;
     if context != want {
         return Err("token run: the statement's context is not this export's and label's".into());
@@ -247,14 +288,47 @@ impl SeqIn {
     }
 }
 
-/// the prompt: `--prompt` or the sequence manifest's `token_ids`
+/// **PR4-17: the hidden prompt never travels on the command line** (the
+/// process list, shell history): `--prompt-file FILE` (a regular file of
+/// mode 0600 or stricter, ids separated by commas or white space) or
+/// `--prompt-file -` (standard input)
+pub(super) fn read_prompt_file(path: &str) -> Result<Vec<u64>, String> {
+    let text = if path == "-" {
+        use std::io::Read;
+        let mut t = String::new();
+        std::io::stdin().take(MAX_STATEMENT_BYTES).read_to_string(&mut t).map_err(|e| format!("--prompt-file -: {e}"))?;
+        t
+    } else {
+        use std::os::unix::fs::PermissionsExt;
+        let p = Path::new(path);
+        let m = std::fs::symlink_metadata(p).map_err(|e| format!("--prompt-file {path}: {e}"))?;
+        if !m.file_type().is_file() {
+            return Err(format!("--prompt-file {path}: not a regular file"));
+        }
+        if m.permissions().mode() & 0o077 != 0 {
+            return Err(format!("--prompt-file {path}: mode {:o}; the hidden prompt's file must be readable by its owner only (chmod 600 {path}) (PR4-17)", m.permissions().mode() & 0o777));
+        }
+        String::from_utf8(read_regular_file_bounded(p, MAX_STATEMENT_BYTES, false)?).map_err(|_| format!("--prompt-file {path}: not text"))?
+    };
+    let ids: Result<Vec<u64>, String> = text.split(|c: char| c == ',' || c.is_whitespace()).filter(|x| !x.is_empty()).map(|x| x.parse::<u64>().map_err(|_| "--prompt-file: token ids separated by commas or white space".to_string())).collect();
+    let ids = ids?;
+    if ids.is_empty() {
+        return Err("--prompt-file: no token id".into());
+    }
+    Ok(ids)
+}
+
+/// the refusal of a hidden prompt on the command line (PR4-17)
+const PROMPT_ON_COMMAND_LINE: &str = "--prompt is not accepted: the hidden prompt never goes on the command line (it shows in the process list and shell history); give --prompt-file FILE (mode 0600) or --prompt-file - (standard input) (privacy review round 4, PR4-17)";
+
+/// the prompt: `--prompt-file` or the sequence manifest's `token_ids`
 fn prompt_of(f: &[(String, String)], seq: &SeqIn, ex: &TrainedExport) -> Result<Vec<u64>, String> {
-    if let Some(p) = flag(f, "--prompt") {
-        return p.split(',').map(|x| x.trim().parse::<u64>().map_err(|_| "--prompt: a comma-separated list of token ids".to_string())).collect();
+    if let Some(p) = flag(f, "--prompt-file") {
+        return read_prompt_file(p);
     }
     let path = seq.dir(ex).join("manifest.json");
     let j = parse_json(&read_regular_file_bounded(&path, MAX_STATEMENT_BYTES, false)?).map_err(|e| format!("{}: {e}", path.display()))?;
-    let ids = j.get("token_ids").and_then(J::arr).map_err(|e| format!("{}: token_ids: {e} (give --prompt)", path.display()))?;
+    let ids = j.get("token_ids").and_then(J::arr).map_err(|e| format!("{}: token_ids: {e} (give --prompt-file)", path.display()))?;
     ids.iter().map(|x| x.i64().and_then(|v| u64::try_from(v).map_err(|_| "a negative token id".to_string())).map_err(|e| format!("{}: token_ids: {e}", path.display()))).collect()
 }
 
@@ -271,6 +345,10 @@ struct CliSource<'a> {
     x: Vec<i16>,
     parity: usize,
     witness_s: f64,
+    /// PR4-4: the CLI's own sealing pass ([`seal_chain`]) has run the
+    /// builder, the int16 check, parity and CS-3 on every block before any
+    /// header
+    sealed: bool,
 }
 
 impl TokenRunSource for CliSource<'_> {
@@ -297,6 +375,18 @@ impl TokenRunSource for CliSource<'_> {
     fn stage_out(&mut self) -> Result<StageOutWitness, String> {
         self.stage_out.take().ok_or_else(|| "token run: stage OUT asked twice".to_string())
     }
+    /// ROUND 9 (F-T1 / PR4-4): the prover's sealing pass asks for block
+    /// `k`'s CS-3 check; the CLI's own sealing pass ([`seal_chain`]) ran the
+    /// builder, the int16 check, parity and that same check
+    /// (`protocol::check_lookup_misses`) on every block before any header, so
+    /// nothing is rebuilt here; a source that did not seal refuses
+    fn seal_check(&mut self, k: usize, _blk: &BlockPublic, _ssh: &Shape, _check: &mut dyn FnMut(&super::super::witness::Witness) -> Result<(), String>) -> Result<(), String> {
+        if self.sealed {
+            Ok(())
+        } else {
+            Err(format!("token run: block {k} was not sealed by the CLI's sealing pass (PR4-4)"))
+        }
+    }
 }
 
 /// a file only its owner can read (the owners' decommitments)
@@ -314,7 +404,11 @@ fn refused(what: &str, e: &str) -> i32 {
 
 /// `zk60_token_io prove ...` (see the module text)
 pub fn token_prove_command(args: &[String]) -> i32 {
-    let f = match flags(args, &["--export", "--emb", "--head", "--seq", "--seq-dir", "--prompt", "--out", "--label", "--owner-dir"], &[]) {
+    if args.iter().any(|a| a == "--prompt") {
+        eprintln!("zk60_token_io prove: {PROMPT_ON_COMMAND_LINE}");
+        return 2;
+    }
+    let f = match flags(args, &["--export", "--emb", "--head", "--seq", "--seq-dir", "--prompt-file", "--out", "--label", "--owner-dir"], &[]) {
         Ok(f) => f,
         Err(e) => {
             eprintln!("zk60_token_io prove: {e}");
@@ -328,52 +422,264 @@ pub fn token_prove_command(args: &[String]) -> i32 {
 }
 
 /// **review TR4-3 (D21): where the owners' decommitments go.** `--owner-dir`,
-/// or by default `$HOME/zk60-artifacts/token-io/<run name>.owner-private`;
-/// never inside the run's parent directory (a directory that is published or
-/// snapshotted with the run would carry them); created 0700, new
+/// or by default `$HOME/zk60-owner-private/token-io/<run name>-<key>.owner-private`
+/// (PR4-16: its own base, never beside `~/zk60-artifacts/`'s captures)
+/// (`default_owner_dir`); never inside the run's parent directory (a
+/// directory that is published or snapshotted with the run would carry
+/// them); created 0700 by `prove`, which claims it atomically (TR5-1)
 fn owner_dir_of(f: &[(String, String)], out: &Path) -> Result<PathBuf, String> {
-    let name = out.file_name().ok_or("--out: names no directory")?.to_string_lossy().to_string();
+    let home = std::env::var_os("HOME").map(PathBuf::from);
+    owner_dir_at(f, out, home.as_deref())
+}
+
+/// [`owner_dir_of`] with `$HOME` given (`None`: unset)
+pub(super) fn owner_dir_at(f: &[(String, String)], out: &Path, home: Option<&Path>) -> Result<PathBuf, String> {
+    out.file_name().ok_or("--out: names no directory")?;
     let od = match flag(f, "--owner-dir") {
         Some(d) => PathBuf::from(d),
         None => {
-            let home = std::env::var("HOME").map_err(|_| "no HOME: give --owner-dir (outside the run's parent)".to_string())?;
-            let base = Path::new(&home).join("zk60-artifacts").join("token-io");
+            let home = home.ok_or_else(|| "no HOME: give --owner-dir (outside the run's parent)".to_string())?;
+            // PR4-16: the owners' base is its own tree (both levels 0700),
+            // never inside an artifacts tree that holds captures to share
+            let base = home.join(OWNER_BASE).join("token-io");
             let mut b = std::fs::DirBuilder::new();
             {
                 use std::os::unix::fs::DirBuilderExt;
                 b.recursive(true).mode(0o700);
             }
             b.create(&base).map_err(|e| format!("{}: {e}", base.display()))?;
-            base.join(format!("{name}.owner-private"))
+            // review TR7-7: both levels owner only, a looser pre-existing one tightened
+            tighten_to_0700(&home.join(OWNER_BASE))?;
+            tighten_to_0700(&base)?;
+            default_owner_dir(&base, out)?
         }
     };
+    let explicit = flag(f, "--owner-dir").is_some();
     let canon = |p: &Path| std::fs::canonicalize(p).map_err(|e| format!("{}: {e}", p.display()));
     let run_parent = canon(out.parent().filter(|p| !p.as_os_str().is_empty()).unwrap_or(Path::new(".")))?;
     let od_parent = canon(od.parent().filter(|p| !p.as_os_str().is_empty()).unwrap_or(Path::new(".")))?;
-    if od_parent.starts_with(&run_parent) {
+    // review TR5-3 (a), and TR6-3 for the DEFAULT too (a `$HOME` that is
+    // itself a repository, e.g. dotfiles): no owner directory lies inside a
+    // git working tree, where a commit would carry it
+    if let Some(tree) = git_working_tree_of(&od_parent) {
+        return Err(if explicit {
+            format!("--owner-dir {}: inside the git working tree {} ({} exists); the owners' decommitments are private (D21) and never sit in a repository (review TR5-3 (a))", od.display(), tree.display(), tree.join(".git").display())
+        } else {
+            format!("the default owner directory {}: inside the git working tree {} ({} exists); give --owner-dir outside every git working tree: the owners' decommitments are private (D21) and never sit in a repository (review TR6-3)", od.display(), tree.display(), tree.join(".git").display())
+        });
+    }
+    // review TR5-3 (b): the DEFAULT directory of a run directly under $HOME
+    // is accepted (the run's parent is then $HOME, an ancestor of the base);
+    // a run inside the base directory, or below $HOME elsewhere on the base's
+    // path, is still refused by the parent rule
+    let run_directly_under_home = !explicit && home.map(canon).transpose()?.as_deref() == Some(run_parent.as_path());
+    if od_parent.starts_with(&run_parent) && !run_directly_under_home {
         return Err(format!("--owner-dir {}: inside the run's parent directory {}; the owners' decommitments are private (D21) and never sit where the run is published or snapshotted (review TR4-3)", od.display(), run_parent.display()));
     }
     Ok(od)
 }
 
-fn create_private_dir(d: &Path) -> Result<(), String> {
-    use std::os::unix::fs::DirBuilderExt;
-    std::fs::DirBuilder::new().mode(0o700).create(d).map_err(|e| format!("{}: {e}", d.display()))
+/// PR4-16: the owners' decommitments' base directory under `$HOME`
+pub(super) const OWNER_BASE: &str = "zk60-owner-private";
+
+/// the git working tree a canonical path lies in: its nearest ancestor (or
+/// itself) whose `.git` entry is what git itself takes for one (review
+/// TR5-3 (a); TR6-3): a `.git` DIRECTORY holding `HEAD`, or a `.git` FILE
+/// (a worktree's or a submodule's) starting `gitdir:`; any other entry named
+/// `.git` (a symlink, an unreadable file) counts too, conservatively. A
+/// `.git` directory WITHOUT `HEAD` (a stub, as this box's `$HOME` holds:
+/// `info/` only) is not a repository to git, which walks past it, so it does
+/// not count. NOT detected: a work tree driven by `GIT_DIR` / `--git-dir`
+/// (the bare "dotfiles" layout), which has no `.git` entry at all.
+fn git_working_tree_of(p: &Path) -> Option<PathBuf> {
+    p.ancestors().find(|a| is_git_entry(&a.join(".git"))).map(Path::to_path_buf)
+}
+
+fn is_git_entry(g: &Path) -> bool {
+    match std::fs::symlink_metadata(g) {
+        Err(_) => false,
+        Ok(m) if m.is_dir() => g.join("HEAD").exists(),
+        Ok(m) if m.is_file() => std::fs::read(g).map(|b| b.starts_with(b"gitdir:")).unwrap_or(true),
+        Ok(_) => true,
+    }
+}
+
+/// the default owner directory of a run under `base` (review TR4-3), keyed by
+/// the run's CANONICAL path (review TR5-1), so two runs named alike in
+/// different directories never share one: `<name>-<the first 12 hex digits
+/// of SHA-256(canonical parent / name)>.owner-private`
+pub(super) fn default_owner_dir(base: &Path, out: &Path) -> Result<PathBuf, String> {
+    use sha2::Digest as _;
+    use std::os::unix::ffi::OsStrExt;
+    let name = out.file_name().ok_or("--out: names no directory")?.to_string_lossy().to_string();
+    let parent = out.parent().filter(|p| !p.as_os_str().is_empty()).unwrap_or(Path::new("."));
+    let run = std::fs::canonicalize(parent).map_err(|e| format!("{}: {e}", parent.display()))?.join(&name);
+    let key = sha2::Sha256::digest(run.as_os_str().as_bytes());
+    Ok(base.join(format!("{name}-{}.owner-private", hex(&key[..6]))))
+}
+
+/// **review TR5-1: the directories THIS prove created**, removed again unless
+/// the run completes. Each is claimed atomically (the create fails if it
+/// exists) and listed only after this process created it, so the error path
+/// never removes a directory a rival prove created, nor that prove's files.
+struct Claimed(Vec<PathBuf>);
+
+impl Claimed {
+    fn dir(&mut self, d: &Path, private: bool, what: &str) -> Result<(), String> {
+        let made = if private {
+            use std::os::unix::fs::DirBuilderExt;
+            std::fs::DirBuilder::new().mode(0o700).create(d)
+        } else {
+            std::fs::create_dir(d)
+        };
+        match made {
+            Ok(()) => {
+                self.0.push(d.to_path_buf());
+                Ok(())
+            }
+            Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => Err(leftover_refusal(d, what)),
+            Err(e) => Err(format!("{}: {e}", d.display())),
+        }
+    }
+    /// the run is complete: keep every claimed directory
+    fn keep(mut self) {
+        self.0.clear();
+    }
+}
+
+impl Drop for Claimed {
+    /// PR4-15: the removal of a refused run's directories is not silent:
+    /// each removed path is printed, and a failed removal loudly, with what
+    /// to do (as native R8's `fail_run`)
+    fn drop(&mut self) {
+        for d in self.0.iter().rev() {
+            #[cfg(test)]
+            REMOVALS.with(|r| r.borrow_mut().push(d.display().to_string()));
+            match std::fs::remove_dir_all(d) {
+                Ok(()) => println!("{{\"event\":\"removed\",\"path\":{},\"why\":\"the prove was refused; this directory was created by this prove and is removed with everything in it\"}}", js(&d.display().to_string())),
+                Err(e) => {
+                    let line = format!("{{\"event\":\"REMOVAL-FAILED\",\"path\":{},\"error\":{},\"what_to_do\":\"remove it by hand (rm -r) before anything syncs its parent: it may hold prover-private segments or the owners' decommitments (PR4-15)\"}}", js(&d.display().to_string()), js(&e.to_string()));
+                    println!("{line}");
+                    eprintln!("{line}");
+                }
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+thread_local! {
+    /// PR4-15, test only: every directory a refused prove removed (and so
+    /// reported) on this thread
+    static REMOVALS: std::cell::RefCell<Vec<String>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
+/// PR4-15, test only: the directories refused proves reported removing
+#[cfg(test)]
+pub(super) fn removals() -> Vec<String> {
+    REMOVALS.with(|r| r.borrow().clone())
+}
+
+#[cfg(test)]
+thread_local! {
+    /// ROUND 11 (review TR7-6), test only: full re-verifications (`check_run`)
+    /// started on this thread
+    static CHECK_RUNS: std::cell::Cell<u64> = const { std::cell::Cell::new(0) };
+}
+
+/// ROUND 11 (review TR7-6), test only: how many full re-verifications this
+/// thread has started
+#[cfg(test)]
+pub(super) fn check_runs() -> u64 {
+    CHECK_RUNS.with(|c| c.get())
+}
+
+/// **ROUND 11 (review TR7-5): a layer's stage shape on the CLI path**, derived
+/// exactly as `TokenRunStatement::stage_shape` derives it: the run's shape
+/// when the layer's calibration equals the run's, else
+/// `Shape::with_layer_calibration`. It is a COPY (the CLI derives before any
+/// statement exists): `r11_tests` pins it equal to the library's at every
+/// registered profile, so a divergence cannot quietly un-seal CS-3 on the CLI
+/// path (`CliSource::seal_check` trusts `seal_chain`, which uses this).
+pub(super) fn cli_stage_shape(sh: &Shape, own: &[Option<i64>; 11]) -> Result<Shape, String> {
+    let base = sh.norm_calibration();
+    let cal = if has_own(own) { super::super::trained_statement::apply_own(&base, own)? } else { base };
+    if cal == base {
+        Ok(sh.clone())
+    } else {
+        sh.with_layer_calibration(&cal)
+    }
+}
+
+/// **review TR7-7: an owner-base directory is a directory of mode 0700.** A
+/// pre-existing one that is looser (`DirBuilder` never tightens an existing
+/// directory) is TIGHTENED to 0700 on use, and said so on stdout (the path
+/// and the mode it had); one that is not a directory, or cannot be
+/// tightened, is refused
+fn tighten_to_0700(d: &Path) -> Result<(), String> {
+    use std::os::unix::fs::PermissionsExt;
+    let m = std::fs::metadata(d).map_err(|e| format!("{}: {e}", d.display()))?;
+    if !m.is_dir() {
+        return Err(format!("{}: the owners' base is not a directory (review TR7-7)", d.display()));
+    }
+    let mode = m.permissions().mode() & 0o777;
+    if mode & 0o077 != 0 {
+        std::fs::set_permissions(d, std::fs::Permissions::from_mode(0o700)).map_err(|e| format!("{}: mode {mode:o}, and it could not be tightened to 0700: {e} (review TR7-7)", d.display()))?;
+        println!("{{\"event\":\"owner-base-tightened\",\"path\":{},\"was\":\"{mode:o}\",\"now\":\"700\",\"why\":\"the owners' base holds every run's decommitments: owner only (review TR7-7)\"}}", js(&d.display().to_string()));
+    }
+    Ok(())
+}
+
+/// **PR4-15: a run directory that already exists is refused BY NAME, with
+/// how to clear it.** A `<out>.incomplete/` is what a killed prove leaves
+/// (SIGKILL, an out-of-memory kill, a power loss): partial, prover-private
+/// segments. It stays until it is removed by hand; never sync the run's
+/// parent directory while it exists.
+pub(super) fn leftover_refusal(d: &Path, what: &str) -> String {
+    let p = d.display();
+    let name = d.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
+    if name.ends_with(".incomplete") {
+        format!("{p} exists: an earlier prove of this --out did not finish (killed, out of memory or power loss) and left partial, prover-private segments there. Check that no prove of this run is still running, then remove it by hand (rm -r {p}); never sync the run's parent directory while it exists (PR4-15)")
+    } else if name.ends_with(".unverified-statement") {
+        format!("{p} exists: an earlier prove of this --out wrote it (or was killed after writing it). Remove it by hand (rm -r {p}) together with the earlier run directory if you mean to prove this run again (PR4-15)")
+    } else {
+        format!("{p} exists; {what} must be new (review TR5-1: claimed atomically, never removed by a prove that did not create it). If it is an earlier attempt's, its decommitments are private: move or remove it by hand (PR4-15)")
+    }
+}
+
+/// test seam (review TR5-1): runs just before the owners' files are written,
+/// with the owner and unverified-statement directories, so a test can play a
+/// second prove racing for them
+#[cfg(test)]
+pub(super) mod hooks {
+    use std::cell::RefCell;
+    use std::path::Path;
+    thread_local! {
+        pub static BEFORE_OWNER_FILES: RefCell<Option<Box<dyn FnMut(&Path, &Path)>>> = RefCell::new(None);
+    }
+    pub fn before_owner_files(od: &Path, unverified: &Path) {
+        BEFORE_OWNER_FILES.with(|h| {
+            if let Some(f) = h.borrow_mut().as_mut() {
+                f(od, unverified)
+            }
+        });
+    }
 }
 
 fn prove_inner(f: &[(String, String)]) -> Result<(), String> {
     let t_all = Instant::now();
     let out = PathBuf::from(need(f, "--out")?);
     let (incomplete, unverified) = (sibling(&out, ".incomplete"), unverified_dir(&out));
-    for p in [&out, &incomplete, &unverified] {
-        if std::fs::symlink_metadata(p).is_ok() {
-            return Err(format!("{} exists; a token run's directories must be new", p.display()));
-        }
+    if std::fs::symlink_metadata(&out).is_ok() {
+        return Err(format!("{} exists; a token run's directories must be new", out.display()));
     }
     let owners_dir = owner_dir_of(f, &out)?;
-    if std::fs::symlink_metadata(&owners_dir).is_ok() {
-        return Err(format!("{} exists; a run's owner directory must be new", owners_dir.display()));
-    }
+    // review TR5-1: every directory the run writes is claimed NOW,
+    // atomically; on any refusal below, `claimed` removes exactly these
+    let mut claimed = Claimed(Vec::new());
+    claimed.dir(&incomplete, false, "a token run's directories")?;
+    claimed.dir(&unverified, false, "a token run's directories")?;
+    claimed.dir(&owners_dir, true, "a run's owner directory")?;
     let label = label_of(f)?;
     let seq = SeqIn::of(f)?;
     let t = Instant::now();
@@ -392,7 +698,16 @@ fn prove_inner(f: &[(String, String)]) -> Result<(), String> {
     if unpad(sh, &b_in) != x_in0 {
         return Err("token run: the embedding table does not embed the prompt to the export's x_in_L00".into());
     }
-    let x_last = seq.load(&p.ex, sh, *p.layers.last().ok_or("token run: no layer")?)?.1;
+    // PR4-4: THE SEALING PASS (native R5b's P-1 repair (a) + R6's N-r5-a):
+    // every block's witness built by the builder from the builder's OWN chain,
+    // its refusals, the int16 range, bit-exact parity against the export, and
+    // CS-3 on every witness, BEFORE any header; the next token is computed
+    // from the builder's last plane, not taken from the export's reference
+    let t = Instant::now();
+    let mut seal_blocks = ExportTokenBlocks::new(&p);
+    let x_last = seal_chain(&p, &seq, &mut seal_blocks, x_in0.clone())?;
+    println!("{{\"event\":\"sealed\",\"blocks\":{},\"parity_layers\":{},\"seconds\":{:.3},\"block_load_seconds\":{:.3}}}", p.layers.len(), p.layers.len(), t.elapsed().as_secs_f64(), seal_blocks.load_s);
+    drop(seal_blocks);
     let mut row = vec![0i64; tp.d_pad];
     for (i, v) in x_last[(tp.tokens - 1) * tp.d..tp.tokens * tp.d].iter().enumerate() {
         row[i] = i64::from(*v);
@@ -407,14 +722,10 @@ fn prove_inner(f: &[(String, String)]) -> Result<(), String> {
     // the prover's claims, checked before anything is written (R7 / Q-2)
     let (backend, declines) = (backend_of_this_process(), crate::gpu::declines() as u64);
     check_prover_reported(backend, declines)?;
-    // the run: segments into <out>.incomplete/, renamed only after Ok
-    std::fs::create_dir(&incomplete).map_err(|e| format!("{}: {e}", incomplete.display()))?;
-    let fail = |e: String| -> String {
-        let _ = std::fs::remove_dir_all(&incomplete);
-        e
-    };
-    let mut disk = run_sink::DirSink::create(&incomplete, p.layers.len() + 2).map_err(fail)?;
-    let mut src = CliSource { p: &p, seq: &seq, ids: Ids::new(sh)?, stage_in: Some((wit_in, b_in)), stage_out: Some(wout), x: x_in0, parity: 0, witness_s: 0.0 };
+    // the run: segments into <out>.incomplete/ (claimed above), renamed only
+    // after Ok; every refusal from here on leaves `claimed` to remove it
+    let mut disk = run_sink::DirSink::create(&incomplete, p.layers.len() + 2)?;
+    let mut src = CliSource { p: &p, seq: &seq, ids: Ids::new(sh)?, stage_in: Some((wit_in, b_in)), stage_out: Some(wout), x: x_in0, parity: 0, witness_s: 0.0, sealed: true };
     let mut blocks = ExportTokenBlocks::new(&p);
     let t = Instant::now();
     let proved = prove_token_run_with(&st, &mut blocks, &tables, &mut src, owners, &mut |k, bytes| {
@@ -423,32 +734,27 @@ fn prove_inner(f: &[(String, String)]) -> Result<(), String> {
         println!("{{\"event\":\"segment\",\"index\":{k},\"bytes\":{n},\"elapsed_seconds\":{:.3}}}", t.elapsed().as_secs_f64());
         Ok(())
     });
-    let (stats, hand) = proved.map_err(fail)?;
+    let (stats, hand) = proved?;
     let prove_s = t.elapsed().as_secs_f64();
     if src.parity != p.layers.len() {
-        return Err(fail(format!("token run: parity was checked at {} of {} layers", src.parity, p.layers.len())));
+        return Err(format!("token run: parity was checked at {} of {} layers", src.parity, p.layers.len()));
     }
     let lens = st.segment_lens()?;
     if disk.lengths() != lens.as_slice() {
-        return Err(fail("token run: the written segments are not the counted lengths".into()));
+        return Err("token run: the written segments are not the counted lengths".into());
     }
     // review TR4-4: the owners' decommitments (0700 directory, 0600 files)
     // and the unverified statement are written BEFORE the run is renamed into
-    // place, so a verifiable run never exists without its owners' answers
-    let written = (|| -> Result<(), String> {
-        create_private_dir(&owners_dir)?;
-        write_private(&owners_dir.join("input.dec"), &hand.input.to_bytes())?;
-        write_private(&owners_dir.join("output.dec"), &hand.output.to_bytes())?;
-        std::fs::create_dir(&unverified).map_err(|e| format!("{}: {e}", unverified.display()))?;
-        write_new(&unverified.join("statement.json"), render(&p, &tm, &st, label, Writer::Unverified, backend, declines)?.as_bytes())?;
-        write_new(&unverified.join("UNVERIFIED.txt"), UNVERIFIED_TEXT)
-    })();
-    if let Err(e) = written {
-        let _ = std::fs::remove_dir_all(&owners_dir);
-        let _ = std::fs::remove_dir_all(&unverified);
-        return Err(fail(e));
-    }
-    std::fs::rename(&incomplete, &out).map_err(|e| fail(format!("{} -> {}: {e}", incomplete.display(), out.display())))?;
+    // place, so a verifiable run never exists without its owners' answers;
+    // both directories were claimed by this process at the start (TR5-1)
+    #[cfg(test)]
+    hooks::before_owner_files(&owners_dir, &unverified);
+    write_private(&owners_dir.join("input.dec"), &hand.input.to_bytes())?;
+    write_private(&owners_dir.join("output.dec"), &hand.output.to_bytes())?;
+    write_new(&unverified.join("statement.json"), render(&p, &tm, &st, label, Writer::Unverified, backend, declines)?.as_bytes())?;
+    write_new(&unverified.join("UNVERIFIED.txt"), UNVERIFIED_TEXT)?;
+    std::fs::rename(&incomplete, &out).map_err(|e| format!("{} -> {}: {e}", incomplete.display(), out.display()))?;
+    claimed.keep();
     println!(
         "{{\"event\":\"proved\",\"run\":{},\"owner_dir\":{},\"segments\":{},\"receipt_bytes\":{},\"prove_seconds\":{prove_s:.3},\"witness_seconds\":{:.3},\"block_load_seconds\":{:.3},\"parity_layers\":{},\"whole_run_floor_bits\":{},\"trained_statement_identity\":{},\"vmhwm_mib\":{:.0},\"total_seconds\":{:.3},\"backend\":{},\"statement\":\"UNVERIFIED until zk60_token_io verify publishes <run>/statement/\"}}",
         js(&out.display().to_string()),
@@ -467,10 +773,41 @@ fn prove_inner(f: &[(String, String)]) -> Result<(), String> {
     Ok(())
 }
 
+/// **PR4-4: the token CLI's SEALING PASS.** For every block, in order, at its
+/// stage shape (a layer's own calibration, native R8): the block reloaded
+/// (its digest checked, ruling CS-6), its witness built by the builder from
+/// the BUILDER's chain (the embedded prompt first) with the builder's own
+/// refusals, its output inside int16, bit-exact parity against the export's
+/// `x_out` of that layer (the export's reference is used for parity only),
+/// and ruling CS-3's lookup-miss check (`protocol::check_lookup_misses`);
+/// one block and one witness resident. Returns the builder's last plane
+/// (unpadded). Every refusal names the block and the class, never a value.
+fn seal_chain(p: &ExportPublic, seq: &SeqIn, blocks: &mut ExportTokenBlocks, x_in0: Vec<i16>) -> Result<Vec<i16>, String> {
+    let sh = &p.sh;
+    let ids = Ids::new(sh)?;
+    let mut x = x_in0;
+    for (k, r) in p.model.layers.iter().enumerate() {
+        // the stage shape exactly as `TokenRunStatement::stage_shape` derives
+        // it (review TR7-5: one function, pinned to the library's by r11_tests)
+        let ssh = cli_stage_shape(sh, &r.own)?;
+        let lay = super::super::layout::Layout::for_shape(&ssh)?;
+        let blk = blocks.block(k)?;
+        let w = super::super::witness::build_shaped(&ssh, blk.attention(), blk.feed_forward(), &x).map_err(|e| format!("block {k}: the witness builder refuses: {e} (the sealing pass, before any header: PR4-4)"))?;
+        let out: Vec<i16> = w.planes[ids.at(A_X2)].iter().map(|v| i16::try_from(*v).map_err(|_| format!("block {k}: an output outside int16 (the sealing pass, before any header: PR4-4)"))).collect::<Result<_, _>>()?;
+        let next = unpad(sh, &out);
+        if next != seq.load(&p.ex, sh, p.layers[k])?.1 {
+            return Err(format!("block {k}: the builder's output is not the export's x_out_L{:02} (parity, in the sealing pass, before any header: PR4-4)", p.layers[k]));
+        }
+        super::super::protocol::check_lookup_misses(&ssh, &lay, &blk, &w).map_err(|e| format!("block {k}: {e} (the sealing pass, before any header: PR4-4)"))?;
+        x = next;
+    }
+    Ok(x)
+}
+
 /// the public inputs a verifier or an owner rebuilds: the export's public
 /// side pinned by `--expect-statement` (the trained blocks, calibration and
 /// source) and the tables
-fn public_inputs(f: &[(String, String)]) -> Result<(ExportPublic, TokenTables, TableManifest), String> {
+pub(super) fn public_inputs(f: &[(String, String)]) -> Result<(ExportPublic, TokenTables, TableManifest), String> {
     let p = ExportPublic::load(Path::new(need(f, "--export")?))?;
     let want = unhex32(need(f, "--expect-statement")?)?;
     if p.model.identity() != want {
@@ -514,6 +851,10 @@ struct Checked {
 /// (a verifier's), whose `segments.json` must then be the hashes of the bytes
 /// verified here, before anything is printed or published.
 fn check_run(f: &[(String, String)], published_only: bool) -> Result<(Checked, TokenTables), String> {
+    // ROUND 11 (review TR7-6), test only: count the full re-verifications this
+    // thread started, so a test can show a refusal came before one
+    #[cfg(test)]
+    CHECK_RUNS.with(|c| c.set(c.get() + 1));
     let export = PathBuf::from(need(f, "--export")?);
     // privacy review P-5: a verifier's export holds the public files only
     refuse_prover_private_entries(&export)?;
@@ -614,7 +955,7 @@ fn verify_inner(f: &[(String, String)]) -> Result<(), String> {
 
 /// `zk60_token_io owner ...` (see the module text)
 pub fn token_owner_command(args: &[String]) -> i32 {
-    let f = match flags(args, &["--export", "--emb", "--head", "--artifact", "--expect-statement", "--expect-token-profile", "--decommitment", "--label", "--min-bits"], &[]) {
+    let f = match flags(args, &["--export", "--emb", "--head", "--artifact", "--expect-statement", "--expect-token-profile", "--decommitment", "--label", "--min-bits", "--token-out"], &["--print"]) {
         Ok(f) => f,
         Err(e) => {
             eprintln!("zk60_token_io owner: {e}");
@@ -634,16 +975,34 @@ pub fn token_owner_command(args: &[String]) -> i32 {
 /// then is the token printed
 fn owner_inner(f: &[(String, String)]) -> Result<(), String> {
     let t_all = Instant::now();
+    // PR4-17: the next token goes to a file only its owner can read
+    // (`--token-out`, by default `next_token` beside the decommitment, a new
+    // file), and to stdout only with an explicit `--print`. Review TR7-6: an
+    // existing path is refused HERE, before the full re-verification (~80 s
+    // at 8B); `write_private`'s create-new still closes the race after it
+    let out = match flag(f, "--token-out") {
+        Some(p) => PathBuf::from(p),
+        None => Path::new(need(f, "--decommitment")?).parent().filter(|p| !p.as_os_str().is_empty()).unwrap_or(Path::new(".")).join("next_token"),
+    };
+    if std::fs::symlink_metadata(&out).is_ok() {
+        return Err(format!("{} exists: the owner writes the next token to a NEW file; give --token-out another path, or move that file first (review TR7-6; nothing was re-verified)", out.display()));
+    }
     let (c, _tables) = check_run(f, true)?;
     let dec = Decommitment::from_bytes(&read_regular_file_bounded(Path::new(need(f, "--decommitment")?), MAX_DECOMMITMENT_BYTES, false)?)?;
     let tok = owner_check_output(&c.st, &dec)?;
-    println!("{{\"event\":\"next-token\",\"token\":{tok},\"checked_against\":\"the published statement, re-verified against every segment in this process\",\"verify_seconds\":{:.3},\"total_seconds\":{:.3}}}", c.verify_s, t_all.elapsed().as_secs_f64());
+    write_private(&out, format!("{tok}\n").as_bytes())?;
+    let shown = if f.iter().any(|(k, _)| k == "--print") { format!(",\"token\":{tok}") } else { String::new() };
+    println!("{{\"event\":\"next-token\",\"written_to\":{}{shown},\"checked_against\":\"the published statement, re-verified against every segment in this process\",\"verify_seconds\":{:.3},\"total_seconds\":{:.3}}}", js(&out.display().to_string()), c.verify_s, t_all.elapsed().as_secs_f64());
     Ok(())
 }
 
 /// `zk60_token_io input-owner ...`: the INPUT owner's check (review TR4-4)
 pub fn token_input_owner_command(args: &[String]) -> i32 {
-    let f = match flags(args, &["--export", "--emb", "--head", "--artifact", "--expect-statement", "--expect-token-profile", "--decommitment", "--prompt", "--label", "--min-bits"], &[]) {
+    if args.iter().any(|a| a == "--prompt") {
+        eprintln!("zk60_token_io input-owner: {PROMPT_ON_COMMAND_LINE}");
+        return 2;
+    }
+    let f = match flags(args, &["--export", "--emb", "--head", "--artifact", "--expect-statement", "--expect-token-profile", "--decommitment", "--prompt-file", "--label", "--min-bits"], &[]) {
         Ok(f) => f,
         Err(e) => {
             eprintln!("zk60_token_io input-owner: {e}");
@@ -658,10 +1017,10 @@ pub fn token_input_owner_command(args: &[String]) -> i32 {
 
 /// verify's full re-check, then `owner_check_input`: the decommitment
 /// rebuilds the verified input root, BOS at 0, every id below V, zero pads,
-/// and the sealed plane is the owner's own `--prompt`
+/// and the sealed plane is the owner's own prompt (`--prompt-file`, PR4-17)
 fn input_owner_inner(f: &[(String, String)]) -> Result<(), String> {
     let (c, _tables) = check_run(f, true)?;
-    let prompt: Vec<u64> = need(f, "--prompt")?.split(',').map(|x| x.trim().parse::<u64>().map_err(|_| "--prompt: a comma-separated list of token ids".to_string())).collect::<Result<_, _>>()?;
+    let prompt = read_prompt_file(need(f, "--prompt-file")?)?;
     let dec = Decommitment::from_bytes(&read_regular_file_bounded(Path::new(need(f, "--decommitment")?), MAX_DECOMMITMENT_BYTES, false)?)?;
     owner_check_input(&c.st, &dec, &prompt)?;
     println!("{{\"event\":\"input-checked\",\"prompt_tokens\":{},\"checked_against\":\"the published statement, re-verified against every segment in this process\"}}", prompt.len());

@@ -1,0 +1,35 @@
+[
+  {
+    "command": "timeout 60s python3 -B experiments/public-exp-dd-cardinality-20261020/probe.py > experiments/public-exp-dd-cardinality-20261020/probe.log 2>&1",
+    "exit_code": 0
+  },
+  {
+    "command": "timeout 60s python3 -B experiments/public-exp-dd-cardinality-20261020/audit.py > experiments/public-exp-dd-cardinality-20261020/audit.log 2>&1",
+    "exit_code": 0
+  },
+  {
+    "command": "timeout 60s python3 -B experiments/public-exp-dd-cardinality-20261020/cost.py > experiments/public-exp-dd-cardinality-20261020/cost.log 2>&1",
+    "exit_code": 1,
+    "evidence": "initial-cost-failure/: independent delta omitted dropped score U8 helper pairs and understated claim sites"
+  },
+  {
+    "command": "same cost.py command after first formula correction",
+    "exit_code": 1,
+    "evidence": "second-cost-failure/: S12 extra score lookup changes helper ceiling and site counts"
+  },
+  {
+    "command": "same cost.py command after score-lookup rounding correction",
+    "exit_code": 0,
+    "evidence": "before-full-precision/: 588checks"
+  },
+  {
+    "command": "same cost.py command after adding full R11 HIGH block accounting",
+    "exit_code": 0,
+    "evidence": "cost-result.json:612checks"
+  },
+  {
+    "command": "same audit.py command after pinning owner R11 result JSON",
+    "exit_code": 0,
+    "evidence": "validation-result.json:1927checks"
+  }
+]

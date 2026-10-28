@@ -1,0 +1,16 @@
+{
+  "status": "PASS_LEXICAL_SOURCE_ONLY",
+  "sites": 107,
+  "physical_sites": 43,
+  "functions": 21,
+  "required_functions": 13,
+  "facts": 7,
+  "source_versions": "Active GPU candidate only; not frozen R8 geometry or current CPU DD tree",
+  "complete_program_coverage": false,
+  "wall_seconds": 0.024060972005827352,
+  "rss_kib": 16404,
+  "threads": 1,
+  "affinity": [
+    0
+  ]
+}

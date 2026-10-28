@@ -1,0 +1,32 @@
+[
+  {
+    "path": "STATE.md",
+    "sha256": "77f640f590af707c935d35ef45b661eae951c0bca139f5327b694276ebd6afed",
+    "bytes": 4597
+  },
+  {
+    "path": "PROGRESS.md",
+    "sha256": "09321c88fea9639d2def37d3dc6d918e774a9370544660269aca81b22157bf90",
+    "bytes": 2633
+  },
+  {
+    "path": "FINDINGS.md",
+    "sha256": "1e7bb31eba186233620c5c905329c50b53df71450778a8ac40a82c82e396bc56",
+    "bytes": 908608
+  },
+  {
+    "path": "sources.jsonl",
+    "sha256": "9f78888e2e0a2e791bde85b50eb22f5feba15dd7f6ada2eed6333873efa2aded",
+    "bytes": 981076
+  },
+  {
+    "path": "progress/20261021T081854Z-3ffe311a.md",
+    "sha256": "316ce324745db9bba37dcb88f065869707ede31cb5e822b0d7b4ecdd73165a0e",
+    "bytes": 7217
+  },
+  {
+    "path": "handoffs/20261021-public-blake3-frontier.md",
+    "sha256": "a3cc1cb32f68de9338c1177b70f1f50e237bf945f0f4d01d6d7d0cd9c1a2ee59",
+    "bytes": 4080
+  }
+]

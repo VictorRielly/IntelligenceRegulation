@@ -1,0 +1,2 @@
+{"event": "layer0-precheck", "status": "not-covered", "fingerprint": "0fa2961b8cace3f609b7f410c17bedd95984698cdaaf1fcc0f3aad44b5eaf8f9", "note": "no vocabulary scan is recorded for this export's layer 0; nothing claimed"}
+k6 exit 0

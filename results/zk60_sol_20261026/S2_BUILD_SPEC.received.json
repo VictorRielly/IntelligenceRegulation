@@ -1,0 +1,65 @@
+{
+ "schema": "zk60-fidelity-s2-build-spec/1",
+ "written": "2026-10-26T18:00Z by the fidelity-parity lane (results/zk60_fidelity_parity_20261019/)",
+ "stack": "LOW + h int24 (DD-compatible) with the zero-cost refusal fixes",
+ "status": "fidelity WHAT-IF measured in fp_lib.rx_block on the dg exports; NOT native, NOT a proof, NOT a privacy claim. The native lane builds and freezes it (S2 / R13).",
+ "base_exports": {
+  "llama3-8b": {"export": "exports/llama3_8b_dg_rot1_voc0_T128", "profile_sha256_prefix": "00aba3d9f75a443b",
+                "built_by": "fp_variant.py --variant dg --vocab0 --extra-calib wtval:64 --extra-refused e8_voc0 --name l8_dg_voc0; fp_export.py ... --rebuild-token-io"},
+  "tinyllama": {"export": "exports/tinyllama_dg_rot1_T128", "profile_sha256_prefix": "b01a6db14ad93319",
+                "built_by": "fp_variant.py --variant dg --name tl_dg; fp_export.py ... --name tinyllama_dg_rot1_T128"},
+  "dg_means": "R8 per-layer constants: per-layer norm Cn, per-layer exp and SiLU members, free per-layer shifts, one global residual scale s_x, rotation seed 1, D24 classes, D25 T4 integer head (unchanged by this spec)"
+ },
+ "what_if_flags_measured": "--mult-bits q:5,k:5,v:6,o:8,g:6,u:4,d:6 --gate-pc=-5:mc8:tm4:ng4 --mods y8,fp12,a8,ah2,g4,h8 (+ SH_S/e_s +1 at 8B layer 15); ppl runs used v:7 and tm2 (see fidelity)",
+ "sites": {
+  "weights_c2": {"what": "per-OUTPUT-channel public multiplier m_j, b bits, on every block matmul; int8 words unchanged in class",
+                 "bits": {"q": 5, "k": 5, "v": 6, "o": 8, "g": 6, "u": 4, "d": 6},
+                 "rule": "m_j = clip(ceil(2^b * rowmax_j(W_real) / 127), 1, 2^b); W'_j = round(W_real_j * 2^b / m_j) clipped to +-127; out_j = round(m_j * acc_j / 2^(sh + b)) (same output scale)",
+                 "condition": "total shift sh + b (plus any headroom bits) must stay inside the site's counted window; v is 6 bits (not R10's 7) because the 2 attention-range bits use the top of v's two-byte window"},
+  "norm_outputs": {"what": "y (attention norm) and nm (MLP norm) int16", "how": "tn route: tn - 8 (8B 9 -> 1, TinyLlama 10 -> 2); y = round(x g Cn / (D 2^(tn-8)))",
+                   "norm_remainder_window": "24 bits, 3 limbs (was 32 / 4)", "consumers": "q/k/v, g, u shifts +8"},
+  "attention_words": {"what": "q, k, v, qr, kr, o int16 (|w| <= 32767)", "scale": "2^6 finer than today's int8 scale: 8 extra bits, 2 of them range headroom (ah2)",
+                      "q_k_shift": "sh_qkv + 8 - 6 + 5 = 15 (sh_qkv = 8 in every layer of both exports)", "v_shift": "sh_qkv + 8 - 6 + 6 = 16",
+                      "rope": "unchanged: f_ro 7, sh_rope 7, output keeps the input scale"},
+  "score": {"what": "score word stays int8 (+-127) -> DD stays feasible", "shift": "sh_s + 12 (8B 17..19 incl. the layer-15 +1; TinyLlama 17..20)",
+            "exp_table": "unchanged per-layer member exp_generate(e_s), f_e 9, 256 rows",
+            "calibration_rule": "the score bound must cover ALL (t, j) pairs, masked future ones too: the native relation (tlcalib.i_block) range-checks the full T x T score matrix, but the calibration statistics (raw_kv / raw_causal) are causal-only. Measured consequence: 8B layer 15 needs SH_S + 1 and e_s + 1 (masked score ~132 > 127 on LAMBADA). Alternative (native relation change, not costed): range-check only causal entries."},
+  "softmax": {"F_P": 12, "p_range": "[0, 4096], two limbs as today (fits to F_P 15)", "PV_shift": "sh_o + 3 = 12; o int16 at the v scale"},
+  "ao": {"shift": "sh_ao + 6 + 8 (8B 18..22, TinyLlama 17..21)", "class": "int16 output"},
+  "gate_and_silu": {"what": "SiLU input int12 (4096-row tables) with per-channel-group tables",
+                    "groups": "<= 4 distinct tables per layer at T128 (<= 8 at T512: groups x 4096 <= 2^log_cols, r11 section 4); public group-id column",
+                    "member_rule": "channel j: e_j = finest registry e_in in [-5, -1] with 127 * 2^e_j >= min(8 x channel max, 4 x tensor max) of |gate|; then merge the finest e values into the 4th coarsest (coarser = more range); each e group takes ONE output member, the coarsest any of its channels needs (registry pairs (-5,-13) (-4,-13) (-4,-12) (-3,-12) (-3,-11) (-2,-11) (-1,-11) (-1,-10) (-1,-9))",
+                    "table": "4096 rows: input step 2^(e_j - 4), value round(silu(g 2^(e_j-4)) / 2^eo_j)",
+                    "gate_shift": "sh_g + 8 - 4 + 6 = 18; the per-channel step 2^(e_j - e_in) must be folded into the gate multipliers (or words); if folded into m_j the shift may rise by up to 3 (ng4 spans <= 4 e values) and must stay <= 24 (three bytes)",
+                    "output_scale": "per-group output unit 2^(eo_j - e_out) folds into the down projection's public input columns (r11: no cost)",
+                    "calibration_rule": "use the export's FULL calibration set (incl. extra and vocabulary maxima) for the channel and tensor maxima; the measured runs used only the 30-sequence b5 statistics",
+                    "one_table_option": "one table per layer (no group column) cost <= 0.002 ppl at TinyLlama (LOW + score int12: 1.0025 / 1.0066 vs 1.0017 / 1.0048) and saves the +1.8 to +2.0% element-terms of the group column"},
+  "up": {"shift": "sh_u + 8 + 4 = 12", "class": "int16"},
+  "product_h": {"what": "h = (a * u) >> (sh_h - 8), int24 (+-2^23)", "shift": "5..8 -> one byte"},
+  "down_z": {"shift": "sh_z + 8 + 6 (8B 19..22, TinyLlama 18..22)", "class": "int16 output"},
+  "unchanged": "residual int16 at one global s_x; score int8 and exp table (DD-compatible); SiLU output step; embedding / token_io; D25 T4 integer head"
+ },
+ "counted_windows_8B_T128": {"q,k": "14..16 -> 2 limbs / 1 pin (spec shifts 15)", "v": "15..16 -> 2/1 (spec 16)", "ao": "19..24 -> 3/1 (spec 17..22)",
+                             "g": "18..20 -> 3/1 (spec 18, <= 21 with the group fold)", "up": "12..16 -> 2/1 (spec 12)", "z": "18..24 -> 3/1 (spec 18..22)",
+                             "score RSL": "21..24 -> 3/1 (spec 17..20)", "PV RO": "12 -> 2/1", "product RH": "5..8 -> 1/1", "norm": "24 b / 3 limbs",
+                             "source": "cost/fp_r11_stacks.py stack LOW16_H24 (copy of the native r11 counter, replica anchor re-run)"},
+ "counted_cost_pct_committed": {
+  "llama3-8b T128": {"vs_R9_nonDD": 22.82, "vs_R9_DD": 23.74, "model_prove_time_pct": [15.52, 15.73]},
+  "llama3-8b T512": {"vs_R9_nonDD": 19.73, "vs_R9_DD": 24.92, "model_argument_time_pct": [18.44, 22.2]},
+  "tinyllama T128": {"vs_R9_nonDD": 21.41, "vs_R9_DD": 22.94, "model_prove_time_pct": [19.22, 19.94]},
+  "note": "[COUNTED] elements, [MODEL] time; the same figures as LOW16_H24 in r11's method"
+ },
+ "fidelity_measured": {
+  "llama3-8b": {"ppl_ratio_fineweb_48": 1.0108, "ci": [1.0054, 1.0162], "ppl_ratio_wikitext_48": 1.0094, "ci_wt": [1.0043, 1.0147], "refused_of_96": 0,
+                "run": "runs/llama3-8b/e8_LOWh8g (v multiplier 7, gate tm2)",
+                "lambada_200": {"acc_float": 0.78, "acc_int": 0.80, "ratio": 1.026, "refused": 2, "runs": "runs/llama3-8b/lambada_LOWh8v6.json (spec form, gate tm2)"},
+                "refusal_fix_check": "runs/llama3-8b/e8_LOWh8v6_lam0/refusal_fixcheck.json: both refused sequences through all 32 layers with tm4 + SH_S+1 at layer 15: 0 violations"},
+  "tinyllama": {"chosen_cheapest": "LOW (no h int24): 1.0086 / 1.0101, 0 refused (runs/tinyllama/t_LOWg); LAMBADA 1000: 0.599 vs 0.598, ratio 1.002, 0 refused (runs/tinyllama/lambada_LOWv6.json)",
+                "with_h_int24": "1.0041 / 1.0084, 0 refused (runs/tinyllama/t_LOWh8g)"}
+ },
+ "open_items": [
+  "tm4 (5.9% of 8B gate channels one member coarser) and SH_S+1 at 8B layer 15 are verified on the two refused sequences only; the full 96-sequence ppl and 200-item LAMBADA re-run with them is pending (5 GiB, ~3.5 h on 8B) [MODEL: effect expected <= 0.002 ppl]",
+  "the gate per-channel step fold into the multipliers (shift <= 24) is for the native lane to realize and confirm",
+  "the masked-score range rule (calibrate over all T x T pairs, or check only causal entries natively) applies to every new model (Shieldstral)"
+ ]
+}

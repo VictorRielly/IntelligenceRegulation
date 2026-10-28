@@ -981,6 +981,24 @@ from zk60_native_rg_tinyllama_r7_pins import (  # noqa: E402
     READINGS as _R7_READINGS, RUN_LAYER_PINS as _R7_RLP)
 _tl_merge2(RUN_LAYER_PINS, _R7_RLP, "RUN_LAYER_PINS")
 _tl_merge1(READINGS, _R7_READINGS, "READINGS")
+# [TINYLLAMA PORT v11, round 8] the tk7 tree's run.rs and capture writer
+# (`zk60_native_rg_tinyllama_tk7_pins`); the shared set is R5b's
+from zk60_native_rg_tinyllama_tk7_pins import (  # noqa: E402
+    READINGS as _TK7_READINGS, RUN_LAYER_PINS as _TK7_RLP)
+_tl_merge2(RUN_LAYER_PINS, _TK7_RLP, "RUN_LAYER_PINS")
+_tl_merge1(READINGS, _TK7_READINGS, "READINGS")
+# [TINYLLAMA PORT v15, gate round 10] the frozen-r9 (tk9) tree's run.rs
+# (`zk60_native_rg_tinyllama_tk9_pins`); the writer is tk7's, the shared set R5b's
+from zk60_native_rg_tinyllama_tk9_pins import (  # noqa: E402
+    READINGS as _TK9_READINGS, RUN_LAYER_PINS as _TK9_RLP)
+_tl_merge2(RUN_LAYER_PINS, _TK9_RLP, "RUN_LAYER_PINS")
+_tl_merge1(READINGS, _TK9_READINGS, "READINGS")
+# [TINYLLAMA PORT v17, gate round 14] the native R9 (DD) tree's run.rs and the
+# gate's patched capture writer (`zk60_native_rg_tinyllama_r9_pins`)
+from zk60_native_rg_tinyllama_r9_pins import (  # noqa: E402
+    READINGS as _R9_READINGS, RUN_LAYER_PINS as _R9_RLP)
+_tl_merge2(RUN_LAYER_PINS, _R9_RLP, "RUN_LAYER_PINS")
+_tl_merge1(READINGS, _R9_READINGS, "READINGS")
 
 # --------------------------------------------------------------------------
 # 4.  WHICH STAGES A MOVED PIN SUSPENDS

@@ -1,0 +1,19 @@
+{
+    "accepted": true,
+    "pending_anchor": [],
+    "reasons": [],
+    "checks": {
+        "schema": true,
+        "issuer_key": true,
+        "signature": true,
+        "c0.sexual.anchor_leaf": true,
+        "c0.sexual.publication_matches": true,
+        "c0.sexual.anchored": true,
+        "c0.violence.anchor_leaf": true,
+        "c0.violence.publication_matches": true,
+        "c0.violence.anchored": true,
+        "c0.hate.anchor_leaf": true,
+        "c0.hate.publication_matches": true,
+        "c0.hate.anchored": true
+    }
+}

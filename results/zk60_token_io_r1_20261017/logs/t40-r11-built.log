@@ -1,0 +1,222 @@
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io/hashline)
+warning: unused doc comment
+   --> src/private_block/token_io/run.rs:696:1
+    |
+696 | / /// **THE TOKEN-I/O RUN PROVER.** One transcript, one OS stream, `L + 2`
+697 | | /// segments, each handed to `sink` and dropped (M-3); block `k` asked for
+698 | | /// at its own stage (R3 streaming).
+699 | | ///
+...   |
+708 | | /// it receives as UNPUBLISHED until this function returns `Ok` (the CLI's
+709 | | /// sink writes `<out>.incomplete/` and renames it only then).
+    | |_-------------------------------------------------------------^
+    |   |
+    |   rustdoc does not generate documentation for macro invocations
+    |
+    = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+    = note: `#[warn(unused_doc_comments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1127:13
+     |
+1127 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:865:4
+    |
+865 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:258:19
+    |
+215 | impl Phases {
+    | ----------- method in this implementation
+...
+258 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:734:5
+    |
+727 | struct Rec {
+    |        --- field in this struct
+...
+734 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 16 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 3m 16s
+     Running unittests src/lib.rs (/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io/hashline/target/release/deps/hashline-fdfcab3a8ea7fb95)
+
+running 73 tests
+test private_block::token_io::capture_tests::capture_a_llama3_8b_token_run ... ignored, writes a Llama-3-8B token-run capture; heavy; set HL_PB_CAPTURE_DIR (outside the repo) and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::token_io::capture_tests::capture_a_tinyllama_token_run ... ignored, writes a TinyLlama token-run capture; set HL_PB_CAPTURE_DIR (outside the repo) and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::token_io::capture_tests::capture_the_cli_verify_path_at_tinyllama_t32_l2 ... ignored, writes a capture of the CLI's verify path; set HL_PB_CAPTURE_DIR and HL_PB_CLI_WORK (both outside the repo), HL_RUN_CAPTURE_PUBLIC_TABLES and optionally HL_PB_CLI_BIN / HL_PB_CLI_BIN_SHA256
+test private_block::token_io::capture_tests::a_tampered_token_run_is_refused_and_no_bundle_is_written ... ok
+test private_block::token_io::cli_tests::cli_a_tampered_segment_or_an_unlisted_backend_is_refused_and_nothing_is_published ... ok
+test private_block::token_io::capture_tests::a_token_run_is_captured_and_its_bundle_is_self_consistent ... ok
+test private_block::token_io::cli_tests::pr4_15_leftovers_are_refused_by_name_and_removals_are_reported ... ok
+test private_block::token_io::cli_tests::pr4_16_the_default_owner_base_is_outside_the_artifacts_tree ... ok
+test private_block::token_io::capture_tests::the_hooks_are_inert_on_the_prover_and_a_run_verifies_the_same_with_and_without_a_recorder ... ok
+test private_block::token_io::cli_tests::pr4_4_a_parity_mismatch_is_refused_before_the_header ... ok
+test private_block::token_io::cli_tests::pr4_4_an_extreme_input_is_refused_before_the_header ... ok
+test private_block::token_io::cli_tests::pr4_4_the_cli_sealing_pass_runs_cs3_and_takes_the_token_from_the_builder ... ok
+test private_block::token_io::cli_tests::pr4_17_the_prompt_never_goes_on_the_command_line ... ok
+test private_block::token_io::cli_tests::cli_the_token_run_proves_the_verifier_publishes_rechecks_and_the_owner_reads_the_token ... ok
+test private_block::token_io::cli_tests::pr4_17_the_owner_writes_the_token_to_a_0600_file ... ok
+test private_block::token_io::cli_tests::tr4_3_the_owner_files_go_to_a_private_directory_outside_the_runs_parent ... ok
+test private_block::token_io::cli_tests::tr5_1_the_default_owner_directory_is_keyed_by_the_runs_path ... ok
+test private_block::token_io::cli_tests::tr5_3_a_an_explicit_owner_dir_inside_a_git_working_tree_is_refused ... ok
+test private_block::token_io::cli_tests::tr5_3_b_the_default_owner_dir_is_accepted_for_a_run_directly_under_home ... ok
+test private_block::token_io::cli_tests::tr6_3_the_default_owner_directory_is_checked_for_a_git_working_tree ... ok
+test private_block::token_io::cli_tests::tr4_2_a_run_with_another_head_or_cn_is_refused_under_the_token_profile_pin ... ok
+test private_block::token_io::cli_tests::tr7_7_a_looser_pre_existing_owner_base_is_tightened_to_0700 ... ok
+test private_block::token_io::cli_tests::tr4_1_the_owner_verifies_before_it_prints_and_refuses_a_tampered_or_unverified_run ... ok
+test private_block::token_io::cli_tests::tr5_1_a_prove_never_removes_an_owner_or_statement_directory_it_did_not_create ... ok
+test private_block::token_io::cli_tests::tr7_6_owner_refuses_an_existing_token_file_before_re_verifying ... ok
+test private_block::token_io::r2_tests::r2_d20_the_final_norm_int8_overflow_is_a_live_refusal_at_the_calibrated_cn ... ok
+test private_block::token_io::r2_tests::r2_multirow_an_honest_run_proves_verifies_and_both_owners_check ... ok
+test private_block::token_io::r2_tests::token_io_r2_prove_to_dir ... ignored
+test private_block::token_io::r2_tests::token_io_r2_verify_from_dir ... ignored
+test private_block::token_io::r2_tests::r2_the_counted_layout_is_the_counters ... ok
+test private_block::token_io::r3_tests::r3_a_refused_stage_out_witness_emits_no_segment ... ok
+test private_block::token_io::r3_tests::r3_streamed_blocks_prove_and_verify_and_another_block_at_a_stage_is_refused ... ok
+test private_block::token_io::r3_tests::r3_a_layer_with_its_own_score_shift_is_proved_at_its_stage_shape ... ok
+test private_block::token_io::r3_tests::r3_the_parallel_folds_equal_the_serial_folds ... ok
+test private_block::token_io::r3_tests::r3_the_table_loader_round_trips_and_refuses_a_table_that_is_not_the_recorded_one ... ok
+test private_block::token_io::r3_tests::r3_v_pad_2_17_is_the_doors_edge ... ok
+test private_block::token_io::r2_tests::r2_multirow_controls_are_refused_where_predicted ... ok
+test private_block::token_io::r3_tests::r3_vpad17_an_honest_run_proves_verifies_and_both_owners_check ... ok
+test private_block::token_io::r3_tests::r7_a_layer_with_its_own_norm_and_shift_constants_is_proved_at_its_stage_shape ... ok
+test private_block::token_io::r3_tests::token_io_r3_prove_to_dir ... ignored
+test private_block::token_io::r3_tests::token_io_r3_verify_from_dir ... ignored
+test private_block::token_io::r3_tests::tr3_1_a_wrong_block_at_a_later_stage_is_refused_before_any_segment ... ok
+test private_block::token_io::r3_tests::tr3_2_a_truncated_manifest_is_refused_by_name ... ok
+test private_block::token_io::r9_tests::r9_a_block_lookup_miss_is_refused_before_the_header ... ok
+test private_block::token_io::r9_tests::r9_a_stage_in_lookup_miss_is_refused_before_the_header ... ok
+test private_block::token_io::r9_tests::r9_a_stage_out_lookup_miss_is_refused_before_the_header ... ok
+test private_block::token_io::r9_tests::r9_an_endpoint_that_is_not_the_witnesss_is_refused_before_the_header ... ok
+test private_block::token_io::r9_tests::r9_the_honest_run_still_proves_with_one_header ... ok
+test private_block::token_io::r9v_tests::r9v_a_stage_in_lookup_miss_that_a_prover_finishes_is_rejected_by_the_verifier ... ok
+test private_block::token_io::r9v_tests::r9v_an_endpoint_over_another_prompt_or_token_that_a_prover_finishes_is_rejected_by_the_verifier ... ok
+test private_block::token_io::r11_tests::r11_the_clis_stage_shape_is_the_librarys_at_every_registered_profile has been running for over 60 seconds
+test private_block::token_io::r3_tests::r3_the_counted_layout_is_the_counters ... ok
+test private_block::token_io::r11_tests::r11_the_clis_stage_shape_is_the_librarys_at_every_registered_profile ... ok
+test private_block::token_io::tests::a_norm_output_outside_int8_is_refused_by_the_sym_lookups ... ok
+test private_block::token_io::t128_tests::t128_a_dense_tinyllama_run_proves_and_t32_and_t128_are_not_interchangeable ... ok
+test private_block::token_io::tests::an_honest_generic_run_proves_verifies_and_both_owners_check ... ok
+test private_block::token_io::tests::a_tie_broken_toward_the_higher_id_is_refused ... ok
+test private_block::token_io::tests::the_counted_layout_is_the_counters ... ok
+test private_block::token_io::tests::the_d16_rule_5_audit_of_the_new_layouts ... ok
+test private_block::token_io::r3_tests::r3_vpad17_controls_are_refused_where_predicted has been running for over 60 seconds
+test private_block::token_io::tests::an_honest_run_of_r0s_model_proves_verifies_and_both_owners_check ... ok
+test private_block::token_io::tests::the_run_level_controls_and_the_door_refuse ... ok
+test private_block::token_io::r3_tests::r3_vpad17_controls_are_refused_where_predicted ... ok
+test private_block::token_io::t128_tests::t128_profiles_exist_and_their_whole_run_floor_reaches_95_bits ... ok
+test private_block::token_io::tests::token_io_r1_prove_to_dir ... ignored
+test private_block::token_io::tests::token_io_r1_verify_from_dir ... ignored
+test private_block::token_io::tests::tr1_the_tier_door_refuses_every_tier_below_b1_and_every_unregistered_tier ... ok
+test private_block::token_io::tests::tr1_the_verifier_refuses_a_statement_below_its_minimum_whole_run_figure ... ok
+test private_block::token_io::tests::tr2_the_mask_opening_is_sized_by_zk_mask_q_not_by_the_tier ... ok
+test private_block::token_io::tests::tr3_unbuilt_variants_are_refused_by_the_statement_the_endpoints_and_the_verifier ... ok
+test private_block::token_io::tests::the_final_norm_controls_are_refused_where_the_design_predicts ... ok
+test private_block::token_io::tests::tr5_a_head_word_of_minus_128_is_refused_at_the_door ... ok
+test private_block::token_io::tests::tr4_the_owner_checks_take_the_verified_statement_and_check_the_plane_rules ... ok
+test private_block::token_io::tests::the_stage_in_controls_are_refused_where_the_design_predicts ... ok
+test private_block::token_io::tests::the_stage_out_controls_are_refused_where_the_design_predicts ... ok
+
+test result: ok. 64 passed; 0 failed; 9 ignored; 0 measured; 593 filtered out; finished in 156.27s
+

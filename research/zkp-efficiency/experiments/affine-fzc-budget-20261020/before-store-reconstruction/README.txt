@@ -1,0 +1,1 @@
+Retained initial arithmetic accounting output, superseded by final costs. The source snapshot was taken after additional negative controls were authored but before adding the omitted high-store reconstruction; it is not asserted to be the exact source of command01. commands.json retains every executed leaf hash. Final source and dependency hashes reproduce the final results.

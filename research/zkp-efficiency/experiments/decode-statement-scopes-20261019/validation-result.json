@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "checks": 229,
+  "source_evidence_pins": 18,
+  "r8_marked_matches": 14,
+  "patch_hunks_replayed_in_memory": 1,
+  "source_records_appended": 8,
+  "ranked_hypotheses": 8,
+  "wall_seconds": 0.033084753988077864,
+  "rss_kib": 22164,
+  "threads": 1,
+  "nice": 19,
+  "scope": "Provenance/report consistency; no native production build/proof"
+}

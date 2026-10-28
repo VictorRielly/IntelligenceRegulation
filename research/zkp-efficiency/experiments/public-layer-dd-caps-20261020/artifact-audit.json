@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "checks": 173,
+  "original_source_records_preserved": 692,
+  "source_ledger": 702,
+  "prior_findings_prefix_preserved": true,
+  "agenda_unchanged": true,
+  "prior_ranked_hypotheses_preserved": 23,
+  "elapsed_s": 0.01109484100015834,
+  "maxrss_KiB": 19232
+}

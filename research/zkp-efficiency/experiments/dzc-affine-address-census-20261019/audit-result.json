@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "checks": 187,
+  "translation_groups": {
+    "(3, 'load_raw')": 2,
+    "(3, 'load_param')": 1,
+    "(3, 'load_base')": 1,
+    "(6, 'load_raw')": 3,
+    "(6, 'load_param')": 1,
+    "(6, 'load_base')": 1
+  },
+  "controls": {
+    "corrupt_parameter_uniformity": true,
+    "raw_exception_not_silently_merged": true,
+    "wrong_extension_polynomial": true
+  },
+  "native_field_oracle_fixtures": 36,
+  "native_field_oracle_coefficients": 180,
+  "wrong_field_fixtures": 35,
+  "oracle_scope": "Prior research compiled scalar coefficient kernel, unchanged source field. No captured whole-D/catalog, native admission or new proof/final verification.",
+  "wall_seconds": 0.09828869700140785,
+  "rss_kib": 20532,
+  "cpu_affinity": [
+    0
+  ],
+  "threads": 1,
+  "limits": "59s CPU/wall;512MiB address space;one nice19 CPU"
+}

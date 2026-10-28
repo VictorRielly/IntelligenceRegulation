@@ -1,0 +1,18 @@
+{
+  "status": "PASS_INDEPENDENT_INTERVAL_COST_SOURCE_AUDIT",
+  "checks": 16733,
+  "explicit_tree_sizes": 12,
+  "max_explicit_leaves": 2048,
+  "source_pins": 12,
+  "control_types": 5,
+  "controls": [
+    "root_only_as_tree",
+    "drop_salt_hashes",
+    "GPU_full_tree_same_transfer",
+    "bytes_fraction_as_time",
+    "count_tokens_per_layer"
+  ],
+  "diagnostic_wall_seconds": 0.025620826985687017,
+  "rss_kib": 16164,
+  "caveat": "Audit and candidate authored by same researcher; independent crypto oracle is installed blake3; no native run"
+}

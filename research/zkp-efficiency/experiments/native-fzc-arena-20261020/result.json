@@ -1,0 +1,48 @@
+{
+  "status": "PASS_PYTHON_MODEL_ONLY",
+  "checks": 1090351,
+  "negative_controls": 11,
+  "fixtures": 108,
+  "rounds": 468,
+  "seed": 2026102096,
+  "field_modulus": 18446744069414584321,
+  "extension": "u^2=7",
+  "events": {
+    "constructor": 30080,
+    "raw_round0_derived": 3712,
+    "later_round_read": 109103,
+    "first_fused_fold": 69152,
+    "fold_check": 63363,
+    "later_fused_fold": 83604,
+    "generic_fold": 10836,
+    "finals": 1131,
+    "raw_round0_read": 18896,
+    "pack": 2262
+  },
+  "ops": {
+    "mul": 1202285,
+    "add": 1010417,
+    "sub": 876281
+  },
+  "wall_seconds": 14.274310499997227,
+  "rss_kib": 17060,
+  "affinity": [
+    0
+  ],
+  "threads": 1,
+  "scope": "Authored Python Goldilocks Fp2/actual-FZC algebra and addressing; no Rust/CUDA execution, native transcript/masks, proof or verification",
+  "full_stack": {
+    "proofs": 0,
+    "passes": 0,
+    "positions": 0,
+    "context_length": null,
+    "device": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "startup_fraction": null,
+    "steady_rate": null,
+    "total_rate": null
+  }
+}

@@ -535,3 +535,41 @@ warning: function `active` is never used
 
 warning: `hashline` (lib test) generated 18 warnings (10 duplicates) (run `cargo fix --lib -p hashline --tests` to apply 4 suggestions)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 13.82s
+    Checking typenum v1.20.1
+    Checking crossbeam-utils v0.8.22
+    Checking crossbeam-epoch v0.9.20
+    Checking crossbeam-deque v0.8.7
+    Checking generic-array v0.14.7
+    Checking cfg-if v1.0.4
+    Checking rayon-core v1.13.0
+    Checking either v1.18.0
+    Checking block-buffer v0.10.4
+    Checking crypto-common v0.1.7
+    Checking digest v0.10.7
+    Checking constant_time_eq v0.4.2
+    Checking cpufeatures v0.3.1
+    Checking cpufeatures v0.2.17
+    Checking arrayvec v0.7.8
+    Checking sha2 v0.10.9
+    Checking blake3 v1.8.7
+    Checking rayon v1.12.0
+    Checking private-block-kernel-shaped v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io/private-block-kernel-shaped)
+    Checking private-block-kernel v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io/private-block-kernel)
+    Checking zkp-core v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io/zkp-core)
+    Checking hashline v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io/hashline)
+src/attention.rs:787:42: warning: unused import: `eval_mle_ext`
+src/private_block/protocol.rs:976:9: warning: variable does not need to be mutable
+src/private_block/protocol.rs:979:10: warning: variable does not need to be mutable
+src/private_block/protocol.rs:981:10: warning: variable does not need to be mutable
+src/private_block/run.rs:1139:13: warning: variable does not need to be mutable
+src/private_block/token_io/classify.rs:282:74: error[E0716]: temporary value dropped while borrowed: creates a temporary value which is freed while still in use
+src/attention.rs:1046:13: warning: variable does not need to be mutable
+src/attention.rs:1086:13: warning: variable does not need to be mutable
+src/attention.rs:2025:9: warning: variable does not need to be mutable
+src/attention.rs:2077:9: warning: variable does not need to be mutable
+src/attention.rs:2859:9: warning: variable does not need to be mutable
+warning: `hashline` (lib) generated 10 warnings
+error: could not compile `hashline` (lib) due to 1 previous error; 10 warnings emitted
+warning: build failed, waiting for other jobs to finish...
+warning: `hashline` (lib) generated 10 warnings (10 duplicates)
+error: could not compile `hashline` (lib) due to 1 previous error; 10 warnings emitted

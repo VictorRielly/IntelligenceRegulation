@@ -1,0 +1,71 @@
+{
+ "Shieldstral T128": {
+  "admitted_tn_ceps_points": 409,
+  "clauses_log2": {
+   "norm quotient c0 / c6": 43.082,
+   "norm complement c1 / c7": 33.554,
+   "isqrt host": 43.0,
+   "qkv host (sh_qkv 1..8; Wq over d_pad)": 25.989,
+   "score host (sh_s 1..8)": 21.0,
+   "pv host (sh_o 9..16; over t_pad)": 24.578,
+   "ao host (sh_ao 0..8; Wo over q_pad)": 26.16,
+   "gate host (sh_g 1..8)": 25.989,
+   "product host (sh_h 9..16)": 31.585,
+   "down host (sh_z 1..8)": 36.0,
+   "DD division c2 / c3 (f_e class at this T)": 35.004
+  }
+ },
+ "Shieldstral T256": {
+  "admitted_tn_ceps_points": 409,
+  "clauses_log2": {
+   "norm quotient c0 / c6": 43.082,
+   "norm complement c1 / c7": 33.554,
+   "isqrt host": 43.0,
+   "qkv host (sh_qkv 1..8; Wq over d_pad)": 25.989,
+   "score host (sh_s 1..8)": 21.0,
+   "pv host (sh_o 9..16; over t_pad)": 25.313,
+   "ao host (sh_ao 0..8; Wo over q_pad)": 26.16,
+   "gate host (sh_g 1..8)": 25.989,
+   "product host (sh_h 9..16)": 31.585,
+   "down host (sh_z 1..8)": 36.0,
+   "DD division c2 / c3 (f_e class at this T)": 35.002
+  }
+ },
+ "Shieldstral T512 (counted only)": {
+  "admitted_tn_ceps_points": 409,
+  "clauses_log2": {
+   "norm quotient c0 / c6": 43.082,
+   "norm complement c1 / c7": 33.554,
+   "isqrt host": 43.0,
+   "qkv host (sh_qkv 1..8; Wq over d_pad)": 25.989,
+   "score host (sh_s 1..8)": 21.0,
+   "pv host (sh_o 9..16; over t_pad)": 26.159,
+   "ao host (sh_ao 0..8; Wo over q_pad)": 26.16,
+   "gate host (sh_g 1..8)": 25.989,
+   "product host (sh_h 9..16)": 31.585,
+   "down host (sh_z 1..8)": 36.0,
+   "DD division c2 / c3 (f_e class at this T)": 35.001
+  }
+ },
+ "rung-HD T32": {
+  "admitted_tn_ceps_points": 486,
+  "clauses_log2": {
+   "norm quotient c0 / c6": 43.082,
+   "norm complement c1 / c7": 33.554,
+   "isqrt host": 41.248,
+   "qkv host (sh_qkv 1..8; Wq over d_pad)": 22.0,
+   "score host (sh_s 1..8)": 20.023,
+   "pv host (sh_o 9..16; over t_pad)": 23.584,
+   "ao host (sh_ao 0..8; Wo over q_pad)": 23.994,
+   "gate host (sh_g 1..8)": 22.0,
+   "product host (sh_h 9..16)": 31.585,
+   "down host (sh_z 1..8)": 31.006,
+   "DD division c2 / c3 (f_e class at this T)": 35.012
+  }
+ },
+ "worst": {
+  "log2": 43.082,
+  "where": "Shieldstral T128: norm quotient c0 / c6",
+  "half_p_log2": 63.0
+ }
+}

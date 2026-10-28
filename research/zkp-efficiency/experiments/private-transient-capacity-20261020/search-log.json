@@ -1,0 +1,79 @@
+{
+  "backend": "native LIVE tools.web__run",
+  "access_date": "2026-10-20",
+  "queries": [
+    "GPU sumcheck GKR prover 2026 github pipelining memory efficient",
+    "zero knowledge quantized LLM proof 2026 exact arithmetic quantization sumcheck",
+    "zkLLM proof of thought 2026 github composition attention",
+    "site.github.com ingonyama-zk icicle releases October 2026 sumcheck",
+    "\"Towards Quantization-Native\" \"Zero-Knowledge\"",
+    "site:arxiv.org \"sumcheck\" \"Oct\" \"2026\" GPU",
+    "site:github.com/succinctlabs/sp1/releases \"Oct\" \"2026\""
+  ],
+  "source_records_before": 538,
+  "source_records_after": 548,
+  "failures": [
+    {
+      "url": "https://github.com/succinctlabs/sp1/pull/3005.diff",
+      "blocker": "Cache miss"
+    },
+    {
+      "url": "https://github.com/succinctlabs/sp1/pull/3005/commits",
+      "blocker": "Cache miss"
+    },
+    {
+      "url": "https://github.com/succinctlabs/sp1/commit/d5bad23",
+      "blocker": "Internal fetch error"
+    },
+    {
+      "url": "https://api.github.com/repos/succinctlabs/sp1/commits/d5bad23",
+      "blocker": "URL not accessible via native web tool"
+    },
+    {
+      "url": "https://github.com/fractalyze/sp1-zorch/commit/93ab021",
+      "blocker": "Cache miss"
+    },
+    {
+      "url": "https://github.com/fractalyze/sp1-zorch/commit/93ab021.patch",
+      "blocker": "Internal fetch error"
+    },
+    {
+      "url": "https://github.com/compsec-epfl/efficient-sumcheck/commit/9e55dc3",
+      "blocker": "Cache miss"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/fractalyze/sp1-zorch/main/LICENSE",
+      "blocker": "Internal fetch error"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/compsec-epfl/efficient-sumcheck/main/LICENSE",
+      "blocker": "Internal fetch error"
+    },
+    {
+      "url": "https://github.com/fractalyze/sp1-zorch/blob/main/LICENSE",
+      "blocker": "Internal fetch error"
+    },
+    {
+      "url": "https://github.com/Oraclizer/statesync-gkr/releases/tag/v1.1.1",
+      "blocker": "Internal fetch error;releasespage succeeded"
+    },
+    {
+      "url": "https://github.com/Oraclizer/statesync-gkr/commit/1b8d2f829792172b347dedbfde969016c2c05789",
+      "blocker": "Cache miss"
+    },
+    {
+      "url": "https://github.com/ingonyama-zk/papers/blob/main/sumcheck_201_chapter_1.pdf",
+      "blocker": "Internal fetch error"
+    },
+    {
+      "url": "https://github.com/ingonyama-zk/super-sumcheck/blob/main/LICENSE.txt",
+      "blocker": "Cache miss; repository license label alone is not inspected license text."
+    }
+  ],
+  "other_primary_opened": [
+    "https://github.com/ingonyama-zk/icicle/releases",
+    "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0"
+  ],
+  "limits": "No network bypass,credential use,downloads executed,installations or external writes.",
+  "current_batch_refinement": "Only newly appended batch date/license scope refined after full primary read; prior538records remain byte-identical. Initial batch retained in source-records.initial.json."
+}

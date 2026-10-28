@@ -1,0 +1,8 @@
+{
+  "status": "PASS_RESEARCH_ARTIFACTS_ONLY",
+  "checks": 223,
+  "source_pins_unchanged": 8,
+  "native_execution": false,
+  "wall_seconds": 0.0033591310057090595,
+  "rss_kib": 14852
+}

@@ -1,0 +1,52 @@
+{
+  "run_id": "20261020T061854Z-03bda577",
+  "cycle": "0098",
+  "checkpoint_at": "2026-10-20T06:31:42.445765+00:00",
+  "experiment": {
+    "status": "PASS_PYTHON_ALGEBRA_AND_PARTIAL_SOURCE_COSTS_ONLY",
+    "fixtures": 36,
+    "rounds": 144,
+    "checks": 1669,
+    "negative_controls": 18,
+    "cost_cases": 90,
+    "seed": 2026102098,
+    "wall_seconds": 1.5550009830039926,
+    "rss_kib": 16948,
+    "threads": 1,
+    "affinity": [
+      0
+    ],
+    "full_stack": {
+      "proofs": 0,
+      "passes": 0,
+      "positions": 0,
+      "context_length": null,
+      "device": null,
+      "witness_s": null,
+      "proof_s": null,
+      "serialization_s": null,
+      "verification_s": null,
+      "startup_fraction": null,
+      "steady_rate": null,
+      "total_rate": null
+    },
+    "scope": "Synthetic quotient-field/original-polynomial/direct-original-MLE checks; no native code/masks/transcript/PCS/receipt/verifier"
+  },
+  "validation": {
+    "status": "PASS_RESEARCH_ARTIFACTS_ONLY",
+    "checks": 67,
+    "source_pins_unchanged": 8,
+    "native_execution": false,
+    "wall_seconds": 0.0026999480032827705,
+    "rss_kib": 14672
+  },
+  "source_records_before": 565,
+  "source_records_after": 571,
+  "proving_speed_improvement_measured": false,
+  "production_modified": false,
+  "native_candidate": "uncompiled adapter sketch only",
+  "integration_seam": "fzs_impl raw&&!FOLD phase1b, existing BASE flag, DevFzcRounds::new publicpreweighting",
+  "next_local": "Compare BASE GL-only without new hostcoefficients against prepared fullpair;sparse-pad sourcecosts and independent originalmath.",
+  "next_owner": "Locked nativeA/B,registers/exclusivephase and enclosing clocks,maskedrounds/nextchallenge/frozenreceipts/freshverify/currentprivacygates",
+  "final_checkpoint_at": "2026-10-20T06:34:28.374874+00:00"
+}

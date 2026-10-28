@@ -1,0 +1,17 @@
+{
+  "pins": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/fzc.rs",
+      "sha256": "af3cd6ac97f85347ed95ebac732c920a18ab921013be3ec31657e28cfb35ecc1"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/cuda.rs",
+      "sha256": "dcc0e4bcd76c009827d30d8b1547e043118619948f59e63e75b132c5e6a38629"
+    }
+  ],
+  "observations": [
+    "FZC_TAIL_DEFAULT=5 already switches small rounds to host; do not rediscover existing crossover.",
+    "Existing fzc_tail_log override clamped20; transfer packs/synchronizes in try_fold; public per-slot policy could depend on measured complete workload."
+  ],
+  "next_experiment": "Count tail-download bytes and remaining rounds under existing threshold; independent challenge/fold schedule oracle across thresholds0/5/8/10; no GPU or fabricated crossover timing."
+}

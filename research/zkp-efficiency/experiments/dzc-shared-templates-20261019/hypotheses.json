@@ -1,0 +1,42 @@
+[
+  {
+    "rank": 1,
+    "hypothesis": "Owner: whole-prover GPU D/A and completed resident-model passes",
+    "expected_impact": "Broad recurring scope; GPU/end-to-end saving unknown, requires enclosing phase measurements.",
+    "prerequisites": "Named device and current admitted profile; owner shared heavy locks; fixed-context 1/2/4/8 completed passes.",
+    "integration_cost": "High: device arithmetic, lifetime/transfer/PCS and complete-proof clocks.",
+    "exactness": "Same field, relations, degree, original folds/finals and refusal domain.",
+    "obligations": "Fresh masks/openings per proof, no private setup reuse, independent verification and pipeline drain.",
+    "falsification": "Enclosing regression, unresolved proof backlog, failed verification or privacy obligations."
+  },
+  {
+    "rank": 2,
+    "hypothesis": "Owner: immutable public-setup residency",
+    "expected_impact": "Only measured startup and recurring public work can be removed; slope/startup partition unknown.",
+    "prerequisites": "Source-classified immutable setup and identity/lifetime binding; completed resident series.",
+    "integration_cost": "Moderate to high; retained memory, identity checks and transfers must be charged.",
+    "exactness": "Cache public deterministic data only; all witness/challenge/scalar material refreshes.",
+    "obligations": "Fresh private randomness, original profile/digest checks, no additional openings.",
+    "falsification": "Stale identity, higher peak memory, reused private material or no verified workload gain."
+  },
+  {
+    "rank": 3,
+    "hypothesis": "New local question: typed affine pointer offsets instead of per-load public map indices",
+    "expected_impact": "May remove some of634 logical map bytes/row while retaining shared code; no speed/DRAM forecast.",
+    "prerequisites": "First prove raw/parameter/base address families differ by exact typed offsets; retain arbitrary scratch maps.",
+    "integration_cost": "Small census then moderate emission/ABI changes if feasible; charge argument arithmetic and full stack.",
+    "exactness": "Identical884 field primitives, runtime proof-local parameters,59 original tables/finals and degree4.",
+    "obligations": "Public topology only; independent address-lineage audit, native-field differential and corrupt-map control.",
+    "falsification": "Non-affine typed address family, hidden-value dependence, alias mismatch, no resource benefit or enclosing regression."
+  },
+  {
+    "rank": 4,
+    "hypothesis": "Owner: D30 division dictionary and architecture comparisons",
+    "expected_impact": "Potentially larger committed-plane/lookup scope; counted/unbuilt, no measured native improvement.",
+    "prerequisites": "Separate profile and all D30 binding conditions, cap census and written-relation independent review.",
+    "integration_cost": "High; layout, soundness, hiding and composition changes.",
+    "exactness": "Exact division with every true-row dictionary slot constrained; D32 fidelity direction retained.",
+    "obligations": "Fresh captures, rank/NL-1/blinding/joint gates, original D10 and privacy rulings.",
+    "falsification": "Unconstrained slots, late multiplicities, cap overflow without refusal or failed proof/privacy/fidelity gates."
+  }
+]

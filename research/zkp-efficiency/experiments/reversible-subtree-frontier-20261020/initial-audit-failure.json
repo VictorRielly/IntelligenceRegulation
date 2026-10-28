@@ -1,0 +1,7 @@
+{
+  "returncode": 1,
+  "reason": "Imported runner snapshot was edited in place for new allowed leaf names; audit correctly found SHA mismatch. Imported result snapshots were renamed; pin paths now point to retained originals. Candidate arithmetic/round/operation checks passed before pin check.",
+  "stderr": "validate.initial.stderr.log",
+  "correction": "Keep original imported runner/hypothesis snapshots under imported/; update prior artifact snapshot names only; source hashes unchanged.",
+  "failed_audit_source_sha256": "fcaca776f6953ad4a1a0369bceab31dbb64b4c7798cea93d190432c768c94c4d"
+}

@@ -1,0 +1,143 @@
+[
+  {
+    "run_id": "20261020T091854Z-d57182bc",
+    "cycle": "0101",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; source text treated as untrusted data",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "recorded_at_utc": "2026-10-20 09:30:28 UTC",
+    "title": "NVIDIA CUDA13.4 coalescing and shared-bank measurement contract",
+    "url": "https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Fetched primary guide identifies version13.4; exact page publication/update date not present. CUDA root says2026 only, not a dated page revision.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "assessment": "Official cc>=6 guide supports 32-byte warp sector modeling and 32-bit sequential bank words. Count requests separately from physical memory traffic. Fixed16-lane groups are a sensitivity model, not compiled native wavefront evidence. No toolkit code imported or executed."
+  },
+  {
+    "run_id": "20261020T091854Z-d57182bc",
+    "cycle": "0101",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; source text treated as untrusted data",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "recorded_at_utc": "2026-10-20 09:30:28 UTC",
+    "title": "Blackwell reorder report primary publication date recovered from author ICICLE issue",
+    "url": "https://github.com/ingonyama-zk/icicle/issues/1046",
+    "published": "2026-05-29",
+    "updated": null,
+    "date_evidence": "Author's primary issue shows openedMay29,2026 and author follow-upJuly2,2026. These date the issue/discussion, not a repository commit or report revision.",
+    "implementation_license": "Report repository README labels MIT; LICENSE file fetch failed, exact license text not inspected.",
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://github.com/pscamillo/icicle-blackwell-ntt",
+      "https://github.com/pscamillo/icicle-blackwell-ntt/commits/main/",
+      "https://github.com/pscamillo/icicle-blackwell-ntt/blob/main/LICENSE"
+    ],
+    "access_issues": [
+      "Repository history and LICENSE returned Internal Error; immutable code/update date unavailable."
+    ],
+    "assessment": "RTX5070/BabyBear standalone scatter/reorder author claim. Native p1 already fuses gather with DIT, and large-tile source stride blocks sector reduction by within-tile scalar ownership alone. No claimed upstream timings or39% share transferred."
+  },
+  {
+    "run_id": "20261020T091854Z-d57182bc",
+    "cycle": "0101",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; source text treated as untrusted data",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "recorded_at_utc": "2026-10-20 09:30:28 UTC",
+    "title": "NEW older GNTT direct float64 matrix path rejected for native Goldilocks",
+    "url": "https://arxiv.org/abs/2502.11110",
+    "published": "2025-02-16",
+    "updated": null,
+    "date_evidence": "Primary arXiv submission history has only v1 February16,2025,12:53:23UTC. Repository history unavailable; paper date does not establish current code date.",
+    "implementation_license": "No license label/file found in inspected repository landing page; reuse permission not established.",
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://arxiv.org/html/2502.11110v1",
+      "https://github.com/LMPC-Lab/GenGPUCrypto",
+      "https://github.com/LMPC-Lab/GenGPUCrypto/blob/main/GNTT4.py",
+      "https://github.com/LMPC-Lab/GenGPUCrypto/commits/main/"
+    ],
+    "access_issues": [
+      "Commit history Internal Error; main source is mutable/unpinned."
+    ],
+    "assessment": "Inspected GNTT4 float64 matrix-vector casts, signed-int64 arrays and sample M1073479681. New local binary64 negative: legal Goldilocks p-2 rounds to p-1 before multiplication. No direct native exactness; new exact limb decomposition would be a different proposal. No upstream code executed or author speed reproduced."
+  },
+  {
+    "run_id": "20261020T091854Z-d57182bc",
+    "cycle": "0101",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; source text treated as untrusted data",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "recorded_at_utc": "2026-10-20 09:30:28 UTC",
+    "title": "NEW October14 placement-controlled Grace-Blackwell memory study",
+    "url": "https://arxiv.org/abs/2610.20354",
+    "published": "2026-10-14",
+    "updated": null,
+    "date_evidence": "Primary arXiv v1 history October14,2026,15:30:19UTC; no subsequent revision listed.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://arxiv.org/html/2610.20354v1"
+    ],
+    "assessment": "Methodology separates local/device,host,first-touch,prefetch,reuse,oversubscription and handoff. Use those clocks when designing resident repeated-proof workloads. GB200/GH200/GB10 author bandwidth is not an RTX5090 prediction; native managed-memory issue not established. No performance reproduced."
+  },
+  {
+    "run_id": "20261020T091854Z-d57182bc",
+    "cycle": "0101",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; source text treated as untrusted data",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "recorded_at_utc": "2026-10-20 09:30:28 UTC",
+    "title": "SP1v6.9.0 and merged NTT reorder removal scope refreshed",
+    "url": "https://github.com/succinctlabs/sp1/releases/tag/v6.9.0",
+    "published": "2026-10-10",
+    "updated": null,
+    "date_evidence": "Primary release October10,01:20; docs.rs version list independently October10,2026. PR2990 mergedSeptember30,2026; title/metadata only, exact diff not successfully obtained.",
+    "implementation_license": "Not inspected this cycle; root license not assumed to cover every GPU subcrate.",
+    "inspected_commit_id": "b8387fa61e1361d90ee7de49f551863418ca0f08",
+    "inspected_urls": [
+      "https://github.com/succinctlabs/sp1/commit/b8387fa61e1361d90ee7de49f551863418ca0f08",
+      "https://github.com/succinctlabs/sp1/pull/2990",
+      "https://github.com/succinctlabs/sp1/pull/2990/files",
+      "https://docs.rs/crate/sp1-gpu-logup-gkr/latest"
+    ],
+    "linked_commit_id_not_inspected": "a6bdfba806a48a3dd7709ffee05db3afce226830",
+    "access_issues": [
+      "PR files page did not expose searched reorder/CUDA source text; merge commit Cache miss; hemilabs relatedPR7 Cache miss; versioned docs.rs crate/source Internal Error. Latest docs.rs metadata says6.9.0 docs build failed."
+    ],
+    "assessment": "Official release lists NTT reorder removal and zerocheck simplification. Do not infer a removable native pass: native p1 is already fused. LogUp-GKR subcrate is different-field/protocol scaffolding; no native byte or whole-model speed claim."
+  },
+  {
+    "run_id": "20261020T091854Z-d57182bc",
+    "cycle": "0101",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; source text treated as untrusted data",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "recorded_at_utc": "2026-10-20 09:30:28 UTC",
+    "title": "NTT-TensorCore consumer large-N negative refreshed",
+    "url": "https://github.com/MMRROOO/ntt-tensorcore",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Primary landing page exposes five commits but no date/fullSHA; history returned Internal Error. Crawl timestamp is not publication/update evidence.",
+    "implementation_license": "README says MIT License; actual license text not inspected.",
+    "inspected_commit_id": null,
+    "access_issues": [
+      "Commit history Internal Error."
+    ],
+    "assessment": "Author RTX5060 BabyBear table favors ICICLE at N>=128K; FP64 MMA architecture and31-bit prime differ from native Goldilocks. Small-N minimum-versus-median and excluded domain setup matter. No timings reproduced or port recommended."
+  }
+]

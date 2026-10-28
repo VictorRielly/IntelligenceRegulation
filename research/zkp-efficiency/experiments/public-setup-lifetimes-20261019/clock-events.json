@@ -1,0 +1,31 @@
+{
+  "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/stack-llama3_8b_pg_rot1_b7voc0_T128-ho00-cpu/prove.log",
+  "source_sha256": "9234b2f5f7554aded27505086825a6aa9f70128bf445156dfe31bba8dc263108",
+  "public_clock_fields_only": [
+    {
+      "event": "sealed",
+      "seconds": 84.824,
+      "of_which_load_seconds": 27.151,
+      "of_which_witness_seconds": 80.897,
+      "kept_witnesses": 0,
+      "kept_witness_bytes": 0,
+      "rayon_threads": 16
+    },
+    {
+      "event": "proved",
+      "gpu": "gpu: off (built without --features gpu-cuda)",
+      "gpu_declines": 0,
+      "blocks": 32,
+      "receipt_bytes": 922711264,
+      "prove_run_seconds": 393.785,
+      "of_which_witness_seconds": 98.348,
+      "of_which_block_load_seconds": 17.595,
+      "block_loads": 32,
+      "rayon_threads": 16,
+      "sealing_pass_seconds": 84.824,
+      "sealing_witness_seconds": 80.897,
+      "load_seconds": 27.151,
+      "total_seconds": 478.737
+    }
+  ]
+}

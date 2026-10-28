@@ -1,0 +1,63 @@
+{
+  "cycle": "0103",
+  "run_id": "20261020T111854Z-3f58f916",
+  "status": "complete",
+  "completed_utc": "2026-10-20T11:30:07.674477+00:00",
+  "experiment": "lookup-helper-census-20261020",
+  "result": {
+    "seed": 20261020103,
+    "checks": 1098,
+    "fixtures": 46,
+    "negative_controls": [
+      "ignore_P3_lift",
+      "omit_odd_Q_lookup",
+      "omit_F_activation_helper",
+      "treat_F_true_hidden_as_padded",
+      "base_extension_word_confusion",
+      "public_table_does_not_replace_all_H",
+      "DD_S_relation_must_change_domain",
+      "norm_full_byte_boundary",
+      "sigma_limb_boundary",
+      "do_not_duplicate_global_histogram_per_domain",
+      "omitted_multiplicity",
+      "zero_multiplicity_still_requires_nonzero_denominator",
+      "inverse_cache_is_per_attempt_not_across_fresh_alpha"
+    ],
+    "elapsed_s": 0.008066314010648057,
+    "maxrss_KiB": 16248,
+    "full_stack": {
+      "proofs": 0,
+      "passes": 0,
+      "positions": 0,
+      "context_length": null,
+      "device": null,
+      "witness_s": null,
+      "proof_s": null,
+      "serialization_s": null,
+      "verification_s": null,
+      "startup_s": null,
+      "startup_fraction": null,
+      "steady_rate": null,
+      "total_rate": null
+    },
+    "scope": "integer source census and tiny F65537 fraction arithmetic, not GKR proof, native timing, capacity or traffic",
+    "tree_limits": "Node-count/storage illustrations only, including single-global-histogram forest. Per-domain tables require new bound local histograms. GKR round counts omit batching/line reductions/final openings/masks. All tree arrays private. No net commitment saving or protocol proposed."
+  },
+  "source_audit": {
+    "status": "PASS",
+    "checks": 1381,
+    "source_pins": 5,
+    "source_fragments": 34,
+    "source_fragment_mutation_controls": 34,
+    "census_mutation_controls": 624,
+    "explicit_topology_checks": 160,
+    "elapsed_s": 0.019910827017156407,
+    "maxrss_KiB": 16336,
+    "scope": "Exact source sentinels/pins, independent symbolic count and tiny topology; no Rust, native relation, transcript, refusal or proof validation"
+  },
+  "source_records_before": 599,
+  "source_records_after": 605,
+  "next_cycle_not_before": "2026-10-20T12:18:54Z",
+  "handoff": "handoffs/20261020-lookup-helper-census.md",
+  "final_checkpoint_utc": "2026-10-20T11:31:22.171649+00:00"
+}

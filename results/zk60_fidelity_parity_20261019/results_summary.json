@@ -42,6 +42,2322 @@
   "refusal_tokens": []
  },
  {
+  "model": "llama3-8b",
+  "tag": "e8_HIGH",
+  "export": "llama3_8b_dg_rot1_voc0_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,g4,o4,h8,s4",
+  "gate_pc": "-5:mc3",
+  "gptq": false,
+  "refused": 30,
+  "seconds": 3161,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9660433070866141,
+    "kl": 0.005461156391265805,
+    "refused": 13,
+    "ppl_float": 9.587805123435876,
+    "ppl_int": 9.620397946892897,
+    "ratio": 1.0033994040385064,
+    "ci95": [
+     1.0001081686359259,
+     1.0067014704999808
+    ],
+    "gap_closed_vs_abl_base": 0.9930497573257165
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.9578412073490814,
+    "kl": 0.005947749763283784,
+    "refused": 17,
+    "ppl_float": 15.418771425976022,
+    "ppl_int": 15.493212324893907,
+    "ratio": 1.004827939714605,
+    "ci95": [
+     1.0012088157024126,
+     1.0084601459713902
+    ],
+    "gap_closed_vs_abl_base": 0.9915793117891044
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 21,
+    "site": "FFN gate",
+    "token": 279,
+    "text": "\u0120the",
+    "sequences": 5
+   },
+   {
+    "layer": 31,
+    "site": "FFN gate",
+    "token": 25,
+    "text": ":",
+    "sequences": 3
+   },
+   {
+    "layer": 21,
+    "site": "FFN gate",
+    "token": 1174,
+    "text": "\u0120,",
+    "sequences": 2
+   },
+   {
+    "layer": 21,
+    "site": "FFN gate",
+    "token": 315,
+    "text": "\u0120of",
+    "sequences": 2
+   },
+   {
+    "layer": 22,
+    "site": "FFN gate",
+    "token": 20023,
+    "text": "\u0120Latin",
+    "sequences": 2
+   },
+   {
+    "layer": 28,
+    "site": "FFN gate",
+    "token": 555,
+    "text": "\u0120by",
+    "sequences": 2
+   },
+   {
+    "layer": 28,
+    "site": "FFN gate",
+    "token": 323,
+    "text": "\u0120and",
+    "sequences": 2
+   },
+   {
+    "layer": 31,
+    "site": "FFN gate",
+    "token": 452,
+    "text": "\u0120N",
+    "sequences": 2
+   },
+   {
+    "layer": 3,
+    "site": "FFN gate",
+    "token": 54671,
+    "text": "astery",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 3814,
+    "text": "\u0120night",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 11876,
+    "text": "\u0120Les",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 1049,
+    "text": "200",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 2834,
+    "text": "\u0120won",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 279,
+    "text": "\u0120the",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 315,
+    "text": "\u0120of",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 16520,
+    "text": "\u0120tournament",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 66095,
+    "text": "\u0120Booker",
+    "sequences": 1
+   },
+   {
+    "layer": 7,
+    "site": "FFN gate",
+    "token": 510,
+    "text": "\u0120[",
+    "sequences": 1
+   },
+   {
+    "layer": 9,
+    "site": "FFN gate",
+    "token": 578,
+    "text": "\u0120The",
+    "sequences": 1
+   },
+   {
+    "layer": 15,
+    "site": "FFN gate",
+    "token": 77173,
+    "text": "\u0120knockout",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_HIGH_mc5",
+  "export": "llama3_8b_dg_rot1_voc0_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,g4,o4,h8,s4",
+  "gate_pc": "-5:mc5",
+  "gptq": false,
+  "refused": 1,
+  "seconds": 3362,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.96751968503937,
+    "kl": 0.005320039194914412,
+    "refused": 0,
+    "ppl_float": 9.587805123435876,
+    "ppl_int": 9.631049827849516,
+    "ratio": 1.0045103862517957,
+    "ci95": [
+     1.0008152472102256,
+     1.0082191682235417
+    ],
+    "gap_closed_vs_abl_base": 0.9907834058706018
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.9593175853018373,
+    "kl": 0.005493321371457867,
+    "refused": 1,
+    "ppl_float": 15.418771425976022,
+    "ppl_int": 15.470475959560826,
+    "ratio": 1.0033533497680422,
+    "ci95": [
+     0.9995500521193029,
+     1.007171119001245
+    ],
+    "gap_closed_vs_abl_base": 0.9941469299902537
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 23,
+    "site": "FFN gate",
+    "token": 1855,
+    "text": "\u0120each",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_LOW",
+  "export": "llama3_8b_dg_rot1_voc0_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,g4",
+  "gate_pc": "-5:mc3",
+  "gptq": false,
+  "refused": 29,
+  "seconds": 3583,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9311023622047244,
+    "kl": 0.03499015494646111,
+    "refused": 13,
+    "ppl_float": 9.587805123435876,
+    "ppl_int": 9.804194520805025,
+    "ratio": 1.022569231913174,
+    "ci95": [
+     1.0101574930723698,
+     1.0351334729747794
+    ],
+    "gap_closed_vs_abl_base": 0.954291631966651
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.9125656167979003,
+    "kl": 0.03562477740760593,
+    "refused": 16,
+    "ppl_float": 15.418771425976022,
+    "ppl_int": 15.633349433337305,
+    "ratio": 1.0139166734776144,
+    "ci95": [
+     1.0047381120459211,
+     1.023179083614702
+    ],
+    "gap_closed_vs_abl_base": 0.975836331539273
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 21,
+    "site": "FFN gate",
+    "token": 279,
+    "text": "\u0120the",
+    "sequences": 5
+   },
+   {
+    "layer": 31,
+    "site": "FFN gate",
+    "token": 25,
+    "text": ":",
+    "sequences": 3
+   },
+   {
+    "layer": 17,
+    "site": "FFN gate",
+    "token": 220,
+    "text": "\u0120",
+    "sequences": 2
+   },
+   {
+    "layer": 21,
+    "site": "FFN gate",
+    "token": 1176,
+    "text": "\u0120first",
+    "sequences": 2
+   },
+   {
+    "layer": 21,
+    "site": "FFN gate",
+    "token": 1174,
+    "text": "\u0120,",
+    "sequences": 2
+   },
+   {
+    "layer": 21,
+    "site": "FFN gate",
+    "token": 315,
+    "text": "\u0120of",
+    "sequences": 2
+   },
+   {
+    "layer": 22,
+    "site": "FFN gate",
+    "token": 20023,
+    "text": "\u0120Latin",
+    "sequences": 2
+   },
+   {
+    "layer": 28,
+    "site": "FFN gate",
+    "token": 555,
+    "text": "\u0120by",
+    "sequences": 2
+   },
+   {
+    "layer": 28,
+    "site": "FFN gate",
+    "token": 323,
+    "text": "\u0120and",
+    "sequences": 2
+   },
+   {
+    "layer": 31,
+    "site": "FFN gate",
+    "token": 452,
+    "text": "\u0120N",
+    "sequences": 2
+   },
+   {
+    "layer": 3,
+    "site": "FFN gate",
+    "token": 54671,
+    "text": "astery",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 3814,
+    "text": "\u0120night",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 1049,
+    "text": "200",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 5651,
+    "text": "\u0120June",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 220,
+    "text": "\u0120",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 2834,
+    "text": "\u0120won",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 279,
+    "text": "\u0120the",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 315,
+    "text": "\u0120of",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 16520,
+    "text": "\u0120tournament",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 66095,
+    "text": "\u0120Booker",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_LOW_mc5",
+  "export": "llama3_8b_dg_rot1_voc0_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,g4",
+  "gate_pc": "-5:mc5",
+  "gptq": false,
+  "refused": 2,
+  "seconds": 3875,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9332349081364829,
+    "kl": 0.03354072731425534,
+    "refused": 0,
+    "ppl_float": 9.587805123435876,
+    "ppl_int": 9.786198689076363,
+    "ratio": 1.020692281819073,
+    "ci95": [
+     1.0091282109785011,
+     1.0323888707410451
+    ],
+    "gap_closed_vs_abl_base": 0.9580542765644919
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.9104330708661418,
+    "kl": 0.034062280909240565,
+    "refused": 2,
+    "ppl_float": 15.418771425976022,
+    "ppl_int": 15.571310469584626,
+    "ratio": 1.009893073799098,
+    "ci95": [
+     1.0017639377070167,
+     1.0180881763839988
+    ],
+    "gap_closed_vs_abl_base": 0.9827882980124869
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 17,
+    "site": "FFN gate",
+    "token": 220,
+    "text": "\u0120",
+    "sequences": 1
+   },
+   {
+    "layer": 23,
+    "site": "FFN gate",
+    "token": 1855,
+    "text": "\u0120each",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_LOWh8g",
+  "export": "llama3_8b_dg_rot1_voc0_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,ah2,g4,h8",
+  "gate_pc": "-5:mc8:tm2:ng4",
+  "gptq": false,
+  "refused": 0,
+  "seconds": 4193,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9486548556430446,
+    "kl": 0.017799170083102157,
+    "refused": 0,
+    "ppl_float": 9.587805123435876,
+    "ppl_int": 9.691227734351754,
+    "ratio": 1.0107868912211275,
+    "ci95": [
+     1.0054101180957973,
+     1.0161924184724815
+    ],
+    "gap_closed_vs_abl_base": 0.9780265259059002
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.9396325459317585,
+    "kl": 0.01610332462646972,
+    "refused": 0,
+    "ppl_float": 15.418771425976022,
+    "ppl_int": 15.56446525304392,
+    "ratio": 1.0094491203639258,
+    "ci95": [
+     1.0042645193097617,
+     1.0146604873622946
+    ],
+    "gap_closed_vs_abl_base": 0.9835570557909626
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_LOWh8v6_lam0",
+  "export": "llama3_8b_dg_rot1_voc0_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,ah2,g4,h8",
+  "gate_pc": "-5:mc8:tm2:ng4",
+  "gptq": false,
+  "refused": 2,
+  "seconds": 5569,
+  "corpora": {
+   "lambada": {
+    "n": 100,
+    "top1": 0.9669421487603306,
+    "kl": 0.009226863017820485,
+    "refused": 2,
+    "acc_float": 0.78,
+    "acc_int": 0.82,
+    "acc_diff": 0.04,
+    "acc_diff_ci95": [
+     0.0013985084288812566,
+     0.07860149157111875
+    ]
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 15,
+    "site": "score",
+    "token": 433,
+    "text": "\u0120it",
+    "sequences": 1
+   },
+   {
+    "layer": 21,
+    "site": "FFN gate",
+    "token": 279,
+    "text": "\u0120the",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_LOWh8v6_lam100",
+  "export": "llama3_8b_dg_rot1_voc0_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,ah2,g4,h8",
+  "gate_pc": "-5:mc8:tm2:ng4",
+  "gptq": false,
+  "refused": 0,
+  "seconds": 4232,
+  "corpora": {
+   "lambada": {
+    "n": 100,
+    "top1": 0.991869918699187,
+    "kl": 0.009140730684880935,
+    "refused": 0,
+    "acc_float": 0.78,
+    "acc_int": 0.78,
+    "acc_diff": 0.0,
+    "acc_diff_ci95": [
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_LOWs4f",
+  "export": "llama3_8b_dg_rot1_voc0_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,ah2,g4,s4",
+  "gate_pc": "-5:mc8:tm2",
+  "gptq": false,
+  "refused": 0,
+  "seconds": 3320,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9448818897637795,
+    "kl": 0.020417794444728438,
+    "refused": 0,
+    "ppl_float": 9.587805123435876,
+    "ppl_int": 9.695697308317037,
+    "ratio": 1.011253064021653,
+    "ci95": [
+     1.0028899899379362,
+     1.019685877567157
+    ],
+    "gap_closed_vs_abl_base": 0.9770822008538479
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.9248687664041995,
+    "kl": 0.026459645883003778,
+    "refused": 0,
+    "ppl_float": 15.418771425976022,
+    "ppl_int": 15.573011458999137,
+    "ratio": 1.0100033931862602,
+    "ci95": [
+     0.9997020776179005,
+     1.0204108574811401
+    ],
+    "gap_closed_vs_abl_base": 0.9825973193942703
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_MID",
+  "export": "llama3_8b_dg_rot1_voc0_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,g4,o4",
+  "gate_pc": "-5:mc3",
+  "gptq": false,
+  "refused": 30,
+  "seconds": 3385,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9281496062992126,
+    "kl": 0.038080478885130574,
+    "refused": 13,
+    "ppl_float": 9.587805123435876,
+    "ppl_int": 9.816515036152893,
+    "ratio": 1.0238542512882298,
+    "ci95": [
+     1.010131697621438,
+     1.0377632246858164
+    ],
+    "gap_closed_vs_abl_base": 0.9517195871706094
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.9099409448818898,
+    "kl": 0.03696563196774701,
+    "refused": 17,
+    "ppl_float": 15.418771425976022,
+    "ppl_int": 15.61326986397119,
+    "ratio": 1.012614392717924,
+    "ci95": [
+     1.002085302940651,
+     1.023254113527518
+    ],
+    "gap_closed_vs_abl_base": 0.9780833851473063
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 21,
+    "site": "FFN gate",
+    "token": 279,
+    "text": "\u0120the",
+    "sequences": 5
+   },
+   {
+    "layer": 31,
+    "site": "FFN gate",
+    "token": 25,
+    "text": ":",
+    "sequences": 3
+   },
+   {
+    "layer": 17,
+    "site": "FFN gate",
+    "token": 220,
+    "text": "\u0120",
+    "sequences": 2
+   },
+   {
+    "layer": 21,
+    "site": "FFN gate",
+    "token": 1176,
+    "text": "\u0120first",
+    "sequences": 2
+   },
+   {
+    "layer": 21,
+    "site": "FFN gate",
+    "token": 1174,
+    "text": "\u0120,",
+    "sequences": 2
+   },
+   {
+    "layer": 21,
+    "site": "FFN gate",
+    "token": 315,
+    "text": "\u0120of",
+    "sequences": 2
+   },
+   {
+    "layer": 28,
+    "site": "FFN gate",
+    "token": 555,
+    "text": "\u0120by",
+    "sequences": 2
+   },
+   {
+    "layer": 28,
+    "site": "FFN gate",
+    "token": 323,
+    "text": "\u0120and",
+    "sequences": 2
+   },
+   {
+    "layer": 31,
+    "site": "FFN gate",
+    "token": 452,
+    "text": "\u0120N",
+    "sequences": 2
+   },
+   {
+    "layer": 3,
+    "site": "FFN gate",
+    "token": 54671,
+    "text": "astery",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 3814,
+    "text": "\u0120night",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 11876,
+    "text": "\u0120Les",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 1049,
+    "text": "200",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 5651,
+    "text": "\u0120June",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 220,
+    "text": "\u0120",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 279,
+    "text": "\u0120the",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 315,
+    "text": "\u0120of",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 16520,
+    "text": "\u0120tournament",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 66095,
+    "text": "\u0120Booker",
+    "sequences": 1
+   },
+   {
+    "layer": 7,
+    "site": "FFN gate",
+    "token": 26363,
+    "text": "\u0120Philippines",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_aex_c2gpc_fh",
+  "export": "l8_dg_aex",
+  "relax": [
+   "head"
+  ],
+  "mods": null,
+  "gate_pc": "-5:mc3",
+  "gptq": false,
+  "refused": 62,
+  "seconds": 3322,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8823818897637795,
+    "kl": 0.08652412714028067,
+    "refused": 31,
+    "ppl_float": 9.587805123435876,
+    "ppl_int": 10.314924067147185,
+    "ratio": 1.0758378934855461,
+    "ci95": [
+     1.0382443160487664,
+     1.1147926891275686
+    ],
+    "gap_closed_vs_abl_base": 0.8502901200245612
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8577755905511811,
+    "kl": 0.08595045506930063,
+    "refused": 31,
+    "ppl_float": 15.418771425976022,
+    "ppl_int": 16.349787783710948,
+    "ratio": 1.0603820065823435,
+    "ci95": [
+     1.0464233640719298,
+     1.074526848777725
+    ],
+    "gap_closed_vs_abl_base": 0.8974947318282754
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 566,
+    "text": "cl",
+    "sequences": 3
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 400,
+    "text": "\u0120$",
+    "sequences": 3
+   },
+   {
+    "layer": 21,
+    "site": "FFN gate",
+    "token": 279,
+    "text": "\u0120the",
+    "sequences": 3
+   },
+   {
+    "layer": 31,
+    "site": "FFN gate",
+    "token": 25,
+    "text": ":",
+    "sequences": 3
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 10065,
+    "text": "\u0120animal",
+    "sequences": 2
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 392,
+    "text": "ub",
+    "sequences": 2
+   },
+   {
+    "layer": 21,
+    "site": "FFN gate",
+    "token": 1174,
+    "text": "\u0120,",
+    "sequences": 2
+   },
+   {
+    "layer": 27,
+    "site": "FFN up",
+    "token": 2737,
+    "text": "\u0120including",
+    "sequences": 2
+   },
+   {
+    "layer": 28,
+    "site": "FFN gate",
+    "token": 555,
+    "text": "\u0120by",
+    "sequences": 2
+   },
+   {
+    "layer": 28,
+    "site": "FFN gate",
+    "token": 323,
+    "text": "\u0120and",
+    "sequences": 2
+   },
+   {
+    "layer": 31,
+    "site": "FFN gate",
+    "token": 452,
+    "text": "\u0120N",
+    "sequences": 2
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 14071,
+    "text": "\u0120yellow",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 3616,
+    "text": "ULT",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 3376,
+    "text": "oper",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 20018,
+    "text": "ounced",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 937,
+    "text": "SE",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 12160,
+    "text": "elly",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 2371,
+    "text": "04",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 91,
+    "text": "|",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 1677,
+    "text": "mon",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_aex_fh",
+  "export": "l8_dg_aex",
+  "relax": [
+   "head"
+  ],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 40,
+  "seconds": 2486,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.849245406824147,
+    "kl": 0.12868495324544132,
+    "refused": 25,
+    "ppl_float": 9.587805123435876,
+    "ppl_int": 10.812160723584805,
+    "ratio": 1.1276992580039182,
+    "ci95": [
+     1.073576440346827,
+     1.184550599947735
+    ],
+    "gap_closed_vs_abl_base": 0.7538699094421688
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.822014435695538,
+    "kl": 0.1314252736262131,
+    "refused": 15,
+    "ppl_float": 15.418771425976022,
+    "ppl_int": 16.943693319319785,
+    "ratio": 1.098900350178012,
+    "ci95": [
+     1.0759645865232983,
+     1.1223250232829192
+    ],
+    "gap_closed_vs_abl_base": 0.8351117321079852
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 566,
+    "text": "cl",
+    "sequences": 3
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 400,
+    "text": "\u0120$",
+    "sequences": 3
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 10065,
+    "text": "\u0120animal",
+    "sequences": 2
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 392,
+    "text": "ub",
+    "sequences": 2
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 14071,
+    "text": "\u0120yellow",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 3616,
+    "text": "ULT",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 3376,
+    "text": "oper",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 546,
+    "text": "ont",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 20018,
+    "text": "ounced",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 937,
+    "text": "SE",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 12160,
+    "text": "elly",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 91,
+    "text": "|",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 1677,
+    "text": "mon",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 655,
+    "text": "ber",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 455,
+    "text": "up",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 2352,
+    "text": "aster",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 37444,
+    "text": "\u0120colleague",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 33438,
+    "text": "prime",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 1637,
+    "text": "ward",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 1697,
+    "text": "ational",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_c2_dg",
+  "export": "llama3_8b_dg_rot1_voc0_T128",
+  "relax": [],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 0,
+  "seconds": 3320,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8269356955380578,
+    "kl": 0.16522158702559264,
+    "refused": 0,
+    "ppl_float": 9.587805123435876,
+    "ppl_int": 11.182403604967108,
+    "ratio": 1.1663152787318847,
+    "ci95": [
+     1.1044755255127097,
+     1.2316174491707021
+    ],
+    "gap_closed_vs_abl_base": 0.6849131751912787
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.7997047244094488,
+    "kl": 0.16955157440790578,
+    "refused": 0,
+    "ppl_float": 15.418771425976022,
+    "ppl_int": 17.721108371863114,
+    "ratio": 1.1493203889129806,
+    "ci95": [
+     1.1231152459183302,
+     1.1761369647252922
+    ],
+    "gap_closed_vs_abl_base": 0.7566786888072816
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_c2gpc",
+  "export": "llama3_8b_dg_rot1_voc0_T128",
+  "relax": [],
+  "mods": null,
+  "gate_pc": "-5:mc3",
+  "gptq": false,
+  "refused": 30,
+  "seconds": 3366,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8461286089238845,
+    "kl": 0.1434728962179415,
+    "refused": 12,
+    "ppl_float": 9.587805123435876,
+    "ppl_int": 10.931429138687584,
+    "ratio": 1.140138853257189,
+    "ci95": [
+     1.0847218059000523,
+     1.1983870865654878
+    ],
+    "gap_closed_vs_abl_base": 0.7314019897785835
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8246391076115486,
+    "kl": 0.1254917338804024,
+    "refused": 18,
+    "ppl_float": 15.418771425976022,
+    "ppl_int": 16.921366101196604,
+    "ratio": 1.097452295887152,
+    "ci95": [
+     1.0767154989420566,
+     1.1185884692208707
+    ],
+    "gap_closed_vs_abl_base": 0.837417124477797
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 21,
+    "site": "FFN gate",
+    "token": 279,
+    "text": "\u0120the",
+    "sequences": 4
+   },
+   {
+    "layer": 31,
+    "site": "FFN gate",
+    "token": 25,
+    "text": ":",
+    "sequences": 3
+   },
+   {
+    "layer": 21,
+    "site": "FFN gate",
+    "token": 1174,
+    "text": "\u0120,",
+    "sequences": 2
+   },
+   {
+    "layer": 28,
+    "site": "FFN gate",
+    "token": 555,
+    "text": "\u0120by",
+    "sequences": 2
+   },
+   {
+    "layer": 28,
+    "site": "FFN gate",
+    "token": 323,
+    "text": "\u0120and",
+    "sequences": 2
+   },
+   {
+    "layer": 31,
+    "site": "FFN gate",
+    "token": 452,
+    "text": "\u0120N",
+    "sequences": 2
+   },
+   {
+    "layer": 3,
+    "site": "FFN gate",
+    "token": 85861,
+    "text": "\u0120monastery",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 279,
+    "text": "\u0120the",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 16520,
+    "text": "\u0120tournament",
+    "sequences": 1
+   },
+   {
+    "layer": 4,
+    "site": "FFN gate",
+    "token": 66095,
+    "text": "\u0120Booker",
+    "sequences": 1
+   },
+   {
+    "layer": 9,
+    "site": "FFN gate",
+    "token": 1049,
+    "text": "200",
+    "sequences": 1
+   },
+   {
+    "layer": 9,
+    "site": "FFN gate",
+    "token": 12153,
+    "text": "\u0120unable",
+    "sequences": 1
+   },
+   {
+    "layer": 9,
+    "site": "FFN gate",
+    "token": 578,
+    "text": "\u0120The",
+    "sequences": 1
+   },
+   {
+    "layer": 9,
+    "site": "FFN gate",
+    "token": 389,
+    "text": "\u0120on",
+    "sequences": 1
+   },
+   {
+    "layer": 17,
+    "site": "FFN gate",
+    "token": 220,
+    "text": "\u0120",
+    "sequences": 1
+   },
+   {
+    "layer": 18,
+    "site": "FFN gate",
+    "token": 3287,
+    "text": "\u0120didn",
+    "sequences": 1
+   },
+   {
+    "layer": 18,
+    "site": "FFN gate",
+    "token": 1396,
+    "text": "\u0120number",
+    "sequences": 1
+   },
+   {
+    "layer": 18,
+    "site": "FFN gate",
+    "token": 12707,
+    "text": "\u0120television",
+    "sequences": 1
+   },
+   {
+    "layer": 18,
+    "site": "FFN gate",
+    "token": 4101,
+    "text": "\u0120series",
+    "sequences": 1
+   },
+   {
+    "layer": 18,
+    "site": "FFN gate",
+    "token": 220,
+    "text": "\u0120",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_dg_fh",
+  "export": "llama3_8b_dg_rot1_voc0_T128",
+  "relax": [
+   "head"
+  ],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 2,
+  "seconds": 2206,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.7660761154855643,
+    "kl": 0.2693877697841821,
+    "refused": 0,
+    "ppl_float": 9.587805123435876,
+    "ppl_int": 12.28443492534071,
+    "ratio": 1.2812562173706832,
+    "ci95": [
+     1.1927730589243615,
+     1.376303297822166
+    ],
+    "gap_closed_vs_abl_base": 0.4924165047275091
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.7283464566929134,
+    "kl": 0.3298266745366621,
+    "refused": 2,
+    "ppl_float": 15.418771425976022,
+    "ppl_int": 19.68566064237196,
+    "ratio": 1.2767334114057562,
+    "ci95": [
+     1.2300519340120966,
+     1.3251864890639242
+    ],
+    "gap_closed_vs_abl_base": 0.5728661323590982
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 25,
+    "site": "FFN up",
+    "token": 82,
+    "text": "s",
+    "sequences": 2
+   }
+  ]
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_dg_gn",
+  "export": "llama3_8b_dg_rot1_voc0_T128",
+  "relax": [
+   "gate",
+   "nm",
+   "norm",
+   "y"
+  ],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 3,
+  "seconds": 2087,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8102034120734908,
+    "kl": 0.19321932930608507,
+    "refused": 0,
+    "ppl_float": 9.587805123435876,
+    "ppl_int": 11.328787816799101,
+    "ratio": 1.1815830287484324,
+    "ci95": [
+     1.1117824843357442,
+     1.2557658296446976
+    ],
+    "gap_closed_vs_abl_base": 0.6582773481970627
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.7726377952755905,
+    "kl": 0.23762025658962488,
+    "refused": 3,
+    "ppl_float": 15.418771425976022,
+    "ppl_int": 18.097639833793824,
+    "ratio": 1.1737407173249037,
+    "ci95": [
+     1.1291866405732705,
+     1.2200527547925641
+    ],
+    "gap_closed_vs_abl_base": 0.7199192493914736
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 25,
+    "site": "FFN up",
+    "token": 82,
+    "text": "s",
+    "sequences": 2
+   },
+   {
+    "layer": 2,
+    "site": "score",
+    "token": 279,
+    "text": "\u0120the",
+    "sequences": 1
+   },
+   {
+    "layer": 25,
+    "site": "FFN up",
+    "token": 1176,
+    "text": "\u0120first",
+    "sequences": 1
+   },
+   {
+    "layer": 25,
+    "site": "FFN up",
+    "token": 2324,
+    "text": "\u0120life",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_dg_gna",
+  "export": "llama3_8b_dg_rot1_voc0_T128",
+  "relax": [
+   "exp",
+   "gate",
+   "k",
+   "kr",
+   "nm",
+   "norm",
+   "o",
+   "p",
+   "q",
+   "qr",
+   "rope_tab",
+   "s",
+   "v",
+   "y"
+  ],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 1,
+  "seconds": 2036,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8356299212598425,
+    "kl": 0.15096228038631485,
+    "refused": 0,
+    "ppl_float": 9.587805123435876,
+    "ppl_int": 10.932779613415427,
+    "ratio": 1.1402797066340005,
+    "ci95": [
+     1.0813715817116911,
+     1.202396873887873
+    ],
+    "gap_closed_vs_abl_base": 0.7311489918281948
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.7980643044619422,
+    "kl": 0.18811286757562792,
+    "refused": 1,
+    "ppl_float": 15.418771425976022,
+    "ppl_int": 17.41636250569689,
+    "ratio": 1.129555787846723,
+    "ci95": [
+     1.0952102142278688,
+     1.1649784317958973
+    ],
+    "gap_closed_vs_abl_base": 0.7870064414598749
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 25,
+    "site": "FFN up",
+    "token": 1176,
+    "text": "\u0120first",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_dg_gnar",
+  "export": "llama3_8b_dg_rot1_voc0_T128",
+  "relax": [
+   "ao",
+   "emb",
+   "exp",
+   "gate",
+   "k",
+   "kr",
+   "nm",
+   "norm",
+   "o",
+   "p",
+   "q",
+   "qr",
+   "rope_tab",
+   "s",
+   "v",
+   "y",
+   "z"
+  ],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 2,
+  "seconds": 1968,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8357939632545932,
+    "kl": 0.1536663769899161,
+    "refused": 0,
+    "ppl_float": 9.587805123435876,
+    "ppl_int": 10.949559145679649,
+    "ratio": 1.1420297977182676,
+    "ci95": [
+     1.0803883051094534,
+     1.2071882421425288
+    ],
+    "gap_closed_vs_abl_base": 0.7280081178990152
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8028215223097113,
+    "kl": 0.18897338178316636,
+    "refused": 2,
+    "ppl_float": 15.418771425976022,
+    "ppl_int": 17.43058293204681,
+    "ratio": 1.1304780679660038,
+    "ci95": [
+     1.0956234058579628,
+     1.1664415485459485
+    ],
+    "gap_closed_vs_abl_base": 0.7855794875642651
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 25,
+    "site": "FFN up",
+    "token": 2737,
+    "text": "\u0120including",
+    "sequences": 2
+   },
+   {
+    "layer": 25,
+    "site": "FFN up",
+    "token": 1403,
+    "text": "\u0120two",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_dg_lam0",
+  "export": "llama3_8b_dg_rot1_voc0_T128",
+  "relax": [],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 4,
+  "seconds": 2475,
+  "corpora": {
+   "lambada": {
+    "n": 100,
+    "top1": 0.8677685950413223,
+    "kl": 0.2232732465358921,
+    "refused": 4,
+    "acc_float": 0.78,
+    "acc_int": 0.69,
+    "acc_diff": -0.09,
+    "acc_diff_ci95": [
+     -0.15877654051529871,
+     -0.021223459484701265
+    ]
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 2,
+    "site": "score",
+    "token": 1359,
+    "text": ",\"",
+    "sequences": 1
+   },
+   {
+    "layer": 3,
+    "site": "FFN gate",
+    "token": 29519,
+    "text": "\u0120bell",
+    "sequences": 1
+   },
+   {
+    "layer": 3,
+    "site": "FFN gate",
+    "token": 18678,
+    "text": "\u0120collapse",
+    "sequences": 1
+   },
+   {
+    "layer": 15,
+    "site": "score",
+    "token": 12671,
+    "text": "?\u00e2\u0122\u013f",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_dg_lam100",
+  "export": "llama3_8b_dg_rot1_voc0_T128",
+  "relax": [],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 3,
+  "seconds": 2116,
+  "corpora": {
+   "lambada": {
+    "n": 100,
+    "top1": 0.8536585365853658,
+    "kl": 0.20207155063957624,
+    "refused": 3,
+    "acc_float": 0.78,
+    "acc_int": 0.66,
+    "acc_diff": -0.12,
+    "acc_diff_ci95": [
+     -0.1898125166051724,
+     -0.05018748339482758
+    ]
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 3,
+    "site": "FFN gate",
+    "token": 92732,
+    "text": "\u0120pearls",
+    "sequences": 1
+   },
+   {
+    "layer": 15,
+    "site": "score",
+    "token": 1124,
+    "text": "\u0120them",
+    "sequences": 1
+   },
+   {
+    "layer": 15,
+    "site": "score",
+    "token": 499,
+    "text": "\u0120you",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_dg_noW",
+  "export": "llama3_8b_dg_rot1_voc0_T128",
+  "relax": [
+   "act",
+   "ao",
+   "emb",
+   "exp",
+   "gate",
+   "h",
+   "head",
+   "k",
+   "kr",
+   "nm",
+   "norm",
+   "o",
+   "p",
+   "q",
+   "qr",
+   "rope_tab",
+   "s",
+   "up",
+   "v",
+   "y",
+   "z"
+  ],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 0,
+  "seconds": 2352,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8418635170603674,
+    "kl": 0.14287216501371888,
+    "refused": 0,
+    "ppl_float": 9.587805123435876,
+    "ppl_int": 10.857716978667492,
+    "ratio": 1.1324507370438222,
+    "ci95": [
+     1.0747686120960547,
+     1.1932286237221088
+    ],
+    "gap_closed_vs_abl_base": 0.7452588516968583
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8083989501312336,
+    "kl": 0.1709821210558186,
+    "refused": 0,
+    "ppl_float": 15.418771425976022,
+    "ppl_int": 17.16310266754735,
+    "ratio": 1.1131303651491093,
+    "ci95": [
+     1.0828466275237876,
+     1.1442610415201857
+    ],
+    "gap_closed_vs_abl_base": 0.8126169282777294
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_dg_voc0",
+  "export": "llama3_8b_dg_rot1_voc0_T128",
+  "relax": [],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 2,
+  "seconds": 2731,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.7659120734908137,
+    "kl": 0.26984131210038514,
+    "refused": 0,
+    "ppl_float": 9.587805123435876,
+    "ppl_int": 12.283623580504146,
+    "ratio": 1.2811715947875042,
+    "ci95": [
+     1.1923676746889234,
+     1.3765893609272675
+    ],
+    "gap_closed_vs_abl_base": 0.4925517739348769
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.7306430446194225,
+    "kl": 0.3304467259794858,
+    "refused": 2,
+    "ppl_float": 15.418771425976022,
+    "ppl_int": 19.691735186803367,
+    "ratio": 1.2771273821225906,
+    "ci95": [
+     1.2305313015141066,
+     1.325487899544182
+    ],
+    "gap_closed_vs_abl_base": 0.5723267102528529
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 25,
+    "site": "FFN up",
+    "token": 82,
+    "text": "s",
+    "sequences": 2
+   }
+  ]
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_dg_w",
+  "export": "llama3_8b_dg_rot1_voc0_T128",
+  "relax": [
+   "w_d",
+   "w_g",
+   "w_k",
+   "w_o",
+   "w_q",
+   "w_u",
+   "w_v"
+  ],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 0,
+  "seconds": 3635,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8254593175853019,
+    "kl": 0.1625741144342098,
+    "refused": 0,
+    "ppl_float": 9.587805123435876,
+    "ppl_int": 11.173462511925377,
+    "ratio": 1.1653827302573776,
+    "ci95": [
+     1.102308247031441,
+     1.2320663586066796
+    ],
+    "gap_closed_vs_abl_base": 0.6865513620710824
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.7988845144356955,
+    "kl": 0.16849825968074927,
+    "refused": 0,
+    "ppl_float": 15.418771425976022,
+    "ppl_int": 17.53373293750486,
+    "ratio": 1.137167965793031,
+    "ci95": [
+     1.1088044935012151,
+     1.1662569821867725
+    ],
+    "gap_closed_vs_abl_base": 0.7752635787287275
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_dg_w16u_fh",
+  "export": "l8_dg_w16u",
+  "relax": [
+   "head"
+  ],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 44,
+  "seconds": 2283,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8366141732283464,
+    "kl": 0.1374409611248996,
+    "refused": 27,
+    "ppl_float": 9.587805123435876,
+    "ppl_int": 10.94675737247562,
+    "ratio": 1.1417375751326027,
+    "ci95": [
+     1.0845751469202896,
+     1.2019127435947785
+    ],
+    "gap_closed_vs_abl_base": 0.7285322324576761
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8100393700787402,
+    "kl": 0.13923894543876617,
+    "refused": 17,
+    "ppl_float": 15.418771425976022,
+    "ppl_int": 17.060369494122252,
+    "ratio": 1.106467501384749,
+    "ci95": [
+     1.0864163064300287,
+     1.1268887666492875
+    ],
+    "gap_closed_vs_abl_base": 0.8231135598621927
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 566,
+    "text": "cl",
+    "sequences": 3
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 400,
+    "text": "\u0120$",
+    "sequences": 3
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 10065,
+    "text": "\u0120animal",
+    "sequences": 2
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 392,
+    "text": "ub",
+    "sequences": 2
+   },
+   {
+    "layer": 21,
+    "site": "FFN up",
+    "token": 323,
+    "text": "\u0120and",
+    "sequences": 2
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 14071,
+    "text": "\u0120yellow",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 3616,
+    "text": "ULT",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 3376,
+    "text": "oper",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 546,
+    "text": "ont",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 20018,
+    "text": "ounced",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 937,
+    "text": "SE",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 12160,
+    "text": "elly",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 2371,
+    "text": "04",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 91,
+    "text": "|",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 1677,
+    "text": "mon",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 655,
+    "text": "ber",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 455,
+    "text": "up",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 2352,
+    "text": "aster",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 37444,
+    "text": "\u0120colleague",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 33438,
+    "text": "prime",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_lam0",
+  "export": "llama3_8b_pg_rot1_b7_T128",
+  "relax": [],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 5,
+  "seconds": 3517,
+  "corpora": {
+   "lambada": {
+    "n": 100,
+    "top1": 0.6859504132231405,
+    "kl": 0.5501729615141242,
+    "refused": 5,
+    "acc_float": 0.78,
+    "acc_int": 0.54,
+    "acc_diff": -0.24,
+    "acc_diff_ci95": [
+     -0.3328978933338027,
+     -0.14710210666619727
+    ]
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 23,
+    "site": "FFN gate",
+    "token": 1855,
+    "text": "\u0120each",
+    "sequences": 2
+   },
+   {
+    "layer": 3,
+    "site": "FFN gate",
+    "token": 15403,
+    "text": "\u0120Quest",
+    "sequences": 1
+   },
+   {
+    "layer": 3,
+    "site": "FFN gate",
+    "token": 29519,
+    "text": "\u0120bell",
+    "sequences": 1
+   },
+   {
+    "layer": 15,
+    "site": "score",
+    "token": 2351,
+    "text": "'re",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_lam100",
+  "export": "llama3_8b_pg_rot1_b7_T128",
+  "relax": [],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 5,
+  "seconds": 3349,
+  "corpora": {
+   "lambada": {
+    "n": 100,
+    "top1": 0.7479674796747967,
+    "kl": 0.431359693537192,
+    "refused": 5,
+    "acc_float": 0.78,
+    "acc_int": 0.6,
+    "acc_diff": -0.18,
+    "acc_diff_ci95": [
+     -0.2653207945333257,
+     -0.09467920546667431
+    ]
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 3,
+    "site": "FFN gate",
+    "token": 63108,
+    "text": "\u0120tore",
+    "sequences": 1
+   },
+   {
+    "layer": 3,
+    "site": "FFN gate",
+    "token": 9518,
+    "text": "\u0120square",
+    "sequences": 1
+   },
+   {
+    "layer": 3,
+    "site": "FFN gate",
+    "token": 37189,
+    "text": "\u0120turtle",
+    "sequences": 1
+   },
+   {
+    "layer": 3,
+    "site": "FFN gate",
+    "token": 87017,
+    "text": "\u0120tilted",
+    "sequences": 1
+   },
+   {
+    "layer": 3,
+    "site": "FFN gate",
+    "token": 16456,
+    "text": "\u0120recon",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "llama3-8b",
+  "tag": "e8_voc0",
+  "export": "l8_b7_voc0",
+  "relax": [],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 3,
+  "seconds": 2857,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.6866797900262467,
+    "kl": 0.510704612187726,
+    "refused": 1,
+    "ppl_float": 9.587805123435876,
+    "ppl_int": 15.794483173030503,
+    "ratio": 1.6473512936160302,
+    "ci95": [
+     1.5042128932868417,
+     1.8041105063583005
+    ],
+    "gap_closed_vs_abl_base": -0.022307800310487735
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.6456692913385826,
+    "kl": 0.6155212591266592,
+    "refused": 2,
+    "ppl_float": 15.418771425976022,
+    "ppl_int": 26.359737213367872,
+    "ratio": 1.709587390922703,
+    "ci95": [
+     1.6168726965355167,
+     1.8076185301813554
+    ],
+    "gap_closed_vs_abl_base": 0.06243586732287043
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 23,
+    "site": "FFN gate",
+    "token": 1855,
+    "text": "\u0120each",
+    "sequences": 1
+   },
+   {
+    "layer": 31,
+    "site": "residual 2",
+    "token": 25,
+    "text": ":",
+    "sequences": 1
+   },
+   {
+    "layer": 31,
+    "site": "FFN down",
+    "token": 220,
+    "text": "\u0120",
+    "sequences": 1
+   },
+   {
+    "layer": 31,
+    "site": "residual 2",
+    "token": 220,
+    "text": "\u0120",
+    "sequences": 1
+   }
+  ]
+ },
+ {
   "model": "tinyllama",
   "tag": "abl_act",
   "export": "pg_rot1_b4_T128",
@@ -575,6 +2891,1402 @@
  },
  {
   "model": "tinyllama",
+  "tag": "aex_c2gpc",
+  "export": "tl_dg_aex",
+  "relax": [],
+  "mods": null,
+  "gate_pc": "-5:mc3",
+  "gptq": false,
+  "refused": 5,
+  "seconds": 482,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8938648293963255,
+    "kl": 0.05187360493529129,
+    "refused": 3,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.911277869234588,
+    "ratio": 1.0190890301865432,
+    "ci95": [
+     1.0086098263434737,
+     1.0296771103367002
+    ],
+    "gap_closed_vs_abl_base": 0.9085624198036314
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8817257217847769,
+    "kl": 0.06286597648793607,
+    "refused": 2,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 18.371152985204603,
+    "ratio": 1.039364350601653,
+    "ci95": [
+     1.0275163606140036,
+     1.0513489562891865
+    ],
+    "gap_closed_vs_abl_base": 0.841602763430746
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 20018,
+    "text": "Progress",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 567,
+    "text": "ps",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 30062,
+    "text": "\u00c9",
+    "sequences": 1
+   },
+   {
+    "layer": 6,
+    "site": "FFN up",
+    "token": 20937,
+    "text": "owed",
+    "sequences": 1
+   },
+   {
+    "layer": 15,
+    "site": "FFN up",
+    "token": 1130,
+    "text": "\u0441\u043a\u043e",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "c2_dg",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 0,
+  "seconds": 575,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8451443569553806,
+    "kl": 0.09852659192887088,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 12.474751708378976,
+    "ratio": 1.0672979641542666,
+    "ci95": [
+     1.0506306291814924,
+     1.084229711802037
+    ],
+    "gap_closed_vs_abl_base": 0.6850542723599009
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8270997375328084,
+    "kl": 0.11833121788164197,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 19.31676727754696,
+    "ratio": 1.0928633218241777,
+    "ci95": [
+     1.0737104679191931,
+     1.1123578244544623
+    ],
+    "gap_closed_vs_abl_base": 0.6356875647476313
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "c2gpc_dg",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": null,
+  "gate_pc": "-5:mc3",
+  "gptq": false,
+  "refused": 1,
+  "seconds": 532,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8784448818897638,
+    "kl": 0.06788541356449494,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 12.111501208421101,
+    "ratio": 1.0362194683135322,
+    "ci95": [
+     1.023304063869859,
+     1.0492978816592835
+    ],
+    "gap_closed_vs_abl_base": 0.8279531665080634
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8572834645669292,
+    "kl": 0.0796532644790474,
+    "refused": 1,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 18.67259073621113,
+    "ratio": 1.0564184599748672,
+    "ci95": [
+     1.0430719492544582,
+     1.0699357444837354
+    ],
+    "gap_closed_vs_abl_base": 0.7748333218952873
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 19,
+    "site": "FFN gate",
+    "token": 2452,
+    "text": "Der",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "combo2_lam0",
+  "export": "tl_dg_w16u",
+  "relax": [],
+  "mods": "pround",
+  "gate_pc": "-8:mc3",
+  "gptq": false,
+  "refused": 4,
+  "seconds": 1119,
+  "corpora": {
+   "lambada": {
+    "n": 250,
+    "top1": 0.9135514018691588,
+    "kl": 0.047040154197515734,
+    "refused": 4,
+    "acc_float": 0.628,
+    "acc_int": 0.576,
+    "acc_diff": -0.052,
+    "acc_diff_ci95": [
+     -0.08562765127273211,
+     -0.01837234872726788
+    ]
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 0,
+    "site": "FFN gate",
+    "token": 1636,
+    "text": "www",
+    "sequences": 1
+   },
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 2812,
+    "text": "Em",
+    "sequences": 1
+   },
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 2261,
+    "text": "Bar",
+    "sequences": 1
+   },
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 306,
+    "text": "I",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "combo2_lam250",
+  "export": "tl_dg_w16u",
+  "relax": [],
+  "mods": "pround",
+  "gate_pc": "-8:mc3",
+  "gptq": false,
+  "refused": 10,
+  "seconds": 1012,
+  "corpora": {
+   "lambada": {
+    "n": 250,
+    "top1": 0.910411622276029,
+    "kl": 0.04702753190878098,
+    "refused": 10,
+    "acc_float": 0.588,
+    "acc_int": 0.556,
+    "acc_diff": -0.032,
+    "acc_diff_ci95": [
+     -0.06690631187672713,
+     0.00290631187672713
+    ]
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 0,
+    "site": "FFN gate",
+    "token": 27006,
+    "text": "Jack",
+    "sequences": 2
+   },
+   {
+    "layer": 0,
+    "site": "FFN gate",
+    "token": 3964,
+    "text": "dim",
+    "sequences": 2
+   },
+   {
+    "layer": 0,
+    "site": "FFN gate",
+    "token": 19203,
+    "text": "Master",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN gate",
+    "token": 21972,
+    "text": "Har",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN gate",
+    "token": 9082,
+    "text": "Master",
+    "sequences": 1
+   },
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 9426,
+    "text": "opinion",
+    "sequences": 1
+   },
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 319,
+    "text": "A",
+    "sequences": 1
+   },
+   {
+    "layer": 21,
+    "site": "V",
+    "token": 367,
+    "text": "be",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "combo2_lam500",
+  "export": "tl_dg_w16u",
+  "relax": [],
+  "mods": "pround",
+  "gate_pc": "-8:mc3",
+  "gptq": false,
+  "refused": 8,
+  "seconds": 901,
+  "corpora": {
+   "lambada": {
+    "n": 250,
+    "top1": 0.9212962962962963,
+    "kl": 0.04969247229334594,
+    "refused": 8,
+    "acc_float": 0.588,
+    "acc_int": 0.58,
+    "acc_diff": -0.008,
+    "acc_diff_ci95": [
+     -0.043117824488244555,
+     0.027117824488244555
+    ]
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 0,
+    "site": "FFN gate",
+    "token": 17406,
+    "text": "Alex",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN gate",
+    "token": 660,
+    "text": "Q",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN gate",
+    "token": 3964,
+    "text": "dim",
+    "sequences": 1
+   },
+   {
+    "layer": 7,
+    "site": "V",
+    "token": 841,
+    "text": "ten",
+    "sequences": 1
+   },
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 360,
+    "text": "D",
+    "sequences": 1
+   },
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 3282,
+    "text": "didn",
+    "sequences": 1
+   },
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 1183,
+    "text": "she",
+    "sequences": 1
+   },
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 471,
+    "text": "was",
+    "sequences": 1
+   },
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 3826,
+    "text": "Dec",
+    "sequences": 1
+   },
+   {
+    "layer": 21,
+    "site": "V",
+    "token": 23289,
+    "text": "liked",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "combo2_lam750",
+  "export": "tl_dg_w16u",
+  "relax": [],
+  "mods": "pround",
+  "gate_pc": "-8:mc3",
+  "gptq": false,
+  "refused": 9,
+  "seconds": 1012,
+  "corpora": {
+   "lambada": {
+    "n": 250,
+    "top1": 0.9116279069767442,
+    "kl": 0.05086957569219364,
+    "refused": 9,
+    "acc_float": 0.588,
+    "acc_int": 0.564,
+    "acc_diff": -0.024,
+    "acc_diff_ci95": [
+     -0.06394542654682801,
+     0.015945426546828012
+    ]
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 0,
+    "site": "FFN gate",
+    "token": 3964,
+    "text": "dim",
+    "sequences": 2
+   },
+   {
+    "layer": 0,
+    "site": "FFN gate",
+    "token": 18529,
+    "text": "Dan",
+    "sequences": 1
+   },
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 1246,
+    "text": "call",
+    "sequences": 1
+   },
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 1073,
+    "text": "know",
+    "sequences": 1
+   },
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 399,
+    "text": "W",
+    "sequences": 1
+   },
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 260,
+    "text": "t",
+    "sequences": 1
+   },
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 8818,
+    "text": "tax",
+    "sequences": 1
+   },
+   {
+    "layer": 21,
+    "site": "V",
+    "token": 15041,
+    "text": "concerned",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "combo2_w16u",
+  "export": "tl_dg_w16u",
+  "relax": [],
+  "mods": "pround",
+  "gate_pc": "-8:mc3",
+  "gptq": true,
+  "refused": 2,
+  "seconds": 2209,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8700787401574803,
+    "kl": 0.06440184116897031,
+    "refused": 1,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 12.063509088448571,
+    "ratio": 1.032113423308426,
+    "ci95": [
+     1.021745820464822,
+     1.0425862256904765
+    ],
+    "gap_closed_vs_abl_base": 0.8471525474725469
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8551509186351706,
+    "kl": 0.07917292469832161,
+    "refused": 1,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 18.775589063668924,
+    "ratio": 1.062245682132205,
+    "ci95": [
+     1.0482262491649497,
+     1.0764526170828155
+    ],
+    "gap_closed_vs_abl_base": 0.7522656924580222
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 0,
+    "site": "FFN gate",
+    "token": 660,
+    "text": "Q",
+    "sequences": 2
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "combo2_w16u_na",
+  "export": "tl_dg_w16u",
+  "relax": [
+   "exp",
+   "k",
+   "kr",
+   "nm",
+   "norm",
+   "o",
+   "p",
+   "q",
+   "qr",
+   "rope_tab",
+   "s",
+   "v",
+   "y"
+  ],
+  "mods": "pround",
+  "gate_pc": "-8:mc3",
+  "gptq": false,
+  "refused": 2,
+  "seconds": 297,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9151902887139107,
+    "kl": 0.029133153894945158,
+    "refused": 1,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.801804960454813,
+    "ratio": 1.0097228948595993,
+    "ci95": [
+     1.0020043083207608,
+     1.017500938805619
+    ],
+    "gap_closed_vs_abl_base": 0.9532107389290005
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.9025590551181102,
+    "kl": 0.03548797799471226,
+    "refused": 1,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 18.17785499319064,
+    "ratio": 1.0284283444563658,
+    "ci95": [
+     1.0211280718441231,
+     1.035780808347727
+    ],
+    "gap_closed_vs_abl_base": 0.8849979126268899
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 0,
+    "site": "FFN gate",
+    "token": 660,
+    "text": "Q",
+    "sequences": 2
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "combo2_w16u_naw",
+  "export": "tl_dg_w16u",
+  "relax": [
+   "exp",
+   "k",
+   "kr",
+   "nm",
+   "norm",
+   "o",
+   "p",
+   "q",
+   "qr",
+   "rope_tab",
+   "s",
+   "v",
+   "w_d",
+   "w_g",
+   "w_k",
+   "w_o",
+   "w_q",
+   "w_u",
+   "w_v",
+   "y"
+  ],
+  "mods": "pround",
+  "gate_pc": "-8:mc3",
+  "gptq": false,
+  "refused": 2,
+  "seconds": 412,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9424212598425197,
+    "kl": 0.010728020700235427,
+    "refused": 1,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.750142016984126,
+    "ratio": 1.005302786493719,
+    "ci95": [
+     1.0009806192815454,
+     1.0096436165341736
+    ],
+    "gap_closed_vs_abl_base": 0.9744254155790458
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.9442257217847769,
+    "kl": 0.013662342221186442,
+    "refused": 1,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 17.826346810387875,
+    "ratio": 1.0085414557867112,
+    "ci95": [
+     1.0023122415782235,
+     1.014809383589671
+    ],
+    "gap_closed_vs_abl_base": 0.9651069363183301
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 0,
+    "site": "FFN gate",
+    "token": 660,
+    "text": "Q",
+    "sequences": 2
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "dg_all",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [
+   "act",
+   "ao",
+   "emb",
+   "exp",
+   "gate",
+   "h",
+   "head",
+   "k",
+   "kr",
+   "nm",
+   "norm",
+   "o",
+   "p",
+   "q",
+   "qr",
+   "rope_tab",
+   "s",
+   "up",
+   "v",
+   "w_d",
+   "w_g",
+   "w_k",
+   "w_o",
+   "w_q",
+   "w_u",
+   "w_v",
+   "y",
+   "z"
+  ],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 0,
+  "seconds": 472,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9998359580052494,
+    "kl": 7.112738514588494e-08,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.688182532710453,
+    "ratio": 1.0000017405914652,
+    "ci95": [
+     0.999991484675512,
+     1.000011996612603
+    ],
+    "gap_closed_vs_abl_base": 0.9999915831446248
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.9998359580052494,
+    "kl": 8.0234713091335e-08,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 17.67587570128343,
+    "ratio": 1.0000284187049018,
+    "ci95": [
+     1.0000157409808261,
+     1.0000410965896998
+    ],
+    "gap_closed_vs_abl_base": 0.9998834120936363
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "dg_gate",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [
+   "gate"
+  ],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 0,
+  "seconds": 450,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8362860892388452,
+    "kl": 0.10767193388853782,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 12.498810073283506,
+    "ratio": 1.0693563172568976,
+    "ci95": [
+     1.0525795009243148,
+     1.0864005353068897
+    ],
+    "gap_closed_vs_abl_base": 0.6757374214868728
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8138123359580053,
+    "kl": 0.12467539648205374,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 18.956212573456042,
+    "ratio": 1.072464618151325,
+    "ci95": [
+     1.053337592272258,
+     1.0919389620428341
+    ],
+    "gap_closed_vs_abl_base": 0.7129871431335041
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "dg_gn",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [
+   "gate",
+   "nm",
+   "norm",
+   "y"
+  ],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 1,
+  "seconds": 431,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8605643044619422,
+    "kl": 0.07589280471929699,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 12.154276113588828,
+    "ratio": 1.0398791458982768,
+    "ci95": [
+     1.0274663099020651,
+     1.0524419415534902
+    ],
+    "gap_closed_vs_abl_base": 0.8109049604441391
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8453083989501312,
+    "kl": 0.08778465038516377,
+    "refused": 1,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 18.473107790889962,
+    "ratio": 1.045132534584837,
+    "ci95": [
+     1.0302611155528794,
+     1.0602186167742074
+    ],
+    "gap_closed_vs_abl_base": 0.8188976147550434
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 7,
+    "site": "score",
+    "token": 373,
+    "text": "on",
+    "sequences": 1
+   },
+   {
+    "layer": 7,
+    "site": "score",
+    "token": 278,
+    "text": "the",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "dg_gna",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [
+   "exp",
+   "gate",
+   "k",
+   "kr",
+   "nm",
+   "norm",
+   "o",
+   "p",
+   "q",
+   "qr",
+   "rope_tab",
+   "s",
+   "v",
+   "y"
+  ],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 0,
+  "seconds": 406,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8948490813648294,
+    "kl": 0.04430650074386809,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.925980060299452,
+    "ratio": 1.0203469003998311,
+    "ci95": [
+     1.0100125988850912,
+     1.0307869409795247
+    ],
+    "gap_closed_vs_abl_base": 0.9025974368002544
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8813976377952756,
+    "kl": 0.04992457182384159,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 17.921218478691298,
+    "ratio": 1.0139089049607561,
+    "ci95": [
+     1.003927279091984,
+     1.0239897739291621
+    ],
+    "gap_closed_vs_abl_base": 0.9433310180898615
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "dg_gnaw",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [
+   "exp",
+   "gate",
+   "k",
+   "kr",
+   "nm",
+   "norm",
+   "o",
+   "p",
+   "q",
+   "qr",
+   "rope_tab",
+   "s",
+   "v",
+   "w_d",
+   "w_g",
+   "w_k",
+   "w_o",
+   "w_q",
+   "w_u",
+   "w_v",
+   "y"
+  ],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 0,
+  "seconds": 528,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9706364829396326,
+    "kl": 0.0039723791672641616,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.721130909113244,
+    "ratio": 1.0028206932952104,
+    "ci95": [
+     0.9997235475853211,
+     1.005927433969199
+    ],
+    "gap_closed_vs_abl_base": 0.9863793613238208
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.9622703412073491,
+    "kl": 0.0047014997263144795,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 17.67600191263167,
+    "ratio": 1.000035559224394,
+    "ci95": [
+     0.9969893372469107,
+     1.003091088691927
+    ],
+    "gap_closed_vs_abl_base": 0.9998541185906517
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "fix_gptq_dg",
+  "export": "tl_dg",
+  "relax": [],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": true,
+  "refused": 0,
+  "seconds": 2859,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8292322834645669,
+    "kl": 0.12022567198690787,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 12.595688616684196,
+    "ratio": 1.0776449208747423,
+    "ci95": [
+     1.059356088346895,
+     1.0962494936894591
+    ],
+    "gap_closed_vs_abl_base": 0.6384008339089113
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8075787401574803,
+    "kl": 0.1484929217673181,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 19.910573300035907,
+    "ratio": 1.126458426684751,
+    "ci95": [
+     1.1016295415698223,
+     1.151846913292548
+    ],
+    "gap_closed_vs_abl_base": 0.5114724928200195
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "full_lam0",
+  "export": "pg_rot1_b4_T128",
+  "relax": [],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 3,
+  "seconds": 1627,
+  "corpora": {
+   "lambada": {
+    "n": 250,
+    "top1": 0.8271028037383178,
+    "kl": 0.2253869269728118,
+    "refused": 3,
+    "acc_float": 0.628,
+    "acc_int": 0.512,
+    "acc_diff": -0.116,
+    "acc_diff_ci95": [
+     -0.1628954673827245,
+     -0.0691045326172755
+    ]
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 278,
+    "text": "the",
+    "sequences": 1
+   },
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 1183,
+    "text": "she",
+    "sequences": 1
+   },
+   {
+    "layer": 21,
+    "site": "FFN gate",
+    "token": 13,
+    "text": "\n",
+    "sequences": 1
+   },
+   {
+    "layer": 21,
+    "site": "FFN up",
+    "token": 13,
+    "text": "\n",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "full_lam250",
+  "export": "pg_rot1_b4_T128",
+  "relax": [],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 3,
+  "seconds": 1498,
+  "corpora": {
+   "lambada": {
+    "n": 250,
+    "top1": 0.8571428571428571,
+    "kl": 0.21648446375962963,
+    "refused": 3,
+    "acc_float": 0.588,
+    "acc_int": 0.552,
+    "acc_diff": -0.036,
+    "acc_diff_ci95": [
+     -0.0848547920723621,
+     0.012854792072362106
+    ]
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 478,
+    "text": "V",
+    "sequences": 1
+   },
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 372,
+    "text": "it",
+    "sequences": 1
+   },
+   {
+    "layer": 21,
+    "site": "V",
+    "token": 3164,
+    "text": "Bl",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "full_lam500",
+  "export": "pg_rot1_b4_T128",
+  "relax": [],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 0,
+  "seconds": 1471,
+  "corpora": {
+   "lambada": {
+    "n": 250,
+    "top1": 0.8101851851851852,
+    "kl": 0.20723544253694404,
+    "refused": 0,
+    "acc_float": 0.588,
+    "acc_int": 0.52,
+    "acc_diff": -0.068,
+    "acc_diff_ci95": [
+     -0.12001654207072962,
+     -0.015983457929270396
+    ]
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "full_lam750",
+  "export": "pg_rot1_b4_T128",
+  "relax": [],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 1,
+  "seconds": 1733,
+  "corpora": {
+   "lambada": {
+    "n": 250,
+    "top1": 0.8046511627906977,
+    "kl": 0.1953943042272289,
+    "refused": 1,
+    "acc_float": 0.588,
+    "acc_int": 0.504,
+    "acc_diff": -0.084,
+    "acc_diff_ci95": [
+     -0.13565461721393424,
+     -0.03234538278606576
+    ]
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 399,
+    "text": "W",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "full_lam_dg0",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 0,
+  "seconds": 825,
+  "corpora": {
+   "lambada": {
+    "n": 250,
+    "top1": 0.866822429906542,
+    "kl": 0.11216478505230812,
+    "refused": 0,
+    "acc_float": 0.628,
+    "acc_int": 0.54,
+    "acc_diff": -0.088,
+    "acc_diff_ci95": [
+     -0.1265363256158118,
+     -0.04946367438418821
+    ]
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "full_lam_dg250",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 1,
+  "seconds": 822,
+  "corpora": {
+   "lambada": {
+    "n": 250,
+    "top1": 0.87409200968523,
+    "kl": 0.11784944259668503,
+    "refused": 1,
+    "acc_float": 0.588,
+    "acc_int": 0.556,
+    "acc_diff": -0.032,
+    "acc_diff_ci95": [
+     -0.07763359405113843,
+     0.013633594051138426
+    ]
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 7,
+    "site": "score",
+    "token": 6751,
+    "text": "aging",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "full_lam_dg500",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 1,
+  "seconds": 790,
+  "corpora": {
+   "lambada": {
+    "n": 250,
+    "top1": 0.875,
+    "kl": 0.11545549444520767,
+    "refused": 1,
+    "acc_float": 0.588,
+    "acc_int": 0.56,
+    "acc_diff": -0.028,
+    "acc_diff_ci95": [
+     -0.07434479585467223,
+     0.01834479585467223
+    ]
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 360,
+    "text": "D",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "full_lam_dg750",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 0,
+  "seconds": 763,
+  "corpora": {
+   "lambada": {
+    "n": 250,
+    "top1": 0.8395348837209302,
+    "kl": 0.10739103388456375,
+    "refused": 0,
+    "acc_float": 0.588,
+    "acc_int": 0.512,
+    "acc_diff": -0.076,
+    "acc_diff_ci95": [
+     -0.1266411153496388,
+     -0.0253588846503612
+    ]
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "full_ppl",
+  "export": "pg_rot1_b4_T128",
+  "relax": [],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 1,
+  "seconds": 1485,
+  "corpora": {
+   "fineweb": {
+    "n": 128,
+    "top1": 0.7522760826771654,
+    "kl": 0.2830353644488116,
+    "refused": 1,
+    "ppl_float": 11.616729188433338,
+    "ppl_int": 14.318316130899207,
+    "ratio": 1.2325600346400265,
+    "ci95": [
+     1.2094852738216697,
+     1.2560750195754922
+    ]
+   },
+   "wikitext": {
+    "n": 128,
+    "top1": 0.7148129921259843,
+    "kl": 0.3377340550423854,
+    "refused": 0,
+    "ppl_float": 18.567628006219106,
+    "ppl_int": 23.991402297344518,
+    "ratio": 1.2921091638258129,
+    "ci95": [
+     1.2675179447702734,
+     1.3171774791284965
+    ]
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 21,
+    "site": "FFN gate",
+    "token": 13,
+    "text": "\n",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "full_ppl_dg",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 0,
+  "seconds": 1175,
+  "corpora": {
+   "fineweb": {
+    "n": 128,
+    "top1": 0.8182209645669292,
+    "kl": 0.1494712785165396,
+    "refused": 0,
+    "ppl_float": 11.616729188433338,
+    "ppl_int": 12.991305535707033,
+    "ratio": 1.1183273127036777,
+    "ci95": [
+     1.103420416675906,
+     1.1334355966574152
+    ]
+   },
+   "wikitext": {
+    "n": 128,
+    "top1": 0.7867249015748031,
+    "kl": 0.18518205112933636,
+    "refused": 0,
+    "ppl_float": 18.567628006219106,
+    "ppl_int": 21.12018851385952,
+    "ratio": 1.1374736992137848,
+    "ci95": [
+     1.1226374925064384,
+     1.152505973690943
+    ]
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
   "tag": "smoke_int",
   "export": "pg_rot1_b4_T128",
   "relax": [],
@@ -628,6 +4340,1293 @@
  },
  {
   "model": "tinyllama",
+  "tag": "t_HIGH",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,g4,o4,h8,s4",
+  "gate_pc": "-5:mc3",
+  "gptq": false,
+  "refused": 0,
+  "seconds": 453,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9755577427821522,
+    "kl": 0.002996632101414976,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.653941162062084,
+    "ratio": 0.9970721636317648,
+    "ci95": [
+     0.995506419887836,
+     0.9986403699951429
+    ],
+    "gap_closed_vs_abl_base": 1.0141787107478624
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.9747375328083989,
+    "kl": 0.0032801448156491468,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 17.653074898235722,
+    "ratio": 0.9987384429547695,
+    "ci95": [
+     0.9962789682055053,
+     1.0012039893127251
+    ],
+    "gap_closed_vs_abl_base": 1.005178886260966
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_LOW",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,g4",
+  "gate_pc": "-5:mc3",
+  "gptq": false,
+  "refused": 1,
+  "seconds": 636,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.949475065616798,
+    "kl": 0.011561722295304661,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.759040954892221,
+    "ratio": 1.0060641498085552,
+    "ci95": [
+     1.0013246432270229,
+     1.010826089596729
+    ],
+    "gap_closed_vs_abl_base": 0.9707645477461582
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.9381561679790026,
+    "kl": 0.013083301061646894,
+    "refused": 1,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 17.81830184162202,
+    "ratio": 1.0080863045099429,
+    "ci95": [
+     1.003393978213041,
+     1.0128005742573283
+    ],
+    "gap_closed_vs_abl_base": 0.9669588273104259
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 19,
+    "site": "FFN gate",
+    "token": 2452,
+    "text": "Der",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_LOW_lam0",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,g4",
+  "gate_pc": "-5:mc5",
+  "gptq": false,
+  "refused": 2,
+  "seconds": 1214,
+  "corpora": {
+   "lambada": {
+    "n": 250,
+    "top1": 0.9579439252336449,
+    "kl": 0.00677204708377573,
+    "refused": 2,
+    "acc_float": 0.628,
+    "acc_int": 0.608,
+    "acc_diff": -0.02,
+    "acc_diff_ci95": [
+     -0.04593579963701225,
+     0.0059357996370122505
+    ]
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 2812,
+    "text": "Em",
+    "sequences": 1
+   },
+   {
+    "layer": 21,
+    "site": "V",
+    "token": 13240,
+    "text": "prepared",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_LOW_lam250",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,g4",
+  "gate_pc": "-5:mc5",
+  "gptq": false,
+  "refused": 1,
+  "seconds": 1197,
+  "corpora": {
+   "lambada": {
+    "n": 250,
+    "top1": 0.9733656174334141,
+    "kl": 0.006813334162120908,
+    "refused": 1,
+    "acc_float": 0.588,
+    "acc_int": 0.608,
+    "acc_diff": 0.02,
+    "acc_diff_ci95": [
+     -0.0006353072091126767,
+     0.04063530720911268
+    ]
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 21,
+    "site": "V",
+    "token": 367,
+    "text": "be",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_LOW_lam500",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,g4",
+  "gate_pc": "-5:mc5",
+  "gptq": false,
+  "refused": 1,
+  "seconds": 962,
+  "corpora": {
+   "lambada": {
+    "n": 250,
+    "top1": 0.9560185185185185,
+    "kl": 0.007123612731310347,
+    "refused": 1,
+    "acc_float": 0.588,
+    "acc_int": 0.6,
+    "acc_diff": 0.012,
+    "acc_diff_ci95": [
+     -0.014011829993262562,
+     0.038011829993262566
+    ]
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 21,
+    "site": "V",
+    "token": 23289,
+    "text": "liked",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_LOW_lam750",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,g4",
+  "gate_pc": "-5:mc5",
+  "gptq": false,
+  "refused": 3,
+  "seconds": 917,
+  "corpora": {
+   "lambada": {
+    "n": 250,
+    "top1": 0.9558139534883721,
+    "kl": 0.007663786584889113,
+    "refused": 3,
+    "acc_float": 0.588,
+    "acc_int": 0.6,
+    "acc_diff": 0.012,
+    "acc_diff_ci95": [
+     -0.011519999999999999,
+     0.035519999999999996
+    ]
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 1827,
+    "text": "say",
+    "sequences": 1
+   },
+   {
+    "layer": 10,
+    "site": "FFN gate",
+    "token": 624,
+    "text": "St",
+    "sequences": 1
+   },
+   {
+    "layer": 21,
+    "site": "V",
+    "token": 15041,
+    "text": "concerned",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_LOW_mc5",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,g4",
+  "gate_pc": "-5:mc5",
+  "gptq": false,
+  "refused": 0,
+  "seconds": 461,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9516076115485564,
+    "kl": 0.011295293047551705,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.748886968656548,
+    "ratio": 1.0051954087633843,
+    "ci95": [
+     1.0004795281372643,
+     1.0099335182602152
+    ],
+    "gap_closed_vs_abl_base": 0.9749419436418704
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.9440616797900262,
+    "kl": 0.013753423849098289,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 17.84917739901087,
+    "ratio": 1.0098331166823071,
+    "ci95": [
+     1.00455892877568,
+     1.0151349954065432
+    ],
+    "gap_closed_vs_abl_base": 0.9598560551195001
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_LOWg",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,ah2,g4",
+  "gate_pc": "-5:mc8:tm2:ng4",
+  "gptq": false,
+  "refused": 0,
+  "seconds": 786,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9512795275590551,
+    "kl": 0.011259239231578068,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.788705113057388,
+    "ratio": 1.008602115802441,
+    "ci95": [
+     1.004292869121495,
+     1.0129298527142032
+    ],
+    "gap_closed_vs_abl_base": 0.958581209470145
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.9407808398950132,
+    "kl": 0.012486088422475712,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 17.8535931119145,
+    "ratio": 1.010082939574654,
+    "ci95": [
+     1.0050266940550692,
+     1.0151646228452014
+    ],
+    "gap_closed_vs_abl_base": 0.9588412461415979
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_LOWh8",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,g4,h8",
+  "gate_pc": "-5:mc3",
+  "gptq": false,
+  "refused": 1,
+  "seconds": 465,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9566929133858267,
+    "kl": 0.008923544558751263,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.698388195781463,
+    "ratio": 1.000874902933544,
+    "ci95": [
+     0.9964949484908249,
+     1.0052741088546064
+    ],
+    "gap_closed_vs_abl_base": 0.9957711395653213
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.946522309711286,
+    "kl": 0.0095654164047571,
+    "refused": 1,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 17.769917345096008,
+    "ratio": 1.0053489085037448,
+    "ci95": [
+     1.0010881841222758,
+     1.0096277669242952
+    ],
+    "gap_closed_vs_abl_base": 0.9781142395754442
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 19,
+    "site": "FFN gate",
+    "token": 2452,
+    "text": "Der",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_LOWh8g",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,ah2,g4,h8",
+  "gate_pc": "-5:mc8:tm2:ng4",
+  "gptq": false,
+  "refused": 0,
+  "seconds": 965,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9555446194225722,
+    "kl": 0.00779894500398863,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.736235515592131,
+    "ratio": 1.0041129928231796,
+    "ci95": [
+     0.9998402826925761,
+     1.0084039619219163
+    ],
+    "gap_closed_vs_abl_base": 0.9801518631057713
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.9499671916010499,
+    "kl": 0.008470575091980773,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 17.82416275113108,
+    "ratio": 1.0084178906880519,
+    "ci95": [
+     1.0043873192944666,
+     1.0124646366245122
+    ],
+    "gap_closed_vs_abl_base": 0.9656096075881713
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_LOWs4",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,g4,s4",
+  "gate_pc": "-5:mc3",
+  "gptq": false,
+  "refused": 0,
+  "seconds": 459,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9635826771653543,
+    "kl": 0.005914517831809827,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.684324892147266,
+    "ratio": 0.9996716937884687,
+    "ci95": [
+     0.9960536774075123,
+     1.0033028520741534
+    ],
+    "gap_closed_vs_abl_base": 1.0015878292329734
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.9581692913385826,
+    "kl": 0.006820905238924292,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 17.708046280081074,
+    "ratio": 1.0018484978674573,
+    "ci95": [
+     0.9986488232504014,
+     1.0050584242541212
+    ],
+    "gap_closed_vs_abl_base": 0.9924234192089174
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_LOWs4f",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,ah2,g4,s4",
+  "gate_pc": "-5:mc8:tm2",
+  "gptq": false,
+  "refused": 0,
+  "seconds": 659,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9617782152230971,
+    "kl": 0.005166980330937746,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.70848635027105,
+    "ratio": 1.0017388672015628,
+    "ci95": [
+     0.9984537639432188,
+     1.0050347790759966
+    ],
+    "gap_closed_vs_abl_base": 0.9915987773970485
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.9550524934383202,
+    "kl": 0.006197844430759314,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 17.75960806590468,
+    "ratio": 1.0047656518469363,
+    "ci95": [
+     1.0015062484871686,
+     1.008035662939085
+    ],
+    "gap_closed_vs_abl_base": 0.9804950471452556
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_LOWs4g1",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,ah2,g4,s4",
+  "gate_pc": "-5:mc8:tm2:ng1",
+  "gptq": false,
+  "refused": 0,
+  "seconds": 804,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9660433070866141,
+    "kl": 0.005242955039024402,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.717692991879924,
+    "ratio": 1.0025265566141903,
+    "ci95": [
+     0.9992667818750515,
+     1.005796965281668
+    ],
+    "gap_closed_vs_abl_base": 0.9877979059170675
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.9566929133858267,
+    "kl": 0.006398689751148777,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 17.79119312519897,
+    "ratio": 1.006552604721836,
+    "ci95": [
+     1.0030389355369036,
+     1.0100785823732732
+    ],
+    "gap_closed_vs_abl_base": 0.9732052103423281
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_LOWv6_lam0",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,ah2,g4",
+  "gate_pc": "-5:mc8:tm2:ng4",
+  "gptq": false,
+  "refused": 0,
+  "seconds": 1274,
+  "corpora": {
+   "lambada": {
+    "n": 250,
+    "top1": 0.9509345794392523,
+    "kl": 0.006644191529961265,
+    "refused": 0,
+    "acc_float": 0.628,
+    "acc_int": 0.628,
+    "acc_diff": 0.0,
+    "acc_diff_ci95": [
+     -0.027213037272424433,
+     0.027213037272424433
+    ]
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_LOWv6_lam250",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,ah2,g4",
+  "gate_pc": "-5:mc8:tm2:ng4",
+  "gptq": false,
+  "refused": 0,
+  "seconds": 918,
+  "corpora": {
+   "lambada": {
+    "n": 250,
+    "top1": 0.9733656174334141,
+    "kl": 0.006828547938889795,
+    "refused": 0,
+    "acc_float": 0.588,
+    "acc_int": 0.6,
+    "acc_diff": 0.012,
+    "acc_diff_ci95": [
+     -0.008730786294822643,
+     0.03273078629482264
+    ]
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_LOWv6_lam500",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,ah2,g4",
+  "gate_pc": "-5:mc8:tm2:ng4",
+  "gptq": false,
+  "refused": 0,
+  "seconds": 923,
+  "corpora": {
+   "lambada": {
+    "n": 250,
+    "top1": 0.9537037037037037,
+    "kl": 0.007346031911200518,
+    "refused": 0,
+    "acc_float": 0.588,
+    "acc_int": 0.576,
+    "acc_diff": -0.012,
+    "acc_diff_ci95": [
+     -0.03801182999326256,
+     0.014011829993262559
+    ]
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_LOWv6_lam750",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,ah2,g4",
+  "gate_pc": "-5:mc8:tm2:ng4",
+  "gptq": false,
+  "refused": 0,
+  "seconds": 917,
+  "corpora": {
+   "lambada": {
+    "n": 250,
+    "top1": 0.958139534883721,
+    "kl": 0.00814975039899183,
+    "refused": 0,
+    "acc_float": 0.588,
+    "acc_int": 0.592,
+    "acc_diff": 0.004,
+    "acc_diff_ci95": [
+     -0.019561943858552387,
+     0.027561943858552387
+    ]
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_MID",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "y8,fp12,a8,g4,o4",
+  "gate_pc": "-5:mc3",
+  "gptq": false,
+  "refused": 1,
+  "seconds": 459,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.948982939632546,
+    "kl": 0.011964979894400228,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.746616637770758,
+    "ratio": 1.0050011668586951,
+    "ci95": [
+     0.999582936822052,
+     1.0104487663609911
+    ],
+    "gap_closed_vs_abl_base": 0.9758764618968312
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.9434055118110236,
+    "kl": 0.013247778754124606,
+    "refused": 1,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 17.806518085240267,
+    "ratio": 1.0074196279921848,
+    "ci95": [
+     1.002355840416375,
+     1.0125089972462558
+    ],
+    "gap_closed_vs_abl_base": 0.9696728687917051
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 19,
+    "site": "FFN gate",
+    "token": 2452,
+    "text": "Der",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_P1",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "fp12,g4",
+  "gate_pc": "-5:mc8:tm2:ng4",
+  "gptq": false,
+  "refused": 0,
+  "seconds": 669,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8779527559055118,
+    "kl": 0.0635165335025776,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 12.050037843071083,
+    "ratio": 1.030960868684324,
+    "ci95": [
+     1.0197653058783207,
+     1.0422793427384551
+    ],
+    "gap_closed_vs_abl_base": 0.8525554867190676
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8653215223097113,
+    "kl": 0.07547234520849101,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 18.50681291279606,
+    "ratio": 1.0470394318911787,
+    "ci95": [
+     1.033201097213519,
+     1.061063112390835
+    ],
+    "gap_closed_vs_abl_base": 0.8114190986246959
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_P2",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "y8,fp12,g4",
+  "gate_pc": "-5:mc8:tm2:ng4",
+  "gptq": false,
+  "refused": 0,
+  "seconds": 777,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9053477690288714,
+    "kl": 0.03134440706496053,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.946389198800814,
+    "ratio": 1.0220930379167819,
+    "ci95": [
+     1.0147312396530122,
+     1.0295082454691973
+    ],
+    "gap_closed_vs_abl_base": 0.8943292049920103
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8930446194225722,
+    "kl": 0.038341451636311114,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 18.167015286389717,
+    "ratio": 1.027815078384883,
+    "ci95": [
+     1.0188519508298475,
+     1.0368570570973439
+    ],
+    "gap_closed_vs_abl_base": 0.8874450582442668
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_P3",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "fp12,a8,ah2,g4",
+  "gate_pc": "-5:mc8:tm2:ng4",
+  "gptq": false,
+  "refused": 0,
+  "seconds": 798,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9071522309711286,
+    "kl": 0.03776754001308945,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.879693774941343,
+    "ratio": 1.016386800889571,
+    "ci95": [
+     1.007008086045501,
+     1.0258528638824245
+    ],
+    "gap_closed_vs_abl_base": 0.921401676805146
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8999343832020997,
+    "kl": 0.04201186302396681,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 18.072984825565232,
+    "ratio": 1.0224952212735565,
+    "ci95": [
+     1.014487756430718,
+     1.030565889928174
+    ],
+    "gap_closed_vs_abl_base": 0.908734620731283
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_P3h8",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "fp12,a8,ah2,g4,h8",
+  "gate_pc": "-5:mc8:tm2:ng4",
+  "gptq": false,
+  "refused": 0,
+  "seconds": 985,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9140419947506562,
+    "kl": 0.03359154700118619,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.844044133811193,
+    "ratio": 1.0133367370253352,
+    "ci95": [
+     1.0058628537952226,
+     1.020866153602093
+    ],
+    "gap_closed_vs_abl_base": 0.9359346931036443
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.9014107611548556,
+    "kl": 0.03896220805283192,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 18.066722805350594,
+    "ratio": 1.0221409418998513,
+    "ci95": [
+     1.0152422185622079,
+     1.0290865430985794
+    ],
+    "gap_closed_vs_abl_base": 0.9101563444948613
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_c2gpc_fp10",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "fp10",
+  "gate_pc": "-5:mc3",
+  "gptq": false,
+  "refused": 0,
+  "seconds": 662,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8740157480314961,
+    "kl": 0.0675576259577263,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 12.049452482069244,
+    "ratio": 1.030910787158041,
+    "ci95": [
+     1.0187902068961592,
+     1.0431755663579283
+    ],
+    "gap_closed_vs_abl_base": 0.8527903955352992
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8558070866141733,
+    "kl": 0.07817039460802531,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 18.462971355668607,
+    "ratio": 1.044559056729651,
+    "ci95": [
+     1.032375759545943,
+     1.0568861317276808
+    ],
+    "gap_closed_vs_abl_base": 0.8211493631186771
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_c2gpc_fp11",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "fp11",
+  "gate_pc": "-5:mc3",
+  "gptq": false,
+  "refused": 0,
+  "seconds": 658,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8828740157480315,
+    "kl": 0.06886703177388795,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 12.170755326389425,
+    "ratio": 1.0412890521380234,
+    "ci95": [
+     1.028446287278893,
+     1.054292191545895
+    ],
+    "gap_closed_vs_abl_base": 0.8043530718092384
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8574475065616798,
+    "kl": 0.07479866661118044,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 18.48779824121153,
+    "ratio": 1.0459636599023834,
+    "ci95": [
+     1.036178509486038,
+     1.0558412163740503
+    ],
+    "gap_closed_vs_abl_base": 0.81563641117159
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_c2gpc_fp12",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "fp12",
+  "gate_pc": "-5:mc3",
+  "gptq": false,
+  "refused": 0,
+  "seconds": 652,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8741797900262467,
+    "kl": 0.06550391448894777,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 12.079716035431874,
+    "ratio": 1.0335000353969708,
+    "ci95": [
+     1.0218022211556306,
+     1.0453317687619847
+    ],
+    "gap_closed_vs_abl_base": 0.8406603849762504
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8631889763779528,
+    "kl": 0.07680541804449542,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 18.56873352894993,
+    "ratio": 1.0505426459273073,
+    "ci95": [
+     1.0379314331237475,
+     1.0633070891691223
+    ],
+    "gap_closed_vs_abl_base": 0.7977155356430854
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_c2gpc_y4",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "y4",
+  "gate_pc": "-5:mc3",
+  "gptq": false,
+  "refused": 0,
+  "seconds": 630,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9014107611548556,
+    "kl": 0.03971158667032098,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.916550507304468,
+    "ratio": 1.0195401394357897,
+    "ci95": [
+     1.0112405032707128,
+     1.0279078938776267
+    ],
+    "gap_closed_vs_abl_base": 0.9064223551522786
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8961614173228346,
+    "kl": 0.04453750211528223,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 18.109008526785807,
+    "ratio": 1.0245332942706917,
+    "ci95": [
+     1.0167074801564067,
+     1.032419345343735
+    ],
+    "gap_closed_vs_abl_base": 0.9005653860255222
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_c2gpc_y4fp12",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "y4,fp12",
+  "gate_pc": "-5:mc3",
+  "gptq": false,
+  "refused": 1,
+  "seconds": 618,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.901246719160105,
+    "kl": 0.03941465178207711,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.864502797159151,
+    "ratio": 1.015087111722246,
+    "ci95": [
+     1.0061315071448493,
+     1.024122430385502
+    ],
+    "gap_closed_vs_abl_base": 0.9275891267356715
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8925524934383202,
+    "kl": 0.042782083434189294,
+    "refused": 1,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 18.0502420033338,
+    "ratio": 1.0212085258397714,
+    "ci95": [
+     1.0128484099993897,
+     1.0296376466133443
+    ],
+    "gap_closed_vs_abl_base": 0.9139004882429186
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 19,
+    "site": "FFN gate",
+    "token": 2452,
+    "text": "Der",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_c2gpc_y4fp12_af",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [
+   "exp",
+   "k",
+   "kr",
+   "o",
+   "p",
+   "q",
+   "qr",
+   "rope_tab",
+   "s",
+   "v"
+  ],
+  "mods": "y4,fp12",
+  "gate_pc": "-5:mc3",
+  "gptq": false,
+  "refused": 1,
+  "seconds": 588,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9542322834645669,
+    "kl": 0.008159995817069644,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.729010305967146,
+    "ratio": 1.0034948280930431,
+    "ci95": [
+     0.9995608682485841,
+     1.0074442707765663
+    ],
+    "gap_closed_vs_abl_base": 0.9831297537555004
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.952263779527559,
+    "kl": 0.009956031303155265,
+    "refused": 1,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 17.728191557347085,
+    "ratio": 1.0029882348801602,
+    "ci95": [
+     0.9992073666502382,
+     1.006783409414308
+    ],
+    "gap_closed_vs_abl_base": 0.9877588549983655
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 19,
+    "site": "FFN gate",
+    "token": 2452,
+    "text": "Der",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "t_c2gpc_y8",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "y8",
+  "gate_pc": "-5:mc3",
+  "gptq": false,
+  "refused": 0,
+  "seconds": 628,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9005905511811023,
+    "kl": 0.03778543992617577,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.947522982182027,
+    "ratio": 1.022190040624559,
+    "ci95": [
+     1.0148231854552552,
+     1.0296103736369626
+    ],
+    "gap_closed_vs_abl_base": 0.893870296374709
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8946850393700787,
+    "kl": 0.04266967543537765,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 18.25300248499703,
+    "ratio": 1.032679880768953,
+    "ci95": [
+     1.0230460708507592,
+     1.0424044102511862
+    ],
+    "gap_closed_vs_abl_base": 0.868072818210801
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "var_aex",
+  "export": "tl_dg_aex",
+  "relax": [],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 6,
+  "seconds": 325,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8523622047244095,
+    "kl": 0.09161804607208687,
+    "refused": 2,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 12.312932044875968,
+    "ratio": 1.0534532158615306,
+    "ci95": [
+     1.0386705128220213,
+     1.0684463112309048
+    ],
+    "gap_closed_vs_abl_base": 0.7481914124042336
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8316929133858267,
+    "kl": 0.11430054494350271,
+    "refused": 4,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 19.284699145968478,
+    "ratio": 1.091049038704336,
+    "ci95": [
+     1.073132836311008,
+     1.1092643562652718
+    ],
+    "gap_closed_vs_abl_base": 0.6425039690398073
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 20018,
+    "text": "Progress",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 567,
+    "text": "ps",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 30062,
+    "text": "\u00c9",
+    "sequences": 1
+   },
+   {
+    "layer": 6,
+    "site": "FFN up",
+    "token": 10722,
+    "text": "Angeles",
+    "sequences": 1
+   },
+   {
+    "layer": 8,
+    "site": "FFN up",
+    "token": 21704,
+    "text": "Tool",
+    "sequences": 1
+   },
+   {
+    "layer": 8,
+    "site": "FFN up",
+    "token": 2875,
+    "text": "property",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
   "tag": "var_dg",
   "export": "tl_dg",
   "relax": [],
@@ -635,7 +5634,7 @@
   "gate_pc": null,
   "gptq": false,
   "refused": 1,
-  "seconds": 553,
+  "seconds": 490,
   "corpora": {
    "fineweb": {
     "n": 48,
@@ -679,6 +5678,424 @@
     "site": "score",
     "token": 278,
     "text": "the",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "var_dg_w16",
+  "export": "tl_dg_w16",
+  "relax": [],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 4,
+  "seconds": 565,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8499015748031497,
+    "kl": 0.09379781865084431,
+    "refused": 2,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 12.405703935149619,
+    "ratio": 1.0613904679956396,
+    "ci95": [
+     1.0431202631316736,
+     1.079980674682568
+    ],
+    "gap_closed_vs_abl_base": 0.7118938607695171
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8312007874015748,
+    "kl": 0.11173224962626643,
+    "refused": 2,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 19.29448440316818,
+    "ratio": 1.0916026483500147,
+    "ci95": [
+     1.0756893214918972,
+     1.1077513907380945
+    ],
+    "gap_closed_vs_abl_base": 0.6404228131618127
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 20018,
+    "text": "Progress",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 567,
+    "text": "ps",
+    "sequences": 1
+   },
+   {
+    "layer": 0,
+    "site": "FFN up",
+    "token": 30062,
+    "text": "\u00c9",
+    "sequences": 1
+   },
+   {
+    "layer": 6,
+    "site": "FFN up",
+    "token": 10722,
+    "text": "Angeles",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "var_dg_w16u",
+  "export": "tl_dg_w16u",
+  "relax": [],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 0,
+  "seconds": 471,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8302165354330708,
+    "kl": 0.12568306974647991,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 12.569674299331535,
+    "ratio": 1.0754192230333413,
+    "ci95": [
+     1.0585858043150913,
+     1.0925203233930687
+    ],
+    "gap_closed_vs_abl_base": 0.6483983653734897
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8079068241469817,
+    "kl": 0.14553190036857894,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 19.37586746491694,
+    "ratio": 1.0962069675885828,
+    "ci95": [
+     1.0777689627742797,
+     1.1149604018068437
+    ],
+    "gap_closed_vs_abl_base": 0.6231548175450261
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "w16u_gate",
+  "export": "tl_dg_w16u",
+  "relax": [
+   "gate"
+  ],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 0,
+  "seconds": 310,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8599081364829396,
+    "kl": 0.08494978258778896,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 12.099755326695881,
+    "ratio": 1.0352145300233286,
+    "ci95": [
+     1.023230084785827,
+     1.0473393414695513
+    ],
+    "gap_closed_vs_abl_base": 0.8326450985906391
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8502296587926509,
+    "kl": 0.09556034663652593,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 18.567783478436393,
+    "ratio": 1.0504888959729177,
+    "ci95": [
+     1.0369866373417886,
+     1.064166963029707
+    ],
+    "gap_closed_vs_abl_base": 0.7979254445734457
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "w16u_gn",
+  "export": "tl_dg_w16u",
+  "relax": [
+   "gate",
+   "nm",
+   "norm",
+   "y"
+  ],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 0,
+  "seconds": 286,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.86499343832021,
+    "kl": 0.0757672264814856,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 12.213986625794606,
+    "ratio": 1.0449877772847458,
+    "ci95": [
+     1.033169975215459,
+     1.0569407559939845
+    ],
+    "gap_closed_vs_abl_base": 0.7872070264194856
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8495734908136483,
+    "kl": 0.08869355292755199,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 18.667577020248928,
+    "ratio": 1.0561348045266017,
+    "ci95": [
+     1.0436573907292155,
+     1.068761391660424
+    ],
+    "gap_closed_vs_abl_base": 0.7759350358546432
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "w16u_gna",
+  "export": "tl_dg_w16u",
+  "relax": [
+   "exp",
+   "gate",
+   "k",
+   "kr",
+   "nm",
+   "norm",
+   "o",
+   "p",
+   "q",
+   "qr",
+   "rope_tab",
+   "s",
+   "v",
+   "y"
+  ],
+  "mods": null,
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 0,
+  "seconds": 269,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.9037073490813649,
+    "kl": 0.04276176307637618,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 11.857031022726497,
+    "ratio": 1.0144478517331885,
+    "ci95": [
+     1.006010399434471,
+     1.022956069305638
+    ],
+    "gap_closed_vs_abl_base": 0.9306353686451929
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8914041994750657,
+    "kl": 0.04918408418973242,
+    "refused": 0,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 18.07126233751067,
+    "ratio": 1.0223977699769666,
+    "ci95": [
+     1.0133416976771699,
+     1.031534774943096
+    ],
+    "gap_closed_vs_abl_base": 0.909125643839405
+   }
+  },
+  "refusal_tokens": []
+ },
+ {
+  "model": "tinyllama",
+  "tag": "wi_dg_gatepc5",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": null,
+  "gate_pc": "-5:mc3",
+  "gptq": false,
+  "refused": 1,
+  "seconds": 498,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8308727034120735,
+    "kl": 0.10699201824462672,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 12.421489985830666,
+    "ratio": 1.06274106960662,
+    "ci95": [
+     1.0478798562413452,
+     1.0778130472702756
+    ],
+    "gap_closed_vs_abl_base": 0.705744509475881
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8069225721784777,
+    "kl": 0.1278107807378537,
+    "refused": 1,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 19.056287466711066,
+    "ratio": 1.07812644441358,
+    "ci95": [
+     1.061623965747822,
+     1.0948854468682692
+    ],
+    "gap_closed_vs_abl_base": 0.6913855842608221
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 19,
+    "site": "FFN gate",
+    "token": 2452,
+    "text": "Der",
+    "sequences": 1
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "wi_dg_gatepc8",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": null,
+  "gate_pc": "-8:mc3",
+  "gptq": false,
+  "refused": 2,
+  "seconds": 500,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8364501312335958,
+    "kl": 0.11614943573768303,
+    "refused": 1,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 12.492614696411373,
+    "ratio": 1.0688262615670225,
+    "ci95": [
+     1.0522235082719509,
+     1.08569098526554
+    ],
+    "gap_closed_vs_abl_base": 0.6781349297450858
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.8180774278215223,
+    "kl": 0.1340578878073358,
+    "refused": 1,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 19.18282690985051,
+    "ratio": 1.0852855261680052,
+    "ci95": [
+     1.0669833277106633,
+     1.103901666239684
+    ],
+    "gap_closed_vs_abl_base": 0.6642333815962691
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 0,
+    "site": "FFN gate",
+    "token": 660,
+    "text": "Q",
+    "sequences": 2
+   }
+  ]
+ },
+ {
+  "model": "tinyllama",
+  "tag": "wi_dg_pround",
+  "export": "tinyllama_dg_rot1_T128",
+  "relax": [],
+  "mods": "pround",
+  "gate_pc": null,
+  "gptq": false,
+  "refused": 1,
+  "seconds": 454,
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "top1": 0.8079068241469817,
+    "kl": 0.14797546621482466,
+    "refused": 0,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 12.99642457546494,
+    "ratio": 1.1119305469912781,
+    "ci95": [
+     1.0924296834158131,
+     1.1317795187204869
+    ],
+    "gap_closed_vs_abl_base": 0.4869502144872728
+   },
+   "wikitext": {
+    "n": 48,
+    "top1": 0.7900262467191601,
+    "kl": 0.1738637201880113,
+    "refused": 1,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 19.965374554486665,
+    "ratio": 1.1295588564884886,
+    "ci95": [
+     1.1031250284186898,
+     1.1566261098259791
+    ],
+    "gap_closed_vs_abl_base": 0.5001962312411783
+   }
+  },
+  "refusal_tokens": [
+   {
+    "layer": 21,
+    "site": "FFN gate",
+    "token": 13,
+    "text": "\n",
+    "sequences": 1
+   },
+   {
+    "layer": 21,
+    "site": "FFN up",
+    "token": 13,
+    "text": "\n",
     "sequences": 1
    }
   ]

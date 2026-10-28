@@ -1,0 +1,75 @@
+diff -ruN -x __pycache__ frozen_v8/tests/test_v4_status_g10.py tests/test_v4_status_g10.py
+--- frozen_v8/tests/test_v4_status_g10.py	2026-10-19 03:06:19.460155405 -0700
++++ tests/test_v4_status_g10.py	2026-10-19 10:41:38.169357082 -0700
+@@ -648,3 +648,71 @@
+             set_(p, "src/private_block/run.rs", "1" * 64)
+         out = check(moved)
+         self.assertFalse(out["ok"])
++
++
++class TokenIoGeometry(unittest.TestCase):
++    """[gate round 7] the token stages' geometry, re-derived, equals the token
++    lane's own counted layouts (DESIGN §6.5) at R2 and R3"""
++
++    def test_r2_and_r3_counted_layouts(self):
++        import zk60_native_rg_tokenio as T
++        r2, r3 = T.TokenGeom(**T.R2_TINYLLAMA_T32), T.TokenGeom(**T.R3_LLAMA3_8B_T32)
++        for g, want in ((r2, (17, 28, 182, 110, 1_196_032)), (r3, (41, 76, 374, 302, 2_768_896))):
++            si, so = g.stage_in(), g.stage_out()
++            self.assertEqual((si.a_rows, si.h_rows, so.a_rows, so.h_rows, so.elems()), want, g.name)
++            self.assertEqual(g.limbs, 7, g.name)
++        self.assertEqual(r2.stage_in().elems(), 184_320)       # DESIGN §1: 0.18 M
++        self.assertEqual(r3.stage_in().elems(), 479_232)       # DESIGN §1: 0.48 M
++
++    def test_static_g_items(self):
++        import zk60_native_rg_tokenio as T
++        r2, r3 = T.TokenGeom(**T.R2_TINYLLAMA_T32), T.TokenGeom(**T.R3_LLAMA3_8B_T32)
++        self.assertTrue(r2.g5()["stage OUT"]["holds"])
++        self.assertTrue(r3.g5()["stage OUT"]["holds"])
++        self.assertEqual(r2.g4()["vocabulary"]["pad_positions"], 768)      # 32,000 -> 32,768
++        self.assertEqual(r3.g4()["vocabulary"]["pad_positions"], 2_816)    # 128,256 -> 131,072
++        self.assertEqual(r2.g4()["endpoints"]["input"]["pad_words_in_plane"], 224)   # 256-word plane, T = 32
++        self.assertEqual(r2.g4()["endpoints"]["output"]["pad_words_in_plane"], 255)  # one id in one row
++        # a wider-than-tier byte table would break G-5
++        import dataclasses
++        bad = T.TokenGeom(**(T.R2_TINYLLAMA_T32 | {"tier": dataclasses.replace(T.R1_MVP, stage_log_n=16)}))
++        self.assertTrue(bad.g5()["stage OUT"]["holds"])                       # Tab lifts UP to 2^16
++        self.assertEqual(r2.g2()["B_out"]["fixed_bits_total"], 5)
++
++    def test_plane_index_cross_check(self):
++        import zk60_native_rg_tokenio as T
++        g = T.TokenGeom(**T.R2_TINYLLAMA_T32)
++        lay = g.stage_out()
++        good = {"a_rows": lay.a_rows, "a_data_rows": lay.a_data_rows, "a_mask_base": lay.a_mask_base,
++                "a_prox": lay.a_prox, "h_rows": lay.h_rows, "h_data_rows": lay.h_data_rows,
++                "h_mask_base": lay.h_mask_base, "h_prox": lay.h_prox, "h_u": lay.h_u,
++                "h_u_rows": lay.h_u_rows(), "log_n": lay.log_n}
++        self.assertEqual(T.cross_check_plane_index(g, "OUT", good), [])
++        self.assertEqual(len(T.cross_check_plane_index(g, "OUT", good | {"a_rows": lay.a_rows + 2})), 1)
++        self.assertEqual(len(T.cross_check_plane_index(g, "OUT", {k: v for k, v in good.items() if k != "h_u"})), 1)
++
++
++TOKEN_L1 = "/home/victor/zk60-artifacts/token-io/captures/tinyllama-t32-L1-dense-pt1"
++
++
++class TokenGate(unittest.TestCase):
++    """[gate round 7] the token-run loader, replay and G-items on a real capture"""
++
++    @unittest.skipUnless(os.path.isdir(TOKEN_L1), "the token capture is not on disk")
++    def test_replay_and_integrity_on_the_capture(self):
++        import zk60_native_rg_tokengate as TG
++        b = TG.load(TOKEN_L1)
++        self.assertEqual([s.kind for s in b.stages], ["IN", "BLOCK", "OUT"])
++        rp = TG.TokenRunReplay(b).run()
++        self.assertTrue(rp.summary()["ok"], rp.failures[:3])
++        self.assertTrue(TG.token_integrity(b)["ok"])
++        self.assertTrue(TG.g2_claim_points(b)["ok"])
++        self.assertTrue(TG.g4_support_tables(b)["ok"])
++        self.assertTrue(TG.g5_tab_width(b)["ok"])
++
++    @unittest.skipUnless(os.path.isdir(TOKEN_L1), "the token capture is not on disk")
++    def test_a_block_run_bundle_is_refused(self):
++        import zk60_native_rg_tokengate as TG
++        if os.path.isdir(TL1D):
++            with self.assertRaises(ValueError):
++                TG.load(TL1D)

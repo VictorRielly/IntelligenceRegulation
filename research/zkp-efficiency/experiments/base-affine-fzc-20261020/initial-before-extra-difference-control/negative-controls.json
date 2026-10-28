@@ -1,0 +1,19 @@
+[
+  "BASE_on_extension_A_0",
+  "BASE_on_extension_A_1",
+  "BASE_on_extension_A_2",
+  "BASE_on_extension_A_3",
+  "BASE_on_extension_A_4",
+  "BASE_on_extension_A_5",
+  "BASE_on_extension_A_6",
+  "BASE_on_extension_A_7",
+  "BASE_on_extension_A_8",
+  "BASE_on_extension_A_9",
+  "BASE_on_extension_A_10",
+  "BASE_retained_after_extension_fold",
+  "truncate_extension_derived_results",
+  "stale_preweights",
+  "constant_in_difference",
+  "omit_high_reconstruction",
+  "unweighted_pad"
+]

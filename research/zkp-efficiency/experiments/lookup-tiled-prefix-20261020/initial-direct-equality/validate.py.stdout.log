@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "seed": 20261020108,
+  "checks": 2457,
+  "cost_schedules": 240,
+  "cost_mutations": 1680,
+  "independent_original_MLE_cases": 70,
+  "verified_pins": 9,
+  "elapsed_s": 0.056035187997622415,
+  "maxrss_KiB": 16088,
+  "scope": "Independent original Boolean basis and source-challenge schedule; symbolic Fp2 capacity/cost, not private protocol."
+}

@@ -1,0 +1,31 @@
+{
+  "at": "2026-10-26T19:48:29.018365+00:00",
+  "scope": "MEASURED completed OpenAI612 sexual category only; stored importance weights, missing category labels count as zero; no policy recommendation yet",
+  "source_sha256": {
+    "results/zk60_shieldstral_prep_20261021/bench/openai_mod_cat_sexual_le168_strat300.jsonl": "1be6f2929d1c6fff850ef102cb38c07f404a2dc733d8e9a5cd76a62fb63cd3a4",
+    "results/zk60_shieldstral_prep_20261021/bench/openai_mod_mod_sexual_le168_strat300.jsonl": "bb515c30e9c61c2d832fb28452936d7d27424935b6592196bcdd75d06aaca461"
+  },
+  "policy": {
+    "strict": {
+      "precision": 0.5969988705426773,
+      "recall": 0.9736842105263158,
+      "f1": 0.7401727069649585,
+      "tp_weight": 74.0,
+      "fp_weight": 49.95333333333333,
+      "fn_weight": 2.0,
+      "n": 612
+    },
+    "moderate": {
+      "precision": 0.6121773659827928,
+      "recall": 0.9736842105263158,
+      "f1": 0.7517269402681837,
+      "tp_weight": 74.0,
+      "fp_weight": 46.879999999999995,
+      "fn_weight": 2.0,
+      "n": 612
+    }
+  },
+  "changed_verdict_ids": [
+    "932"
+  ]
+}

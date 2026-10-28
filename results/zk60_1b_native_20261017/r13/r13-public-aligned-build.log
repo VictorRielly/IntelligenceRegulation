@@ -1,0 +1,37 @@
+warning: multiple methods are never used
+   --> /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/working-tree/hashline/src/private_block/accuracy_public.rs:233:19
+    |
+ 58 | impl AccuracyPublic {
+    | ------------------- methods in this implementation
+...
+233 |     pub(crate) fn stack(&self) -> Stack {
+    |                   ^^^^^
+...
+236 |     pub(crate) fn geometry(&self) -> Geometry {
+    |                   ^^^^^^^^
+...
+239 |     pub(crate) fn base(&self) -> BaseShifts {
+    |                   ^^^^
+...
+242 |     pub(crate) fn precision(&self) -> &Precision {
+    |                   ^^^^^^^^^
+...
+245 |     pub(crate) fn multipliers(&self) -> &Multipliers {
+    |                   ^^^^^^^^^^^
+...
+248 |     pub(crate) fn folds(&self) -> &GroupFolds {
+    |                   ^^^^^
+...
+251 |     pub(crate) fn groups(&self) -> &[Group] {
+    |                   ^^^^^^
+...
+254 |     pub(crate) fn group_ids(&self) -> &[usize] {
+    |                   ^^^^^^^^^
+...
+257 |     pub(crate) fn scaled_tables(&self) -> &[Vec<i64>] {
+    |                   ^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: 1 warning emitted
+

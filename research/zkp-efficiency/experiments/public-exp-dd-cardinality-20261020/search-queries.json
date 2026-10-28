@@ -1,0 +1,16 @@
+{
+  "provider": "native LIVE web tool",
+  "access_date": "2026-10-20",
+  "queries": [
+    "site.eprint.iacr.org 2026 lookup softmax quantization zero knowledge October",
+    "site.github.com Lagrange-Labs deep-prove softmax lookup table quantization release",
+    "site.eprint.iacr.org 2023 zkLLM zkAttn exponential lookup",
+    "site.eprint.iacr.org/2026 \"lookup\" \"October\" \"softmax\"",
+    "site.eprint.iacr.org \"Softmax\" \"2025\" exponential range reduction",
+    "zero knowledge softmax exponential lookup table decomposition zkAttn zkGPT 2024 2025 paper",
+    "site.usenix.org \"Scalable Zero-knowledge Proofs\" Hao 2024",
+    "site.eprint.iacr.org exponential \"lookup\" \"2022\" machine learning",
+    "site.github.com zero knowledge softmax lookup \"2026\" exp"
+  ],
+  "query_count": 9
+}

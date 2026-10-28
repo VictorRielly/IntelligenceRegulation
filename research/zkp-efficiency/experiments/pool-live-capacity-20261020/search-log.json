@@ -1,0 +1,42 @@
+{
+  "access_date": "2026-10-20",
+  "engine": "native LIVE web",
+  "queries": [
+    "CUDA memory pool cached allocations out of memory release threshold documentation",
+    "zk proof lookup softmax GPU sumcheck 2026 github release",
+    "site.docs.nvidia.com cuda stream ordered memory allocator reservedmemhigh usedmemhigh out of memory release threshold",
+    "site:github.com NVIDIA cuCascade releases memory management",
+    "site:arxiv.org zkLLMPoT 2610.08258",
+    "site:github.com zkllm lookup softmax license",
+    "\"GPU Memory Reservation\" \"cuCascade\" \"release\" October 2026",
+    "\"LogUp\" \"2026\" \"lookup\" GPU github October",
+    "site:github.com/NVIDIA/cuCascade/blob/main/LICENSE.md \"Apache License\"",
+    "site:github.com/hemilabs/sp1/pull/7 \"5090\""
+  ],
+  "blockers": [
+    "https://github.com/NVIDIA/cuCascade/blob/main/LICENSE: Internal Error",
+    "https://github.com/NVIDIA/cuCascade/blob/main/LICENSE.md: Internal Error",
+    "https://github.com/NVIDIA/cuCascade/raw/refs/heads/main/LICENSE.md: Cache miss",
+    "commit-history aaf1a9a link: Internal Error; no full commit inspected",
+    "https://docs.rs/crate/sp1-gpu-logup-gkr/6.9.0: not accessible",
+    "https://github.com/succinctlabs/sp1/blob/v6.9.0/LICENSE-MIT: Internal Error",
+    "https://github.com/succinctlabs/sp1/blob/v6.9.0/LICENSE-APACHE: Internal Error",
+    "PR commit5f795ba link: Internal Error; full SHA not recovered",
+    "PR commit527bd36 link: Internal Error",
+    "https://github.com/hemilabs/sp1/pull/7: Cache miss",
+    "https://github.com/zkllm/zkllm: Internal Error; no implementation inspected"
+  ],
+  "rotation_current": [
+    "memory traffic",
+    "batching/amortization",
+    "lookup/softmax",
+    "GPU NTT/commitments",
+    "sumcheck/GKR"
+  ],
+  "rotation_next": [
+    "quantization/arithmetic",
+    "proof composition",
+    "GPU source allocation census"
+  ],
+  "external_code_executed": false
+}

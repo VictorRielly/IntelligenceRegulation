@@ -109,6 +109,46 @@ pub(crate) fn honest_inputs(tp: &TokenProfile, tables: &TokenTables, tokens: &[u
     Ok((StageInWitness { tok, mult, hq_zero: vec![] }, plane, endpoint_plane(tp, tokens)))
 }
 
+/// **ROUND 9 (F-T1): stage IN's indexed lookup, checked in the run's
+/// SEALING PASS, before any header** (ruling H-1). Challenge-free: every
+/// prompt position's id lies in the vocabulary (BOS at position 0), its
+/// `B_in` row is that id's embedding row with zero pad words, every pad
+/// position's id and `B_in` row are zero, and the multiplicities are the
+/// prompt's histogram — exactly what the IN-01 / IN-02 LogUp needs to close.
+/// Names the class of the miss only, never a position or value.
+pub(crate) fn lookup_misses(tp: &TokenProfile, tables: &TokenTables, wit: &StageInWitness, b_plane: &[i16]) -> Result<(), String> {
+    let (ti_n, voc_n) = (1usize << tp.ti_log(), 1usize << tp.voc_log());
+    if wit.tok.len() != ti_n || wit.mult.len() != voc_n || b_plane.len() != tp.t_pad * tp.d_pad || tp.tokens > ti_n {
+        return Err("token I/O stage IN: witness shape".into());
+    }
+    let miss = || Err("token I/O stage IN: the witness's embedding lookup misses (the class of the miss only)".to_string());
+    let mut hist = vec![0u64; voc_n];
+    for t in 0..ti_n {
+        let id = wit.tok[t].0;
+        if t >= tp.tokens {
+            if id != 0 {
+                return miss();
+            }
+            continue;
+        }
+        if id >= tp.v as u64 || (t == 0 && id != tp.bos) {
+            return miss();
+        }
+        hist[id as usize] += 1;
+        let row = &b_plane[t * tp.d_pad..(t + 1) * tp.d_pad];
+        if row[..tp.d] != *tables.emb_row(id as usize) || row[tp.d..].iter().any(|x| *x != 0) {
+            return miss();
+        }
+    }
+    if b_plane[tp.tokens * tp.d_pad..].iter().any(|x| *x != 0) {
+        return miss();
+    }
+    if wit.mult.iter().zip(hist.iter()).any(|(m, h)| m.0 != *h) {
+        return miss();
+    }
+    Ok(())
+}
+
 /// the input token endpoint's plane from a prompt (public-row variant: `tok`
 /// alone over `max(row width, T_pad)` words, pad words zero)
 pub(crate) fn endpoint_plane(tp: &TokenProfile, tokens: &[u64]) -> Vec<Fp> {
@@ -223,6 +263,11 @@ pub(crate) fn define(slot: usize, cx: &InCtx, tr: &mut Transcript) -> Result<Sta
 fn run_slots(side: &mut Side, cx: &InCtx, tr: &mut Transcript) -> Result<Acc, String> {
     let mut acc = Acc::default();
     for slot in 0..cx.lay.sched.slots.len() {
+        // TOKEN I/O (round 7): the run capture's definition checkpoint, as
+        // `argument::argument` takes it (verify side only; a no-op unless a
+        // recorder is attached)
+        #[cfg(test)]
+        super::super::run_capture::start_slot(side, tr);
         let def = define(slot, cx, tr)?;
         run_stage_slot(side, &mut acc, def, &cx.lay.sched, tr)?;
     }
@@ -433,14 +478,47 @@ pub(crate) fn verify(
     let cx = InCtx { lay, tp, alpha, beta, g_emb, r_emb, tau_tab, b_in_row: b_spec.mask_row(0)?, b_in_log: (tp.t_pad * tp.d_pad).trailing_zeros() as usize, ep_mask_row: ep_data_rows };
     let mut side = Side::Verify { slots: &seg.slots };
     let acc = run_slots(&mut side, &cx, tr)?;
+    // TOKEN I/O (round 7; capture request 2.2): every opening of the stage
+    // wrapped as `protocol::verify_core` wraps a block's (checkpoint after
+    // the schedule check, the hook after the verification; no-ops unless a
+    // recorder is attached)
+    #[cfg(test)]
+    let rc_before = super::super::run_capture::checkpoint(tr);
     crate::zk::mask_verify_tagged(&seg.mask_root, &lay.mask_specs(), &acc.fs, &seg.mask_open, ntt, tr, tag).map_err(|e| format!("stage IN M: {e}"))?;
+    #[cfg(test)]
+    super::super::run_capture::mask(&lay.mask_specs(), &seg.mask_root, &acc.fs, &seg.mask_open, ntt, rc_before, tr);
     let [ac, mut hc, ic, oc] = acc.claims;
     hc.push(lay.logup_sum_claim());
     protocol::check_opening(&ac, lay.log_n, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, A_GROUPS, tr)?;
+    #[cfg(test)]
+    let rc_before = super::super::run_capture::checkpoint(tr);
     pcs::verify_zk_tagged(&params, &zko, &protocol::commitment(seg.a_root, lay.a_rows, lay.log_n), &ac, &seg.a_open, ntt, tr, tag).map_err(|e| format!("stage IN A: {e}"))?;
+    #[cfg(test)]
+    super::super::run_capture::pcs(capture_a_geom("A-in", "stage-in", lay, seg.a_root), &ac, &seg.a_open, ntt, rc_before, tr);
     protocol::check_opening(&hc, lay.log_n, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, H_GROUPS, tr)?;
+    #[cfg(test)]
+    let rc_before = super::super::run_capture::checkpoint(tr);
     pcs::verify_zk_tagged(&params, &zko, &protocol::commitment(seg.h_root, lay.h_rows, lay.log_n), &hc, &seg.h_open, ntt, tr, tag).map_err(|e| format!("stage IN H (the LogUp sum claim is part of this opening): {e}"))?;
+    #[cfg(test)]
+    super::super::run_capture::pcs(capture_h_geom("H-in", "stage-in", lay, seg.h_root), &hc, &seg.h_open, ntt, rc_before, tr);
     check_token_endpoint_opening(&ic, ep_data_rows, tp.tier.ep_n(), tr)?;
+    #[cfg(test)]
+    let rc_before = super::super::run_capture::checkpoint(tr);
     pcs::verify_zk_tagged(&ep_params, &ZkOpts::standard(&ep_params), &protocol::commitment(*ep_root, ep_spec.commitment_rows(), tp.tier.ep_log_n), &ic, &seg.closes[0], ntt, tr, tag).map_err(|e| format!("input token endpoint: {e}"))?;
+    #[cfg(test)]
+    super::super::run_capture::pcs(capture_ep_geom("E-token-in", ep_spec, *ep_root, vec![(0, SI_IO, ic.len())]), &ic, &seg.closes[0], ntt, rc_before, tr);
     Ok((oc, b_root))
+}
+
+/// TOKEN I/O (round 7): stage IN's plane table for the run capture (the
+/// plane names are this module's constants, in plane order)
+#[cfg(test)]
+pub(crate) fn capture_planes(lay: &StageLayout) -> super::super::run_capture::StagePlanes<'_> {
+    super::super::run_capture::StagePlanes::Stage {
+        lay,
+        a_names: vec!["A_TOK".into(), "A_MULT".into()],
+        h_names: vec!["H_Q".into(), "H_TAB".into(), "H_U".into()],
+        // [A, H, In = the input token endpoint, Out = B_in]
+        roles: ["A-in", "H-in", "E-token-in", "B-in"],
+    }
 }

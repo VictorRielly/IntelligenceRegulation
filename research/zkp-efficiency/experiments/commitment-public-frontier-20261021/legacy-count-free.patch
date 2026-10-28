@@ -1,0 +1,78 @@
+--- a/hashline/src/gpu/cuda.rs
++++ b/hashline/src/gpu/cuda.rs
+@@ -1826,7 +1826,6 @@
+         let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;
+         let state_words = B3_STATE_SLOTS * nn;
+         let mut d_state = Pooled::take_min(&dev, (state_words + 1) / 2)?;
+-        dev.memset_zeros(d_state.get_mut()).map_err(|e| format!("state memset: {e}"))?;
+         let mut d_leaves = unsafe { dev.alloc::<u32>(nn * 8) }.map_err(|e| format!("leaves alloc: {e}"))?;
+         note_raw_alloc(nn * 8 * 4); // [round-7 review] the leaf buffer is a raw allocation too
+         let f_hash = dev.get_func(MODULE, "k_hash_cols_stream").ok_or("k_hash_cols_stream missing")?;
+@@ -2127,7 +2126,7 @@
+     out
+ }
+ 
+-const B3_STATE_SLOTS: usize = 8 * 24 + 1;
++const B3_STATE_SLOTS: usize = 8 * 24;
+ 
+ impl Gpu {
+     /// `encode_rows` over a VIEW of the data (a row chunk); same kernels, same values.
+@@ -2258,10 +2257,9 @@
+         let t0 = Instant::now();
+         let mut d_coef = Pooled::take_min(&dev, rmax * n)?;
+         let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;
+-        // the per-column blake3 state (u32 slots, carried as a u64 pool buffer), zeroed
++        // The per-column CV state: public position supplies the logical stack length.
+         let state_words = B3_STATE_SLOTS * nn;
+         let mut d_state = Pooled::take_min(&dev, (state_words + 1) / 2)?;
+-        dev.memset_zeros(d_state.get_mut()).map_err(|e| format!("state memset: {e}"))?;
+         let mut d_leaves = unsafe { dev.alloc::<u32>(nn * 8) }.map_err(|e| format!("leaves alloc: {e}"))?;
+         note_raw_alloc(nn * 8 * 4);
+         let f_hash = dev.get_func(MODULE, "k_hash_cols_stream").ok_or("k_hash_cols_stream missing")?;
+@@ -2313,7 +2311,6 @@
+         let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;
+         let state_words = B3_STATE_SLOTS * nn;
+         let mut d_state = Pooled::take_min(&dev, (state_words + 1) / 2)?;
+-        dev.memset_zeros(d_state.get_mut()).map_err(|e| format!("state memset: {e}"))?;
+         let mut d_leaves = unsafe { dev.alloc::<u32>(nn * 8) }.map_err(|e| format!("leaves alloc: {e}"))?;
+         note_raw_alloc(nn * 8 * 4);
+         let f_hash = dev.get_func(MODULE, "k_hash_cols_stream").ok_or("k_hash_cols_stream missing")?;
+--- a/hashline/src/gpu/kernels.cu
++++ b/hashline/src/gpu/kernels.cu
+@@ -1417,14 +1417,14 @@
+ // row-chunk boundary is a blake3 chunk boundary and no partial chunk state
+ // is needed; the per-column CV STACK lives in `state` across launches:
+ //   state[(8 s + i) * nn + j] = stack[s][i] of column j (s < B3_MAX_DEPTH),
+-//   state[(8 B3_MAX_DEPTH) * nn + j] = its stack length (zeroed before the
+-//   first chunk).
++// Stack length comes from public row0: 0 at row0=0, otherwise
++// popcount(row0/128 - 1) + 1 for the existing lazy merge schedule.
+ // The launch that holds the last row finishes the column exactly as
+ // b3_hash_column does (the same compressions with the same flags in the
+ // same order — blake3 is a function of the byte string, and the byte
+ // string is the same column) and writes its 8 words to `leaves`.
+ 
+-#define B3_STATE_SLOTS (8 * B3_MAX_DEPTH + 1)
++#define B3_STATE_SLOTS (8 * B3_MAX_DEPTH)
+ 
+ extern "C" __global__ void k_hash_cols_stream(const u64* __restrict__ enc, u32* __restrict__ state, int rc, int row0, int rows, int nn,
+                                               u32* __restrict__ leaves) {
+@@ -1434,7 +1434,9 @@
+     const u32 n_chunks = (len + 1023u) / 1024u;
+     const size_t snn = (size_t)nn;
+     #define STK(s, i) state[((size_t)(8 * (s) + (i))) * snn + (size_t)j]
+-    int stack_len = (int)state[(size_t)(8 * B3_MAX_DEPTH) * snn + (size_t)j];
++    // The previous lazy push leaves one unmerged CV. Public launch position
++    // determines its length; no state byte is trusted before this proof writes it.
++    int stack_len = row0 == 0 ? 0 : __popc((u32)(row0 / 128) - 1u) + 1;
+     u32 cv[8];
+     u32 block[16];
+     u32 tmp[8];
+@@ -1492,7 +1494,6 @@
+         for (int i = 0; i < 8; i++) STK(stack_len, i) = cv[i];
+         stack_len += 1;
+     }
+-    state[(size_t)(8 * B3_MAX_DEPTH) * snn + (size_t)j] = (u32)stack_len;
+     #undef STK
+ }
+ 

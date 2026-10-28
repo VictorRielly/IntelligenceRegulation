@@ -1,0 +1,12 @@
+openai_mod/card: 200 selected, 0 done, 200 to do
+prefix 87 tokens K/V in 29.0s
+batch 1/9: 11 items, 3300 tail tokens, 149.4s (22.1 tok/s); total done 11
+batch 2/9: 15 items, 3999 tail tokens, 183.6s (21.8 tok/s); total done 26
+batch 3/9: 6 items, 3066 tail tokens, 158.8s (19.3 tok/s); total done 32
+batch 4/9: 22 items, 4019 tail tokens, 192.0s (20.9 tok/s); total done 54
+batch 5/9: 32 items, 4074 tail tokens, 170.6s (23.9 tok/s); total done 86
+batch 6/9: 32 items, 4090 tail tokens, 164.6s (24.9 tok/s); total done 118
+batch 7/9: 22 items, 4064 tail tokens, 180.8s (22.5 tok/s); total done 140
+batch 8/9: 31 items, 3878 tail tokens, 169.0s (22.9 tok/s); total done 171
+batch 9/9: 29 items, 3893 tail tokens, 154.8s (25.1 tok/s); total done 200
+all 200 items done in 26.1 min

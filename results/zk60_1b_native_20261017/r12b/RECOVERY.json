@@ -1,0 +1,16 @@
+{
+  "utc": "2026-10-28T21:00:24.193459+00:00",
+  "r12_tree": "1e406781f734e9f35f066516a35bf6b9ef97dee164ece4f43bbe7b3e00735fc7",
+  "native_changed_from_r12": [],
+  "boot_id": "9ecf0dc6-8b67-411a-8ac8-042f41dfd9d5",
+  "interrupted_build_1": {
+    "handle": 73172,
+    "state": "original exec handle missing; no terminal guard record; not counted as a pass",
+    "retry": "build-3 after completing derivation source"
+  },
+  "imported_r13_handles": {
+    "48877": "missing; r13-precision-low-green-tests.guard.json terminal exit 0",
+    "21301": "missing; aligned_red.done=0",
+    "19576": "missing; r13-public-aligned-cpu.guard.json terminal exit 0"
+  }
+}

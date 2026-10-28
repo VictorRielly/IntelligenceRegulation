@@ -1,0 +1,8 @@
+
+running 1 test
+test private_block::run_capture_tests::capture_a_tinyllama_t128_dd_run ... CAPTURE TinyLlama-T128-DD L=1 layers 0..1 zero: parity words 0, prove+verify+record 9.46 s, high-water mark 3.25 GiB
+CAPTURE TinyLlama-T128-DD L=1 layers 0..1 zero RESULT: 74235829 B (74.2 MB) at /home/victor/zk60-artifacts/dd-gate-r9/tl128dd-l1-zero, self-consistent, every key on the allow-list - a CAPTURE, not a privacy result
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 607 filtered out; finished in 10.27s
+

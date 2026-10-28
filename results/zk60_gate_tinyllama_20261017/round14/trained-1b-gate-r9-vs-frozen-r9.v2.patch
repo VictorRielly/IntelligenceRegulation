@@ -1,0 +1,716 @@
+diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/plane_index.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-r9/hashline/src/private_block/plane_index.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/plane_index.rs	2026-10-16 18:59:34.139803432 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-r9/hashline/src/private_block/plane_index.rs	2026-10-19 23:15:05.843305721 -0700
+@@ -124,6 +124,31 @@
+ fn a_segments(sh: &Shape) -> Vec<Seg> {
+     let (ln, ls, lp) = (sh.limbs_norm(), sh.limbs_sigma_s(), sh.limbs_p());
+     let one = |name: &'static str, dom: Dom| -> Seg { (name, false, 1, dom) };
++    // PRIVACY GATE LANE (gate round 14, H-3; test-only like this module): at a
++    // DD profile (D30) the `p`, `rho_s` and `sigma_s` limb groups are the
++    // DICTIONARY's, laid out on `Dom::Dd` between the quotient `P_dict` and the
++    // multiplicity `M_dd`, after the feed-forward planes and below the
++    // histograms -- exactly `Ids::new`'s DD segment table (R9 `layout.rs`).
++    if sh.dd_cap > 0 {
++        let mut v = a_segments_common(sh, ln);
++        v.extend([
++            one("A_S8", Dom::S),
++            one("A_RSL", Dom::S),
++            one("A_ZSEL", Dom::S),
++            one("A_E", Dom::S),
++            one("A_P", Dom::S),
++        ]);
++        v.extend(a_segments_ff());
++        v.extend([
++            one("A_PDICT", Dom::Dd),
++            ("A_PL", true, lp, Dom::Dd),
++            ("A_SR", true, ls, Dom::Dd),
++            ("A_SG", true, ls, Dom::Dd),
++            one("A_MDD", Dom::Dd),
++        ]);
++        v.extend(a_segments_tab());
++        return v;
++    }
+     vec![
+         one("A_D", Dom::T),
+         one("A_DSQ", Dom::T),
+@@ -194,11 +219,112 @@
+     ]
+ }
+ 
++/// PRIVACY GATE LANE (gate round 14, H-3): the planes a DD layout shares,
++/// in order, with the non-DD list above up to and including the key-value
++/// block (`A_D` .. `A_RKRL`)
++fn a_segments_common(sh: &Shape, ln: usize) -> Vec<Seg> {
++    let _ = sh;
++    let one = |name: &'static str, dom: Dom| -> Seg { (name, false, 1, dom) };
++    vec![
++        one("A_D", Dom::T),
++        one("A_DSQ", Dom::T),
++        one("A_DM", Dom::T),
++        one("A_DSQM", Dom::T),
++        one("A_MX", Dom::Ht),
++        one("A_SUM", Dom::Ht),
++        one("A_LIMB", Dom::L),
++        one("A_LIMBM", Dom::L),
++        one("A_X", Dom::D),
++        one("A_XL0", Dom::D),
++        one("A_XL1", Dom::D),
++        one("A_Y", Dom::D),
++        ("A_NR", true, ln, Dom::D),
++        ("A_NS", true, ln, Dom::D),
++        one("A_AO", Dom::D),
++        one("A_AL0", Dom::D),
++        one("A_AL1", Dom::D),
++        one("A_RAL", Dom::D),
++        one("A_X1", Dom::D),
++        one("A_X1L0", Dom::D),
++        one("A_X1L1", Dom::D),
++        one("A_YM", Dom::D),
++        ("A_MR", true, ln, Dom::D),
++        ("A_MS", true, ln, Dom::D),
++        one("A_Z16", Dom::D),
++        one("A_X2", Dom::D),
++        one("A_X2L0", Dom::D),
++        one("A_X2L1", Dom::D),
++        one("A_ZL0", Dom::D),
++        one("A_ZL1", Dom::D),
++        one("A_RDL", Dom::D),
++        one("A_Q8", Dom::Q),
++        one("A_RQL", Dom::Q),
++        one("A_QR8", Dom::Q),
++        one("A_RQRL", Dom::Q),
++        one("A_O8", Dom::Q),
++        one("A_RO0", Dom::Q),
++        one("A_RO1", Dom::Q),
++        one("A_K8", Dom::Kv),
++        one("A_RKL", Dom::Kv),
++        one("A_V8", Dom::Kv),
++        one("A_RVL", Dom::Kv),
++        one("A_KR8", Dom::Kv),
++        one("A_RKRL", Dom::Kv),
++    ]
++}
++
++/// PRIVACY GATE LANE (gate round 14, H-3): the eleven feed-forward planes
++fn a_segments_ff() -> Vec<Seg> {
++    let one = |name: &'static str, dom: Dom| -> Seg { (name, false, 1, dom) };
++    vec![
++        one("A_G8", Dom::F),
++        one("A_RGL", Dom::F),
++        one("A_A16", Dom::F),
++        one("A_U16", Dom::F),
++        one("A_UL0", Dom::F),
++        one("A_UL1", Dom::F),
++        one("A_H16", Dom::F),
++        one("A_HL0", Dom::F),
++        one("A_HL1", Dom::F),
++        one("A_RH0", Dom::F),
++        one("A_RH1", Dom::F),
++    ]
++}
++
++/// PRIVACY GATE LANE (gate round 14, H-3): the three histogram planes
++fn a_segments_tab() -> Vec<Seg> {
++    let one = |name: &'static str, dom: Dom| -> Seg { (name, false, 1, dom) };
++    vec![one("A_MU8", Dom::Tab), one("A_MEXP", Dom::Tab), one("A_MACT", Dom::Tab)]
++}
++
+ /// **THE `H` PLANE NAMES, IN PLANE ORDER**, the constants of `layout.rs`
+ /// §"the H planes" in `HIds::new`'s own segment order. Every LogUp helper
+ /// block is an indexed group whose length is `Shape::helpers(dom)`; the six
+ /// singletons keep their constants' names.
+ fn h_segments(sh: &Shape) -> Vec<Seg> {
++    // PRIVACY GATE LANE (gate round 14, H-3): at a DD profile, `HIds::new`
++    // inserts the score entry's tuple helper after `H_SEXP`, and the
++    // dictionary's byte helpers and its TABLE helper after `H_FACT` (R9
++    // `layout.rs`)
++    if sh.dd_cap > 0 {
++        return vec![
++            ("H_L", true, sh.helpers(Dom::L), Dom::L),
++            ("H_D", true, sh.helpers(Dom::D), Dom::D),
++            ("H_Q", true, sh.helpers(Dom::Q), Dom::Q),
++            ("H_KV", true, sh.helpers(Dom::Kv), Dom::Kv),
++            ("H_S", true, sh.helpers(Dom::S), Dom::S),
++            ("H_SEXP", false, 1, Dom::S),
++            ("H_STUPLE", false, 1, Dom::S),
++            ("H_F", true, sh.helpers(Dom::F), Dom::F),
++            ("H_FACT", false, 1, Dom::F),
++            ("H_DD", true, sh.helpers(Dom::Dd), Dom::Dd),
++            ("H_GDD", false, 1, Dom::Dd),
++            ("H_GU8", false, 1, Dom::Tab),
++            ("H_GEXP", false, 1, Dom::Tab),
++            ("H_GACT", false, 1, Dom::Tab),
++            ("H_U", false, 1, Dom::Tab),
++        ];
++    }
+     vec![
+         ("H_L", true, sh.helpers(Dom::L), Dom::L),
+         ("H_D", true, sh.helpers(Dom::D), Dom::D),
+@@ -292,21 +418,27 @@
+         return Err(format!("private block: the H planes tile {row} rows, the layout counts {}", lay.h_data_rows));
+     }
+     // ---- the push order, and the cross-check against `Shape::claim_sites`
+-    let mut slots: Vec<Vec<Ref>> = Vec::with_capacity(N_SLOTS);
+-    for s in 0..N_SLOTS {
++    // PRIVACY GATE LANE (gate round 14, H-3): THIS layout's slots (a DD
++    // profile's dictionary zero-check `SC_DD` appended last)
++    let ns = lay.n_slots();
++    let mut slots: Vec<Vec<Ref>> = Vec::with_capacity(ns);
++    for s in 0..ns {
+         slots.push(slot_planes(lay, s)?);
+     }
+     for (s, refs) in slots.iter().enumerate() {
+         let na = refs.iter().filter(|r| matches!(r, Ref::A(_))).count();
+         let nh = refs.iter().filter(|r| matches!(r, Ref::H(_))).count();
+         let nio = refs.len() - na - nh;
+-        if na != lay.a_sites()[s] || nh != lay.h_sites()[s] || nio != usize::from(s >= SC_IO_IN) {
++        // PRIVACY GATE LANE (gate round 14, H-3): the IO slots are exactly
++        // `SC_IO_IN` and `SC_IO_OUT` (R9's `slot_terms`); `SC_DD` (23) is not
++        let io = usize::from(s == SC_IO_IN || s == SC_IO_OUT);
++        if na != lay.a_sites()[s] || nh != lay.h_sites()[s] || nio != io {
+             return Err(format!(
+                 "private block: the plane index gives slot {s} [{}] {na} A / {nh} H / {nio} IO planes, the schedule declares {} / {} / {}",
+                 SLOT_NAMES[s],
+                 lay.a_sites()[s],
+                 lay.h_sites()[s],
+-                usize::from(s >= SC_IO_IN)
++                io
+             ));
+         }
+         for r in refs {
+@@ -399,6 +531,18 @@
+             a(&mut v, A_K8);
+             helpers(&mut v, Dom::Kv);
+         }
++        // PRIVACY GATE LANE (gate round 14, H-3): the DD softmax zero-check
++        // (`argument.rs` R9, `SC_SZC if sh.dd_cap > 0`): `a_range(A_S8, A_P)`
++        // (no division limbs: they are the dictionary's), `A_MX`, `A_SUM`, the
++        // S helpers, `sexp`, then the tuple helper `stuple`
++        SC_SZC if sh.dd_cap > 0 => {
++            range(&mut v, ids.at(A_S8), ids.at(A_P));
++            a(&mut v, A_MX);
++            a(&mut v, A_SUM);
++            helpers(&mut v, Dom::S);
++            v.push(Ref::H(hids.sexp()));
++            v.push(Ref::H(hids.stuple()));
++        }
+         SC_SZC => {
+             if ls == 0 {
+                 return Err("private block: a shape with no sigma_s limb has no SC_SZC plane range".into());
+@@ -432,6 +576,17 @@
+             a(&mut v, A_X2);
+             v.push(Ref::Out);
+         }
++        // PRIVACY GATE LANE (gate round 14, H-3): the dictionary zero-check
++        // (`argument.rs` R9, `SC_DD`): `a_range(P_dict, M_dd)` (P_dict, the
++        // dictionary's p / rho_s / sigma_s limbs, M_dd), `A_SUM` on the
++        // leading (h, t) variables, the `Dom::Dd` byte helpers, then the table
++        // helper `gdd`. The public e column is a public table, not a plane.
++        SC_DD if sh.dd_cap > 0 => {
++            range(&mut v, ids.pdict(), ids.mdd());
++            a(&mut v, A_SUM);
++            helpers(&mut v, Dom::Dd);
++            v.push(Ref::H(hids.gdd()));
++        }
+         _ => return Err(format!("private block: the plane index has no push order for slot {slot}")),
+     }
+     Ok(v)
+diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/run_capture.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-r9/hashline/src/private_block/run_capture.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/run_capture.rs	2026-10-19 11:59:12.254808635 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-r9/hashline/src/private_block/run_capture.rs	2026-10-19 23:15:05.842577928 -0700
+@@ -40,7 +40,7 @@
+ //! left implicit written out as data so the Python side ports no layout.
+ 
+ use super::argument::{Acc, Coord, Side, SlotDef, SlotProof, Tab};
+-use super::layout::{Layout, N_SLOTS, SLOT_KINDS, SLOT_NAMES};
++use super::layout::{Layout, SLOT_KINDS, SLOT_NAMES};
+ use super::plane_index::{self, PlaneIndex, Ref};
+ use super::shape::Shape;
+ use crate::field::{Fp, Fp2};
+@@ -489,6 +489,10 @@
+     layout_digest: Digest,
+     a_rows: usize,
+     h_rows: usize,
++    /// PRIVACY GATE LANE (gate round 14, H-1; test-only like this module):
++    /// THIS stage's slot count, `lay.n_slots()` (23, or 24 at a DD profile,
++    /// whose dictionary zero-check `SC_DD` is appended last)
++    n_slots: usize,
+ }
+ 
+ struct Rec {
+@@ -659,6 +663,7 @@
+             layout_digest: lay.schedule_digest(),
+             a_rows: lay.a_rows,
+             h_rows: lay.h_rows,
++            n_slots: lay.n_slots(),
+         });
+         // The stage prefix, replayed from the recorder's own transcript: the
+         // two locality words, the boundary root if this stage commits one, the
+@@ -996,7 +1001,8 @@
+             fail(r, format!("replay: stage {} closed as stage {k}", cur.k));
+             return;
+         }
+-        if cur.arguments.len() != N_SLOTS || cur.mask.is_none() {
++        // PRIVACY GATE LANE (gate round 14, H-1): the stage's OWN slot count
++        if cur.arguments.len() != cur.n_slots || cur.mask.is_none() {
+             fail(r, format!("replay: stage {k} closed with {} slots and {} mask openings", cur.arguments.len(), usize::from(cur.mask.is_some())));
+             return;
+         }
+@@ -1329,9 +1335,45 @@
+     let sh = &h.sh;
+     let mut out = Vec::new();
+     let schema = schema_of(r.store.is_on());
++    // PRIVACY GATE LANE (2026-10-17, additive, test-scoped like this whole
++    // module): a TRAINED-calibration shape carries its per-profile
++    // calibration (D24's norm constants, the seven requantization shifts and
++    // the derived `D_max`) inside `shape`, so a gate reads the constants the
++    // relations were built with instead of the frozen literals. Every
++    // public: each is bound into the schedule line, the parameter line and
++    // the trained-model statement. On every other shape this is EMPTY, so no
++    // byte of any bundle of a frozen or registered development profile moves.
++    let trained = if sh.trained_calibration {
++        format!(
++            ",\"trained_calibration\":true,\"norm_tn\":{},\"norm_cn_a\":{},\"norm_cn_m\":{},\"norm_ceps\":{},\"sh_ao\":{},\"sh_qkv\":{},\"sh_s\":{},\"sh_o\":{},\"sh_g\":{},\"sh_h\":{},\"sh_z\":{},\"d_max\":{}",
++            sh.norm_tn, sh.norm_cn_a, sh.norm_cn_m, sh.norm_ceps, sh.sh_ao, sh.sh_qkv, sh.sh_s, sh.sh_o, sh.sh_g, sh.sh_h, sh.sh_z, sh.d_max
++        )
++    } else {
++        String::new()
++    };
++    // PRIVACY GATE LANE (gate round 14, H-2): the shape's OWN slot count
++    // (24 at a DD profile), and at a DD profile the dictionary's public
++    // geometry (D30): `dd_cap` slots per (h, t) row on `Dom::Dd`, its log,
++    // its byte-helper count, the dictionary tag, the masking rows and the
++    // functional count. EMPTY on every other shape; `n_slots` was the
++    // constant 23 there and is 23, so no byte of a non-DD bundle moves.
++    let n_slots = sh.n_slots();
++    let dd = if sh.dd_cap > 0 {
++        format!(
++            ",\"dd_cap\":{},\"dd_log\":{},\"dd_helpers\":{},\"tag_dd\":{},\"m_rows\":{},\"n_functionals\":{}",
++            sh.dd_cap,
++            sh.log(super::layout::Dom::Dd),
++            sh.helpers(super::layout::Dom::Dd),
++            super::layout::TAG_DD,
++            sh.m_rows(),
++            sh.n_functionals()
++        )
++    } else {
++        String::new()
++    };
+     write!(
+         out,
+-        "{{\"schema\":{schema:?},\"kind\":\"zk60-run-verifier-observations\",\"coverage\":\"native-run-all-stages-v1\",\"profile\":{:?},\"transcript_domain\":{:?},\"block_profile\":{:?},\"blocks\":{},\"boundaries\":{},\"fully_verified\":true,\"privacy\":\"P1\",\"privacy_review_complete\":false,\"weight_policy\":\"public-statement\",\"field_modulus\":{},\"extension_nonresidue\":{},\"public_tables_included\":{},\"source_commit\":{:?},\"run_binding\":{:?},\"context\":{:?},\"calibration\":{:?},\"public_statement_digest\":{:?},\"parameter_line\":{:?},\"schedule_digest\":{:?},\"expected_policy\":{:?},\"expected_policy_sha256\":{:?},\"run_shape_words\":{:?},\"shape\":{{\"name\":{:?},\"profile\":{:?},\"tokens\":{},\"width\":{},\"hidden\":{},\"q_heads\":{},\"kv_heads\":{},\"head_dim\":{},\"t_pad\":{},\"d_pad\":{},\"h_pad\":{},\"f_pad\":{},\"log_cols\":{},\"cols\":{},\"inv_rate\":{},\"opened_cols\":{},\"f_e\":{},\"endpoint_rows\":{},\"endpoint_log_n\":{},\"endpoint_inv_rate\":{},\"endpoint_general\":{},\"norm_wrho\":{},\"wrho_s\":{},\"slots\":{:?},\"a_groups\":{},\"h_groups\":{},\"n_slots\":{N_SLOTS}}},",
++        "{{\"schema\":{schema:?},\"kind\":\"zk60-run-verifier-observations\",\"coverage\":\"native-run-all-stages-v1\",\"profile\":{:?},\"transcript_domain\":{:?},\"block_profile\":{:?},\"blocks\":{},\"boundaries\":{},\"fully_verified\":true,\"privacy\":\"P1\",\"privacy_review_complete\":false,\"weight_policy\":\"public-statement\",\"field_modulus\":{},\"extension_nonresidue\":{},\"public_tables_included\":{},\"source_commit\":{:?},\"run_binding\":{:?},\"context\":{:?},\"calibration\":{:?},\"public_statement_digest\":{:?},\"parameter_line\":{:?},\"schedule_digest\":{:?},\"expected_policy\":{:?},\"expected_policy_sha256\":{:?},\"run_shape_words\":{:?},\"shape\":{{\"name\":{:?},\"profile\":{:?},\"tokens\":{},\"width\":{},\"hidden\":{},\"q_heads\":{},\"kv_heads\":{},\"head_dim\":{},\"t_pad\":{},\"d_pad\":{},\"h_pad\":{},\"f_pad\":{},\"log_cols\":{},\"cols\":{},\"inv_rate\":{},\"opened_cols\":{},\"f_e\":{},\"endpoint_rows\":{},\"endpoint_log_n\":{},\"endpoint_inv_rate\":{},\"endpoint_general\":{},\"norm_wrho\":{},\"wrho_s\":{},\"slots\":{:?},\"a_groups\":{},\"h_groups\":{},\"n_slots\":{n_slots}{trained}{dd}}},",
+         h.profile,
+         h.profile,
+         sh.profile,
+@@ -1718,6 +1760,32 @@
+     "a_groups",
+     "h_groups",
+     "n_slots",
++    // PRIVACY GATE LANE (2026-10-17): a trained-calibration shape's public
++    // calibration, written only when `trained_calibration` is true. Each is
++    // a PUBLIC profile constant (bound into the schedule and parameter lines
++    // and the trained-model statement); no witness quantity is behind any.
++    "trained_calibration",
++    "norm_tn",
++    "norm_cn_a",
++    "norm_cn_m",
++    "norm_ceps",
++    "sh_ao",
++    "sh_qkv",
++    "sh_s",
++    "sh_o",
++    "sh_g",
++    "sh_h",
++    "sh_z",
++    "d_max",
++    // PRIVACY GATE LANE (gate round 14, H-2): a DD profile's public
++    // dictionary geometry (D30), written only when `dd_cap > 0`. Each is a
++    // public profile constant bound into the schedule's dictionary line.
++    "dd_cap",
++    "dd_log",
++    "dd_helpers",
++    "tag_dd",
++    "m_rows",
++    "n_functionals",
+     // external endpoints and boundaries
+     "input_root",
+     "output_root",
+@@ -1938,8 +2006,27 @@
+     } else {
+         format!("Every array is an inline JSON list (schema `{SCHEMA}`); this bundle has no `{ARRAYS_FILE}`.")
+     };
++    // PRIVACY GATE LANE (2026-10-17; gate round 14): a TRAINED-calibration
++    // run's weights are the trained public words of a calibration export (or,
++    // at the development rungs, the trained-band synthetic recipe) and its
++    // hidden input is the export's (or the recipe's, or the all-zero plane),
++    // so the stock sentence would be false there; every other profile keeps it
++    // byte for byte.
++    let trained_run = [
++        super::run::RUN_PROFILE_TINYLLAMA_T32_TRAINED,
++        super::run::RUN_PROFILE_TINYLLAMA_T128_TRAINED,
++        super::run::RUN_PROFILE_RUNG_TC,
++        super::run::RUN_PROFILE_TINYLLAMA_T128_DD,
++        super::run::RUN_PROFILE_RUNG_DD,
++    ]
++    .contains(&b.profile.as_str());
++    let weights = if trained_run {
++        "The weights are the\nTRAINED public words of the calibration export the note names, or at a\ndevelopment rung the trained-band synthetic recipe (public by scope P1); the\nhidden input is the export's held-out sequence, the recipe's input, or the\nall-zero plane, as the note says, and is not here."
++    } else {
++        "The weights are\nsynthetic and public; the hidden input came from the lane's fixture generator\nand is not here."
++    };
+     let readme = format!(
+-        "# ZK60 run capture bundle\n\n{note}\n\nWhat this is: the VERIFIER'S VIEW of one private run of {} blocks under one\ntranscript, profile `{}`, written by `hashline/src/private_block/run_capture.rs`\n(schema `{schema}`). It is the INPUT to the privacy gate of ruling M-8 and it\nis NOT a privacy result: no gate has read it.\n\nWhat made it:\n\n    {command}\n\nFiles: `run.json` (the run header, the shape, the external endpoints and the\n{} internal boundaries) and `stage-NN.json` (per stage: the roots, the\ntwenty-three slot transcripts, the M opening, and the A, H and IO openings).\nEach stage file carries its segment's length and SHA-256, so the bundle is\npinned to the exact receipt bytes that were verified; the segments themselves\nare written into `segments/` only when `HL_RUN_CAPTURE_SEGMENTS=1` asks for\nthem, because they are a third of a bundle and the gate reads only the JSON.\n`manifest.json` lists every file with its SHA-256 and pins the source files.\n\n{arrays_note}\n\nNOT in this bundle: any prover-side value. The list is in `run.json` under\n`not_in_a_capture`, and `every_key_of_a_bundle_is_on_the_allow_list` fails if\nthe writer ever emits a field outside its declared allow-list. The weights are\nsynthetic and public; the hidden input came from the lane's fixture generator\nand is not here.\n\n{payload} bytes of run file, stage files and segments.\n",
++        "# ZK60 run capture bundle\n\n{note}\n\nWhat this is: the VERIFIER'S VIEW of one private run of {} blocks under one\ntranscript, profile `{}`, written by `hashline/src/private_block/run_capture.rs`\n(schema `{schema}`). It is the INPUT to the privacy gate of ruling M-8 and it\nis NOT a privacy result: no gate has read it.\n\nWhat made it:\n\n    {command}\n\nFiles: `run.json` (the run header, the shape, the external endpoints and the\n{} internal boundaries) and `stage-NN.json` (per stage: the roots, the\ntwenty-three slot transcripts, the M opening, and the A, H and IO openings).\nEach stage file carries its segment's length and SHA-256, so the bundle is\npinned to the exact receipt bytes that were verified; the segments themselves\nare written into `segments/` only when `HL_RUN_CAPTURE_SEGMENTS=1` asks for\nthem, because they are a third of a bundle and the gate reads only the JSON.\n`manifest.json` lists every file with its SHA-256 and pins the source files.\n\n{arrays_note}\n\nNOT in this bundle: any prover-side value. The list is in `run.json` under\n`not_in_a_capture`, and `every_key_of_a_bundle_is_on_the_allow_list` fails if\nthe writer ever emits a field outside its declared allow-list. {weights}\n\n{payload} bytes of run file, stage files and segments.\n",
+         b.l,
+         b.profile,
+         b.l.saturating_sub(1)
+diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/run_capture_tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-r9/hashline/src/private_block/run_capture_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/run_capture_tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-r9/hashline/src/private_block/run_capture_tests.rs	2026-10-20 02:02:32.402838626 -0700
+@@ -1764,6 +1764,11 @@
+     assert_eq!(count(&run, "\"plane_index\":"), 1, "the plane index table belongs in the run file exactly once");
+     assert!(contains(&run, "\"hash_tag\":{\"rule\":\"blake3-keyed/1\""), "run.json does not name the keyed hash rule");
+     assert!(!contains(&run, "\"rule\":\"legacy\""), "a tagged bundle claims the legacy rule");
++    // PRIVACY GATE LANE (gate round 14): the run's OWN slot count, as its
++    // `run.json` declares it (23; 24 at a DD profile), which the writer
++    // takes from `Shape::n_slots` (H-2)
++    let n_slots = declared_n_slots(&run);
++    assert!(n_slots == N_SLOTS || n_slots == N_SLOTS + 1, "run.json declares {n_slots} slots");
+     // the stage files
+     for k in 0..l {
+         let stage = std::fs::read(dir.join(run_capture::stage_file(k))).expect("a stage file");
+@@ -1771,7 +1776,7 @@
+         assert!(!contains(&stage, "\"plane_index\":"), "stage {k} carries its own copy of the plane index");
+         assert!(contains(&stage, &format!("\"segment_bytes\":{}", segs[k].len())), "stage {k} does not carry its segment's length");
+         assert!(contains(&stage, &format!("\"segment_sha256\":\"{}\"", crate::export_v3::sha256_hex(&segs[k]))), "stage {k} is not pinned to the bytes that were verified");
+-        assert_eq!(count(&stage, "\"definition_challenges\":"), N_SLOTS, "stage {k} does not carry twenty-three slot transcripts");
++        assert_eq!(count(&stage, "\"definition_challenges\":"), n_slots, "stage {k} does not carry the run's {n_slots} slot transcripts");
+     }
+     // the allow-list, over every JSON file of the bundle
+     let mut checked = 0usize;
+@@ -2082,3 +2087,324 @@
+     assert!(total < 2_000_000_000, "the 125M bundle is {total} B, past the 2 GB runaway ceiling");
+     eprintln!("CAPTURE 125M RESULT: {total} B ({:.1} MB) at {} — a CAPTURE, not a privacy result; no gate has read it", total as f64 / 1e6, dir.display());
+ }
++
++// -------------------------------------------------- PRIVACY GATE LANE (gate round 14): DD captures
++//
++// ADDITIVE AND TEST-ONLY (H-1..H-5 of `DD_CAPTURE_HOOK_REQUEST.md`). Nothing
++// below changes a prover or verifier relation: it builds a run through the
++// same production constructors the trained stack CLI uses (`TrainedExport`,
++// with `--dd`'s `Geometry::dd`; `IoSpec::new_shaped`, `prepare_endpoints`,
++// `RunStatement::new_bound`, `run::prove_run`) or, at the DD development
++// rung, the native lane's own R9 test recipe (`r9_tests.rs`: the trained-band
++// dense words, a synthetic trained-model statement), and VERIFIES it with the
++// production run verifier while the recorder is attached. The recorder
++// replays the whole run from its OWN transcript; the bundle is written only
++// after the run verified.
++
++/// `run.json`'s declared `n_slots`
++fn declared_n_slots(run: &[u8]) -> usize {
++    let key = b"\"n_slots\":";
++    let i = run.windows(key.len()).position(|w| w == key).expect("run.json declares n_slots") + key.len();
++    let digits: Vec<u8> = run[i..].iter().take_while(|b| b.is_ascii_digit()).copied().collect();
++    String::from_utf8(digits).expect("ascii").parse().expect("a number")
++}
++
++/// One honest chain over DISTINCT public blocks (each with ITS tables): the
++/// hidden inputs and the `l + 1` padded planes the run's IO commitments carry.
++/// Prover side only; none of it reaches a bundle.
++///
++/// Each block's witness is built at ITS OWN shape (`shapes[k]`), exactly as
++/// the stack CLI does (`trained_block.rs` stack loop, NATIVE R8: a layer with
++/// its own calibration values is built at `sh.with_layer_calibration(
++/// apply_own(..))`). Gate round 14's first T128 DD L = 2 captures built every
++/// block at the RUN shape, and the prover's CS-3 refused block 1's witness
++/// (its own constants differ at `tinyllama_dg_rot1_T128`).
++struct DdChain<'a> {
++    sh: Shape,
++    shapes: Vec<Shape>,
++    blocks: &'a [BlockPublic],
++    inputs: Vec<Vec<i16>>,
++    planes: Vec<Vec<i16>>,
++}
++
++impl<'a> DdChain<'a> {
++    fn build(sh: &Shape, shapes: Vec<Shape>, blocks: &'a [BlockPublic], x0: Vec<i16>) -> DdChain<'a> {
++        assert_eq!(shapes.len(), blocks.len(), "one shape per block");
++        let mut inputs = Vec::with_capacity(blocks.len());
++        let mut planes = Vec::with_capacity(blocks.len() + 1);
++        let mut x = x0;
++        for (k, b) in blocks.iter().enumerate() {
++            let ssh = &shapes[k];
++            let ids = Ids::new(ssh).expect("the DD shape has a plane map");
++            let w = witness::build_shaped(ssh, b.attention(), b.feed_forward(), &x).unwrap_or_else(|e| panic!("block {k}: the honest DD witness: {e}"));
++            if k == 0 {
++                planes.push(padded(&w, ids.at(A_X)));
++            }
++            planes.push(padded(&w, ids.at(A_X2)));
++            inputs.push(x);
++            x = true_input(ssh, &padded(&w, ids.at(A_X2)));
++        }
++        DdChain { sh: sh.clone(), shapes, blocks, inputs, planes }
++    }
++    fn output_words(&self, k: usize) -> Vec<i16> {
++        true_input(&self.sh, &self.planes[k + 1])
++    }
++}
++
++impl RunWitnessSource for DdChain<'_> {
++    fn witness(&mut self, k: usize) -> Result<Witness, String> {
++        witness::build_shaped(&self.shapes[k], self.blocks[k].attention(), self.blocks[k].feed_forward(), &self.inputs[k])
++    }
++    fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String> {
++        Ok(self.planes[k + 1].clone())
++    }
++}
++
++/// The capture's public context word (the stack CLI's length-prefixed
++/// recipe, under this lane's own label). Public.
++fn dd_capture_context(variant: &str, layers: &[u32]) -> Digest {
++    let mut b = Vec::new();
++    for s in ["hashline/zk60-trained-stack-context/1", variant, "zk60-privacy-gate-capture-dd"] {
++        b.extend_from_slice(&(s.len() as u64).to_le_bytes());
++        b.extend_from_slice(s.as_bytes());
++    }
++    for l in layers {
++        b.extend_from_slice(&u64::from(*l).to_le_bytes());
++    }
++    *blake3::hash(&b).as_bytes()
++}
++
++/// Prove a bound DD run over `blocks` with the model statement `model`, then
++/// VERIFY it with the recorder attached; returns the segments, the bundle and
++/// the binding.
++fn prove_and_capture_bound(sh: &Shape, shapes: Vec<Shape>, blocks: &[BlockPublic], x0: Vec<i16>, model: &super::trained_statement::TrainedModelStatement, rs: RunShape, ctx: Digest, opts: run_capture::CaptureOpts) -> (Vec<Vec<u8>>, Bundle, Digest, Vec<Vec<i16>>) {
++    let l = blocks.len();
++    let mut chain = DdChain::build(sh, shapes, blocks, x0);
++    let outputs: Vec<Vec<i16>> = (0..l).map(|k| chain.output_words(k)).collect();
++    let spec = IoSpec::new_shaped(sh, ctx, 0, 0).expect("the run's endpoint spec");
++    let (expected, owners) = prepare_endpoints(spec, &chain.planes[0], &chain.planes[l]).expect("the run's external endpoint owners");
++    let st = RunStatement::new_bound(rs, ctx, expected, blocks, &vec![(0, 0); l], model).expect("the bound DD run statement");
++    let segs = prove_to_vec(&st, blocks, &mut chain, owners);
++    drop(chain);
++    let binding = st.binding().expect("the run binding");
++    let guard = run_capture::Recorder::attach();
++    run_capture::begin_run_with(st.capture_header().expect("the capture header"), binding, opts);
++    run::verify_run(&st, blocks, &segs).expect("the honest DD run verifies");
++    let bundle = run_capture::take().expect("a bundle for an accepted run");
++    drop(guard);
++    (segs, bundle, binding, outputs)
++}
++
++/// the DD rung's public block of nine true-size words with an exp table of
++/// score exponent `e_s` and a SiLU member (the native lane's `r9_tests.rs`
++/// recipe, restated: the rung's f_e 12, head_dim 32)
++fn dd_rung_block(sh: &Shape, w: &[Vec<i8>; 9], e_s: i32, silu: (i32, i32)) -> BlockPublic {
++    let (cos, sin) = crate::tables_attn::rope_tables_generate(sh.tokens, sh.head_dim, 10000.0, F_RO);
++    let (exp, _) = crate::tables_attn::exp_member(e_s, sh.head_dim, sh.f_e);
++    let (act, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, silu.0, silu.1).expect("a frozen SiLU member");
++    let aw = super::grow_tests::pad_attention_weights(sh, &w[0], &w[1], &w[2], &w[3], &w[4]);
++    let fw = super::grow_tests::pad_ff_weights(sh, &w[5], &w[6], &w[7], &w[8]);
++    let public = AttentionPublic::new_shaped(sh, &aw[0], &aw[1], &aw[2], &aw[3], &aw[4], &cos, &sin, &exp).expect("the attention statement");
++    let ff = FeedForwardPublic::new_shaped(sh, &fw[0], &fw[1], &fw[2], &fw[3], &act).expect("the feed-forward statement");
++    BlockPublic::new(public, ff)
++}
++
++/// the per-block table keys of the DD rung capture: block 0 the native
++/// lane's own (exp e_s 2, SiLU (-3, -11)), block 1 a different public block
++/// (exp e_s 3, SiLU (-4, -13)) on the same trained-band words
++const DD_RUNG_KEYS: [(i32, (i32, i32)); 2] = [(2, (-3, -11)), (3, (-4, -13))];
++
++/// **PRIVACY GATE LANE: CAPTURE ONE BOUND DD RUN AT THE DD DEVELOPMENT RUNG**
++/// (`rung-dd-t32-dev`: T32, d256; 24 slots), for the gate's DD items.
++///
++/// | variable | what | default |
++/// |---|---|---|
++/// | `HL_PB_CAPTURE_DIR` | where the bundle goes | **required**, absolute, refused inside the repository |
++/// | `HL_PB_INPUT` | `dense` (the trained-band generic input: dense weights, heads that differ) or `zero` (the all-zero hidden plane on the same blocks) | `dense` |
++/// | `HL_PB_CAPTURE_BLOCKS` | `L`, 1 or 2 | 2 |
++/// | `HL_RUN_CAPTURE_PUBLIC_TABLES` | `1` carries the public tables' values | **required** |
++/// | `HL_TEST_SOURCE_COMMIT` | the label the bundle records | `uncommitted-test` |
++#[test]
++#[ignore = "captures a DD rung run; set HL_PB_CAPTURE_DIR (outside the repo) and HL_RUN_CAPTURE_PUBLIC_TABLES"]
++fn capture_a_dd_rung_run() {
++    let dense = capture_dense_from_env();
++    let dir = capture_dir_from_env();
++    let l = capture_blocks_from_env(2);
++    assert!((1..=DD_RUNG_KEYS.len()).contains(&l), "HL_PB_CAPTURE_BLOCKS={l}: the DD rung capture has {} distinct blocks", DD_RUNG_KEYS.len());
++    let public_tables = match std::env::var("HL_RUN_CAPTURE_PUBLIC_TABLES").as_deref() {
++        Ok("1") => true,
++        Ok("0") => false,
++        _ => panic!("HL_RUN_CAPTURE_PUBLIC_TABLES is not set to 1 or 0; this test will not pick for you"),
++    };
++    let sh = Shape::rung_dd(&super::trained_calib_tests::rung_tc_calibration()).expect("the DD development rung");
++    assert!(sh.dd_cap > 0 && sh.n_slots() == N_SLOTS + 1, "the DD rung runs a dictionary slot");
++    let (w, input) = super::trained_calib_tests::trained_dense_words(&sh, super::trained_calib_tests::TRAINED_BANDS);
++    let blocks: Vec<BlockPublic> = DD_RUNG_KEYS[..l].iter().map(|(e_s, silu)| dd_rung_block(&sh, &w, *e_s, *silu)).collect();
++    let model = super::trained_calib_tests::synthetic_statement(&sh, &blocks);
++    let rs = super::trained_calib_tests::run_shape_for_checked(&sh, l).expect("the DD rung run shape");
++    let layers: Vec<u32> = (0..l as u32).collect();
++    let ctx = dd_capture_context("rung-dd-t32-dev", &layers);
++    let x0 = if dense { input } else { vec![0i16; sh.tokens * sh.width] };
++    let opts = run_capture::CaptureOpts { arrays: true, public_tables };
++    let t0 = std::time::Instant::now();
++    let shapes = vec![sh.clone(); blocks.len()];
++    let (segs, bundle, binding, _) = prove_and_capture_bound(&sh, shapes, &blocks, x0, &model, rs, ctx, opts);
++    let capture_s = t0.elapsed().as_secs_f64();
++    let tag = format!("DD rung L={l} {}", if dense { "dense" } else { "zero" });
++    eprintln!("CAPTURE {tag}: slots {}, dd_cap {}, prove+verify+record {capture_s:.2} s, high-water mark {:.2} GiB", sh.n_slots(), sh.dd_cap, run::peak_rss_mib() / 1024.0);
++    let id: String = model.identity().iter().map(|b| format!("{b:02x}")).collect();
++    let note = format!(
++        "Bundle: one honest {l}-block private run at the DD DEVELOPMENT RUNG (run profile\n`{}`; T32, d256; DD, the per-row division dictionary, D30: 24 slots, the dictionary zero-check `SC_DD` appended last),\nbound to a synthetic trained-model statement (identity {id}), under the D19 separating hash tag.\n\nBlocks: the native lane's R9 trained-band dense words (`r9_tests.rs`), per-block table keys (exp e_s, SiLU member) {:?}.\n\nHidden input: {}.\n\nWritten by the PRIVACY GATE lane (gate round 14) from `ops/zkp-mvp/trained-1b-gate-r9/`\n(the native lane's frozen R9 tree af90c703..., plus test-only capture code: H-1..H-5).\nA capture is the INPUT to the run privacy gate and is NOT a privacy result.",
++        super::run::RUN_PROFILE_RUNG_DD,
++        &DD_RUNG_KEYS[..l],
++        if dense { "the trained-band recipe's generic input (dense weights, heads that differ)" } else { "the ALL-ZERO hidden plane on the same public blocks - the named DEGENERATE partner" }
++    );
++    let command = "HL_PB_CAPTURE_DIR=<dir> HL_PB_INPUT=<dense|zero> HL_PB_CAPTURE_BLOCKS=<1|2> HL_RUN_CAPTURE_PUBLIC_TABLES=1 HL_TEST_SOURCE_COMMIT=<label> cargo test --release --lib private_block::run_capture_tests::capture_a_dd_rung_run -- --ignored --nocapture";
++    run_capture::write_bundle(&dir, &bundle, &segs, &note, command).unwrap_or_else(|e| panic!("{tag}: {e}"));
++    let total = check_bundle_on_disk(&dir, l, binding, &segs, true);
++    eprintln!("CAPTURE {tag} RESULT: {total} B ({:.1} MB) at {}, self-consistent, every key on the allow-list - a CAPTURE, not a privacy result", total as f64 / 1e6, dir.display());
++}
++
++/// **PRIVACY GATE LANE: CAPTURE ONE BOUND DD RUN OF TRAINED TinyLlama BLOCKS
++/// AT T = 128** (`…-t128-ddict32-statement/1`), through the trained door with
++/// `--dd`'s geometry switch.
++///
++/// | variable | what | default |
++/// |---|---|---|
++/// | `HL_PB_CAPTURE_DIR` | where the bundle goes | **required** |
++/// | `HL_PB_INPUT` | `dense` (the export's hidden input on `HL_PB_SEQ`, parity-checked at every layer) or `zero` | `dense` |
++/// | `HL_PB_CAPTURE_BLOCKS` | `L` | 2 |
++/// | `HL_PB_FIRST_LAYER` | the first export layer | 0 |
++/// | `HL_PB_EXPORT` | the export | `results/zk60_fidelity_parity_20261019/exports/tinyllama_dg_rot1_T128` |
++/// | `HL_PB_SEQ` | the held-out sequence id | `ho00` |
++/// | `HL_RUN_CAPTURE_PUBLIC_TABLES` | `1` carries the public tables' values | **required** |
++#[test]
++#[ignore = "captures a TinyLlama T128 DD run; set HL_PB_CAPTURE_DIR (outside the repo) and HL_RUN_CAPTURE_PUBLIC_TABLES"]
++fn capture_a_tinyllama_t128_dd_run() {
++    use super::trained_block::TrainedExport;
++    let dense = capture_dense_from_env();
++    let dir = capture_dir_from_env();
++    let l = capture_blocks_from_env(2);
++    let first: u32 = match std::env::var("HL_PB_FIRST_LAYER") {
++        Ok(v) => v.parse().unwrap_or_else(|_| panic!("HL_PB_FIRST_LAYER={v:?} is not a number")),
++        Err(_) => 0,
++    };
++    let export = match std::env::var("HL_PB_EXPORT") {
++        Ok(v) => PathBuf::from(v),
++        Err(_) => PathBuf::from("/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/tinyllama_dg_rot1_T128"),
++    };
++    let seq = std::env::var("HL_PB_SEQ").unwrap_or_else(|_| "ho00".into());
++    let public_tables = match std::env::var("HL_RUN_CAPTURE_PUBLIC_TABLES").as_deref() {
++        Ok("1") => true,
++        Ok("0") => false,
++        _ => panic!("HL_RUN_CAPTURE_PUBLIC_TABLES is not set to 1 or 0; this test will not pick for you"),
++    };
++    let layers: Vec<u32> = (first..first + l as u32).collect();
++    let mut ex = TrainedExport::load(&export).unwrap_or_else(|e| panic!("the export {}: {e}", export.display()));
++    // `--dd`: the DD profile of the export's model and T (D30)
++    ex.geometry = ex.geometry.dd().expect("a DD profile at this export's model and T");
++    let c = ex.run_constants(&layers).expect("the run-level constants");
++    let sh = ex.shape_for(&c).expect("the trained DD shape (through the door)");
++    assert!(sh.trained_calibration && sh.dd_cap > 0 && sh.n_slots() == N_SLOTS + 1, "the export did not build a trained DD shape");
++    let mut blocks = Vec::with_capacity(l);
++    let mut records = Vec::with_capacity(l);
++    for &k in &layers {
++        let t = ex.load_layer(&sh, &c, k, false).unwrap_or_else(|e| panic!("layer {k}: {e}"));
++        records.push(t.record);
++        blocks.push(t.blk);
++    }
++    let exp_e_s: Vec<i32> = records.iter().map(|r| r.exp_e_s).collect();
++    let silu: Vec<(i32, i32)> = records.iter().map(|r| r.silu_member).collect();
++    // each block at its layer's OWN calibration, as the stack CLI builds it
++    // (`trained_block.rs` stack loop, NATIVE R8)
++    let shapes: Vec<Shape> = records
++        .iter()
++        .map(|r| {
++            if super::trained_statement::has_own(&r.own) {
++                sh.with_layer_calibration(&super::trained_statement::apply_own(&sh.norm_calibration(), &r.own).expect("the layer's own calibration")).expect("the layer's own shape")
++            } else {
++                sh.clone()
++            }
++        })
++        .collect();
++    let own_layers: Vec<u32> = layers.iter().zip(records.iter()).filter(|(_, r)| super::trained_statement::has_own(&r.own)).map(|(k, _)| *k).collect();
++    let model = ex.statement_of_records(&sh, &c, records).expect("the trained-model statement");
++    let x0 = if dense { ex.load_seq(&sh, &seq, layers[0]).expect("the export's hidden input").0 } else { vec![0i16; sh.tokens * sh.width] };
++    let rs = ex.geometry.run_shape(&sh, l).expect("the trained DD run shape");
++    let ctx = dd_capture_context(&ex.variant, &layers);
++    let opts = run_capture::CaptureOpts { arrays: true, public_tables };
++    let t0 = std::time::Instant::now();
++    let (segs, bundle, binding, outputs) = prove_and_capture_bound(&sh, shapes, &blocks, x0, &model, rs, ctx, opts);
++    let capture_s = t0.elapsed().as_secs_f64();
++    // PARITY (dense only): the native DD chain IS the export's reference chain
++    let mut parity_words = 0usize;
++    if dense {
++        for (k, &layer) in layers.iter().enumerate() {
++            let (_, want) = ex.load_seq(&sh, &seq, layer).expect("the export's reference output");
++            let differ = outputs[k].iter().zip(want.iter()).filter(|(a, b)| a != b).count();
++            assert_eq!(differ, 0, "parity: layer {layer}'s native DD output differs from the export's x_out in {differ} words (no value printed)");
++            parity_words += outputs[k].len();
++        }
++    }
++    let tag = format!("TinyLlama-T128-DD L={l} layers {}..{} {}", layers[0], layers[l - 1] + 1, if dense { "dense" } else { "zero" });
++    eprintln!("CAPTURE {tag}: parity words {parity_words}, layers at their own calibration {own_layers:?}, prove+verify+record {capture_s:.2} s, high-water mark {:.2} GiB", run::peak_rss_mib() / 1024.0);
++    let id: String = model.identity().iter().map(|b| format!("{b:02x}")).collect();
++    let note = format!(
++        "Bundle: one honest {l}-block private run of TRAINED TinyLlama-1.1B-Chat blocks at T = 128 under DD,\nthe per-row division dictionary (D30; run profile `{}`; 24 slots, the dictionary zero-check `SC_DD` appended last),\nbound to its trained-model statement (identity {id}), under the D19 separating hash tag.\n\nExport: variant `{}` (calibration `{}`), layers {:?}, per-block table keys exp e_s {:?} and SiLU members {:?}.\n\nHidden input: {}.\n\nWritten by the PRIVACY GATE lane (gate round 14) from `ops/zkp-mvp/trained-1b-gate-r9/`\n(the native lane's frozen R9 tree af90c703..., plus test-only capture code: H-1..H-5).\nA capture is the INPUT to the run privacy gate and is NOT a privacy result.",
++        super::run::RUN_PROFILE_TINYLLAMA_T128_DD,
++        ex.variant,
++        sh.norm_calibration().describe(),
++        layers,
++        exp_e_s,
++        silu,
++        if dense {
++            format!("the export's own held-out sequence `{seq}` entering layer {} (the real integer hidden state), and the native output was checked bit for bit against the export's reference output at every layer ({parity_words} words). THE GENERIC WITNESS", layers[0])
++        } else {
++            "the ALL-ZERO hidden plane on the same trained public blocks - the named DEGENERATE partner of the dense run".to_string()
++        }
++    );
++    let command = "HL_PB_CAPTURE_DIR=<dir> HL_PB_INPUT=<dense|zero> HL_PB_CAPTURE_BLOCKS=<L> HL_PB_FIRST_LAYER=<k> HL_PB_SEQ=<id> HL_RUN_CAPTURE_PUBLIC_TABLES=1 HL_TEST_SOURCE_COMMIT=<label> cargo test --release --lib private_block::run_capture_tests::capture_a_tinyllama_t128_dd_run -- --ignored --nocapture";
++    run_capture::write_bundle(&dir, &bundle, &segs, &note, command).unwrap_or_else(|e| panic!("{tag}: {e}"));
++    let total = check_bundle_on_disk(&dir, l, binding, &segs, true);
++    assert!(total < 4_000_000_000, "the T128 DD bundle is {total} B, past the 4 GB runaway ceiling");
++    eprintln!("CAPTURE {tag} RESULT: {total} B ({:.1} MB) at {}, self-consistent, every key on the allow-list - a CAPTURE, not a privacy result", total as f64 / 1e6, dir.display());
++}
++
++/// **H-3's own check (not ignored, no proof):** at both DD layouts the plane
++/// index builds; it tiles A and H; it has 24 push orders; slot 23 reads
++/// exactly `P_dict ..= M_dd`, `A_SUM`, the `Dom::Dd` helpers and `gdd`;
++/// `SC_SZC` reads `A_S8 ..= A_P` (no division limbs), `A_MX`, `A_SUM`, the S
++/// helpers, `sexp` and `stuple`; and every non-DD layout keeps its 23 push
++/// orders and its own `SC_SZC` list.
++#[test]
++fn the_plane_index_builds_at_the_dd_layouts() {
++    let tl = super::trained_calib_tests::pg_calibration();
++    let shapes = [
++        Shape::rung_dd(&super::trained_calib_tests::rung_tc_calibration()).expect("the DD rung"),
++        Shape::tinyllama_t128_trained_dd(&tl, 9).expect("the TinyLlama T128 DD shape"),
++    ];
++    for sh in &shapes {
++        let lay = Layout::for_shape(sh).expect("the DD layout");
++        let idx = plane_index::build(&lay).unwrap_or_else(|e| panic!("{}: the plane index does not build: {e}", sh.name));
++        assert_eq!(idx.slots.len(), N_SLOTS + 1, "{}", sh.name);
++        let (ids, hids) = (lay.ids(), lay.hids());
++        let mut want23: Vec<Ref> = (ids.pdict()..=ids.mdd()).map(Ref::A).collect();
++        want23.push(Ref::A(ids.at(A_SUM)));
++        want23.extend((0..sh.helpers(Dom::Dd)).map(|j| Ref::H(hids.helper(Dom::Dd, j))));
++        want23.push(Ref::H(hids.gdd()));
++        assert_eq!(idx.slots[SC_DD], want23, "{}: slot 23's push order", sh.name);
++        assert_eq!(ids.mdd() - ids.pdict() + 1, 2 + sh.limbs_p() + 2 * sh.limbs_sigma_s(), "{}: the dictionary's A block", sh.name);
++        let mut want_s: Vec<Ref> = (ids.at(A_S8)..=ids.at(A_P)).map(Ref::A).collect();
++        want_s.extend([Ref::A(ids.at(A_MX)), Ref::A(ids.at(A_SUM))]);
++        want_s.extend((0..sh.helpers(Dom::S)).map(|j| Ref::H(hids.helper(Dom::S, j))));
++        want_s.extend([Ref::H(hids.sexp()), Ref::H(hids.stuple())]);
++        assert_eq!(idx.slots[SC_SZC], want_s, "{}: the DD softmax zero-check's push order", sh.name);
++        assert!(idx.a.iter().all(|p| (p.dom == Dom::Dd) == (p.id >= ids.pdict() && p.id <= ids.mdd())), "{}: the Dom::Dd A planes are exactly the dictionary block", sh.name);
++    }
++    for sh in [Shape::rung_g(), Shape::tinyllama_trained(32, &tl, 9).expect("the TinyLlama T32 trained shape")] {
++        let lay = Layout::for_shape(&sh).expect("a non-DD layout");
++        let idx = plane_index::build(&lay).expect("the non-DD plane index");
++        assert_eq!(idx.slots.len(), N_SLOTS, "{}: a non-DD layout keeps 23 push orders", sh.name);
++        assert!(idx.a.iter().all(|p| p.dom != Dom::Dd) && idx.h.iter().all(|p| p.dom != Dom::Dd), "{}: no Dom::Dd plane", sh.name);
++    }
++}

@@ -1,0 +1,27 @@
+{
+  "accessed_at_utc": "2026-10-20T05:30:47.481540+00:00",
+  "queries": [
+    "GPU sumcheck recomputation memory bandwidth precomputation affine polynomials October 2026 github",
+    "site.github.com/hemilabs/sp1/pull/7",
+    "GPU polynomial commitment memory recompute batching 2026 arxiv",
+    "GPU Acceleration of the Sum-Check Protocol 2026",
+    "SumCATS sumcheck 2026",
+    "site.github.com sumcheck precompute 2026 GPU commitment"
+  ],
+  "rotation_this_cycle": [
+    "memory traffic and allocator-aware scheduling",
+    "sumcheck/GKR arithmetic and CPU tail",
+    "batching/amortization",
+    "GPU commitment/release scope"
+  ],
+  "rotation_next": [
+    "lookup and softmax",
+    "quantization/arithmetic underD32",
+    "proof composition and privateKV binding",
+    "GPU NTT/commitment ordering"
+  ],
+  "records_before": 557,
+  "records_after": 565,
+  "primary_sources_only": true,
+  "no_foreign_code_execution": true
+}

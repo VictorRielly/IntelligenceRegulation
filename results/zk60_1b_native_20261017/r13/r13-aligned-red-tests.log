@@ -1,0 +1,50 @@
+
+running 21 tests
+test accuracy::tests::group_scale_precedes_product_rounding ... ok
+test accuracy::tests::grouped_products_match_independent_rational_vectors ... ok
+test accuracy::tests::invalid_shifts_multipliers_and_overflow_are_refused ... ok
+test accuracy::tests::negative_half_ties_round_toward_positive_infinity ... ok
+test accuracy::tests::requantization_matches_independent_rational_vectors ... ok
+test accuracy_aligned::tests::both_stacks_match_every_independent_rational_product_vector ... FAILED
+test accuracy_aligned::tests::every_registry_combination_respects_the_derived_31_bit_bound ... FAILED
+test accuracy_aligned::tests::tables_scale_the_quantized_words_without_another_rounding ... FAILED
+test accuracy_aligned::tests::the_legacy_profile_cannot_select_this_construction ... ok
+test accuracy_groups::tests::common_denominators_preserve_every_rounding_and_remainder ... ok
+test accuracy_groups::tests::folding_matches_the_independent_block_fixture_constants ... ok
+test accuracy_groups::tests::malformed_and_noncanonical_group_data_is_refused ... ok
+test accuracy_groups::tests::the_product_window_grows_when_exact_group_scaling_needs_it ... ok
+test accuracy_precision::low_tests::exports_choose_an_explicit_stack_without_a_global_flag ... ok
+test accuracy_precision::low_tests::low_keeps_h16_and_its_downstream_scale ... ok
+test accuracy_precision::tests::invalid_base_or_derived_windows_are_refused ... ok
+test accuracy_precision::tests::legacy_shifts_and_widths_remain_unchanged ... ok
+test accuracy_precision::tests::low_h24_matches_the_received_build_spec ... ok
+test accuracy_tables::tests::every_int12_silu_word_matches_the_independent_reference ... ok
+test accuracy_tables::tests::unsupported_members_and_precisions_are_refused ... ok
+test accuracy_tables::tests::zero_and_signed_index_are_unambiguous ... ok
+
+failures:
+
+---- accuracy_aligned::tests::both_stacks_match_every_independent_rational_product_vector stdout ----
+
+thread 'accuracy_aligned::tests::both_stacks_match_every_independent_rational_product_vector' (202) panicked at /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/aligned-next/accuracy_aligned.rs:35:117:
+called `Result::unwrap()` on an `Err` value: "R13 aligned group scaling not implemented"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- accuracy_aligned::tests::every_registry_combination_respects_the_derived_31_bit_bound stdout ----
+
+thread 'accuracy_aligned::tests::every_registry_combination_respects_the_derived_31_bit_bound' (203) panicked at /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/aligned-next/accuracy_aligned.rs:64:122:
+called `Result::unwrap()` on an `Err` value: "R13 aligned group scaling not implemented"
+
+---- accuracy_aligned::tests::tables_scale_the_quantized_words_without_another_rounding stdout ----
+
+thread 'accuracy_aligned::tests::tables_scale_the_quantized_words_without_another_rounding' (204) panicked at /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/aligned-next/accuracy_aligned.rs:46:93:
+called `Result::unwrap()` on an `Err` value: "R13 aligned group scaling not implemented"
+
+
+failures:
+    accuracy_aligned::tests::both_stacks_match_every_independent_rational_product_vector
+    accuracy_aligned::tests::every_registry_combination_respects_the_derived_31_bit_bound
+    accuracy_aligned::tests::tables_scale_the_quantized_words_without_another_rounding
+
+test result: FAILED. 18 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

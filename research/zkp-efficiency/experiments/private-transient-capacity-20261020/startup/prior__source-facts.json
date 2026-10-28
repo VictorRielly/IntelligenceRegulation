@@ -1,0 +1,234 @@
+{
+  "gpu": [
+    {
+      "anchor": "let [ein, eout] = protocol::check_endpoints",
+      "file": "run",
+      "key": "endpoints",
+      "line": 684
+    },
+    {
+      "anchor": "let p = boundary::prepare(",
+      "file": "run",
+      "key": "boundary_create",
+      "line": 725
+    },
+    {
+      "anchor": "protocol::prove_core(",
+      "file": "run",
+      "key": "core",
+      "line": 744
+    },
+    {
+      "anchor": "let in_open = match prev.take()",
+      "file": "run",
+      "key": "incoming",
+      "line": 748
+    },
+    {
+      "anchor": "owner.into_opening(",
+      "file": "run",
+      "key": "boundary_open",
+      "line": 752
+    },
+    {
+      "anchor": "let out_open = if k + 1 == l",
+      "file": "run",
+      "key": "outgoing",
+      "line": 762
+    },
+    {
+      "anchor": "let bytes = wire::encode_segment",
+      "file": "run",
+      "key": "encode",
+      "line": 786
+    },
+    {
+      "anchor": "sink(k, bytes)?;",
+      "file": "run",
+      "key": "sink",
+      "line": 790
+    },
+    {
+      "anchor": "prev = cur;",
+      "file": "run",
+      "key": "handover",
+      "line": 791
+    },
+    {
+      "anchor": "let mut a = pcs::commit_zk_owned_tagged",
+      "file": "protocol",
+      "key": "A",
+      "line": 882
+    },
+    {
+      "anchor": "let mc = zk::mask_commit_tagged",
+      "file": "protocol",
+      "key": "M",
+      "line": 894
+    },
+    {
+      "anchor": "let mut h = pcs::commit_zk_owned_tagged",
+      "file": "protocol",
+      "key": "H",
+      "line": 1001
+    },
+    {
+      "anchor": "let acc = argument(&mut side",
+      "file": "protocol",
+      "key": "slots",
+      "line": 1020
+    },
+    {
+      "anchor": "let mask_open = zk::mask_open",
+      "file": "protocol",
+      "key": "open_M",
+      "line": 1028
+    },
+    {
+      "anchor": "drop(mc);",
+      "file": "protocol",
+      "key": "drop_M",
+      "line": 1029
+    },
+    {
+      "anchor": "let a_open = pcs::open_zk",
+      "file": "protocol",
+      "key": "open_A",
+      "line": 1034
+    },
+    {
+      "anchor": "drop(a);",
+      "file": "protocol",
+      "key": "drop_A",
+      "line": 1035
+    },
+    {
+      "anchor": "let h_open = pcs::open_zk",
+      "file": "protocol",
+      "key": "open_H",
+      "line": 1038
+    },
+    {
+      "anchor": "drop(h);",
+      "file": "protocol",
+      "key": "drop_H",
+      "line": 1039
+    }
+  ],
+  "r8": [
+    {
+      "anchor": "let [ein, eout] = protocol::check_endpoints",
+      "file": "run",
+      "key": "endpoints",
+      "line": 917
+    },
+    {
+      "anchor": "let p = boundary::prepare(",
+      "file": "run",
+      "key": "boundary_create",
+      "line": 961
+    },
+    {
+      "anchor": "protocol::prove_core(",
+      "file": "run",
+      "key": "core",
+      "line": 984
+    },
+    {
+      "anchor": "let in_open = match prev.take()",
+      "file": "run",
+      "key": "incoming",
+      "line": 988
+    },
+    {
+      "anchor": "owner.into_opening(",
+      "file": "run",
+      "key": "boundary_open",
+      "line": 992
+    },
+    {
+      "anchor": "let out_open = if k + 1 == l",
+      "file": "run",
+      "key": "outgoing",
+      "line": 1002
+    },
+    {
+      "anchor": "let bytes = wire::encode_segment",
+      "file": "run",
+      "key": "encode",
+      "line": 1026
+    },
+    {
+      "anchor": "sink(k, bytes)?;",
+      "file": "run",
+      "key": "sink",
+      "line": 1030
+    },
+    {
+      "anchor": "prev = cur;",
+      "file": "run",
+      "key": "handover",
+      "line": 1031
+    },
+    {
+      "anchor": "let mut a = pcs::commit_zk_owned_tagged",
+      "file": "protocol",
+      "key": "A",
+      "line": 1018
+    },
+    {
+      "anchor": "let mc = zk::mask_commit_tagged",
+      "file": "protocol",
+      "key": "M",
+      "line": 1032
+    },
+    {
+      "anchor": "let mut h = pcs::commit_zk_owned_tagged",
+      "file": "protocol",
+      "key": "H",
+      "line": 1139
+    },
+    {
+      "anchor": "let acc = argument(&mut side",
+      "file": "protocol",
+      "key": "slots",
+      "line": 1151
+    },
+    {
+      "anchor": "let mask_open = zk::mask_open",
+      "file": "protocol",
+      "key": "open_M",
+      "line": 1159
+    },
+    {
+      "anchor": "drop(mc);",
+      "file": "protocol",
+      "key": "drop_M",
+      "line": 1160
+    },
+    {
+      "anchor": "let a_open = pcs::open_zk",
+      "file": "protocol",
+      "key": "open_A",
+      "line": 1165
+    },
+    {
+      "anchor": "drop(a);",
+      "file": "protocol",
+      "key": "drop_A",
+      "line": 1166
+    },
+    {
+      "anchor": "let h_open = pcs::open_zk",
+      "file": "protocol",
+      "key": "open_H",
+      "line": 1171
+    },
+    {
+      "anchor": "drop(h);",
+      "file": "protocol",
+      "key": "drop_H",
+      "line": 1172
+    }
+  ]
+}

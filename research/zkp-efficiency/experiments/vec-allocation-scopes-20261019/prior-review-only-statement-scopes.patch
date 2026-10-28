@@ -1,0 +1,29 @@
+--- a/hashline/src/private_block/trained_block.rs
++++ b/hashline/src/private_block/trained_block.rs
+@@ -1034,14 +1034,18 @@
+         let (dp, fp) = (sh.d_pad, sh.f_pad);
+         let id = |i: usize| i;
+         let q = |j: usize| sh.head_slot(j / sh.head_dim) * sh.head_dim + j % sh.head_dim;
+-        let aw = [
+-            pad_matrix(&wq.i8s(), d, d, dp, dp, &q, &id),
+-            pad_matrix(&wk.i8s(), kvw, d, kvw, dp, &id, &id),
+-            pad_matrix(&wv.i8s(), kvw, d, kvw, dp, &id, &id),
+-            pad_matrix(&wo.i8s(), d, d, dp, dp, &id, &q),
+-            pad_matrix(&ga.i8s(), 1, d, 1, dp, &id, &id),
+-        ];
+-        let fw = [pad_matrix(&gm.i8s(), 1, d, 1, dp, &id, &id), pad_matrix(&wg.i8s(), d, f, dp, fp, &id, &id), pad_matrix(&wu.i8s(), d, f, dp, fp, &id, &id), pad_matrix(&wd.i8s(), f, d, fp, dp, &id, &id)];
++        // Separate call statements bound each decoded temporary to its semicolon.
++        let aw0 = pad_matrix(&wq.i8s(), d, d, dp, dp, &q, &id);
++        let aw1 = pad_matrix(&wk.i8s(), kvw, d, kvw, dp, &id, &id);
++        let aw2 = pad_matrix(&wv.i8s(), kvw, d, kvw, dp, &id, &id);
++        let aw3 = pad_matrix(&wo.i8s(), d, d, dp, dp, &id, &q);
++        let aw4 = pad_matrix(&ga.i8s(), 1, d, 1, dp, &id, &id);
++        let aw = [aw0, aw1, aw2, aw3, aw4];
++        let fw0 = pad_matrix(&gm.i8s(), 1, d, 1, dp, &id, &id);
++        let fw1 = pad_matrix(&wg.i8s(), d, f, dp, fp, &id, &id);
++        let fw2 = pad_matrix(&wu.i8s(), d, f, dp, fp, &id, &id);
++        let fw3 = pad_matrix(&wd.i8s(), f, d, fp, dp, &id, &id);
++        let fw = [fw0, fw1, fw2, fw3];
+         let public = AttentionPublic::new_shaped(sh, &aw[0], &aw[1], &aw[2], &aw[3], &aw[4], &cos, &sin, &exp.i64s()).map_err(ctx)?;
+         let ff = FeedForwardPublic::new_shaped(sh, &fw[0], &fw[1], &fw[2], &fw[3], &act.i16s()).map_err(ctx)?;
+         let blk = BlockPublic::new(public, ff);

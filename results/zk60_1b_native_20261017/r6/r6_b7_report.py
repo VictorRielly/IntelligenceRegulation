@@ -65,6 +65,16 @@ def main():
         m = re.search(r'"sh_s": (\d+), "sh_o"', st)
         rep["checks"]["run_sh_s"] = int(m.group(1)) if m else None
         rep["checks"]["layer_1_own_sh_s_7"] = rep["checks"]["layers_with_own_sh_s"].get(1) == 7
+        # NATIVE R8: every layer's own constants (keys beyond the standard
+        # layer record), and the run's calibration from the shape object
+        try:
+            sj_obj = json.loads(st)
+            std = {"layer", "block_digest", "manifest_sha256", "silu_member", "exp_e_s"}
+            rep["checks"]["layers_own_constants"] = {str(l["layer"]): {k: v for k, v in l.items() if k not in std} for l in sj_obj["layers"] if set(l) - std}
+            rep["checks"]["run_calibration"] = {k: sj_obj["shape"][k] for k in ("norm_tn", "norm_cn_a", "norm_cn_m", "norm_ceps", "sh_ao", "sh_qkv", "sh_s", "sh_o", "sh_g", "sh_h", "sh_z", "f_e") if k in sj_obj["shape"]}
+            rep["checks"]["table_keys"] = {str(l["layer"]): {"exp_e_s": l["exp_e_s"], "silu_member": l["silu_member"]} for l in sj_obj["layers"]}
+        except Exception as ex:
+            rep["checks"]["layers_own_constants"] = f"unparsed: {ex}"
     rep["checks"]["unverified_dir_removed"] = not os.path.exists(os.path.join(r, "run.unverified-statement"))
     for pas in ("verify", "recheck"):
         p = os.path.join(r, f"{pas}.log")

@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "checks": 230,
+  "input_pins": 10,
+  "final_direction_documents": 9,
+  "reviewed_owner_updates": 1,
+  "sources_before": 507,
+  "sources_after": 517,
+  "new_source_records": 10,
+  "wall_seconds": 0.02023572599864565,
+  "rss_kib": 21896,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "nice": 19,
+  "checked_at": "2026-10-19T23:29:54.654969+00:00",
+  "scope": "Source/evidence provenance,limits,reported values,append-only durable memory and direction freshness;no native loader/proof"
+}

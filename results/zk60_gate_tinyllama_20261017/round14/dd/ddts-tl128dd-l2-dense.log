@@ -1,0 +1,4 @@
+stage-00.json A: groups 38, surjective 38, disclosed 0 {}, joint [] (502.2 s)
+stage-00.json H: groups 10, surjective 9, disclosed 2 {'9': 2}, joint [([7, 9], 2)] (2677.8 s)
+stage-00.json Input: groups 1, surjective 1, disclosed 0 {}, joint [] (2683.4 s)
+stage-01.json A: groups 38, surjective 38, disclosed 0 {}, joint [] (3561.7 s)

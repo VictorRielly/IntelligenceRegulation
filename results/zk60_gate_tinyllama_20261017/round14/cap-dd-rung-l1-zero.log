@@ -1,0 +1,8 @@
+
+running 1 test
+test private_block::run_capture_tests::capture_a_dd_rung_run ... CAPTURE DD rung L=1 zero: slots 24, dd_cap 32, prove+verify+record 1.09 s, high-water mark 0.10 GiB
+CAPTURE DD rung L=1 zero RESULT: 9626709 B (9.6 MB) at /home/victor/zk60-artifacts/dd-gate-r9/dd-rung-l1-zero, self-consistent, every key on the allow-list - a CAPTURE, not a privacy result
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 607 filtered out; finished in 1.22s
+

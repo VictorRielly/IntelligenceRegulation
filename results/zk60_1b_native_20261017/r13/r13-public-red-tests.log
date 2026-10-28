@@ -1,0 +1,54 @@
+
+running 19 tests
+test accuracy::tests::group_scale_precedes_product_rounding ... ok
+test accuracy::tests::grouped_products_match_independent_rational_vectors ... ok
+test accuracy::tests::invalid_shifts_multipliers_and_overflow_are_refused ... ok
+test accuracy::tests::negative_half_ties_round_toward_positive_infinity ... ok
+test accuracy::tests::requantization_matches_independent_rational_vectors ... ok
+test accuracy_groups::tests::common_denominators_preserve_every_rounding_and_remainder ... ok
+test accuracy_groups::tests::folding_matches_the_independent_block_fixture_constants ... ok
+test accuracy_groups::tests::malformed_and_noncanonical_group_data_is_refused ... ok
+test accuracy_groups::tests::the_product_window_grows_when_exact_group_scaling_needs_it ... ok
+test accuracy_precision::tests::invalid_base_or_derived_windows_are_refused ... ok
+test accuracy_precision::tests::legacy_shifts_and_widths_remain_unchanged ... ok
+test accuracy_precision::tests::low_h24_matches_the_received_build_spec ... ok
+test accuracy_public::tests::a_tampered_table_or_derived_cache_is_refused_on_recheck ... FAILED
+test accuracy_public::tests::each_public_change_moves_the_binding ... FAILED
+test accuracy_public::tests::every_multiplier_axis_has_its_exact_shape_and_narrow_class ... FAILED
+test accuracy_public::tests::honest_data_has_a_canonical_binding_and_exact_context ... FAILED
+test accuracy_tables::tests::every_int12_silu_word_matches_the_independent_reference ... ok
+test accuracy_tables::tests::unsupported_members_and_precisions_are_refused ... ok
+test accuracy_tables::tests::zero_and_signed_index_are_unambiguous ... ok
+
+failures:
+
+---- accuracy_public::tests::a_tampered_table_or_derived_cache_is_refused_on_recheck stdout ----
+
+thread 'accuracy_public::tests::a_tampered_table_or_derived_cache_is_refused_on_recheck' (59) panicked at /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/working-tree/hashline/src/private_block/accuracy_public.rs:110:37:
+called `Result::unwrap()` on an `Err` value: "R13 public data not implemented"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- accuracy_public::tests::each_public_change_moves_the_binding stdout ----
+
+thread 'accuracy_public::tests::each_public_change_moves_the_binding' (60) panicked at /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/working-tree/hashline/src/private_block/accuracy_public.rs:96:37:
+called `Result::unwrap()` on an `Err` value: "R13 public data not implemented"
+
+---- accuracy_public::tests::every_multiplier_axis_has_its_exact_shape_and_narrow_class stdout ----
+
+thread 'accuracy_public::tests::every_multiplier_axis_has_its_exact_shape_and_narrow_class' (61) panicked at /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/working-tree/hashline/src/private_block/accuracy_public.rs:82:25:
+called `Result::unwrap()` on an `Err` value: "R13 public data not implemented"
+
+---- accuracy_public::tests::honest_data_has_a_canonical_binding_and_exact_context stdout ----
+
+thread 'accuracy_public::tests::honest_data_has_a_canonical_binding_and_exact_context' (62) panicked at /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/working-tree/hashline/src/private_block/accuracy_public.rs:68:37:
+called `Result::unwrap()` on an `Err` value: "R13 public data not implemented"
+
+
+failures:
+    accuracy_public::tests::a_tampered_table_or_derived_cache_is_refused_on_recheck
+    accuracy_public::tests::each_public_change_moves_the_binding
+    accuracy_public::tests::every_multiplier_axis_has_its_exact_shape_and_narrow_class
+    accuracy_public::tests::honest_data_has_a_canonical_binding_and_exact_context
+
+test result: FAILED. 15 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

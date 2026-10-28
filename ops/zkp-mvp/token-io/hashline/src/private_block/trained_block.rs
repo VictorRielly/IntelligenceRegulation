@@ -42,7 +42,7 @@
 use super::layout::{Ids, A_X, A_X2, F_RO};
 use super::run::{self, RunShape, RunStatement, RunWitnessSource, RUN_PROFILE_RUNG_TC, RUN_PROFILE_TINYLLAMA_T32_TRAINED};
 use super::shape::{NormCalibration, Shape};
-use super::trained_statement::{IntegerCalibration, LayerRecord, ModelSource, Provenance, SourceKind, TrainedModelStatement};
+use super::trained_statement::{apply_own, cal_field, has_own, own_of, IntegerCalibration, LayerRecord, ModelSource, Provenance, SourceKind, TrainedModelStatement, OWN_FIELDS};
 use super::witness::{self, Witness};
 use super::{prepare_endpoints, AttentionPublic, BlockPublic, ExpectedIo, FeedForwardPublic, IoSpec};
 use crate::merkle::Digest;
@@ -818,41 +818,60 @@ impl TrainedExport {
         Ok((mpath, mbytes, m))
     }
 
-    /// **NATIVE R6: does this export name `sh_s` per layer?** (`profile.json`
-    /// lists it in `per_layer_constants_differ`, with `null` in
-    /// `profile_constants`, as it already does for the table keys.)
-    pub(crate) fn sh_s_per_layer(&self) -> bool {
-        self.per_layer_differ.iter().any(|k| k == "sh_s")
+    /// **NATIVE R8 (R6 for `sh_s`): which of the eleven calibration
+    /// constants ([`OWN_FIELDS`]) this export names per layer** — the indices
+    /// of those `profile.json` lists in `per_layer_constants_differ` (with
+    /// `null` in `profile_constants`, as it already does for the table keys).
+    pub(crate) fn per_layer_cal_fields(&self) -> Vec<usize> {
+        (0..OWN_FIELDS.len()).filter(|i| self.per_layer_differ.iter().any(|k| k == OWN_FIELDS[*i].0)).collect()
+    }
+
+    /// a calibration with every per-layer field set to `base`'s
+    fn masked(&self, c: &Constants, base: &NormCalibration) -> Result<Constants, String> {
+        let fields = self.per_layer_cal_fields();
+        let mut own = [None; 11];
+        for i in fields {
+            own[i] = Some(cal_field(base, i));
+        }
+        Ok(Constants { cal: apply_own(&c.cal, &own)?, ..c.clone() })
     }
 
     /// **The ONE calibration of a run over `layers`.** The profile's uniform
     /// constants, or, where the writer marked some per-layer, the layers'
     /// own manifest constants — which must then agree across the run (a run
     /// has one shape). Every layer's manifest constants must equal the result.
+    ///
+    /// NATIVE R8 (R6 for `sh_s`): with per-layer calibration fields, the
+    /// RUN's calibration is the one most of the run's layers carry in those
+    /// fields together (ties: the smallest in the canonical [`OWN_FIELDS`]
+    /// order, `sh_s` first — so an `sh_s`-only export gets R6's base); each
+    /// other layer records its differing fields (`LayerRecord::own`). Every
+    /// other run-level constant must agree across the run's layers, as before.
     pub(crate) fn run_constants(&self, layers: &[u32]) -> Result<Constants, String> {
         let mut out = self.constants.clone();
-        // NATIVE R6: with a per-layer `sh_s` the RUN's value is the one most
-        // of the run's layers carry (ties: the smaller); the others are
-        // recorded per layer (`LayerRecord::sh_s`). Every other run-level
-        // constant must agree across the run's layers, as before.
-        let base_sh_s: Option<u32> = if self.sh_s_per_layer() && out.is_none() {
-            let mut counts: std::collections::BTreeMap<u32, usize> = std::collections::BTreeMap::new();
-            for &l in layers {
-                let (mpath, _, m) = self.manifest(l)?;
-                let c = constants_of(m.get("constants").map_err(|e| format!("{}: {e}", mpath.display()))?, &mpath.display().to_string(), self.geometry.rope_theta())?;
-                *counts.entry(c.cal.sh_s).or_default() += 1;
+        let fields = self.per_layer_cal_fields();
+        let mut all: Vec<(PathBuf, Constants)> = Vec::with_capacity(layers.len());
+        for &l in layers {
+            let (mpath, _, m) = self.manifest(l)?;
+            let c = constants_of(m.get("constants").map_err(|e| format!("{}: {e}", mpath.display()))?, &mpath.display().to_string(), self.geometry.rope_theta())?;
+            all.push((mpath, c));
+        }
+        let base: Option<NormCalibration> = if !fields.is_empty() && out.is_none() {
+            let key = |c: &NormCalibration| -> Vec<i64> { fields.iter().map(|i| cal_field(c, *i)).collect() };
+            let mut counts: std::collections::BTreeMap<Vec<i64>, (usize, NormCalibration)> = std::collections::BTreeMap::new();
+            for (_, c) in &all {
+                counts.entry(key(&c.cal)).or_insert((0, c.cal)).0 += 1;
             }
-            let best = counts.values().copied().max().unwrap_or(0);
-            counts.iter().find(|(_, n)| **n == best).map(|(v, _)| *v)
+            let best = counts.values().map(|(n, _)| *n).max().unwrap_or(0);
+            counts.values().find(|(n, _)| *n == best).map(|(_, c)| *c)
         } else {
             None
         };
-        for &l in layers {
-            let (mpath, _, m) = self.manifest(l)?;
-            let mut c = constants_of(m.get("constants").map_err(|e| format!("{}: {e}", mpath.display()))?, &mpath.display().to_string(), self.geometry.rope_theta())?;
-            if let Some(b) = base_sh_s {
-                c.cal.sh_s = b;
-            }
+        for (mpath, c) in &all {
+            let c = match &base {
+                Some(b) => self.masked(c, b)?,
+                None => c.clone(),
+            };
             match &out {
                 Some(o) if *o != c => {
                     return Err(format!(
@@ -908,21 +927,18 @@ impl TrainedExport {
             return Err(ctx(format!("the manifest is for layer {mi}, not {index}")));
         }
         let lc = constants_of(m.get("constants").map_err(ctx)?, &mpath.display().to_string(), self.geometry.rope_theta())?;
-        // NATIVE R6: a profile that names `sh_s` per layer lets this layer's
-        // score shift differ from the run's; every other constant is the
-        // run's (one calibration per run)
-        let layer_sh_s = lc.cal.sh_s;
-        let lc_run = if self.sh_s_per_layer() { Constants { cal: NormCalibration { sh_s: c.cal.sh_s, ..lc.cal }, ..lc.clone() } } else { lc.clone() };
+        // NATIVE R8 (R6 for sh_s): a profile that names calibration fields
+        // per layer lets this layer's values of THOSE fields differ from the
+        // run's; every other constant is the run's (one calibration per run)
+        let lc_run = self.masked(&lc, &c.cal).map_err(ctx)?;
         if lc_run != *c {
             return Err(ctx("this layer's constants are not the run's (one calibration per run)".into()));
         }
-        let own_sh_s = if layer_sh_s != c.cal.sh_s {
-            // validated per layer at the trained door
-            sh.with_score_shift(layer_sh_s).map_err(|e| ctx(format!("layer {index}'s own sh_s: {e}")))?;
-            Some(layer_sh_s)
-        } else {
-            None
-        };
+        let own = own_of(&c.cal, &lc.cal);
+        if has_own(&own) {
+            // the layer's whole calibration, validated at the trained door
+            sh.with_layer_calibration(&lc.cal).map_err(|e| ctx(format!("layer {index}'s own calibration: {e}")))?;
+        }
         // the per-block table keys: this layer's own
         let tk = table_keys_of(m.get("constants").map_err(ctx)?, &mpath.display().to_string())?;
         if sh.norm_calibration() != c.cal || sh.f_e != c.f_e {
@@ -1041,7 +1057,7 @@ impl TrainedExport {
         record.manifest_sha256 = manifest_sha256;
         record.silu_member = tk.silu;
         record.exp_e_s = tk.exp_e_s;
-        record.sh_s = own_sh_s;
+        record.own = own;
         let _ = (wq.sha256, exp.sha256);
         Ok(TrainedLayer { index, manifest_sha256, blk, record, rope_note })
     }
@@ -2032,7 +2048,7 @@ fn seal_and_record(ex: &TrainedExport, layers: &[u32], rope_from_export: bool, s
     let (mut kept_bytes, mut load_s, mut witness_s) = (0u64, 0.0f64, 0.0f64);
     let mut first: Option<Vec<i16>> = None;
     let mut shapes: Vec<Shape> = Vec::with_capacity(l);
-    let mut lays: Vec<(u32, super::layout::Layout)> = Vec::new();
+    let mut lays: Vec<(NormCalibration, super::layout::Layout)> = Vec::new();
     let mut x = x_in0.clone();
     let timed_load = |k: usize| -> (Result<TrainedLayer, String>, f64) {
         let t = Instant::now();
@@ -2045,11 +2061,9 @@ fn seal_and_record(ex: &TrainedExport, layers: &[u32], rope_from_export: bool, s
         load_s += ls;
         let cur = cur?;
         let layer = layers[k];
-        // NATIVE R6: the block's witness at its layer's own score shift
-        let ssh = match cur.record.sh_s {
-            Some(v) => sh.with_score_shift(v)?,
-            None => sh.clone(),
-        };
+        // NATIVE R8 (R6 for sh_s): the block's witness at its layer's own
+        // calibration
+        let ssh = if has_own(&cur.record.own) { sh.with_layer_calibration(&apply_own(&sh.norm_calibration(), &cur.record.own)?)? } else { sh.clone() };
         let ((wres, ws), nxt) = rayon::join(
             || {
                 let t = Instant::now();
@@ -2065,10 +2079,10 @@ fn seal_and_record(ex: &TrainedExport, layers: &[u32], rope_from_export: bool, s
         // refusal on the sealed witness, here in the sealing pass, so that no
         // refusal of an admissible-looking chain is left to `prove_core`
         // mid-run (H-1 as a fact of the code). One layout per score shift.
-        let lay = match lays.iter().position(|(v, _)| *v == ssh.sh_s) {
+        let lay = match lays.iter().position(|(v, _)| *v == ssh.norm_calibration()) {
             Some(i) => &lays[i].1,
             None => {
-                lays.push((ssh.sh_s, super::layout::Layout::for_shape(&ssh)?));
+                lays.push((ssh.norm_calibration(), super::layout::Layout::for_shape(&ssh)?));
                 &lays[lays.len() - 1].1
             }
         };
@@ -2405,8 +2419,10 @@ fn render_stack_statement(ex: &TrainedExport, sh: &Shape, layers: &[LayerMeta], 
     let recs: Vec<String> = layers
         .iter()
         .map(|l| {
-            // NATIVE R6: a layer's own score shift, when it has one
-            let own = l.record.sh_s.map(|v| format!(", \"sh_s\": {v}")).unwrap_or_default();
+            // NATIVE R8 (R6 for sh_s): a layer's own constants, when it has
+            // any, under their export keys in the canonical order (`sh_s`
+            // first, so an sh_s-only record renders as in R6)
+            let own: String = l.record.own.iter().enumerate().filter_map(|(i, v)| v.map(|v| format!(", \"{}\": {v}", OWN_FIELDS[i].0))).collect();
             format!("{{\"layer\": {}, \"block_digest\": {}, \"manifest_sha256\": {}, \"silu_member\": [{}, {}], \"exp_e_s\": {}{own}}}", l.index, js(&hex(&l.record.block_digest)), js(&hex(&l.manifest_sha256)), l.record.silu_member.0, l.record.silu_member.1, l.record.exp_e_s)
         })
         .collect();

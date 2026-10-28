@@ -1,0 +1,5 @@
+{"event":"removed","path":"/tmp/zk60-astra-classifier-owner-20261026/bootstrap-owner","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/classifier_fixture/bootstrap-run.unverified-statement","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/classifier_fixture/bootstrap-run.incomplete","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"refused","command":"classify-prove","error":"/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/classifier_fixture/prover-export/profile.json: missing key `variant`"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling B-4, the recommended default; Victor's ruling pending)"}

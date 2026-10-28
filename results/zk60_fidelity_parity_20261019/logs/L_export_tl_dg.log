@@ -1,0 +1,4 @@
+[14:42:15Z] seq_ho00: 22 layers chained through tlcalib.i_block, accepted, rx_block equal (19s)
+[14:42:30Z] seq_ho36: 22 layers chained through tlcalib.i_block, accepted, rx_block equal (34s)
+[14:42:31Z] export written: /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/tinyllama_dg_rot1_T128 profile sha256 b01a6db14ad93319286fe32bcdf4827e9a41bcee2609cc63e25cdf19609e6b8a; per-layer keys ['exp_e_s', 'norm_cn_a', 'norm_cn_m', 'sh_ao', 'sh_h', 'sh_s', 'sh_z', 'silu_member']; words replaced in 0 layers (35s)
+/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/tinyllama_dg_rot1_T128 exists and is not empty

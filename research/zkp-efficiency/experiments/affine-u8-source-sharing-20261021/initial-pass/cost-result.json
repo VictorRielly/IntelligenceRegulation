@@ -1,0 +1,408 @@
+[
+  {
+    "model": "8B",
+    "T": 128,
+    "dd": false,
+    "scope": "owner-count fixture",
+    "domains": [
+      {
+        "domain": "L",
+        "size": 16384,
+        "queries": 2,
+        "distinct_original_sources": 2,
+        "source_bit_widths": 16,
+        "exact_aliases": [],
+        "bit_data_bytes": 2097152,
+        "native_u8_helper_bytes": 262144,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      },
+      {
+        "domain": "D",
+        "size": 524288,
+        "queries": 34,
+        "distinct_original_sources": 30,
+        "source_bit_widths": 237,
+        "exact_aliases": [],
+        "bit_data_bytes": 994050048,
+        "native_u8_helper_bytes": 142606336,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      },
+      {
+        "domain": "Q",
+        "size": 524288,
+        "queries": 13,
+        "distinct_original_sources": 7,
+        "source_bit_widths": 47,
+        "exact_aliases": [],
+        "bit_data_bytes": 197132288,
+        "native_u8_helper_bytes": 58720256,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      },
+      {
+        "domain": "Kv",
+        "size": 131072,
+        "queries": 12,
+        "distinct_original_sources": 6,
+        "source_bit_widths": 45,
+        "exact_aliases": [],
+        "bit_data_bytes": 47185920,
+        "native_u8_helper_bytes": 12582912,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      },
+      {
+        "domain": "F",
+        "size": 2097152,
+        "queries": 9,
+        "distinct_original_sources": 7,
+        "source_bit_widths": 53,
+        "exact_aliases": [],
+        "bit_data_bytes": 889192448,
+        "native_u8_helper_bytes": 167772160,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      },
+      {
+        "domain": "S",
+        "size": 524288,
+        "queries": 13,
+        "distinct_original_sources": 8,
+        "source_bit_widths": 56,
+        "exact_aliases": [
+          [
+            9,
+            8
+          ],
+          [
+            12,
+            11
+          ]
+        ],
+        "bit_data_bytes": 234881024,
+        "native_u8_helper_bytes": 58720256,
+        "dedup_helper_data_saved_bytes": 8388608,
+        "dedup_removed_helper_planes": 1
+      }
+    ],
+    "native_u8_helper_data_bytes": 440664064,
+    "source_shared_bit_data_bytes": 2364538880,
+    "dense_shared_bits_over_native": 5.365853658536586,
+    "per_query_8bit_data_bytes": 3323985920,
+    "dedup_helper_data_saved_bytes": 8388608,
+    "dedup_native_u8_helper_fraction": 0.01903628792385485,
+    "new_private_mask_words": null,
+    "new_PCS_groups": null,
+    "new_CFS_coefficients": null,
+    "end_to_end_time_saving": null,
+    "physical_peak_saving": null
+  },
+  {
+    "model": "8B",
+    "T": 128,
+    "dd": true,
+    "scope": "owner-count fixture",
+    "domains": [
+      {
+        "domain": "L",
+        "size": 16384,
+        "queries": 2,
+        "distinct_original_sources": 2,
+        "source_bit_widths": 16,
+        "exact_aliases": [],
+        "bit_data_bytes": 2097152,
+        "native_u8_helper_bytes": 262144,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      },
+      {
+        "domain": "D",
+        "size": 524288,
+        "queries": 34,
+        "distinct_original_sources": 30,
+        "source_bit_widths": 237,
+        "exact_aliases": [],
+        "bit_data_bytes": 994050048,
+        "native_u8_helper_bytes": 142606336,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      },
+      {
+        "domain": "Q",
+        "size": 524288,
+        "queries": 13,
+        "distinct_original_sources": 7,
+        "source_bit_widths": 47,
+        "exact_aliases": [],
+        "bit_data_bytes": 197132288,
+        "native_u8_helper_bytes": 58720256,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      },
+      {
+        "domain": "Kv",
+        "size": 131072,
+        "queries": 12,
+        "distinct_original_sources": 6,
+        "source_bit_widths": 45,
+        "exact_aliases": [],
+        "bit_data_bytes": 47185920,
+        "native_u8_helper_bytes": 12582912,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      },
+      {
+        "domain": "F",
+        "size": 2097152,
+        "queries": 9,
+        "distinct_original_sources": 7,
+        "source_bit_widths": 53,
+        "exact_aliases": [],
+        "bit_data_bytes": 889192448,
+        "native_u8_helper_bytes": 167772160,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      },
+      {
+        "domain": "S",
+        "size": 524288,
+        "queries": 4,
+        "distinct_original_sources": 2,
+        "source_bit_widths": 14,
+        "exact_aliases": [],
+        "bit_data_bytes": 58720256,
+        "native_u8_helper_bytes": 16777216,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      },
+      {
+        "domain": "Dd",
+        "size": 131072,
+        "queries": 9,
+        "distinct_original_sources": 6,
+        "source_bit_widths": 42,
+        "exact_aliases": [
+          [
+            5,
+            4
+          ],
+          [
+            8,
+            7
+          ]
+        ],
+        "bit_data_bytes": 44040192,
+        "native_u8_helper_bytes": 10485760,
+        "dedup_helper_data_saved_bytes": 2097152,
+        "dedup_removed_helper_planes": 1
+      }
+    ],
+    "native_u8_helper_data_bytes": 409206784,
+    "source_shared_bit_data_bytes": 2232418304,
+    "dense_shared_bits_over_native": 5.455477258167841,
+    "per_query_8bit_data_bytes": 3097493504,
+    "dedup_helper_data_saved_bytes": 2097152,
+    "dedup_native_u8_helper_fraction": 0.005124919923126201,
+    "new_private_mask_words": null,
+    "new_PCS_groups": null,
+    "new_CFS_coefficients": null,
+    "end_to_end_time_saving": null,
+    "physical_peak_saving": null
+  },
+  {
+    "model": "8B",
+    "T": 512,
+    "dd": false,
+    "scope": "COUNTED ONLY, unregistered T512; no proof/profile admission",
+    "domains": [
+      {
+        "domain": "L",
+        "size": 32768,
+        "queries": 2,
+        "distinct_original_sources": 2,
+        "source_bit_widths": 16,
+        "exact_aliases": [],
+        "bit_data_bytes": 4194304,
+        "native_u8_helper_bytes": 524288,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      },
+      {
+        "domain": "D",
+        "size": 2097152,
+        "queries": 34,
+        "distinct_original_sources": 30,
+        "source_bit_widths": 237,
+        "exact_aliases": [],
+        "bit_data_bytes": 3976200192,
+        "native_u8_helper_bytes": 570425344,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      },
+      {
+        "domain": "Q",
+        "size": 2097152,
+        "queries": 13,
+        "distinct_original_sources": 7,
+        "source_bit_widths": 47,
+        "exact_aliases": [],
+        "bit_data_bytes": 788529152,
+        "native_u8_helper_bytes": 234881024,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      },
+      {
+        "domain": "Kv",
+        "size": 524288,
+        "queries": 12,
+        "distinct_original_sources": 6,
+        "source_bit_widths": 45,
+        "exact_aliases": [],
+        "bit_data_bytes": 188743680,
+        "native_u8_helper_bytes": 50331648,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      },
+      {
+        "domain": "F",
+        "size": 8388608,
+        "queries": 9,
+        "distinct_original_sources": 7,
+        "source_bit_widths": 53,
+        "exact_aliases": [],
+        "bit_data_bytes": 3556769792,
+        "native_u8_helper_bytes": 671088640,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      },
+      {
+        "domain": "S",
+        "size": 8388608,
+        "queries": 15,
+        "distinct_original_sources": 10,
+        "source_bit_widths": 60,
+        "exact_aliases": [],
+        "bit_data_bytes": 4026531840,
+        "native_u8_helper_bytes": 1073741824,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      }
+    ],
+    "native_u8_helper_data_bytes": 2600992768,
+    "source_shared_bit_data_bytes": 12540968960,
+    "dense_shared_bits_over_native": 4.821608546663979,
+    "per_query_8bit_data_bytes": 19599982592,
+    "dedup_helper_data_saved_bytes": 0,
+    "dedup_native_u8_helper_fraction": 0.0,
+    "new_private_mask_words": null,
+    "new_PCS_groups": null,
+    "new_CFS_coefficients": null,
+    "end_to_end_time_saving": null,
+    "physical_peak_saving": null
+  },
+  {
+    "model": "8B",
+    "T": 512,
+    "dd": true,
+    "scope": "COUNTED ONLY, unregistered T512; no proof/profile admission",
+    "domains": [
+      {
+        "domain": "L",
+        "size": 32768,
+        "queries": 2,
+        "distinct_original_sources": 2,
+        "source_bit_widths": 16,
+        "exact_aliases": [],
+        "bit_data_bytes": 4194304,
+        "native_u8_helper_bytes": 524288,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      },
+      {
+        "domain": "D",
+        "size": 2097152,
+        "queries": 34,
+        "distinct_original_sources": 30,
+        "source_bit_widths": 237,
+        "exact_aliases": [],
+        "bit_data_bytes": 3976200192,
+        "native_u8_helper_bytes": 570425344,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      },
+      {
+        "domain": "Q",
+        "size": 2097152,
+        "queries": 13,
+        "distinct_original_sources": 7,
+        "source_bit_widths": 47,
+        "exact_aliases": [],
+        "bit_data_bytes": 788529152,
+        "native_u8_helper_bytes": 234881024,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      },
+      {
+        "domain": "Kv",
+        "size": 524288,
+        "queries": 12,
+        "distinct_original_sources": 6,
+        "source_bit_widths": 45,
+        "exact_aliases": [],
+        "bit_data_bytes": 188743680,
+        "native_u8_helper_bytes": 50331648,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      },
+      {
+        "domain": "F",
+        "size": 8388608,
+        "queries": 9,
+        "distinct_original_sources": 7,
+        "source_bit_widths": 53,
+        "exact_aliases": [],
+        "bit_data_bytes": 3556769792,
+        "native_u8_helper_bytes": 671088640,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      },
+      {
+        "domain": "S",
+        "size": 8388608,
+        "queries": 4,
+        "distinct_original_sources": 2,
+        "source_bit_widths": 14,
+        "exact_aliases": [],
+        "bit_data_bytes": 939524096,
+        "native_u8_helper_bytes": 268435456,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      },
+      {
+        "domain": "Dd",
+        "size": 524288,
+        "queries": 11,
+        "distinct_original_sources": 8,
+        "source_bit_widths": 46,
+        "exact_aliases": [],
+        "bit_data_bytes": 192937984,
+        "native_u8_helper_bytes": 50331648,
+        "dedup_helper_data_saved_bytes": 0,
+        "dedup_removed_helper_planes": 0
+      }
+    ],
+    "native_u8_helper_data_bytes": 1846018048,
+    "source_shared_bit_data_bytes": 9646899200,
+    "dense_shared_bits_over_native": 5.2257881283726215,
+    "per_query_8bit_data_bytes": 14063501312,
+    "dedup_helper_data_saved_bytes": 0,
+    "dedup_native_u8_helper_fraction": 0.0,
+    "new_private_mask_words": null,
+    "new_PCS_groups": null,
+    "new_CFS_coefficients": null,
+    "end_to_end_time_saving": null,
+    "physical_peak_saving": null
+  }
+]

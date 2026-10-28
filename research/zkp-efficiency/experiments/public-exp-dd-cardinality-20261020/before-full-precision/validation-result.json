@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "checks": 1926,
+  "enumerated_entries": 265728,
+  "public_export_layers": 410,
+  "source_pins": 15,
+  "metadata_negative_controls": 10,
+  "Decimal_precision": 90,
+  "repeated_precision": 130,
+  "minimum_half_integer_margin": "0.000055323927640514224172925767071571344059922608362133248345738299415130741906212277978",
+  "elapsed_s": 0.44764082701294683,
+  "maxrss_KiB": 16220,
+  "scope": "Independent high precision public table/pin audit; no native proof"
+}

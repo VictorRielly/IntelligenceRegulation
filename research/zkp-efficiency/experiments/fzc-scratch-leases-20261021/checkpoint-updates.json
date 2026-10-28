@@ -1,0 +1,14 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+    "sha256": "884691e96f323438e1fb8b360365c4fdd24ff5805d94ecf7f94e726e2f980775",
+    "read_at_utc": "2026-10-21T02:34:36Z",
+    "snapshot": "experiments/fzc-scratch-leases-20261021/startup/checkpoint__MVP_STATUS.md"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "sha256": "7428fa83bb04cb3cc711384190a88770a05ebac69909e83f9ca09eed93794c53",
+    "read_at_utc": "2026-10-21T02:34:36Z",
+    "snapshot": "experiments/fzc-scratch-leases-20261021/startup/checkpoint__ZK60_DECISIONS.md"
+  }
+]

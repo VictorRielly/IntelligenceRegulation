@@ -1,0 +1,30 @@
+{
+  "written_utc": "2026-10-26T18:55:56.586426+00:00",
+  "problems": [],
+  "live_processes": [],
+  "guard_status": {
+    "mem_total_gib": 15.39,
+    "mem_available_gib": 13.74,
+    "swap_used_gib": 0.66,
+    "job_budget_gib": 11.89,
+    "committed_gib": 0,
+    "live_guarded_jobs": [],
+    "heavy_lock_free": true,
+    "build_lock_free": true,
+    "gpu_used_mib": 0,
+    "gpu_total_mib": 8188,
+    "top_processes": [
+      {
+        "pid": 1564,
+        "rss_mib": 639,
+        "cmd": "claude "
+      },
+      {
+        "pid": 861711,
+        "rss_mib": 203,
+        "cmd": "/home/victor/.nvm/versions/node/v22.22.3/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/v"
+      }
+    ],
+    "kernel_memory_cap_available": true
+  }
+}

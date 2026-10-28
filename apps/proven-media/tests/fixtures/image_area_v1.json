@@ -1,0 +1,41 @@
+{
+  "spec": "pm-img-area-v1",
+  "vectors": [
+    {
+      "name": "one-pixel",
+      "width": 1,
+      "height": 1,
+      "rgb8_hex": "115bcb",
+      "canvas_sha256": "a562ec66cd6aaf4c83f99e40111a4100974cb33711ee54ee61941e710610c133",
+      "tensor_sha256": "1020bd449a67965b9cebe7669abe457d6d65ec5995bcd002a214b8cdaf618fe8",
+      "commitment_zero_salt": "b0aaf16bc978de9f9a3fe59c93a953000c718a8334ac180d5fe13b60e75ffbb4"
+    },
+    {
+      "name": "portrait-2x3",
+      "width": 2,
+      "height": 3,
+      "rgb8_hex": "000102030405060708090a0b0c0d0e0f1011",
+      "canvas_sha256": "db16d014fa795b89e8dda719c27540ed98ae23141c6dd753b5cebe858c3a8d9f",
+      "tensor_sha256": "c3916cec3d0669e008cc55774ca051652202ed5cf167afe1e9deffd0536dc599",
+      "commitment_zero_salt": "73b0df79d9edba2f9591bfbde2e9e0903f8c2931acfb4908bdae314ec720aed5"
+    },
+    {
+      "name": "landscape-5x2",
+      "width": 5,
+      "height": 2,
+      "rgb8_hex": "095097de256cb3fa4188cf165da4eb3279c0074e95dc236ab1f83f86cd14",
+      "canvas_sha256": "37388187aca44bbd597b8acdd98cf6940b4726777adca0d4e197f08a3aec4740",
+      "tensor_sha256": "b99db215e498652df04747b13c3c903f68d3823041544dcd218a1ffe53d66223",
+      "commitment_zero_salt": "924156f67f0d17ccaa78954c3a1b625c08c3c2df0a30fb79671c8253467d9ca9"
+    },
+    {
+      "name": "checker-3x3",
+      "width": 3,
+      "height": 3,
+      "rgb8_hex": "000000ff7f0000fe00ff007f007f7ffffe7f0000feff7ffe00fefe",
+      "canvas_sha256": "973e200540c9c67a120495fa5b50dbb3618df2b54e1ce6b4cfb853b0f79c43d7",
+      "tensor_sha256": "d65894416f3588f587f5f1ed983cf71b54d5e76050f615e1050d3c80cc174345",
+      "commitment_zero_salt": "a5f692004ca3daba425f4677813d8361440b05d7f6080ae9e84110b7eb4baa6a"
+    }
+  ]
+}

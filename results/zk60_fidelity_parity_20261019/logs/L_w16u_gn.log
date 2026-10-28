@@ -1,0 +1,29 @@
+[21:48:16Z] fp_eval tinyllama export tl_dg_w16u T 128 corpora fineweb:48,wikitext:48 relax ['gate', 'nm', 'norm', 'y'] threads 4
+[21:48:16Z] corpora built: (96, 128), {'fineweb': {'n': 48, 'offset': 0, 'source': '/home/victor/models/fineweb-edu/sample/10BT/000_00000.parquet', 'sha256_expected': 'b1ba7b2ce4cb5ea6ef42dca40263eabb85f37700d01693a68e9b30a31d78e871'}, 'wikitext': {'n': 48, 'offset': 0, 'source': '/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/data/wikitext2/test.parquet', 'sha256_expected': '5f1bea067869d04849c0f975a2b29c4ff47d867f484f5010ea5e861eab246d91'}} (1s)
+[21:48:16Z] float final residual from cache float_T128_6890f6f1df2b.npy
+[21:48:35Z] L00 violations 0 refused so far 0 (14s)
+[21:48:47Z] L01 violations 0 refused so far 0 (12s)
+[21:48:58Z] L02 violations 0 refused so far 0 (12s)
+[21:49:10Z] L03 violations 0 refused so far 0 (11s)
+[21:49:21Z] L04 violations 0 refused so far 0 (11s)
+[21:49:33Z] L05 violations 0 refused so far 0 (12s)
+[21:49:44Z] L06 violations 0 refused so far 0 (12s)
+[21:49:56Z] L07 violations 0 refused so far 0 (12s)
+[21:50:08Z] L08 violations 0 refused so far 0 (12s)
+[21:50:19Z] L09 violations 0 refused so far 0 (11s)
+[21:50:30Z] L10 violations 0 refused so far 0 (11s)
+[21:50:42Z] L11 violations 0 refused so far 0 (12s)
+[21:50:53Z] L12 violations 0 refused so far 0 (11s)
+[21:51:05Z] L13 violations 0 refused so far 0 (11s)
+[21:51:16Z] L14 violations 0 refused so far 0 (11s)
+[21:51:27Z] L15 violations 0 refused so far 0 (11s)
+[21:51:39Z] L16 violations 0 refused so far 0 (12s)
+[21:51:50Z] L17 violations 0 refused so far 0 (11s)
+[21:52:02Z] L18 violations 0 refused so far 0 (11s)
+[21:52:13Z] L19 violations 0 refused so far 0 (12s)
+[21:52:25Z] L20 violations 0 refused so far 0 (12s)
+[21:52:37Z] L21 violations 0 refused so far 0 (12s)
+[21:53:02Z] fineweb: ppl float 11.688 int 12.214 ratio 1.0450 CI [1.033169975215459, 1.0569407559939845] top1 0.865 KL 0.0758 refused 0
+[21:53:02Z] wikitext: ppl float 17.675 int 18.668 ratio 1.0561 CI [1.0436573907292155, 1.068761391660424] top1 0.850 KL 0.0887 refused 0
+[21:53:02Z] done (286s) -> /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/runs/tinyllama/w16u_gn
+[21:53:02Z] ALREADY DONE: runs/tinyllama/w16u_gn/summary.json exists (set FP_RERUN=1 to recompute)

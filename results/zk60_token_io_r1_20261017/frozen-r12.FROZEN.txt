@@ -1,0 +1,26 @@
+Token-I/O lane round-12 tree frozen at 2026-10-26T18:32Z (rung R-C1: the classifier variant, DESIGN_CLASSIFIER v2.2, D41 chunks; on top of frozen-r11).
+copy:     /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r12/
+source:   /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io/ (build target/ directories excluded, BASELINE.sha256 excluded as by tools/manifest.py)
+manifest: /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/manifest_final_r12.sha256
+          (245 files, list sha256 f2436b15f5d5bb7117700113824252fabac440d35f94fc269d6f49779b700b6f = manifest_r12C);
+          all 245 entries re-hashed in the copy: match, no missing, no extra.
+binary:   cli/zk60_classify.r12.release.bin (04036e269a5c0984c70dd2b391dc9e045156d87dfd9c41ccccad4088a204bb76, cli/binaries_r12.sha256; build note
+          cli/zk60_classify.r12.BUILD.txt), built from this tree. The next-token binary is not rebuilt:
+          D36 stays on frozen-r9 / b56f1b71 (and frozen-r11 / 0c9f247c), unchanged copies.
+suite:    s16 (logs/s16-suite.log) on this tree: exit 0, 789 passed, 0 failed, 40 ignored, 29 test binaries
+          [898.5 s, peak 6.77 GiB]. (s15 on 2026-10-21 failed only the six registry gates, fixed in this tree.)
+native:   the block / run base is NATIVE R8 (results/zk60_1b_native_20261017/r8/frozen-tree, tree 7f64276a...);
+          the rebase onto native R12 (tree 1e406781...) is probed in scratch (6 overlapping files, 3 adjacency
+          conflicts) and follows the R12 D24 verdict.
+vs frozen-r11: 6 changed: hashline/src/private_block.rs (-0 +2); hashline/src/private_block/run.rs (-0 +12); hashline/src/private_block/s24_tests.rs (-0 +4); hashline/src/private_block/s25_tests.rs (-5 +142); hashline/src/private_block/s33_tests.rs (-0 +2); hashline/src/private_block/token_io.rs (-0 +13); 8 added: hashline/examples/zk60_classify.rs, hashline/src/private_block/token_io/classify.rs, hashline/src/private_block/token_io/classify_cli.rs, hashline/src/private_block/token_io/classify_cli_tests.rs, hashline/src/private_block/token_io/classify_run.rs, hashline/src/private_block/token_io/classify_tests.rs, hashline/src/private_block/token_io/stage_in_c.rs, hashline/src/private_block/token_io/stage_out_c.rs; 0 removed.
+          The full diff of the changed files: classifier/rc1_changed_files_vs_r11.diff. Production lines of the
+          next-token commands are unchanged; the removed lines are in the registry TEST files only (counts and
+          array lengths that the classifier profile, its hash and generator sites extend).
+Not a privacy acceptance. The lane's working copy may move on; this copy does not change.
+scope note (added 2026-10-26 20:12Z, coordinator's instruction after native R12's review finding F1):
+          in R-C1 the margin vector w (margin_int16.bin) is a GIVEN public table checked only against the
+          digest its own classifier.json declares; it is NOT derived from the model's tied embedding / head,
+          and the embedding, bos and final norm of --tables are likewise declared, not recomputed. So no
+          classifier proof made with this tree binds the head: nothing may describe a Shieldstral classifier
+          proof as binding the head until R-C2 (the verifier re-derives w from the pinned tied tensor and the
+          policy's yes / no ids, on native R12b) lands.

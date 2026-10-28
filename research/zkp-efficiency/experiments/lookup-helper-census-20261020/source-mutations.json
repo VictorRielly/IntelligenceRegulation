@@ -1,0 +1,138 @@
+[
+  {
+    "file": "shape.rs",
+    "fragment": "self.lookups_per_position(dom).div_ceil(2)"
+  },
+  {
+    "file": "shape.rs",
+    "fragment": "Dom::D => 2 + per_norm + 6 + per_norm + 2 + 4,"
+  },
+  {
+    "file": "shape.rs",
+    "fragment": "Dom::S if self.dd_cap > 0 => 2 + 2,"
+  },
+  {
+    "file": "shape.rs",
+    "fragment": "Dom::F => 9,"
+  },
+  {
+    "file": "shape.rs",
+    "fragment": "Dom::Q => 13,"
+  },
+  {
+    "file": "shape.rs",
+    "fragment": "Dom::Kv => 12,"
+  },
+  {
+    "file": "shape.rs",
+    "fragment": "Dom::S => clog2(self.h_pad * self.t_pad * self.t_pad),"
+  },
+  {
+    "file": "shape.rs",
+    "fragment": "Dom::F => clog2(self.t_pad * self.f_pad),"
+  },
+  {
+    "file": "shape.rs",
+    "fragment": "v.extend(vec![Dom::S; self.helpers(Dom::S) + 1 + usize::from(self.dd_cap > 0)]);"
+  },
+  {
+    "file": "shape.rs",
+    "fragment": "v.extend(vec![Dom::F; self.helpers(Dom::F) + 1]);"
+  },
+  {
+    "file": "shape.rs",
+    "fragment": "v.extend(vec![Dom::Dd; self.helpers(Dom::Dd) + 1]);"
+  },
+  {
+    "file": "shape.rs",
+    "fragment": "v.extend([Dom::Tab; 4]);"
+  },
+  {
+    "file": "shape.rs",
+    "fragment": "let h_data_rows: usize = self.h_plane_doms().iter().map(|d| 2 * self.rows_of(*d)).sum();"
+  },
+  {
+    "file": "shape.rs",
+    "fragment": "h_rows: h_data_rows + 2 * h_sites + 2,"
+  },
+  {
+    "file": "shape.rs",
+    "fragment": "Dom::Tab => U8_LEN,"
+  },
+  {
+    "file": "shape.rs",
+    "fragment": "pub(crate) fn llama3_8b_t128_trained_dd"
+  },
+  {
+    "file": "layout.rs",
+    "fragment": "if carries_h_planes && natural < log_n {"
+  },
+  {
+    "file": "layout.rs",
+    "fragment": "pub(crate) const F_P: u32 = 9;"
+  },
+  {
+    "file": "layout.rs",
+    "fragment": "pub(crate) fn lookups_at(sh: &super::shape::Shape, ids: &Ids, dom: Dom) -> Vec<Lk>"
+  },
+  {
+    "file": "layout.rs",
+    "fragment": "v.extend(sym(ids.at(A_Q8)));"
+  },
+  {
+    "file": "layout.rs",
+    "fragment": "v.extend((0..ln).map(|k| byte(ids.nr(k))));"
+  },
+  {
+    "file": "layout.rs",
+    "fragment": "Dom::Dd if sh.dd_cap > 0 => {"
+  },
+  {
+    "file": "argument.rs",
+    "fragment": "h.mul(d1).mul(d2).sub(d1.add(d2))"
+  },
+  {
+    "file": "argument.rs",
+    "fragment": "None => h.mul(d1).sub(Fp2::ONE),"
+  },
+  {
+    "file": "argument.rs",
+    "fragment": "b.a(ids.at(A_MU8))?;"
+  },
+  {
+    "file": "argument.rs",
+    "fragment": "b.a(ids.at(A_MEXP))?;"
+  },
+  {
+    "file": "argument.rs",
+    "fragment": "b.a(ids.at(A_MACT))?;"
+  },
+  {
+    "file": "argument.rs",
+    "fragment": "let r0 = v[2].mul(alpha.sub(v[3])).sub(v[1]);"
+  },
+  {
+    "file": "protocol.rs",
+    "fragment": "let u8_inv = u8_denominator_inverses(alpha, g_u8);"
+  },
+  {
+    "file": "protocol.rs",
+    "fragment": "pub(super) fn u8_denominator_inverses(alpha: Fp2, g_u8: Fp2)"
+  },
+  {
+    "file": "protocol.rs",
+    "fragment": "let alpha = tr.challenge_fp2();"
+  },
+  {
+    "file": "protocol.rs",
+    "fragment": "helper_pair_inverses_u8(&cols[2 * k], second, alpha, g_u8, &u8_inv)?"
+  },
+  {
+    "file": "protocol.rs",
+    "fragment": "write_h(&mut h_data, lay.h_off[hids.gdd()], &col);"
+  },
+  {
+    "file": "protocol.rs",
+    "fragment": "let mut h_data = vec![Fp::ZERO; lay.h_rows * n];"
+  }
+]

@@ -1,0 +1,28 @@
+{
+  "source": {
+    "collect_stats.py": "e07b5f843c62d27a5b9edde4d4d5d13d830aa8060c0ee9f8d885848a746e4179",
+    "shieldstral_geometry.py": "cf3b543def0546cc5d4de744ab341d1b4d973ee81b53b0f9f466045a97cd7ee3",
+    "shieldstral_weights.py": "a93541078c296d952e70a71bbf81b6771d98178d73cc48d7d4eeac07ada1622f",
+    "calibration_port.py": "e47e9e34151476ede530a43d0d7c9da2485285dae2d4d22c5b33f1e6a743892d",
+    "vendor/b3_ladder.py": "d2e07ab43131298b2552d61ff215b2c7a0e11521d237d2c0721242870849eea7",
+    "vendor/b3calib.py": "656049c85d932133e2f6e70c6886af35f5f0d4c5d94000c11879b66001ddf511",
+    "vendor/fp_lib.py": "e990f904d1696d69080d177aeb4c2deb5da6e50123923bf28ebeac6cc2f71cf6",
+    "vendor/tlcalib.py": "2441cc4072c0d4b4cf3f07779a3323ad066ced9eaa6aa31eeb757e0362d94738"
+  },
+  "input": "316bb334ed964dd5c8d24716a6f093e12cff8a848408d2633179fc7ce1ac75e7",
+  "model": {
+    "repo": "mistralai/Shieldstral-1.0-3B",
+    "revision": "003ec7e2b0bab5f0e6307edbaf186fa5822b76f5",
+    "sha256": "87753e30c8c321da478b83bbabebcd813cc9b3d0cee5c5b3d64349a8ee4172f7"
+  },
+  "rotation": {
+    "kind": "block-hadamard",
+    "width": 3072,
+    "block_width": 1024,
+    "blocks": 3,
+    "seed": 1,
+    "sign_sha256": "d4e7754fdce9d3920d3b20660d76b58cf629359f7574e7329683031ba23cacf7",
+    "rule": "R=blockdiag(H1024,H1024,H1024) diag(sign) / 32; x_rot=x R^T"
+  },
+  "scope": "float calibration; no evaluation/proof claim"
+}

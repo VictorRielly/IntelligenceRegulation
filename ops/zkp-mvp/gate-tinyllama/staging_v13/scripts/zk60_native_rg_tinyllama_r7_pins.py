@@ -1,0 +1,196 @@
+#!/usr/bin/env python3
+"""[TINYLLAMA PORT, tools v8, 2026-10-19 round 6 part (B)] The READINGS behind
+every source pin of the bundles captured from the native lane's frozen R7
+tree that the earlier readings (`zk60_native_rg_tinyllama_pins`, `_r5_pins`,
+`_r5b_pins`) do not already cover.  They are merged at the same definition
+sites, one marked line each, after R5b's.  No existing digest or reading is
+changed; the merge refuses a digest already present.
+
+HOW EACH FILE WAS READ.  The R7 bundles are written from
+`ops/zkp-mvp/trained-1b-gate-r7/`: an rsync of
+`results/zk60_1b_native_20261017/r7/frozen-tree/` (frozen
+2026-10-19T09:58:29Z, tree 36a8aed1..., all 219 files equal to
+`r7/manifest_frozen.json`, tree digest reproduced) plus this lane's R5b gate
+patch (the test-only capture code and the stage-47 module, mounted under the
+unpinned `run_capture_tests.rs`).  Sources manifest:
+`results/zk60_gate_tinyllama_20261017/r7/trained-1b-gate-r7.sources.v1.sha256`.
+The capture writer `run_capture.rs` is byte-identical to R5b's gate copy
+(31557a27, already read), so its 46 pins are R5b's set.  Of those 46, R7
+differs from R5b in exactly six (`r7/r7-source-pins.v1.json`), each read
+here as the plain `diff -u` against the R5b digest.  R7 = R6 + N-r6-b + Q-2;
+the R6 -> R7 patch touches only `trained_block.rs` among pinned files.
+
+THE EXPORT FACT EVERY READING USES [READ].  `pg_rot1_export_T32/profile.json`
+lists `per_layer_constants_differ = [exp_e_s, silu_member]` and `sh_s` = 6
+run-wide.  So `TrainedExport::sh_s_per_layer()` is false, every
+`LayerRecord::sh_s` is `None`, and `RunStatement::stage_shape(k)` returns
+the run shape for every stage.
+
+WHAT A READING DOES NOT SAY.  That the Rust is right.
+
+NOTHING HERE IS A PRIVACY STATEMENT.
+"""
+
+from __future__ import annotations
+
+TREE = ("uncommitted:ops/zkp-mvp/trained-1b-gate-r7 "
+        "(the native lane's frozen R7 tree 36a8aed1 + the privacy-gate lane's "
+        "test-only capture code and stage-47 module; sources manifest 7d6f1abe)",)
+R7_BUNDLES = ("tinyllama-trained-r7-capture-dense-l2",
+              "tinyllama-trained-r7-capture-zero-l2",
+              "tinyllama-trained-r7-capture-dense-l1",
+              "tinyllama-trained-r7-capture-zero-l1",
+              "tinyllama-trained-r7-capture-dense-l22",
+              "tinyllama-trained-r7-capture-zero-l22",
+              "the P-18 CLI-path capture at L = 2 (R7 CLI e51cc6a4)")
+
+RUN_LAYER_PINS = {
+    "src/private_block/run.rs": {
+        "ad92be08fe55b86ea1f75931130a49d76de5c867c36210864694c2e1cd3dc0e9": {
+            "blob": "ccf2225cf3d26a9abbe0d7582c8ab568eec7b22c",
+            "commits": TREE,
+            "bundles": R7_BUNDLES,
+            "bytes": 76670,
+        },
+    },
+}
+
+READINGS = {
+    ("src/private_block/run.rs",
+     "ad92be08fe55b86ea1f75931130a49d76de5c867c36210864694c2e1cd3dc0e9"):
+        "[TINYLLAMA PORT v8, round 6] read against `c192fd33` (R5b, read in "
+        "round 5): `diff -u` is +54 / -6, nine hunks, all NATIVE R6. "
+        "(1) a `stage_sh_s: Vec<u32>` field; `new_with_calibration` fills it "
+        "with the run shape's `sh_s` for every stage, and `new_bound` "
+        "overwrites entry k only for a layer whose record carries its own "
+        "`sh_s` (validated by `Shape::with_score_shift`); "
+        "(2) `stage_line` appends a score-shift clause ONLY when "
+        "`stage_sh_s[k] != rs.sh.sh_s`; "
+        "(3) `stage_shape(k)`, which is the run shape's clone when equal; "
+        "(4) `stage_layout`, `prove_run_with` and `RunVerifier::step` use "
+        "`stage_shape(k)`; "
+        "(5) review r5_A: `verify_run_from_dir_hashed_with` returns the length "
+        "and SHA-256 of exactly the bytes each step consumed (verifier side). "
+        "At pg_rot1 T32 every record's `sh_s` is None, so every stage is the "
+        "run shape and every schedule line is R5b's.  **Outside every hunk**: "
+        "the six header absorbs, `position_tag`, the per-stage absorbs, the "
+        "boundary rules and the draw order.  At the TinyLlama T32 profile no "
+        "byte of a run moves",
+}
+
+# --------------------------------------------------------------------------
+# zk60_native_rg_terminals.ALSO_ACCEPTED (a file a port transcribes)
+# --------------------------------------------------------------------------
+TERMINALS_ALSO_ACCEPTED = {
+    "src/private_block/protocol.rs": {
+        "85ca893173c4bfc0d8c88be69dbd0834831d4aec4ec9783c66e0b61d614615f6":
+            "[TINYLLAMA PORT v8, round 6] read against `7cf6e486` (R5 = R5b, "
+            "read in round 4): +52 / -16, two hunks, NATIVE R6.  (1) NEW "
+            "`exp_histogram` and `act_histogram`, whose loop bodies are "
+            "character for character the two loops `prove_core` had (hit "
+            "test, miss count, the miss filed in entry 0).  NEW "
+            "`check_lookup_misses(sh, lay, blk, wit)`: CS-8's "
+            "`check_is_for_shape`, CS-1/4's `check_for_shape`, the same three "
+            "counts and the same named refusal `refuse_lookup_misses`, called "
+            "by the trained sealing pass on a witness before any proof exists "
+            "(review N-r5-a).  It draws nothing and absorbs nothing.  (2) In "
+            "`prove_core` the two loops become calls to those helpers, and "
+            "`exp_deltas(&lay, ..)` becomes `exp_deltas(lay, ..)` (the same "
+            "reference).  The histograms committed into A are therefore the "
+            "same values.  `transcript()`'s absorbs, "
+            "`check_opening_challenges`, the slot loop, the `(beta, gamma, "
+            "alpha)` draw, the A / H / M commitment calls, the CS-3 refusal's "
+            "place (after the three histograms, before the first A mask "
+            "draw) and every row count are outside both hunks",
+    },
+}
+
+TERMINALS_PINNED_IF_PRESENT = {
+    "src/private_block/shape.rs": {
+        "7b0c9742db3434fd2283ce23b6fb4d6f623a57b2f73fe026fc80bfc2ae3cc5f6":
+            "[TINYLLAMA PORT v8, round 6] read against `6c262f59` (R5b, read "
+            "in round 5): +25 / -2, three hunks.  Two are doc comments: the "
+            "Llama-3-8B T64 / T128 profiles 'ACCEPTED by the independent "
+            "review, round 5'.  The third is NATIVE R6's "
+            "`Shape::with_score_shift(sh_s)`: refused unless "
+            "trained-calibration and `sh_s` in `ONE_LIMB_SHIFT`; it clones, "
+            "sets `sh_s` and re-runs `check_constructed` and "
+            "`check_trained_class`.  It is called only for a layer with its "
+            "own `sh_s`, which no layer of this export has.  The TinyLlama T32 "
+            "entry of `trained_geometry`, `Shape::slots`, `pads`, "
+            "`true_size`, `hash_tag`, the calibration, C-4 and every refusal "
+            "at the T32 profile are outside every hunk",
+    },
+}
+
+# --------------------------------------------------------------------------
+# zk60_native_rg_mask.MASK_LAYER_PINS
+# --------------------------------------------------------------------------
+MASK_LAYER_PINS = {
+    "src/private_block/shape.rs": {
+        "7b0c9742db3434fd2283ce23b6fb4d6f623a57b2f73fe026fc80bfc2ae3cc5f6": {
+            "commits": TREE,
+            "bundles": R7_BUNDLES,
+            "reading": "[TINYLLAMA PORT v8, round 6] `Shape::slots` and ruling "
+            "C-4 are outside all three hunks (two doc comments, "
+            "`with_score_shift`)",
+        },
+    },
+}
+
+# --------------------------------------------------------------------------
+# REPORT-ONLY own files (no port transcribes them)
+# --------------------------------------------------------------------------
+REPORT_ONLY_OWN_FILES = {
+    "src/private_block.rs": (
+        "386194fe90f01829feea20d012f4d50eabf53c1e9e2977fc2e03fbe918293587",
+        "against `e1847bf0` (R5b): +3 / -0, one cfg(test) module declaration "
+        "(`r6_tests`).  `ExpectedIo::to_bytes` and every statement check are "
+        "byte-identical"),
+    "src/private_block/trained_statement.rs": (
+        "6f18efcd0fe584e1539e98e525ded8e9aa60c75c01c5b028aeb10a12a8de1c34",
+        "against `ecd7459e` (R5b): +25 / -2, five hunks, NATIVE R6. "
+        "`LayerRecord::sh_s: Option<u32>`, `None` in both constructors.  "
+        "`check` refuses a per-layer `sh_s` equal to the run's or outside "
+        "`ONE_LIMB_SHIFT`.  The identity encoder writes `sh-score-layer` ONLY "
+        "when `sh_s` is Some.  With every record None at this export, the "
+        "encoding and the identity bytes are R5b's.  The gate's stage 14 "
+        "recomputes the identity independently (E1-E4)"),
+    "src/private_block/trained_block.rs": (
+        "30cb9a31703a7a074c9028d9bb7941fa96be7fb736287305fb0a5c2702a57ff7",
+        "against `46d4c5d4` (R5b): +463 / -89, 22 hunks (R6, then R7's Q-2 "
+        "and N-r6-b), read for the capture path and the CLI.  "
+        "`run_constants` / `load_layer` gain the per-layer `sh_s` path, which "
+        "is inert here (`sh_s_per_layer()` false; `own_sh_s` None).  The "
+        "CLI's statement is schema /2: `prover_reported` {backend, "
+        "gpu_declines, what}, with the backend restricted by "
+        "`check_prover_reported` to three build constants (Q-2).  Review "
+        "r5_A: `stack-verify` writes `statement/` from its own rendering and "
+        "the hashes of exactly the verified bytes.  N-r5-a: CS-3 "
+        "`check_lookup_misses` runs in the sealing pass, before the header.  "
+        "N-r6-b: a stale `statement.writing-<pid>` is handled.  The six "
+        "capture bundles build blocks through `load_layer` and do not call "
+        "the CLI; the P-18 bundle is captured from a CLI run directory"),
+}
+
+
+def merge_two_level(into: dict, add: dict, table: str) -> dict:
+    """Merge `{path: {digest: entry}}` WITHOUT changing an existing entry."""
+    for path, digests in add.items():
+        slot = into.setdefault(path, {})
+        for d, entry in digests.items():
+            if d in slot:
+                raise ValueError(f"{table}: {path} {d[:12]} is already read; "
+                                 "the R7 pins do not replace a reading")
+            slot[d] = entry
+    return into
+
+
+def merge_one_level(into: dict, add: dict, table: str) -> dict:
+    """Merge `{key: value}` without replacing an existing key."""
+    for key, value in add.items():
+        if key in into:
+            raise ValueError(f"{table}: {key!r} is already present; the R7 "
+                             "pins do not replace a reading")
+        into[key] = value
+    return into

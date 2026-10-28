@@ -1,0 +1,42 @@
+moved []
+[zk60-guard 20:08:33] START gate-tk9-build class=build need=2.6G cap=5G enforce=cgroup+watchdog waited=0s run=7dfa0cbb8d40
+[zk60-guard 20:12:12] END gate-tk9-build exit=0 child_wall=220s peak_rss=2.03G min_avail=10.01G
+[zk60-guard 20:12:13] START gate-gr4-run_l2_dense_ho00_commits_exactly_the_predicted_stream class=cpu need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=2778e2b8f79c
+[zk60-guard 20:12:29] END gate-gr4-run_l2_dense_ho00_commits_exactly_the_predicted_stream exit=0 child_wall=17s peak_rss=1.02G min_avail=10.39G
+[zk60-guard 20:12:30] START gate-gr4-run_l2_zero_commits_exactly_the_predicted_stream class=cpu need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=304e46971f89
+[zk60-guard 20:12:45] END gate-gr4-run_l2_zero_commits_exactly_the_predicted_stream exit=0 child_wall=16s peak_rss=1.04G min_avail=10.79G
+[zk60-guard 20:12:46] START gate-gr4-block_dense_ho00_commits_exactly_the_predicted_stream class=cpu need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=ff14de8bde61
+[zk60-guard 20:12:52] END gate-gr4-block_dense_ho00_commits_exactly_the_predicted_stream exit=0 child_wall=6s peak_rss=0.84G min_avail=11.20G
+[zk60-guard 20:12:52] START gate-gr4-block_zero_commits_exactly_the_predicted_stream class=cpu need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=b29830f7ec29
+[zk60-guard 20:12:58] END gate-gr4-block_zero_commits_exactly_the_predicted_stream exit=0 child_wall=6s peak_rss=0.84G min_avail=11.02G
+[zk60-guard 20:12:58] START gate-gr4-boundary_commits_exactly_the_predicted_stream class=cpu need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=bd9fbd08ed42
+[zk60-guard 20:12:59] END gate-gr4-boundary_commits_exactly_the_predicted_stream exit=0 child_wall=1s peak_rss=0.30G min_avail=11.47G
+[zk60-guard 20:12:59] START gate-tok-l1_dense_ho00_commits_exactly_the_predicted_stream class=cpu need=1.6G cap=2.5G enforce=cgroup+watchdog waited=0s run=a7dba2239771
+[zk60-guard 20:13:15] END gate-tok-l1_dense_ho00_commits_exactly_the_predicted_stream exit=0 child_wall=15s peak_rss=1.04G min_avail=10.55G
+[zk60-guard 20:13:15] START gate-tok-l1_fixed_commits_exactly_the_predicted_stream class=cpu need=1.6G cap=2.5G enforce=cgroup+watchdog waited=0s run=7cf1898f8145
+[zk60-guard 20:13:31] END gate-tok-l1_fixed_commits_exactly_the_predicted_stream exit=0 child_wall=16s peak_rss=1.05G min_avail=10.86G
+[zk60-guard 20:13:31] START gate-tok-l2_dense_ho00_commits_exactly_the_predicted_stream class=cpu need=1.6G cap=2.5G enforce=cgroup+watchdog waited=0s run=5ea104a99752
+[zk60-guard 20:13:55] END gate-tok-l2_dense_ho00_commits_exactly_the_predicted_stream exit=0 child_wall=24s peak_rss=1.24G min_avail=10.66G
+[zk60-guard 20:13:55] START gate-tok-l2_fixed_commits_exactly_the_predicted_stream class=cpu need=1.6G cap=2.5G enforce=cgroup+watchdog waited=0s run=f5ab6b95ebb9
+[zk60-guard 20:14:19] END gate-tok-l2_fixed_commits_exactly_the_predicted_stream exit=0 child_wall=24s peak_rss=1.23G min_avail=10.42G
+[zk60-guard 20:14:19] START gate-capture-tk9-l2-dense class=cpu need=1.3G cap=2.5G enforce=cgroup+watchdog waited=0s run=ae28bbf19666
+[zk60-guard 20:14:27] END gate-capture-tk9-l2-dense exit=0 child_wall=8s peak_rss=0.96G min_avail=10.89G
+[zk60-guard 20:14:27] START gate-capture-tk9-l2-zero class=cpu need=1.3G cap=2.5G enforce=cgroup+watchdog waited=0s run=294bd46b9f7e
+[zk60-guard 20:14:35] END gate-capture-tk9-l2-zero exit=0 child_wall=7s peak_rss=0.95G min_avail=10.83G
+[zk60-guard 20:14:35] START gate-capture-tk9-l1-dense class=cpu need=1.3G cap=2.5G enforce=cgroup+watchdog waited=0s run=bfaba59e0a7e
+[zk60-guard 20:14:38] END gate-capture-tk9-l1-dense exit=0 child_wall=4s peak_rss=0.79G min_avail=11.17G
+[zk60-guard 20:14:38] START gate-capture-tk9-l1-zero class=cpu need=1.3G cap=2.5G enforce=cgroup+watchdog waited=0s run=41e6e9ab005a
+[zk60-guard 20:14:42] END gate-capture-tk9-l1-zero exit=0 child_wall=4s peak_rss=0.82G min_avail=11.10G
+[zk60-guard 20:14:42] START gate-capture-tk9-l22-dense class=cpu need=3.5G cap=4.5G enforce=cgroup+watchdog waited=0s run=1644e148e76c
+[zk60-guard 20:16:05] END gate-capture-tk9-l22-dense exit=0 child_wall=82s peak_rss=2.46G min_avail=8.93G
+[zk60-guard 20:16:05] START gate-capture-tk9-l22-zero class=cpu need=3.5G cap=4.5G enforce=cgroup+watchdog waited=0s run=d28b8ed2fb6a
+[zk60-guard 20:17:23] END gate-capture-tk9-l22-zero exit=0 child_wall=78s peak_rss=2.48G min_avail=8.94G
+[zk60-guard 20:17:23] START gate-tk9-cli-build class=build need=1.6G cap=3G enforce=cgroup+watchdog waited=0s run=5e2611383167
+[zk60-guard 20:18:43] END gate-tk9-cli-build exit=0 child_wall=80s peak_rss=1.12G min_avail=10.13G
+[zk60-guard 20:18:45] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 20:19:45] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 20:20:45] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 20:20:56] START gate-tk9-cli-stack-prove class=cpu need=1.5G cap=2.5G enforce=cgroup+watchdog waited=131s run=a01386eb7253
+[zk60-guard 20:21:02] END gate-tk9-cli-stack-prove exit=0 child_wall=6s peak_rss=1.02G min_avail=10.60G
+[zk60-guard 20:21:02] START gate-tk9-cli-stack-verify class=cpu need=0.6G cap=1.5G enforce=cgroup+watchdog waited=0s run=e45de47d1dcb
+[zk60-guard 20:21:04] END gate-tk9-cli-stack-verify exit=0 child_wall=1s peak_rss=0.26G min_avail=11.27G

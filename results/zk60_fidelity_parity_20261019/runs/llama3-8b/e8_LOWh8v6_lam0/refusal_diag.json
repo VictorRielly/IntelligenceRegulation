@@ -1,0 +1,84 @@
+{
+ "run": "e8_LOWh8v6_lam0",
+ "seqs": [
+  9,
+  96
+ ],
+ "first_refused_layer": {
+  "96": 15,
+  "9": 21
+ },
+ "overrides": {
+  "gate_pc": "-5:mc8:tm2:ng4",
+  "sh_s_plus": {},
+  "to_end": false
+ },
+ "records": [
+  {
+   "layer": 15,
+   "site": "score",
+   "seq": 96,
+   "pos": 93,
+   "token": 433,
+   "constants": {
+    "sh_qkv": 8,
+    "sh_s": 6,
+    "exp_e_s": 2
+   },
+   "max_abs_score": 87.0,
+   "limit": 127,
+   "factor": 0.6850393700787402,
+   "extra_sh_s_bits": 0,
+   "kv_head": 7,
+   "q_in_group": 2,
+   "key_pos": 68,
+   "key_token": 1268,
+   "calib_raw_kv_max": 284.87530517578125
+  },
+  {
+   "layer": 21,
+   "site": "FFN gate",
+   "seq": 9,
+   "pos": 50,
+   "token": 279,
+   "constants": {
+    "sh_qkv": 8,
+    "sh_s": 6,
+    "exp_e_s": 2
+   },
+   "channels": [
+    {
+     "ch": 5158,
+     "gate": 16.188243508338928,
+     "e_j": -3,
+     "range": [
+      -16.0,
+      15.9921875
+     ],
+     "coarsest_registry_range": 63.97,
+     "needs_e": -2,
+     "calib_channel_max": 6.842835426330566,
+     "calib_tensor_max": 7.795018196105957
+    }
+   ],
+   "n_bad_channels": 1
+  }
+ ],
+ "violations": [
+  {
+   "layer": 15,
+   "site": "score",
+   "seq": 96,
+   "pos": 93,
+   "count": 1
+  },
+  {
+   "layer": 21,
+   "site": "FFN gate",
+   "seq": 9,
+   "pos": 50,
+   "count": 1
+  }
+ ],
+ "scope": "fidelity data, not a proof, not a privacy claim"
+}

@@ -1,0 +1,21 @@
+[zk60-guard 07:45:11] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 07:46:11] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 07:47:11] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 07:48:11] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 07:49:11] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 07:50:06] START r8-cli-build class=build need=2.5G cap=5G enforce=cgroup+watchdog waited=295s run=bdf85bba35cd
+[zk60-guard 07:51:29] END r8-cli-build exit=0 child_wall=83s peak_rss=1.07G min_avail=9.79G
+[zk60-guard 07:51:30] START r8-compat-rung class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=673f5a53f3aa
+[zk60-guard 07:51:30] END r8-compat-rung exit=0 child_wall=0s peak_rss=0.00G min_avail=10.67G
+[zk60-guard 07:51:30] START r8-compat-b7-T128 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=af286b65d639
+[zk60-guard 07:52:33] END r8-compat-b7-T128 exit=0 child_wall=63s peak_rss=1.91G min_avail=8.67G
+[zk60-guard 07:52:33] START r8-compat-8b-T32 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=dc1f3f75f15b
+[zk60-guard 07:53:25] END r8-compat-8b-T32 exit=0 child_wall=52s peak_rss=1.81G min_avail=9.14G
+[zk60-guard 07:53:25] START r8-compat-tl-T32 class=cpu need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=4dbb6a3738ee
+[zk60-guard 07:53:36] END r8-compat-tl-T32 exit=0 child_wall=11s peak_rss=0.68G min_avail=10.45G
+[zk60-guard 07:53:36] START r8-test-build class=build need=3G cap=6G enforce=cgroup+watchdog waited=0s run=0660fffaf570
+[zk60-guard 07:57:42] END r8-test-build exit=0 child_wall=246s peak_rss=1.81G min_avail=8.30G
+[zk60-guard 07:57:43] START r8-fast class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=2e28740b9e1f
+[zk60-guard 07:57:58] END r8-fast exit=0 child_wall=15s peak_rss=0.18G min_avail=10.97G
+[zk60-guard 07:57:58] START r8-author-subset class=cpu need=4G cap=6G enforce=cgroup+watchdog waited=0s run=264527995904
+[zk60-guard 07:58:32] END r8-author-subset exit=0 child_wall=34s peak_rss=0.91G min_avail=9.20G

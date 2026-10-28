@@ -148,6 +148,8 @@ fn every_registered_profile_context_and_label_is_printable_ascii_with_no_nul() {
     built.extend(super::trained_calib_tests::registered_trained_runs().iter().map(|(p, _)| p.to_string()));
     // TOKEN I/O R1 LANE: the token-I/O run profile(s)
     built.extend(super::token_io::registered_token_runs().iter().map(|(p, _)| p.to_string()));
+    // TOKEN I/O ROUND 12: the classifier run profile(s)
+    built.extend(super::token_io::classify::registered_classify_runs().iter().map(|(p, _)| p.to_string()));
     built.sort();
     built.dedup();
     assert_eq!(built, registry_profiles(), "the registry read from the source and the registry built here disagree");

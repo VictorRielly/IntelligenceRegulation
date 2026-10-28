@@ -1,0 +1,1012 @@
+{
+ "privacy_acceptance": false,
+ "rows": [
+  {
+   "bundle": "tinyllama-trained-tk7-capture-dense-l1",
+   "channels": {
+    "argued": 5,
+    "constructed": 2,
+    "derived": 5,
+    "open": 16
+   },
+   "export_E3": {
+    "identity_compared": false,
+    "identity_equal": null,
+    "statement_sha256": "5b7acd4da2736aec3b5fff349a27eeeccacb1aa1271d9a9d0f62c35c31d13bfd"
+   },
+   "export_findings": 0,
+   "export_ok": true,
+   "full_preimage": {
+    "commitments": null,
+    "compared": null,
+    "controls": null,
+    "differing": null,
+    "leaves": null
+   },
+   "guard": {
+    "exit": 0,
+    "peak_rss_gib": 0.11,
+    "wall": 20.12882351875305
+   },
+   "hash": {
+    "authenticated": 1280,
+    "bytes": 7411712,
+    "columns": 1280,
+    "wrong_rules_reaching_root": []
+   },
+   "joint": {
+    "compared": null,
+    "couplings": null,
+    "differing": null
+   },
+   "mask": {
+    "controls": null,
+    "differing": null,
+    "recomputed": null
+   },
+   "ok": true,
+   "peak_rss_mb": 146,
+   "pins_moved": [],
+   "pins_ok": true,
+   "record": "tk7-l1-dense-a.json",
+   "replay": {
+    "binding": true,
+    "challenges": 4511,
+    "failures": 0,
+    "positions": 127
+   },
+   "seconds": 19.8,
+   "stage10_controls": {
+    "not_fired": null,
+    "ok": false
+   },
+   "stage3_ok": true,
+   "stage4_ok": true,
+   "stage5_ok": true,
+   "stage6": {
+    "hash_rule_controls_ok": null,
+    "m9_3": null,
+    "ok": null,
+    "round9_ok": null,
+    "run_controls_ok": null
+   },
+   "status": "PASS",
+   "terminal": {
+    "controls": {
+     "not_fired": null,
+     "ok": false
+    },
+    "equal": 23,
+    "expected": 23
+   },
+   "unexplained": 0
+  },
+  {
+   "bundle": "tinyllama-trained-tk7-capture-zero-l1",
+   "channels": {
+    "argued": 5,
+    "constructed": 2,
+    "derived": 5,
+    "open": 16
+   },
+   "export_E3": {
+    "identity_compared": false,
+    "identity_equal": null,
+    "statement_sha256": "5b7acd4da2736aec3b5fff349a27eeeccacb1aa1271d9a9d0f62c35c31d13bfd"
+   },
+   "export_findings": 0,
+   "export_ok": true,
+   "full_preimage": {
+    "commitments": null,
+    "compared": null,
+    "controls": null,
+    "differing": null,
+    "leaves": null
+   },
+   "guard": {
+    "exit": 0,
+    "peak_rss_gib": 0.13,
+    "wall": 21.529756784439087
+   },
+   "hash": {
+    "authenticated": 1280,
+    "bytes": 7411712,
+    "columns": 1280,
+    "wrong_rules_reaching_root": []
+   },
+   "joint": {
+    "compared": null,
+    "couplings": null,
+    "differing": null
+   },
+   "mask": {
+    "controls": null,
+    "differing": null,
+    "recomputed": null
+   },
+   "ok": true,
+   "peak_rss_mb": 145,
+   "pins_moved": [],
+   "pins_ok": true,
+   "record": "tk7-l1-zero-a.json",
+   "replay": {
+    "binding": true,
+    "challenges": 4511,
+    "failures": 0,
+    "positions": 127
+   },
+   "seconds": 21.2,
+   "stage10_controls": {
+    "not_fired": null,
+    "ok": false
+   },
+   "stage3_ok": true,
+   "stage4_ok": true,
+   "stage5_ok": true,
+   "stage6": {
+    "hash_rule_controls_ok": null,
+    "m9_3": null,
+    "ok": null,
+    "round9_ok": null,
+    "run_controls_ok": null
+   },
+   "status": "PASS",
+   "terminal": {
+    "controls": {
+     "not_fired": null,
+     "ok": false
+    },
+    "equal": 23,
+    "expected": 23
+   },
+   "unexplained": 0
+  },
+  {
+   "bundle": "tinyllama-trained-tk7-capture-dense-l1",
+   "channels": {
+    "argued": 5,
+    "constructed": 10,
+    "derived": 5,
+    "open": 8
+   },
+   "export_E3": {
+    "identity_compared": false,
+    "identity_equal": null,
+    "statement_sha256": "5b7acd4da2736aec3b5fff349a27eeeccacb1aa1271d9a9d0f62c35c31d13bfd"
+   },
+   "export_findings": 0,
+   "export_ok": true,
+   "full_preimage": {
+    "commitments": [
+     "A@0",
+     "H@0",
+     "E-Input",
+     "E-Output"
+    ],
+    "compared": 1123325,
+    "controls": {
+     "not_fired": null,
+     "ok": true
+    },
+    "differing": 0,
+    "leaves": 1024
+   },
+   "guard": {
+    "exit": 0,
+    "peak_rss_gib": 0.7,
+    "wall": 837.6428246498108
+   },
+   "hash": {
+    "authenticated": 1280,
+    "bytes": 7411712,
+    "columns": 1280,
+    "wrong_rules_reaching_root": []
+   },
+   "joint": {
+    "compared": 1139480,
+    "couplings": true,
+    "differing": 0
+   },
+   "mask": {
+    "controls": {
+     "not_fired": null,
+     "ok": true
+    },
+    "differing": 0,
+    "recomputed": 16155
+   },
+   "ok": true,
+   "peak_rss_mb": 725,
+   "pins_moved": [],
+   "pins_ok": true,
+   "record": "tk7-l1-dense-everything.json",
+   "replay": {
+    "binding": true,
+    "challenges": 4511,
+    "failures": 0,
+    "positions": 127
+   },
+   "seconds": 837.1,
+   "stage10_controls": {
+    "not_fired": null,
+    "ok": true
+   },
+   "stage3_ok": true,
+   "stage4_ok": true,
+   "stage5_ok": true,
+   "stage6": {
+    "hash_rule_controls_ok": true,
+    "m9_3": {
+     "domains": [
+      [
+       "D",
+       [
+        48,
+        46
+       ]
+      ],
+      [
+       "Kv",
+       [
+        24,
+        22
+       ]
+      ],
+      [
+       "Q",
+       [
+        28,
+        26
+       ]
+      ],
+      [
+       "S",
+       [
+        32,
+        30
+       ]
+      ],
+      [
+       "T",
+       [
+        15,
+        13
+       ]
+      ]
+     ],
+     "ok": true
+    },
+    "ok": true,
+    "round9_ok": true,
+    "run_controls_ok": true
+   },
+   "status": "PASS",
+   "terminal": {
+    "controls": {
+     "not_fired": [],
+     "ok": true
+    },
+    "equal": 23,
+    "expected": 23
+   },
+   "unexplained": 0
+  },
+  {
+   "bundle": "tinyllama-trained-tk7-capture-zero-l1",
+   "channels": {
+    "argued": 5,
+    "constructed": 10,
+    "derived": 5,
+    "open": 8
+   },
+   "export_E3": {
+    "identity_compared": false,
+    "identity_equal": null,
+    "statement_sha256": "5b7acd4da2736aec3b5fff349a27eeeccacb1aa1271d9a9d0f62c35c31d13bfd"
+   },
+   "export_findings": 0,
+   "export_ok": true,
+   "full_preimage": {
+    "commitments": [
+     "A@0",
+     "H@0",
+     "E-Input",
+     "E-Output"
+    ],
+    "compared": 1130310,
+    "controls": {
+     "not_fired": null,
+     "ok": true
+    },
+    "differing": 0,
+    "leaves": 1024
+   },
+   "guard": {
+    "exit": 0,
+    "peak_rss_gib": 0.78,
+    "wall": 838.1568970680237
+   },
+   "hash": {
+    "authenticated": 1280,
+    "bytes": 7411712,
+    "columns": 1280,
+    "wrong_rules_reaching_root": []
+   },
+   "joint": {
+    "compared": 1146465,
+    "couplings": true,
+    "differing": 0
+   },
+   "mask": {
+    "controls": {
+     "not_fired": null,
+     "ok": true
+    },
+    "differing": 0,
+    "recomputed": 16155
+   },
+   "ok": true,
+   "peak_rss_mb": 796,
+   "pins_moved": [],
+   "pins_ok": true,
+   "record": "tk7-l1-zero-everything.json",
+   "replay": {
+    "binding": true,
+    "challenges": 4511,
+    "failures": 0,
+    "positions": 127
+   },
+   "seconds": 837.8,
+   "stage10_controls": {
+    "not_fired": null,
+    "ok": true
+   },
+   "stage3_ok": true,
+   "stage4_ok": true,
+   "stage5_ok": true,
+   "stage6": {
+    "hash_rule_controls_ok": true,
+    "m9_3": {
+     "domains": [
+      [
+       "D",
+       [
+        48,
+        46
+       ]
+      ],
+      [
+       "Kv",
+       [
+        24,
+        22
+       ]
+      ],
+      [
+       "Q",
+       [
+        28,
+        26
+       ]
+      ],
+      [
+       "S",
+       [
+        32,
+        30
+       ]
+      ],
+      [
+       "T",
+       [
+        15,
+        13
+       ]
+      ]
+     ],
+     "ok": true
+    },
+    "ok": true,
+    "round9_ok": true,
+    "run_controls_ok": true
+   },
+   "status": "PASS",
+   "terminal": {
+    "controls": {
+     "not_fired": [],
+     "ok": true
+    },
+    "equal": 23,
+    "expected": 23
+   },
+   "unexplained": 0
+  },
+  {
+   "bundle": "tinyllama-trained-tk7-capture-dense-l2",
+   "channels": {
+    "argued": 5,
+    "constructed": 2,
+    "derived": 5,
+    "open": 16
+   },
+   "export_E3": {
+    "identity_compared": false,
+    "identity_equal": null,
+    "statement_sha256": "5b7acd4da2736aec3b5fff349a27eeeccacb1aa1271d9a9d0f62c35c31d13bfd"
+   },
+   "export_findings": 0,
+   "export_ok": true,
+   "full_preimage": {
+    "commitments": null,
+    "compared": null,
+    "controls": null,
+    "differing": null,
+    "leaves": null
+   },
+   "guard": {
+    "exit": 0,
+    "peak_rss_gib": 0.18,
+    "wall": 28.858665466308594
+   },
+   "hash": {
+    "authenticated": 2304,
+    "bytes": 14782464,
+    "columns": 2304,
+    "wrong_rules_reaching_root": []
+   },
+   "joint": {
+    "compared": null,
+    "couplings": null,
+    "differing": null
+   },
+   "mask": {
+    "controls": null,
+    "differing": null,
+    "recomputed": null
+   },
+   "ok": true,
+   "peak_rss_mb": 188,
+   "pins_moved": [],
+   "pins_ok": true,
+   "record": "tk7-l2-dense-a.json",
+   "replay": {
+    "binding": true,
+    "challenges": 9002,
+    "failures": 0,
+    "positions": 251
+   },
+   "seconds": 28.5,
+   "stage10_controls": {
+    "not_fired": null,
+    "ok": false
+   },
+   "stage3_ok": true,
+   "stage4_ok": true,
+   "stage5_ok": true,
+   "stage6": {
+    "hash_rule_controls_ok": null,
+    "m9_3": null,
+    "ok": null,
+    "round9_ok": null,
+    "run_controls_ok": null
+   },
+   "status": "PASS",
+   "terminal": {
+    "controls": {
+     "not_fired": null,
+     "ok": false
+    },
+    "equal": 46,
+    "expected": 46
+   },
+   "unexplained": 0
+  },
+  {
+   "bundle": "tinyllama-trained-tk7-capture-zero-l2",
+   "channels": {
+    "argued": 5,
+    "constructed": 2,
+    "derived": 5,
+    "open": 16
+   },
+   "export_E3": {
+    "identity_compared": false,
+    "identity_equal": null,
+    "statement_sha256": "5b7acd4da2736aec3b5fff349a27eeeccacb1aa1271d9a9d0f62c35c31d13bfd"
+   },
+   "export_findings": 0,
+   "export_ok": true,
+   "full_preimage": {
+    "commitments": null,
+    "compared": null,
+    "controls": null,
+    "differing": null,
+    "leaves": null
+   },
+   "guard": {
+    "exit": 0,
+    "peak_rss_gib": 0.18,
+    "wall": 28.738518953323364
+   },
+   "hash": {
+    "authenticated": 2304,
+    "bytes": 14782464,
+    "columns": 2304,
+    "wrong_rules_reaching_root": []
+   },
+   "joint": {
+    "compared": null,
+    "couplings": null,
+    "differing": null
+   },
+   "mask": {
+    "controls": null,
+    "differing": null,
+    "recomputed": null
+   },
+   "ok": true,
+   "peak_rss_mb": 188,
+   "pins_moved": [],
+   "pins_ok": true,
+   "record": "tk7-l2-zero-a.json",
+   "replay": {
+    "binding": true,
+    "challenges": 9002,
+    "failures": 0,
+    "positions": 251
+   },
+   "seconds": 28.4,
+   "stage10_controls": {
+    "not_fired": null,
+    "ok": false
+   },
+   "stage3_ok": true,
+   "stage4_ok": true,
+   "stage5_ok": true,
+   "stage6": {
+    "hash_rule_controls_ok": null,
+    "m9_3": null,
+    "ok": null,
+    "round9_ok": null,
+    "run_controls_ok": null
+   },
+   "status": "PASS",
+   "terminal": {
+    "controls": {
+     "not_fired": null,
+     "ok": false
+    },
+    "equal": 46,
+    "expected": 46
+   },
+   "unexplained": 0
+  },
+  {
+   "bundle": "tinyllama-trained-tk7-capture-dense-l2",
+   "channels": {
+    "argued": 5,
+    "constructed": 10,
+    "derived": 5,
+    "open": 8
+   },
+   "export_E3": {
+    "identity_compared": false,
+    "identity_equal": null,
+    "statement_sha256": "5b7acd4da2736aec3b5fff349a27eeeccacb1aa1271d9a9d0f62c35c31d13bfd"
+   },
+   "export_findings": 0,
+   "export_ok": true,
+   "full_preimage": {
+    "commitments": [
+     "A@0",
+     "H@0",
+     "E-Input",
+     "A@1",
+     "H@1",
+     "B0",
+     "E-Output"
+    ],
+    "compared": 2242564,
+    "controls": {
+     "not_fired": null,
+     "ok": true
+    },
+    "differing": 0,
+    "leaves": 1792
+   },
+   "guard": {
+    "exit": 0,
+    "peak_rss_gib": 0.76,
+    "wall": 1047.059856891632
+   },
+   "hash": {
+    "authenticated": 2304,
+    "bytes": 14782464,
+    "columns": 2304,
+    "wrong_rules_reaching_root": []
+   },
+   "joint": {
+    "compared": 2274874,
+    "couplings": true,
+    "differing": 0
+   },
+   "mask": {
+    "controls": {
+     "not_fired": null,
+     "ok": true
+    },
+    "differing": 0,
+    "recomputed": 32310
+   },
+   "ok": true,
+   "peak_rss_mb": 773,
+   "pins_moved": [],
+   "pins_ok": true,
+   "record": "tk7-l2-dense-everything.json",
+   "replay": {
+    "binding": true,
+    "challenges": 9002,
+    "failures": 0,
+    "positions": 251
+   },
+   "seconds": 1046.6,
+   "stage10_controls": {
+    "not_fired": null,
+    "ok": true
+   },
+   "stage3_ok": true,
+   "stage4_ok": true,
+   "stage5_ok": true,
+   "stage6": {
+    "hash_rule_controls_ok": true,
+    "m9_3": {
+     "domains": [
+      [
+       "D",
+       [
+        48,
+        46
+       ]
+      ],
+      [
+       "Kv",
+       [
+        24,
+        22
+       ]
+      ],
+      [
+       "Q",
+       [
+        28,
+        26
+       ]
+      ],
+      [
+       "S",
+       [
+        32,
+        30
+       ]
+      ],
+      [
+       "T",
+       [
+        15,
+        13
+       ]
+      ]
+     ],
+     "ok": true
+    },
+    "ok": true,
+    "round9_ok": true,
+    "run_controls_ok": true
+   },
+   "status": "PASS",
+   "terminal": {
+    "controls": {
+     "not_fired": [],
+     "ok": true
+    },
+    "equal": 46,
+    "expected": 46
+   },
+   "unexplained": 0
+  },
+  {
+   "bundle": "tinyllama-trained-tk7-capture-zero-l2",
+   "channels": {
+    "argued": 5,
+    "constructed": 10,
+    "derived": 5,
+    "open": 8
+   },
+   "export_E3": {
+    "identity_compared": false,
+    "identity_equal": null,
+    "statement_sha256": "5b7acd4da2736aec3b5fff349a27eeeccacb1aa1271d9a9d0f62c35c31d13bfd"
+   },
+   "export_findings": 0,
+   "export_ok": true,
+   "full_preimage": {
+    "commitments": [
+     "A@0",
+     "H@0",
+     "E-Input",
+     "A@1",
+     "H@1",
+     "B0",
+     "E-Output"
+    ],
+    "compared": 2253237,
+    "controls": {
+     "not_fired": null,
+     "ok": true
+    },
+    "differing": 0,
+    "leaves": 1792
+   },
+   "guard": {
+    "exit": 0,
+    "peak_rss_gib": 0.83,
+    "wall": 1061.1607565879822
+   },
+   "hash": {
+    "authenticated": 2304,
+    "bytes": 14782464,
+    "columns": 2304,
+    "wrong_rules_reaching_root": []
+   },
+   "joint": {
+    "compared": 2285547,
+    "couplings": true,
+    "differing": 0
+   },
+   "mask": {
+    "controls": {
+     "not_fired": null,
+     "ok": true
+    },
+    "differing": 0,
+    "recomputed": 32310
+   },
+   "ok": true,
+   "peak_rss_mb": 846,
+   "pins_moved": [],
+   "pins_ok": true,
+   "record": "tk7-l2-zero-everything.json",
+   "replay": {
+    "binding": true,
+    "challenges": 9002,
+    "failures": 0,
+    "positions": 251
+   },
+   "seconds": 1060.7,
+   "stage10_controls": {
+    "not_fired": null,
+    "ok": true
+   },
+   "stage3_ok": true,
+   "stage4_ok": true,
+   "stage5_ok": true,
+   "stage6": {
+    "hash_rule_controls_ok": true,
+    "m9_3": {
+     "domains": [
+      [
+       "D",
+       [
+        48,
+        46
+       ]
+      ],
+      [
+       "Kv",
+       [
+        24,
+        22
+       ]
+      ],
+      [
+       "Q",
+       [
+        28,
+        26
+       ]
+      ],
+      [
+       "S",
+       [
+        32,
+        30
+       ]
+      ],
+      [
+       "T",
+       [
+        15,
+        13
+       ]
+      ]
+     ],
+     "ok": true
+    },
+    "ok": true,
+    "round9_ok": true,
+    "run_controls_ok": true
+   },
+   "status": "PASS",
+   "terminal": {
+    "controls": {
+     "not_fired": [],
+     "ok": true
+    },
+    "equal": 46,
+    "expected": 46
+   },
+   "unexplained": 0
+  },
+  {
+   "bundle": "tinyllama-trained-tk7-capture-dense-l22",
+   "channels": {
+    "argued": 5,
+    "constructed": 2,
+    "derived": 5,
+    "open": 16
+   },
+   "export_E3": {
+    "identity_compared": true,
+    "identity_equal": true,
+    "statement_sha256": "5b7acd4da2736aec3b5fff349a27eeeccacb1aa1271d9a9d0f62c35c31d13bfd"
+   },
+   "export_findings": 0,
+   "export_ok": true,
+   "full_preimage": {
+    "commitments": null,
+    "compared": null,
+    "controls": null,
+    "differing": null,
+    "leaves": null
+   },
+   "guard": {
+    "exit": 0,
+    "peak_rss_gib": 5.52,
+    "wall": 632.5290207862854
+   },
+   "hash": {
+    "authenticated": 22784,
+    "bytes": 162197504,
+    "columns": 22784,
+    "wrong_rules_reaching_root": []
+   },
+   "joint": {
+    "compared": null,
+    "couplings": null,
+    "differing": null
+   },
+   "mask": {
+    "controls": null,
+    "differing": null,
+    "recomputed": null
+   },
+   "ok": true,
+   "peak_rss_mb": 5655,
+   "pins_moved": [],
+   "pins_ok": true,
+   "record": "tk7-l22-dense-a.json",
+   "replay": {
+    "binding": true,
+    "challenges": 98822,
+    "failures": 0,
+    "positions": 2731
+   },
+   "seconds": 631.7,
+   "stage10_controls": {
+    "not_fired": null,
+    "ok": false
+   },
+   "stage3_ok": true,
+   "stage4_ok": true,
+   "stage5_ok": true,
+   "stage6": {
+    "hash_rule_controls_ok": null,
+    "m9_3": null,
+    "ok": null,
+    "round9_ok": null,
+    "run_controls_ok": null
+   },
+   "status": "PASS",
+   "terminal": {
+    "controls": {
+     "not_fired": null,
+     "ok": false
+    },
+    "equal": 506,
+    "expected": 506
+   },
+   "unexplained": 0
+  },
+  {
+   "bundle": "tinyllama-trained-tk7-capture-zero-l22",
+   "channels": {
+    "argued": 5,
+    "constructed": 2,
+    "derived": 5,
+    "open": 16
+   },
+   "export_E3": {
+    "identity_compared": true,
+    "identity_equal": true,
+    "statement_sha256": "5b7acd4da2736aec3b5fff349a27eeeccacb1aa1271d9a9d0f62c35c31d13bfd"
+   },
+   "export_findings": 0,
+   "export_ok": true,
+   "full_preimage": {
+    "commitments": null,
+    "compared": null,
+    "controls": null,
+    "differing": null,
+    "leaves": null
+   },
+   "guard": {
+    "exit": 0,
+    "peak_rss_gib": 5.39,
+    "wall": 697.4190428256989
+   },
+   "hash": {
+    "authenticated": 22784,
+    "bytes": 162197504,
+    "columns": 22784,
+    "wrong_rules_reaching_root": []
+   },
+   "joint": {
+    "compared": null,
+    "couplings": null,
+    "differing": null
+   },
+   "mask": {
+    "controls": null,
+    "differing": null,
+    "recomputed": null
+   },
+   "ok": true,
+   "peak_rss_mb": 5518,
+   "pins_moved": [],
+   "pins_ok": true,
+   "record": "tk7-l22-zero-a.json",
+   "replay": {
+    "binding": true,
+    "challenges": 98822,
+    "failures": 0,
+    "positions": 2731
+   },
+   "seconds": 696.7,
+   "stage10_controls": {
+    "not_fired": null,
+    "ok": false
+   },
+   "stage3_ok": true,
+   "stage4_ok": true,
+   "stage5_ok": true,
+   "stage6": {
+    "hash_rule_controls_ok": null,
+    "m9_3": null,
+    "ok": null,
+    "round9_ok": null,
+    "run_controls_ok": null
+   },
+   "status": "PASS",
+   "terminal": {
+    "controls": {
+     "not_fired": null,
+     "ok": false
+    },
+    "equal": 506,
+    "expected": 506
+   },
+   "unexplained": 0
+  }
+ ],
+ "what": "Round 8 (the D33 re-pin): the figures of the tk7 gate records, one row"
+}

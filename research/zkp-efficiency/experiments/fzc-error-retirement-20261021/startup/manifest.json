@@ -1,0 +1,66 @@
+{
+  "utc": "2026-10-21T03:19:47.667292+00:00",
+  "files": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md",
+      "snapshot": "AGENDA.md",
+      "bytes": 5603,
+      "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md",
+      "snapshot": "STATE.md",
+      "bytes": 6126,
+      "sha256": "504d2b826f88ab976a9ff1c8b32b01b0d99374e70dda382a961d49df28bd82c4"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md",
+      "snapshot": "FINDINGS.md",
+      "bytes": 863167,
+      "sha256": "85a5586ef3bc403a8cb155211dad4424992dbf003fa47af3401451d13a2fad41"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl",
+      "snapshot": "sources.jsonl",
+      "bytes": 921150,
+      "sha256": "c4cdf7560d379938b89575684c6b3918db54fa27205b5956b6ad6e3b53c84dd0"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md",
+      "snapshot": "PROGRESS.md",
+      "bytes": 2447,
+      "sha256": "8500651a269363540c1a599ae8d4a092114ff504fc80d4a3d5d1d641c4ff17ef"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+      "snapshot": "CLAUDE.md",
+      "bytes": 14089,
+      "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+      "snapshot": "docs__zkmatrix-poc__MVP_STATUS.md",
+      "bytes": 87223,
+      "sha256": "884691e96f323438e1fb8b360365c4fdd24ff5805d94ecf7f94e726e2f980775"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+      "snapshot": "docs__zkmatrix-poc__ZK60_DECISIONS.md",
+      "bytes": 112028,
+      "sha256": "39dba7b7e665318f9877e0ca1b2ab8243573dcc52c07c198a588ae980ece5e29"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+      "snapshot": "docs__zkmatrix-poc__ZK60_CODEX_FABLE_COORDINATION.md",
+      "bytes": 64889,
+      "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+      "snapshot": "docs__zkmatrix-poc__ZK60_THROUGHPUT_TARGET.md",
+      "bytes": 4941,
+      "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53"
+    }
+  ],
+  "source_records": 744
+}

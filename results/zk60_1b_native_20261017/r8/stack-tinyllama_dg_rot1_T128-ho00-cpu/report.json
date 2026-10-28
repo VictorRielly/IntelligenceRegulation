@@ -1,0 +1,397 @@
+{
+ "run": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/stack-tinyllama_dg_rot1_T128-ho00-cpu",
+ "checks": {
+  "parity": "bit-exact at every layer",
+  "parity_bit_exact_every_layer": true,
+  "identity": "caf6ced22fbb87a94c1f571a96faf278815668996863146805c9d2eea76c9165",
+  "statement_published": true,
+  "statement_schema_2": true,
+  "statement_written_by_verifier": true,
+  "layers_with_own_sh_s": {},
+  "run_sh_s": 5,
+  "layer_1_own_sh_s_7": false,
+  "layers_own_constants": {
+   "0": {
+    "sh_s": 6,
+    "norm_cn_a": 1253,
+    "norm_cn_m": 1444,
+    "sh_ao": 7,
+    "sh_h": 14,
+    "sh_z": 8
+   },
+   "1": {
+    "sh_s": 8,
+    "norm_cn_a": 2198,
+    "norm_cn_m": 1764,
+    "sh_ao": 6,
+    "sh_h": 14,
+    "sh_z": 8
+   },
+   "2": {
+    "sh_s": 7,
+    "norm_cn_a": 3104,
+    "norm_cn_m": 917,
+    "sh_ao": 6,
+    "sh_z": 6
+   },
+   "3": {
+    "sh_s": 6,
+    "norm_cn_a": 3583,
+    "norm_cn_m": 2098,
+    "sh_ao": 5,
+    "sh_h": 14,
+    "sh_z": 8
+   },
+   "4": {
+    "sh_s": 6,
+    "norm_cn_a": 3417,
+    "norm_cn_m": 1391,
+    "sh_ao": 5,
+    "sh_h": 13,
+    "sh_z": 8
+   },
+   "5": {
+    "sh_s": 6,
+    "norm_cn_a": 2437,
+    "norm_cn_m": 1737,
+    "sh_h": 14,
+    "sh_z": 8
+   },
+   "6": {
+    "norm_cn_a": 2442,
+    "norm_cn_m": 2051,
+    "sh_ao": 5,
+    "sh_h": 14,
+    "sh_z": 8
+   },
+   "8": {
+    "sh_s": 7,
+    "norm_cn_a": 2401,
+    "norm_cn_m": 2426,
+    "sh_h": 15,
+    "sh_z": 8
+   },
+   "9": {
+    "sh_s": 6,
+    "norm_cn_a": 2428,
+    "norm_cn_m": 2420,
+    "sh_ao": 5,
+    "sh_h": 14,
+    "sh_z": 8
+   },
+   "10": {
+    "sh_s": 6,
+    "norm_cn_a": 2506,
+    "norm_cn_m": 1688,
+    "sh_ao": 5,
+    "sh_h": 15,
+    "sh_z": 8
+   },
+   "11": {
+    "sh_s": 6,
+    "norm_cn_a": 2451,
+    "norm_cn_m": 1731,
+    "sh_h": 14,
+    "sh_z": 8
+   },
+   "12": {
+    "norm_cn_a": 2394,
+    "norm_cn_m": 1880,
+    "sh_h": 14,
+    "sh_z": 8
+   },
+   "13": {
+    "norm_cn_a": 2387,
+    "norm_cn_m": 2047,
+    "sh_ao": 5,
+    "sh_h": 14,
+    "sh_z": 8
+   },
+   "14": {
+    "sh_s": 6,
+    "norm_cn_a": 3237,
+    "norm_cn_m": 2041,
+    "sh_h": 14,
+    "sh_z": 8
+   },
+   "15": {
+    "sh_s": 6,
+    "norm_cn_a": 2418,
+    "norm_cn_m": 1986,
+    "sh_h": 13,
+    "sh_z": 8
+   },
+   "16": {
+    "sh_s": 6,
+    "norm_cn_a": 2431,
+    "norm_cn_m": 1749,
+    "sh_h": 14,
+    "sh_z": 8
+   },
+   "17": {
+    "norm_cn_a": 3329,
+    "norm_cn_m": 1742,
+    "sh_h": 14,
+    "sh_z": 8
+   },
+   "18": {
+    "norm_cn_a": 3326,
+    "norm_cn_m": 2316,
+    "sh_ao": 3,
+    "sh_h": 14,
+    "sh_z": 8
+   },
+   "19": {
+    "norm_cn_a": 2482,
+    "norm_cn_m": 2448,
+    "sh_ao": 3,
+    "sh_h": 14,
+    "sh_z": 8
+   },
+   "20": {
+    "sh_s": 6,
+    "norm_cn_a": 2674,
+    "norm_cn_m": 1907,
+    "sh_ao": 3,
+    "sh_h": 14,
+    "sh_z": 7
+   },
+   "21": {
+    "norm_cn_a": 2455,
+    "norm_cn_m": 2873,
+    "sh_ao": 3,
+    "sh_z": 5
+   }
+  },
+  "run_calibration": {
+   "norm_tn": 10,
+   "norm_cn_a": 2361,
+   "norm_cn_m": 598,
+   "norm_ceps": 74429,
+   "sh_ao": 4,
+   "sh_qkv": 8,
+   "sh_s": 5,
+   "sh_o": 9,
+   "sh_g": 8,
+   "sh_h": 16,
+   "sh_z": 4,
+   "f_e": 9
+  },
+  "table_keys": {
+   "0": {
+    "exp_e_s": 1,
+    "silu_member": [
+     -5,
+     -13
+    ]
+   },
+   "1": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -5,
+     -13
+    ]
+   },
+   "2": {
+    "exp_e_s": 1,
+    "silu_member": [
+     -2,
+     -11
+    ]
+   },
+   "3": {
+    "exp_e_s": 1,
+    "silu_member": [
+     -5,
+     -13
+    ]
+   },
+   "4": {
+    "exp_e_s": 1,
+    "silu_member": [
+     -3,
+     -12
+    ]
+   },
+   "5": {
+    "exp_e_s": 1,
+    "silu_member": [
+     -5,
+     -13
+    ]
+   },
+   "6": {
+    "exp_e_s": 1,
+    "silu_member": [
+     -4,
+     -13
+    ]
+   },
+   "7": {
+    "exp_e_s": 1,
+    "silu_member": [
+     -1,
+     -9
+    ]
+   },
+   "8": {
+    "exp_e_s": 3,
+    "silu_member": [
+     -4,
+     -13
+    ]
+   },
+   "9": {
+    "exp_e_s": 1,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "10": {
+    "exp_e_s": 1,
+    "silu_member": [
+     -4,
+     -13
+    ]
+   },
+   "11": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "12": {
+    "exp_e_s": 1,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "13": {
+    "exp_e_s": 1,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "14": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "15": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "16": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "17": {
+    "exp_e_s": 1,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "18": {
+    "exp_e_s": 1,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "19": {
+    "exp_e_s": 1,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "20": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "21": {
+    "exp_e_s": 1,
+    "silu_member": [
+     -1,
+     -11
+    ]
+   }
+  },
+  "unverified_dir_removed": true,
+  "verify": {
+   "verified": true,
+   "controls_refused": 11,
+   "published": true,
+   "checked": false,
+   "rejected": []
+  },
+  "recheck": {
+   "verified": true,
+   "controls_refused": 0,
+   "published": false,
+   "checked": true,
+   "rejected": []
+  }
+ },
+ "numbers": {
+  "prove": {
+   "blocks": 22,
+   "receipt_bytes": 497665904,
+   "prove_run_seconds": 160.279,
+   "of_which_witness_seconds": 3.152,
+   "sealing_pass_seconds": 22.776,
+   "load_seconds": 4.394,
+   "total_seconds": 183.195,
+   "vmhwm_mib": 7700,
+   "statement_identity": "caf6ced22fbb87a94c1f571a96faf278815668996863146805c9d2eea76c9165",
+   "guard_wall_s": 183.48853468894958,
+   "guard_peak_rss_gib": 7.52,
+   "guard_peak_cgroup_gib": 8.0
+  },
+  "verify": {
+   "blocks": 22,
+   "receipt_bytes": 497665904,
+   "load_seconds": 2.351,
+   "verify_seconds": 13.857,
+   "vmhwm_mib": 751,
+   "guard_wall_s": 54.07090711593628,
+   "exit": "0"
+  },
+  "recheck": {
+   "blocks": 22,
+   "receipt_bytes": 497665904,
+   "load_seconds": 1.979,
+   "verify_seconds": 12.53,
+   "vmhwm_mib": 794,
+   "guard_wall_s": 14.563591003417969,
+   "exit": "0"
+  }
+ },
+ "baseline": {
+  "run": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5/stack-pg_rot1_b4_T128-ho00-cpu",
+  "prove_run_seconds": 187.304,
+  "total_seconds": 189.522,
+  "receipt_bytes": 497665904,
+  "vmhwm_mib": 3717,
+  "guard_peak_rss_gib": 3.63,
+  "statement_identity": "53a5667decccbe4d0d9b9bc31b661339cf6b7c1b470cf9197a88b1cb5711534d",
+  "prove_ratio_run_over_base": 0.856,
+  "same_receipt_bytes": true
+ }
+}

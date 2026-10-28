@@ -1,0 +1,18 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-layer-consumer-20261020/consumer.py",
+    "sha256": "6793e03ecc929b5ec26600366983986ee45bccbd2cda4bc13713741e5e9b963d"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-layer-consumer-20261020/reference.py",
+    "sha256": "34a4012dcbdcfdb7c9b434271e650318a4f06554ad69f0b5c5e1c9924581b731"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-layer-consumer-20261020/census.json",
+    "sha256": "6870ee10816b31aa57b0046b38ed665bfd50bbd47cb66c07f46790d138a3639c"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-layer-consumer-20261020/source-manifest.json",
+    "sha256": "c06ad3a4cc5beaf1db3d08c5af8e01eb27c2c218f446a515cd38f189c5f3487d"
+  }
+]

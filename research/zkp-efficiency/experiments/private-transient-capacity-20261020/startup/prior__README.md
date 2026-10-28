@@ -1,0 +1,129 @@
+# Cycle0094 — private-stage commitment lifetimes
+
+Run `20261020T021854Z-e084e681`, checkpoint 2026-10-20T02:30:25.208578+00:00. **No proving speed improvement found.**
+
+The leading executable question was whether releasing private-stage owners
+earlier could remove retained device capacity. The pinned source already drops
+M, A and H immediately after their sole openings. An internal boundary is
+opened in its consumer stage, after BOTH adjacent claims exist; moving it to
+the producer stage fails the dependency oracle. Logical owners cannot be
+released earlier under the unchanged schedule. Returning their `Pooled` buffers
+to idle does not itself free device backing.
+
+The baseline is source-derived, not a runtime trace. `prove_run_with` starts
+with IN/OUT, commits current B before the core, retains previous B, runs the
+core, opens the incoming owner, opens OUT only at the last stage, serializes
+and sinks one segment, then hands current B to the next stage. The core commits
+A, M, H, runs23 slots, and opens/drops M, A, H in that order. Source pins cover
+native R8 and the separate active GPU candidate. They are different revisions:
+R8's stage-specific shape differs from the older GPU door. Numeric geometry is
+R8 f_e9,8B T32/64/128; this is no assertion that the active GPU tree supports
+the newer complete workloads. M's50x4096 encoded field buffer is HOST memory,
+not a device PCS owner (1.5625MiB encoded payload, other mask buffers excluded).
+
+Independent authored single-agent checks pass: **182348 checks,
+330 negative controls**,6 traces with1/2/3/4/8/32 BLOCKS,
+36 public-capacity cases and36 synthetic byte fixtures; seed2026102094.
+The reference derives owner/read/claim/open obligations from adjacent-block
+relations, checks interval overlaps separately from the forward simulator,
+and compares immutable host checksums with output cache eviction/restore.
+It rejects premature/missing/double openings, incorrect boundary claim sides,
+wrong stage/read/open order, missing sink, stale/short restore and pooled-free
+misaccounting. These are accounting/193-byte toy storage tests, not native
+polynomials, hiding encodings, masks, transcripts, receipt bytes or verification.
+
+A new, separate question from SlackSwap/vDNN is whether OUT's device backing
+can be evicted while retaining its logical owner until the last stage. It is
+**demoted**, with no native patch recommended. At T128,32blocks,row2^14:
+
+| Hypothetical store policy | Persistent-owner device subset | With OUT device backing omitted until final opening | Difference |
+|---|---:|---:|---:|
+| All resident |4568.750MiB|4545.625MiB|23.125MiB (0.506%)|
+| All chunked |930.527344MiB|925.330078MiB|5.197266MiB (0.559%)|
+
+Both are public requested-storage models, not actual VRAM, hardware fit or
+full peaks. Mode/threshold and allocation success determine real mixed stores.
+At this subset's maximum, live owners are A/H/M, previous B,current B,OUT;
+M adds no GPU bytes. Host data/pads/salts/tree persist. The model omits
+initial endpoint sealing transients, commit/open scratch, raw sumcheck tables,
+idle/oversized pool backing, twiddles,FZC public cache, driver allocations,
+proof vectors and other host memory. Thus the actual peak phase remains unknown.
+Naive output-device drop moves23.125MiB to idle in resident mode, releasing
+ZERO pooled backing; in chunked mode4.625MiB becomes idle and only0.572266MiB
+raw pads/powers could be directly freed. Restoring needs the original hiding
+material and exact encoding/copy work, not new random masks. Whole-workload
+time benefit is unknown and can be negative. Initial seal or scratch peaks can
+erase any global saving. The tested release-only hypothesis has zero opportunity
+within the unchanged schedule; physical storage changes are different work.
+
+Final model leaf: 0.086969s/27744KiB;
+audit: 0.439804s/20572KiB. One nice19 CPU0 thread,
+Intel CoreUltra9 185H,Python3.10.12/WSL2; leaf CPU/wall59s and512MiB AS caps.
+These are harness validation clocks. Three initial extraction failures
+(prover/verifier duplicate anchors,stage-shape spelling) and one later Python
+indentation failure are retained in commands/logs; corrected runs pass.
+
+Status correction discovered while reading owner public counts: D30/DD is no
+longer wholly unbuilt. `r9_counts.json` and `r9-check.log` show counted T128
+layouts and85 tests passing/1ignored/519filtered, including a generic DD proof
+test. At8B T128,owner counts A/H3405/3790 ->3283/3634 (-3.86% words), smaller
+than the earlier20.82% T512 anchor. This log was not rerun here. It establishes
+neither independently reviewed DD full-stack throughput nor privacy acceptance.
+The experiment retains the R8 baseline; no R9 production/source edit occurred.
+
+New independently verified complete proofs/passes/positions **0/0/0**.
+New token context/device none; CPU-only synthetic/accounting scope. New witness,
+proof,serialization and verification clocks; steady-state and total-workload
+proved rates; startup fraction all **unmeasured**. No long-context prefill,
+resident-model complete-proof series or decode ran. Blocks in a trace are not
+model passes. Carried owner CPU8B T128,32blocks,one16-thread pass,GPUoff:
+total478.737s,0.267370positions/s; prove_run393.785s contains witness98.348s
+and load17.595s; sealing84.824s overlaps witness/load. Receipt922711264B;
+fresh verify42.709s+13.681s load, recheck34.395s+10.739s load. Not reverified.
+Startup/steady/isolated serialization unknown; nested clocks must not be summed.
+The newer CPU next-token501.6/529.2s owner workloads remain distinct.
+
+LIVE sources searched: [SlackSwap](https://arxiv.org/abs/2610.13003),
+[vDNN](https://research.nvidia.com/publication/2016-10_vdnn-virtualized-deep-neural-networks-scalable-memory-efficient-neural-network),
+[ICICLE NTT/release](https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0),
+[SP1 NTT diff](https://github.com/succinctlabs/sp1/pull/2990/files),
+[zkLLMPoT](https://arxiv.org/abs/2610.08258),
+[matched NTT/sumcheck study](https://arxiv.org/abs/2606.16146),
+[archived zkLLM](https://github.com/jvhs0706/zkllm-ccs2024).
+Seven records appended531->538. Exact dates/unknown dates,license scope and
+inspected/unresolved commits are saved. SlackSwap is a simulation; vDNN is
+older training evidence. No author performance reproduced. ICICLE full commit
+6c77775961b0e4dc2be359feec1ac11536c18043 is a VERSION change only. ICICLE
+repository and zkLLM MIT texts inspected; SP1 license/full PR commit and the
+backlinked fork5090 PR fetches failed. No performance claim from that fork.
+
+Rankings and baseline/eliminated work/added costs/ceilings/falsifiers are in
+hypotheses.json. First owner action remains whole-prover high-endGPU clocks
+and independently verified fixed-context resident1/2/4/8 workloads. Next local
+experiment: add exact source-derived H-commit and FZC/DZC raw scratch intervals
+to this owner trace, check overlapping/deferred-opening controls, and specify
+native per-phase actual capacity counters. Do not repeat the release-only or
+fallback staging experiments. No eviction build without an actual capacity cliff.
+
+Integration seam: `prove_run_with` (R8 run.rs917..1031; GPU684..791),
+`prove_core` (R8 protocol.rs1018..1172; GPU882..1039), and `DevCommit`/`Pooled`
+in cuda.rs. The handoff provides telemetry fields/phase points; no production
+patch, build, integration or merge. Native phase/memory counters, complete GPU
+receipts,independent verification and current security/privacy gates remain
+owner work under shared build/heavy locks. D33 remains scoped to its accepted
+R7 artifact; D34 accounting does not accept new profiles. D32 fidelity and D27
+whole-run obligations persist. No mask reuse or privacy weakening.
+
+Complete private8B >=50 proved tokens/s on RTX5090/another named high-end GPU
+is unchanged and unachieved. Larger workloads may amortize startup; increasing
+context can increase attention work quadratically. Only research changed,
+excluding runtime; no GPU,build,install,Git,external write/message,purchase or
+escalation. Saved reports are not evidence of delivery to Victor.
+
+Reproduce from research root:
+
+```
+python3 -B experiments/private-stage-lifetimes-20261020/run_bounded.py model.py
+python3 -B experiments/private-stage-lifetimes-20261020/run_bounded.py audit.py
+python3 -B experiments/private-stage-lifetimes-20261020/run_bounded.py validate.py
+```

@@ -11,7 +11,7 @@ import time
 GUARD = Path(__file__).resolve().with_name('zk60_resource_guard.py')
 # Claude's scope-corrected release, accepted by both independent Codex reviews.
 # Announce/review changes in RECOVERY_COORDINATION.md before updating this pin.
-REVIEWED_GUARD_SHA256 = 'f0b87668b9ad3bc42683d95a16314b54973b8e36be576b25183302287168e772'
+REVIEWED_GUARD_SHA256 = '87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c'
 
 
 class GuardInterrupted(RuntimeError):

@@ -1,0 +1,3 @@
+Initial source snapshot failed on nonexistent hashline/src/gpu/open_plan.rs; the module is inline in gpu/mod.rs. Corrected source manifest retains21 pins. Prior dyadic audit filename was initially guessed audit-result.json; actual validation-result.json read/pinned. No boundary bypass.
+
+Initial probe/audit PASS retained before tightening device/context identity test (compare against current cached owner after eviction) and adding explicit zero/one/delta/field-boundary messages. This is a test-quality correction, not an observed native defect. Initial census RSS84740KiB exceeded64MiB estimate but remained well within512MiB cap; later declared estimate128MiB for census.

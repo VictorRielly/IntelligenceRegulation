@@ -1,0 +1,38 @@
+{
+  "accessed_at": "2026-10-20T04:26:49.995343+00:00",
+  "native_live_tool": "web.run",
+  "queries": [
+    "GPU NTT zero knowledge proof memory efficient 2026 October paper commitment",
+    "GPU lookup softmax zero knowledge LLM 2026 October",
+    "site.github.com NTT 2026 release icicle",
+    "zero knowledge lookup softmax October 2026 github releases",
+    "proof composition amortization October 2026 sumcheck paper",
+    "HMFHE Hierarchical Exploitation Memory Efficiency GPU FHE Acceleration ISCA 2026 paper",
+    "GPU NTT memory efficient 2024 Goldilocks Stockham older repository",
+    "NTTSuite Number Theoretic Transform Benchmarks 2024 Ding"
+  ],
+  "new_records": 9,
+  "before_records": 548,
+  "after_records": 557,
+  "blocked_fetches": [
+    "https://github.com/MMRROOO/ntt-tensorcore/commits/main/",
+    "https://api.github.com/repos/MMRROOO/ntt-tensorcore/commits/main",
+    "https://raw.githubusercontent.com/MMRROOO/ntt-tensorcore/main/LICENSE",
+    "https://raw.githubusercontent.com/MMRROOO/ntt-tensorcore/main/src/ntt_optimized.cu",
+    "https://github.com/succinctlabs/sp1/pull/2993/files",
+    "https://github.com/hemilabs/sp1/pull/7",
+    "https://github.com/trustless-ai/zkIE/commits/main/",
+    "https://github.com/trustless-ai/zkIE/blob/main/LICENSE"
+  ],
+  "next_rotation": [
+    "memory traffic/commitment pipeline",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proofcomposition"
+  ],
+  "external_code_executed": false,
+  "rejected_search_hint": {
+    "wrong_id": "https://arxiv.org/abs/2406.16972",
+    "reason": "Primary page is unrelated neural architecture search; correct NTTSuite id is2405.11353"
+  }
+}

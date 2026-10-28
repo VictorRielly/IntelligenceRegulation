@@ -1,0 +1,15 @@
+{
+  "layer": 15,
+  "seconds": 25.374372005462646,
+  "manifest_sha256": "1f9c5380446cea9ce3620a3215700a963a318de5b903be9daa964e8614b195fb",
+  "scales_sha256": "56f59043f582189f426f4915b72f80642d8fd7c40d35a4315509af7867f901f6",
+  "weights_clipped": {
+    "wq": 0,
+    "wk": 0,
+    "wv": 0,
+    "wo": 0,
+    "wg": 0,
+    "wu": 0,
+    "wd": 0
+  }
+}

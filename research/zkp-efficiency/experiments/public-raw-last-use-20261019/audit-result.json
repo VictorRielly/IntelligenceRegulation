@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "checks": 10110,
+  "accepted_path_cases": 78,
+  "independent_first_error_checks": 6720,
+  "independent_corruptions": 1404,
+  "wall_seconds": 0.2735450799955288,
+  "rss_kib": 34256,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "nice": 19,
+  "scope": "Independent synthetic reconstruction and accounting only; no native loader/proof execution"
+}

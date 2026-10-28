@@ -1,0 +1,22 @@
+{
+  "utc": "2026-10-21T00:27:12.498782+00:00",
+  "engine": "native LIVE web__run",
+  "queries": [
+    "GPU inverse NTT normalization fusion inverse size scaling Goldilocks 2026 paper",
+    "site.github.com ICICLE NTT inverse normalization inverse_size",
+    "site.eprint.iacr.org 2026 GPU sumcheck commitment October",
+    "site.github.com/Alisah-Ozcan/GPU-NTT inverse normalization n_inv release",
+    "\"NTTFusion\" GPU 2023 inverse scaling",
+    "site.eprint.iacr.org/2026 October 20 GPU sumcheck",
+    "site.nvidia.com cuPQC 0.6.0 release NTT October 2026",
+    "\"NTTFusion\" \"scaling\"",
+    "\"Speeding up Sumcheck using Algebraic Geometry\" 2026"
+  ],
+  "query_count": 9,
+  "raw_captured_calls": "live-web-results.json: eight follow-up calls; initial search results retained in tool history",
+  "issues": [
+    "ePrint2026/2494 inaccessible twice",
+    "NTTFusion IEEE PDF click Internal Error",
+    "NVIDIA/cuPQC/commits/main/ 429 Too Many Requests; no bypass"
+  ]
+}

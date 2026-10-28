@@ -1,0 +1,80 @@
+[
+  {
+    "rank": 1,
+    "hypothesis": "Owner: whole-prover GPU and independently verified fixed-context resident1/2/4/8 complete passes",
+    "baseline": "R8 CPU8B T128 one32-block pass478.737s; no accepted GPU steady slope.",
+    "eliminated_work": "Broad recurring CPU arithmetic/traffic and genuine once-per-process work, only after actual device integration.",
+    "added_costs": "Device transfers, persistent memory, synchronization, complete commitments/serialization and pipeline drain.",
+    "expected_end_to_end_ceiling": "Unknown on named high-end GPU; no kernel-derived token forecast.",
+    "prerequisites": "Owner admitted profile, actual named high-end device, shared heavy locks, fresh masks and independent verification.",
+    "integration_cost": "High",
+    "exactness": "All relations, field, calibration, refusals, PCS/finals and transcript unchanged.",
+    "privacy_soundness": "Only completed independently verified full-stack positions count; no opening/mask reuse.",
+    "falsification": "Failed native/receipt/privacy gate, growing proof backlog, peak overflow or no enclosing gain."
+  },
+  {
+    "rank": 2,
+    "hypothesis": "NEW tested policy filter: fixed public pinned subset across sealing/proving scans, rather than partial LRU",
+    "baseline": "Two ordered32-layer public loads per pass, separate sealing and one-current-block proving cache.",
+    "eliminated_work": "Synthetic fixed-context R8 trace: pin4 of32 gives60/512 requests hit over8passes; any LRU capacity1..31 gives0hits.",
+    "added_costs": "4 public padded blocks=0.906778GiB payload, immutable owner/complete identity checks, possible cold validation and peak/eviction costs.",
+    "expected_end_to_end_ceiling": "Unmeasured candidate gain. Deleting ALL sealing-load and proof-block-load tasks at zero cost bounds only this CPU diagnostic at 1.103104x; overlap lowers gain. No GPU/steady forecast.",
+    "prerequisites": "Retain authenticated immutable public blocks across both scopes; bind model/manifest/block/layer/geometry/table/RoPE identity; measure exclusive saved load costs and actual peak.",
+    "integration_cost": "Moderate/high: BlockCache and seal loader shared owner API, no owner implementation here.",
+    "exactness": "All native per-layer admission/digest/CS checks and H-1 sealing still run; synthetic trace is not native proof equivalence.",
+    "privacy_soundness": "P1 public weights only; fixed public subset. No witness/RNG/challenge/endpoint/opening cache; P3 private weights require separate review.",
+    "falsification": "Native refusals/identity differ, constructor work not actually avoided, retention peak fails, or costs outweigh exclusive saved wall time."
+  },
+  {
+    "rank": 3,
+    "hypothesis": "Owner: avoid measured repeated witness work with reviewed memory-bounded same-attempt retention/replay",
+    "baseline": "R8 T128 sealing witness tasks80.897s, prove witness hand-over98.348s includes17.595s block reload; cache0 at8B.",
+    "eliminated_work": "Only retained layers second witness builds, previously assessed suffix-replay boundary.",
+    "added_costs": "Private retained payload/packing/readback/checksums and lifetime overlap.",
+    "expected_end_to_end_ceiling": "Unmeasured saved witness subset; do not add nested/overlapped clocks.",
+    "prerequisites": "Revisit prior cycle0016 result before any native port; realistic full peak and D29/H-1 preservation.",
+    "integration_cost": "High native reader/lifetime work",
+    "exactness": "All planes, deterministic output/refusals and original fold/finals must match.",
+    "privacy_soundness": "Same-attempt only; no public private-cache metadata or randomness reuse.",
+    "falsification": "Memory/copy costs exceed recomputation, changed refusal domain or joint privacy/proof mismatch."
+  },
+  {
+    "rank": 4,
+    "hypothesis": "Owner: D30 dictionary/architecture under separately admitted profile",
+    "baseline": "Unbuilt counted alternative, no speed result.",
+    "eliminated_work": "Only independently reviewed constrained committed-plane/lookup work.",
+    "added_costs": "Helper binding, rank/hiding, composition and calibration/fidelity gates.",
+    "expected_end_to_end_ceiling": "Unknown",
+    "prerequisites": "All D30 slot/cap/binding conditions; D32 float-fidelity target retained.",
+    "integration_cost": "High",
+    "exactness": "Exact division and every true-row slot constrained.",
+    "privacy_soundness": "New soundness and joint-view gates, no D10/privacy weakening.",
+    "falsification": "Unconstrained slot, late multiplicity, cap failure or failed soundness/privacy/fidelity gate."
+  },
+  {
+    "rank": 5,
+    "hypothesis": "Tested/demoted: immutable CPU NTT and layout residency",
+    "baseline": "Already1 NTT per run body,1 for both endpoints, monotonic GPU twiddle cache; sealing deduplicates layouts.",
+    "eliminated_work": "CPU NTT2R->1 constructors in ideal fixed-context owner; layout base construction only if complete Shape key and fresh IO overlay.",
+    "added_costs": "524560B T128 Fp backing payload retained across sealing; layout clone/overlay/key/ownership overhead unknown.",
+    "expected_end_to_end_ceiling": "T/(T-s+a), s and a unisolated. No extra GPU upload removed. No measured speed gain.",
+    "prerequisites": "Canonical field/domain/capacity key, context identity on device, full checked Shape; keep CS8 independently rebuilt and mutable row tamper refusals.",
+    "integration_cost": "Moderate API split; no production patch.",
+    "exactness": "24 public NTT fixtures,6 RS fixtures,full twiddle oracle and222 IO-site checks; no native admission.",
+    "privacy_soundness": "No caching of masks, RNG, challenge-weighted values, endpoints, A/H/M or transcript.",
+    "falsification": "Stale field/domain/capacity/Shape/site key, native mismatch or enclosing regression."
+  },
+  {
+    "rank": 6,
+    "hypothesis": "ELIMINATED shortcuts: geometry-only calibration key; whole-stage Layout cached by Shape; partial LRU for cyclic full scan",
+    "baseline": "Synthetic/source-backed controls fail shortcuts before integration.",
+    "eliminated_work": "None authorized",
+    "added_costs": "Incorrect constants/sites or zero hits.",
+    "expected_end_to_end_ceiling": "No correct improvement established",
+    "prerequisites": "A different design and new evidence required.",
+    "integration_cost": "Reject unchanged designs",
+    "exactness": "105 wrong synthetic stage maps; native31 base-shape layers have6 table-key combinations.",
+    "privacy_soundness": "Boundary pair separation and layer/model binding remain mandatory.",
+    "falsification": "Already falsified within stated synthetic scopes."
+  }
+]

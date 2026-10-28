@@ -1,0 +1,11 @@
+{
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "cpu": "x86_64",
+  "affinity": [
+    0
+  ],
+  "threads": 1,
+  "accelerator_invoked": false,
+  "cpu_model": "Intel(R) Core(TM) Ultra 9 185H",
+  "estimated_experiment_MiB": 64
+}

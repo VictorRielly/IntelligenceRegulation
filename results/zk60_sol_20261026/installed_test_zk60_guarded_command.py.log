@@ -1,0 +1,13 @@
+test_changed_guard_fails_before_launch (test_zk60_guarded_command.GuardedCommandTests) ... ok
+test_guard_error_never_reports_a_successful_build (test_zk60_guarded_command.GuardedCommandTests) ... ok
+test_interrupt_requests_cleanup_and_waits_without_killing_guard (test_zk60_guarded_command.GuardedCommandTests) ... ok
+test_missing_or_disagreeing_terminal_result_fails (test_zk60_guarded_command.GuardedCommandTests) ... ok
+test_only_the_guard_is_launched_and_class_is_build (test_zk60_guarded_command.GuardedCommandTests) ... ok
+test_refusal_is_returned_without_a_direct_native_fallback (test_zk60_guarded_command.GuardedCommandTests) ... ok
+test_hardening_stops_after_guard_refusal (test_zk60_guarded_command.LegacyLauncherTests) ... ok
+test_native_refusal_retains_original_evidence_and_writes_terminal_attempt (test_zk60_guarded_command.LegacyLauncherTests) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.083s
+
+OK

@@ -1,0 +1,109 @@
+{
+  "scope": "COUNTED conditional scalar bounds, not security acceptance",
+  "canonical_field_source_sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+  "field_modulus": 18446744069414584321,
+  "classes": {
+    "model_width": 4096,
+    "ff_width": 16384,
+    "head_dim": 128,
+    "tokens": 512,
+    "x_abs": 32768,
+    "norm_abs": 32768,
+    "attention_abs": 32768,
+    "weight_abs": 127,
+    "silu_abs": 32767,
+    "up_abs": 32768,
+    "h_abs": 8388608,
+    "cn_max": 1048576,
+    "ceps_max": 1099511627776,
+    "expanded_gate_multiplier_max": 16384,
+    "other_multiplier_max": 256,
+    "product_scale_max": 32768,
+    "largest_requant_shift": 24,
+    "product_shift_h24": 16,
+    "product_shift_low": 24
+  },
+  "word_domain": "R13 amended widened norm/attention class [-32768,32767]; symmetric int8 scores and public weights remain [-127,127].",
+  "clauses": {
+    "qkv_requant": {
+      "absolute_bound": 2190433320960,
+      "bits": 41,
+      "below_field": true
+    },
+    "gate_requant": {
+      "absolute_bound": 558689345863680,
+      "bits": 49,
+      "below_field": true
+    },
+    "ao_requant": {
+      "absolute_bound": 10926396801024,
+      "bits": 44,
+      "below_field": true
+    },
+    "down_requant": {
+      "absolute_bound": 2236406650896384,
+      "bits": 51,
+      "below_field": true
+    },
+    "score_requant": {
+      "absolute_bound": 283467841536,
+      "bits": 39,
+      "below_field": true
+    },
+    "rope_requant": {
+      "absolute_bound": 25166080,
+      "bits": 25,
+      "below_field": true
+    },
+    "pv_requant": {
+      "absolute_bound": 146028888064,
+      "bits": 38,
+      "below_field": true
+    },
+    "up_requant": {
+      "absolute_bound": 554050781184,
+      "bits": 40,
+      "below_field": true
+    },
+    "derived_table_output": {
+      "absolute_bound": 1073709056,
+      "bits": 30,
+      "below_field": true
+    },
+    "product_requant_h24": {
+      "absolute_bound": 72565620211712,
+      "bits": 47,
+      "below_field": true
+    },
+    "product_requant_low": {
+      "absolute_bound": 72565687058432,
+      "bits": 47,
+      "below_field": true
+    },
+    "norm_numerator": {
+      "absolute_bound": 18069392719872,
+      "bits": 45,
+      "below_field": true
+    },
+    "norm_reconstruction": {
+      "absolute_bound": 78674674057216,
+      "bits": 47,
+      "below_field": true
+    },
+    "softmax_quotient": {
+      "absolute_bound": 549789368320,
+      "bits": 40,
+      "below_field": true
+    }
+  },
+  "derived_table_storage": "raw registered SiLU output is int16; verifier derives exact scaled table output with abs <= 32767 * 2^15 < 2^30 (signed31)",
+  "table_derivation": "scale the already-quantized int16 word exactly; never quantize the real SiLU value again at a finer step",
+  "obligations": [
+    "Enforce expanded gate multiplier and shift bounds, including group folds.",
+    "R13 rechecks public matrices/gains and rejects -128; the i8 storage type alone is not the symmetric class.",
+    "Verifier recomputes each derived scaled table from pinned/raw registered members and export-selected stack.",
+    "Prove every word and biased remainder range; scalar arithmetic alone is insufficient.",
+    "Recompute norm D_max/wrho from each calibration; tn-8 must yield at most three limbs.",
+    "Recount layout/lookup terms and run D24 review on the actual native implementation."
+  ]
+}

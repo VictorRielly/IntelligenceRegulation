@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-26T18:38:12.751198+00:00",
+  "live": [
+    {
+      "pid": 868177,
+      "matched": [
+        "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/tools/astra_host_queue_20261026.sh"
+      ]
+    }
+  ],
+  "done": null,
+  "holds_present": true,
+  "no_leaf_or_guard": true,
+  "queue_at_hold": true,
+  "view": "host /proc argv; reports only matched executable paths, never private input argv"
+}

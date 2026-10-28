@@ -1,0 +1,56 @@
+{
+  "read_at_utc": "2026-10-21T08:19:53.321350+00:00",
+  "files": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md",
+      "bytes": 5603,
+      "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md",
+      "bytes": 4049,
+      "sha256": "c9d9cd83b00229db235291a5c57ca56bafe751241dd2a70babc4c873558552a8"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md",
+      "bytes": 901369,
+      "sha256": "12ae725908d34ba938658fac1db78ab20458fe73176d0aaa671b30b249bc9f80"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl",
+      "bytes": 971527,
+      "sha256": "7c561d42d57707d40a216d18403c43a471eb14e855b50f28af55db7a885db780"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md",
+      "bytes": 2741,
+      "sha256": "1a688e1d45efc04f6f85169edc2d10a4514c96119ea45726749e3495ac74370d"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+      "bytes": 14089,
+      "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+      "bytes": 88375,
+      "sha256": "f73d94ab2b89d12697272a68ebcdde00e60470e2bceabb5af1304d054871f5dc"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+      "bytes": 116699,
+      "sha256": "466f28769e743a43ace3d8ea460b2a0b872767cc3ce67c587b8355f973b4475e"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+      "bytes": 64889,
+      "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+      "bytes": 4941,
+      "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53"
+    }
+  ],
+  "prior_source_records": 790
+}

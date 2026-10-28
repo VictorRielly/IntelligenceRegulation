@@ -1,0 +1,5 @@
+fn note_reuse(capacity_elems: usize, requested_elems: usize) {
+    POOL_REUSE_COUNT.fetch_add(1, Ordering::SeqCst);
+    POOL_REUSE_CAPACITY_BYTES.fetch_add(capacity_elems * 8, Ordering::SeqCst);
+    POOL_REUSE_REQUESTED_BYTES.fetch_add(requested_elems * 8, Ordering::SeqCst);
+}

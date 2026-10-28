@@ -1,0 +1,151 @@
+{
+  "hashline/src/gpu/cuda.rs::new": [
+    4326,
+    4332,
+    4462,
+    4501
+  ],
+  "hashline/src/gpu/cuda.rs::host_round": [
+    4542,
+    4544,
+    4550
+  ],
+  "hashline/src/gpu/cuda.rs::try_round": [
+    4617,
+    4640,
+    4653,
+    4664
+  ],
+  "hashline/src/gpu/cuda.rs::try_fold": [
+    4728,
+    4731,
+    4732,
+    4740,
+    4756,
+    4773,
+    4788
+  ],
+  "hashline/src/gpu/fzc_kernels.cu::fzc_round_impl": [
+    119,
+    132,
+    133
+  ],
+  "hashline/src/gpu/fzc_kernels.cu::fzc_fold_round_impl": [
+    155,
+    170,
+    171,
+    172,
+    175,
+    176
+  ],
+  "hashline/src/gpu/fzc_kernels.cu::fz_ld": [
+    227,
+    228,
+    229,
+    230
+  ],
+  "hashline/src/gpu/fzc_kernels.cu::fz_lean_pair": [
+    236,
+    248,
+    251,
+    257,
+    282,
+    283,
+    284,
+    298,
+    308,
+    329,
+    330,
+    331,
+    332,
+    333,
+    334,
+    335,
+    336,
+    337,
+    361,
+    362,
+    363,
+    364,
+    365,
+    381
+  ],
+  "hashline/src/gpu/fzc_kernels.cu::fzl_round_impl": [
+    394,
+    403
+  ],
+  "hashline/src/gpu/fzc_kernels.cu::fzl_fold_round_impl": [
+    411,
+    425,
+    426,
+    427,
+    428,
+    429,
+    431
+  ],
+  "hashline/src/gpu/fzc_kernels.cu::fzs_derive_impl": [
+    707,
+    712,
+    719,
+    728
+  ],
+  "hashline/src/gpu/fzc_kernels.cu::fzs_ld": [
+    739,
+    755
+  ],
+  "hashline/src/gpu/fzc_kernels.cu::fzs_impl": [
+    798,
+    835,
+    838,
+    839,
+    842,
+    843,
+    846,
+    847,
+    866,
+    867,
+    868
+  ],
+  "hashline/src/gpu/fzc_kernels.cu::k_fzc_pack": [
+    919,
+    923,
+    924
+  ],
+  "hashline/src/gpu/fzc_kernels.cu::NAME": [
+    949,
+    950
+  ],
+  "hashline/src/gpu/fzc_kernels.cu::k_fzc_fold_round": [
+    956,
+    957,
+    969,
+    970,
+    976,
+    977
+  ],
+  "hashline/src/gpu/fzc_kernels.cu::k_fzc_fold_round_r": [
+    959,
+    960
+  ],
+  "hashline/src/gpu/fzc_kernels.cu::k_fzc_derive": [
+    962,
+    963
+  ],
+  "hashline/src/gpu/fzc_kernels.cu::k_fzc_round": [
+    966,
+    967,
+    973,
+    974
+  ],
+  "hashline/src/gpu/kernels.cu::k_sc_fold": [
+    896,
+    902,
+    903,
+    904
+  ],
+  "hashline/src/gpu/kernels.cu::k_fzc_finals": [
+    1664,
+    1667,
+    1668
+  ]
+}

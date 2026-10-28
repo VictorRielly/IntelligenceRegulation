@@ -1,0 +1,542 @@
+{
+ "model": "tinyllama",
+ "export": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/tl_dg_aex",
+ "export_profile_sha256": "5b5503ea62fa3c02372519481936f9e7af77096d61a442f556d436323dd8fe0b",
+ "T": 128,
+ "corpora": {
+  "tokenizer": "TinyLlama tokenizer.model (spm_bpe.py)",
+  "tokenizer_sha256": "9e556afd44213b6bd1be2b850ebbbd98f5481437a8021afaf58ee7fb1818d347",
+  "T": 128,
+  "spec": "fineweb:48,wikitext:48",
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "offset": 0,
+    "source": "/home/victor/models/fineweb-edu/sample/10BT/000_00000.parquet",
+    "sha256_expected": "b1ba7b2ce4cb5ea6ef42dca40263eabb85f37700d01693a68e9b30a31d78e871"
+   },
+   "wikitext": {
+    "n": 48,
+    "offset": 0,
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/data/wikitext2/test.parquet",
+    "sha256_expected": "5f1bea067869d04849c0f975a2b29c4ff47d867f484f5010ea5e861eab246d91"
+   }
+  },
+  "ids_sha256": "6890f6f1df2b2af2c8fff94617cc28a563d07a2825c91ab133dbbff86004182c"
+ },
+ "relax": [],
+ "exact_sites": [
+  "act",
+  "ao",
+  "emb",
+  "exp",
+  "gate",
+  "h",
+  "head",
+  "k",
+  "kr",
+  "nm",
+  "norm",
+  "o",
+  "p",
+  "q",
+  "qr",
+  "rope_tab",
+  "s",
+  "up",
+  "v",
+  "w_d",
+  "w_g",
+  "w_k",
+  "w_o",
+  "w_q",
+  "w_u",
+  "w_v",
+  "y",
+  "z"
+ ],
+ "head": {
+  "source": "built by fp_eval (8B rule at TinyLlama, b4 calibration set)",
+  "cn": 5664,
+  "tn": 10,
+  "ceps": 74429,
+  "calib_sequences": 108,
+  "xhat_rot_absmax": 5.453668118120166,
+  "kind": "D25 T4 integer head (per-row int8 + 12-bit multipliers, final norm g0 127)"
+ },
+ "head_final_norm_violations": 0,
+ "refused": 6,
+ "first_refusal": [
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  {
+   "layer": 8,
+   "site": "FFN up"
+  },
+  null,
+  null,
+  null,
+  null,
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  {
+   "layer": 6,
+   "site": "FFN up"
+  },
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  {
+   "layer": 8,
+   "site": "FFN up"
+  },
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null
+ ],
+ "layers": [
+  {
+   "layer": 0,
+   "violations": 3,
+   "refused_new": 3,
+   "seconds": 14.315106391906738,
+   "weight_fit": null
+  },
+  {
+   "layer": 1,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 13.793229103088379,
+   "weight_fit": null
+  },
+  {
+   "layer": 2,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 13.296838283538818,
+   "weight_fit": null
+  },
+  {
+   "layer": 3,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 13.131861448287964,
+   "weight_fit": null
+  },
+  {
+   "layer": 4,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 13.01529860496521,
+   "weight_fit": null
+  },
+  {
+   "layer": 5,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 12.610721826553345,
+   "weight_fit": null
+  },
+  {
+   "layer": 6,
+   "violations": 1,
+   "refused_new": 1,
+   "seconds": 13.961121797561646,
+   "weight_fit": null
+  },
+  {
+   "layer": 7,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 13.539371728897095,
+   "weight_fit": null
+  },
+  {
+   "layer": 8,
+   "violations": 2,
+   "refused_new": 2,
+   "seconds": 13.39551043510437,
+   "weight_fit": null
+  },
+  {
+   "layer": 9,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 13.222956895828247,
+   "weight_fit": null
+  },
+  {
+   "layer": 10,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 13.367029190063477,
+   "weight_fit": null
+  },
+  {
+   "layer": 11,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 12.993024349212646,
+   "weight_fit": null
+  },
+  {
+   "layer": 12,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 13.23616909980774,
+   "weight_fit": null
+  },
+  {
+   "layer": 13,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 14.056322574615479,
+   "weight_fit": null
+  },
+  {
+   "layer": 14,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 12.986290216445923,
+   "weight_fit": null
+  },
+  {
+   "layer": 15,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 13.291023254394531,
+   "weight_fit": null
+  },
+  {
+   "layer": 16,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 13.086903810501099,
+   "weight_fit": null
+  },
+  {
+   "layer": 17,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 13.356640815734863,
+   "weight_fit": null
+  },
+  {
+   "layer": 18,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 12.730841636657715,
+   "weight_fit": null
+  },
+  {
+   "layer": 19,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 13.044029951095581,
+   "weight_fit": null
+  },
+  {
+   "layer": 20,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 13.150161266326904,
+   "weight_fit": null
+  },
+  {
+   "layer": 21,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 12.976794481277466,
+   "weight_fit": null
+  }
+ ],
+ "metrics": {
+  "fineweb": {
+   "all": {
+    "sequences": 48,
+    "positions": 6096,
+    "top1_agreement": 0.8523622047244095,
+    "kl_mean": 0.09161804607208687,
+    "ppl_float": 11.688162188395104,
+    "ppl_int": 12.312932044875968,
+    "ppl_ratio": {
+     "ratio": 1.0534532158615306,
+     "ci95_t": [
+      1.0386705128220213,
+      1.0684463112309048
+     ],
+     "ci95_boot": [
+      1.0395024451113344,
+      1.0683742194178207
+     ],
+     "n": 48
+    }
+   },
+   "accepted": {
+    "sequences": 46,
+    "positions": 5842,
+    "top1_agreement": 0.8539883601506334,
+    "kl_mean": 0.09085076653217027,
+    "ppl_float": 11.71846333923213,
+    "ppl_int": 12.333163763160885,
+    "ppl_ratio": {
+     "ratio": 1.0524557193323123,
+     "ci95_t": [
+      1.0385246822421368,
+      1.0665736309356566
+     ],
+     "ci95_boot": [
+      1.0384274231809367,
+      1.0667794881561248
+     ],
+     "n": 46
+    }
+   },
+   "refused": 2
+  },
+  "wikitext": {
+   "all": {
+    "sequences": 48,
+    "positions": 6096,
+    "top1_agreement": 0.8316929133858267,
+    "kl_mean": 0.11430054494350271,
+    "ppl_float": 17.67537339006303,
+    "ppl_int": 19.284699145968478,
+    "ppl_ratio": {
+     "ratio": 1.091049038704336,
+     "ci95_t": [
+      1.073132836311008,
+      1.1092643562652718
+     ],
+     "ci95_boot": [
+      1.0736249621698648,
+      1.1098244189821536
+     ],
+     "n": 48
+    }
+   },
+   "accepted": {
+    "sequences": 44,
+    "positions": 5588,
+    "top1_agreement": 0.8333929849677881,
+    "kl_mean": 0.11174042899987675,
+    "ppl_float": 17.457424435561517,
+    "ppl_int": 19.01320344941799,
+    "ppl_ratio": {
+     "ratio": 1.0891184733234351,
+     "ci95_t": [
+      1.0713205185002954,
+      1.1072121073484724
+     ],
+     "ci95_boot": [
+      1.0721437323095702,
+      1.1076880052855125
+     ],
+     "n": 44
+    }
+   },
+   "refused": 4
+  }
+ },
+ "seconds": 325.0859754085541,
+ "violations_where": [
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 27,
+   "pos": 22,
+   "token": 20018,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 41,
+   "pos": 4,
+   "token": 567,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 59,
+   "pos": 114,
+   "token": 30062,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 6,
+   "site": "FFN up",
+   "seq": 60,
+   "pos": 104,
+   "token": 10722,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 8,
+   "site": "FFN up",
+   "seq": 54,
+   "pos": 50,
+   "token": 21704,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 8,
+   "site": "FFN up",
+   "seq": 80,
+   "pos": 49,
+   "token": 2875,
+   "count": 1,
+   "corpus": "wikitext"
+  }
+ ],
+ "refusal_tokens": [
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 20018,
+   "text": "Progress",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 567,
+   "text": "ps",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 30062,
+   "text": "\u00c9",
+   "sequences": 1
+  },
+  {
+   "layer": 6,
+   "site": "FFN up",
+   "token": 10722,
+   "text": "Angeles",
+   "sequences": 1
+  },
+  {
+   "layer": 8,
+   "site": "FFN up",
+   "token": 21704,
+   "text": "Tool",
+   "sequences": 1
+  },
+  {
+   "layer": 8,
+   "site": "FFN up",
+   "token": 2875,
+   "text": "property",
+   "sequences": 1
+  }
+ ],
+ "gptq": null,
+ "words_from": null,
+ "mods": null,
+ "gate_pc": null,
+ "mult_bits": null,
+ "tool_sha256": {
+  "fp_lib.py": "a51282f2878d0ab887488a14f748fe8701d53c8d57346b5de8328198ff06234d",
+  "fp_data.py": "3d0fea7676f06dfd3b1ff4260f973906314c45745599925af22cd2f7aef1447b",
+  "fp_eval.py": "65f108279aa00a6ce1d57ea9df07e55889b486b262359cee7f117dfbea338939",
+  "fp_gptq.py": "74543c11cce091078f0d37e80e814a193cb6e5a12579ce5aa968ad428eb785bd"
+ },
+ "scope": "fidelity data, not a proof, not a privacy claim; refusals clamped to continue (diagnostic)"
+}

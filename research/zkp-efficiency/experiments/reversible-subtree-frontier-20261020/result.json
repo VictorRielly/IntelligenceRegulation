@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "seed": 20261020111,
+  "checks": 3470,
+  "negative_controls": 63,
+  "consumer_cases": 472,
+  "layer_cases": 592,
+  "fixtures": 45,
+  "elapsed_s": 0.31311639200430363,
+  "maxrss_KiB": 12896,
+  "scope": "Synthetic native-field ordered factories and unmasked cubic consumer; no native private proof"
+}

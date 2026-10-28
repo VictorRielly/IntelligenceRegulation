@@ -1,0 +1,1337 @@
+{
+  "target_shape": {
+    "qh": 32,
+    "kv": 8,
+    "hp": 32,
+    "hd": 128,
+    "f": 14336,
+    "t": 128
+  },
+  "raw11_bytes": 218114560,
+  "padded9_bytes": 243277824,
+  "public_block_bytes": 243411456,
+  "before": {
+    "background_bytes": 218379264,
+    "events": [
+      {
+        "name": "wq",
+        "decode_names": [
+          "wq"
+        ],
+        "decode_bytes": 16777216,
+        "padded_bytes": 16777216,
+        "mapping_bytes": 98304,
+        "total_bytes": 252032000
+      },
+      {
+        "name": "wk",
+        "decode_names": [
+          "wq",
+          "wk"
+        ],
+        "decode_bytes": 20971520,
+        "padded_bytes": 20971520,
+        "mapping_bytes": 49152,
+        "total_bytes": 260371456
+      },
+      {
+        "name": "wv",
+        "decode_names": [
+          "wq",
+          "wk",
+          "wv"
+        ],
+        "decode_bytes": 25165824,
+        "padded_bytes": 25165824,
+        "mapping_bytes": 49152,
+        "total_bytes": 268760064
+      },
+      {
+        "name": "wo",
+        "decode_names": [
+          "wq",
+          "wk",
+          "wv",
+          "wo"
+        ],
+        "decode_bytes": 41943040,
+        "padded_bytes": 41943040,
+        "mapping_bytes": 98304,
+        "total_bytes": 302363648
+      },
+      {
+        "name": "gamma_a",
+        "decode_names": [
+          "wq",
+          "wk",
+          "wv",
+          "wo",
+          "gamma_a"
+        ],
+        "decode_bytes": 41947136,
+        "padded_bytes": 41947136,
+        "mapping_bytes": 32784,
+        "total_bytes": 302306320
+      },
+      {
+        "name": "gamma_m",
+        "decode_names": [
+          "gamma_m"
+        ],
+        "decode_bytes": 4096,
+        "padded_bytes": 41951232,
+        "mapping_bytes": 32784,
+        "total_bytes": 260367376
+      },
+      {
+        "name": "wg",
+        "decode_names": [
+          "gamma_m",
+          "wg"
+        ],
+        "decode_bytes": 58724352,
+        "padded_bytes": 109060096,
+        "mapping_bytes": 180224,
+        "total_bytes": 386343936
+      },
+      {
+        "name": "wu",
+        "decode_names": [
+          "gamma_m",
+          "wg",
+          "wu"
+        ],
+        "decode_bytes": 117444608,
+        "padded_bytes": 176168960,
+        "mapping_bytes": 180224,
+        "total_bytes": 512173056
+      },
+      {
+        "name": "wd",
+        "decode_names": [
+          "gamma_m",
+          "wg",
+          "wu",
+          "wd"
+        ],
+        "decode_bytes": 176164864,
+        "padded_bytes": 243277824,
+        "mapping_bytes": 294912,
+        "total_bytes": 638116864
+      }
+    ],
+    "peak_bytes": 638116864
+  },
+  "after": {
+    "background_bytes": 218379264,
+    "events": [
+      {
+        "name": "wq",
+        "decode_names": [
+          "wq"
+        ],
+        "decode_bytes": 16777216,
+        "padded_bytes": 16777216,
+        "mapping_bytes": 98304,
+        "total_bytes": 252032000
+      },
+      {
+        "name": "wk",
+        "decode_names": [
+          "wk"
+        ],
+        "decode_bytes": 4194304,
+        "padded_bytes": 20971520,
+        "mapping_bytes": 49152,
+        "total_bytes": 243594240
+      },
+      {
+        "name": "wv",
+        "decode_names": [
+          "wv"
+        ],
+        "decode_bytes": 4194304,
+        "padded_bytes": 25165824,
+        "mapping_bytes": 49152,
+        "total_bytes": 247788544
+      },
+      {
+        "name": "wo",
+        "decode_names": [
+          "wo"
+        ],
+        "decode_bytes": 16777216,
+        "padded_bytes": 41943040,
+        "mapping_bytes": 98304,
+        "total_bytes": 277197824
+      },
+      {
+        "name": "gamma_a",
+        "decode_names": [
+          "gamma_a"
+        ],
+        "decode_bytes": 4096,
+        "padded_bytes": 41947136,
+        "mapping_bytes": 32784,
+        "total_bytes": 260363280
+      },
+      {
+        "name": "gamma_m",
+        "decode_names": [
+          "gamma_m"
+        ],
+        "decode_bytes": 4096,
+        "padded_bytes": 41951232,
+        "mapping_bytes": 32784,
+        "total_bytes": 260367376
+      },
+      {
+        "name": "wg",
+        "decode_names": [
+          "wg"
+        ],
+        "decode_bytes": 58720256,
+        "padded_bytes": 109060096,
+        "mapping_bytes": 180224,
+        "total_bytes": 386339840
+      },
+      {
+        "name": "wu",
+        "decode_names": [
+          "wu"
+        ],
+        "decode_bytes": 58720256,
+        "padded_bytes": 176168960,
+        "mapping_bytes": 180224,
+        "total_bytes": 453448704
+      },
+      {
+        "name": "wd",
+        "decode_names": [
+          "wd"
+        ],
+        "decode_bytes": 58720256,
+        "padded_bytes": 243277824,
+        "mapping_bytes": 294912,
+        "total_bytes": 520672256
+      }
+    ],
+    "peak_bytes": 520672256
+  },
+  "pad_saving_bytes": 117444608,
+  "rows": [
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 1,
+      "pins": 0,
+      "full": true,
+      "raw_release": "none",
+      "before_phases": [
+        638116864,
+        705199616,
+        772177408
+      ],
+      "after_phases": [
+        520672256,
+        705199616,
+        772177408
+      ],
+      "before_bytes": 772177408,
+      "after_bytes": 772177408,
+      "saving_bytes": 0,
+      "before_with_current_next_pins_gib": 0.9458408355712891,
+      "after_with_current_next_pins_gib": 0.9458408355712891,
+      "limiting_phase": "record"
+    },
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 1,
+      "pins": 0,
+      "full": true,
+      "raw_release": "post",
+      "before_phases": [
+        638116864,
+        705199616,
+        554062848
+      ],
+      "after_phases": [
+        520672256,
+        705199616,
+        554062848
+      ],
+      "before_bytes": 705199616,
+      "after_bytes": 705199616,
+      "saving_bytes": 0,
+      "before_with_current_next_pins_gib": 0.8834629058837891,
+      "after_with_current_next_pins_gib": 0.8834629058837891,
+      "limiting_phase": "constructor"
+    },
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 1,
+      "pins": 0,
+      "full": true,
+      "raw_release": "split",
+      "before_phases": [
+        638116864,
+        487087616,
+        554062848
+      ],
+      "after_phases": [
+        520672256,
+        487087616,
+        554062848
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 554062848,
+      "saving_bytes": 84054016,
+      "before_with_current_next_pins_gib": 0.8209872245788574,
+      "after_with_current_next_pins_gib": 0.7427058219909668,
+      "limiting_phase": "record"
+    },
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 1,
+      "pins": 0,
+      "full": false,
+      "raw_release": "none",
+      "before_phases": [
+        638116864,
+        705199616,
+        705068544
+      ],
+      "after_phases": [
+        520672256,
+        705199616,
+        705068544
+      ],
+      "before_bytes": 705199616,
+      "after_bytes": 705199616,
+      "saving_bytes": 0,
+      "before_with_current_next_pins_gib": 0.8834629058837891,
+      "after_with_current_next_pins_gib": 0.8834629058837891,
+      "limiting_phase": "constructor"
+    },
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 1,
+      "pins": 0,
+      "full": false,
+      "raw_release": "post",
+      "before_phases": [
+        638116864,
+        705199616,
+        486953984
+      ],
+      "after_phases": [
+        520672256,
+        705199616,
+        486953984
+      ],
+      "before_bytes": 705199616,
+      "after_bytes": 705199616,
+      "saving_bytes": 0,
+      "before_with_current_next_pins_gib": 0.8834629058837891,
+      "after_with_current_next_pins_gib": 0.8834629058837891,
+      "limiting_phase": "constructor"
+    },
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 1,
+      "pins": 0,
+      "full": false,
+      "raw_release": "split",
+      "before_phases": [
+        638116864,
+        487087616,
+        486953984
+      ],
+      "after_phases": [
+        520672256,
+        487087616,
+        486953984
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 0.8209872245788574,
+      "after_with_current_next_pins_gib": 0.7116084098815918,
+      "limiting_phase": "pad"
+    },
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 1,
+      "pins": 4,
+      "full": true,
+      "raw_release": "none",
+      "before_phases": [
+        638116864,
+        705199616,
+        772177408
+      ],
+      "after_phases": [
+        520672256,
+        705199616,
+        772177408
+      ],
+      "before_bytes": 772177408,
+      "after_bytes": 772177408,
+      "saving_bytes": 0,
+      "before_with_current_next_pins_gib": 1.8526191711425781,
+      "after_with_current_next_pins_gib": 1.8526191711425781,
+      "limiting_phase": "record"
+    },
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 1,
+      "pins": 4,
+      "full": true,
+      "raw_release": "post",
+      "before_phases": [
+        638116864,
+        705199616,
+        554062848
+      ],
+      "after_phases": [
+        520672256,
+        705199616,
+        554062848
+      ],
+      "before_bytes": 705199616,
+      "after_bytes": 705199616,
+      "saving_bytes": 0,
+      "before_with_current_next_pins_gib": 1.7902412414550781,
+      "after_with_current_next_pins_gib": 1.7902412414550781,
+      "limiting_phase": "constructor"
+    },
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 1,
+      "pins": 4,
+      "full": true,
+      "raw_release": "split",
+      "before_phases": [
+        638116864,
+        487087616,
+        554062848
+      ],
+      "after_phases": [
+        520672256,
+        487087616,
+        554062848
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 554062848,
+      "saving_bytes": 84054016,
+      "before_with_current_next_pins_gib": 1.7277655601501465,
+      "after_with_current_next_pins_gib": 1.6494841575622559,
+      "limiting_phase": "record"
+    },
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 1,
+      "pins": 4,
+      "full": false,
+      "raw_release": "none",
+      "before_phases": [
+        638116864,
+        705199616,
+        705068544
+      ],
+      "after_phases": [
+        520672256,
+        705199616,
+        705068544
+      ],
+      "before_bytes": 705199616,
+      "after_bytes": 705199616,
+      "saving_bytes": 0,
+      "before_with_current_next_pins_gib": 1.7902412414550781,
+      "after_with_current_next_pins_gib": 1.7902412414550781,
+      "limiting_phase": "constructor"
+    },
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 1,
+      "pins": 4,
+      "full": false,
+      "raw_release": "post",
+      "before_phases": [
+        638116864,
+        705199616,
+        486953984
+      ],
+      "after_phases": [
+        520672256,
+        705199616,
+        486953984
+      ],
+      "before_bytes": 705199616,
+      "after_bytes": 705199616,
+      "saving_bytes": 0,
+      "before_with_current_next_pins_gib": 1.7902412414550781,
+      "after_with_current_next_pins_gib": 1.7902412414550781,
+      "limiting_phase": "constructor"
+    },
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 1,
+      "pins": 4,
+      "full": false,
+      "raw_release": "split",
+      "before_phases": [
+        638116864,
+        487087616,
+        486953984
+      ],
+      "after_phases": [
+        520672256,
+        487087616,
+        486953984
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 1.7277655601501465,
+      "after_with_current_next_pins_gib": 1.6183867454528809,
+      "limiting_phase": "pad"
+    },
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 16,
+      "pins": 0,
+      "full": true,
+      "raw_release": "none",
+      "before_phases": [
+        638116864,
+        705199616,
+        948346368
+      ],
+      "after_phases": [
+        520672256,
+        705199616,
+        948346368
+      ],
+      "before_bytes": 948346368,
+      "after_bytes": 948346368,
+      "saving_bytes": 0,
+      "before_with_current_next_pins_gib": 1.1099109649658203,
+      "after_with_current_next_pins_gib": 1.1099109649658203,
+      "limiting_phase": "record"
+    },
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 16,
+      "pins": 0,
+      "full": true,
+      "raw_release": "post",
+      "before_phases": [
+        638116864,
+        705199616,
+        730231808
+      ],
+      "after_phases": [
+        520672256,
+        705199616,
+        730231808
+      ],
+      "before_bytes": 730231808,
+      "after_bytes": 730231808,
+      "saving_bytes": 0,
+      "before_with_current_next_pins_gib": 0.906775951385498,
+      "after_with_current_next_pins_gib": 0.906775951385498,
+      "limiting_phase": "record"
+    },
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 16,
+      "pins": 0,
+      "full": true,
+      "raw_release": "split",
+      "before_phases": [
+        638116864,
+        487087616,
+        730231808
+      ],
+      "after_phases": [
+        520672256,
+        487087616,
+        730231808
+      ],
+      "before_bytes": 730231808,
+      "after_bytes": 730231808,
+      "saving_bytes": 0,
+      "before_with_current_next_pins_gib": 0.906775951385498,
+      "after_with_current_next_pins_gib": 0.906775951385498,
+      "limiting_phase": "record"
+    },
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 16,
+      "pins": 0,
+      "full": false,
+      "raw_release": "none",
+      "before_phases": [
+        638116864,
+        705199616,
+        705068544
+      ],
+      "after_phases": [
+        520672256,
+        705199616,
+        705068544
+      ],
+      "before_bytes": 705199616,
+      "after_bytes": 705199616,
+      "saving_bytes": 0,
+      "before_with_current_next_pins_gib": 0.8834629058837891,
+      "after_with_current_next_pins_gib": 0.8834629058837891,
+      "limiting_phase": "constructor"
+    },
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 16,
+      "pins": 0,
+      "full": false,
+      "raw_release": "post",
+      "before_phases": [
+        638116864,
+        705199616,
+        486953984
+      ],
+      "after_phases": [
+        520672256,
+        705199616,
+        486953984
+      ],
+      "before_bytes": 705199616,
+      "after_bytes": 705199616,
+      "saving_bytes": 0,
+      "before_with_current_next_pins_gib": 0.8834629058837891,
+      "after_with_current_next_pins_gib": 0.8834629058837891,
+      "limiting_phase": "constructor"
+    },
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 16,
+      "pins": 0,
+      "full": false,
+      "raw_release": "split",
+      "before_phases": [
+        638116864,
+        487087616,
+        486953984
+      ],
+      "after_phases": [
+        520672256,
+        487087616,
+        486953984
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 0.8209872245788574,
+      "after_with_current_next_pins_gib": 0.7116084098815918,
+      "limiting_phase": "pad"
+    },
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 16,
+      "pins": 4,
+      "full": true,
+      "raw_release": "none",
+      "before_phases": [
+        638116864,
+        705199616,
+        948346368
+      ],
+      "after_phases": [
+        520672256,
+        705199616,
+        948346368
+      ],
+      "before_bytes": 948346368,
+      "after_bytes": 948346368,
+      "saving_bytes": 0,
+      "before_with_current_next_pins_gib": 2.0166893005371094,
+      "after_with_current_next_pins_gib": 2.0166893005371094,
+      "limiting_phase": "record"
+    },
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 16,
+      "pins": 4,
+      "full": true,
+      "raw_release": "post",
+      "before_phases": [
+        638116864,
+        705199616,
+        730231808
+      ],
+      "after_phases": [
+        520672256,
+        705199616,
+        730231808
+      ],
+      "before_bytes": 730231808,
+      "after_bytes": 730231808,
+      "saving_bytes": 0,
+      "before_with_current_next_pins_gib": 1.813554286956787,
+      "after_with_current_next_pins_gib": 1.813554286956787,
+      "limiting_phase": "record"
+    },
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 16,
+      "pins": 4,
+      "full": true,
+      "raw_release": "split",
+      "before_phases": [
+        638116864,
+        487087616,
+        730231808
+      ],
+      "after_phases": [
+        520672256,
+        487087616,
+        730231808
+      ],
+      "before_bytes": 730231808,
+      "after_bytes": 730231808,
+      "saving_bytes": 0,
+      "before_with_current_next_pins_gib": 1.813554286956787,
+      "after_with_current_next_pins_gib": 1.813554286956787,
+      "limiting_phase": "record"
+    },
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 16,
+      "pins": 4,
+      "full": false,
+      "raw_release": "none",
+      "before_phases": [
+        638116864,
+        705199616,
+        705068544
+      ],
+      "after_phases": [
+        520672256,
+        705199616,
+        705068544
+      ],
+      "before_bytes": 705199616,
+      "after_bytes": 705199616,
+      "saving_bytes": 0,
+      "before_with_current_next_pins_gib": 1.7902412414550781,
+      "after_with_current_next_pins_gib": 1.7902412414550781,
+      "limiting_phase": "constructor"
+    },
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 16,
+      "pins": 4,
+      "full": false,
+      "raw_release": "post",
+      "before_phases": [
+        638116864,
+        705199616,
+        486953984
+      ],
+      "after_phases": [
+        520672256,
+        705199616,
+        486953984
+      ],
+      "before_bytes": 705199616,
+      "after_bytes": 705199616,
+      "saving_bytes": 0,
+      "before_with_current_next_pins_gib": 1.7902412414550781,
+      "after_with_current_next_pins_gib": 1.7902412414550781,
+      "limiting_phase": "constructor"
+    },
+    {
+      "constructor": "borrowed_copy",
+      "hash_workers": 16,
+      "pins": 4,
+      "full": false,
+      "raw_release": "split",
+      "before_phases": [
+        638116864,
+        487087616,
+        486953984
+      ],
+      "after_phases": [
+        520672256,
+        487087616,
+        486953984
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 1.7277655601501465,
+      "after_with_current_next_pins_gib": 1.6183867454528809,
+      "limiting_phase": "pad"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 1,
+      "pins": 0,
+      "full": true,
+      "raw_release": "none",
+      "before_phases": [
+        638116864,
+        461790720,
+        528768512
+      ],
+      "after_phases": [
+        520672256,
+        461790720,
+        528768512
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 528768512,
+      "saving_bytes": 109348352,
+      "before_with_current_next_pins_gib": 0.8209872245788574,
+      "after_with_current_next_pins_gib": 0.7191486358642578,
+      "limiting_phase": "record"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 1,
+      "pins": 0,
+      "full": true,
+      "raw_release": "post",
+      "before_phases": [
+        638116864,
+        461790720,
+        310653952
+      ],
+      "after_phases": [
+        520672256,
+        461790720,
+        310653952
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 0.8209872245788574,
+      "after_with_current_next_pins_gib": 0.7116084098815918,
+      "limiting_phase": "pad"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 1,
+      "pins": 0,
+      "full": true,
+      "raw_release": "split",
+      "before_phases": [
+        638116864,
+        243678720,
+        310653952
+      ],
+      "after_phases": [
+        520672256,
+        243678720,
+        310653952
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 0.8209872245788574,
+      "after_with_current_next_pins_gib": 0.7116084098815918,
+      "limiting_phase": "pad"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 1,
+      "pins": 0,
+      "full": false,
+      "raw_release": "none",
+      "before_phases": [
+        638116864,
+        461790720,
+        461659648
+      ],
+      "after_phases": [
+        520672256,
+        461790720,
+        461659648
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 0.8209872245788574,
+      "after_with_current_next_pins_gib": 0.7116084098815918,
+      "limiting_phase": "pad"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 1,
+      "pins": 0,
+      "full": false,
+      "raw_release": "post",
+      "before_phases": [
+        638116864,
+        461790720,
+        243545088
+      ],
+      "after_phases": [
+        520672256,
+        461790720,
+        243545088
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 0.8209872245788574,
+      "after_with_current_next_pins_gib": 0.7116084098815918,
+      "limiting_phase": "pad"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 1,
+      "pins": 0,
+      "full": false,
+      "raw_release": "split",
+      "before_phases": [
+        638116864,
+        243678720,
+        243545088
+      ],
+      "after_phases": [
+        520672256,
+        243678720,
+        243545088
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 0.8209872245788574,
+      "after_with_current_next_pins_gib": 0.7116084098815918,
+      "limiting_phase": "pad"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 1,
+      "pins": 4,
+      "full": true,
+      "raw_release": "none",
+      "before_phases": [
+        638116864,
+        461790720,
+        528768512
+      ],
+      "after_phases": [
+        520672256,
+        461790720,
+        528768512
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 528768512,
+      "saving_bytes": 109348352,
+      "before_with_current_next_pins_gib": 1.7277655601501465,
+      "after_with_current_next_pins_gib": 1.6259269714355469,
+      "limiting_phase": "record"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 1,
+      "pins": 4,
+      "full": true,
+      "raw_release": "post",
+      "before_phases": [
+        638116864,
+        461790720,
+        310653952
+      ],
+      "after_phases": [
+        520672256,
+        461790720,
+        310653952
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 1.7277655601501465,
+      "after_with_current_next_pins_gib": 1.6183867454528809,
+      "limiting_phase": "pad"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 1,
+      "pins": 4,
+      "full": true,
+      "raw_release": "split",
+      "before_phases": [
+        638116864,
+        243678720,
+        310653952
+      ],
+      "after_phases": [
+        520672256,
+        243678720,
+        310653952
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 1.7277655601501465,
+      "after_with_current_next_pins_gib": 1.6183867454528809,
+      "limiting_phase": "pad"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 1,
+      "pins": 4,
+      "full": false,
+      "raw_release": "none",
+      "before_phases": [
+        638116864,
+        461790720,
+        461659648
+      ],
+      "after_phases": [
+        520672256,
+        461790720,
+        461659648
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 1.7277655601501465,
+      "after_with_current_next_pins_gib": 1.6183867454528809,
+      "limiting_phase": "pad"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 1,
+      "pins": 4,
+      "full": false,
+      "raw_release": "post",
+      "before_phases": [
+        638116864,
+        461790720,
+        243545088
+      ],
+      "after_phases": [
+        520672256,
+        461790720,
+        243545088
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 1.7277655601501465,
+      "after_with_current_next_pins_gib": 1.6183867454528809,
+      "limiting_phase": "pad"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 1,
+      "pins": 4,
+      "full": false,
+      "raw_release": "split",
+      "before_phases": [
+        638116864,
+        243678720,
+        243545088
+      ],
+      "after_phases": [
+        520672256,
+        243678720,
+        243545088
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 1.7277655601501465,
+      "after_with_current_next_pins_gib": 1.6183867454528809,
+      "limiting_phase": "pad"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 16,
+      "pins": 0,
+      "full": true,
+      "raw_release": "none",
+      "before_phases": [
+        638116864,
+        461790720,
+        704937472
+      ],
+      "after_phases": [
+        520672256,
+        461790720,
+        704937472
+      ],
+      "before_bytes": 704937472,
+      "after_bytes": 704937472,
+      "saving_bytes": 0,
+      "before_with_current_next_pins_gib": 0.8832187652587891,
+      "after_with_current_next_pins_gib": 0.8832187652587891,
+      "limiting_phase": "record"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 16,
+      "pins": 0,
+      "full": true,
+      "raw_release": "post",
+      "before_phases": [
+        638116864,
+        461790720,
+        486822912
+      ],
+      "after_phases": [
+        520672256,
+        461790720,
+        486822912
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 0.8209872245788574,
+      "after_with_current_next_pins_gib": 0.7116084098815918,
+      "limiting_phase": "pad"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 16,
+      "pins": 0,
+      "full": true,
+      "raw_release": "split",
+      "before_phases": [
+        638116864,
+        243678720,
+        486822912
+      ],
+      "after_phases": [
+        520672256,
+        243678720,
+        486822912
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 0.8209872245788574,
+      "after_with_current_next_pins_gib": 0.7116084098815918,
+      "limiting_phase": "pad"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 16,
+      "pins": 0,
+      "full": false,
+      "raw_release": "none",
+      "before_phases": [
+        638116864,
+        461790720,
+        461659648
+      ],
+      "after_phases": [
+        520672256,
+        461790720,
+        461659648
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 0.8209872245788574,
+      "after_with_current_next_pins_gib": 0.7116084098815918,
+      "limiting_phase": "pad"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 16,
+      "pins": 0,
+      "full": false,
+      "raw_release": "post",
+      "before_phases": [
+        638116864,
+        461790720,
+        243545088
+      ],
+      "after_phases": [
+        520672256,
+        461790720,
+        243545088
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 0.8209872245788574,
+      "after_with_current_next_pins_gib": 0.7116084098815918,
+      "limiting_phase": "pad"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 16,
+      "pins": 0,
+      "full": false,
+      "raw_release": "split",
+      "before_phases": [
+        638116864,
+        243678720,
+        243545088
+      ],
+      "after_phases": [
+        520672256,
+        243678720,
+        243545088
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 0.8209872245788574,
+      "after_with_current_next_pins_gib": 0.7116084098815918,
+      "limiting_phase": "pad"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 16,
+      "pins": 4,
+      "full": true,
+      "raw_release": "none",
+      "before_phases": [
+        638116864,
+        461790720,
+        704937472
+      ],
+      "after_phases": [
+        520672256,
+        461790720,
+        704937472
+      ],
+      "before_bytes": 704937472,
+      "after_bytes": 704937472,
+      "saving_bytes": 0,
+      "before_with_current_next_pins_gib": 1.7899971008300781,
+      "after_with_current_next_pins_gib": 1.7899971008300781,
+      "limiting_phase": "record"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 16,
+      "pins": 4,
+      "full": true,
+      "raw_release": "post",
+      "before_phases": [
+        638116864,
+        461790720,
+        486822912
+      ],
+      "after_phases": [
+        520672256,
+        461790720,
+        486822912
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 1.7277655601501465,
+      "after_with_current_next_pins_gib": 1.6183867454528809,
+      "limiting_phase": "pad"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 16,
+      "pins": 4,
+      "full": true,
+      "raw_release": "split",
+      "before_phases": [
+        638116864,
+        243678720,
+        486822912
+      ],
+      "after_phases": [
+        520672256,
+        243678720,
+        486822912
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 1.7277655601501465,
+      "after_with_current_next_pins_gib": 1.6183867454528809,
+      "limiting_phase": "pad"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 16,
+      "pins": 4,
+      "full": false,
+      "raw_release": "none",
+      "before_phases": [
+        638116864,
+        461790720,
+        461659648
+      ],
+      "after_phases": [
+        520672256,
+        461790720,
+        461659648
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 1.7277655601501465,
+      "after_with_current_next_pins_gib": 1.6183867454528809,
+      "limiting_phase": "pad"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 16,
+      "pins": 4,
+      "full": false,
+      "raw_release": "post",
+      "before_phases": [
+        638116864,
+        461790720,
+        243545088
+      ],
+      "after_phases": [
+        520672256,
+        461790720,
+        243545088
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 1.7277655601501465,
+      "after_with_current_next_pins_gib": 1.6183867454528809,
+      "limiting_phase": "pad"
+    },
+    {
+      "constructor": "checked_move",
+      "hash_workers": 16,
+      "pins": 4,
+      "full": false,
+      "raw_release": "split",
+      "before_phases": [
+        638116864,
+        243678720,
+        243545088
+      ],
+      "after_phases": [
+        520672256,
+        243678720,
+        243545088
+      ],
+      "before_bytes": 638116864,
+      "after_bytes": 520672256,
+      "saving_bytes": 117444608,
+      "before_with_current_next_pins_gib": 1.7277655601501465,
+      "after_with_current_next_pins_gib": 1.6183867454528809,
+      "limiting_phase": "pad"
+    }
+  ],
+  "exclusions": [
+    "allocator/capacity slack",
+    "page cache",
+    "JSON/manifest",
+    "thread stacks",
+    "witness/proof/serialization/device",
+    "extra evicted live leases"
+  ],
+  "scope": "Allocation-free conservative public-payload model, not RSS/VRAM/hardware fit/time. Two RoPE pairs are a conservative background; padding/map/decode events follow source order."
+}

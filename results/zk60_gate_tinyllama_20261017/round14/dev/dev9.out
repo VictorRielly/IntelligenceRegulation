@@ -1,0 +1,4 @@
+[zk60-guard 17:13:12] START gate-dev9-l2-dense class=light need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=48e56a8e8eaf
+[zk60-guard 17:14:46] END gate-dev9-l2-dense exit=0 child_wall=93s peak_rss=0.43G min_avail=10.54G
+[zk60-guard 17:14:46] START gate-dev9-l1-dense class=light need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=211099316df6
+[zk60-guard 17:15:58] END gate-dev9-l1-dense exit=0 child_wall=72s peak_rss=0.36G min_avail=9.49G

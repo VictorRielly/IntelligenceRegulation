@@ -1,0 +1,6 @@
+[zk60-guard 18:51:34] START gate-v13-tokengate-cli9 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=ebd3d558891d
+[zk60-guard 19:03:09] END gate-v13-tokengate-cli9 exit=1 child_wall=695s peak_rss=0.60G min_avail=9.80G
+[zk60-guard 19:03:09] START gate-v13-nl-cli9 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=ee48a675eba9
+[zk60-guard 19:03:18] END gate-v13-nl-cli9 exit=0 child_wall=8s peak_rss=0.13G min_avail=10.67G
+[zk60-guard 19:03:18] START gate-unittests-v13 class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=9b26d6065b5b
+[zk60-guard 19:03:46] END gate-unittests-v13 exit=0 child_wall=29s peak_rss=0.46G min_avail=10.51G

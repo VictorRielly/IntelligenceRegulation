@@ -1,0 +1,134 @@
+[
+  {
+    "leaf": "probe.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-pad-eligibility-20261020/probe.py"
+    ],
+    "started_at": "2026-10-20T08:25:16.049195+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.41515855900070164,
+    "maxrss_kib": 13144,
+    "sha256": "6fabb6f2a4c3359b21ddea9685c4d8a6093cf6a55a1fd7a91061565d87664f5f",
+    "stdout": "00-probe.py.stdout.log",
+    "stderr": "00-probe.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "validate.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-pad-eligibility-20261020/validate.py"
+    ],
+    "started_at": "2026-10-20T08:25:26.686516+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.03607513000315521,
+    "maxrss_kib": 17500,
+    "sha256": "373a443e012acde6ebdd511b6644bb54c3090df7d9feb66686a9c512cd637bcb",
+    "stdout": "01-validate.py.stdout.log",
+    "stderr": "01-validate.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "probe.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-pad-eligibility-20261020/probe.py"
+    ],
+    "started_at": "2026-10-20T08:26:39.307244+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.3828957410005387,
+    "maxrss_kib": 13036,
+    "sha256": "fc3bffb5193048ecb07ec223a6c41f410ddf2757741a9f1df6aeb7519d71e16e",
+    "stdout": "02-probe.py.stdout.log",
+    "stderr": "02-probe.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "validate.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-pad-eligibility-20261020/validate.py"
+    ],
+    "started_at": "2026-10-20T08:26:39.766748+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.03983842900197487,
+    "maxrss_kib": 17524,
+    "sha256": "ed21f422b038a754e8368c020b3f1c7e615f4701e987bd54b908ef71a63ee4f1",
+    "stdout": "03-validate.py.stdout.log",
+    "stderr": "03-validate.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "probe.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-pad-eligibility-20261020/probe.py"
+    ],
+    "started_at": "2026-10-20T08:29:40.549884+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.4768743140011793,
+    "maxrss_kib": 13356,
+    "sha256": "0cec74686471ff02ea3c3dbfcbbafc391795ec1552eb023c4c7c05e717ddd8e7",
+    "stdout": "04-probe.py.stdout.log",
+    "stderr": "04-probe.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "validate.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-pad-eligibility-20261020/validate.py"
+    ],
+    "started_at": "2026-10-20T08:29:41.101055+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.04156194500683341,
+    "maxrss_kib": 18024,
+    "sha256": "40269aa5ac1091216c863679273cf391b072a75b184687d2c9d0b60468ece569",
+    "stdout": "05-validate.py.stdout.log",
+    "stderr": "05-validate.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  }
+]

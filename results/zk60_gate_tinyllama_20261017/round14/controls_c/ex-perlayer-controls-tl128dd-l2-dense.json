@@ -1,0 +1,49 @@
+{
+ "what": "[gate round 14] Failing-first controls for the export check's two NEW",
+ "bundle": "/home/victor/zk60-artifacts/dd-gate-r9/tl128dd-l2-dense",
+ "export": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/tinyllama_dg_rot1_T128",
+ "tools": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v17/scripts",
+ "honest_ok": true,
+ "honest_findings": [],
+ "controls": [
+  {
+   "control": "EXP-1",
+   "what": "run.json sh_s 6 -> 7 (per-layer field)",
+   "ok_under_perturbation": false,
+   "findings_naming_it": [
+    "E1: sh_s is 7 in the bundle and 6 in the run calibration of export layers [0, 1]"
+   ],
+   "fires": true
+  },
+  {
+   "control": "EXP-2",
+   "what": "run.json norm_cn_a +1 (per-layer field)",
+   "ok_under_perturbation": false,
+   "findings_naming_it": [
+    "E1: norm_cn_a is 1254 in the bundle and 1253 in the run calibration of export layers [0, 1]"
+   ],
+   "fires": true
+  },
+  {
+   "control": "EXP-3",
+   "what": "stage 1's own score shift 8 -> 7, schedule digest re-bound",
+   "ok_under_perturbation": false,
+   "findings_naming_it": [
+    "E5: stage 1 (layer 1) is proved at sh_s 7, the export layer's is 8"
+   ],
+   "fires": true
+  },
+  {
+   "control": "EXP-4",
+   "what": "README layers [0, 2] instead of [0, 1]",
+   "ok_under_perturbation": false,
+   "findings_naming_it": [
+    "E3b: the README declares layers [0, 2], the stages are layers [0, 1]"
+   ],
+   "fires": true
+  }
+ ],
+ "all_fire": true,
+ "ok": true,
+ "privacy_acceptance": false
+}

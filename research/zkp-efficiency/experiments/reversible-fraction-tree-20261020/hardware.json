@@ -1,0 +1,38 @@
+{
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "machine": "x86_64",
+  "cpu_model": "Intel(R) Core(TM) Ultra 9 185H",
+  "allowed_cores": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21
+  ],
+  "experiment_core": 0,
+  "gpu_used": false,
+  "limits": {
+    "threads": 1,
+    "AS_MiB": 512,
+    "CPU_s": 59,
+    "wall_s": 60,
+    "estimated_MiB": 64
+  }
+}

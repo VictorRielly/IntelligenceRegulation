@@ -1,0 +1,117 @@
+{
+ "T": 32,
+ "export": "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T32",
+ "f2": {
+  "T": 32,
+  "d25_t4_criterion_met": true,
+  "disagreement_by_float_margin": {
+   "[0.0,0.01)": {
+    "disagree": 0,
+    "positions": 1
+   },
+   "[0.01,0.03)": {
+    "disagree": 0,
+    "positions": 3
+   },
+   "[0.03,0.1)": {
+    "disagree": 1,
+    "positions": 39
+   },
+   "[0.1,0.3)": {
+    "disagree": 0,
+    "positions": 66
+   },
+   "[0.3,1.0)": {
+    "disagree": 0,
+    "positions": 138
+   },
+   "[1.0,3.0)": {
+    "disagree": 0,
+    "positions": 159
+   },
+   "[3.0,1000000000.0)": {
+    "disagree": 0,
+    "positions": 74
+   }
+  },
+  "disagreements": 1,
+  "final_norm_refused_positions": 0,
+  "float_margin_quantiles": {
+   "0.01": 0.03227805137634277,
+   "0.05": 0.0680375099182129,
+   "0.5": 0.9631118774414062
+  },
+  "int_vs_float_head": {
+   "all": {
+    "agree": 479,
+    "n": 480,
+    "rate": 0.9979166666666667
+   },
+   "domain:fineweb-edu": {
+    "agree": 192,
+    "n": 192,
+    "rate": 1.0
+   },
+   "domain:licence-docstring": {
+    "agree": 287,
+    "n": 288,
+    "rate": 0.9965277777777778
+   },
+   "float_margin_ge_0.3 (D25 T4)": {
+    "agree": 371,
+    "n": 371,
+    "rate": 1.0
+   },
+   "last_position": {
+    "agree": 15,
+    "n": 15,
+    "rate": 1.0
+   }
+  },
+  "keyed_delta_bits_needed": 48,
+  "keyed_delta_fits_window": true,
+  "keyed_delta_max": 188975654877057,
+  "keyed_delta_min_over_i_ne_j": 3493068785,
+  "keyed_delta_strict": true,
+  "keyed_window_bits": 56,
+  "max_abs_raw_logit": 536322,
+  "max_abs_raw_logit_bits": 20,
+  "max_abs_scaled_logit": 975782137,
+  "max_abs_scaled_logit_bits": 30,
+  "positions": 480,
+  "raw_logit_class_bound_bits": 26,
+  "sequences": 15,
+  "tie_positions": 0,
+  "ties_rule": "lowest token id (numpy first maximum), D25 T3"
+ },
+ "final_norm": {
+  "ceps": 78617,
+  "cn_calibrated": 4234,
+  "cn_refusal_free": 512,
+  "g0": 127,
+  "margin": 0.5,
+  "norm_site": {
+   "act_loss_bits": 0.00021946010501611954,
+   "ceps": 78617,
+   "cn": 4234,
+   "gamma_int_absmax": 127,
+   "gamma_int_ones": 0,
+   "gamma_rel_err_max": 0.0,
+   "s_gamma": 0.007874015748031496,
+   "s_y": 0.06093900520347097,
+   "target_y": 0.060929735979577966,
+   "tn": 9,
+   "y_fill_at_calib_max": 0.6665652622775614
+  },
+  "tn": 9,
+  "window_bits": 32
+ },
+ "mode": "reuse",
+ "reused_from": "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T128/token_io",
+ "run": "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/runs/llama3_8b_pg_rot1_b7_T32_cal128",
+ "seconds": 37.53910946846008,
+ "selftest": {
+  "final_norm_equals_i_norm": true,
+  "rows": 64
+ }
+}

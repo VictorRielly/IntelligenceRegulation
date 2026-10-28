@@ -1,0 +1,23 @@
+{
+  "cpu_model": "Intel(R) Core(TM) Ultra 9 185H",
+  "device": "CPU only",
+  "GPU_jobs": 0,
+  "cpu_affinity": [
+    0
+  ],
+  "threads": 1,
+  "nice": 19,
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: x86_64-unknown-linux-gnu\nrelease: 1.97.1\nLLVM version: 22.1.6\n",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "main_seconds": 7.734895621004398,
+  "compiler_seconds": 5.503052644999116,
+  "main_rss_kib": 37472,
+  "compiler_rss_kib": 147156,
+  "audit_seconds": 0.32031226699473336,
+  "audit_rss_kib": 22524,
+  "bench_seconds": 1.3405324769992149,
+  "bench_child_seconds": 1.074709423002787,
+  "bench_compile_seconds": 0.26510482899902854,
+  "bench_child_peak_rss_kib": 123140,
+  "limits": "One nice19 CPU;59s CPU/wall;512MiB address space;noCargo/GPU/install/foreign execution"
+}

@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "checks": 1871,
+  "fixtures": 48,
+  "independent_output_corruption_controls": 624,
+  "source_pins": 18,
+  "r8_manifest_matches": 14,
+  "wall_seconds": 0.1524138539971318,
+  "rss_kib": 26828,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "limits": "59s wall/CPU,512MiB AS;estimated64MiB;one nice19 CPU",
+  "scope": "Independent saved-layout/encoding/payload/source-pin audit; no import of candidate; no native proof or ownership safety claim."
+}

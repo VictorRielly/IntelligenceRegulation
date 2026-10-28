@@ -1,0 +1,30 @@
+{
+  "status": "PASS_PYTHON_ALGEBRA_AND_PARTIAL_SOURCE_COSTS_ONLY",
+  "fixtures": 36,
+  "rounds": 144,
+  "checks": 1669,
+  "negative_controls": 17,
+  "cost_cases": 90,
+  "seed": 2026102098,
+  "wall_seconds": 1.9677233999973396,
+  "rss_kib": 16868,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "full_stack": {
+    "proofs": 0,
+    "passes": 0,
+    "positions": 0,
+    "context_length": null,
+    "device": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "startup_fraction": null,
+    "steady_rate": null,
+    "total_rate": null
+  },
+  "scope": "Synthetic quotient-field/original-polynomial/direct-original-MLE checks; no native code/masks/transcript/PCS/receipt/verifier"
+}

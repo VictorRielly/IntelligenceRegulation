@@ -1,0 +1,31 @@
+{
+  "queries": [
+    "GPU Merkle tree BLAKE3 salted leaves proof commitment scheduling 2026 GitHub",
+    "2026 zero knowledge GPU prover sumcheck October batching commitment proof memory",
+    "site.github.com GPU BLAKE3 merkle ICICLE",
+    "site.nvidia.github.io/cuPQC/blogs/merkle",
+    "site.arxiv.org 2026 \"Merkle\" \"GPU\" proof",
+    "\"FlatMerkle\" \"Lerner\"",
+    "\"GPU\" \"Merkle\" \"BLAKE3\" github 2026",
+    "\"Chimera\" \"1388\" sumcheck 2026",
+    "site.eprint.iacr.org/2026/2468 FlatMerkle",
+    "site.docs.rs turboblake 1.8.7 2026-10-26"
+  ],
+  "query_count": 10,
+  "native_live_web": true,
+  "source_records": 8,
+  "foreign_code_executed": false,
+  "primary_claims_only": true,
+  "raw_response_files": [
+    "web-commit7.json",
+    "web-current-release.json",
+    "web-icicle-commit.json",
+    "web-metadata6.json",
+    "web-primary1.json",
+    "web-primary3.json",
+    "web-primary5.json",
+    "web-search2.json",
+    "web-sources4.json"
+  ],
+  "note": "Initial broad search batches not separately snapshotted; exact queries and later primary open/find/commit responses retained. Cache/access failures recorded without bypass."
+}

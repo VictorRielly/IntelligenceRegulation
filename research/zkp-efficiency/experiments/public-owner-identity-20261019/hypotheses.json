@@ -1,0 +1,67 @@
+[
+  {
+    "added_costs": "Transfers, device buffers, synchronization, serialization and pipeline drain.",
+    "baseline": "Carried R8 CPU T128 478.737s; no high-end GPU steady slope.",
+    "eliminated_work": "Dominant recurring CPU proof arithmetic/commitment traffic and genuine once-only setup.",
+    "end_to_end_ceiling": "Unknown until complete verified GPU workload; no kernel-to-token extrapolation.",
+    "exactness": "Unchanged full attention+FFN relation and calibration.",
+    "falsification": "Any proof/privacy/fidelity gate failure, unbounded backlog or no enclosing gain.",
+    "hypothesis": "Owner: complete GPU prover and verified resident workload sweep",
+    "integration_cost": "High, owner only",
+    "prerequisites": "Actual named device, all exactness/privacy/soundness gates, heavy lock admission.",
+    "privacy_soundness": "Fresh masks/openings, independent receipt verification; D33 does not cover GPU/8B.",
+    "rank": 1
+  },
+  {
+    "added_costs": "Source fingerprint/identity checks, immutable retention and live leases, raw scans; actual native cost unknown.",
+    "baseline": "Separate seal loader and one-current-block proving cache; mandatory current-byte digest on reload.",
+    "eliminated_work": "Synthetic pin4 over8 scan pairs avoids60/512 padded constructors; guarded variant removes0/512 raw read observations.",
+    "end_to_end_ceiling": "T/(T-s+a), exclusive avoided construction s and all extra costs a unmeasured. No measured improvement.",
+    "exactness": "Synthetic padding/identity/outcomes only. Key-only hit fails source-mutation refusal semantics.",
+    "falsification": "Any changed native refusal/receipt/privacy result, uncharged lease, peak limit failure, or overhead >=exclusive saved work.",
+    "hypothesis": "REFINED: revalidated public owner with lease-aware admission, construction-only savings",
+    "integration_cost": "Moderate/high typed public owner shared by seal_and_record and BlockCache::get; no native patch.",
+    "prerequisites": "19-field synthetic identity is conservative, not native key specification; owner must preserve all native CS/H-1 gates and mutable-source refusals.",
+    "privacy_soundness": "P1 public weights only; no witness, RNG, endpoints, challenge or private-opening owner reuse. No P3 authorization.",
+    "rank": 2
+  },
+  {
+    "added_costs": "Checked owned-constructor interface, invalid-support handling, head permutation and lifetime integration.",
+    "baseline": "R8 load_layer_mode holds raw Array values and aw/fw padded vectors; slice new_shaped creates owned public copies. Present residency ledger excludes these temporaries.",
+    "eliminated_work": "Only copies/clones and temporary overlap justified by moving already owned checked padded vectors; no loader/CS validation removed.",
+    "end_to_end_ceiling": "Unknown; construction clocks absent. First determine public peak, no native/GPU fit claim.",
+    "exactness": "Same public arrays, zero pads, real-head slot mapping and native structural refusals.",
+    "falsification": "No actual avoided clone/lifetime, peak regression, any support/refusal/byte mismatch or new cost >=saved work.",
+    "hypothesis": "NEW next local: checked ownership transfer and complete public constructor lifetime",
+    "integration_cost": "Moderate checked owner API, owner lane only.",
+    "prerequisites": "Small independent public byte/permutation/pad oracle, source allocation/drop lifetime census, all constructor/CS/H-1 gates preserved.",
+    "privacy_soundness": "P1 public arrays only; no private owner or mask reuse.",
+    "rank": 3
+  },
+  {
+    "added_costs": "Private retention/copy/readback and buffer lifetime overlap.",
+    "baseline": "Sealing witness80.897s, proving witness hand-over98.348s incl reloads; do not add overlapping values.",
+    "eliminated_work": "Only actually retained second witness constructions.",
+    "end_to_end_ceiling": "Unknown",
+    "exactness": "All planes, integer parity and refusals unchanged.",
+    "falsification": "Peak/copy costs exceed saved construction or any proof/privacy mismatch.",
+    "hypothesis": "Owner: same-attempt witness retention with H-1 and prior cycle0016 negatives",
+    "integration_cost": "High",
+    "prerequisites": "Prior negative findings, actual peak and H-1 refusal ordering.",
+    "privacy_soundness": "Same attempt only; no observable private-cache metadata or fresh-mask reuse.",
+    "rank": 4
+  },
+  {
+    "added_costs": "Helper binding, rank/hiding, composition and fidelity validation.",
+    "baseline": "Counted unbuilt design",
+    "eliminated_work": "Only reviewed helper/lookup committed work.",
+    "end_to_end_ceiling": "Unknown",
+    "exactness": "Exact arithmetic and all true-row slots.",
+    "falsification": "Any unbound helper, fidelity/refusal or proof failure.",
+    "hypothesis": "Owner: D30 exact division dictionary and architecture",
+    "integration_cost": "High",
+    "prerequisites": "D30/D32 and new profile gates",
+    "privacy_soundness": "Re-pin joint privacy and preserve whole-run soundness.",
+    "rank": 5
+  }
+]

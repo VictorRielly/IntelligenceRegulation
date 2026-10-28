@@ -1,0 +1,18 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-shared-templates-20261019/run.py",
+    "sha256": "4e3955c4eff1ee958cb9e6a591a1129175aa8fa517987b8cc538d5c1b7c363d0"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-use-driven-affine-20261019/prior-run.py",
+    "sha256": "719c391dabc20916a06df0535028431726888b28cbb4f1ae44aaa914fe10b96a"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-use-driven-affine-20261019/reference/run.py",
+    "sha256": "454d0b3c3590ad586389bbaf1a064e95f1dd9c01f001b142d52b000e0c82d493"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-use-driven-affine-20261019/run.py",
+    "sha256": "e799acd424c08006b8ad4b8e60c4b9840ef6da924a7b3c18e61ef1c808c68c8f"
+  }
+]

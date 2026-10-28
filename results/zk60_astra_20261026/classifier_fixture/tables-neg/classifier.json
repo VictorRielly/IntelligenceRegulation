@@ -1,0 +1,1 @@
+{"schema": "zk60-classifier-tables/1", "bos": 1, "margin_vector": {"dtype": "int16", "file": "margin_int16.bin", "d": 384, "sha256": "1f748bc1154ca4b69902a701524375de5dee53bc5676cb57753dfbbbe3d50e1a"}, "final_norm": {"g0": 127, "cn": 2048, "tn": 11, "ceps": 33554467}}

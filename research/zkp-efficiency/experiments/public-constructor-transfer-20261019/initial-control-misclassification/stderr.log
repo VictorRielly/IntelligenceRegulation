@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "experiments/public-constructor-transfer-20261019/experiment.py", line 337, in <module>
+    main()
+  File "experiments/public-constructor-transfer-20261019/experiment.py", line 313, in main
+    check(wrong != ref)
+  File "experiments/public-constructor-transfer-20261019/experiment.py", line 27, in check
+    assert ok
+AssertionError

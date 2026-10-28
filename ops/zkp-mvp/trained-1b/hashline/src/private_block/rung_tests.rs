@@ -289,7 +289,7 @@ fn every_rung_lookup_is_a_genuine_table_row() {
     let lay = Layout::for_shape(&sh).expect("the rung layout");
     let ids = lay.ids();
     let (public, ff) = (blk.attention(), blk.feed_forward());
-    for dom in lay.lookup_doms() {
+    for dom in lay.lookup_doms().iter() {
         for (k, col) in super::protocol::lookup_values(&lay, &w, *dom).iter().enumerate() {
             if let Some((x, v)) = col.iter().enumerate().find(|(_, v)| !(0..256).contains(*v)) {
                 panic!("{dom:?} lookup {k} at position {x} has value {v}, outside the U8 table");

@@ -1,0 +1,11 @@
+Token-I/O lane round-7 tree frozen for review round 6 at 2026-10-19T19:11Z.
+copy:     /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r7/
+source:   /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io/ (build target/ directories excluded,
+          BASELINE.sha256 excluded as by tools/manifest.py)
+manifest: /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/manifest_final_r7.sha256
+          (233 files, list sha256 eb912dd56c7cce8b3aec18b1f11ecf55ee609fec9c8ff2cb297a67cb82bbb65d);
+          all 233 entries re-hashed in the copy: match, no missing, no extra.
+binaries: cli/zk60_token_io.r7.release.bin (db3d9825..., the round-7 demo, built from the demo tree
+          manifest_r7_demo) and cli/zk60_token_io.r7c.release.bin (b18ad304..., built from the capture
+          tree; .text / .rodata byte-identical to r7).
+The lane keeps working in ops/zkp-mvp/token-io/ (round 8); this copy does not change.

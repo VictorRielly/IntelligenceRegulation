@@ -1,0 +1,98 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/mle.rs",
+    "snapshot": "source/ops__zkp-mvp__trained-1b__zkp-core__src__mle.rs",
+    "sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e",
+    "bytes": 15255
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/field.rs",
+    "snapshot": "source/ops__zkp-mvp__trained-1b__zkp-core__src__field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/sumcheck.rs",
+    "snapshot": "source/ops__zkp-mvp__trained-1b__zkp-core__src__sumcheck.rs",
+    "sha256": "fc7374bbd5e5cc4ede62e8a21d325eb62acff9b9dcc786d12eae39efbdfdbb95",
+    "bytes": 22023
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/sumcheck/rounds.rs",
+    "snapshot": "source/ops__zkp-mvp__trained-1b__zkp-core__src__sumcheck__rounds.rs",
+    "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df",
+    "bytes": 7092
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/sumcheck/grouped.rs",
+    "snapshot": "source/ops__zkp-mvp__trained-1b__zkp-core__src__sumcheck__grouped.rs",
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b",
+    "bytes": 7903
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/mle.rs",
+    "snapshot": "source/ops__zkp-mvp__trained-1b__hashline__src__mle.rs",
+    "sha256": "bffe83fb5636f445f3a5a3b85141c374bdfeb4e4716c386eec30d10f5ed33741",
+    "bytes": 97
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/zk.rs",
+    "snapshot": "source/ops__zkp-mvp__trained-1b__hashline__src__zk.rs",
+    "sha256": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32",
+    "bytes": 254060
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/argument.rs",
+    "snapshot": "source/ops__zkp-mvp__trained-1b__hashline__src__private_block__argument.rs",
+    "sha256": "c4f9f9f4cb477346b03e9f769d7c3141a8529f096d08da2be6c415d5160a5e66",
+    "bytes": 111325
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/shape.rs",
+    "snapshot": "source/ops__zkp-mvp__trained-1b__hashline__src__private_block__shape.rs",
+    "sha256": "9a87081897ff0ec716d7f27a2813cc32117683eb5b2f2082a248f479ef98c4c5",
+    "bytes": 139369
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/layout.rs",
+    "snapshot": "source/ops__zkp-mvp__trained-1b__hashline__src__private_block__layout.rs",
+    "sha256": "9332802e597beacab56cfa69cfe18325bc476d2ce6485f517051992b26d26efa",
+    "bytes": 74733
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/protocol.rs",
+    "snapshot": "source/ops__zkp-mvp__trained-1b__hashline__src__private_block__protocol.rs",
+    "sha256": "c482402329e4da32a70c780435b2077e8054d1805b1006289f571820017564a4",
+    "bytes": 77946
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/gpu/cuda.rs",
+    "snapshot": "source/ops__zkp-mvp__trained-1b__hashline__src__gpu__cuda.rs",
+    "sha256": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9",
+    "bytes": 205193
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/mle.rs",
+    "snapshot": "source/ops__zkp-mvp__gpu-zerocheck__zkp-core__src__mle.rs",
+    "sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e",
+    "bytes": 15255
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r12/zkp-core/src/mle.rs",
+    "snapshot": "source/ops__zkp-mvp__trained-1b-review-r12__zkp-core__src__mle.rs",
+    "sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e",
+    "bytes": 15255
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_SOL_ASTRA_TODOS_20261026.md",
+    "snapshot": "source/docs__zkmatrix-poc__ZK60_SOL_ASTRA_TODOS_20261026.md",
+    "sha256": "296b9f0e3a5f598bfadd4ca72e7a8a0074078f50ee792e2712a33c4efbe6d6e2",
+    "bytes": 40150
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/cuda.rs",
+    "snapshot": "source/legacy-gpu-cuda.rs",
+    "sha256": "dcc0e4bcd76c009827d30d8b1547e043118619948f59e63e75b132c5e6a38629",
+    "bytes": 258588
+  }
+]

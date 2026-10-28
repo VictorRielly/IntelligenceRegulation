@@ -1,0 +1,122 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md",
+    "snapshot": "experiments/public-exp-dd-cardinality-20261020/startup/research__zkp-efficiency__AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md",
+    "snapshot": "experiments/public-exp-dd-cardinality-20261020/startup/research__zkp-efficiency__STATE.md",
+    "sha256": "90d84b201e137bf4b3624a9983a9c47bb463b97dcb0b6e745cc64431e14ad632",
+    "bytes": 4428
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md",
+    "snapshot": "experiments/public-exp-dd-cardinality-20261020/startup/research__zkp-efficiency__FINDINGS.md",
+    "sha256": "4370c5dab882f7c1b0c070ef40207a32e54d6032f7fddcdf1be279c4f0627f8f",
+    "bytes": 811656
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl",
+    "snapshot": "experiments/public-exp-dd-cardinality-20261020/startup/research__zkp-efficiency__sources.jsonl",
+    "sha256": "8e1d22db08d81fb24829c92b1baf4e8503f3c64ca06d4af19740ebbe49336b8e",
+    "bytes": 857223
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md",
+    "snapshot": "experiments/public-exp-dd-cardinality-20261020/startup/research__zkp-efficiency__PROGRESS.md",
+    "sha256": "bab1d677a47fb7c89e60e47f93d50f9af902ff0e2e34a6d6d2d3f82b93b9a11f",
+    "bytes": 2293
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+    "snapshot": "experiments/public-exp-dd-cardinality-20261020/startup/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+    "snapshot": "experiments/public-exp-dd-cardinality-20261020/startup/docs__zkmatrix-poc__MVP_STATUS.md",
+    "sha256": "621ced1c6a8611be5b76a22689d0977d43c76e7c02bdfdcee16b467b1513986e",
+    "bytes": 84664
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "snapshot": "experiments/public-exp-dd-cardinality-20261020/startup/docs__zkmatrix-poc__ZK60_DECISIONS.md",
+    "sha256": "9a7730c640fe8611327257a7df68f3da3be30cb1885cd3e7640b5ba2e22b869f",
+    "bytes": 102129
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+    "snapshot": "experiments/public-exp-dd-cardinality-20261020/startup/docs__zkmatrix-poc__ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+    "snapshot": "experiments/public-exp-dd-cardinality-20261020/startup/docs__zkmatrix-poc__ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-subtree-frontier-20261020/prior-model-result.json",
+    "snapshot": "experiments/public-exp-dd-cardinality-20261020/startup/research__zkp-efficiency__experiments__reversible-subtree-frontier-20261020__prior-model-result.json",
+    "sha256": "564e8df12efd0ae582e2549ea7ca21d782f91f5ccca42fb2db447c6647f01486",
+    "bytes": 153065
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-subtree-frontier-20261020/result.json",
+    "snapshot": "experiments/public-exp-dd-cardinality-20261020/startup/research__zkp-efficiency__experiments__reversible-subtree-frontier-20261020__result.json",
+    "sha256": "ded991a4d10e87bb26a8fc664949e9e9675ebaaac97379fdc76dc436726e0e85",
+    "bytes": 323
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-subtree-frontier-20261020/prior-cycle-result.json",
+    "snapshot": "experiments/public-exp-dd-cardinality-20261020/startup/research__zkp-efficiency__experiments__reversible-subtree-frontier-20261020__prior-cycle-result.json",
+    "sha256": "e0f85f3d05262b7afcb85b00ade6145445ccca1f9c4e22d9210810c691d3950d",
+    "bytes": 2724
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-subtree-frontier-20261020/prior-forest-result.json",
+    "snapshot": "experiments/public-exp-dd-cardinality-20261020/startup/research__zkp-efficiency__experiments__reversible-subtree-frontier-20261020__prior-forest-result.json",
+    "sha256": "16473b45e93b88618ad62a7a03f847cd403f49c1453d500f62117d4d890ea6fc",
+    "bytes": 40516
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-subtree-frontier-20261020/validation-result.json",
+    "snapshot": "experiments/public-exp-dd-cardinality-20261020/startup/research__zkp-efficiency__experiments__reversible-subtree-frontier-20261020__validation-result.json",
+    "sha256": "4de8a5cfffc719e7773586f58a1f403c755c6cdf5fa2a9fc0779781353ec574e",
+    "bytes": 376
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-subtree-frontier-20261020/prior-capacity-result.json",
+    "snapshot": "experiments/public-exp-dd-cardinality-20261020/startup/research__zkp-efficiency__experiments__reversible-subtree-frontier-20261020__prior-capacity-result.json",
+    "sha256": "aee96e9520f266fd55de683243a53a8d4d8bbc0a3947f450a0921111f69e41cb",
+    "bytes": 5132
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-subtree-frontier-20261020/cycle-result.json",
+    "snapshot": "experiments/public-exp-dd-cardinality-20261020/startup/research__zkp-efficiency__experiments__reversible-subtree-frontier-20261020__cycle-result.json",
+    "sha256": "70b6283526317578217ba76c69779cd285ba691ee6ab96ab32222e5a35bfac82",
+    "bytes": 2405
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-subtree-frontier-20261020/forest-result.json",
+    "snapshot": "experiments/public-exp-dd-cardinality-20261020/startup/research__zkp-efficiency__experiments__reversible-subtree-frontier-20261020__forest-result.json",
+    "sha256": "0be5aedfd9ed906e9f2334611eb3916e633b20eaa85060a556f419e569356166",
+    "bytes": 94085
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-subtree-frontier-20261020/prior-validation-result.json",
+    "snapshot": "experiments/public-exp-dd-cardinality-20261020/startup/research__zkp-efficiency__experiments__reversible-subtree-frontier-20261020__prior-validation-result.json",
+    "sha256": "2decfcbbdb2ddfc356f785bf13235666ee7d67677ecbafc02c7c719316072e0a",
+    "bytes": 410
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-subtree-frontier-20261020/prior-result.json",
+    "snapshot": "experiments/public-exp-dd-cardinality-20261020/startup/research__zkp-efficiency__experiments__reversible-subtree-frontier-20261020__prior-result.json",
+    "sha256": "b554d2c593cba070447f8b999b28b60a2bcc36f8cdf9f1c384c4c45a79b1facd",
+    "bytes": 474
+  }
+]

@@ -1,0 +1,47 @@
+{
+ "export": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32",
+ "export_profile_sha256": "82c7c7529bedec7b8050c0d55c11782042d26823876e09b3d9ce2c64901fc4f6",
+ "sequence": "seq_ho00",
+ "token_ids_sha256": "7b3bc28fa75477c7571310859292207409fc835c0c54ff352a9027c89f61f3f5",
+ "token_ids_sha256_rule": "sha256 of the 32 ids as little-endian int64",
+ "token_ids_csv_sha256": "e852d45914059902db4fdbdb26c92274aa88224a41f6dfe89ed91c490f39fa25",
+ "position": 31,
+ "integer": {
+  "token": 11,
+  "text": ",",
+  "top2": [
+   {
+    "token": 11,
+    "C": 830771480
+   },
+   {
+    "token": 1174,
+    "text": "Ġ,",
+    "C": 517111122
+   }
+  ],
+  "margin_C": 313660358,
+  "margin_logits_approx": 9.508541985898125,
+  "final_norm_violations": 0,
+  "rule": "C_j = m_j (y . W''_j), y = final norm int8 of x_out_L31[-1]; argmax, ties to the lowest id"
+ },
+ "float": {
+  "token": 11,
+  "text": ",",
+  "top2": [
+   {
+    "token": 11,
+    "logit": 28.163742065429688
+   },
+   {
+    "token": 3651,
+    "text": "ĠAND",
+    "logit": 21.201496124267578
+   }
+  ],
+  "margin_logits": 6.962245941162109,
+  "rule": "original float32 model (tlcalib.f_block, unrotated) + float32 final norm + LM head"
+ },
+ "agree": true,
+ "scope": "fidelity data for the demo, not a proof"
+}

@@ -1,0 +1,226 @@
+{
+ "what": "controls on the DD planes and slots, each predicted; NOT a privacy result",
+ "privacy_acceptance": false,
+ "bundle": "tl128dd-l2-dense",
+ "bundle_dir": "/home/victor/zk60-artifacts/dd-gate-r9/tl128dd-l2-dense",
+ "honest": {
+  "ok": true,
+  "slot_checks_equal": 48,
+  "of": 48,
+  "covered_slots": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21,
+   22,
+   23
+  ]
+ },
+ "controls": [
+  {
+   "control": "DT-1",
+   "what": "slot 23's A_PDICT terminal +1 (the dictionary quotient)",
+   "stage": 1,
+   "slot": 23,
+   "terminal": 0,
+   "predicted": [
+    [
+     1,
+     23
+    ]
+   ],
+   "slots_that_failed": [
+    [
+     1,
+     23
+    ]
+   ],
+   "replay_refuses": true,
+   "first_replay_refusal": "stage 1 slot 23 after: transcript state differs",
+   "restored": true,
+   "fires": true
+  },
+  {
+   "control": "DT-2",
+   "what": "slot 17's H_STUPLE terminal +1 (the score entry's tuple helper)",
+   "stage": 1,
+   "slot": 17,
+   "terminal": 10,
+   "predicted": [
+    [
+     1,
+     17
+    ]
+   ],
+   "slots_that_failed": [
+    [
+     1,
+     17
+    ]
+   ],
+   "replay_refuses": true,
+   "first_replay_refusal": "stage 1 slot 17 after: transcript state differs",
+   "restored": true,
+   "fires": true
+  },
+  {
+   "control": "DT-3",
+   "what": "slot 23's H_GDD terminal +1 (the dictionary's table helper)",
+   "stage": 1,
+   "slot": 23,
+   "terminal": 14,
+   "predicted": [
+    [
+     1,
+     23
+    ]
+   ],
+   "slots_that_failed": [
+    [
+     1,
+     23
+    ]
+   ],
+   "replay_refuses": true,
+   "first_replay_refusal": "stage 1 slot 23 after: transcript state differs",
+   "restored": true,
+   "fires": true
+  },
+  {
+   "control": "DT-4",
+   "what": "the e column's last nonzero entry (slot 13) +1 in every period",
+   "predicted_digest_off": [
+    [
+     1,
+     23
+    ]
+   ],
+   "digest_off_failed": [
+    [
+     1,
+     23
+    ]
+   ],
+   "digest_off_structure_failures": [],
+   "attribution_at_the_stage": [
+    {
+     "stage": 1,
+     "checked": true,
+     "n_col": 14,
+     "cap": 32,
+     "ok": false,
+     "first_difference": 13
+    }
+   ],
+   "digest_on_refusals": [
+    "slot 23 public table 10 (the DD dictionary's public e column, sorted({0} U the exp table's outputs) padded with 0 to cap, tiled over (h, t) (AttentionPublic::dd_e_column, private_block.rs R9)): the values hash to 4aa672a1077c, the capture declares ba187d59aa1c"
+   ],
+   "fires": true
+  },
+  {
+   "control": "DT-5",
+   "what": "the e column's first two entries swapped in every period (digest off)",
+   "structure_failures": [
+    "dd_e_column: the column does not start at 0",
+    "dd_e_column: the column is not a strictly increasing run then zero padding"
+   ],
+   "fires": true
+  },
+  {
+   "control": "DT-6",
+   "what": "the dictionary tag taken as 140 instead of 141",
+   "predicted": [
+    [
+     0,
+     17
+    ],
+    [
+     0,
+     23
+    ],
+    [
+     1,
+     17
+    ],
+    [
+     1,
+     23
+    ]
+   ],
+   "slots_that_failed": [
+    [
+     0,
+     17
+    ],
+    [
+     0,
+     23
+    ],
+    [
+     1,
+     17
+    ],
+    [
+     1,
+     23
+    ]
+   ],
+   "tag_restored": true,
+   "fires": true
+  },
+  {
+   "control": "DT-7",
+   "what": "slot 23's plane list with H_GDD dropped",
+   "predicted": [
+    [
+     0,
+     23
+    ],
+    [
+     1,
+     23
+    ]
+   ],
+   "slots_that_failed": [
+    [
+     0,
+     23
+    ],
+    [
+     1,
+     23
+    ]
+   ],
+   "first_finding": "stage 0 slot 23 [SC_DD]: slot 23: the plane index table lists 14 planes for 15 private tables",
+   "fires": true
+  }
+ ],
+ "fired": 7,
+ "of": 7,
+ "ok": true,
+ "status": "PASS",
+ "seconds": 202.3,
+ "peak_rss_mb": 649,
+ "tool_sha256": {
+  "zk60_native_rg_ddcontrols.py": "7163b777983457d4638b41a829c27dbf3d205fca64e5a3bea02edad1fa9472f7",
+  "zk60_native_rg_terminals.py": "093b35c0838db07984981c9a7f1249c8900f992c548292d0ce1a8977544cb6c6"
+ }
+}

@@ -1,0 +1,751 @@
+[
+  {
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4326,
+    "function": "new",
+    "text": "let mut tabs = Pooled::take_min(&dev, kd * l * 2)?;",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4332,
+    "function": "new",
+    "text": "let mut dst = tabs.get_mut().slice_mut(t * l * 2..(t + 1) * l * 2);",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4462,
+    "function": "new",
+    "text": "unsafe { f.launch(LaunchConfig::for_num_elems(l as u32), (tabs.get_mut(), l as i64, &d_prm)) }.map_err(|e| format!(\"k_fzc_derive: {e}\"))?;",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4501,
+    "function": "new",
+    "text": "dev, tabs, k, stride: l, n_vars: n, degree, len: l, d_prm, d_part, d_sums, d_fin, supp, fused: fzc_fused(), module, blocks_cap,",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4542,
+    "function": "host_round",
+    "text": "let tabs = self.host.as_ref().expect(\"host tables\");",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4544,
+    "function": "host_round",
+    "text": "let half = tabs[0].len() / 2;",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4550,
+    "function": "host_round",
+    "text": "for (t, tb) in tabs.iter().enumerate() {",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4617,
+    "function": "try_round",
+    "text": "unsafe { f.launch(cfg(blocks), (self.tabs.get_mut(), hp as i32, self.stride as i64, r.c0.0, r.c1.0, &self.d_prm, &mut self.d_part, &mut self.d_cnt, &mut self.d_sums, &self.d_src, raw, mdev, self.seq)) }.map_err(|e| format!(\"{name}: {e}\"))?;",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4640,
+    "function": "try_round",
+    "text": "unsafe { f.launch(cfg(blocks), (self.tabs.get_mut(), half as i32, self.stride as i64, &self.d_prm, &mut self.d_part, &mut self.d_cnt, &mut self.d_sums, &self.d_src, raw, mdev, self.seq)) }.map_err(|e| format!(\"{name}: {e}\"))?;",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4653,
+    "function": "try_round",
+    "text": "unsafe { f.launch(cfg, (self.tabs.get_mut(), hp as i32, self.stride as i64, r.c0.0, r.c1.0, &self.d_prm, one, &mut self.d_part)) }.map_err(|e| format!(\"k_fzc_fold_round: {e}\"))?;",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4664,
+    "function": "try_round",
+    "text": "unsafe { f.launch(cfg, (self.tabs.get(), half as i32, self.stride as i64, &self.d_prm, one, &mut self.d_part)) }.map_err(|e| format!(\"k_fzc_round: {e}\"))?;",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4728,
+    "function": "try_fold",
+    "text": "if let Some(tabs) = self.host.as_mut() {",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4731,
+    "function": "try_fold",
+    "text": "let half = tabs[0].len() / 2;",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4732,
+    "function": "try_fold",
+    "text": "for tb in tabs.iter_mut() {",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4740,
+    "function": "try_fold",
+    "text": "self.finals = tabs.iter().map(|t| t[0]).collect();",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4756,
+    "function": "try_fold",
+    "text": "unsafe { f_fold.launch(cfg, (self.tabs.get_mut(), self.kd as i32, half as i32, self.stride as i32, r.c0.0, r.c1.0)) }.map_err(|e| format!(\"k_sc_fold: {e}\"))?;",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4773,
+    "function": "try_fold",
+    "text": "unsafe { f_pack.launch(cfg, (self.tabs.get(), self.k as i32, self.stride as i64, half as i32, &mut d_pack)) }.map_err(|e| format!(\"k_fzc_pack: {e}\"))?;",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4788,
+    "function": "try_fold",
+    "text": "unsafe { f.launch(cfg, (self.tabs.get(), self.k as i32, self.stride as i64, &mut self.d_fin)) }.map_err(|e| format!(\"k_fzc_finals: {e}\"))?;",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 119,
+    "function": "fzc_round_impl",
+    "text": "__device__ __forceinline__ void fzc_round_impl(const u64* __restrict__ tabs, int half, long long L, const u64* __restrict__ prm, int one, u64* __restrict__ partial) {",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 132,
+    "function": "fzc_round_impl",
+    "text": "f2 v0 = ld_f2(tabs, (size_t)t * (size_t)L + i);",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 133,
+    "function": "fzc_round_impl",
+    "text": "f2 v1 = ld_f2(tabs, (size_t)t * (size_t)L + i + half);",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 155,
+    "function": "fzc_fold_round_impl",
+    "text": "__device__ __forceinline__ void fzc_fold_round_impl(u64* __restrict__ tabs, int hp, long long L, u64 r0, u64 r1, const u64* __restrict__ prm, int one, u64* __restrict__ partial) {",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 170,
+    "function": "fzc_fold_round_impl",
+    "text": "const size_t base = (size_t)t * (size_t)L;",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 171,
+    "function": "fzc_fold_round_impl",
+    "text": "f2 a0 = ld_f2(tabs, base + i), a1 = ld_f2(tabs, base + i + hp);",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 172,
+    "function": "fzc_fold_round_impl",
+    "text": "f2 b0 = ld_f2(tabs, base + i + q), b1 = ld_f2(tabs, base + i + q + hp);",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 175,
+    "function": "fzc_fold_round_impl",
+    "text": "st_f2(tabs, base + i, lo);",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 176,
+    "function": "fzc_fold_round_impl",
+    "text": "st_f2(tabs, base + i + q, hi);",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 227,
+    "function": "fz_ld",
+    "text": "__device__ __forceinline__ void fz_ld(const u64* tabs, size_t L, int t, int i, int half, f2& v, f2& dv) {",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 228,
+    "function": "fz_ld",
+    "text": "const size_t o = (size_t)t * L + (size_t)i;",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 229,
+    "function": "fz_ld",
+    "text": "const f2 a = ld_f2(tabs, o);",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 230,
+    "function": "fz_ld",
+    "text": "const f2 b = ld_f2(tabs, o + (size_t)half);",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 236,
+    "function": "fz_lean_pair",
+    "text": "__device__ __forceinline__ void fz_lean_pair(const u64* tabs, size_t L, int i, int half, const u64* s, int one, f2* acc) {",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 248,
+    "function": "fz_lean_pair",
+    "text": "fz_ld(tabs, L, 14 + k, i, half, h, dh);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 251,
+    "function": "fz_lean_pair",
+    "text": "fz_ld(tabs, L, 3 + p1, i, half, a1, da1);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 257,
+    "function": "fz_lean_pair",
+    "text": "fz_ld(tabs, L, 3 + p2, i, half, a2, da2);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 282,
+    "function": "fz_lean_pair",
+    "text": "fz_ld(tabs, L, 19, i, half, hf, dhf);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 283,
+    "function": "fz_lean_pair",
+    "text": "fz_ld(tabs, L, 3, i, half, g8, dg8);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 284,
+    "function": "fz_lean_pair",
+    "text": "fz_ld(tabs, L, 5, i, half, a16, da16);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 298,
+    "function": "fz_lean_pair",
+    "text": "if (SUPP) fz_ld(tabs, L, 20, i, half, sv, dsv);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 308,
+    "function": "fz_lean_pair",
+    "text": "fz_ld(tabs, L, 3 + j, i, half, a, da);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 329,
+    "function": "fz_lean_pair",
+    "text": "fz_ld(tabs, L, 5, i, half, a16, da16);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 330,
+    "function": "fz_lean_pair",
+    "text": "fz_ld(tabs, L, 6, i, half, u16, du16);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 331,
+    "function": "fz_lean_pair",
+    "text": "fz_ld(tabs, L, 9, i, half, h16, dh16);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 332,
+    "function": "fz_lean_pair",
+    "text": "fz_ld(tabs, L, 12, i, half, r0, dr0);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 333,
+    "function": "fz_lean_pair",
+    "text": "fz_ld(tabs, L, 13, i, half, r1, dr1);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 334,
+    "function": "fz_lean_pair",
+    "text": "fz_ld(tabs, L, 7, i, half, ul0, dul0);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 335,
+    "function": "fz_lean_pair",
+    "text": "fz_ld(tabs, L, 8, i, half, ul1, dul1);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 336,
+    "function": "fz_lean_pair",
+    "text": "fz_ld(tabs, L, 10, i, half, hl0, dhl0);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 337,
+    "function": "fz_lean_pair",
+    "text": "fz_ld(tabs, L, 11, i, half, hl1, dhl1);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 361,
+    "function": "fz_lean_pair",
+    "text": "fz_ld(tabs, L, 1, i, half, e1, de1);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 362,
+    "function": "fz_lean_pair",
+    "text": "fz_ld(tabs, L, 2, i, half, e2, de2);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 363,
+    "function": "fz_lean_pair",
+    "text": "fz_ld(tabs, L, 3, i, half, g8, dg8);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 364,
+    "function": "fz_lean_pair",
+    "text": "fz_ld(tabs, L, 4, i, half, rg, drg);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 365,
+    "function": "fz_lean_pair",
+    "text": "fz_ld(tabs, L, 6, i, half, u16, du16);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 381,
+    "function": "fz_lean_pair",
+    "text": "fz_ld(tabs, L, 0, i, half, e0, de0);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 394,
+    "function": "fzl_round_impl",
+    "text": "__device__ __forceinline__ void fzl_round_impl(const u64* tabs, int half, long long L, const u64* __restrict__ prm, int one, u64* __restrict__ partial) {",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 403,
+    "function": "fzl_round_impl",
+    "text": "fz_lean_pair<D, SUPP>(tabs, (size_t)L, i, half, sp, one, acc);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 411,
+    "function": "fzl_fold_round_impl",
+    "text": "__device__ __forceinline__ void fzl_fold_round_impl(u64* tabs, int hp, long long L, u64 r0, u64 r1, const u64* __restrict__ prm, int one, u64* __restrict__ partial) {",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 425,
+    "function": "fzl_fold_round_impl",
+    "text": "const size_t base = (size_t)t * (size_t)L;",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 426,
+    "function": "fzl_fold_round_impl",
+    "text": "const f2 a0 = ld_f2(tabs, base + i), a1 = ld_f2(tabs, base + i + hp);",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 427,
+    "function": "fzl_fold_round_impl",
+    "text": "const f2 b0 = ld_f2(tabs, base + i + q), b1 = ld_f2(tabs, base + i + q + hp);",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 428,
+    "function": "fzl_fold_round_impl",
+    "text": "st_f2(tabs, base + i, f2_add(a0, fz_mulk(r, f2_sub(a1, a0))));",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 429,
+    "function": "fzl_fold_round_impl",
+    "text": "st_f2(tabs, base + i + q, f2_add(b0, fz_mulk(r, f2_sub(b1, b0))));",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 431,
+    "function": "fzl_fold_round_impl",
+    "text": "fz_lean_pair<D, SUPP>(tabs, (size_t)L, i, q, sp, one, acc);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 707,
+    "function": "fzs_derive_impl",
+    "text": "__device__ __forceinline__ void fzs_derive_impl(u64* tabs, long long L, const u64* __restrict__ s) {",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 712,
+    "function": "fzs_derive_impl",
+    "text": "auto T = [&](int t) { return ld_f2(tabs, (size_t)t * (size_t)L + (size_t)i); };",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 719,
+    "function": "fzs_derive_impl",
+    "text": "st_f2(tabs, (size_t)K0 * (size_t)L + (size_t)i, gl);",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 728,
+    "function": "fzs_derive_impl",
+    "text": "st_f2(tabs, (size_t)(K0 + 1) * (size_t)L + (size_t)i, fz_mulk(prm_f2(s, FZ_MUPAD), pl));",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 739,
+    "function": "fzs_ld",
+    "text": "__device__ __forceinline__ f2 fzs_ld(const u64* tabs, long long L, const u64* srcd, int raw, int t, size_t idx) {",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 755,
+    "function": "fzs_ld",
+    "text": "return ld_f2(tabs, (size_t)t * (size_t)L + idx);",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 798,
+    "function": "fzs_impl",
+    "text": "__device__ __forceinline__ void fzs_impl(u64* tabs, int hn, long long L, u64 r0, u64 r1, const u64* __restrict__ prm, u64* __restrict__ partial, unsigned int* cnt, u64* __restrict__ sums, const u64* __restrict__ srcd, int raw, u64 mapped, u64 seq) {",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 835,
+    "function": "fzs_impl",
+    "text": "const size_t tb = (size_t)t * (size_t)L;",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 838,
+    "function": "fzs_impl",
+    "text": "const f2 a0 = fzs_ld(tabs, L, ssrc, rawt, t, (size_t)i), a1 = fzs_ld(tabs, L, ssrc, rawt, t, (size_t)(i + hp));",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 839,
+    "function": "fzs_impl",
+    "text": "const f2 b0 = fzs_ld(tabs, L, ssrc, rawt, t, (size_t)(i + q)), b1 = fzs_ld(tabs, L, ssrc, rawt, t, (size_t)(i + q + hp));",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 842,
+    "function": "fzs_impl",
+    "text": "st_f2(tabs, tb + i, lo);",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 843,
+    "function": "fzs_impl",
+    "text": "st_f2(tabs, tb + i + q, hi);",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 846,
+    "function": "fzs_impl",
+    "text": "lo = fzs_ld(tabs, L, ssrc, rawt, t, (size_t)i);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 847,
+    "function": "fzs_impl",
+    "text": "dif = f2_sub(fzs_ld(tabs, L, ssrc, rawt, t, (size_t)(i + npairs)), lo);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 866,
+    "function": "fzs_impl",
+    "text": "const size_t tb = (size_t)t * (size_t)L;",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 867,
+    "function": "fzs_impl",
+    "text": "st_f2(tabs, tb + i, lo);",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 868,
+    "function": "fzs_impl",
+    "text": "st_f2(tabs, tb + i + npairs, hi);",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 919,
+    "function": "k_fzc_pack",
+    "text": "extern \"C\" __global__ void k_fzc_pack(const u64* __restrict__ tabs, int k, long long L, int len, u64* __restrict__ out) {",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 923,
+    "function": "k_fzc_pack",
+    "text": "out[2 * idx] = tabs[2 * (t * L + i)];",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 924,
+    "function": "k_fzc_pack",
+    "text": "out[2 * idx + 1] = tabs[2 * (t * L + i) + 1];",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 949,
+    "function": "NAME",
+    "text": "extern \"C\" __global__ __launch_bounds__(FZS_NT, 3) void NAME(u64* tabs, int half, long long L, const u64* __restrict__ prm, u64* __restrict__ partial, unsigned int* cnt, u64* __restrict__ sums, const u64* __restrict__ srcd, int raw, u64 mapped, u64 seq) { \\",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 950,
+    "function": "NAME",
+    "text": "fzs_impl<FZ_D, (FZ_SUPP != 0), false, ONE, BASE>(tabs, half, L, 0ULL, 0ULL, prm, partial, cnt, sums, srcd, raw, mapped, seq); \\",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 956,
+    "function": "k_fzc_fold_round",
+    "text": "extern \"C\" __global__ __launch_bounds__(FZS_NT, 3) void k_fzc_fold_round(u64* tabs, int hp, long long L, u64 r0, u64 r1, const u64* __restrict__ prm, u64* __restrict__ partial, unsigned int* cnt, u64* __restrict__ sums, const u64* __restrict__ srcd, int raw, u64 mapped, u64 seq) {",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 957,
+    "function": "k_fzc_fold_round",
+    "text": "fzs_impl<FZ_D, (FZ_SUPP != 0), true, true, false>(tabs, hp, L, r0, r1, prm, partial, cnt, sums, srcd, raw, mapped, seq);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 959,
+    "function": "k_fzc_fold_round_r",
+    "text": "extern \"C\" __global__ __launch_bounds__(FZS_NT, 3) void k_fzc_fold_round_r(u64* tabs, int hp, long long L, u64 r0, u64 r1, const u64* __restrict__ prm, u64* __restrict__ partial, unsigned int* cnt, u64* __restrict__ sums, const u64* __restrict__ srcd, int raw, u64 mapped, u64 seq) {",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 960,
+    "function": "k_fzc_fold_round_r",
+    "text": "fzs_impl<FZ_D, (FZ_SUPP != 0), true, false, false>(tabs, hp, L, r0, r1, prm, partial, cnt, sums, srcd, raw, mapped, seq);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 962,
+    "function": "k_fzc_derive",
+    "text": "extern \"C\" __global__ void k_fzc_derive(u64* tabs, long long L, const u64* __restrict__ prm) {",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 963,
+    "function": "k_fzc_derive",
+    "text": "fzs_derive_impl<(FZ_SUPP != 0)>(tabs, L, prm);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 966,
+    "function": "k_fzc_round",
+    "text": "extern \"C\" __global__ __launch_bounds__(FZ_THREADS) void k_fzc_round(const u64* tabs, int half, long long L, const u64* __restrict__ prm, int one, u64* __restrict__ partial) {",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 967,
+    "function": "k_fzc_round",
+    "text": "fzl_round_impl<FZ_D, (FZ_SUPP != 0)>(tabs, half, L, prm, one, partial);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 969,
+    "function": "k_fzc_fold_round",
+    "text": "extern \"C\" __global__ __launch_bounds__(FZ_THREADS) void k_fzc_fold_round(u64* tabs, int hp, long long L, u64 r0, u64 r1, const u64* __restrict__ prm, int one, u64* __restrict__ partial) {",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 970,
+    "function": "k_fzc_fold_round",
+    "text": "fzl_fold_round_impl<FZ_D, (FZ_SUPP != 0)>(tabs, hp, L, r0, r1, prm, one, partial);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 973,
+    "function": "k_fzc_round",
+    "text": "extern \"C\" __global__ __launch_bounds__(FZ_THREADS, 1) void k_fzc_round(const u64* __restrict__ tabs, int half, long long L, const u64* __restrict__ prm, int one, u64* __restrict__ partial) {",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 974,
+    "function": "k_fzc_round",
+    "text": "fzc_round_impl<FZ_D, (FZ_SUPP != 0)>(tabs, half, L, prm, one, partial);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 976,
+    "function": "k_fzc_fold_round",
+    "text": "extern \"C\" __global__ __launch_bounds__(FZ_THREADS, 1) void k_fzc_fold_round(u64* __restrict__ tabs, int hp, long long L, u64 r0, u64 r1, const u64* __restrict__ prm, int one, u64* __restrict__ partial) {",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/fzc_kernels.cu",
+    "line": 977,
+    "function": "k_fzc_fold_round",
+    "text": "fzc_fold_round_impl<FZ_D, (FZ_SUPP != 0)>(tabs, hp, L, r0, r1, prm, one, partial);",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/kernels.cu",
+    "line": 896,
+    "function": "k_sc_fold",
+    "text": "extern \"C\" __global__ void k_sc_fold(u64* __restrict__ tabs, int k, int half, int L, u64 r0, u64 r1) {",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/kernels.cu",
+    "line": 902,
+    "function": "k_sc_fold",
+    "text": "f2 a = ld_f2(tabs, (size_t)t * L + i);",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/kernels.cu",
+    "line": 903,
+    "function": "k_sc_fold",
+    "text": "f2 b = ld_f2(tabs, (size_t)t * L + i + half);",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/kernels.cu",
+    "line": 904,
+    "function": "k_sc_fold",
+    "text": "st_f2(tabs, (size_t)t * L + i, f2_add(a, f2_mul(r, f2_sub(b, a))));",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/kernels.cu",
+    "line": 1664,
+    "function": "k_fzc_finals",
+    "text": "extern \"C\" __global__ void k_fzc_finals(const u64* __restrict__ tabs, int k, long long L, u64* __restrict__ out) {",
+    "physical_address": false
+  },
+  {
+    "file": "hashline/src/gpu/kernels.cu",
+    "line": 1667,
+    "function": "k_fzc_finals",
+    "text": "out[2 * t] = tabs[2 * (size_t)t * (size_t)L];",
+    "physical_address": true
+  },
+  {
+    "file": "hashline/src/gpu/kernels.cu",
+    "line": 1668,
+    "function": "k_fzc_finals",
+    "text": "out[2 * t + 1] = tabs[2 * (size_t)t * (size_t)L + 1];",
+    "physical_address": true
+  }
+]

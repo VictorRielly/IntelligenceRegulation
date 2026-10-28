@@ -1,0 +1,51 @@
+[
+  {
+    "heading": "",
+    "lines": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lead": "",
+    "tail": ""
+  },
+  {
+    "heading": "# Where the MVP stands, in plain words",
+    "lines": 790,
+    "sha256": "8ee50cd3d65dd34b0275e6ea5cc608e941a2d347eaf9b873b33ff52caecc4033",
+    "lead": " **2026-10-19 23:25 UTC \u2014 the next-token stages pass the privacy gate; first 128-token next-token proof.** - **Privacy gate on the next-token stages** (prompt lookup, final norm + head",
+    "tail": "lookup inversions 15%, the two commitments 25%, the feed-forward part 5% ([plan \u00a75.2b](ZK60_MVP_COMPLETION_PLAN.md)). "
+  },
+  {
+    "heading": "## 1. Do we have a workable proof?",
+    "lines": 113,
+    "sha256": "e9aadd001e9a40d1ec119004866f25672fbddceb790d9e8434bea51a0aabadf8",
+    "lead": " **A complete small-block experiment works. The model MVP remains open.** Today at 19:18 the first complete transformer block (T32 tokens, width 16, FFN 16, two heads, the real integer kernel: both RMS norms, QKV, RoPE, causal integer softmax",
+    "tail": "built and reviewed at the tiny geometry as an experimental component (\u00a73 item 1). "
+  },
+  {
+    "heading": "## 2. How slow are we against the target?",
+    "lines": 53,
+    "sha256": "e9680ce3ec3c0ffbb0d4f043e22401f51468b07223f94f532c237d2939dcefa7",
+    "lead": " The active target is **five seconds for an 8B model on better GPU hardware**, reaffirmed by Victor on 2026-09-22. The older written 5\u201315-second FFN-only contract remains a historical component benchmark; it does not establish",
+    "tail": "one to two orders of magnitude off the target, and the private version of it does not exist yet.** "
+  },
+  {
+    "heading": "## 3. What blocks a private, model-scale MVP at speed, and what is being done",
+    "lines": 116,
+    "sha256": "9385776c38fbe78173300dd9f68cd311e9a5a522c19b68304c4eaaf7cc13bc2a",
+    "lead": " 1. **Private attention on the custom line: implemented and reviewed at the    tiny geometry (2026-09-18, late evening).** A delegated Fable lane built    the native masked prover and verifier to the construction; the security",
+    "tail": "   the approved ID `8d74aab3\u202698d9` is reproducible only from the main    checkout's path or from a reproducible Docker build. "
+  },
+  {
+    "heading": "## 4. Where the evidence is",
+    "lines": 8,
+    "sha256": "afed1fea6b2e6e652d3a83fd8f7a2caa06313a7242381eb62c2154eacd35108d",
+    "lead": " Public artifacts of today's Groth16 receipt are retained under `results/zk60_loop_20260918/block-integration/groth16_public/` (policy, receipt, public model, stage records, hashes); the `/tmp` originals do not",
+    "tail": "survive a reboot and a new randomized receipt would have different bytes. The loop's own record is `ZK60_MVP_LOOP_20260918.md`. "
+  },
+  {
+    "heading": "## 2026-09-29 (PDT): VC readiness snapshot for Tech Week SF",
+    "lines": 70,
+    "sha256": "110875b54c99ab9a2ee18874e2b2ba3e0baf175096751e54d3eb47a840e1a376",
+    "lead": " Added 17:40 PDT on 2026-09-29 (00:40 UTC on 09-30) by the Lane D agent. This section repeats the facts in [`results/zk60_vc_readiness_20260929/READINESS.md`](../../results/zk60_vc_readiness_20260929/READINESS.md).",
+    "tail": "5. The first 5090 A/B, only if Linux is installed by about 10-02.  The trained TinyLlama block is the integrator's 10-02 stretch gate."
+  }
+]

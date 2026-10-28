@@ -1,0 +1,37 @@
+{
+ "V": 128256,
+ "approved_by": "coordinator, 2026-10-19 ~14:28 UTC (round-6 instruction TR5-3: write the approval record for b7_T32, pin e8238cf1...)",
+ "bos": 128000,
+ "calibration_lane_SHA256SUMS_sha256": "f6ec2a421c5b7a75381f7c7b118227a8e4ab47c0ea4ce73632054c4925279801",
+ "evidence": [
+  "calibration lane ledger results/zk60_8b_calibration_20261017/PROGRESS.md: 05:07 UTC 2026-10-18 b7_T32 DONE (profile.json sha256 209b07ac...); 05:31-05:32 UTC b8-tio-b7_T128 build / b8-tio-b7_T32 reuse (tables, final norm g0 127 / Cn 4234 / tn 9 / Ceps 78617, F2 99.79%, D25 T4 met); 09:26 UTC 2026-10-19 both SHA256SUMS re-verified",
+  "expect_token_profile: the digest zk60_token_io profile printed over these files in round 5 (results/zk60_token_io_r1_20261017/logs/d2-cli-profile.log, binary da48f6d4...), reproduced independently by the reviewer from the verifier copy (results/zk60_token_io_review_r1_20261017/REVIEW4.md ROUND 5, p1/p2)",
+  "expect_statement: the trained statement identity the R3 harness derived independently (results/zk60_token_io_r1_20261017/runs/r3/trained-ho00/statement.txt)"
+ ],
+ "export": "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T32",
+ "export_profile_json_sha256": "209b07ac78baa3f3ebae0ca40cd1807c3d7098549818c50f6a15691906c0013c",
+ "final_norm": {
+  "ceps": 78617,
+  "cn": 4234,
+  "g0": 127,
+  "tn": 9
+ },
+ "not": "not a privacy acceptance and not a ruling; a pin fixes which public tables a verifier accepts",
+ "pins": {
+  "expect_statement": "47f0194335d08efb4d63df70df01f1e42d900f4730c2384490359046bb07b876",
+  "expect_token_profile": "e8238cf130a36f369d6453e5579ba294e9eac4ae4b47de5815cc7ef7ac297132"
+ },
+ "record": "approved token-profile pins for the Llama-3-8B pg_rot1 b7 T32 token I/O tables",
+ "token_io_files_sha256": {
+  "README.md": "8ea6d827ea553d368fdb0c35c1b7624367cd8496e6fb0fe77b74b88c1a5cbcba",
+  "calib_final_xhat_rot_absmax.bin": "db2c1aaa46557960014a3155e9167b43e7e3dc0ff6a092a5c95c4daa20fc24c1",
+  "embedding_int16.bin": "8b5a5fb10fb331dd5b8882bac6717d800f88a2b9a6affe1c7b7b75238686f1ca",
+  "f2_fidelity.json": "449b8d3bb3d0201f2ab4363e444a93023c7885d42940b73177e9b8a6a6596310",
+  "head_int8_perrow.bin": "f50ba1aa4150172ffb381a335faa41050abf9a45c1ab6b0cbc6401ac8db228cc",
+  "head_manifest.json": "ceecb7271b8299f841288a633ddf716b1eea423d84cf4b06babcc6b42b156154",
+  "head_mult12.bin": "9eafb7f4ecd6a6f14ef0c1d8186be69c2f9ce70c034e81732423936c8ee0d1f3",
+  "token_io.json": "b481bab5a5861f4ad3ee506150a4b9923d6a4ecdc5b14c989c229647b1cf75ac"
+ },
+ "use": "a verifier reads --expect-statement / --expect-token-profile from `pins`; never from `zk60_token_io profile` over the prover's files (review TR5-3)",
+ "written_by": "token-I/O lane, at that instruction, from the calibration lane's own files (below)"
+}

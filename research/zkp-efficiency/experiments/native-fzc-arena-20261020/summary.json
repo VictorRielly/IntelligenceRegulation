@@ -1,0 +1,94 @@
+{
+  "run_id": "20261020T041854Z-f70297a5",
+  "cycle": "0096",
+  "checkpoint_at": "2026-10-20T04:30:18.409484+00:00",
+  "experiment_result": {
+    "status": "PASS_PYTHON_MODEL_ONLY",
+    "checks": 1090351,
+    "negative_controls": 11,
+    "fixtures": 108,
+    "rounds": 468,
+    "seed": 2026102096,
+    "field_modulus": 18446744069414584321,
+    "extension": "u^2=7",
+    "events": {
+      "constructor": 30080,
+      "raw_round0_derived": 3712,
+      "later_round_read": 109103,
+      "first_fused_fold": 69152,
+      "fold_check": 63363,
+      "later_fused_fold": 83604,
+      "generic_fold": 10836,
+      "finals": 1131,
+      "raw_round0_read": 18896,
+      "pack": 2262
+    },
+    "ops": {
+      "mul": 1202285,
+      "add": 1010417,
+      "sub": 876281
+    },
+    "wall_seconds": 14.274310499997227,
+    "rss_kib": 17060,
+    "affinity": [
+      0
+    ],
+    "threads": 1,
+    "scope": "Authored Python Goldilocks Fp2/actual-FZC algebra and addressing; no Rust/CUDA execution, native transcript/masks, proof or verification",
+    "full_stack": {
+      "proofs": 0,
+      "passes": 0,
+      "positions": 0,
+      "context_length": null,
+      "device": null,
+      "witness_s": null,
+      "proof_s": null,
+      "serialization_s": null,
+      "verification_s": null,
+      "startup_fraction": null,
+      "steady_rate": null,
+      "total_rate": null
+    }
+  },
+  "source_census": {
+    "status": "PASS_LEXICAL_SOURCE_ONLY",
+    "sites": 107,
+    "physical_sites": 43,
+    "functions": 21,
+    "required_functions": 13,
+    "facts": 7,
+    "source_versions": "Active GPU candidate only; not frozen R8 geometry or current CPU DD tree",
+    "complete_program_coverage": false,
+    "wall_seconds": 0.024060972005827352,
+    "rss_kib": 16404,
+    "threads": 1,
+    "affinity": [
+      0
+    ]
+  },
+  "partial_capacity": {
+    "status": "PASS_PARTIAL_ALLOCATION_MODEL_ONLY",
+    "cases": 72,
+    "checks": 144,
+    "interval_oracle_checks": 234426,
+    "negative_controls": 72,
+    "zero_resident_additional_backing_cases": 24,
+    "resident_cases": 24,
+    "max_additional_backing_saving": 67108864,
+    "wall_seconds": 0.6834759799967287,
+    "rss_kib": 48784,
+    "threads": 1,
+    "affinity": [
+      0
+    ],
+    "scope": "Same prior partial pinned-R8-geometry / different-GPU-allocator hypothetical model; opening scratch/other slots/cache history/driver/actual peak omitted"
+  },
+  "new_verified_full_stack_proofs": 0,
+  "proving_speed_improvement_measured": false,
+  "integration_seam": "DevFzcRounds/fzs_impl shared affine derivation and all table-offset consumers",
+  "next_action": "Coefficient-aware affine recomputation/fold/barrier cost and host-tail break-even; owner actual peak eligibility/capacity first",
+  "source_records_before": 548,
+  "source_records_after": 557,
+  "final_source_checkpoint_at": "2026-10-20T04:32:53.603170+00:00",
+  "final_checkpoint_at": "2026-10-20T04:33:40.848204+00:00"
+}

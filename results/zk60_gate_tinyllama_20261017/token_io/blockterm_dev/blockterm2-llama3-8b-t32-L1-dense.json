@@ -1,0 +1,888 @@
+{
+ "block_profile": "hashline-zk-mr1/private-block-llama-3-8b-t32-trained/1",
+ "block_stages_token_indices": [
+  1
+ ],
+ "blocks": 1,
+ "bundle": "llama3-8b-t32-L1-dense-pt1",
+ "bundle_dir": "/home/victor/zk60-artifacts/token-io/captures/llama3-8b-t32-L1-dense-pt1",
+ "calibration": {
+  "cross_checks": {
+   "X0_bundle_shape_keys": {
+    "bundle_shape_carries": [],
+    "known_gap": "the token tree's run_capture.rs lacks the gate's trained-calibration capture patch, so the shape names none of them",
+    "ok": true
+   },
+   "X10_stage_layers": {
+    "findings": [],
+    "ok": true,
+    "per_stage": [
+     {
+      "block": 0,
+      "layer": 0,
+      "layer_declared_by_the_readme": 0,
+      "layers_whose_gamma_a_and_gamma_m_match": [
+       0
+      ],
+      "ok": true,
+      "token_stage": 1
+     }
+    ]
+   },
+   "X1_layout_description": {
+    "calibration_line": "calibration: trained norm tn=9 cn_a=2092 cn_m=1424 ceps=78617 ao=3 qkv=8 score=6 o=9 gate=8 product=14 down=4 wrho=32 dmax=2097152 int16-endpoint=32768; shifts qkv=8 rope=7 score=6 o=9 ao=3 residual=0; fE=9 fP=9 fRo=7 wrhoS=14 mask=-127; classes int8=[-127,127] int16; tables U8 + exp",
+    "compared": {
+     "dmax (derived)": {
+      "equal": true,
+      "line": 2097152,
+      "want": 2097152
+     },
+     "fE (export f_e)": {
+      "equal": true,
+      "line": 9,
+      "want": 9
+     },
+     "fP (port F_P)": {
+      "equal": true,
+      "line": 9,
+      "want": 9
+     },
+     "fRo (export f_ro)": {
+      "equal": true,
+      "line": 7,
+      "want": 7
+     },
+     "ff.F (hidden)": {
+      "equal": true,
+      "line": 14336,
+      "want": 14336
+     },
+     "ff.down": {
+      "equal": true,
+      "line": 4,
+      "want": 4
+     },
+     "ff.gate": {
+      "equal": true,
+      "line": 8,
+      "want": 8
+     },
+     "ff.product": {
+      "equal": true,
+      "line": 14,
+      "want": 14
+     },
+     "ff.residual2": {
+      "equal": true,
+      "line": 0,
+      "want": 0
+     },
+     "ff.up (sh_u)": {
+      "equal": true,
+      "line": 0,
+      "want": 0
+     },
+     "int16-endpoint": {
+      "equal": true,
+      "line": 32768,
+      "want": 32768
+     },
+     "mask (port MASK_SCORE)": {
+      "equal": true,
+      "line": -127,
+      "want": -127
+     },
+     "norm_ceps": {
+      "equal": true,
+      "line": 78617,
+      "want": 78617
+     },
+     "norm_cn_a": {
+      "equal": true,
+      "line": 2092,
+      "want": 2092
+     },
+     "norm_cn_m": {
+      "equal": true,
+      "line": 1424,
+      "want": 1424
+     },
+     "norm_tn": {
+      "equal": true,
+      "line": 9,
+      "want": 9
+     },
+     "residual": {
+      "equal": true,
+      "line": 0,
+      "want": 0
+     },
+     "rope (export sh_rope)": {
+      "equal": true,
+      "line": 7,
+      "want": 7
+     },
+     "rope (port SH_ROPE)": {
+      "equal": true,
+      "line": 7,
+      "want": 7
+     },
+     "sh_ao": {
+      "equal": true,
+      "line": 3,
+      "want": 3
+     },
+     "sh_g": {
+      "equal": true,
+      "line": 8,
+      "want": 8
+     },
+     "sh_h": {
+      "equal": true,
+      "line": 14,
+      "want": 14
+     },
+     "sh_o": {
+      "equal": true,
+      "line": 9,
+      "want": 9
+     },
+     "sh_qkv": {
+      "equal": true,
+      "line": 8,
+      "want": 8
+     },
+     "sh_s": {
+      "equal": true,
+      "line": 6,
+      "want": 6
+     },
+     "sh_z": {
+      "equal": true,
+      "line": 4,
+      "want": 4
+     },
+     "shifts.ao": {
+      "equal": true,
+      "line": 3,
+      "want": 3
+     },
+     "shifts.o": {
+      "equal": true,
+      "line": 9,
+      "want": 9
+     },
+     "shifts.qkv": {
+      "equal": true,
+      "line": 8,
+      "want": 8
+     },
+     "shifts.score": {
+      "equal": true,
+      "line": 6,
+      "want": 6
+     },
+     "wrho (derived)": {
+      "equal": true,
+      "line": 32,
+      "want": 32
+     },
+     "wrhoS (derived)": {
+      "equal": true,
+      "line": 14,
+      "want": 14
+     }
+    },
+    "feed_forward_line": "feed-forward: F=14336 shifts gate=8 up=0 product=14 down=4 residual2=0; gate class int8=[-128,127]; tables U8 + exp + act",
+    "ok": true
+   },
+   "X2_schedule_digest": {
+    "equal": true,
+    "ok": true,
+    "recomputed": "a8b44ed98bf90b2ed6c2051799960b67a98e83c22b158abf99fbc46b0f9c0874",
+    "run_json": "a8b44ed98bf90b2ed6c2051799960b67a98e83c22b158abf99fbc46b0f9c0874",
+    "what": "blake3('hashline/token-io-run-schedule/v1' + length-framed lines: parameter_line, layout_description, token_io.stage_in_layout, token_io.stage_out_layout, stage_lines), token_io/run.rs schedule_digest"
+   },
+   "X3_parameter_line": {
+    "found": true,
+    "ok": true,
+    "run_calibration": [
+     8,
+     0,
+     14,
+     4
+    ],
+    "sh_g_u_h_z": [
+     8,
+     0,
+     14,
+     4
+    ]
+   },
+   "X4_shape_derivations": {
+    "compared": {
+     "f_e": {
+      "equal": true,
+      "shape": 9,
+      "want": 9
+     },
+     "norm_wrho": {
+      "equal": true,
+      "shape": 32,
+      "want": 32
+     },
+     "tokens": {
+      "equal": true,
+      "shape": 32,
+      "want": 32
+     },
+     "wrho_s": {
+      "equal": true,
+      "shape": 14,
+      "want": 14
+     }
+    },
+    "derived_at_the_run_calibration": {
+     "d_max": 2097152,
+     "d_max_in_three_limbs": true,
+     "norm_wrho": 32,
+     "wrho_is_four_limbs": true,
+     "wrho_s": 14
+    },
+    "ok": true
+   },
+   "X5_classes": {
+    "ok": true,
+    "windows": {
+     "norm_ceps": [
+      1,
+      1099511627776
+     ],
+     "norm_cn_a": [
+      1,
+      1048576
+     ],
+     "norm_cn_m": [
+      1,
+      1048576
+     ],
+     "norm_tn": [
+      1,
+      16
+     ],
+     "sh_ao": [
+      0,
+      8
+     ],
+     "sh_g": [
+      1,
+      8
+     ],
+     "sh_h": [
+      9,
+      16
+     ],
+     "sh_o": [
+      9,
+      16
+     ],
+     "sh_qkv": [
+      1,
+      8
+     ],
+     "sh_s": [
+      1,
+      8
+     ],
+     "sh_z": [
+      1,
+      8
+     ]
+    }
+   },
+   "X6_stage_line_own_constants": {
+    "ok": true,
+    "per_stage": [
+     {
+      "expected_from_the_layer": [],
+      "ok": true,
+      "own_clauses_in_the_line": [],
+      "token_stage": 1
+     }
+    ]
+   },
+   "X7_port_literals": {
+    "ok": true,
+    "per_key": {
+     "f_p": {
+      "equal": true,
+      "export": 9,
+      "port": 9
+     },
+     "f_ro": {
+      "equal": true,
+      "export": 7,
+      "port": 7
+     },
+     "sh_r2": {
+      "equal": true,
+      "export": 0,
+      "port": 0
+     },
+     "sh_rope": {
+      "equal": true,
+      "export": 7,
+      "port": 7
+     },
+     "sh_u": {
+      "equal": true,
+      "export": 0,
+      "port": 0
+     }
+    }
+   },
+   "X8_export_layers": {
+    "ok": true,
+    "per_layer": [
+     {
+      "arrays_matching_manifest": true,
+      "layer": 0,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 1,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 2,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 3,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 4,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 5,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 6,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 7,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 8,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 9,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 10,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 11,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 12,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 13,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 14,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 15,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 16,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 17,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 18,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 19,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 20,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 21,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 22,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 23,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 24,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 25,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 26,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 27,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 28,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 29,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 30,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     },
+     {
+      "arrays_matching_manifest": true,
+      "layer": 31,
+      "manifest_sha256_matches_profile": true,
+      "non_per_layer_constants_differing": []
+     }
+    ],
+    "per_layer_constants_differ": [
+     "exp_e_s",
+     "sh_s",
+     "silu_member"
+    ]
+   },
+   "X9_recovered_tables": {
+    "findings": [],
+    "ok": true,
+    "per_stage": [
+     {
+      "act_128": 0,
+      "exp_0": 512,
+      "layer": 0,
+      "layers_whose_exp_and_act_match": [
+       0,
+       3,
+       4,
+       5,
+       7,
+       8,
+       9,
+       10,
+       11
+      ],
+      "ok": true,
+      "recovered_act_sha256": "56c51151767f4fdef44eb17e7010bdf36062fbaad0294befcee8a4ee1f3f2a4c",
+      "recovered_exp_sha256": "eff5f616f1ab89ff9a53de312daa47adcd0722909626120e6532b923c0588ec3",
+      "token_stage": 1
+     }
+    ]
+   }
+  },
+  "export": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32",
+  "export_profile_sha256": "82c7c7529bedec7b8050c0d55c11782042d26823876e09b3d9ce2c64901fc4f6",
+  "export_variant": "llama3_8b_pg_rot1_b7voc0_T32",
+  "findings": [],
+  "how": "per block stage: the eleven constants Calibration reads, the profile's profile_constants with the per-layer keys from the stage's LAYER manifest (layer identified by X10), injected into that stage's shim shape with trained_calibration: true and the derived norm_wrho; the token bundle's own shape names none",
+  "ok": true,
+  "per_layer_calibration_fields": [
+   "sh_s"
+  ],
+  "per_layer_constants_differ": [
+   "exp_e_s",
+   "sh_s",
+   "silu_member"
+  ],
+  "run_value_rule": "the profile's constants; each per-layer field the value tuple most of the run's layers carry (ties: the smallest), trained_block.rs run_constants",
+  "run_value_tally": {
+   "sh_s": {
+    "[6]": 1
+   }
+  },
+  "run_values": {
+   "norm_ceps": 78617,
+   "norm_cn_a": 2092,
+   "norm_cn_m": 1424,
+   "norm_tn": 9,
+   "sh_ao": 3,
+   "sh_g": 8,
+   "sh_h": 14,
+   "sh_o": 9,
+   "sh_qkv": 8,
+   "sh_s": 6,
+   "sh_z": 4
+  },
+  "stage_values": [
+   {
+    "derived_norm_wrho": 32,
+    "differs_from_the_run_on": [],
+    "layer": 0,
+    "token_stage": 1,
+    "values": {
+     "norm_ceps": 78617,
+     "norm_cn_a": 2092,
+     "norm_cn_m": 1424,
+     "norm_tn": 9,
+     "sh_ao": 3,
+     "sh_g": 8,
+     "sh_h": 14,
+     "sh_o": 9,
+     "sh_qkv": 8,
+     "sh_s": 6,
+     "sh_z": 4
+    }
+   }
+  ]
+ },
+ "controls": {
+  "controls": {
+   "NC-0_shape_rs_reading_not_added": {
+    "ok": true,
+    "perturbation": "the port's PINNED_IF_PRESENT as frozen (the token reading not added), token stage 1",
+    "pins_that_moved": [
+     "src/private_block/shape.rs: the bundle pins 8c62519c98e3, which is not one this port has read"
+    ],
+    "refused_before_any_slot_was_evaluated": true,
+    "slot_checks_attempted": 0
+   },
+   "NC-1_constant_moved": {
+    "exactly_as_predicted": true,
+    "failing_token_stage_slot": [
+     [
+      1,
+      14
+     ]
+    ],
+    "ok": true,
+    "perturbation": "sh_z moved by one inside its class (tlcontrols._step) in every stage's shim shape",
+    "predicted_failing_token_stage_slot": [
+     [
+      1,
+      14
+     ]
+    ],
+    "predicted_from": "zk60_native_rg_tlcontrols.READS"
+   },
+   "NC-2_port_fallback_frozen": {
+    "constants_that_differ_from_frozen_per_token_stage": {
+     "1": [
+      "norm_tn",
+      "norm_cn_a",
+      "norm_cn_m",
+      "norm_ceps",
+      "sh_ao",
+      "sh_qkv",
+      "sh_g",
+      "sh_z"
+     ]
+    },
+    "exactly_as_predicted_in_every_stage": true,
+    "failing_slots": [
+     2,
+     14,
+     15,
+     16,
+     18
+    ],
+    "ok": true,
+    "perturbation": "each stage's shim with the token bundle's shape as written (no trained keys): Calibration falls back to FROZEN",
+    "predicted_failing_slots": [
+     2,
+     14,
+     15,
+     16,
+     18
+    ]
+   },
+   "NC-3_crosscheck_on_a_moved_run_constant": {
+    "checks_that_fired": [
+     "X1",
+     "X3",
+     "X6"
+    ],
+    "first_findings": [
+     "X1: the layout description's sh_z is 4, expected 5",
+     "X1: the layout description's ff.down is 4, expected 5",
+     "X3: the parameter line says sh g/u/h/z = (8, 0, 14, 4), the run calibration (8, 0, 14, 5)"
+    ],
+    "ok": true,
+    "perturbation": "the run calibration's sh_z moved to 5"
+   },
+   "NC-4_table_swap": {
+    "ok": null,
+    "skipped": "no adjacent block-stage pair carries different lookup tables (L = 1, or equal tables)"
+   }
+  },
+  "not_applicable": [
+   "NC-4_table_swap"
+  ],
+  "ok": true
+ },
+ "every_block_slot_equal": true,
+ "export_source": {
+  "override": null,
+  "profile_digest_bound_by_the_bundle": "NOT FOUND as a word: the bundle binds the export's profile digest only inside the absorbed `calibration` word (trained-model statement identity v3), which is not recomputed here",
+  "profile_sha256": "82c7c7529bedec7b8050c0d55c11782042d26823876e09b3d9ce2c64901fc4f6",
+  "readme": {
+   "export": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32",
+   "layers": [
+    0
+   ],
+   "readme": "/home/victor/zk60-artifacts/token-io/captures/llama3-8b-t32-L1-dense-pt1/README.md",
+   "variant": "llama3_8b_pg_rot1_b7voc0_T32",
+   "what": "the capture writer's README text: not transcript-bound; the export it names is checked by X1-X10, the layers by X10"
+  },
+  "used": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32",
+  "variant": "llama3_8b_pg_rot1_b7voc0_T32"
+ },
+ "false_parts": [],
+ "io_wiring": {
+  "findings": [],
+  "mapping": {
+   "block k": "token stage k + 1",
+   "block k's Input (slot 21's IO table)": "token boundary k (B_in at k = 0)",
+   "block k's Output (slot 22's IO table)": "token boundary k + 1 (B_out at k = L - 1)",
+   "external endpoints": "none in a block stage (the token endpoints are opened at stages IN and OUT, which no shim exposes)",
+   "native internal boundary j": "token boundary j + 1"
+  },
+  "ok": true,
+  "per_stage": [
+   {
+    "block": 0,
+    "commits_token_boundary": 1,
+    "opened_commitment_kind": "B-in",
+    "opens_token_boundary": 0,
+    "slot21_private_roles": [
+     "A",
+     "Input"
+    ],
+    "slot22_private_roles": [
+     "A",
+     "Output"
+    ],
+    "token_stage": 1
+   }
+  ]
+ },
+ "ok": true,
+ "parts": {
+  "calibration_cross_checks": true,
+  "io_wiring": true,
+  "plane_index": true,
+  "source_pin_reading_removed": true,
+  "terminal_identity": true,
+  "token_integrity": true
+ },
+ "peak_rss_mb": 272,
+ "plane_index": {
+  "a_data_rows": 1455,
+  "a_planes": 81,
+  "checked_over": "all 1 block stages",
+  "findings": [],
+  "h_data_rows": 1658,
+  "h_planes": 49,
+  "ok": true,
+  "slots": 23
+ },
+ "privacy_acceptance": false,
+ "privacy_property_established": false,
+ "profile": "hashline-zk-mr1/private-token-io-run-llama-3-8b-t32-trained-statement-public-row/1",
+ "shape_name": "Llama-3-8B block geometry, trained calibration (T32 / d4096 / f14336, 32 heads of 128 over 8 KV heads)",
+ "shim": {
+  "per_stage": "one shim per block stage: block k as stage 0, blocks = 1, replay view stages[0] = token stage k + 1's",
+  "port_reads_of_endpoints_or_boundary_numbering": "none (no boundary(), internal_boundaries or commitment_kind in terminals / planes / gqa)",
+  "port_reads_of_the_stage_index": [
+   "docs[st.index] and replay.stages[st.index] (check_terminals)",
+   "GroupFactors.point(st.index, slot) and its docs / replay lookups",
+   "bundle.blocks as the stage count (slot_checks_expected)"
+  ],
+  "shape_keys_added": [
+   "trained_calibration",
+   "norm_tn",
+   "norm_cn_a",
+   "norm_cn_m",
+   "norm_ceps",
+   "sh_ao",
+   "sh_qkv",
+   "sh_s",
+   "sh_o",
+   "sh_g",
+   "sh_h",
+   "sh_z",
+   "norm_wrho (derived)"
+  ]
+ },
+ "source_pin_adaptation": {
+  "added_in_memory": "8c62519c98e36ae966b7f9480e1d47884c57526c2ccf0288deb1286ca1a0fb34",
+  "already_accepted_by_the_port": false,
+  "bundle_pins": "8c62519c98e36ae966b7f9480e1d47884c57526c2ccf0288deb1286ca1a0fb34",
+  "file": "src/private_block/shape.rs",
+  "reading_base_accepted_by_the_port": "7b0c9742db3434fd2283ce23b6fb4d6f623a57b2f73fe026fc80bfc2ae3cc5f6",
+  "reading_diff_stat": "1 hunk, +37 / -12 against R7 7b0c9742; byte-identical to native R8's shape.rs",
+  "reading_from": "zk60_native_rg_tokenio_r7c_pins.TOKEN_R7C_READINGS['src/private_block/shape.rs'][8c62519c98e3...]",
+  "removed_after": true
+ },
+ "status": "PASS",
+ "terminal_identity": {
+  "every_stage_ok": true,
+  "numbering": "TOKEN stage numbers; each port call's own strings say 'stage 0'",
+  "per_stage": [
+   {
+    "bilinear_group_factor_ok": true,
+    "block": 0,
+    "checked_not_equal": [],
+    "derived_group_points_used_and_compared": 2,
+    "layer": 0,
+    "ok": true,
+    "open_slots": [],
+    "port_findings": [],
+    "public_table_failures": [],
+    "public_table_structure_checks": 15,
+    "public_tables_rebuilt": 7,
+    "public_tables_taken_from_the_capture": 15,
+    "refused_before_any_slot_was_evaluated": null,
+    "refused_or_open": [],
+    "slot_checks_equal": 23,
+    "slot_checks_expected": 23,
+    "slot_checks_matching_the_stored_terminal_polynomial": 23,
+    "source_pins_ok": true,
+    "token_stage": 1
+   }
+  ],
+  "slot_checks_equal": 23,
+  "slot_checks_expected": 23,
+  "slot_checks_matching_the_stored_terminal_polynomial": 23
+ },
+ "timings": {
+  "NC-0": 0.0,
+  "NC-1": 3.6,
+  "NC-2": 4.1,
+  "NC-4": 0.0,
+  "export_and_layers": 0.1,
+  "load": 0.9,
+  "plane_index": 0.0,
+  "terminal_identity": 3.8,
+  "token_integrity": 0.1,
+  "token_replay": 0.7
+ },
+ "token_integrity": {
+  "findings": [],
+  "ok": true
+ },
+ "token_pins": {
+  "ok": true,
+  "pins": 52,
+  "read_as_R7": 40,
+  "read_as_token_r7c": 12,
+  "refusals": []
+ },
+ "token_replay": {
+  "challenges_checked": 5788,
+  "failures": [],
+  "ok": true,
+  "run_binding_reproduced": true
+ },
+ "tool_sha256": {
+  "zk60_native_rg_bundle.py": "1bb93a90dde772cd6314317b7c746269cb8fe4a4e0e664709aa834564f4d454c",
+  "zk60_native_rg_gqa.py": "14499b5dfdbb574da6aac91ba51cd9ee39ead6672a2872060ee427979fd934f1",
+  "zk60_native_rg_planes.py": "990173caf4026852fddb7a21d635594af5493ddae50d41a052e7ed347e922944",
+  "zk60_native_rg_terminals.py": "aac158f17ce353b3f31ccf2c74e1691ce0ca250a46e087665baac4b5575869bc",
+  "zk60_native_rg_tlcontrols.py": "afb4d2d1be4461c0728b396a61288f40461bff9a09f2fbe42b6be27291b2efb9",
+  "zk60_native_rg_tokenblocks.py": "2cbe4f545b654091c37f13191d6879c294a96a51b61e8676763efc4d9d903955",
+  "zk60_native_rg_tokengate.py": "d694480d4ae74886402ec60dfbb6253a98518be2f69200ef9ac521348caa02c8",
+  "zk60_native_rg_tokenio_r7c_pins.py": "f6c2cc546052faba9d100cc286fa5c01a19ddb601ecffd33e6a733048b2162ed"
+ },
+ "total_seconds": 11.7,
+ "what": "the gate's frozen block-stage terminal identity (stage 8, check_terminals) on each block stage of ONE token-I/O run capture, through a one-stage shim per block; NOT a privacy result"
+}

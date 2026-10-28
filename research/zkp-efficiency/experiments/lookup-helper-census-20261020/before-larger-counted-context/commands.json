@@ -1,0 +1,50 @@
+[
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-helper-census-20261020/probe.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 0.06531841101241298,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-helper-census-20261020/probe.py"
+    ],
+    "returncode": 1,
+    "parent_elapsed_s": 0.11647593800444156,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-helper-census-20261020/probe.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 0.06618602899834514,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  }
+]

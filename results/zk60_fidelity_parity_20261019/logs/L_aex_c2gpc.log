@@ -1,0 +1,29 @@
+[10:48:16Z] fp_eval tinyllama export tl_dg_aex T 128 corpora fineweb:48,wikitext:48 relax [] threads 4
+[10:48:17Z] corpora built: (96, 128), {'fineweb': {'n': 48, 'offset': 0, 'source': '/home/victor/models/fineweb-edu/sample/10BT/000_00000.parquet', 'sha256_expected': 'b1ba7b2ce4cb5ea6ef42dca40263eabb85f37700d01693a68e9b30a31d78e871'}, 'wikitext': {'n': 48, 'offset': 0, 'source': '/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/data/wikitext2/test.parquet', 'sha256_expected': '5f1bea067869d04849c0f975a2b29c4ff47d867f484f5010ea5e861eab246d91'}} (1s)
+[10:48:17Z] float final residual from cache float_T128_6890f6f1df2b.npy
+[10:48:45Z] L00 violations 3 refused so far 3 (24s)
+[10:49:07Z] L01 violations 0 refused so far 3 (21s)
+[10:49:30Z] L02 violations 0 refused so far 3 (23s)
+[10:49:50Z] L03 violations 0 refused so far 3 (21s)
+[10:50:12Z] L04 violations 0 refused so far 3 (21s)
+[10:50:32Z] L05 violations 0 refused so far 3 (20s)
+[10:50:53Z] L06 violations 1 refused so far 4 (22s)
+[10:51:13Z] L07 violations 0 refused so far 4 (20s)
+[10:51:34Z] L08 violations 0 refused so far 4 (21s)
+[10:51:53Z] L09 violations 0 refused so far 4 (19s)
+[10:52:13Z] L10 violations 0 refused so far 4 (20s)
+[10:52:32Z] L11 violations 0 refused so far 4 (19s)
+[10:52:53Z] L12 violations 0 refused so far 4 (21s)
+[10:53:13Z] L13 violations 0 refused so far 4 (20s)
+[10:53:34Z] L14 violations 0 refused so far 4 (21s)
+[10:53:54Z] L15 violations 1 refused so far 5 (20s)
+[10:54:14Z] L16 violations 0 refused so far 5 (20s)
+[10:54:33Z] L17 violations 0 refused so far 5 (20s)
+[10:54:53Z] L18 violations 0 refused so far 5 (19s)
+[10:55:13Z] L19 violations 0 refused so far 5 (20s)
+[10:55:34Z] L20 violations 0 refused so far 5 (21s)
+[10:55:53Z] L21 violations 0 refused so far 5 (18s)
+[10:56:17Z] fineweb: ppl float 11.688 int 11.911 ratio 1.0191 CI [1.0086098263434737, 1.0296771103367002] top1 0.894 KL 0.0519 refused 3
+[10:56:17Z] wikitext: ppl float 17.675 int 18.371 ratio 1.0394 CI [1.0275163606140036, 1.0513489562891865] top1 0.882 KL 0.0629 refused 2
+[10:56:17Z] done (482s) -> /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/runs/tinyllama/aex_c2gpc
+[10:56:18Z] ALREADY DONE: runs/tinyllama/aex_c2gpc/summary.json exists (set FP_RERUN=1 to recompute)

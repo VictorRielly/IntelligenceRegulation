@@ -1,0 +1,35 @@
+{
+ "V": 128256,
+ "approved_by": "coordinator, 2026-10-19 ~19:10 UTC (round-8 instruction 2: prepare the record; proving confirmed ~19:30 UTC after the export beat b7voc0: ppl ratio 1.281 / 1.277 vs 1.63 / 1.77)",
+ "bos": 128000,
+ "evidence": [
+  "fidelity lane ledger: exports/llama3_8b_dg_rot1_voc0_T128 written 18:28 UTC 2026-10-19 (profile sha256 00aba3d9...5827), with a rebuilt token_io/ (its own SHA256SUMS)",
+  "pins: zk60_token_io profile (round-8 binary 6b601c148da9...) over the VERIFIER copy's public files (logs/r8-profile-llama3_8b_dg_rot1_voc0_T128.log)"
+ ],
+ "export": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128",
+ "export_profile_json_sha256": "00aba3d9f75a443b0238bb889edecc5c3b0b8b07965f18a5a536d0be6a675827",
+ "final_norm": {
+  "ceps": 21140,
+  "cn": 4234,
+  "g0": 127,
+  "tn": 9
+ },
+ "not": "not a privacy acceptance and not a ruling; a pin fixes which public tables a verifier accepts",
+ "pins": {
+  "expect_statement": "4a99091a1f84e789b7b67bbdd87463970cdc99e79be1e284e88d473d4baef2a6",
+  "expect_token_profile": "5c4668be7c55189d0d877a321ac1da57a689227bf79d4a22af7b459d8c430e84"
+ },
+ "record": "approved token-profile pins for the token I/O tables of the export llama3_8b_dg_rot1_voc0_T128",
+ "token_io_SHA256SUMS_sha256": "0b51e29f02cc8c67f25b3010fd31351e2ba3102cc744ab6f7d484f5072e93beb",
+ "token_io_files_sha256": {
+  "calib_final_xhat_rot_absmax.bin": "db2c1aaa46557960014a3155e9167b43e7e3dc0ff6a092a5c95c4daa20fc24c1",
+  "embedding_int16.bin": "be317b7edf4e7ddf7591f4a7467b0305262ab9822ce713ee0eeeb648f0ab012f",
+  "head_int8_perrow.bin": "f50ba1aa4150172ffb381a335faa41050abf9a45c1ab6b0cbc6401ac8db228cc",
+  "head_manifest.json": "8c7141e5b4745ce52e67e2d201337be984f1d1d989cfa12664093da36bba34f7",
+  "head_mult12.bin": "9eafb7f4ecd6a6f14ef0c1d8186be69c2f9ce70c034e81732423936c8ee0d1f3",
+  "token_io.json": "6eb37a45f9f88b32fd129713669b48a4fe5753f3526f3486211ba4c54ecdc45a"
+ },
+ "use": "a verifier reads --expect-statement / --expect-token-profile from `pins`; never from `zk60_token_io profile` over the prover's files (review TR5-3)",
+ "wording_corrected": "2026-10-20 UTC, review REVIEW5 TR6-4: 'record', 'written_by' and the SHA256SUMS key named the first (b7 T32, calibration lane) record's provenance; corrected to this export's. Every value is unchanged (the reviewer re-hashed every file). Before this correction the file's sha256 was 601bd0858ef2d758106566d805caf7ef85e988cbe353c3b592befbb828b9455c.",
+ "written_by": "token-I/O lane, at the coordinator's instruction, from this export's own token_io/ files and its SHA256SUMS (below): the fidelity lane's export, with its own rebuilt token_io/ and SHA256SUMS"
+}

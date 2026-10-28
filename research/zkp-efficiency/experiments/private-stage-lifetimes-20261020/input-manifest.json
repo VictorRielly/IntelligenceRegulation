@@ -1,0 +1,110 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603,
+    "snapshot": "research__zkp-efficiency__AGENDA.md"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md",
+    "sha256": "f0add8139fc398d3920ceb821b871825f2b8626cc611ac5b4396c5c7df22cd9a",
+    "bytes": 3982,
+    "snapshot": "research__zkp-efficiency__STATE.md"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md",
+    "sha256": "201862c34559063a6452c33e4f6d78485e9f810d0cce39b9d43de12c5b8f1434",
+    "bytes": 673548,
+    "snapshot": "research__zkp-efficiency__FINDINGS.md"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl",
+    "sha256": "f10645f0b1881b765edbb6396cded6ea7a68287b6fc7d929590917647b3110a8",
+    "bytes": 681770,
+    "snapshot": "research__zkp-efficiency__sources.jsonl"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md",
+    "sha256": "27a70935f94ff8a0e3dfed3d5744dff38df1b9e977a5f21323f5ede0b5d8b8ca",
+    "bytes": 2255,
+    "snapshot": "research__zkp-efficiency__PROGRESS.md"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089,
+    "snapshot": "CLAUDE.md"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+    "sha256": "333aa069afe29baed67702d4d1e87c7af2405f83ee2623aa2e51174aed83c417",
+    "bytes": 81342,
+    "snapshot": "docs__zkmatrix-poc__MVP_STATUS.md"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "sha256": "ef005e3448496ece9088c6433626bfa2f30242bf817aa7f1578898efbd1b0f2e",
+    "bytes": 98326,
+    "snapshot": "docs__zkmatrix-poc__ZK60_DECISIONS.md"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889,
+    "snapshot": "docs__zkmatrix-poc__ZK60_CODEX_FABLE_COORDINATION.md"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941,
+    "snapshot": "docs__zkmatrix-poc__ZK60_THROUGHPUT_TARGET.md"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/START_HERE.md",
+    "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d",
+    "bytes": 42025,
+    "snapshot": "docs__zkmatrix-poc__START_HERE.md"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/TASK_BOARD.md",
+    "sha256": "d96f67dd1d199ffc31672974dad5bd8c8d6453f2f7bab6a4849d229a91bef953",
+    "bytes": 186876,
+    "snapshot": "docs__zkmatrix-poc__TASK_BOARD.md"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/device-allocation-coverage-20261020/result.json",
+    "sha256": "d79a711eb6fa067e24be29aba2e63385cfe452fe407873ab4da42a6c290d5963",
+    "bytes": 374,
+    "snapshot": "research__zkp-efficiency__experiments__device-allocation-coverage-20261020__result.json"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/device-allocation-coverage-20261020/validation-result.json",
+    "sha256": "4f7633b63cf5d230d6aaddbc157cbb30667bfcfd3fe8d9f86027aaa5075d7b06",
+    "bytes": 432,
+    "snapshot": "research__zkp-efficiency__experiments__device-allocation-coverage-20261020__validation-result.json"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/device-allocation-coverage-20261020/staging-result.json",
+    "sha256": "e02930e0bbd9dab8131a7b361ac70b25e15200c806c8ad8a324460d2ad6035a1",
+    "bytes": 1813,
+    "snapshot": "research__zkp-efficiency__experiments__device-allocation-coverage-20261020__staging-result.json"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/device-allocation-coverage-20261020/census-result.json",
+    "sha256": "9b12d4d06e2bd75e74211dc1d3e276107a24cf6473000360c4638caf77919673",
+    "bytes": 208,
+    "snapshot": "research__zkp-efficiency__experiments__device-allocation-coverage-20261020__census-result.json"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/device-allocation-coverage-20261020/hypotheses.json",
+    "sha256": "a3b75c150f7d4d3059f39fc9f0002ca8256462ab98c4b376d9dca61a87f3359b",
+    "bytes": 10000,
+    "snapshot": "research__zkp-efficiency__experiments__device-allocation-coverage-20261020__hypotheses.json"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/device-allocation-coverage-20261020/README.md",
+    "sha256": "924e8dd6416d3efcb70d45233c2526fe5269f39331bb614063dccc73311c1327",
+    "bytes": 7670,
+    "snapshot": "research__zkp-efficiency__experiments__device-allocation-coverage-20261020__README.md"
+  }
+]

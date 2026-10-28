@@ -1,0 +1,170 @@
+[
+  {
+    "title": "CUDA current guide: reserved/used watermarks and release-completion obligations",
+    "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/stream-ordered-memory-allocation.html",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Official live guide is undated; page version/crawl recency is not a verified update date.",
+    "assessment": "Used and reserved bytes, current and high-water marks differ. Synchronization precedes trimming; stream dependencies govern safe reuse. Native CudaSlice pool is a custom pool, so CUDA async-pool APIs are an analogy, not an implemented replacement. Capacity model is not actual driver page accounting.",
+    "cycle": "0092",
+    "run_id": "20261020T001854Z-f39e44f4",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T00:29:53.860450+00:00",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; no foreign code executed",
+    "reproduced_performance": false,
+    "external_execution": false,
+    "implementation_license": null,
+    "inspected_commit_id": null
+  },
+  {
+    "title": "NEW older source screened: NVIDIA2021 stream-ordered allocation",
+    "url": "https://developer.nvidia.com/blog/using-cuda-stream-ordered-memory-allocator-part-1/",
+    "published": "2021-07-27",
+    "updated": null,
+    "date_evidence": "Primary blog header explicitly Jul27,2021; no update date established.",
+    "assessment": "Allocation/free can follow stream order; pooling trades allocation overhead against retention. Native exact/best-fit reuse and drains already exist. Changing allocator API would need cudarc compatibility and stream-completion review, so no API migration or published speed factor is imported.",
+    "cycle": "0092",
+    "run_id": "20261020T001854Z-f39e44f4",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T00:29:53.860450+00:00",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; no foreign code executed",
+    "reproduced_performance": false,
+    "external_execution": false,
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://developer.nvidia.com/blog/using-cuda-stream-ordered-memory-allocator-part-2/"
+    ]
+  },
+  {
+    "title": "NEW repository screen: cuCascade public reservations versus pool capacity",
+    "url": "https://github.com/NVIDIA/cuCascade",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Root/docs undated. Served commit-history page ends at Mar17,2026 but is an older cached view, not proof of latest repository update. Releases page says no releases in served view.",
+    "assessment": "Docs describe global/per-stream reservations, allocated-byte tracking, memory limits and retry policies. Useful distinction for proposed telemetry, not a drop-in Rust/CUDA backend. No implementation code executed or adopted.",
+    "cycle": "0092",
+    "run_id": "20261020T001854Z-f39e44f4",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T00:29:53.860450+00:00",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; no foreign code executed",
+    "reproduced_performance": false,
+    "external_execution": false,
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "license_claim": "Apache-2.0 README/badge only; LICENSE.md actual text opens failed",
+    "inspected_urls": [
+      "https://github.com/NVIDIA/cuCascade/blob/main/docs/memory-management.md",
+      "https://github.com/NVIDIA/cuCascade/commits/main/",
+      "https://github.com/NVIDIA/cuCascade/releases"
+    ],
+    "access_issues": [
+      "https://github.com/NVIDIA/cuCascade/blob/main/LICENSE: Internal Error",
+      "https://github.com/NVIDIA/cuCascade/blob/main/LICENSE.md: Internal Error",
+      "https://github.com/NVIDIA/cuCascade/raw/refs/heads/main/LICENSE.md: Cache miss",
+      "commit-history aaf1a9a link: Internal Error; no full commit inspected"
+    ]
+  },
+  {
+    "title": "zkLLMPoT v2 lookup/softmax and benchmark-scope refresh",
+    "url": "https://arxiv.org/abs/2610.08258",
+    "published": "2026-10-06",
+    "updated": "2026-10-11",
+    "date_evidence": "Primary arXiv history v1 Oct6 12:35:49UTC, v2 Oct11 04:45:08UTC.",
+    "assessment": "Authors aggregate A10040GB operator timings, interpolate nonlinear costs and fit opening preparation; weight commitments are separate. Audit sequences/objective are public. This differs from required private IO and is not independently verified complete private8B evidence. Implementation promised after review, so no implementation/license verified.",
+    "cycle": "0092",
+    "run_id": "20261020T001854Z-f39e44f4",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T00:29:53.860450+00:00",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; no foreign code executed",
+    "reproduced_performance": false,
+    "external_execution": false,
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://arxiv.org/html/2610.08258v2"
+    ],
+    "author_claim": "Forward certificates use sumcheck, public lookup tables and blinded commitments; softmax is a large operator cost."
+  },
+  {
+    "title": "SP1 v6.9.0 October release and exact inspected release-commit scope",
+    "url": "https://github.com/succinctlabs/sp1/releases/tag/v6.9.0",
+    "published": "2026-10-10",
+    "updated": null,
+    "date_evidence": "Primary release shows Oct10 01:20; version6.9.0 date independently appears in docs.rs version listing. Commit page itself did not expose a date.",
+    "assessment": "Release notes include NTT reorder removal and zerocheck evaluation work. Inspected full release commit only changes the supported CLI toolchain tag v2 to v3; it is not the GPU optimization diff. No native gain inferred.",
+    "cycle": "0092",
+    "run_id": "20261020T001854Z-f39e44f4",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T00:29:53.860450+00:00",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; no foreign code executed",
+    "reproduced_performance": false,
+    "external_execution": false,
+    "implementation_license": null,
+    "inspected_commit_id": "b8387fa61e1361d90ee7de49f551863418ca0f08",
+    "inspected_release_commit": "b8387fa61e1361d90ee7de49f551863418ca0f08",
+    "inspected_urls": [
+      "https://github.com/succinctlabs/sp1/commit/b8387fa61e1361d90ee7de49f551863418ca0f08"
+    ],
+    "access_issues": [
+      "https://docs.rs/crate/sp1-gpu-logup-gkr/6.9.0: not accessible",
+      "https://github.com/succinctlabs/sp1/blob/v6.9.0/LICENSE-MIT: Internal Error",
+      "https://github.com/succinctlabs/sp1/blob/v6.9.0/LICENSE-APACHE: Internal Error"
+    ]
+  },
+  {
+    "title": "SP1 NTT reorder PR diff: explicit input/output ordering tests",
+    "url": "https://github.com/succinctlabs/sp1/pull/2990/files",
+    "published": "2026-09-29",
+    "updated": "2026-09-30",
+    "date_evidence": "Primary conversation opens/comments Sep29, merges Sep30,2026. Inspected aggregated diff labels head5f795ba; full commit endpoint failed.",
+    "assessment": "Diff selects direct bit-reversed output to avoid reorder passes and tests shifts, orderings and input preservation. Native commitments require their own column-order/encoding checks and already use split NTT kernels. No compatible removal or speedup established.",
+    "cycle": "0092",
+    "run_id": "20261020T001854Z-f39e44f4",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T00:29:53.860450+00:00",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; no foreign code executed",
+    "reproduced_performance": false,
+    "external_execution": false,
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "inspected_commit_ids_short": [
+      "5f795ba"
+    ],
+    "access_issues": [
+      "PR commit5f795ba link: Internal Error; full SHA not recovered"
+    ]
+  },
+  {
+    "title": "SP1 zerocheck PR diff: public-constant simplification and assertion retention",
+    "url": "https://github.com/succinctlabs/sp1/pull/2993/files",
+    "published": "2026-09-30",
+    "updated": "2026-10-05",
+    "date_evidence": "Primary conversation Sep30, merge Oct5,2026; inspected aggregated diff for short heads527bd36 and19d9cb0; full commit endpoints failed.",
+    "assessment": "Diff aliases public zero/one operations, classifies constant multiplies and prunes unused nodes while retaining original assertions and alpha indices. Native static-template work already tested here; do not repeat generic code-size changes as a proving gain. An upstream backlink to a fork5090 speed claim could not be opened, so no fork result adopted.",
+    "cycle": "0092",
+    "run_id": "20261020T001854Z-f39e44f4",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T00:29:53.860450+00:00",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; no foreign code executed",
+    "reproduced_performance": false,
+    "external_execution": false,
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "inspected_commit_ids_short": [
+      "527bd36",
+      "19d9cb0"
+    ],
+    "access_issues": [
+      "PR commit527bd36 link: Internal Error",
+      "https://github.com/hemilabs/sp1/pull/7: Cache miss"
+    ]
+  }
+]

@@ -1,0 +1,237 @@
+[
+  {
+    "path": "experiments/fzc-error-retirement-20261021/README.md",
+    "bytes": 3676,
+    "sha256": "134269d8ba5f016dc3e1ce51707d7e1f1a1f1712d937c284101161c2df542f22"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/artifact-audit-result.json",
+    "bytes": 243,
+    "sha256": "41c10c20d321095b6134020b367ced9f3edad00cbf4641778d61fcc971e24290"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/artifact_audit.py",
+    "bytes": 3408,
+    "sha256": "04ecc932f9eefc120c74f3d05b8edfcbf070ff21736639d5bcb57ffb5dea8914"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/artifact_audit.py.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/artifact_audit.py.stdout",
+    "bytes": 215,
+    "sha256": "045cd685f7f375b687830acf5b606e6fab8bfa396a1e60a408d43056425b8768"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/checkpoint-updates.json",
+    "bytes": 304,
+    "sha256": "ec644dfec10426419bbd06dce20cb5a4f926ef0f631e6957d258b0e3948061ae"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/commands.jsonl",
+    "bytes": 2502,
+    "sha256": "3b044f353108e23deef94ea9df743f041f937ae5e8979a3f06f1027297200f95"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/execution-manifest.json",
+    "bytes": 1316,
+    "sha256": "cc7c5e62d84ab7e7ea0fad8367dc845701085d4592b3f6778682b6961280ae34"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/hypotheses.json",
+    "bytes": 59433,
+    "sha256": "adfca9a7d84f63c7f310acd3050bc0303664ff2a0abb34653c7edecd1ff5a0b0"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/hypothesis-changes.json",
+    "bytes": 557,
+    "sha256": "b3925da0d996e777182b0d3e2e5485532f70c55e92e4da7901f8eb26a97fd920"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/probe.py",
+    "bytes": 8702,
+    "sha256": "4fa4b7ffee3c841e1e1799d62e93feefd1786c640a2e02b861e7e485c409a6a1"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/probe.py.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/probe.py.stdout",
+    "bytes": 1116,
+    "sha256": "d3408bf4e3a2f067849a239e07656e8d903fcf1abc7e7a65687c6f138696bcdf"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/reference.py",
+    "bytes": 1062,
+    "sha256": "c58b8b06a8ac5f0142b41647e3e58d8fa7bdeea90bcab7b28755a916a406a8d0"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/result.json",
+    "bytes": 8488,
+    "sha256": "731e1bc01b9932a1d52ef9c3c3a9e2b10977d534628b45ac89e1d0ce0046f8a1"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/retirement.py",
+    "bytes": 3035,
+    "sha256": "c941dc5b2f8174014e735b814e45599736b2a422371ef61dd560560256132ad4"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/run_bounded.py",
+    "bytes": 1326,
+    "sha256": "b5b788a7c434eb83b238e4e7a66856e026a7e8b10e7cee744522e0884ef8811b"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/search-log.json",
+    "bytes": 1106,
+    "sha256": "a3dc20a2117bc2750398a0a86741fe9a537e74c569e2a124efed6b26c5e7a962"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/source/cuda.rs",
+    "bytes": 258588,
+    "sha256": "dcc0e4bcd76c009827d30d8b1547e043118619948f59e63e75b132c5e6a38629"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/source/cudarc-0.13.9-alloc.rs",
+    "bytes": 22762,
+    "sha256": "47876a4ff5a5dc96395f5034e73131a03c49be8d7c3c9cd5878c76f51eb06bc6"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/source/fzc.rs",
+    "bytes": 15913,
+    "sha256": "af3cd6ac97f85347ed95ebac732c920a18ab921013be3ec31657e28cfb35ecc1"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/source/fzc_kernels.cu",
+    "bytes": 50114,
+    "sha256": "7109e9cbba958876db03f538715258d07d2976c12b3959a293d2371c64bf356e"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/source-audit-result.json",
+    "bytes": 8157,
+    "sha256": "72a476942c7c362c01e2fa75c3cf16756f0c64a87471536d27566e51b100d2a3"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/source-pins.json",
+    "bytes": 1104,
+    "sha256": "e8153690be99236bb34e8bd85199638b2b9fd961f580766cc743e3c43099d642"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/source-records.jsonl",
+    "bytes": 7924,
+    "sha256": "336474455b5b513315ec02f9d918b3f3267678f28c403db16b4255877d404cf3"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/source_audit.py",
+    "bytes": 4913,
+    "sha256": "34b7a9b37f263044cd4e0100e8e49c3708c1762ee2d4cdfce1bd4ed7507f7a1f"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/source_audit.py.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/source_audit.py.stdout",
+    "bytes": 389,
+    "sha256": "e797aa2ccf340130282aebfb568c2a21ca5a1db296ed9b555b17d29eddfea196"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/startup/AGENDA.md",
+    "bytes": 5603,
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/startup/CLAUDE.md",
+    "bytes": 14089,
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/startup/FINDINGS.md",
+    "bytes": 863167,
+    "sha256": "85a5586ef3bc403a8cb155211dad4424992dbf003fa47af3401451d13a2fad41"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/startup/PROGRESS.md",
+    "bytes": 2447,
+    "sha256": "8500651a269363540c1a599ae8d4a092114ff504fc80d4a3d5d1d641c4ff17ef"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/startup/STATE.md",
+    "bytes": 6126,
+    "sha256": "504d2b826f88ab976a9ff1c8b32b01b0d99374e70dda382a961d49df28bd82c4"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/startup/checkpoint__docs__zkmatrix-poc__ZK60_DECISIONS.md",
+    "bytes": 114612,
+    "sha256": "64c9d3da732e59e025149ee23ada2ee07736b0f138b76fab51d5e12fddc4c33d"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/startup/checkpoint__docs__zkmatrix-poc__ZK60_DECISIONS.md.diff",
+    "bytes": 15604,
+    "sha256": "1dd1b3c0f4fbb13a48524e4c87b3cfe5b36fc6c22be2adf673e7d5c376b02cca"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/startup/docs__zkmatrix-poc__MVP_STATUS.md",
+    "bytes": 87223,
+    "sha256": "884691e96f323438e1fb8b360365c4fdd24ff5805d94ecf7f94e726e2f980775"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/startup/docs__zkmatrix-poc__ZK60_CODEX_FABLE_COORDINATION.md",
+    "bytes": 64889,
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/startup/docs__zkmatrix-poc__ZK60_DECISIONS.md",
+    "bytes": 112028,
+    "sha256": "39dba7b7e665318f9877e0ca1b2ab8243573dcc52c07c198a588ae980ece5e29"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/startup/docs__zkmatrix-poc__ZK60_THROUGHPUT_TARGET.md",
+    "bytes": 4941,
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/startup/manifest.json",
+    "bytes": 2597,
+    "sha256": "01adb7caf194d88fbf454574df098e89b139958dfe41be67459f850e73ed3a48"
+  },
+  {
+    "path": "experiments/fzc-error-retirement-20261021/startup/sources.jsonl",
+    "bytes": 921150,
+    "sha256": "c4cdf7560d379938b89575684c6b3918db54fa27205b5956b6ad6e3b53c84dd0"
+  },
+  {
+    "path": "STATE.md",
+    "bytes": 5049,
+    "sha256": "8364a89d2fdf0a214af0069b69a6c27b25603d57cd895984fef9d1ba6310d38b"
+  },
+  {
+    "path": "PROGRESS.md",
+    "bytes": 2224,
+    "sha256": "7d497cdd32a1a0ec4ff7011c949e3c1cfca274a5fdc39aec7911df286755ea9f"
+  },
+  {
+    "path": "progress/20261021T031854Z-a1dbfeef.md",
+    "bytes": 6770,
+    "sha256": "75aa7d68c4d844fc910958238072c4de1316c92e22d4be5382b2ce1b3fcce1da"
+  },
+  {
+    "path": "handoffs/20261021-fzc-error-retirement.md",
+    "bytes": 4203,
+    "sha256": "378822f497a0f4ebbfb53014679e5918e072050f6427549af7c4d794a96daff4"
+  },
+  {
+    "path": "FINDINGS.md",
+    "bytes": 870999,
+    "sha256": "9c33c03ffa3371fe0ff22a86be0de98a9651f2aed85419aa7e747015687d0d4e"
+  },
+  {
+    "path": "sources.jsonl",
+    "bytes": 929074,
+    "sha256": "75c66d1d0c4b9b76bf2ca2ab07e50e6013d8d7857401eab278a9cd4f226fb193"
+  }
+]

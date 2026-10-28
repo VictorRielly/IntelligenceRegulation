@@ -1,0 +1,722 @@
+[
+  {
+    "seed": 2026132099,
+    "entries": 8,
+    "n": 3,
+    "support": 0,
+    "pad_nonzero": 0,
+    "base": false,
+    "dispatches": [
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "8ac6791817d6db3ca5a62f129dd3a193a439a753e883502bb92e114d11af216f",
+      "926987416834b6a195e4da678c87573eadb3f10f571cd99742ffb313bf0de8a2",
+      "47735fb28785116accbd5f88241b43c438da4a9814cf195562d7b904e32d9602"
+    ]
+  },
+  {
+    "seed": 2026132100,
+    "entries": 8,
+    "n": 3,
+    "support": 0,
+    "pad_nonzero": 0,
+    "base": true,
+    "dispatches": [
+      true,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "a317e5ccfc0aba151e978dd2a249c6deb749eedee07f9a188bb0a0d9e371211e",
+      "57d6a1a0ce96cb17113477f098f701acf32df308a628ba49538186d24a12b888",
+      "7370dde3100ec4144ae362ce35e34668fd498608ca574b92490b9a6706304c22"
+    ]
+  },
+  {
+    "seed": 2026133099,
+    "entries": 8,
+    "n": 3,
+    "support": 1,
+    "pad_nonzero": 0,
+    "base": false,
+    "dispatches": [
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "95bf61494bd556a0e862af6b0afd6fa26b0698e7d3c46a1f0446b81f2e6f2cf6",
+      "ac54b76bba68a2f77ce1d09244ec182e9a2b0fe1c13575bf6e6832ca47185be4",
+      "663ebb9232820afb4c6351cc6d06ae0c1f4c9dfbb2c00fb1161da0d68f014e1b"
+    ]
+  },
+  {
+    "seed": 2026133100,
+    "entries": 8,
+    "n": 3,
+    "support": 1,
+    "pad_nonzero": 0,
+    "base": true,
+    "dispatches": [
+      true,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "a9b3e38fb991212c9605f4af7583df8fd7ad242b742928ef0bc1e37c353239ed",
+      "5e701000daf1fe309c3d9f749f6b495b1f23ef3b82ecd43acea6b3c0f4a963b2",
+      "3849122af02b554deb30efff77fced60b0299f56b2b003edb662b1511d0383d8"
+    ]
+  },
+  {
+    "seed": 2026133109,
+    "entries": 8,
+    "n": 3,
+    "support": 1,
+    "pad_nonzero": 1,
+    "base": false,
+    "dispatches": [
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "ad62b09440062bbb017c8770524b68bf6b462ed527dc75962d58488794d0588c",
+      "c528fdb5f5377900f88527733d3618f1370e7366de9f04894a0b9aba98197e97",
+      "34152210180e5cf22aadfc795708b4e5668cf3866f5727bc279efae7b6e4275c"
+    ]
+  },
+  {
+    "seed": 2026133110,
+    "entries": 8,
+    "n": 3,
+    "support": 1,
+    "pad_nonzero": 1,
+    "base": true,
+    "dispatches": [
+      true,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "023a1dec3b6fd3d11aff9f2d1991dab3f26a82700ac7b7e0933d6a250f75fd65",
+      "23c7e63dbe064bb1b7f6255b04dbe99b982b3cae716d7f4516cd522ed68be51f",
+      "c33e19c3324d0f004977b0b49ba0fdd87fb5f5eca86a25ba0e7f433d48f098b1"
+    ]
+  },
+  {
+    "seed": 2026133129,
+    "entries": 8,
+    "n": 3,
+    "support": 1,
+    "pad_nonzero": 3,
+    "base": false,
+    "dispatches": [
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "6079f0b14a4f9e5efd2a0bd60086f76a024eaa4c3500d8fb6f18e5d1efd9bf4c",
+      "3663264123c15fd57aff0258e098c8977241cb57f487c735e811f1774adce53f",
+      "961f643e9c55e4e71f7740025ef40f6a6f27e7ab6084ae5a6609a5cd4dd7dfcc"
+    ]
+  },
+  {
+    "seed": 2026133130,
+    "entries": 8,
+    "n": 3,
+    "support": 1,
+    "pad_nonzero": 3,
+    "base": true,
+    "dispatches": [
+      true,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "d59fbd673d1bd6cb362a2a89a91df8dc4eb85f76c88f5db734ee238ed68f09fc",
+      "35091d894b149edcdf218573a56e86750cc867d00e9202690fc693dc4c25e1d0",
+      "c763e31400f226c9a138be495c14c2239a3ad3a01b0b874638f7aa0973a2ef87"
+    ]
+  },
+  {
+    "seed": 2026133179,
+    "entries": 8,
+    "n": 3,
+    "support": 1,
+    "pad_nonzero": 8,
+    "base": false,
+    "dispatches": [
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "c819350bb0c8d0c92b38a469fb6399acce7e5f3f38228155723c259c0dc3878a",
+      "63c090147991c3799835b7b4c77ac88e7883b45c24500b6f341e1a0edb06e265",
+      "16716f8834904a0fe2a59ba7dd851d38eb4f4afa5f7c09e76fd2a56a4a8f82b0"
+    ]
+  },
+  {
+    "seed": 2026133180,
+    "entries": 8,
+    "n": 3,
+    "support": 1,
+    "pad_nonzero": 8,
+    "base": true,
+    "dispatches": [
+      true,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "09185b60d2e16464848e18d8eb38879397a20430f65bffd73256a59136a2941b",
+      "c282999d15b835e567fa12c824ccef86a9c4fbb118dfd02e59ec803999635642",
+      "4f0ee8749ca542b66981983ec5a1e1a177e4bcbcabe619e24126e6110e72fa70"
+    ]
+  },
+  {
+    "seed": 2026133209,
+    "entries": 8,
+    "n": 3,
+    "support": 1,
+    "pad_nonzero": 11,
+    "base": false,
+    "dispatches": [
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "5d578e6d04a7309ed62ef7063fe656e37330c5923fac78629769816794df7b73",
+      "32762a07eec6f652bf793060091a042de8c99feeca7e0d58bcad88716f8be29d",
+      "31c470a9591890b2ec5762772081b90fac1d41ae0b4a9515e6c93dcac2a347c7"
+    ]
+  },
+  {
+    "seed": 2026133210,
+    "entries": 8,
+    "n": 3,
+    "support": 1,
+    "pad_nonzero": 11,
+    "base": true,
+    "dispatches": [
+      true,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "9800cbee372db9145808e582a3e47dfe1ad225db04f15c56f10af2950c5917bf",
+      "569915a8144928b00fba38b1e341382f05bb50a3912683115b953b2c8a0d00d4",
+      "d6b5d008e4557c97c5933bbc51827339abf08af0ace0ab2908f6c3dff81fc915"
+    ]
+  },
+  {
+    "seed": 2026142099,
+    "entries": 16,
+    "n": 4,
+    "support": 0,
+    "pad_nonzero": 0,
+    "base": false,
+    "dispatches": [
+      false,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "22fec46318f7814616eefe0152c46a5c6664cd5b7958ef6dabf23727ce5bc84d",
+      "f532656e9026cd7e11ae17f15e645045c09d4c027595832c72f275599c2d0fc8",
+      "1030a6824b88a1e6609cec389a9f639eaa1bf29d25cddd8e67b1d51de5947ea1",
+      "d110de30fed1c4dd69a9e6b7554a48df0b0aa8bd2f61b6191194ab04ff52f373"
+    ]
+  },
+  {
+    "seed": 2026142100,
+    "entries": 16,
+    "n": 4,
+    "support": 0,
+    "pad_nonzero": 0,
+    "base": true,
+    "dispatches": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "ad8c832172047ba3b64acd50318ecb45a432a9c453d593a38ff261e1d0c47ddf",
+      "734e554cbe19efe29ae08565359a4699a130f4bdaaa665b750e3c5a20ef4dd87",
+      "e7dcc431d636a784990bbfa33821b6133939888c1b16067bab591ba37125552e",
+      "63bce5dea1fbb3f6af0009a924483566477ef875b24deaf45664f859add34197"
+    ]
+  },
+  {
+    "seed": 2026143099,
+    "entries": 16,
+    "n": 4,
+    "support": 1,
+    "pad_nonzero": 0,
+    "base": false,
+    "dispatches": [
+      false,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "ab17b400fe8b9e01b16fba748248554b3504916666380156bcc924e1c462f411",
+      "ab5138efacdad9a43515b500f33741c1062f4f6db1c3e1036d3bebea3581d8ed",
+      "8952cacc1ea378d00910b4f173ea59c97f59179dbcbedd1982d5d0b79c08d173",
+      "7b980ecc64285b716503ce5aa31e983283424f921fda7fffbdc92a2ab0080bbb"
+    ]
+  },
+  {
+    "seed": 2026143100,
+    "entries": 16,
+    "n": 4,
+    "support": 1,
+    "pad_nonzero": 0,
+    "base": true,
+    "dispatches": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "27b6ee86c488951713fa08c767ec4f867eeaa66da58b6a2b8215baadcc28a851",
+      "a627f459744fc211eec21179ae20a1b7342e43e4a9c7815da9d1f62f89ee88e7",
+      "cabaebf644be445448347387bb25555347a2c61821d35834827e05ba9d56e484",
+      "d4ed94302155d9c82e1a3b9b58cecbc0143589d0d51c7b4f3f395875a181be82"
+    ]
+  },
+  {
+    "seed": 2026143109,
+    "entries": 16,
+    "n": 4,
+    "support": 1,
+    "pad_nonzero": 1,
+    "base": false,
+    "dispatches": [
+      false,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "6dd8fe94fac938ff964dfd0a1ae4f37339a7dc1e4b65fec654fe0279a6ab1595",
+      "57d7c0426ff654ebf6a9ce5c6d61d426f0b3cd9a752d1a33f7f1daf10a38a1e5",
+      "a40809e345413f7fe492a00caa2daaf50d6a1786b73aa17ae8348f5b7117e3a4",
+      "1be3bf2ecfd2c248c2fe22f6f96d3fb6ede7ab7108bd2630d8fd3db5fb37b437"
+    ]
+  },
+  {
+    "seed": 2026143110,
+    "entries": 16,
+    "n": 4,
+    "support": 1,
+    "pad_nonzero": 1,
+    "base": true,
+    "dispatches": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "7a77283782573e0ca8a336c244bdd263eab43413dea7c774cea10a8bd402fab5",
+      "5440bfa990e003291ce978e0d89f95da6f14704a125f79dc07f3b59602da8816",
+      "fdef861673f524f334d31ba2412da2c84f092c2d77e93150e64f6f5cae1506c8",
+      "797da92aa27c8925c1c2d702cd2bd7d68661709601f134d160142ba2cddb6098"
+    ]
+  },
+  {
+    "seed": 2026143129,
+    "entries": 16,
+    "n": 4,
+    "support": 1,
+    "pad_nonzero": 3,
+    "base": false,
+    "dispatches": [
+      false,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "ad05d813a6cbde3dd21b26f441750a77036d178099a392bcfc61a1a96d884e38",
+      "57ab073bbc5312064251e102cb7162699980ad51ea4c6af6c338581751a20693",
+      "497ee08902a4718e407450b0ebc28e7bd9a4981c735bd5f64db8b7b1e61a3eef",
+      "27e7f571387d0c5eb576295d4d97755ae49057c7d7a6d8559e835f3d2f4c8ebf"
+    ]
+  },
+  {
+    "seed": 2026143130,
+    "entries": 16,
+    "n": 4,
+    "support": 1,
+    "pad_nonzero": 3,
+    "base": true,
+    "dispatches": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "118e2ade9268ae28af734a4cc8bef8fc201e6f3a2ead46292e7d7359ae6a8cdd",
+      "74d7cd3dc315ac438eea54c83cceaba8ef133988015341b540c04c47e135ebc7",
+      "7ec70dc8a5c3ee310e73b00b14c4269389b86ab269b40088532c053484f2a193",
+      "56b1aeec00ffb87d352bec2312f51c33c03724c7bfdd115f840ca02d29362c4c"
+    ]
+  },
+  {
+    "seed": 2026143179,
+    "entries": 16,
+    "n": 4,
+    "support": 1,
+    "pad_nonzero": 8,
+    "base": false,
+    "dispatches": [
+      false,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "0461806af8d6c65bbd8d4a878acd2daae6e760ebcee4f68ab23330087dd94ff0",
+      "77edde317222ca14090aad9a771758bd03309c116c7b08f4b0ce7f4ca95c2320",
+      "208d64b57c8dd751befba9ad8255a21eb6a0f427b5df6ecf40d0e8bd93261a6e",
+      "beda3bd28367d638a2e40bcaf9800c313f4c0f26f0e16745859e1f2b04513bc5"
+    ]
+  },
+  {
+    "seed": 2026143180,
+    "entries": 16,
+    "n": 4,
+    "support": 1,
+    "pad_nonzero": 8,
+    "base": true,
+    "dispatches": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "e1e850bda350ef2397ecd70d5e8729df781942be3e709284b3a128dc3bbb9e50",
+      "3cb29317e8f91d065241ac8c2564fbcdcde0ff7971ef5d10bb01a5257bc766af",
+      "71265afe3721e881e0764bb20808366cff848a17fef7c96252ef83984404fc6c",
+      "12f4ae1afe41ba244791a809cb90f78790a030845ddeda455c1d4cb7a347857c"
+    ]
+  },
+  {
+    "seed": 2026143209,
+    "entries": 16,
+    "n": 4,
+    "support": 1,
+    "pad_nonzero": 11,
+    "base": false,
+    "dispatches": [
+      false,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "ca86c53e8538536a19e916c74c5f42e506defc1c5293726c399b9455c9609fc2",
+      "e99ddd93303d6c4a619a69ef3d33faa6eddb4a4d916bafa0af81e84ce4bdc289",
+      "00a5b7b16834340d5bcc97682adb03f63e3ff92875ee7614c8a1fef6dfc901a5",
+      "a8567f1b54f18050c0dbba23acce44d6226914d7a9a5d545d57881e093cf0868"
+    ]
+  },
+  {
+    "seed": 2026143210,
+    "entries": 16,
+    "n": 4,
+    "support": 1,
+    "pad_nonzero": 11,
+    "base": true,
+    "dispatches": [
+      true,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "9df153393a771cdc7d74cab9cb75f1de6e9341f80d38480e1e36291917877121",
+      "b51bfafbc6bd6b357812a42dc4cb7eb6f388103f77f89fd7e7edd892961f4a45",
+      "ad02d1a572408077867facbc997ad33f5d4a43f2a5fd618bf48d6e6836a20b30",
+      "efefdee38e59fbfd2316deff4abed08afc834030e7ecefc0708ed617f8eb2395"
+    ]
+  },
+  {
+    "seed": 2026152099,
+    "entries": 32,
+    "n": 5,
+    "support": 0,
+    "pad_nonzero": 0,
+    "base": false,
+    "dispatches": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "cb609662e107965bb962698b23a7ecb0b16f1de5c82396fd989c30df0e1309e8",
+      "0ac7db0d62ac828d6522bf6ab379eff24b475aa0b901c236166b763ac8df5079",
+      "34426ca8e25fc56931c8177dd162c9715022c7afa4571cc955b372d1b7ef479c",
+      "50abdf086bed27b0a5551f92173f7d3fa16fb23475bffee5f2123fc0798d2e6d",
+      "f130901d1521756b1265d34db9a073781d5606d28c446cb8d9f73a9d0296b674"
+    ]
+  },
+  {
+    "seed": 2026152100,
+    "entries": 32,
+    "n": 5,
+    "support": 0,
+    "pad_nonzero": 0,
+    "base": true,
+    "dispatches": [
+      true,
+      false,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "2f9faba34f85442d40fcf9239e18efa07d6bff4c38ab90065c4b18a0e9dd93bf",
+      "8c46a17f94c64add81a1643d57c1bb6656748ba44d9be7e5de6861528d6e2dde",
+      "796d3cf848c4546518f71dc0c47fdb328d42d747f7a3baea25e6a04138ccf05e",
+      "af1f74ed111362a70fdf38ef8976633a424220ff0896a04e3f353c28ca5b2bd4",
+      "ac714374eded6fb4231314d65bc715f38225984a0baaff8cc9549b382d93a2be"
+    ]
+  },
+  {
+    "seed": 2026153099,
+    "entries": 32,
+    "n": 5,
+    "support": 1,
+    "pad_nonzero": 0,
+    "base": false,
+    "dispatches": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "ca440e79e2b772fddb7855955c123bd7e5f48391b206f48ef41c9cb45c065e13",
+      "72ba7edcaa0ce55e0395b0cf0dd5ba3d143956fd6838ab52301a2f84aa46c589",
+      "3094be0418b51cfeb6a792514e4c8a15fec03f7f3df3f8bc58d24e18f625abd4",
+      "0d70443b599c6147fa3571040507bb0b999da4961829aa73f4878a4870094a03",
+      "61796d0c23223d55a04b71376de12127f3c7a17977a548e60e51d745021672b8"
+    ]
+  },
+  {
+    "seed": 2026153100,
+    "entries": 32,
+    "n": 5,
+    "support": 1,
+    "pad_nonzero": 0,
+    "base": true,
+    "dispatches": [
+      true,
+      false,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "f4fce8973b6ce13e8847ac6ad7800a7a088c93e067c4768d3e01e466a4573aa3",
+      "9e804d5b3d85ce0c42fc3a030234c4a39d76b3f32d0af37c3efc6f554f46240e",
+      "dd030721caf1b54a43be7249d4b5e95574e896413898c6b456f91fa66c0dfe10",
+      "3a21d22b57ad58f87655fea09f6f3c931450419a05ff35ded579f7f70ccd2153",
+      "7ad7233d2677685b2c6365bfe37fb2b0c8413a89638c2893d9c83b13e075b2f6"
+    ]
+  },
+  {
+    "seed": 2026153109,
+    "entries": 32,
+    "n": 5,
+    "support": 1,
+    "pad_nonzero": 1,
+    "base": false,
+    "dispatches": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "7bbd4d3013aeb728b973fd04fca44064007cbc5372670a85fe6150738c7705c3",
+      "7c042e92fa0f22bd12035c79d6f894203f3cf5383acfcdfcc103f60a41b22da5",
+      "5dc5b7d57b6e2bfd77af0bf7ea933b56df7d60d7254ac106782002a61546dd26",
+      "e7e5817d9a5aa96a05a5c905ccd8e62955a7630a2d60e75f8f960fe56e2f4662",
+      "5f040b03127253ae58ea2c7599b2fbdb0dde89048adb579e03d5e685375cd41a"
+    ]
+  },
+  {
+    "seed": 2026153110,
+    "entries": 32,
+    "n": 5,
+    "support": 1,
+    "pad_nonzero": 1,
+    "base": true,
+    "dispatches": [
+      true,
+      false,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "d49ff24dcb52ee900f07378736eb0b05a6517552b1228318dd0c250598df56f0",
+      "a478e5631c86393a0cae025da2cdcc649c34aee3f63a0245995c7628ec48bd32",
+      "1a6ec32a0637609f5b58a5b62e98679713c1d89b8b1608453dd61fbf51b8c9f0",
+      "55cdc04d2418c702259d0ae648f4f5a8b305e2baaf332136e61f6900a549b61c",
+      "cca929d4b28f7b8582bcb90737306733e89b54bbb24f7611b48b7a4ae012a724"
+    ]
+  },
+  {
+    "seed": 2026153129,
+    "entries": 32,
+    "n": 5,
+    "support": 1,
+    "pad_nonzero": 3,
+    "base": false,
+    "dispatches": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "ccb6d0003d3635fd504ff17f4acd98659079862f5ef68de52269924176902433",
+      "eebd1cf5dc14fdd7d4ab77d9bee51a7d1e28edfcc636ae392fd03dffa95cff71",
+      "eacc717468f285e427415e4abacf30bcecf1aced3b65c991283a4979129155a4",
+      "b971ebb819be98015d637d057283a375a20a5c6317623bd67fe73244c8ae0a0b",
+      "75d6c9928665a834c21431292ad09ed12570e437e9b70698ec2c6d5231c58bd8"
+    ]
+  },
+  {
+    "seed": 2026153130,
+    "entries": 32,
+    "n": 5,
+    "support": 1,
+    "pad_nonzero": 3,
+    "base": true,
+    "dispatches": [
+      true,
+      false,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "22489be14dbc88af7ef98af8f965b9c882473e23d57bf5ee816d2c611e8d10ef",
+      "c0b64db2389a324ab4d61debb38a5145d482a3213d19d1523e90415c7dcea70f",
+      "bfc50f3e4990ed12234f3b4340a12be22fd42a55cc3c20eb672d42244e67b608",
+      "a545c58698d378085c05633ae7bb641b59b736f4cae7cbe4595c86e1e89dc472",
+      "bec0bf464591e56060eb6140356680e3c88bf82ed8c974ca0ac06f9056639c70"
+    ]
+  },
+  {
+    "seed": 2026153179,
+    "entries": 32,
+    "n": 5,
+    "support": 1,
+    "pad_nonzero": 8,
+    "base": false,
+    "dispatches": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "06918c1eb3c9476233536833f6d603334f74ba0f34ede53d3b2e5db57c694984",
+      "4c77d7aa4b2c8688f96451bfdf1df26e3c25324a40863a5202ba2c03f78e53a1",
+      "5130d071df35ab6dade2256b367bf0662ad81eb2da787327bb0463f43338011d",
+      "9f4c522ef2b5d7bfb99deea0d89f976faf8cb4dabd0e8b1782d31881057e3e36",
+      "5cef37ee78a10bd1b115a591e338249f7584ad238d90a168b9fb433c9fcaffe2"
+    ]
+  },
+  {
+    "seed": 2026153180,
+    "entries": 32,
+    "n": 5,
+    "support": 1,
+    "pad_nonzero": 8,
+    "base": true,
+    "dispatches": [
+      true,
+      false,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "b4a9c6e9fb4b50b7b95dd6f9a80a2bee7f36307f3c42b968c804118df1514117",
+      "03255fdc035ea76d1beae2f51fd0b53a7b40082e96667f2daa1c71ac5757cc93",
+      "d86b194ff003970f46fb9b106e61642306eaf48d043a9ae6f1b70ad5090d8391",
+      "fcfb90dc01354f288d1f078f981d8e994b616f437186827f764e3c6b03492a3f",
+      "acbc9499ad6ca013dc23c33b9ac0c9e3429884b7e0bf8ff503325bed39d857ba"
+    ]
+  },
+  {
+    "seed": 2026153209,
+    "entries": 32,
+    "n": 5,
+    "support": 1,
+    "pad_nonzero": 11,
+    "base": false,
+    "dispatches": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "d2137b645efbc0cf7b011a2da4d15fc5771fb40215485a2352a9e89cce88ad50",
+      "66c27a01870cdaf7846d683da16aaf6931ef683eef8a036916959eed5c735601",
+      "f620ba11c87a5787418ed471ae60495dee2b92a2b97ea16d8929b8165857ab96",
+      "6dced7003a1c8a3d54852c176bb45d0a1273e1957993aa3defc361bbe9beac8d",
+      "f82e78e13d1a09499a145b59d33a6e017977cf1708a78aa07612b6183da96fc6"
+    ]
+  },
+  {
+    "seed": 2026153210,
+    "entries": 32,
+    "n": 5,
+    "support": 1,
+    "pad_nonzero": 11,
+    "base": true,
+    "dispatches": [
+      true,
+      false,
+      false,
+      false,
+      false
+    ],
+    "round_hashes": [
+      "0a5e6bf17e14f529afbe0d0f0a6653ad34c3af01208c59a98f1b200fc62b85e8",
+      "715a5db17b8f278fda304a15c942ae80e9664ca8253fa0cefef523b77b04b971",
+      "910a0bcc3cd41050baf08a1beb496ca380ee900f6bb8070050f7f89f1067e80d",
+      "da51581ea1ceddc0413445ffc25ce85a0c6985ab07c476e28e3269a7e404dbf2",
+      "078ac63c747ae9d34737d14bfb4fafcae258fd67bcb46feaf5228ccbc188f7bb"
+    ]
+  }
+]

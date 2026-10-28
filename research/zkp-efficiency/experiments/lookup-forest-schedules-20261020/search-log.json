@@ -1,0 +1,30 @@
+{
+  "access_date": "2026-10-20",
+  "engine": "Native LIVE web__run",
+  "queries": [
+    "LogUp GKR memory efficient fraction tree recomputation streaming implementation 2026",
+    "site.github.com logup gkr memory layer zorch 2026",
+    "2026 streaming GKR prover space memory lookup fraction",
+    "Virgo transparent succinct arguments memory GKR 2019 1488",
+    "site.eprint.iacr.org Virgo 2019 zero knowledge GKR",
+    "site.github.com/fractalyze/sp1-zorch/releases 2026",
+    "site.eprint.iacr.org 2026 GPU sumcheck streaming memory proof",
+    "\"Chimera\" \"Tsoutsos\" github Sumcheck",
+    "\"Virgo\" \"GKR\" \"memory\" Zhang 2019",
+    "site.github.com/fractalyze/zorch \"releases\" \"2026\"",
+    "site.github.com \"Chimera\" \"Spartan\" \"Farheen\""
+  ],
+  "source_records": 8,
+  "primary_only_for_claims": true,
+  "untrusted_embedded_instructions_ignored": true,
+  "failures": [
+    "Chimera and Virgo PDFs: Internal Error",
+    "zorch main circuit.py: Internal Error",
+    "zorch LICENSE/raw LICENSE: Cache miss",
+    "zorch commit53d8dfb and patch: Cache miss",
+    "zorch/sp1-zorch release pages: Cache miss",
+    "PyPIsp1-zorch0.1.1 direct page: Internal Error",
+    "web click calls on two pages: invalid arguments; recovered by exact URL open"
+  ],
+  "limits": "No downloaded scripts executed, installations, network bypass or external writes. No verified latest release or complete implementation pin obtained."
+}

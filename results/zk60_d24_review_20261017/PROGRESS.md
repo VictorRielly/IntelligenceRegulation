@@ -858,3 +858,220 @@ No git. Heavy jobs through scripts/zk60_resource_guard.py.
   (statement-layer change only); N-r6-b CLOSED; Q-2 holds; R6 CPU
   statements stay valid (rung + 8B b7 T128 byte-checked under R7); notes
   N-r7-a..d. Round 7 closed; nothing of mine is running.
+
+## ROUND 8 (re-review of the native R8 tree, ops/zkp-mvp/trained-1b-review-r8/)
+
+- 14:40 UTC (2026-10-19): opened on the coordinator's relay; read the native
+  ledger's Round 8 section. 14:41 UTC: copied r8/frozen-tree/ (220 files) to
+  ops/zkp-mvp/trained-1b-review-r8/; .sha256 (220 entries) equals
+  r8/manifest_frozen.json; tree hash 7f64276a... = FROZEN.txt.
+  r7-vs-r8.patch = 1,042 lines = the author's; 10 files (non-test: shape.rs,
+  trained_statement.rs, run.rs, trained_block.rs).
+- 14:41-14:44 UTC: read the non-test hunks. shape.rs
+  `with_layer_calibration(cal)`: trained shapes only; `derive_at_width`
+  (tn 1..=16, cn 1..=2^20, ceps 1..=2^40, wrho = tn + 1 + bits(D_max) <= 32,
+  sh_ao <= 8, each shift in its window), CS-8 rebuild, trained class, then
+  Ids / HIds rebuilt and compared (n_a, limb counts ln/ls/lp, n_h) —
+  `with_score_shift` is its sh_s case. trained_statement.rs: `own: [Option
+  <i64>; 11]` over OWN_FIELDS (sh_s first with R6's labels; distinct labels
+  per field); encoding adds `label = value` only for own fields (length-
+  prefixed label and value: unambiguous); the layer record ALSO binds the
+  export manifest SHA-256 (`export-manifest-sha256`), so any manifest
+  constant change moves the identity; check_self refuses own == base and
+  runs the layer's whole calibration through the door. `u64::try_from(v)
+  .unwrap_or(u64::MAX)` would collapse negative values, but every class is
+  positive (cn, ceps >= 1) and the door refuses negatives first. run.rs:
+  stage_cal per stage (validated through the door in new_bound_from_digests,
+  both sides), stage line one clause per own field (sh_s-only = R6 text),
+  stage_shape via the door. trained_block.rs: per_layer_cal_fields (listed
+  OWN keys), base = most common combination of the listed fields (ties:
+  smallest key vector, sh_s first), `masked` compares every non-listed
+  constant, own_of + the door per layer, sealing witnesses at the layer's
+  calibration (layout cache keyed by calibration), statement.json layer
+  objects add own keys in canonical order.
+- 14:42 UTC reviewer_nowrap_r8.py (light, exit 0): from argument.rs SC_DZC
+  c0/c1 (norm quotient / complement, cn_a and cn_m), the SC_TZC isqrt host
+  and the seven requant hosts, sweeping every tn, a ceps grid over the class
+  and cn at both ends (410 / 369 admitted (tn, ceps) points at width 2048 /
+  4096), all six trained profiles: worst 2^43.322 (8B isqrt host, sum of
+  absolute values), norm quotient 2^43.076 (TinyLlama; the author's 2^43.09),
+  down host 2^35 / 2^36; p/2 = 2^63 [COUNTED].
+- 14:45 UTC: scratch ops/zkp-mvp/trained-1b-review-r8-scratch/ (r8 copy +
+  review_r8_inner in trained_block.rs; write_stack_export_cal / r8_layer_cal
+  pub(super)); my verifier copies (hard links, no seq_*) of the original 8B
+  T32 and TinyLlama T32 exports; launched r8/r8_queue.sh (detached, guarded).
+- 14:51-14:58 UTC r8_queue.sh: r8-cli-build exit 0, review CLI sha256
+  d1d7d544... (r8/binaries.sha256). Compat, read only, my binary and my
+  verifier copies of the original exports: rung run (72098637...), b7 T128
+  R6 per-layer sh_s (97c4acda..., verify 46.2 s), 8B T32 run-wide
+  (259dad7c..., 36.9 s), TinyLlama T32 run-wide (9b71dfb0..., 8.3 s): each
+  "verified" and "statement-checked" byte for byte. r8-fast (my tamper test
+  r8_1) 1 passed: honest 4-layer export (layer 1 all eleven own, layer 2
+  seven) proves, verifies with 11 controls, publishes; statement.json own
+  keys canonical (sh_s first); T1 cross-layer swap, T2 sh_o<->sh_h, T3
+  cn_a<->cn_m: identity moves and the honest run is refused under each;
+  T5 23 of 23 out-of-class / plane-moving values refused on the verifier
+  AND by stack-prove (no run dir); T6 f_e listed per layer: equal loads, a
+  differing layer refused; T7 2:2 tie -> run sh_s 4 (smaller key, sh_s
+  first), verifies. r8-author-subset (their tests on my binary): 53 passed,
+  0 failed, 3 ignored (all r8_tests, the fully per-layer stack test,
+  review_r5_3, review_n_r6_b, privacy_q2, per-layer sh_s). No /tmp
+  leftovers; r8 frozen copy unchanged (220 OK).
+- 14:59 UTC: R8_VERDICT.md written. VERDICT: R8 ACCEPTED on soundness (door on
+  both sides, binding incl. manifest SHA, no collisions or silent swaps,
+  no-wrap worst 2^43.32 independently, compat identities unchanged). Notes
+  N-r8-a (u64::MAX in the encoder for an impossible negative), N-r8-b
+  (norm_tn effectively run-wide at trained profiles), N-r8-c (base depends
+  on the layer range), N-r8-d (real-export parity at per-layer constants
+  owed). Round 8 closed; nothing of mine is running.
+
+## ROUND 9 (review of the native R9 tree: DD, the per-row division dictionary; D30 requires it before any DD receipt is called sound)
+
+- 04:57 UTC (2026-10-20): opened on the coordinator's relay. Read the
+  native ledger's Round 9 section, D30 (register row 59 + the 04:56
+  implementation note), CHECK.md (S-1..S-12, C-1..C-3, E-1..E-4, §4 LogUp
+  bound, §7 B-1..B-8).
+- 04:59 UTC: copied r9/frozen-tree/ (222 files) to
+  ops/zkp-mvp/trained-1b-review-r9/; .sha256 (222 entries) equals
+  r9/manifest_frozen.json; tree hash af90c703... = FROZEN.txt.
+  r8-vs-r9.patch = 2,911 lines = the author's; 28 files (non-test:
+  argument.rs, layout.rs, shape.rs, protocol.rs, witness.rs,
+  private_block.rs, trained_block.rs, run.rs, pad.rs, hash_domain.rs,
+  timing.rs, wire.rs, trained_statement.rs, run_capture.rs).
+- 05:04 UTC: scratch set up (ops/zkp-mvp/trained-1b-review-r9-scratch/, my r8
+  targets reused); verifier copies (hard links, seq_* excluded) of the two
+  T128 fidelity exports and of the 8B b7 T64 export. Queue A launched
+  (r9/r9_queue_a.sh): my CLI from the PRISTINE copy, then read-only verifies.
+  Code read: shape.rs, layout.rs, argument.rs (SC_SZC DD arm, SC_DD),
+  protocol.rs (A root absorbed before beta/gamma/alpha on BOTH sides, lines
+  1119-1140 / 1363-1367; TAG_DD 141 vs U8 133 / EXP 129 / ACT 134), witness.rs,
+  private_block.rs, trained_block.rs, run.rs, pad.rs, hash_domain.rs,
+  timing.rs, wire.rs, trained_statement.rs, run_capture.rs, r9_tests.rs,
+  r9_golden_tests.rs. r8-golden-tree = R8 freeze + the golden file (record
+  mode, same digest code) + its registration, nothing else.
+- 05:16 UTC: queue A done. My R9 CLI sha256 d552e96f... (author 53c2ccac...;
+  paths differ). [MEASURED] DD TinyLlama dg T128: verified, 22 blocks,
+  502,836,080 B, identity d5721276..., 11 controls refused, statement/
+  byte-checked (read only), peak 1.33 GiB. DD 8B b7voc0 T128: verified, 32
+  blocks, 930,231,520 B, identity 4da580bd..., 11 controls refused, byte
+  check, peak 2.25 GiB. R8 receipts under my R9 CLI (no --dd): TinyLlama
+  caf6ced2... and 8B 5585f5ee... verify, statements byte-identical. Single-
+  block DD prove (TinyLlama T128 layer 0, my scratch, --controls --dd):
+  23,284,280 B, identity 19a27016..., 3 inconsistent witnesses refused; fresh
+  verify --controls --dd: 19 controls refused; the same artifact without
+  --dd: refused (rebuilt identity 6b280d06... is not the pin).
+- 05:17 UTC: queue A2. --dd at TinyLlama T32, 8B T32 and 8B b7 T64 on all
+  four commands: 12/12 refused by name, no output dir (my first probe pass
+  passed a malformed pin and no pin: argument checks fire first; harness
+  error, corrected). Cross-relation controls with the OTHER relation's
+  identity pinned (so the pin check passes): DD receipts under the non-DD
+  relation and R8 receipts under --dd, TinyLlama and 8B: 4/4 refused at the
+  wire (segment length differs by 235,008 B). n_col recount from exp.bin
+  (r9/r9_ncol_check.py): TinyLlama T128 worst 24, 8B b7voc0 worst 19, 8B T32
+  exactly 32, all tables monotone, none over cap.
+- 05:18 UTC: review module review_r9_tests.rs (scratch only; A: the Sum key
+  vs SC_RS, B: CS-8 on a written dd_cap, C: geometry and dictionary lookups,
+  D: the LogUp term counted, E: the trained door and the CLI on DD-rung
+  exports I write, F: Geometry::dd) and an R8-freeze copy with the
+  record-mode golden (r9-scratch/r8-golden/). Queue B launched
+  (r9/r9_queue_b.sh): test build, my tests, the author subset, goldens on R9
+  and R8.
+- 05:26 UTC: queue B so far. Test build OK (my module compiles, no new
+  warning). r9-review: my 6 tests pass. A: row 0 of the DD rung, Sum 4096 ->
+  4095 with every quotient unchanged and the row's rho/sigma limbs rewritten;
+  every DD clause, pin, tuple and lookup holds at the integer level; rejected
+  at slot 17 (softmax zero-check hosting SC_RS) -> the key rests on SC_RS.
+  B: 12 written dd_cap values refused by CS-8 (and by the run-shape door).
+  C: S, Ht, Dd unpadded/unlifted at all three DD profiles; dictionary limb
+  lookups read only Dom::Dd planes; all dictionary planes are witness A
+  planes. D [COUNTED]: TinyLlama T128 22 blocks 2^-98.67 -> 2^-98.80 per run
+  under DD, 8B T128 32 blocks 2^-97.30 -> 2^-97.37 (N + 2303 + 4 T_DD =
+  28,084,479 / 52,070,655; the export shapes equal the test calibrations').
+  E: DD-rung exports I write: the over-cap layer (e_s 0, 44 slots) refused at
+  the loader by name and by stack-prove (+/- --dd), prove, stack-verify,
+  verify, nothing left behind; the in-cap range --layers 0..1 proves and
+  verifies; a 2-layer in-cap export through stack-prove, stack-verify
+  --controls, --dd byte check, single-block prove --controls --dd and verify
+  --controls. F: Geometry::dd maps exactly the three. Author subset on my
+  binary: 85 passed, 0 failed, 1 ignored (the real-export test). Seeded
+  goldens on my R9 build: 782b64c9... / 05a22d72... = the recorded R8 digests
+  (23 slots, 69 absorbs). R8-side golden (my own R8-freeze copy, record mode):
+  built 05:29, its run is waiting for budget (fidelity light jobs hold 6 of
+  11.9 GiB; my guard holds the heavy lock while it waits, as designed).
+- 05:41 UTC: R8-side seeded golden on my own copy of the R8 freeze (record
+  mode): 782b64c9... / 05a22d72..., identical to my R9 build's -> non-DD
+  byte identity reproduced on both sides independently.
+- 05:58 UTC: queue C. The native r9_tests with output: D-3 passes its lapse
+  and is rejected at slot 23; D-4 and helper-out-of-sum pass their lapses and
+  are rejected at the H opening of the single sum claim; the D-8 hook is
+  rejected at slot 23; the over-cap block is refused by the run statement.
+  The single-block DD receipt under the non-DD relation with the non-DD
+  identity pinned: refused at the wire (23,284,280 vs 23,049,272 B).
+- 05:59 UTC: R9_VERDICT.md written. VERDICT: R9 ACCEPTED on soundness at the
+  three DD profiles (TinyLlama T128 DD, Llama-3-8B T128 DD, DD rung). No
+  finding; notes N-r9-a..g; proposed register conditions N-r9-a (the Sum key
+  rests on SC_RS: a change to SC_RS / its hosting / the Ht gate re-opens D30)
+  and N-r9-b (M_dd stays in A and no LogUp challenge precedes the A root on
+  the verifier side). Not a privacy acceptance. Frozen review copy unchanged
+  (222/222); no /tmp leftovers of mine (the newest native-tiny dir is 04:49
+  UTC, before this round); every job of mine finished (31 .done markers,
+  four queue markers). Round 9 closed; nothing of mine is running.
+
+## ROUND 10 (review of the native R12 tree: Shieldstral-1.0-3B features on top of R9 — decoupled head_dim, YaRN rotary tables, tied embedding; the coordinator's "R12" round)
+
+- 18:14 UTC (2026-10-26): opened on the coordinator's relay. Frozen tree
+  r12/frozen-tree/ copied to ops/zkp-mvp/trained-1b-review-r12/ (225 files);
+  .sha256 equals r12/manifest_frozen.json; tree hash 1e406781... recomputes.
+- 18:19 UTC: r9-vs-r12.patch (2,771 lines, 21 files) = the author's body.
+  Read the non-test diff (argument.rs QMM/WO folds on q_pad, pad.rs Dom::Q
+  stride, shape.rs profiles + q_width/q_pad + removed d_pad == h_pad*head_dim
+  refusal, rope.rs, witness.rs, private_block.rs check_words/Axis::Q,
+  trained_block.rs rope_scaling_of / tied_of / Geometry, trained_statement.rs
+  rope_scaling + TiedEmbedding, run.rs profiles, run_capture.rs pin list).
+  Independent YaRN check (r12/r12_yarn_check.py, my own binary64
+  transcription of transformers main `_compute_yarn_parameters`): inv_freq
+  max rel 1.39e-7 vs the installed transformers 5.13.1 output, 11.47 vs
+  4.48.1's shipped default (correction range at max_pos 262144, attention
+  factor 1.277); bitwise equal to the prep lane's float64 reference; integer
+  tables (2^7) T128 544dd35e..., T256 bb5397c6..., T512 261b32b8... (= the
+  native reference), T2048 5e370a8c... (= the prep lane's); float32
+  frequencies move 1/1/2/42 entries.
+- 18:21 UTC: scratch ops/zkp-mvp/trained-1b-review-r12-scratch/ set up; queue
+  A (r12/r12_queue_a.sh) launched; it was still in its pre-check wait (box
+  full) when the coordinator announced the D42 guard-swap window (18:23):
+  stopped the queue script with SIGTERM before any guard started (no
+  r12-cli-build files exist); replied to the coordinator. No guarded job of
+  mine until "S3 window closed". Read-only work continues.
+- 19:09 UTC: the coordinator's "S3 window closed" (19:02; new guard sha256
+  87138bda..., same run interface). During the hold (read only): my review
+  module review_r12_tests.rs written (scratch only; tests A-H + D2), an R9
+  copy with the record-mode R12 golden (r12-scratch/r9-golden/), R8 / R9
+  freezes re-hashed (7f64276a / af90c703, unchanged), my no-wrap check
+  r12/reviewer_nowrap_r12.py (worst 2^43.08 < 2^63; Wo's host over q_pad
+  2^26.16, PV over T256/T512 2^25.31/2^26.16, DD division 2^35.0). Code
+  reading found the tie binds declarations (tied_of, trained_block.rs:536)
+  and the token-table hashing reads unbounded through links
+  (sha256_file). Full queue r12/r12_queue.sh launched.
+- 20:06 UTC: queue done (all exits as expected). [MEASURED] my R12 CLI
+  edc61ad8...; retained receipts verify under it with byte-identical
+  statements (TinyLlama T128 DD d5721276, 8B T128 DD 4da580bd, R8 TL caf6ced2,
+  R8 8B 5585f5ee, TL T32 9b71dfb0); --dd at 8B T32 refused by name. My 9
+  tests pass: A existing shapes unchanged (15); B Rust YaRN = my reference at
+  T128/256/512/2048 and at the 4 profiles, near misses differ, door refuses
+  other declarations; C --rope-from-export proves off-generator tables under
+  the pinned record; D tied_of accepts 7/5/3-byte tables and a swapped head
+  under the pinned tensor; D2 token-table reads follow links and block on a
+  FIFO; E three single-pad-lane attacks at rung-HD rejected (slots 14, 18,
+  14); F lookup term per 26-block run 97.60/97.67 (T128), 96.37/96.57
+  (T256), 95.03/95.42 (T512 counted) bits, refusal distances 2^-112.7 /
+  -105.3 / -104.3 / -103.3; G 28 edited Shieldstral shapes refused by CS-7;
+  H pad indicators = true lanes. Author subset 98/0/5; saved Sol receipts
+  2/2; goldens 5/5 on R12 AND the same four digests + five identities from
+  my own R9 copy (record mode); dense Shieldstral T128 DD / non-DD prove and
+  verify on my build (256 s, 6.5 GiB). No /tmp leftovers of mine; frozen
+  copy unchanged (225/225).
+- 20:08 UTC: REVIEW_R12.md written. VERDICT: R12 ACCEPTED WITH FIXES on
+  soundness at the Shieldstral profiles and rung-HD. Findings R12-F1
+  (medium: the tied record binds declarations, not derivation), R12-F2
+  (low: unbounded token-table reads), R12-F3 (low: --rope-from-export vs the
+  pinned record); notes N-1..N-7. Nothing of mine is running.

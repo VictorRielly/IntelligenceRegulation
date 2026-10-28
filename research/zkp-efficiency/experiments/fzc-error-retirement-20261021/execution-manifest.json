@@ -1,0 +1,39 @@
+{
+  "utc": "2026-10-21T03:28:36.777395+00:00",
+  "selected_final_probe_launch": "2026-10-21T03:26:26.869625+00:00",
+  "selected_final_source_audit_launch": "2026-10-21T03:26:27.212637+00:00",
+  "seed": 202610210119,
+  "source_hashes": [
+    {
+      "path": "probe.py",
+      "sha256": "4fa4b7ffee3c841e1e1799d62e93feefd1786c640a2e02b861e7e485c409a6a1"
+    },
+    {
+      "path": "reference.py",
+      "sha256": "c58b8b06a8ac5f0142b41647e3e58d8fa7bdeea90bcab7b28755a916a406a8d0"
+    },
+    {
+      "path": "retirement.py",
+      "sha256": "c941dc5b2f8174014e735b814e45599736b2a422371ef61dd560560256132ad4"
+    },
+    {
+      "path": "run_bounded.py",
+      "sha256": "b5b788a7c434eb83b238e4e7a66856e026a7e8b10e7cee744522e0884ef8811b"
+    },
+    {
+      "path": "source_audit.py",
+      "sha256": "34b7a9b37f263044cd4e0100e8e49c3708c1762ee2d4cdfce1bd4ed7507f7a1f"
+    }
+  ],
+  "result_hashes": [
+    {
+      "path": "result.json",
+      "sha256": "731e1bc01b9932a1d52ef9c3c3a9e2b10977d534628b45ac89e1d0ce0046f8a1"
+    },
+    {
+      "path": "source-audit-result.json",
+      "sha256": "72a476942c7c362c01e2fa75c3cf16756f0c64a87471536d27566e51b100d2a3"
+    }
+  ],
+  "note": "Final code/results pinned after successful final runs; prior command entries are successful model refinements, not additional proof samples."
+}

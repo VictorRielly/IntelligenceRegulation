@@ -1,0 +1,288 @@
+{
+ "module": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/scripts/zk60_native_rg_tokenterminals.py",
+ "module_sha256": "62e1dcc2b7ce9d4a34c77b480167aacea8325eb577acbbd1d2304c0c04e5eb87",
+ "written_utc": "2026-10-19T18:41:56Z",
+ "not_a_privacy_result": true,
+ "captures": {
+  "tinyllama-t32-L1-dense-pt1": {
+   "ok": true,
+   "replay_ok": true,
+   "identity_equal": "15/15",
+   "nl1_premises": "15/15",
+   "controls_all_fire": true,
+   "controls_fired": 15,
+   "controls": 15,
+   "public_tables_rebuilt": 18,
+   "public_tables_taken": 2,
+   "nl_observations": {
+    "slots_with_a_monomial_whose_only_public_factors_are_indicator_tables": [
+     "OUT-01",
+     "OUT-02",
+     "OUT-07"
+    ],
+    "slots_with_a_monomial_whose_only_public_factor_has_a_constant_MLE": [
+     "IN-03",
+     "OUT-09"
+    ]
+   },
+   "seconds_total": 12.97,
+   "peak_rss_mib": 112.7,
+   "findings": [],
+   "shape": {
+    "V": 32000,
+    "V_pad": 32768,
+    "d": 2048,
+    "d_pad": 2048,
+    "limbs_derived": 7,
+    "domain_logs": {
+     "Ti": 12,
+     "Voc": 15,
+     "Lo": 12,
+     "Do": 12,
+     "Vo": 15,
+     "Tab": 12
+    }
+   }
+  },
+  "tinyllama-t32-L1-fixed-pt1": {
+   "ok": true,
+   "replay_ok": true,
+   "identity_equal": "15/15",
+   "nl1_premises": "15/15",
+   "controls_all_fire": true,
+   "controls_fired": 15,
+   "controls": 15,
+   "public_tables_rebuilt": 18,
+   "public_tables_taken": 2,
+   "nl_observations": {
+    "slots_with_a_monomial_whose_only_public_factors_are_indicator_tables": [
+     "OUT-01",
+     "OUT-02",
+     "OUT-07"
+    ],
+    "slots_with_a_monomial_whose_only_public_factor_has_a_constant_MLE": [
+     "IN-03",
+     "OUT-09"
+    ]
+   },
+   "seconds_total": 14.13,
+   "peak_rss_mib": 112.4,
+   "findings": [],
+   "shape": {
+    "V": 32000,
+    "V_pad": 32768,
+    "d": 2048,
+    "d_pad": 2048,
+    "limbs_derived": 7,
+    "domain_logs": {
+     "Ti": 12,
+     "Voc": 15,
+     "Lo": 12,
+     "Do": 12,
+     "Vo": 15,
+     "Tab": 12
+    }
+   }
+  },
+  "tinyllama-t32-L2-dense-pt1": {
+   "ok": true,
+   "replay_ok": true,
+   "identity_equal": "15/15",
+   "nl1_premises": "15/15",
+   "controls_all_fire": true,
+   "controls_fired": 15,
+   "controls": 15,
+   "public_tables_rebuilt": 18,
+   "public_tables_taken": 2,
+   "nl_observations": {
+    "slots_with_a_monomial_whose_only_public_factors_are_indicator_tables": [
+     "OUT-01",
+     "OUT-02",
+     "OUT-07"
+    ],
+    "slots_with_a_monomial_whose_only_public_factor_has_a_constant_MLE": [
+     "IN-03",
+     "OUT-09"
+    ]
+   },
+   "seconds_total": 19.7,
+   "peak_rss_mib": 140.6,
+   "findings": [],
+   "shape": {
+    "V": 32000,
+    "V_pad": 32768,
+    "d": 2048,
+    "d_pad": 2048,
+    "limbs_derived": 7,
+    "domain_logs": {
+     "Ti": 12,
+     "Voc": 15,
+     "Lo": 12,
+     "Do": 12,
+     "Vo": 15,
+     "Tab": 12
+    }
+   }
+  },
+  "tinyllama-t32-L2-fixed-pt1": {
+   "ok": true,
+   "replay_ok": true,
+   "identity_equal": "15/15",
+   "nl1_premises": "15/15",
+   "controls_all_fire": true,
+   "controls_fired": 15,
+   "controls": 15,
+   "public_tables_rebuilt": 18,
+   "public_tables_taken": 2,
+   "nl_observations": {
+    "slots_with_a_monomial_whose_only_public_factors_are_indicator_tables": [
+     "OUT-01",
+     "OUT-02",
+     "OUT-07"
+    ],
+    "slots_with_a_monomial_whose_only_public_factor_has_a_constant_MLE": [
+     "IN-03",
+     "OUT-09"
+    ]
+   },
+   "seconds_total": 20.78,
+   "peak_rss_mib": 140.1,
+   "findings": [],
+   "shape": {
+    "V": 32000,
+    "V_pad": 32768,
+    "d": 2048,
+    "d_pad": 2048,
+    "limbs_derived": 7,
+    "domain_logs": {
+     "Ti": 12,
+     "Voc": 15,
+     "Lo": 12,
+     "Do": 12,
+     "Vo": 15,
+     "Tab": 12
+    }
+   }
+  },
+  "llama3-8b-t32-L1-dense-pt1": {
+   "ok": true,
+   "replay_ok": true,
+   "identity_equal": "15/15",
+   "nl1_premises": "15/15",
+   "controls_all_fire": true,
+   "controls_fired": 15,
+   "controls": 15,
+   "public_tables_rebuilt": 18,
+   "public_tables_taken": 2,
+   "nl_observations": {
+    "slots_with_a_monomial_whose_only_public_factors_are_indicator_tables": [
+     "OUT-02",
+     "OUT-07"
+    ],
+    "slots_with_a_monomial_whose_only_public_factor_has_a_constant_MLE": [
+     "IN-03",
+     "OUT-01",
+     "OUT-09"
+    ]
+   },
+   "seconds_total": 64.72,
+   "peak_rss_mib": 175.8,
+   "findings": [],
+   "shape": {
+    "V": 128256,
+    "V_pad": 131072,
+    "d": 4096,
+    "d_pad": 4096,
+    "limbs_derived": 7,
+    "domain_logs": {
+     "Ti": 12,
+     "Voc": 17,
+     "Lo": 12,
+     "Do": 12,
+     "Vo": 17,
+     "Tab": 12
+    }
+   }
+  },
+  "llama3-8b-t32-L1-fixed-pt1": {
+   "ok": true,
+   "replay_ok": true,
+   "identity_equal": "15/15",
+   "nl1_premises": "15/15",
+   "controls_all_fire": true,
+   "controls_fired": 15,
+   "controls": 15,
+   "public_tables_rebuilt": 18,
+   "public_tables_taken": 2,
+   "nl_observations": {
+    "slots_with_a_monomial_whose_only_public_factors_are_indicator_tables": [
+     "OUT-02",
+     "OUT-07"
+    ],
+    "slots_with_a_monomial_whose_only_public_factor_has_a_constant_MLE": [
+     "IN-03",
+     "OUT-01",
+     "OUT-09"
+    ]
+   },
+   "seconds_total": 63.5,
+   "peak_rss_mib": 174.3,
+   "findings": [],
+   "shape": {
+    "V": 128256,
+    "V_pad": 131072,
+    "d": 4096,
+    "d_pad": 4096,
+    "limbs_derived": 7,
+    "domain_logs": {
+     "Ti": 12,
+     "Voc": 17,
+     "Lo": 12,
+     "Do": 12,
+     "Vo": 17,
+     "Tab": 12
+    }
+   }
+  },
+  "tinyllama-t32-L22-dense-pt1": {
+   "ok": true,
+   "replay_ok": true,
+   "identity_equal": "15/15",
+   "nl1_premises": "15/15",
+   "controls_all_fire": true,
+   "controls_fired": 15,
+   "controls": 15,
+   "public_tables_rebuilt": 18,
+   "public_tables_taken": 2,
+   "nl_observations": {
+    "slots_with_a_monomial_whose_only_public_factors_are_indicator_tables": [
+     "OUT-01",
+     "OUT-02",
+     "OUT-07"
+    ],
+    "slots_with_a_monomial_whose_only_public_factor_has_a_constant_MLE": [
+     "IN-03",
+     "OUT-09"
+    ]
+   },
+   "seconds_total": 30.89,
+   "peak_rss_mib": 639.0,
+   "findings": [],
+   "shape": {
+    "V": 32000,
+    "V_pad": 32768,
+    "d": 2048,
+    "d_pad": 2048,
+    "limbs_derived": 7,
+    "domain_logs": {
+     "Ti": 12,
+     "Voc": 15,
+     "Lo": 12,
+     "Do": 12,
+     "Vo": 15,
+     "Tab": 12
+    }
+   }
+  }
+ }
+}

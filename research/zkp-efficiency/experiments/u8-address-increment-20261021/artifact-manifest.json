@@ -1,0 +1,272 @@
+[
+  {
+    "path": "experiments/u8-address-increment-20261021/README.md",
+    "sha256": "3c2481aa9d75fbedcbe30dab891e1e95d66d2431d147691504559aa9efc81200",
+    "bytes": 4812
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/artifact_audit.py",
+    "sha256": "342592f68de25c17020b05ceccd2ccbef4440ba656f6bfae1ac2509888a53b41",
+    "bytes": 2116
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/candidate.py",
+    "sha256": "f0e47c606f3034b049b8452c86465f8a9d6a172f4e84572bab0005b94c8e1e0b",
+    "bytes": 6275
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/checkpoint-amendment.md",
+    "sha256": "d1d952ceadbd9defcef33957cde40019495b37844480cde218f653eb78210147",
+    "bytes": 467
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/checkpoint-decisions.diff",
+    "sha256": "87926d7326864a73efb4ee4f9f7dc78a0cebb7835c238fca5c1044529b9aff0e",
+    "bytes": 19923
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/checkpoint-decisions.md",
+    "sha256": "466f28769e743a43ace3d8ea460b2a0b872767cc3ce67c587b8355f973b4475e",
+    "bytes": 116699
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/checkpoint-project-changes.json",
+    "sha256": "6ca0bac17d30d70080ba36aaaca15792f784d240ba5f9e988e530ccdd92815a4",
+    "bytes": 388
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/checkpoint-updates.json",
+    "sha256": "ae1238cfe77832d3381b0be78efcfed0e1b9bc0e5d555dfd2fda57d5df337f2e",
+    "bytes": 194
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/cost-result.json",
+    "sha256": "6f95d75efd5c2f7b12fa33d8b95771e1f9b23f5ede79e870d72ae9f1a6f7c7a9",
+    "bytes": 15562
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/cost_audit.py",
+    "sha256": "47cdcf307829f9ccc2a02cb79af6a5cff96767a47ff1059a7baad54c8ffbdb35",
+    "bytes": 2195
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/hardware.json",
+    "sha256": "5473ffbf3a1f72a95f3cef0612e953875dfbd9cac4d02e56c5a6bfdb72220d48",
+    "bytes": 210
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/hypotheses.json",
+    "sha256": "ac0a552a4d61744cba0fe02a889b950264fb9c4876d39b377ffb64de14abbc45",
+    "bytes": 62486
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/hypothesis-changes.json",
+    "sha256": "0b22a28ad30fc90100d49432372590b1a5ac4728ca6c981bb34523910790d92c",
+    "bytes": 195
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/initial-with-labelled-parameter-sensitivities/candidate.py",
+    "sha256": "05b0ca3c6cd6641906bdc57581d89c1902143da7467978c12f1248552ef1b304",
+    "bytes": 5033
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/initial-with-labelled-parameter-sensitivities/cost-result.json",
+    "sha256": "796edf43cebb7982c18f6613ccbd5bae035f94d3b482962c182b828f760c393c",
+    "bytes": 57084
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/initial-with-labelled-parameter-sensitivities/probe.py",
+    "sha256": "71c5f4883d91c5899afb7d3073ca613d4757e9df05a0bfad9f915f8e85f2e1cb",
+    "bytes": 7741
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/initial-with-labelled-parameter-sensitivities/result.json",
+    "sha256": "dfe925119af9bd1f431a94fcdff793a8fdede236d5940b1f1cec808202b58cfc",
+    "bytes": 2473
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/prior-census.json",
+    "sha256": "a18620b6e2d06ff3baf9dcc8ad108ee36d01242561f9519c4a4007b28917cab2",
+    "bytes": 242705
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/prior-hypotheses.json",
+    "sha256": "6e009e73668adb4abb18c0f7736e7a6b60855cc41fa574b60c95990375251812",
+    "bytes": 61113
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/prior-result.json",
+    "sha256": "aa0b4a2833817a9e63d89503c6839eb2088a984c71a62eeb578fcbbd18cab729",
+    "bytes": 1992
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/prior-source-audit-result.json",
+    "sha256": "72af95e3b665ba77ce98e23f672b4ebd12863fdfbbdfd291ef398dc2ed594d6f",
+    "bytes": 7163
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/prior-target-accounting.json",
+    "sha256": "6d912c0069f946d01f246ad30949302bcb02a67f1f8ab565b034e18a606e0d83",
+    "bytes": 783
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/probe.py",
+    "sha256": "d31f47da0f28a7abce8a68f1808eab7834f97ef46830531385420e3e00fdcb41",
+    "bytes": 9447
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/reference.py",
+    "sha256": "90f10ca21a86b9513388249c86358fcf3501a8a343558bf8b1343310263229b2",
+    "bytes": 2310
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/result.json",
+    "sha256": "10a93a4d4d6bc3d87ab61030448b1dbf5446d1033c86547158c5abc00035b7c0",
+    "bytes": 2903
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/run_bounded.py",
+    "sha256": "1e912908f0be15010fb72e3f90580509de7a31108ac0215ad68d5ed9b32630d7",
+    "bytes": 1454
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/search-log.json",
+    "sha256": "3795ab08c408d6c02262f49156487c82eedebb554bf5a1133ba99ad7967e2faf",
+    "bytes": 1511
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/source/argument.rs",
+    "sha256": "112352bc35c8b877cba50707a5ea64ea239ec6c684becb193ad981bd643ff4f5",
+    "bytes": 110974
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/source/core-pcs.rs",
+    "sha256": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495",
+    "bytes": 77003
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/source/layout.rs",
+    "sha256": "9332802e597beacab56cfa69cfe18325bc476d2ce6485f517051992b26d26efa",
+    "bytes": 74733
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/source/protocol.rs",
+    "sha256": "c482402329e4da32a70c780435b2077e8054d1805b1006289f571820017564a4",
+    "bytes": 77946
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/source/r9_counts.json",
+    "sha256": "ae24df761b94390667605d888394aca03f653d81f2ac07f9c135718e85e3b388",
+    "bytes": 1386
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/source/shape.rs",
+    "sha256": "e214db86945e0b9df8336edc7974041ebcfe77f2f1884a565a77a0392fca1165",
+    "bytes": 129620
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/source-anchors.json",
+    "sha256": "9bc4f284e7569b99257b1fc6d9912d202266097f98f0ff2ddecf44f8c4452e55",
+    "bytes": 2074
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/source-audit-result.json",
+    "sha256": "ef5e6bc1249d28b275b3abbc633ce335526455f0f4d5bcfd18ef384dbc404e7a",
+    "bytes": 269
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/source-manifest.json",
+    "sha256": "a7ba959727ec64e3eab9fec6e87c1eb4435cc1427203d605a1dd621d17707f54",
+    "bytes": 1652
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/source-records.jsonl",
+    "sha256": "3ae2141be407a20cfcba544e2bd656db9be08b6030b5d8ec5cb5a4bd6dec02c9",
+    "bytes": 13996
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/source_audit.py",
+    "sha256": "e7b0d0a7b07069e5bb85b9ffcfa2f123e827da90aa4779ab7c078f2a15ad727a",
+    "bytes": 2679
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/startup/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/startup/docs__zkmatrix-poc__MVP_STATUS.md",
+    "sha256": "f73d94ab2b89d12697272a68ebcdde00e60470e2bceabb5af1304d054871f5dc",
+    "bytes": 88375
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/startup/docs__zkmatrix-poc__START_HERE.md",
+    "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d",
+    "bytes": 42025
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/startup/docs__zkmatrix-poc__ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/startup/docs__zkmatrix-poc__ZK60_DECISIONS.md",
+    "sha256": "696a1df351be0bb969d7e65ccb85c7bb82d2c525c0208d053eb640c8e91ff56b",
+    "bytes": 116021
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/startup/docs__zkmatrix-poc__ZK60_PRIVACY_REQUIREMENTS.md",
+    "sha256": "77037699ed0a89471d72795e112812276bdca1850078fbdd24abee26d7ff04a3",
+    "bytes": 2264
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/startup/docs__zkmatrix-poc__ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/startup/manifest.json",
+    "sha256": "2d3eb823aa4af8620d12660d35200eb11e8af7a701f5e90793ee50acfd0ffd90",
+    "bytes": 31641
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/startup/research__zkp-efficiency__AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/startup/research__zkp-efficiency__FINDINGS.md",
+    "sha256": "54374ca6efe11f8df98fbe4cec7e5dee77ecf048c6fd3f3a054cf9df96a9f91a",
+    "bytes": 878776
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/startup/research__zkp-efficiency__PROGRESS.md",
+    "sha256": "e4e3c4c7fde36750960592c567725398a17338c455f467096186b654aa546566",
+    "bytes": 2266
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/startup/research__zkp-efficiency__STATE.md",
+    "sha256": "5eaf40c7fc0cb271c155118ce68a5b77a08c901d67d5afa6877e8b6d4a630b70",
+    "bytes": 4889
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/startup/research__zkp-efficiency__sources.jsonl",
+    "sha256": "3fe863a00caef711fceb315c5bfe3dc22667bce6012468e8b88b7aed5a7df819",
+    "bytes": 938955
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/startup/source-summary.json",
+    "sha256": "cfc64599129bc98bcc8dc0b17e0bf5c6d32b5f382e96eaa0abccd782813e3519",
+    "bytes": 15542
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/target-accounting.json",
+    "sha256": "e37ffd6246e13c66e981f4b837289ad2d97eb60cec647deacecccd609b0b2421",
+    "bytes": 569
+  },
+  {
+    "path": "experiments/u8-address-increment-20261021/write_reports.py",
+    "sha256": "96dd45c51d9760db4cc7536b2a6a36e496e4f51d3fddfd91ccc43d6c4e863989",
+    "bytes": 21609
+  }
+]

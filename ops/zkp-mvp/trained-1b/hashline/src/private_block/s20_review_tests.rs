@@ -272,6 +272,7 @@ fn build(sh: &Shape, seed: u64, degenerate: bool) -> Built {
         g_u8: Fp2::from_u64(13),
         g_exp: Fp2::from_u64(17),
         g_act: Fp2::from_u64(19),
+        g_dd: Fp2::from_u64(23),
     };
     // a pseudo-random A buffer: the identity is algebraic in the contents
     let n = 1usize << sh.log_cols;
@@ -421,6 +422,7 @@ fn the_group_eq_carries_the_head_challenges_own_group_bits() {
             g_u8: Fp2::from_u64(13),
             g_exp: Fp2::from_u64(17),
             g_act: Fp2::from_u64(19),
+            g_dd: Fp2::from_u64(23),
         };
         let mut tr = crate::transcript::Transcript::new(sh.profile.as_bytes());
         let mut pts = Points::default();

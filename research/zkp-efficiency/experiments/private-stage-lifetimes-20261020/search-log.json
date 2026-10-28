@@ -1,0 +1,32 @@
+{
+  "access_date": "2026-10-20",
+  "tool": "web.run native LIVE",
+  "queries": [
+    "GPU NTT commitment memory allocation sumcheck prover 2026 October github release",
+    "zkLLM lookup softmax GPU memory commitments 2026 repository",
+    "GPU NTT commitments memory efficient streaming 2026 ICICLE release",
+    "zero knowledge pebbling memory streaming prover",
+    "vDNN offloading GPU memory 2016 paper"
+  ],
+  "primary_urls": [
+    "https://arxiv.org/abs/2610.13003",
+    "https://research.nvidia.com/publication/2016-10_vdnn-virtualized-deep-neural-networks-scalable-memory-efficient-neural-network",
+    "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+    "https://github.com/succinctlabs/sp1/releases/tag/v6.9.0",
+    "https://arxiv.org/abs/2610.08258",
+    "https://arxiv.org/abs/2606.16146",
+    "https://github.com/jvhs0706/zkllm-ccs2024"
+  ],
+  "outcomes": "Two new memory-scheduling leads; known NTT and lookup sources refreshed. Fork/commit/license fetch failures retained in records. No downloaded code executed or dependencies installed.",
+  "next_rotation": [
+    "sumcheck/GKR",
+    "quantization/arithmetic",
+    "proof composition",
+    "batching/amortization"
+  ],
+  "kept_rotation": [
+    "GPU NTT/commitments",
+    "lookup/softmax",
+    "memory traffic"
+  ]
+}

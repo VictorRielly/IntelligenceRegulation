@@ -69,6 +69,13 @@ for budget admission, so while long light jobs hold the budget it blocks every
 other heavy job, including smaller ones that would fit. Until fixed, light
 lanes keep their declared needs and run lengths modest when a large heavy job
 is queued.
+**Update 2026-10-26 19:00 UTC (D42):** the guard fix is installed (sha256
+87138bda…, swapped by Sol S3; both static pins updated). The SECOND gap is
+closed: a job now waits for budget admission before it takes the heavy lock.
+The FIRST gap remains by default: the fair (FIFO) admission mode exists but is
+OFF (`/tmp/zk-guard/fifo.on` turns it on; only the coordinator switches it, and
+announces it here). So the coordinator may still ask light lanes to hold while
+a large job waits.
 
 Priority is a courtesy order for queuing, not a reason to wait idle: queue
 your job through the guard and keep doing non-heavy work meanwhile. Keep any
@@ -92,3 +99,29 @@ and write `.done` markers. A successor resumes each lane from its ledger:
   done; B6_REPORT.md owed.
 - Owed reviews: R5b re-check + 8B T64/T128 profiles; privacy acceptance path
   per `results/zk60_privacy_review_trained_t32_20261017/REVIEW.md`.
+
+## Addendum 2026-10-19 20:25 UTC — declarations and holds (binding for new queues)
+
+- Declare `--need-gib` from the job's MEASURED peak (guard history) plus a
+  margin of ~25% or 0.5 GiB, not a round guess: an over-declared light job
+  (6.5 GiB declared, ~2 GiB used) blocks an 8 GiB prove for its whole run.
+- Every queue script checks a hold file before launching each job, e.g.
+  `while [ -e "$LANE_DIR/HOLD" ]; do sleep 30; done`, so the coordinator can
+  pause a lane by creating a file — no signals, no edits to a running script
+  (both are refused). Lanes also honour a coordinator-named release marker.
+- A running bash script reads its file lazily: never edit it in place.
+
+## Addendum 2026-10-21 06:15 UTC — pre-check before every heavy launch (binding)
+
+Until the guard fix (`results/zk60_guard_fix_20261021/`, reviewed "apply with
+fixes") is swapped in, the guard still takes the heavy lock BEFORE budget
+admission. Every cpu/build/gpu launch must therefore first poll
+`python3 scripts/zk60_resource_guard.py check --class <c> --need-gib <n>` until
+it prints "OK to start now" (as native `r8_stack.sh`'s `pre()` loop does), and
+only then call `run`. A launch that waits inside `run` holding the lock blocks
+every other heavy job on the box. Running scripts are not edited; new launches
+follow this rule.
+**Update 2026-10-26 19:00 UTC (D42):** the fix is swapped in, so a job waiting
+inside `run` no longer holds the heavy lock. The pre-check is no longer needed
+for lock safety; existing scripts may keep it (it is harmless), and new
+scripts may call `run` directly.

@@ -23,6 +23,24 @@ challenges:
   and keys present are each REFUSED by `Calibration` (no silent mixture of a
   frozen and a trained reading).
 
+[v17, gate round 14] A run whose layers carry their OWN constants (native
+R8 / R9 `stage_shape`) is evaluated stage by stage at each stage's
+calibration (`zk60_native_rg_stagecal`).  TL-1 and TL-2 then perturb EVERY
+stage's shape (passed to `check_terminals` as `stage_shapes`), and their
+prediction is per (stage, slot): stage k fails in the slots that read a
+constant that differs at stage k.  Two families are added:
+
+* **TL-5** (the failing-first control of the per-stage calibration) each
+  stage with own constants evaluated at the RUN shape instead, as tools v16
+  would: predicted, exactly that stage's slots that read one of its own
+  constants, and nothing else.  Named not applicable at a run without own
+  constants.
+* **TL-6** the stage-line reader's refusals on edited copies of run.json:
+  an own value changed in a line (SC-5, the schedule digest), a clause's run
+  value that is not the shape's (SC-1), a clause equal to the run's (SC-2),
+  two clauses swapped (SC-3), and a mistyped label (SC-4).  Each must be
+  refused with its code.
+
 Nothing is written to the bundle: each perturbation is a shallow copy of the
 loaded bundle with a modified `run["shape"]`.  NOTHING HERE IS A PRIVACY
 STATEMENT.
@@ -49,6 +67,7 @@ from zk60_native_rg_terminals import (  # noqa: E402
     Calibration,
     check_terminals,
 )
+import zk60_native_rg_stagecal as SCAL  # noqa: E402  [v17]
 
 # Which slot's relation (or lookup list) reads which calibration constant,
 # from `argument.rs` / `layout.rs` at the trained digests (the readings in
@@ -152,10 +171,100 @@ def tl4_table_swaps(bundle, index, replay) -> list:
     return out
 
 
+def tl5_run_shape_at_own_stages(bundle, index, replay, shapes_of) -> list:
+    """[v17] **TL-5: a stage with its own constants evaluated at the RUN
+    shape** (what tools v16 did for every stage).  Predicted: exactly that
+    stage's slots that read one of its own constants fail, and no slot of
+    any other stage."""
+    run_shape = bundle.run["shape"]
+    own = [k for k, sh in enumerate(shapes_of) if sh is not run_shape]
+    if not own:
+        return [{"control": "TL-5", "skipped": "no stage carries its own "
+                 "calibration constants (every stage is at the run shape)",
+                 "ok": True, "fires": None}]
+    out = []
+    for k in own:
+        keys = [key for key in TRAINED_KEYS if int(shapes_of[k][key]) != int(run_shape[key])]
+        stages = list(shapes_of)
+        stages[k] = run_shape
+        rec = check_terminals(bundle, index, replay=replay, stage_shapes=stages)
+        got = _failing_pairs(rec)
+        want = {(k, sl) for key in keys for sl in READS[key]}
+        c = {"control": f"TL-5/stage-{k}", "perturbation": f"stage {k} evaluated "
+             f"at the run shape, not at its own {keys}",
+             "predicted_failing": sorted(list(x) for x in want),
+             "failing": sorted(list(x) for x in got), "fires": not rec["ok"],
+             "exactly_as_predicted": got == want}
+        c["ok"] = c["fires"] and c["exactly_as_predicted"]
+        out.append(c)
+    return out
+
+
+def tl6_stage_line_refusals(bundle) -> list:
+    """[v17] **TL-6: the stage-line reader refuses edited lines**, each by
+    its code (`zk60_native_rg_stagecal` SC-1..SC-5), on copies of run.json.
+    At a run whose lines carry no own clause, one is ADDED for SC-5 (an
+    unbound clause) and the others are named not applicable."""
+    run = bundle.run
+    if "token_io" in run:
+        return [{"control": "TL-6", "skipped": "a token-I/O run: the stage-line "
+                 "reader does not apply (tokenblocks' per-block shim)", "ok": True,
+                 "fires": None}]
+    lines = list(run.get("stage_lines") or [])
+    k = next((i for i, ln in enumerate(lines) if SCAL.OWN_CLAUSE.search(ln)), None)
+    cases = []
+    if k is None:
+        if not lines or run["shape"].get("trained_calibration") is not True:
+            return [{"control": "TL-6", "skipped": "no stage lines or no trained "
+                     "calibration", "ok": True, "fires": None}]
+        b = int(run["shape"]["sh_s"])
+        v = b + 1 if b + 1 <= WINDOWS["sh_s"][1] else b - 1
+        added = lines[-1] + f"; score shift {v} (the layer's own; the run's is {b})"
+        cases.append(("TL-6/added-clause", "SC-5", len(lines) - 1, added))
+    else:
+        ln = lines[k]
+        m = SCAL.OWN_CLAUSE.search(ln)
+        lab, v, b = m.group(1), int(m.group(2)), int(m.group(3))
+        clause = m.group(0)
+        cases.append(("TL-6/own-value-edited", "SC-5", k, ln.replace(
+            clause, f"; {lab} {v + 1} (the layer's own; the run's is {b})", 1)))
+        cases.append(("TL-6/run-value-not-the-shape's", "SC-1", k, ln.replace(
+            clause, f"; {lab} {v} (the layer's own; the run's is {b + 1})", 1)))
+        cases.append(("TL-6/own-equal-to-run", "SC-2", k, ln.replace(
+            clause, f"; {lab} {b} (the layer's own; the run's is {b})", 1)))
+        clauses = SCAL.OWN_CLAUSE.findall(ln[SCAL.DATA_ROWS.search(ln).end():])
+        if len(clauses) >= 2:
+            head = ln[:SCAL.DATA_ROWS.search(ln).end()]
+            sw = [clauses[1], clauses[0]] + clauses[2:]
+            cases.append(("TL-6/clauses-swapped", "SC-3", k, head + "".join(
+                f"; {a} {x} (the layer's own; the run's is {y})" for a, x, y in sw)))
+        cases.append(("TL-6/label-mistyped", "SC-4", k, ln.replace(
+            clause, clause.replace(lab, lab.upper(), 1), 1)))
+    out = []
+    for name, code, at, edited in cases:
+        r2 = dict(run)
+        l2 = list(lines)
+        l2[at] = edited
+        r2["stage_lines"] = l2
+        if code in ("SC-1", "SC-2", "SC-3", "SC-4"):
+            # bind the edited lines, so the refusal is the reader's and not the digest's
+            dig = SCAL.schedule_digest(r2)
+            r2["schedule_digest"] = list(bytes.fromhex(dig["recomputed"]))
+        try:
+            SCAL.stage_shapes(r2)
+            refused, why = False, None
+        except ValueError as exc:
+            refused, why = True, str(exc)
+        ok = refused and why.startswith(code)
+        out.append({"control": name, "stage": at, "expected_code": code,
+                    "refused": refused, "why": why, "fires": refused, "ok": ok})
+    return out
+
+
 def tl_controls(bundle, index=None, replay=None, only=None) -> dict:
     """`only`: a set of families to run ({"TL-1", "TL-2", "TL-3", "TL-4"}); all
     by default"""
-    fam = set(only) if only else {"TL-1", "TL-2", "TL-3", "TL-4"}
+    fam = set(only) if only else {"TL-1", "TL-2", "TL-3", "TL-4", "TL-5", "TL-6"}
     shape = bundle.run["shape"]
     cal = Calibration(shape)
     if not cal.trained:
@@ -177,33 +286,64 @@ def tl_controls(bundle, index=None, replay=None, only=None) -> dict:
         out["why"] = "the honest identity does not hold; no control is meaningful"
         return out
 
+    # [v17] each stage's calibration (the run shape where a stage carries no
+    # own constant); TL-1 / TL-2 perturb every stage's shape
+    stage_shapes, stage_rec = SCAL.stage_shapes(bundle.run)
+    out["stage_calibration"] = stage_rec
+    n_st = len(bundle.stages)
+    shapes_of = [stage_shapes[k] if k < len(stage_shapes) else shape for k in range(n_st)]
+
+    def _pairs_reading(keys_per_stage):
+        return {(k, sl) for k, keys in enumerate(keys_per_stage) for key in keys
+                for sl in READS[key]}
+
     # TL-1: the frozen calibration
     if "TL-1" in fam:
         frozen_shape = {k: v for k, v in shape.items()
                         if k not in TRAINED_KEYS + ("trained_calibration", "d_max")}
+        frozen_stages = [{k: v for k, v in sh.items()
+                          if k not in TRAINED_KEYS + ("trained_calibration", "d_max")}
+                         for sh in shapes_of]
         differs = [k for k in TRAINED_KEYS if FROZEN_CALIBRATION[k] != cal.values[k]]
-        want = set().union(*(READS[k] for k in differs)) if differs else set()
-        rec = check_terminals(_with_shape(bundle, frozen_shape), index, replay=replay)
-        got = _failing_slots(rec)
+        differs_at = [[k for k in TRAINED_KEYS if FROZEN_CALIBRATION[k] != int(sh[k])]
+                      for sh in shapes_of]
+        want = set().union(*(READS[k] for kk in differs_at for k in kk)) if any(differs_at) else set()
+        want_pairs = _pairs_reading(differs_at)
+        rec = check_terminals(_with_shape(bundle, frozen_shape), index, replay=replay,
+                              stage_shapes=frozen_stages)
+        got, got_pairs = _failing_slots(rec), _failing_pairs(rec)
         c = {"control": "TL-1", "perturbation": "the frozen calibration "
-             "(trained keys removed)", "constants_that_differ": differs,
+             "(trained keys removed) at every stage", "constants_that_differ": differs,
+             "constants_that_differ_per_stage": differs_at,
              "predicted_failing_slots": sorted(want), "failing_slots": sorted(got),
-             "fires": not rec["ok"], "exactly_as_predicted": got == want}
+             "predicted_failing_pairs": sorted(list(x) for x in want_pairs),
+             "failing_pairs": sorted(list(x) for x in got_pairs),
+             "fires": not rec["ok"],
+             "exactly_as_predicted": got == want and got_pairs == want_pairs}
         c["ok"] = c["fires"] and c["exactly_as_predicted"]
         out["controls"].append(c)
 
-    # TL-2: each constant moved by one step inside its class
+    # TL-2: each constant moved by one step inside its class, at every stage
     if "TL-2" in fam:
         for name in TRAINED_KEYS:
             moved = dict(shape)
             moved[name] = _step(name, int(shape[name]))
-            rec = check_terminals(_with_shape(bundle, moved), index, replay=replay)
-            got = _failing_slots(rec)
+            moved_stages = [dict(sh, **{name: _step(name, int(sh[name]))}) for sh in shapes_of]
+            want_pairs = _pairs_reading([[name]] * n_st)
+            rec = check_terminals(_with_shape(bundle, moved), index, replay=replay,
+                                  stage_shapes=moved_stages)
+            got, got_pairs = _failing_slots(rec), _failing_pairs(rec)
+            per_stage = sorted({(sh[name], ms[name]) for sh, ms in zip(shapes_of, moved_stages)})
             c = {"control": f"TL-2/{name}", "perturbation":
-                 f"{name} {shape[name]} -> {moved[name]}",
+                 f"{name} {shape[name]} -> {moved[name]}" + (
+                     "" if len(per_stage) == 1 else
+                     f" (per stage {', '.join(f'{a} -> {b}' for a, b in per_stage)})"),
                  "predicted_failing_slots": sorted(READS[name]),
-                 "failing_slots": sorted(got), "fires": not rec["ok"],
-                 "exactly_as_predicted": got == READS[name]}
+                 "failing_slots": sorted(got),
+                 "predicted_failing_pairs": sorted(list(x) for x in want_pairs),
+                 "failing_pairs": sorted(list(x) for x in got_pairs),
+                 "fires": not rec["ok"],
+                 "exactly_as_predicted": got == READS[name] and got_pairs == want_pairs}
             c["ok"] = c["fires"] and c["exactly_as_predicted"]
             out["controls"].append(c)
 
@@ -227,6 +367,11 @@ def tl_controls(bundle, index=None, replay=None, only=None) -> dict:
     # TL-4 (v5, review P-20): one layer reads another layer's table
     if "TL-4" in fam:
         out["controls"] += tl4_table_swaps(bundle, index, replay)
+    # TL-5 / TL-6 (v17): the per-stage calibration
+    if "TL-5" in fam:
+        out["controls"] += tl5_run_shape_at_own_stages(bundle, index, replay, shapes_of)
+    if "TL-6" in fam:
+        out["controls"] += tl6_stage_line_refusals(bundle)
     live = [c for c in out["controls"] if not c.get("skipped")]
     out["fired"] = sum(1 for c in live if c["ok"])
     out["of"] = len(live)

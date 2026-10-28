@@ -1,0 +1,62 @@
+{
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-exp-dd-cardinality-20261020/vendor/r10/r10_weight_range_cost.py": {
+    "copy": "vendor/r10/r10_weight_range_cost.py",
+    "sha256": "ed23f51f8031b191c4079fe0e7312767647ccfd95df6ccb1e262f8478de985ad"
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-exp-dd-cardinality-20261020/vendor/r11/r11_activation_cost.py": {
+    "copy": "vendor/r11/r11_activation_cost.py",
+    "sha256": "c8dd304ad847276d45af26dcb4a5040832893ee8fc31b87811497e8351cd398c"
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-exp-dd-cardinality-20261020/result.json": {
+    "copy": "prior/result.json",
+    "sha256": "5a3b021720ee056e23ab4ca794fe85e05b173cd2fd5e9ff5a9e1cd6f2a6621be"
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-exp-dd-cardinality-20261020/cost-result.json": {
+    "copy": "prior/cost-result.json",
+    "sha256": "2e7ebfb2161222bf0910bcc9abbb58a1a48aaef0531438546ef677480dc238dd"
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-exp-dd-cardinality-20261020/validation-result.json": {
+    "copy": "prior/validation-result.json",
+    "sha256": "97ed85ba0d01555c4d42a32b228343a4872be1c29f10e9ea408efa9abb46e09c"
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-exp-dd-cardinality-20261020/hypotheses.json": {
+    "copy": "prior/hypotheses.json",
+    "sha256": "eaa30fd382da39c3757ce3a1d4972013833172c4679c5d279186ae4057a0e927"
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-exp-dd-cardinality-20261020/source/r9__r9_ncol.json": {
+    "copy": "prior/source/r9__r9_ncol.json",
+    "sha256": "254ddf2cc7a6d2ce5c1bf0f89374376c1e05e1240de4d4843ad00a2feafc7861"
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-exp-dd-cardinality-20261020/source/r9__r9_counts.json": {
+    "copy": "prior/source/r9__r9_counts.json",
+    "sha256": "ae24df761b94390667605d888394aca03f653d81f2ac07f9c135718e85e3b388"
+  },
+  "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/shape.rs": {
+    "copy": "source/hashline/src/private_block/shape.rs",
+    "sha256": "e214db86945e0b9df8336edc7974041ebcfe77f2f1884a565a77a0392fca1165"
+  },
+  "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/layout.rs": {
+    "copy": "source/hashline/src/private_block/layout.rs",
+    "sha256": "9332802e597beacab56cfa69cfe18325bc476d2ce6485f517051992b26d26efa"
+  },
+  "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/protocol.rs": {
+    "copy": "source/hashline/src/private_block/protocol.rs",
+    "sha256": "c482402329e4da32a70c780435b2077e8054d1805b1006289f571820017564a4"
+  },
+  "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/run.rs": {
+    "copy": "source/hashline/src/private_block/run.rs",
+    "sha256": "cf80735dbea505fef939abb91ed23ed5d4b74d2a9a1464727f6f7058dfc11339"
+  },
+  "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/trained_statement.rs": {
+    "copy": "source/hashline/src/private_block/trained_statement.rs",
+    "sha256": "ac61bf90cc0d93da24c6049d6be61e7d7b9d75c662ca3817d855692de777cb52"
+  },
+  "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/zk.rs": {
+    "copy": "source/hashline/src/zk.rs",
+    "sha256": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32"
+  },
+  "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/zkp-core/src/sumcheck.rs": {
+    "copy": "source/zkp-core/src/sumcheck.rs",
+    "sha256": "fc7374bbd5e5cc4ede62e8a21d325eb62acff9b9dcc786d12eae39efbdfdbb95"
+  }
+}

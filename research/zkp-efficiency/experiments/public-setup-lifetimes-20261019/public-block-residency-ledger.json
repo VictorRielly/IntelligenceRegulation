@@ -1,0 +1,1298 @@
+[
+  {
+    "capacity_layers": 0,
+    "context": 32,
+    "lru": {
+      "hits": 0,
+      "misses": 64,
+      "requests": 64
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 1,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 0,
+      "misses": 64,
+      "requests": 64
+    },
+    "retained_backing_payload_bytes": 0
+  },
+  {
+    "capacity_layers": 1,
+    "context": 32,
+    "lru": {
+      "hits": 0,
+      "misses": 64,
+      "requests": 64
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 1,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 1,
+      "misses": 63,
+      "requests": 64
+    },
+    "retained_backing_payload_bytes": 243313152
+  },
+  {
+    "capacity_layers": 4,
+    "context": 32,
+    "lru": {
+      "hits": 0,
+      "misses": 64,
+      "requests": 64
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 1,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 4,
+      "misses": 60,
+      "requests": 64
+    },
+    "retained_backing_payload_bytes": 973252608
+  },
+  {
+    "capacity_layers": 16,
+    "context": 32,
+    "lru": {
+      "hits": 0,
+      "misses": 64,
+      "requests": 64
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 1,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 16,
+      "misses": 48,
+      "requests": 64
+    },
+    "retained_backing_payload_bytes": 3893010432
+  },
+  {
+    "capacity_layers": 31,
+    "context": 32,
+    "lru": {
+      "hits": 0,
+      "misses": 64,
+      "requests": 64
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 1,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 31,
+      "misses": 33,
+      "requests": 64
+    },
+    "retained_backing_payload_bytes": 7542707712
+  },
+  {
+    "capacity_layers": 32,
+    "context": 32,
+    "lru": {
+      "hits": 32,
+      "misses": 32,
+      "requests": 64
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 1,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 32,
+      "misses": 32,
+      "requests": 64
+    },
+    "retained_backing_payload_bytes": 7786020864
+  },
+  {
+    "capacity_layers": 0,
+    "context": 32,
+    "lru": {
+      "hits": 0,
+      "misses": 128,
+      "requests": 128
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 2,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 0,
+      "misses": 128,
+      "requests": 128
+    },
+    "retained_backing_payload_bytes": 0
+  },
+  {
+    "capacity_layers": 1,
+    "context": 32,
+    "lru": {
+      "hits": 0,
+      "misses": 128,
+      "requests": 128
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 2,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 3,
+      "misses": 125,
+      "requests": 128
+    },
+    "retained_backing_payload_bytes": 243313152
+  },
+  {
+    "capacity_layers": 4,
+    "context": 32,
+    "lru": {
+      "hits": 0,
+      "misses": 128,
+      "requests": 128
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 2,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 12,
+      "misses": 116,
+      "requests": 128
+    },
+    "retained_backing_payload_bytes": 973252608
+  },
+  {
+    "capacity_layers": 16,
+    "context": 32,
+    "lru": {
+      "hits": 0,
+      "misses": 128,
+      "requests": 128
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 2,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 48,
+      "misses": 80,
+      "requests": 128
+    },
+    "retained_backing_payload_bytes": 3893010432
+  },
+  {
+    "capacity_layers": 31,
+    "context": 32,
+    "lru": {
+      "hits": 0,
+      "misses": 128,
+      "requests": 128
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 2,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 93,
+      "misses": 35,
+      "requests": 128
+    },
+    "retained_backing_payload_bytes": 7542707712
+  },
+  {
+    "capacity_layers": 32,
+    "context": 32,
+    "lru": {
+      "hits": 96,
+      "misses": 32,
+      "requests": 128
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 2,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 96,
+      "misses": 32,
+      "requests": 128
+    },
+    "retained_backing_payload_bytes": 7786020864
+  },
+  {
+    "capacity_layers": 0,
+    "context": 32,
+    "lru": {
+      "hits": 0,
+      "misses": 256,
+      "requests": 256
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 4,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 0,
+      "misses": 256,
+      "requests": 256
+    },
+    "retained_backing_payload_bytes": 0
+  },
+  {
+    "capacity_layers": 1,
+    "context": 32,
+    "lru": {
+      "hits": 0,
+      "misses": 256,
+      "requests": 256
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 4,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 7,
+      "misses": 249,
+      "requests": 256
+    },
+    "retained_backing_payload_bytes": 243313152
+  },
+  {
+    "capacity_layers": 4,
+    "context": 32,
+    "lru": {
+      "hits": 0,
+      "misses": 256,
+      "requests": 256
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 4,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 28,
+      "misses": 228,
+      "requests": 256
+    },
+    "retained_backing_payload_bytes": 973252608
+  },
+  {
+    "capacity_layers": 16,
+    "context": 32,
+    "lru": {
+      "hits": 0,
+      "misses": 256,
+      "requests": 256
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 4,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 112,
+      "misses": 144,
+      "requests": 256
+    },
+    "retained_backing_payload_bytes": 3893010432
+  },
+  {
+    "capacity_layers": 31,
+    "context": 32,
+    "lru": {
+      "hits": 0,
+      "misses": 256,
+      "requests": 256
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 4,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 217,
+      "misses": 39,
+      "requests": 256
+    },
+    "retained_backing_payload_bytes": 7542707712
+  },
+  {
+    "capacity_layers": 32,
+    "context": 32,
+    "lru": {
+      "hits": 224,
+      "misses": 32,
+      "requests": 256
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 4,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 224,
+      "misses": 32,
+      "requests": 256
+    },
+    "retained_backing_payload_bytes": 7786020864
+  },
+  {
+    "capacity_layers": 0,
+    "context": 32,
+    "lru": {
+      "hits": 0,
+      "misses": 512,
+      "requests": 512
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 8,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 0,
+      "misses": 512,
+      "requests": 512
+    },
+    "retained_backing_payload_bytes": 0
+  },
+  {
+    "capacity_layers": 1,
+    "context": 32,
+    "lru": {
+      "hits": 0,
+      "misses": 512,
+      "requests": 512
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 8,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 15,
+      "misses": 497,
+      "requests": 512
+    },
+    "retained_backing_payload_bytes": 243313152
+  },
+  {
+    "capacity_layers": 4,
+    "context": 32,
+    "lru": {
+      "hits": 0,
+      "misses": 512,
+      "requests": 512
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 8,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 60,
+      "misses": 452,
+      "requests": 512
+    },
+    "retained_backing_payload_bytes": 973252608
+  },
+  {
+    "capacity_layers": 16,
+    "context": 32,
+    "lru": {
+      "hits": 0,
+      "misses": 512,
+      "requests": 512
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 8,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 240,
+      "misses": 272,
+      "requests": 512
+    },
+    "retained_backing_payload_bytes": 3893010432
+  },
+  {
+    "capacity_layers": 31,
+    "context": 32,
+    "lru": {
+      "hits": 0,
+      "misses": 512,
+      "requests": 512
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 8,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 465,
+      "misses": 47,
+      "requests": 512
+    },
+    "retained_backing_payload_bytes": 7542707712
+  },
+  {
+    "capacity_layers": 32,
+    "context": 32,
+    "lru": {
+      "hits": 480,
+      "misses": 32,
+      "requests": 512
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 8,
+    "per_layer_backing_payload_bytes": 243313152,
+    "public_fixed_pinned_subset": {
+      "hits": 480,
+      "misses": 32,
+      "requests": 512
+    },
+    "retained_backing_payload_bytes": 7786020864
+  },
+  {
+    "capacity_layers": 0,
+    "context": 64,
+    "lru": {
+      "hits": 0,
+      "misses": 64,
+      "requests": 64
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 1,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 0,
+      "misses": 64,
+      "requests": 64
+    },
+    "retained_backing_payload_bytes": 0
+  },
+  {
+    "capacity_layers": 1,
+    "context": 64,
+    "lru": {
+      "hits": 0,
+      "misses": 64,
+      "requests": 64
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 1,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 1,
+      "misses": 63,
+      "requests": 64
+    },
+    "retained_backing_payload_bytes": 243345920
+  },
+  {
+    "capacity_layers": 4,
+    "context": 64,
+    "lru": {
+      "hits": 0,
+      "misses": 64,
+      "requests": 64
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 1,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 4,
+      "misses": 60,
+      "requests": 64
+    },
+    "retained_backing_payload_bytes": 973383680
+  },
+  {
+    "capacity_layers": 16,
+    "context": 64,
+    "lru": {
+      "hits": 0,
+      "misses": 64,
+      "requests": 64
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 1,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 16,
+      "misses": 48,
+      "requests": 64
+    },
+    "retained_backing_payload_bytes": 3893534720
+  },
+  {
+    "capacity_layers": 31,
+    "context": 64,
+    "lru": {
+      "hits": 0,
+      "misses": 64,
+      "requests": 64
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 1,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 31,
+      "misses": 33,
+      "requests": 64
+    },
+    "retained_backing_payload_bytes": 7543723520
+  },
+  {
+    "capacity_layers": 32,
+    "context": 64,
+    "lru": {
+      "hits": 32,
+      "misses": 32,
+      "requests": 64
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 1,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 32,
+      "misses": 32,
+      "requests": 64
+    },
+    "retained_backing_payload_bytes": 7787069440
+  },
+  {
+    "capacity_layers": 0,
+    "context": 64,
+    "lru": {
+      "hits": 0,
+      "misses": 128,
+      "requests": 128
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 2,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 0,
+      "misses": 128,
+      "requests": 128
+    },
+    "retained_backing_payload_bytes": 0
+  },
+  {
+    "capacity_layers": 1,
+    "context": 64,
+    "lru": {
+      "hits": 0,
+      "misses": 128,
+      "requests": 128
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 2,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 3,
+      "misses": 125,
+      "requests": 128
+    },
+    "retained_backing_payload_bytes": 243345920
+  },
+  {
+    "capacity_layers": 4,
+    "context": 64,
+    "lru": {
+      "hits": 0,
+      "misses": 128,
+      "requests": 128
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 2,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 12,
+      "misses": 116,
+      "requests": 128
+    },
+    "retained_backing_payload_bytes": 973383680
+  },
+  {
+    "capacity_layers": 16,
+    "context": 64,
+    "lru": {
+      "hits": 0,
+      "misses": 128,
+      "requests": 128
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 2,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 48,
+      "misses": 80,
+      "requests": 128
+    },
+    "retained_backing_payload_bytes": 3893534720
+  },
+  {
+    "capacity_layers": 31,
+    "context": 64,
+    "lru": {
+      "hits": 0,
+      "misses": 128,
+      "requests": 128
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 2,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 93,
+      "misses": 35,
+      "requests": 128
+    },
+    "retained_backing_payload_bytes": 7543723520
+  },
+  {
+    "capacity_layers": 32,
+    "context": 64,
+    "lru": {
+      "hits": 96,
+      "misses": 32,
+      "requests": 128
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 2,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 96,
+      "misses": 32,
+      "requests": 128
+    },
+    "retained_backing_payload_bytes": 7787069440
+  },
+  {
+    "capacity_layers": 0,
+    "context": 64,
+    "lru": {
+      "hits": 0,
+      "misses": 256,
+      "requests": 256
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 4,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 0,
+      "misses": 256,
+      "requests": 256
+    },
+    "retained_backing_payload_bytes": 0
+  },
+  {
+    "capacity_layers": 1,
+    "context": 64,
+    "lru": {
+      "hits": 0,
+      "misses": 256,
+      "requests": 256
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 4,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 7,
+      "misses": 249,
+      "requests": 256
+    },
+    "retained_backing_payload_bytes": 243345920
+  },
+  {
+    "capacity_layers": 4,
+    "context": 64,
+    "lru": {
+      "hits": 0,
+      "misses": 256,
+      "requests": 256
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 4,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 28,
+      "misses": 228,
+      "requests": 256
+    },
+    "retained_backing_payload_bytes": 973383680
+  },
+  {
+    "capacity_layers": 16,
+    "context": 64,
+    "lru": {
+      "hits": 0,
+      "misses": 256,
+      "requests": 256
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 4,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 112,
+      "misses": 144,
+      "requests": 256
+    },
+    "retained_backing_payload_bytes": 3893534720
+  },
+  {
+    "capacity_layers": 31,
+    "context": 64,
+    "lru": {
+      "hits": 0,
+      "misses": 256,
+      "requests": 256
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 4,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 217,
+      "misses": 39,
+      "requests": 256
+    },
+    "retained_backing_payload_bytes": 7543723520
+  },
+  {
+    "capacity_layers": 32,
+    "context": 64,
+    "lru": {
+      "hits": 224,
+      "misses": 32,
+      "requests": 256
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 4,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 224,
+      "misses": 32,
+      "requests": 256
+    },
+    "retained_backing_payload_bytes": 7787069440
+  },
+  {
+    "capacity_layers": 0,
+    "context": 64,
+    "lru": {
+      "hits": 0,
+      "misses": 512,
+      "requests": 512
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 8,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 0,
+      "misses": 512,
+      "requests": 512
+    },
+    "retained_backing_payload_bytes": 0
+  },
+  {
+    "capacity_layers": 1,
+    "context": 64,
+    "lru": {
+      "hits": 0,
+      "misses": 512,
+      "requests": 512
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 8,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 15,
+      "misses": 497,
+      "requests": 512
+    },
+    "retained_backing_payload_bytes": 243345920
+  },
+  {
+    "capacity_layers": 4,
+    "context": 64,
+    "lru": {
+      "hits": 0,
+      "misses": 512,
+      "requests": 512
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 8,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 60,
+      "misses": 452,
+      "requests": 512
+    },
+    "retained_backing_payload_bytes": 973383680
+  },
+  {
+    "capacity_layers": 16,
+    "context": 64,
+    "lru": {
+      "hits": 0,
+      "misses": 512,
+      "requests": 512
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 8,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 240,
+      "misses": 272,
+      "requests": 512
+    },
+    "retained_backing_payload_bytes": 3893534720
+  },
+  {
+    "capacity_layers": 31,
+    "context": 64,
+    "lru": {
+      "hits": 0,
+      "misses": 512,
+      "requests": 512
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 8,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 465,
+      "misses": 47,
+      "requests": 512
+    },
+    "retained_backing_payload_bytes": 7543723520
+  },
+  {
+    "capacity_layers": 32,
+    "context": 64,
+    "lru": {
+      "hits": 480,
+      "misses": 32,
+      "requests": 512
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 8,
+    "per_layer_backing_payload_bytes": 243345920,
+    "public_fixed_pinned_subset": {
+      "hits": 480,
+      "misses": 32,
+      "requests": 512
+    },
+    "retained_backing_payload_bytes": 7787069440
+  },
+  {
+    "capacity_layers": 0,
+    "context": 128,
+    "lru": {
+      "hits": 0,
+      "misses": 64,
+      "requests": 64
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 1,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 0,
+      "misses": 64,
+      "requests": 64
+    },
+    "retained_backing_payload_bytes": 0
+  },
+  {
+    "capacity_layers": 1,
+    "context": 128,
+    "lru": {
+      "hits": 0,
+      "misses": 64,
+      "requests": 64
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 1,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 1,
+      "misses": 63,
+      "requests": 64
+    },
+    "retained_backing_payload_bytes": 243411456
+  },
+  {
+    "capacity_layers": 4,
+    "context": 128,
+    "lru": {
+      "hits": 0,
+      "misses": 64,
+      "requests": 64
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 1,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 4,
+      "misses": 60,
+      "requests": 64
+    },
+    "retained_backing_payload_bytes": 973645824
+  },
+  {
+    "capacity_layers": 16,
+    "context": 128,
+    "lru": {
+      "hits": 0,
+      "misses": 64,
+      "requests": 64
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 1,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 16,
+      "misses": 48,
+      "requests": 64
+    },
+    "retained_backing_payload_bytes": 3894583296
+  },
+  {
+    "capacity_layers": 31,
+    "context": 128,
+    "lru": {
+      "hits": 0,
+      "misses": 64,
+      "requests": 64
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 1,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 31,
+      "misses": 33,
+      "requests": 64
+    },
+    "retained_backing_payload_bytes": 7545755136
+  },
+  {
+    "capacity_layers": 32,
+    "context": 128,
+    "lru": {
+      "hits": 32,
+      "misses": 32,
+      "requests": 64
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 1,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 32,
+      "misses": 32,
+      "requests": 64
+    },
+    "retained_backing_payload_bytes": 7789166592
+  },
+  {
+    "capacity_layers": 0,
+    "context": 128,
+    "lru": {
+      "hits": 0,
+      "misses": 128,
+      "requests": 128
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 2,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 0,
+      "misses": 128,
+      "requests": 128
+    },
+    "retained_backing_payload_bytes": 0
+  },
+  {
+    "capacity_layers": 1,
+    "context": 128,
+    "lru": {
+      "hits": 0,
+      "misses": 128,
+      "requests": 128
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 2,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 3,
+      "misses": 125,
+      "requests": 128
+    },
+    "retained_backing_payload_bytes": 243411456
+  },
+  {
+    "capacity_layers": 4,
+    "context": 128,
+    "lru": {
+      "hits": 0,
+      "misses": 128,
+      "requests": 128
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 2,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 12,
+      "misses": 116,
+      "requests": 128
+    },
+    "retained_backing_payload_bytes": 973645824
+  },
+  {
+    "capacity_layers": 16,
+    "context": 128,
+    "lru": {
+      "hits": 0,
+      "misses": 128,
+      "requests": 128
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 2,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 48,
+      "misses": 80,
+      "requests": 128
+    },
+    "retained_backing_payload_bytes": 3894583296
+  },
+  {
+    "capacity_layers": 31,
+    "context": 128,
+    "lru": {
+      "hits": 0,
+      "misses": 128,
+      "requests": 128
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 2,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 93,
+      "misses": 35,
+      "requests": 128
+    },
+    "retained_backing_payload_bytes": 7545755136
+  },
+  {
+    "capacity_layers": 32,
+    "context": 128,
+    "lru": {
+      "hits": 96,
+      "misses": 32,
+      "requests": 128
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 2,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 96,
+      "misses": 32,
+      "requests": 128
+    },
+    "retained_backing_payload_bytes": 7789166592
+  },
+  {
+    "capacity_layers": 0,
+    "context": 128,
+    "lru": {
+      "hits": 0,
+      "misses": 256,
+      "requests": 256
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 4,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 0,
+      "misses": 256,
+      "requests": 256
+    },
+    "retained_backing_payload_bytes": 0
+  },
+  {
+    "capacity_layers": 1,
+    "context": 128,
+    "lru": {
+      "hits": 0,
+      "misses": 256,
+      "requests": 256
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 4,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 7,
+      "misses": 249,
+      "requests": 256
+    },
+    "retained_backing_payload_bytes": 243411456
+  },
+  {
+    "capacity_layers": 4,
+    "context": 128,
+    "lru": {
+      "hits": 0,
+      "misses": 256,
+      "requests": 256
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 4,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 28,
+      "misses": 228,
+      "requests": 256
+    },
+    "retained_backing_payload_bytes": 973645824
+  },
+  {
+    "capacity_layers": 16,
+    "context": 128,
+    "lru": {
+      "hits": 0,
+      "misses": 256,
+      "requests": 256
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 4,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 112,
+      "misses": 144,
+      "requests": 256
+    },
+    "retained_backing_payload_bytes": 3894583296
+  },
+  {
+    "capacity_layers": 31,
+    "context": 128,
+    "lru": {
+      "hits": 0,
+      "misses": 256,
+      "requests": 256
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 4,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 217,
+      "misses": 39,
+      "requests": 256
+    },
+    "retained_backing_payload_bytes": 7545755136
+  },
+  {
+    "capacity_layers": 32,
+    "context": 128,
+    "lru": {
+      "hits": 224,
+      "misses": 32,
+      "requests": 256
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 4,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 224,
+      "misses": 32,
+      "requests": 256
+    },
+    "retained_backing_payload_bytes": 7789166592
+  },
+  {
+    "capacity_layers": 0,
+    "context": 128,
+    "lru": {
+      "hits": 0,
+      "misses": 512,
+      "requests": 512
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 8,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 0,
+      "misses": 512,
+      "requests": 512
+    },
+    "retained_backing_payload_bytes": 0
+  },
+  {
+    "capacity_layers": 1,
+    "context": 128,
+    "lru": {
+      "hits": 0,
+      "misses": 512,
+      "requests": 512
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 8,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 15,
+      "misses": 497,
+      "requests": 512
+    },
+    "retained_backing_payload_bytes": 243411456
+  },
+  {
+    "capacity_layers": 4,
+    "context": 128,
+    "lru": {
+      "hits": 0,
+      "misses": 512,
+      "requests": 512
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 8,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 60,
+      "misses": 452,
+      "requests": 512
+    },
+    "retained_backing_payload_bytes": 973645824
+  },
+  {
+    "capacity_layers": 16,
+    "context": 128,
+    "lru": {
+      "hits": 0,
+      "misses": 512,
+      "requests": 512
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 8,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 240,
+      "misses": 272,
+      "requests": 512
+    },
+    "retained_backing_payload_bytes": 3894583296
+  },
+  {
+    "capacity_layers": 31,
+    "context": 128,
+    "lru": {
+      "hits": 0,
+      "misses": 512,
+      "requests": 512
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 8,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 465,
+      "misses": 47,
+      "requests": 512
+    },
+    "retained_backing_payload_bytes": 7545755136
+  },
+  {
+    "capacity_layers": 32,
+    "context": 128,
+    "lru": {
+      "hits": 480,
+      "misses": 32,
+      "requests": 512
+    },
+    "note": "Synthetic public constructor-access trace. Retaining public words avoids only identified load/rebuild work, not any CS gate, per-input sealing, witness, proof or randomness. No actual resident source or bytes retained.",
+    "passes": 8,
+    "per_layer_backing_payload_bytes": 243411456,
+    "public_fixed_pinned_subset": {
+      "hits": 480,
+      "misses": 32,
+      "requests": 512
+    },
+    "retained_backing_payload_bytes": 7789166592
+  }
+]

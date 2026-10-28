@@ -1,0 +1,9 @@
+{
+  "status": "FAIL",
+  "stage": "checkpoint artifact consistency, after successful experiments",
+  "cause": "Dated progress report inherited research-root relative links to experiments/ and handoffs/.",
+  "error": "AssertionError at missing relative-target check",
+  "fix": "checkpoint.py now prefixes ../ in dated-report links; research-root links remain relative to their proper files.",
+  "experiment_results_affected": false,
+  "production_affected": false
+}

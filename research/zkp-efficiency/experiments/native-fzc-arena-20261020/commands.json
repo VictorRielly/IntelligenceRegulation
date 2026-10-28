@@ -1,0 +1,178 @@
+[
+  {
+    "leaf": "probe.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/native-fzc-arena-20261020/probe.py"
+    ],
+    "started_at": "2026-10-20T04:23:03.243419+00:00",
+    "exit_code": 0,
+    "wall_seconds": 11.837842619002913,
+    "maxrss_kib": 17180,
+    "sha256": "e646ae7a2dd7e84926bd79004d0088270724d9a513b632e6362de299c7de838b",
+    "stdout": "00-probe.py.stdout.log",
+    "stderr": "00-probe.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "census.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/native-fzc-arena-20261020/census.py"
+    ],
+    "started_at": "2026-10-20T04:24:11.134717+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.08493459000601433,
+    "maxrss_kib": 17148,
+    "sha256": "70352137cb3c5540b357706208889f3f8eda64a80d4bd121aee9233e9d5ae21a",
+    "stdout": "01-census.py.stdout.log",
+    "stderr": "01-census.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "probe.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/native-fzc-arena-20261020/probe.py"
+    ],
+    "started_at": "2026-10-20T04:24:23.438989+00:00",
+    "exit_code": 0,
+    "wall_seconds": 14.316864323001937,
+    "maxrss_kib": 17060,
+    "sha256": "e72661099c934b4cadb82a9db989d746e0022a372f30993db00142d9df9b3678",
+    "stdout": "02-probe.py.stdout.log",
+    "stderr": "02-probe.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "capacity.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/native-fzc-arena-20261020/capacity.py"
+    ],
+    "started_at": "2026-10-20T04:25:14.710458+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.7364083749998827,
+    "maxrss_kib": 51368,
+    "sha256": "715562d85f88b6b2d3ec77ea6670907b9d44d51ae4f6d0170242519223e326a1",
+    "stdout": "03-capacity.py.stdout.log",
+    "stderr": "03-capacity.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "census.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/native-fzc-arena-20261020/census.py"
+    ],
+    "started_at": "2026-10-20T04:25:53.697230+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.06279587499739137,
+    "maxrss_kib": 17264,
+    "sha256": "764e351a5f420189550c74b238f72ff5233ca29165da4b3f2d01d909364203d7",
+    "stdout": "04-census.py.stdout.log",
+    "stderr": "04-census.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "census.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/native-fzc-arena-20261020/census.py"
+    ],
+    "started_at": "2026-10-20T04:27:48.243799+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.05476492800517008,
+    "maxrss_kib": 16800,
+    "sha256": "5235a4979e2c6c375c4147e739b823b997ceb860d85ac5f2ed8f277c6cebcadd",
+    "stdout": "05-census.py.stdout.log",
+    "stderr": "05-census.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "validate.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/native-fzc-arena-20261020/validate.py"
+    ],
+    "started_at": "2026-10-20T04:31:19.987093+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.10798875699401833,
+    "maxrss_kib": 24180,
+    "sha256": "e36147be1fee11474ce52c569e046a204b725407804ee4e52fdabbd99dd5d19d",
+    "stdout": "06-validate.py.stdout.log",
+    "stderr": "06-validate.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "validate.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/native-fzc-arena-20261020/validate.py"
+    ],
+    "started_at": "2026-10-20T04:33:41.071758+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.09259730800113175,
+    "maxrss_kib": 24380,
+    "sha256": "28385f71018313d58cf112c552211998a357d53ece1ecf133b6d5dbf122f3faf",
+    "stdout": "07-validate.py.stdout.log",
+    "stderr": "07-validate.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  }
+]

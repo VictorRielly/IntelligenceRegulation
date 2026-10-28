@@ -1,0 +1,11 @@
+zk60_token_io round-11 CPU binary (review REVIEW6 TR7-5 / TR7-6 / TR7-7 on top of round 9)
+file:      /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_token_io.r11.release.bin
+sha256:    0c9f247c0f91162177f8ed90285f8664cc4dd36ebd8934dc650804bafe5c2c6b
+built:     2026-10-20T06:53:00Z on MSI, by tools/r11_chain.sh (log logs/b11-cli-build.log)
+command:   /home/victor/.cargo/bin/cargo build --release --offline --locked -j2 --manifest-path /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io/hashline/Cargo.toml --example zk60_token_io
+toolchain: rustc 1.97.1 (8bab26f4f 2026-07-14); cargo 1.97.1 (c980f4866 2026-06-30)
+features:  the crate's defaults only; gpu-cuda NOT enabled (cudarc is not compiled in): CPU backend only.
+profile:   [profile.release] opt-level 3, codegen-units 1, lto fat, panic abort, debug false (hashline/Cargo.toml)
+rustflags: none (no RUSTFLAGS, no .cargo/config in the tree or $HOME); default target, no target-cpu
+source:    the lane working copy ops/zkp-mvp/token-io = manifest_r11C.sha256 (list sha256 d8075d76a32ed2483d600ebf511181247254b21413aee93c565dffbeecbd4cbe)
+scope:     a build record, not a privacy acceptance

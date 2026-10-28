@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "checks": 5643,
+  "fixtures": 21,
+  "layers": 174,
+  "MSB_MLE_cases": 348,
+  "source_pins": 15,
+  "capacity_events": 2090,
+  "rejected_capacity_shortcuts": 30,
+  "elapsed_s": 0.10370040399720892,
+  "maxrss_KiB": 16280,
+  "scope": "Independent tuple immutable trees, MSB folds, inverse exponentiation, source pins and payload event accounting; no native proof"
+}

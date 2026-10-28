@@ -1,0 +1,15 @@
+
+running 1 test
+test private_block::token_io::capture_tests::capture_the_cli_verify_path_at_tinyllama_t32_l2 ... {"event":"loaded","export_variant":"pg_rot1_b4_T32_cal128","run_profile":"hashline-zk-mr1/private-token-io-run-tinyllama-1.1b-t32-trained-statement-public-row/1","blocks":2,"trained_statement_identity":"0f4cef3ec798761eeeecf1fb4d68e3d35f6c3ae4bedbb155aeb093fec0814b6d","V":32000,"seconds":0.862}
+{"event":"sealed","blocks":2,"parity_layers":2,"seconds":0.769,"block_load_seconds":0.262}
+{"event":"segment","index":0,"bytes":1267576,"elapsed_seconds":2.421}
+{"event":"segment","index":1,"bytes":11391800,"elapsed_seconds":6.227}
+{"event":"segment","index":2,"bytes":11391800,"elapsed_seconds":9.903}
+{"event":"segment","index":3,"bytes":3371640,"elapsed_seconds":10.549}
+{"event":"proved","run":"/home/victor/zk60-owner-private/gate-r15-cli-work/runs/run-l2-ho00","owner_dir":"/home/victor/zk60-owner-private/gate-r15-cli-work/owners/run-l2-ho00.owner-private","segments":4,"receipt_bytes":27422816,"prove_seconds":10.550,"witness_seconds":0.426,"block_load_seconds":0.542,"parity_layers":2,"whole_run_floor_bits":100,"trained_statement_identity":"0f4cef3ec798761eeeecf1fb4d68e3d35f6c3ae4bedbb155aeb093fec0814b6d","vmhwm_mib":1123,"total_seconds":16.118,"backend":"gpu: off (built without --features gpu-cuda)","statement":"UNVERIFIED until zk60_token_io verify publishes <run>/statement/"}
+{"event":"verified","statement":"/home/victor/zk60-owner-private/gate-r15-cli-work/runs/run-l2-ho00/statement","published_by":"this verifier","verify_seconds":3.527,"block_load_seconds":0.315,"min_bits":95,"whole_run_floor_bits":100,"total_seconds":6.526}
+TOKEN CAPTURE THROUGH THE CLI (the named CPU binary /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_token_io.r11.release.bin (sha256 0c9f247c0f91162177f8ed90285f8664cc4dd36ebd8934dc650804bafe5c2c6b), as its own processes): TinyLlama T32 L=2, CLI prove 16.2 s, CLI verify 6.6 s, recorded verify 7.8 s, peak RSS 0.65 GiB; bundle 42276 B run.json + [2554869, 3607533, 3607876, 4915510] B stage files + 39217200 B arrays.bin in /home/victor/zk60-artifacts/token-io-r11-gate/captures/tinyllama-t32-L2-dense-pt1-cli-r11
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 665 filtered out; finished in 33.97s
+

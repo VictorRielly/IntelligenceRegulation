@@ -1,0 +1,51 @@
+[
+  {
+    "object": "CPU NttTables",
+    "key": "Compile/source/field-modulus/generator/representation/table-format identity plus capacity; immutable. No model or input key needed for this object.",
+    "lifetime": "One endpoint-preparation scope and one run-body scope today; candidate process public owner.",
+    "retained_bytes_T128": 524560,
+    "limits": "Backing Fp elements only; no allocator/Vec header or Python-object claim."
+  },
+  {
+    "object": "GPU stage-major twiddles",
+    "key": "Existing device owner and monotonic max_log in this fixed-field build; future backend/context generation/table-format identity if generalized.",
+    "lifetime": "Already process resident under OnceLock/Mutex; never shrinks.",
+    "retained_bytes_T128": 1048560,
+    "limits": "No upload saving from new CPU cache; no GPU run."
+  },
+  {
+    "object": "Layout base",
+    "key": "Complete checked native Shape (35 public fields) plus source/relation identity. Sole calibration key valid only within current sealing fixed-shape scope.",
+    "lifetime": "Existing sealing calibration cache dropped at return; stage_layout rebuilds.",
+    "retained_bytes_T128": null,
+    "limits": "Layout backing bytes and clone/overlay costs unmeasured. CS8 reconstruction stays."
+  },
+  {
+    "object": "Stage IO site overlay",
+    "key": "Derive from validated RunStatement every use; incoming/outgoing rows and segment position are not interchangeable.",
+    "lifetime": "Stage-local public overlay; internal incoming pair=data_rows+2, outgoing=data_rows.",
+    "retained_bytes_T128": null,
+    "limits": "Do not reuse whole Layout by Shape alone."
+  },
+  {
+    "object": "Immutable P1 public layer block",
+    "key": "Authenticated model/manifest/block digest/layer and geometry/table/RoPE/source identity; selected layer range controls run base and derived Shape.",
+    "lifetime": "Current proving BlockCache holds one layer; candidate fixed pinned subset spans sealing and proving.",
+    "retained_bytes_T128": 243411456,
+    "limits": "Per layer exact backing payload. All32=7789166592B; no model bytes read/copied, no memory admission."
+  },
+  {
+    "object": "SealedChain/Witness/input-output boundaries",
+    "key": "Input/attempt-specific; never part of immutable public context.",
+    "lifetime": "Sealing then consume/rebuild in that attempt; H-1 refusals before header preserved.",
+    "retained_bytes_T128": null,
+    "limits": "Prior same-attempt private replay is a different hypothesis."
+  },
+  {
+    "object": "Prepared endpoints/boundaries,A/H/M,RNG,transcript,challenge denominators",
+    "key": "Fresh proof-local identity, not reusable public setup.",
+    "lifetime": "Fresh per attempt/stage per existing protocol; owners consumed once.",
+    "retained_bytes_T128": null,
+    "limits": "No new opening, mask or private randomness reuse authorized."
+  }
+]

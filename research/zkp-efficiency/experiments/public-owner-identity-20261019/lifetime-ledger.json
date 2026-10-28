@@ -1,0 +1,25 @@
+{
+  "safe": {
+    "pins": 4,
+    "stream_slots": 2,
+    "borrowed_old_blocks": 2,
+    "budget_blocks": 6,
+    "admitted": 2,
+    "denied": 2,
+    "peak_blocks": 6,
+    "peak_bytes": 1460468736,
+    "within_budget": true
+  },
+  "unsafe": {
+    "pins": 4,
+    "stream_slots": 2,
+    "borrowed_old_blocks": 2,
+    "budget_blocks": 6,
+    "admitted": 4,
+    "denied": 0,
+    "peak_blocks": 8,
+    "peak_bytes": 1947291648,
+    "within_budget": false
+  },
+  "note": "Logical public payload only; excludes raw decode/padding temporaries, witnesses, proof buffers, allocator and device."
+}

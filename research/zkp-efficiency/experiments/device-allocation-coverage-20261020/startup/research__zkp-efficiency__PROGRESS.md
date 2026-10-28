@@ -1,0 +1,36 @@
+# ZKP efficiency progress
+
+Cycle0092 complete — `20261020T001854Z-f39e44f4` —2026-10-20 UTC.
+
+**No proving speed improvement measured.** A source-pinned CPU capacity
+model suggests preserving useful idle GPU buffers at public shape changes.
+In one synthetic four-commit row schedule,selective retention matches full
+drain peak603304480B while reducing fresh pooled allocations20->8.
+No-drain peak1794484768B;fixed-geometry full drains save0 peak and raise
+allocations5->20. These are partial-commit models,not measured VRAM or time.
+Independent audit:45703 checks,4602 events,
+590 corruptions rejected;one thread,under2s per leaf,
+under31MiB observed RSS. Existing drain/retry already exist;no native patch.
+
+New independently verified complete proofs/passes/positions **0/0/0**;
+device/context none. Witness/proof/serialization/verification clocks,
+steady/total proved rates and startup fraction unmeasured. Carried owner
+CPU8B T128 one16-thread pass,GPUoff:478.737s(0.267370 positions/s),fresh
+verify42.709s+13.681s load;researcher did not reverify. No long-context
+prefill,resident proof series or decode. Complete private8B >=50 proved
+tokens/s on RTX5090/high-endGPU remains unachieved;larger workloads allowed,
+attention may grow quadratically. No mask/opening reuse or privacy change.
+
+LIVE sources:NVIDIA allocation guide/2021 blog,cuCascade public reservations,
+SP1 October release+NTT/zerocheck diffs,zkLLMPoT v2 lookup/softmax scope.
+Source/date/license/commit limits and fetch blockers saved. Seam:cuda.rs
+pool/drain/reservation/keyed chunked commit. Next:complete public allocation
+and caller/drain census;owner native event traces and full GPU/resident
+workloads remain the largest missing evidence.
+
+[Experiment](experiments/pool-live-capacity-20261020/README.md),
+[handoff](handoffs/20261020-public-request-pool-retention.md),
+[dated report](progress/20261020T001854Z-f39e44f4.md). Only research changed;no delivery implied.
+Checkpoint 2026-10-20T00:29:53.860450+00:00.
+
+Final source/resource/report gate PASS;D33 re-pin and D34 scope read.

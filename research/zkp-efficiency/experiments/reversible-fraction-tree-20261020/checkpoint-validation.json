@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "checks": 87,
+  "source_records": 670,
+  "cycle_records": 9,
+  "ranked_hypotheses": 22,
+  "native_and_reference_pins": 16,
+  "production_doc_changes_since_start": [],
+  "checkpoint_utc": "2026-10-20T18:31:00.449209+00:00",
+  "scope": "Artifact hashes, relative report links, counts and scope fields; no proof verification"
+}

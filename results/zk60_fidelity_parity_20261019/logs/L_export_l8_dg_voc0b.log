@@ -1,0 +1,3 @@
+[18:26:17Z] seq_ho00: 32 layers chained through tlcalib.i_block, accepted, rx_block equal (174s)
+[18:27:54Z] seq_ho09: 32 layers chained through tlcalib.i_block, accepted, rx_block equal (271s)
+[18:28:05Z] export written: /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128 profile sha256 00aba3d9f75a443b0238bb889edecc5c3b0b8b07965f18a5a536d0be6a675827; per-layer keys ['exp_e_s', 'norm_cn_a', 'norm_cn_m', 'sh_ao', 'sh_h', 'sh_s', 'sh_z', 'silu_member']; words replaced in 0 layers (282s)

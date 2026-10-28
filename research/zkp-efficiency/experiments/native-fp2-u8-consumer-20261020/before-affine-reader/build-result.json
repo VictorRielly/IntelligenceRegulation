@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/home/victor/.rustup/toolchains/1.97.0-x86_64-unknown-linux-gnu/bin/rustc",
+    "--edition=2021",
+    "-C",
+    "opt-level=0",
+    "-C",
+    "codegen-units=1",
+    "-A",
+    "dead_code",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/native-fp2-u8-consumer-20261020/oracle.rs",
+    "-o",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/native-fp2-u8-consumer-20261020/oracle"
+  ],
+  "returncode": 0,
+  "elapsed_s": 0.7775358469807543,
+  "maxrss_KiB": 134956,
+  "scope": "Dependency-free pinned native field and two pure helper extractions, not native prover build."
+}

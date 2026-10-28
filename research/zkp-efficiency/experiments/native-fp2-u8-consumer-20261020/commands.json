@@ -1,0 +1,98 @@
+[
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/native-fp2-u8-consumer-20261020/build_oracle.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 0.8225425609853119,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/native-fp2-u8-consumer-20261020/probe.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 0.4693403980054427,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/native-fp2-u8-consumer-20261020/build_oracle.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 0.4711574940010905,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/native-fp2-u8-consumer-20261020/validate.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 2.082566823984962,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/native-fp2-u8-consumer-20261020/probe.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 0.3683039579773322,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/native-fp2-u8-consumer-20261020/validate.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 2.990753941005096,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  }
+]

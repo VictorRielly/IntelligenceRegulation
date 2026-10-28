@@ -1,0 +1,40 @@
+{
+  "status": "PASS",
+  "seed": 20261020107,
+  "checks": 2934,
+  "layer_consumers": 225,
+  "negative_controls": [
+    "changed_original_leaf",
+    "wrong_site_swap_preserves_root",
+    "wrong_site_order_detected_by_original_MLE",
+    "changed_point_bit_order",
+    "guessed_future_challenges_fail",
+    "changed_sample_rejected",
+    "changed_terminal_rejected",
+    "zero_denominator_at_zero_multiplicity_refused",
+    "invalid_prefix_refused_-1",
+    "invalid_prefix_refused_5",
+    "zero_equality_no_inverse",
+    "missing_global_challenge_refused",
+    "aggregate_product_shortcut_wrong",
+    "source_drift_across_scans_detected_by_original_oracle"
+  ],
+  "elapsed_s": 2.3043261760030873,
+  "maxrss_KiB": 31796,
+  "scope": "Unmasked F65537 challenge-causal tiled arithmetic and symbolic Fp2 arrays; no native protocol/proof/privacy or performance reproduction.",
+  "full_stack": {
+    "proofs": 0,
+    "passes": 0,
+    "positions": 0,
+    "context_length": null,
+    "device": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "startup_s": null,
+    "startup_fraction": null,
+    "steady_rate": null,
+    "total_rate": null
+  }
+}

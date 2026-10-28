@@ -1,0 +1,9 @@
+
+running 1 test
+test private_block::run_capture_tests::gr4_trained_tests::gr4_trained_t32_boundary_commits_exactly_the_predicted_stream ... GR4 trained replay boundary B_0 [dense: block 0's native output on ho00]: root rebuilt = true; replay stream ends where the preparer's did (next-draw probe) = true; preparer consumed exactly the predicted 1007616 bytes = true; probe non-vacuity = true; non-vacuity (site 1's first reserved word := site 0's) moves the root = true; geometry 22 rows = 16 data + 2x2 sites + 2, row width 2^12, rate 4, keyed tag = true
+GR4 trained replay boundary B_0 [all-zero plane]: root rebuilt = true; replay stream ends where the preparer's did (next-draw probe) = true; preparer consumed exactly the predicted 1007616 bytes = true; probe non-vacuity = true; non-vacuity (site 1's first reserved word := site 0's) moves the root = true; geometry 22 rows = 16 data + 2x2 sites + 2, row width 2^12, rate 4, keyed tag = true
+GR4 trained replay boundary B_0: PASS. whole test 0.89 s; process high-water mark 0.31 GiB [MEASURED, shared box, n=1]. Not a privacy result.
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 650 filtered out; finished in 0.90s
+

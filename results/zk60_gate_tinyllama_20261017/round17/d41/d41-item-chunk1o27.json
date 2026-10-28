@@ -1,0 +1,27 @@
+{
+ "label": 1,
+ "verdict_or": 1,
+ "K": 2,
+ "ranges": [
+  [
+   0,
+   23
+  ],
+  [
+   4,
+   27
+  ]
+ ],
+ "fail_closed_reasons": [
+  "chunks [0] have no accepted proof"
+ ],
+ "covers": true,
+ "chunks_given": [
+  [
+   1,
+   4,
+   27,
+   1
+  ]
+ ]
+}

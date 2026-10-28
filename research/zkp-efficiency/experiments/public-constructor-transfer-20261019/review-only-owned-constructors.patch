@@ -1,0 +1,50 @@
+--- a/hashline/src/private_block.rs
++++ b/hashline/src/private_block.rs
+@@ -542,6 +542,18 @@
+         })
+     }
+ 
++    /// Review candidate: consume public vectors only AFTER the existing check.
++    /// Unbuilt research proposal; all shape rechecks at use remain required.
++    #[allow(clippy::too_many_arguments)]
++    pub(crate) fn new_shaped_owned(
++        sh: &shape::Shape,
++        wq: Vec<i8>, wk: Vec<i8>, wv: Vec<i8>, wo: Vec<i8>, gamma_a: Vec<i8>,
++        rope_cos: Vec<i64>, rope_sin: Vec<i64>, exp: Vec<i64>,
++    ) -> Result<Self, String> {
++        Self::check_words(sh, &wq, &wk, &wv, &wo, &gamma_a, &rope_cos, &rope_sin, &exp)?;
++        Ok(Self { wq, wk, wv, wo, gamma_a, rope_cos, rope_sin, exp })
++    }
++
+     /// **RULING CS-4 (ported from the 125M lane's stage 41, round 5 of this
+     /// lane; finding G-1 of the privacy-gate lane): THE ONE CHECK of an
+     /// attention statement against a shape** — every rule of this half that
+@@ -659,6 +671,13 @@
+         Self::check_words(sh, gamma_m, wg_t, wu_t, wd_t, act)?;
+         let act: [i16; 256] = act.try_into().map_err(|_| "private block: activation table shape".to_string())?;
+         Ok(Self { gamma_m: gamma_m.to_vec(), wg_t: wg_t.to_vec(), wu_t: wu_t.to_vec(), wd_t: wd_t.to_vec(), act })
++    }
++
++    /// Review candidate: preserve check order and the typed [i16; 256] table.
++    pub(crate) fn new_shaped_owned(sh: &shape::Shape, gamma_m: Vec<i8>, wg_t: Vec<i8>, wu_t: Vec<i8>, wd_t: Vec<i8>, act: &[i16]) -> Result<Self, String> {
++        Self::check_words(sh, &gamma_m, &wg_t, &wu_t, &wd_t, act)?;
++        let act: [i16; 256] = act.try_into().map_err(|_| "private block: activation table shape".to_string())?;
++        Ok(Self { gamma_m, wg_t, wu_t, wd_t, act })
+     }
+ 
+     /// **RULING CS-1 (ported from the 125M lane's stage 40): THE ONE CHECK of
+--- a/hashline/src/private_block/trained_block.rs
++++ b/hashline/src/private_block/trained_block.rs
+@@ -1042,8 +1042,10 @@
+             pad_matrix(&ga.i8s(), 1, d, 1, dp, &id, &id),
+         ];
+         let fw = [pad_matrix(&gm.i8s(), 1, d, 1, dp, &id, &id), pad_matrix(&wg.i8s(), d, f, dp, fp, &id, &id), pad_matrix(&wu.i8s(), d, f, dp, fp, &id, &id), pad_matrix(&wd.i8s(), f, d, fp, dp, &id, &id)];
+-        let public = AttentionPublic::new_shaped(sh, &aw[0], &aw[1], &aw[2], &aw[3], &aw[4], &cos, &sin, &exp.i64s()).map_err(ctx)?;
+-        let ff = FeedForwardPublic::new_shaped(sh, &fw[0], &fw[1], &fw[2], &fw[3], &act.i16s()).map_err(ctx)?;
++        let [wq_p, wk_p, wv_p, wo_p, ga_p] = aw;
++        let [gm_p, wg_p, wu_p, wd_p] = fw;
++        let public = AttentionPublic::new_shaped_owned(sh, wq_p, wk_p, wv_p, wo_p, ga_p, cos, sin, exp.i64s()).map_err(ctx)?;
++        let ff = FeedForwardPublic::new_shaped_owned(sh, gm_p, wg_p, wu_p, wd_p, &act.i16s()).map_err(ctx)?;
+         let blk = BlockPublic::new(public, ff);
+         // the source tensors the manifest names, if it names any
+         let mut source_tensors: Vec<(String, [u8; 32])> = Vec::new();

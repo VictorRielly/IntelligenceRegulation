@@ -1,0 +1,45 @@
+diff -ruN -x __pycache__ frozen_v15/tests/test_v4_status_g10.py frozen_v16/tests/test_v4_status_g10.py
+--- frozen_v15/tests/test_v4_status_g10.py	2026-10-19 20:10:49.020453124 -0700
++++ frozen_v16/tests/test_v4_status_g10.py	2026-10-19 21:27:54.008404572 -0700
+@@ -1042,3 +1042,41 @@
+         self.assertTrue(RP.check_run_layer_pins(bundle())["ok"])
+         for f in ("src/private_block/run.rs", "src/private_block/run_capture.rs"):
+             self.assertFalse(RP.check_run_layer_pins(bundle(f))["ok"], f)
++
++
++class TokenCalAttributionParse(unittest.TestCase):
++    """[v16, gate round 10] the attribution reader takes an object after
++    libtest's `test <name> ... ` prefix (v12 missed the first object of each
++    test and refused the L = 1 bundles by A1), and A1 still refuses a bundle
++    whose layer range has no attribution line (failing first)"""
++
++    LOG = ("/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/"
++           "round10/r10-pr4-9-tinyllama.log")
++
++    def test_prefixed_line_is_read(self):
++        import tempfile
++        import zk60_native_rg_tokencal as TC
++        obj = {"event": "pr4-9-attribution", "tag": "t", "export": "/x", "layers": [0]}
++        with tempfile.NamedTemporaryFile("w", suffix=".log", delete=False) as fh:
++            fh.write("running 1 test\n")
++            fh.write("test a::b::c ... " + json.dumps(obj, separators=(",", ":")) + "\n")
++            fh.write(json.dumps(dict(obj, tag="u", layers=[0, 1]), separators=(",", ":")) + "\n")
++            fh.write("ok\n")
++            p = fh.name
++        try:
++            got = TC.read_attributions(p)
++        finally:
++            os.unlink(p)
++        self.assertEqual([a["tag"] for a in got], ["t", "u"])
++
++    @unittest.skipUnless(os.path.isfile(LOG) and os.path.isdir(TOKEN_L1),
++                         "the round-10 attribution log or the L1 token capture is not on disk")
++    def test_l1_bundle_attributed_and_a1_fires_without_its_line(self):
++        import zk60_native_rg_tokencal as TC
++        atts = TC.read_attributions(self.LOG)
++        self.assertEqual([a["tag"] for a in atts], ["tinyllama-b4-L1", "tinyllama-b4-L2", "tinyllama-b4-L22"])
++        rec = TC.check_one(TOKEN_L1, atts)
++        self.assertTrue(rec["ok"], rec["findings"])
++        rec = TC.check_one(TOKEN_L1, [a for a in atts if a["layers"] != [0]])
++        self.assertFalse(rec["ok"])
++        self.assertTrue(rec["findings"][0].startswith("A1: 0 attribution lines"), rec["findings"])

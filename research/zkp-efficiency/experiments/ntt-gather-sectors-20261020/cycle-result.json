@@ -1,0 +1,479 @@
+{
+  "run_id": "20261020T091854Z-d57182bc",
+  "cycle": "0101",
+  "checkpoint_at": "2026-10-20T09:34:02.426380+00:00",
+  "result": {
+    "status": "PASS_SYNTHETIC_PUBLIC_ADDRESS_MODEL_ONLY",
+    "seed": 20261020101,
+    "specs": 21,
+    "checks": 6239,
+    "tile_schedules": 936,
+    "logical_words_checked": 3326208,
+    "stride_identity_cases": 560,
+    "negative_controls": 10,
+    "wall_s": 9.725249505994725,
+    "rss_kib": 22752,
+    "threads": 1,
+    "affinity": [
+      0
+    ],
+    "dense_summary": [
+      {
+        "logn": 5,
+        "tiles_per_row": 1,
+        "modes": {
+          "literal": {
+            "source_words": 32,
+            "requested_sectors": 8,
+            "unique_source_sectors": 8,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 1,
+            "global_load_useful_byte_fraction": 1.0
+          },
+          "rotate1": {
+            "source_words": 32,
+            "requested_sectors": 8,
+            "unique_source_sectors": 8,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 2,
+            "global_load_useful_byte_fraction": 1.0
+          },
+          "rotate2": {
+            "source_words": 32,
+            "requested_sectors": 8,
+            "unique_source_sectors": 8,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 2,
+            "global_load_useful_byte_fraction": 1.0
+          },
+          "reverse": {
+            "source_words": 32,
+            "requested_sectors": 8,
+            "unique_source_sectors": 8,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 2,
+            "global_load_useful_byte_fraction": 1.0
+          }
+        }
+      },
+      {
+        "logn": 6,
+        "tiles_per_row": 1,
+        "modes": {
+          "literal": {
+            "source_words": 64,
+            "requested_sectors": 32,
+            "unique_source_sectors": 16,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 1,
+            "global_load_useful_byte_fraction": 0.5
+          },
+          "rotate1": {
+            "source_words": 64,
+            "requested_sectors": 32,
+            "unique_source_sectors": 16,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 2,
+            "global_load_useful_byte_fraction": 0.5
+          },
+          "rotate2": {
+            "source_words": 64,
+            "requested_sectors": 16,
+            "unique_source_sectors": 16,
+            "bank_peak_unique_u32_words_sampled": 4,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 4,
+            "global_load_useful_byte_fraction": 1.0
+          },
+          "reverse": {
+            "source_words": 64,
+            "requested_sectors": 16,
+            "unique_source_sectors": 16,
+            "bank_peak_unique_u32_words_sampled": 4,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 4,
+            "global_load_useful_byte_fraction": 1.0
+          }
+        }
+      },
+      {
+        "logn": 8,
+        "tiles_per_row": 1,
+        "modes": {
+          "literal": {
+            "source_words": 256,
+            "requested_sectors": 256,
+            "unique_source_sectors": 64,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 1,
+            "global_load_useful_byte_fraction": 0.25
+          },
+          "rotate1": {
+            "source_words": 256,
+            "requested_sectors": 128,
+            "unique_source_sectors": 64,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 2,
+            "global_load_useful_byte_fraction": 0.5
+          },
+          "rotate2": {
+            "source_words": 256,
+            "requested_sectors": 64,
+            "unique_source_sectors": 64,
+            "bank_peak_unique_u32_words_sampled": 4,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 4,
+            "global_load_useful_byte_fraction": 1.0
+          },
+          "reverse": {
+            "source_words": 256,
+            "requested_sectors": 64,
+            "unique_source_sectors": 64,
+            "bank_peak_unique_u32_words_sampled": 16,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 16,
+            "global_load_useful_byte_fraction": 1.0
+          }
+        }
+      },
+      {
+        "logn": 10,
+        "tiles_per_row": 1,
+        "modes": {
+          "literal": {
+            "source_words": 1024,
+            "requested_sectors": 1024,
+            "unique_source_sectors": 256,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 1,
+            "global_load_useful_byte_fraction": 0.25
+          },
+          "rotate1": {
+            "source_words": 1024,
+            "requested_sectors": 512,
+            "unique_source_sectors": 256,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 2,
+            "global_load_useful_byte_fraction": 0.5
+          },
+          "rotate2": {
+            "source_words": 1024,
+            "requested_sectors": 256,
+            "unique_source_sectors": 256,
+            "bank_peak_unique_u32_words_sampled": 4,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 4,
+            "global_load_useful_byte_fraction": 1.0
+          },
+          "reverse": {
+            "source_words": 1024,
+            "requested_sectors": 256,
+            "unique_source_sectors": 256,
+            "bank_peak_unique_u32_words_sampled": 32,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 16,
+            "global_load_useful_byte_fraction": 1.0
+          }
+        }
+      },
+      {
+        "logn": 11,
+        "tiles_per_row": 1,
+        "modes": {
+          "literal": {
+            "source_words": 2048,
+            "requested_sectors": 2048,
+            "unique_source_sectors": 512,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 1,
+            "global_load_useful_byte_fraction": 0.25
+          },
+          "rotate1": {
+            "source_words": 2048,
+            "requested_sectors": 1024,
+            "unique_source_sectors": 512,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 2,
+            "global_load_useful_byte_fraction": 0.5
+          },
+          "rotate2": {
+            "source_words": 2048,
+            "requested_sectors": 512,
+            "unique_source_sectors": 512,
+            "bank_peak_unique_u32_words_sampled": 4,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 4,
+            "global_load_useful_byte_fraction": 1.0
+          },
+          "reverse": {
+            "source_words": 2048,
+            "requested_sectors": 512,
+            "unique_source_sectors": 512,
+            "bank_peak_unique_u32_words_sampled": 32,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 16,
+            "global_load_useful_byte_fraction": 1.0
+          }
+        }
+      },
+      {
+        "logn": 12,
+        "tiles_per_row": 1,
+        "modes": {
+          "literal": {
+            "source_words": 4096,
+            "requested_sectors": 4096,
+            "unique_source_sectors": 1024,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 1,
+            "global_load_useful_byte_fraction": 0.25
+          },
+          "rotate1": {
+            "source_words": 4096,
+            "requested_sectors": 2048,
+            "unique_source_sectors": 1024,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 2,
+            "global_load_useful_byte_fraction": 0.5
+          },
+          "rotate2": {
+            "source_words": 4096,
+            "requested_sectors": 1024,
+            "unique_source_sectors": 1024,
+            "bank_peak_unique_u32_words_sampled": 4,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 4,
+            "global_load_useful_byte_fraction": 1.0
+          },
+          "reverse": {
+            "source_words": 4096,
+            "requested_sectors": 1024,
+            "unique_source_sectors": 1024,
+            "bank_peak_unique_u32_words_sampled": 32,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 16,
+            "global_load_useful_byte_fraction": 1.0
+          }
+        }
+      },
+      {
+        "logn": 13,
+        "tiles_per_row": 2,
+        "modes": {
+          "literal": {
+            "source_words": 4096,
+            "requested_sectors": 4096,
+            "unique_source_sectors": 2048,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 1,
+            "global_load_useful_byte_fraction": 0.25
+          },
+          "rotate1": {
+            "source_words": 4096,
+            "requested_sectors": 2048,
+            "unique_source_sectors": 2048,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 2,
+            "global_load_useful_byte_fraction": 0.5
+          },
+          "rotate2": {
+            "source_words": 4096,
+            "requested_sectors": 2048,
+            "unique_source_sectors": 2048,
+            "bank_peak_unique_u32_words_sampled": 4,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 4,
+            "global_load_useful_byte_fraction": 0.5
+          },
+          "reverse": {
+            "source_words": 4096,
+            "requested_sectors": 2048,
+            "unique_source_sectors": 2048,
+            "bank_peak_unique_u32_words_sampled": 32,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 16,
+            "global_load_useful_byte_fraction": 0.5
+          }
+        }
+      },
+      {
+        "logn": 14,
+        "tiles_per_row": 4,
+        "modes": {
+          "literal": {
+            "source_words": 4096,
+            "requested_sectors": 4096,
+            "unique_source_sectors": 4096,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 1,
+            "global_load_useful_byte_fraction": 0.25
+          },
+          "rotate1": {
+            "source_words": 4096,
+            "requested_sectors": 4096,
+            "unique_source_sectors": 4096,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 2,
+            "global_load_useful_byte_fraction": 0.25
+          },
+          "rotate2": {
+            "source_words": 4096,
+            "requested_sectors": 4096,
+            "unique_source_sectors": 4096,
+            "bank_peak_unique_u32_words_sampled": 4,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 4,
+            "global_load_useful_byte_fraction": 0.25
+          },
+          "reverse": {
+            "source_words": 4096,
+            "requested_sectors": 4096,
+            "unique_source_sectors": 4096,
+            "bank_peak_unique_u32_words_sampled": 32,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 16,
+            "global_load_useful_byte_fraction": 0.25
+          }
+        }
+      },
+      {
+        "logn": 16,
+        "tiles_per_row": 16,
+        "modes": {
+          "literal": {
+            "source_words": 4096,
+            "requested_sectors": 4096,
+            "unique_source_sectors": 4096,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 1,
+            "global_load_useful_byte_fraction": 0.25
+          },
+          "rotate1": {
+            "source_words": 4096,
+            "requested_sectors": 4096,
+            "unique_source_sectors": 4096,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 2,
+            "global_load_useful_byte_fraction": 0.25
+          },
+          "rotate2": {
+            "source_words": 4096,
+            "requested_sectors": 4096,
+            "unique_source_sectors": 4096,
+            "bank_peak_unique_u32_words_sampled": 4,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 4,
+            "global_load_useful_byte_fraction": 0.25
+          },
+          "reverse": {
+            "source_words": 4096,
+            "requested_sectors": 4096,
+            "unique_source_sectors": 4096,
+            "bank_peak_unique_u32_words_sampled": 32,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 16,
+            "global_load_useful_byte_fraction": 0.25
+          }
+        }
+      },
+      {
+        "logn": 20,
+        "tiles_per_row": 256,
+        "modes": {
+          "literal": {
+            "source_words": 4096,
+            "requested_sectors": 4096,
+            "unique_source_sectors": 4096,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 1,
+            "global_load_useful_byte_fraction": 0.25
+          },
+          "rotate1": {
+            "source_words": 4096,
+            "requested_sectors": 4096,
+            "unique_source_sectors": 4096,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 2,
+            "global_load_useful_byte_fraction": 0.25
+          },
+          "rotate2": {
+            "source_words": 4096,
+            "requested_sectors": 4096,
+            "unique_source_sectors": 4096,
+            "bank_peak_unique_u32_words_sampled": 4,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 4,
+            "global_load_useful_byte_fraction": 0.25
+          },
+          "reverse": {
+            "source_words": 4096,
+            "requested_sectors": 4096,
+            "unique_source_sectors": 4096,
+            "bank_peak_unique_u32_words_sampled": 32,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 16,
+            "global_load_useful_byte_fraction": 0.25
+          }
+        }
+      },
+      {
+        "logn": 24,
+        "tiles_per_row": 4096,
+        "modes": {
+          "literal": {
+            "source_words": 4096,
+            "requested_sectors": 4096,
+            "unique_source_sectors": 4096,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 1,
+            "global_load_useful_byte_fraction": 0.25
+          },
+          "rotate1": {
+            "source_words": 4096,
+            "requested_sectors": 4096,
+            "unique_source_sectors": 4096,
+            "bank_peak_unique_u32_words_sampled": 2,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 2,
+            "global_load_useful_byte_fraction": 0.25
+          },
+          "rotate2": {
+            "source_words": 4096,
+            "requested_sectors": 4096,
+            "unique_source_sectors": 4096,
+            "bank_peak_unique_u32_words_sampled": 4,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 4,
+            "global_load_useful_byte_fraction": 0.25
+          },
+          "reverse": {
+            "source_words": 4096,
+            "requested_sectors": 4096,
+            "unique_source_sectors": 4096,
+            "bank_peak_unique_u32_words_sampled": 32,
+            "bank_peak_u32_per_fixed16lane_group_sampled": 16,
+            "global_load_useful_byte_fraction": 0.25
+          }
+        }
+      }
+    ],
+    "scope": "Address/zero-tail equivalence, source sector requests and sampled shared-bank address pressure over whole warps and fixed 16-lane groups. Fixed-group pressure is an issue-model sensitivity, not compiled instruction wavefronts; no native cache/DRAM/time/proof claims",
+    "full_stack": {
+      "proofs": 0,
+      "passes": 0,
+      "positions": 0,
+      "context_length": null,
+      "device": null,
+      "witness_s": null,
+      "proof_s": null,
+      "serialization_s": null,
+      "verification_s": null,
+      "startup_s": null,
+      "startup_fraction": null,
+      "steady_rate": null,
+      "total_rate": null
+    }
+  },
+  "source_audit": {
+    "status": "PASS_SOURCE_AND_ARTIFACT_AUDIT_ONLY",
+    "checks": 188,
+    "unchanged_source_pins": 12,
+    "source_mutations_rejected": 15,
+    "large_stride_distinct_sector_cases": 12,
+    "lane_scope": "P1 gather assertions agree in active GPU, frozen R9 and main. Main has the older branched pad producer; address/zero-tail equivalence does not certify its q>n producer algebra. Main producer assertions use its actual source, not the newer additive form.",
+    "wall_s": 0.04817225299484562,
+    "rss_kib": 18040,
+    "threads": 1,
+    "affinity": [
+      0
+    ],
+    "native_gpu_or_proof_execution": false
+  },
+  "source_records_before": 585,
+  "source_records_after": 591,
+  "hypotheses": 17,
+  "proving_speed_improvement_measured": false,
+  "native_candidate_status": "Uncompiled first-load-only research fragment; no production patch or build",
+  "integration_seam": "k_ntt_p1 first load loop / Gpu::ntt_rows+view+hiding/fused opening callers",
+  "next_local": "Public PCS source-shape log_cols/q_pad/expanded-NTT incidence census, preserve P-3/refusals"
+}

@@ -177,12 +177,15 @@ pub(crate) fn load_token_tables(files: &TableFiles, v: usize, d: usize) -> Resul
 
 /// the token-I/O run profile of an export's block shape
 pub(crate) fn token_run_profile_of(sh: &Shape) -> Result<&'static str, String> {
-    use super::super::run::{RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32, RUN_PROFILE_TOKEN_IO_RUNG_TC, RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32};
-    use super::super::shape::{LLAMA3_8B_T32_TRAINED_PROFILE, TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE};
+    use super::super::run::{RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T128, RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32, RUN_PROFILE_TOKEN_IO_RUNG_TC, RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128, RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32};
+    use super::super::shape::{LLAMA3_8B_T128_TRAINED_PROFILE, LLAMA3_8B_T32_TRAINED_PROFILE, TINYLLAMA_T128_TRAINED_PROFILE, TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE};
     match sh.profile {
         p if p == TRAINED_CALIB_RUNG_PROFILE => Ok(RUN_PROFILE_TOKEN_IO_RUNG_TC),
         p if p == TINYLLAMA_T32_TRAINED_PROFILE => Ok(RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32),
         p if p == LLAMA3_8B_T32_TRAINED_PROFILE => Ok(RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32),
+        // TOKEN I/O ROUND 8: the T128 next-token profiles
+        p if p == TINYLLAMA_T128_TRAINED_PROFILE => Ok(RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128),
+        p if p == LLAMA3_8B_T128_TRAINED_PROFILE => Ok(RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T128),
         p => Err(format!("token I/O: no token-I/O run profile is registered for the block profile {p}")),
     }
 }

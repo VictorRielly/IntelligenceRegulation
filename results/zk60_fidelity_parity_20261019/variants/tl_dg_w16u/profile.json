@@ -1,0 +1,307 @@
+{
+ "T": 128,
+ "calib_T": 128,
+ "extra_calibration": null,
+ "kind": "profile",
+ "layers": [
+  {
+   "dir": "layer_00",
+   "layer": 0,
+   "manifest_sha256": "f1398d2a5865c29360ea7722f08099caaa50e7e6ce0ccbfa3a8f80a50dbe4613"
+  },
+  {
+   "dir": "layer_01",
+   "layer": 1,
+   "manifest_sha256": "d4dd11bbb23af1ccf2b3e377a732c48ee13d786b1ecba71e8f9f7e227919e48b"
+  },
+  {
+   "dir": "layer_02",
+   "layer": 2,
+   "manifest_sha256": "d8ad4efe0c17c0304ef5466e38d307971192829dd94b091073bfe77a6d66eeaa"
+  },
+  {
+   "dir": "layer_03",
+   "layer": 3,
+   "manifest_sha256": "3051bbb737000c63d3b8aa26a3f57c437c791c3fcbf2c3f282d3d77c8805cf51"
+  },
+  {
+   "dir": "layer_04",
+   "layer": 4,
+   "manifest_sha256": "9ccd829a1c40eed7c8d58f2efb2f9fada6737c565203e43b96b687ad08821753"
+  },
+  {
+   "dir": "layer_05",
+   "layer": 5,
+   "manifest_sha256": "9d8ba1b038a5386024f99bfa0c635ab196a812ac06cb8a25b3a53315ff669832"
+  },
+  {
+   "dir": "layer_06",
+   "layer": 6,
+   "manifest_sha256": "6e068f6250edc0a1373ccc3cfb0ea680ceab18c53e73c9e5a716d53cea13edfd"
+  },
+  {
+   "dir": "layer_07",
+   "layer": 7,
+   "manifest_sha256": "cd9e5370afd2206a5baecbf155ed9c92fe092f5d5a58e8d40d7cf53559288e41"
+  },
+  {
+   "dir": "layer_08",
+   "layer": 8,
+   "manifest_sha256": "d277d6093b642928e7dcf1d38d06bf604a863e768d33b9339b6e02fede61b36a"
+  },
+  {
+   "dir": "layer_09",
+   "layer": 9,
+   "manifest_sha256": "cc339eb2b79a1cd0efa12775e52b1159faffa917e21b322bdfdffe3103c8ff57"
+  },
+  {
+   "dir": "layer_10",
+   "layer": 10,
+   "manifest_sha256": "028804ace8e5878ccd58579d45c2c8da78a8b2c85e0774bb06728af9497ceadc"
+  },
+  {
+   "dir": "layer_11",
+   "layer": 11,
+   "manifest_sha256": "6d7f27a17149079f9204d33148e1814c4d415edb550b6bf79bec2a42dfbf9ba6"
+  },
+  {
+   "dir": "layer_12",
+   "layer": 12,
+   "manifest_sha256": "4719ee3ffe038bc34cb8cf30f5b0130451ea1e7ba9e3c2bdecc85c6c1bfc3bcf"
+  },
+  {
+   "dir": "layer_13",
+   "layer": 13,
+   "manifest_sha256": "29cf0f06a638ca797999fdf176090ddb01b76808e526bc51f5cc538fd6ae583c"
+  },
+  {
+   "dir": "layer_14",
+   "layer": 14,
+   "manifest_sha256": "eb58eadb51efc400bac87c343158309f8f0885a843e8100a436863d45e608b8b"
+  },
+  {
+   "dir": "layer_15",
+   "layer": 15,
+   "manifest_sha256": "ec4774e89fdf03d9da214c8e8203930b1298596a50ffb6cbdaf0ee67bf78370e"
+  },
+  {
+   "dir": "layer_16",
+   "layer": 16,
+   "manifest_sha256": "dccc28eb4bc048a636d02645d511c2e7e9016edd61dcc42141503255a05be041"
+  },
+  {
+   "dir": "layer_17",
+   "layer": 17,
+   "manifest_sha256": "96d55b658efff7bc5fcdd4a10f46d97d484b5ddd1b96196df06262a4d64ef17a"
+  },
+  {
+   "dir": "layer_18",
+   "layer": 18,
+   "manifest_sha256": "ea62603ff726020879e59229ebe8d1c1698ba07b7f60d216c4e39017a2a5f07a"
+  },
+  {
+   "dir": "layer_19",
+   "layer": 19,
+   "manifest_sha256": "967e726fb445864d899aa6da11fef06ae1eea4c4dc72e792277e24847646dded"
+  },
+  {
+   "dir": "layer_20",
+   "layer": 20,
+   "manifest_sha256": "808ae72fa0a2f7a53ec48f483bf8eb4d56687fd43f5b518d581aa7dcddcc6f4a"
+  },
+  {
+   "dir": "layer_21",
+   "layer": 21,
+   "manifest_sha256": "906161c574e2d3932963f15a49fff0809200a86b907a5ec2da0470d8a8695c6f"
+  }
+ ],
+ "metadata_out_of_proof": {
+  "profile_decisions": {
+   "cn_a": null,
+   "cn_m": null,
+   "e_s": null,
+   "shifts": null,
+   "silu": null
+  },
+  "residual_scales_in": [
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893
+  ],
+  "residual_scales_out": [
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893
+  ],
+  "rotation": {
+   "seed": 1,
+   "sign_sha256": "db7b32c2445beded0a2cc56c5739f8cc84aa6f50fd0e9e18aebbe6ef7ab873a1"
+  }
+ },
+ "only_layers": null,
+ "per_layer_constants_differ": [
+  "exp_e_s",
+  "norm_cn_a",
+  "norm_cn_m",
+  "sh_ao",
+  "sh_g",
+  "sh_h",
+  "sh_qkv",
+  "sh_s",
+  "sh_z",
+  "silu_member"
+ ],
+ "profile_constants": {
+  "exp_e_s": null,
+  "f_e": 9,
+  "f_p": 9,
+  "f_ro": 7,
+  "norm_ceps": 74429,
+  "norm_cn_a": null,
+  "norm_cn_m": null,
+  "norm_tn": 10,
+  "rope_theta": 10000.0,
+  "sh_ao": null,
+  "sh_g": null,
+  "sh_h": null,
+  "sh_o": 9,
+  "sh_qkv": null,
+  "sh_r2": 0,
+  "sh_rope": 7,
+  "sh_s": null,
+  "sh_u": 0,
+  "sh_z": null,
+  "silu_member": null
+ },
+ "profile_from": null,
+ "reference_export": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T128",
+ "schema": "zk60-trained-profile-export/1 (pseudo-export of the fidelity lane; NOT an export of record)",
+ "scope": "fidelity data, not a proof, not a privacy claim",
+ "sequences": [],
+ "sh_s_overrides": {},
+ "shift_windows": {
+  "ao": [
+   1,
+   8
+  ],
+  "g": [
+   1,
+   16
+  ],
+  "h": [
+   9,
+   16
+  ],
+  "o": [
+   9,
+   16
+  ],
+  "qkv": [
+   1,
+   16
+  ],
+  "rope": [
+   1,
+   8
+  ],
+  "s": [
+   1,
+   8
+  ],
+  "z": [
+   1,
+   16
+  ]
+ },
+ "tool_sha256": {
+  "fp_lib.py": "6bced24bd84447592f99b66c7aeee8ac368dbb1903ad10ece8d3ce12f29fcf77",
+  "fp_variant.py": "2b662dc00dd38ac765dc5481d1e374480b8e1c755c2a4ed972149deba82b5f9c"
+ },
+ "up_mc": 100.0,
+ "variant": "tl_dg_w16u",
+ "variant_options": {
+  "cn_max": 65536,
+  "f_e": 9,
+  "f_p": 9,
+  "margin": 0.5,
+  "margin_ch": 3.0,
+  "margin_pow2": 0.25,
+  "name": "dg",
+  "norm_cn": "layer",
+  "o16": false,
+  "residual": "global",
+  "rotate": 1,
+  "s16": false,
+  "shapes": [
+   "range",
+   "smooth",
+   "gamma"
+  ],
+  "shifts": "free",
+  "tables": "layer",
+  "tn": 10
+ },
+ "vocab0": null,
+ "words_equal_to_reference_per_layer": [
+  4,
+  4,
+  4,
+  4,
+  4,
+  4,
+  3,
+  3,
+  4,
+  4,
+  4,
+  4,
+  3,
+  3,
+  4,
+  4,
+  4,
+  3,
+  4,
+  3,
+  4,
+  3
+ ]
+}

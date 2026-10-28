@@ -1,0 +1,31 @@
+[zk60-guard 21:39:59] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 21:40:59] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 21:41:59] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 21:42:59] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 21:43:59] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 21:44:59] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 21:45:59] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 21:46:59] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 21:48:00] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 21:49:00] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 21:50:00] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 21:51:00] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 21:52:00] waiting for /tmp/zk-heavy.lock (721s)
+[zk60-guard 21:52:08] START trv7-b1-build-tests class=build need=3G cap=5G enforce=cgroup+watchdog waited=729s run=cf5821e18492
+[zk60-guard 21:55:47] END trv7-b1-build-tests exit=0 child_wall=219s peak_rss=1.98G min_avail=10.42G
+[zk60-guard 21:55:47] START trv7-b2-build-cli class=build need=3G cap=5G enforce=cgroup+watchdog waited=0s run=aeb4844ce450
+[zk60-guard 21:57:01] END trv7-b2-build-cli exit=0 child_wall=75s peak_rss=1.11G min_avail=11.34G
+[zk60-guard 21:57:02] START trv7-t1-review class=cpu need=5G cap=8G enforce=cgroup+watchdog waited=0s run=ed0b8fd8e041
+[zk60-guard 21:57:06] END trv7-t1-review exit=0 child_wall=4s peak_rss=0.20G min_avail=12.11G
+[zk60-guard 21:57:06] START trv7-t2-token-io class=cpu need=6.5G cap=8.5G enforce=cgroup+watchdog waited=0s run=396975daf2c2
+[zk60-guard 22:00:37] END trv7-t2-token-io exit=0 child_wall=211s peak_rss=5.89G min_avail=6.42G
+[zk60-guard 22:00:37] START trv7-e1-prove-8b-t32-lane-r9 class=cpu need=4.5G cap=6.5G enforce=cgroup+watchdog waited=0s run=95f6f69dbd4f
+[zk60-guard 22:05:26] END trv7-e1-prove-8b-t32-lane-r9 exit=0 child_wall=289s peak_rss=3.39G min_avail=8.52G
+[zk60-guard 22:05:26] START trv7-e2-verify-mine class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=770a9f2a989d
+[zk60-guard 22:06:46] END trv7-e2-verify-mine exit=0 child_wall=80s peak_rss=2.82G min_avail=9.22G
+[zk60-guard 22:06:46] START trv7-e3-owner-mine class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=b6e4eee879f6
+[zk60-guard 22:08:06] END trv7-e3-owner-mine exit=0 child_wall=80s peak_rss=2.85G min_avail=9.29G
+[zk60-guard 22:08:07] START trv7-e4-input-owner-mine class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=14e0d4425034
+[zk60-guard 22:09:25] END trv7-e4-input-owner-mine exit=0 child_wall=78s peak_rss=2.81G min_avail=9.22G
+[zk60-guard 22:09:25] START trv7-e5-recheck-lane-r9 class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=cac57c00b686
+[zk60-guard 22:10:45] END trv7-e5-recheck-lane-r9 exit=0 child_wall=80s peak_rss=2.86G min_avail=9.33G

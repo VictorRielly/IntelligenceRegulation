@@ -1,0 +1,1982 @@
+[
+  {
+    "mode": "literal",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 34,
+      "base_add": 72,
+      "base_sub": 48
+    },
+    "raw_round0_primitives": {
+      "base_mul": 136,
+      "base_add": 288,
+      "base_sub": 192
+    },
+    "logical_shared_operand_read_bytes": 1536,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 34,
+      "base_add": 72,
+      "base_sub": 48
+    },
+    "raw_round0_primitives": {
+      "base_mul": 1088,
+      "base_add": 2304,
+      "base_sub": 1536
+    },
+    "logical_shared_operand_read_bytes": 12288,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 34,
+      "base_add": 72,
+      "base_sub": 48
+    },
+    "raw_round0_primitives": {
+      "base_mul": 69632,
+      "base_add": 147456,
+      "base_sub": 98304
+    },
+    "logical_shared_operand_read_bytes": 786432,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 34,
+      "base_add": 72,
+      "base_sub": 48
+    },
+    "raw_round0_primitives": {
+      "base_mul": 35651584,
+      "base_add": 75497472,
+      "base_sub": 50331648
+    },
+    "logical_shared_operand_read_bytes": 402653184,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 34,
+      "base_add": 72,
+      "base_sub": 48
+    },
+    "raw_round0_primitives": {
+      "base_mul": 285212672,
+      "base_add": 603979776,
+      "base_sub": 402653184
+    },
+    "logical_shared_operand_read_bytes": 3221225472,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 34,
+      "base_add": 52,
+      "base_sub": 46
+    },
+    "raw_round0_primitives": {
+      "base_mul": 136,
+      "base_add": 208,
+      "base_sub": 184
+    },
+    "logical_shared_operand_read_bytes": 1024,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 34,
+      "base_add": 52,
+      "base_sub": 46
+    },
+    "raw_round0_primitives": {
+      "base_mul": 1088,
+      "base_add": 1664,
+      "base_sub": 1472
+    },
+    "logical_shared_operand_read_bytes": 8192,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 34,
+      "base_add": 52,
+      "base_sub": 46
+    },
+    "raw_round0_primitives": {
+      "base_mul": 69632,
+      "base_add": 106496,
+      "base_sub": 94208
+    },
+    "logical_shared_operand_read_bytes": 524288,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 34,
+      "base_add": 52,
+      "base_sub": 46
+    },
+    "raw_round0_primitives": {
+      "base_mul": 35651584,
+      "base_add": 54525952,
+      "base_sub": 48234496
+    },
+    "logical_shared_operand_read_bytes": 268435456,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 34,
+      "base_add": 52,
+      "base_sub": 46
+    },
+    "raw_round0_primitives": {
+      "base_mul": 285212672,
+      "base_add": 436207616,
+      "base_sub": 385875968
+    },
+    "logical_shared_operand_read_bytes": 2147483648,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 13,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 80,
+      "base_add": 52,
+      "base_sub": 56
+    },
+    "logical_shared_operand_read_bytes": 512,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 13,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 640,
+      "base_add": 416,
+      "base_sub": 448
+    },
+    "logical_shared_operand_read_bytes": 4096,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 13,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 40960,
+      "base_add": 26624,
+      "base_sub": 28672
+    },
+    "logical_shared_operand_read_bytes": 262144,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 13,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 20971520,
+      "base_add": 13631488,
+      "base_sub": 14680064
+    },
+    "logical_shared_operand_read_bytes": 134217728,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 13,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 167772160,
+      "base_add": 109051904,
+      "base_sub": 117440512
+    },
+    "logical_shared_operand_read_bytes": 1073741824,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 40,
+      "base_add": 84,
+      "base_sub": 56
+    },
+    "raw_round0_primitives": {
+      "base_mul": 160,
+      "base_add": 336,
+      "base_sub": 224
+    },
+    "logical_shared_operand_read_bytes": 1536,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 40,
+      "base_add": 84,
+      "base_sub": 56
+    },
+    "raw_round0_primitives": {
+      "base_mul": 1280,
+      "base_add": 2688,
+      "base_sub": 1792
+    },
+    "logical_shared_operand_read_bytes": 12288,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 40,
+      "base_add": 84,
+      "base_sub": 56
+    },
+    "raw_round0_primitives": {
+      "base_mul": 81920,
+      "base_add": 172032,
+      "base_sub": 114688
+    },
+    "logical_shared_operand_read_bytes": 786432,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 40,
+      "base_add": 84,
+      "base_sub": 56
+    },
+    "raw_round0_primitives": {
+      "base_mul": 41943040,
+      "base_add": 88080384,
+      "base_sub": 58720256
+    },
+    "logical_shared_operand_read_bytes": 402653184,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 40,
+      "base_add": 84,
+      "base_sub": 56
+    },
+    "raw_round0_primitives": {
+      "base_mul": 335544320,
+      "base_add": 704643072,
+      "base_sub": 469762048
+    },
+    "logical_shared_operand_read_bytes": 3221225472,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 34,
+      "base_add": 54,
+      "base_sub": 46
+    },
+    "raw_round0_primitives": {
+      "base_mul": 136,
+      "base_add": 216,
+      "base_sub": 184
+    },
+    "logical_shared_operand_read_bytes": 1024,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 34,
+      "base_add": 54,
+      "base_sub": 46
+    },
+    "raw_round0_primitives": {
+      "base_mul": 1088,
+      "base_add": 1728,
+      "base_sub": 1472
+    },
+    "logical_shared_operand_read_bytes": 8192,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 34,
+      "base_add": 54,
+      "base_sub": 46
+    },
+    "raw_round0_primitives": {
+      "base_mul": 69632,
+      "base_add": 110592,
+      "base_sub": 94208
+    },
+    "logical_shared_operand_read_bytes": 524288,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 34,
+      "base_add": 54,
+      "base_sub": 46
+    },
+    "raw_round0_primitives": {
+      "base_mul": 35651584,
+      "base_add": 56623104,
+      "base_sub": 48234496
+    },
+    "logical_shared_operand_read_bytes": 268435456,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 34,
+      "base_add": 54,
+      "base_sub": 46
+    },
+    "raw_round0_primitives": {
+      "base_mul": 285212672,
+      "base_add": 452984832,
+      "base_sub": 385875968
+    },
+    "logical_shared_operand_read_bytes": 2147483648,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 15,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 80,
+      "base_add": 60,
+      "base_sub": 56
+    },
+    "logical_shared_operand_read_bytes": 512,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 15,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 640,
+      "base_add": 480,
+      "base_sub": 448
+    },
+    "logical_shared_operand_read_bytes": 4096,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 15,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 40960,
+      "base_add": 30720,
+      "base_sub": 28672
+    },
+    "logical_shared_operand_read_bytes": 262144,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 15,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 20971520,
+      "base_add": 15728640,
+      "base_sub": 14680064
+    },
+    "logical_shared_operand_read_bytes": 134217728,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 15,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 167772160,
+      "base_add": 125829120,
+      "base_sub": 117440512
+    },
+    "logical_shared_operand_read_bytes": 1073741824,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 46,
+      "base_add": 102,
+      "base_sub": 62
+    },
+    "raw_round0_primitives": {
+      "base_mul": 184,
+      "base_add": 408,
+      "base_sub": 248
+    },
+    "logical_shared_operand_read_bytes": 1728,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 46,
+      "base_add": 102,
+      "base_sub": 62
+    },
+    "raw_round0_primitives": {
+      "base_mul": 1472,
+      "base_add": 3264,
+      "base_sub": 1984
+    },
+    "logical_shared_operand_read_bytes": 13824,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 46,
+      "base_add": 102,
+      "base_sub": 62
+    },
+    "raw_round0_primitives": {
+      "base_mul": 94208,
+      "base_add": 208896,
+      "base_sub": 126976
+    },
+    "logical_shared_operand_read_bytes": 884736,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 46,
+      "base_add": 102,
+      "base_sub": 62
+    },
+    "raw_round0_primitives": {
+      "base_mul": 48234496,
+      "base_add": 106954752,
+      "base_sub": 65011712
+    },
+    "logical_shared_operand_read_bytes": 452984832,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 46,
+      "base_add": 102,
+      "base_sub": 62
+    },
+    "raw_round0_primitives": {
+      "base_mul": 385875968,
+      "base_add": 855638016,
+      "base_sub": 520093696
+    },
+    "logical_shared_operand_read_bytes": 3623878656,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 40,
+      "base_add": 70,
+      "base_sub": 52
+    },
+    "raw_round0_primitives": {
+      "base_mul": 160,
+      "base_add": 280,
+      "base_sub": 208
+    },
+    "logical_shared_operand_read_bytes": 1152,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 40,
+      "base_add": 70,
+      "base_sub": 52
+    },
+    "raw_round0_primitives": {
+      "base_mul": 1280,
+      "base_add": 2240,
+      "base_sub": 1664
+    },
+    "logical_shared_operand_read_bytes": 9216,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 40,
+      "base_add": 70,
+      "base_sub": 52
+    },
+    "raw_round0_primitives": {
+      "base_mul": 81920,
+      "base_add": 143360,
+      "base_sub": 106496
+    },
+    "logical_shared_operand_read_bytes": 589824,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 40,
+      "base_add": 70,
+      "base_sub": 52
+    },
+    "raw_round0_primitives": {
+      "base_mul": 41943040,
+      "base_add": 73400320,
+      "base_sub": 54525952
+    },
+    "logical_shared_operand_read_bytes": 301989888,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 40,
+      "base_add": 70,
+      "base_sub": 52
+    },
+    "raw_round0_primitives": {
+      "base_mul": 335544320,
+      "base_add": 587202560,
+      "base_sub": 436207616
+    },
+    "logical_shared_operand_read_bytes": 2415919104,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 24,
+      "base_add": 19,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 96,
+      "base_add": 76,
+      "base_sub": 56
+    },
+    "logical_shared_operand_read_bytes": 576,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 24,
+      "base_add": 19,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 768,
+      "base_add": 608,
+      "base_sub": 448
+    },
+    "logical_shared_operand_read_bytes": 4608,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 24,
+      "base_add": 19,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 49152,
+      "base_add": 38912,
+      "base_sub": 28672
+    },
+    "logical_shared_operand_read_bytes": 294912,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 24,
+      "base_add": 19,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 25165824,
+      "base_add": 19922944,
+      "base_sub": 14680064
+    },
+    "logical_shared_operand_read_bytes": 150994944,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 24,
+      "base_add": 19,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 201326592,
+      "base_add": 159383552,
+      "base_sub": 117440512
+    },
+    "logical_shared_operand_read_bytes": 1207959552,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 58,
+      "base_add": 138,
+      "base_sub": 74
+    },
+    "raw_round0_primitives": {
+      "base_mul": 232,
+      "base_add": 552,
+      "base_sub": 296
+    },
+    "logical_shared_operand_read_bytes": 2112,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 58,
+      "base_add": 138,
+      "base_sub": 74
+    },
+    "raw_round0_primitives": {
+      "base_mul": 1856,
+      "base_add": 4416,
+      "base_sub": 2368
+    },
+    "logical_shared_operand_read_bytes": 16896,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 58,
+      "base_add": 138,
+      "base_sub": 74
+    },
+    "raw_round0_primitives": {
+      "base_mul": 118784,
+      "base_add": 282624,
+      "base_sub": 151552
+    },
+    "logical_shared_operand_read_bytes": 1081344,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 58,
+      "base_add": 138,
+      "base_sub": 74
+    },
+    "raw_round0_primitives": {
+      "base_mul": 60817408,
+      "base_add": 144703488,
+      "base_sub": 77594624
+    },
+    "logical_shared_operand_read_bytes": 553648128,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 58,
+      "base_add": 138,
+      "base_sub": 74
+    },
+    "raw_round0_primitives": {
+      "base_mul": 486539264,
+      "base_add": 1157627904,
+      "base_sub": 620756992
+    },
+    "logical_shared_operand_read_bytes": 4429185024,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 52,
+      "base_add": 102,
+      "base_sub": 64
+    },
+    "raw_round0_primitives": {
+      "base_mul": 208,
+      "base_add": 408,
+      "base_sub": 256
+    },
+    "logical_shared_operand_read_bytes": 1408,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 52,
+      "base_add": 102,
+      "base_sub": 64
+    },
+    "raw_round0_primitives": {
+      "base_mul": 1664,
+      "base_add": 3264,
+      "base_sub": 2048
+    },
+    "logical_shared_operand_read_bytes": 11264,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 52,
+      "base_add": 102,
+      "base_sub": 64
+    },
+    "raw_round0_primitives": {
+      "base_mul": 106496,
+      "base_add": 208896,
+      "base_sub": 131072
+    },
+    "logical_shared_operand_read_bytes": 720896,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 52,
+      "base_add": 102,
+      "base_sub": 64
+    },
+    "raw_round0_primitives": {
+      "base_mul": 54525952,
+      "base_add": 106954752,
+      "base_sub": 67108864
+    },
+    "logical_shared_operand_read_bytes": 369098752,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 52,
+      "base_add": 102,
+      "base_sub": 64
+    },
+    "raw_round0_primitives": {
+      "base_mul": 436207616,
+      "base_add": 855638016,
+      "base_sub": 536870912
+    },
+    "logical_shared_operand_read_bytes": 2952790016,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 32,
+      "base_add": 27,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 128,
+      "base_add": 108,
+      "base_sub": 56
+    },
+    "logical_shared_operand_read_bytes": 704,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 32,
+      "base_add": 27,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 1024,
+      "base_add": 864,
+      "base_sub": 448
+    },
+    "logical_shared_operand_read_bytes": 5632,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 32,
+      "base_add": 27,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 65536,
+      "base_add": 55296,
+      "base_sub": 28672
+    },
+    "logical_shared_operand_read_bytes": 360448,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 32,
+      "base_add": 27,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 33554432,
+      "base_add": 28311552,
+      "base_sub": 14680064
+    },
+    "logical_shared_operand_read_bytes": 184549376,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 32,
+      "base_add": 27,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 268435456,
+      "base_add": 226492416,
+      "base_sub": 117440512
+    },
+    "logical_shared_operand_read_bytes": 1476395008,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 88,
+      "base_add": 228,
+      "base_sub": 104
+    },
+    "raw_round0_primitives": {
+      "base_mul": 352,
+      "base_add": 912,
+      "base_sub": 416
+    },
+    "logical_shared_operand_read_bytes": 3072,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 88,
+      "base_add": 228,
+      "base_sub": 104
+    },
+    "raw_round0_primitives": {
+      "base_mul": 2816,
+      "base_add": 7296,
+      "base_sub": 3328
+    },
+    "logical_shared_operand_read_bytes": 24576,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 88,
+      "base_add": 228,
+      "base_sub": 104
+    },
+    "raw_round0_primitives": {
+      "base_mul": 180224,
+      "base_add": 466944,
+      "base_sub": 212992
+    },
+    "logical_shared_operand_read_bytes": 1572864,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 88,
+      "base_add": 228,
+      "base_sub": 104
+    },
+    "raw_round0_primitives": {
+      "base_mul": 92274688,
+      "base_add": 239075328,
+      "base_sub": 109051904
+    },
+    "logical_shared_operand_read_bytes": 805306368,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 88,
+      "base_add": 228,
+      "base_sub": 104
+    },
+    "raw_round0_primitives": {
+      "base_mul": 738197504,
+      "base_add": 1912602624,
+      "base_sub": 872415232
+    },
+    "logical_shared_operand_read_bytes": 6442450944,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 82,
+      "base_add": 182,
+      "base_sub": 94
+    },
+    "raw_round0_primitives": {
+      "base_mul": 328,
+      "base_add": 728,
+      "base_sub": 376
+    },
+    "logical_shared_operand_read_bytes": 2048,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 82,
+      "base_add": 182,
+      "base_sub": 94
+    },
+    "raw_round0_primitives": {
+      "base_mul": 2624,
+      "base_add": 5824,
+      "base_sub": 3008
+    },
+    "logical_shared_operand_read_bytes": 16384,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 82,
+      "base_add": 182,
+      "base_sub": 94
+    },
+    "raw_round0_primitives": {
+      "base_mul": 167936,
+      "base_add": 372736,
+      "base_sub": 192512
+    },
+    "logical_shared_operand_read_bytes": 1048576,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 82,
+      "base_add": 182,
+      "base_sub": 94
+    },
+    "raw_round0_primitives": {
+      "base_mul": 85983232,
+      "base_add": 190840832,
+      "base_sub": 98566144
+    },
+    "logical_shared_operand_read_bytes": 536870912,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 82,
+      "base_add": 182,
+      "base_sub": 94
+    },
+    "raw_round0_primitives": {
+      "base_mul": 687865856,
+      "base_add": 1526726656,
+      "base_sub": 788529152
+    },
+    "logical_shared_operand_read_bytes": 4294967296,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 52,
+      "base_add": 47,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 208,
+      "base_add": 188,
+      "base_sub": 56
+    },
+    "logical_shared_operand_read_bytes": 1024,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 52,
+      "base_add": 47,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 1664,
+      "base_add": 1504,
+      "base_sub": 448
+    },
+    "logical_shared_operand_read_bytes": 8192,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 52,
+      "base_add": 47,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 106496,
+      "base_add": 96256,
+      "base_sub": 28672
+    },
+    "logical_shared_operand_read_bytes": 524288,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 52,
+      "base_add": 47,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 54525952,
+      "base_add": 49283072,
+      "base_sub": 14680064
+    },
+    "logical_shared_operand_read_bytes": 268435456,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 52,
+      "base_add": 47,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 436207616,
+      "base_add": 394264576,
+      "base_sub": 117440512
+    },
+    "logical_shared_operand_read_bytes": 2147483648,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 106,
+      "base_add": 282,
+      "base_sub": 122
+    },
+    "raw_round0_primitives": {
+      "base_mul": 424,
+      "base_add": 1128,
+      "base_sub": 488
+    },
+    "logical_shared_operand_read_bytes": 3648,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 106,
+      "base_add": 282,
+      "base_sub": 122
+    },
+    "raw_round0_primitives": {
+      "base_mul": 3392,
+      "base_add": 9024,
+      "base_sub": 3904
+    },
+    "logical_shared_operand_read_bytes": 29184,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 106,
+      "base_add": 282,
+      "base_sub": 122
+    },
+    "raw_round0_primitives": {
+      "base_mul": 217088,
+      "base_add": 577536,
+      "base_sub": 249856
+    },
+    "logical_shared_operand_read_bytes": 1867776,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 106,
+      "base_add": 282,
+      "base_sub": 122
+    },
+    "raw_round0_primitives": {
+      "base_mul": 111149056,
+      "base_add": 295698432,
+      "base_sub": 127926272
+    },
+    "logical_shared_operand_read_bytes": 956301312,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 106,
+      "base_add": 282,
+      "base_sub": 122
+    },
+    "raw_round0_primitives": {
+      "base_mul": 889192448,
+      "base_add": 2365587456,
+      "base_sub": 1023410176
+    },
+    "logical_shared_operand_read_bytes": 7650410496,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 100,
+      "base_add": 230,
+      "base_sub": 112
+    },
+    "raw_round0_primitives": {
+      "base_mul": 400,
+      "base_add": 920,
+      "base_sub": 448
+    },
+    "logical_shared_operand_read_bytes": 2432,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 100,
+      "base_add": 230,
+      "base_sub": 112
+    },
+    "raw_round0_primitives": {
+      "base_mul": 3200,
+      "base_add": 7360,
+      "base_sub": 3584
+    },
+    "logical_shared_operand_read_bytes": 19456,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 100,
+      "base_add": 230,
+      "base_sub": 112
+    },
+    "raw_round0_primitives": {
+      "base_mul": 204800,
+      "base_add": 471040,
+      "base_sub": 229376
+    },
+    "logical_shared_operand_read_bytes": 1245184,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 100,
+      "base_add": 230,
+      "base_sub": 112
+    },
+    "raw_round0_primitives": {
+      "base_mul": 104857600,
+      "base_add": 241172480,
+      "base_sub": 117440512
+    },
+    "logical_shared_operand_read_bytes": 637534208,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "paired",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 100,
+      "base_add": 230,
+      "base_sub": 112
+    },
+    "raw_round0_primitives": {
+      "base_mul": 838860800,
+      "base_add": 1929379840,
+      "base_sub": 939524096
+    },
+    "logical_shared_operand_read_bytes": 5100273664,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 64,
+      "base_add": 59,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 256,
+      "base_add": 236,
+      "base_sub": 56
+    },
+    "logical_shared_operand_read_bytes": 1216,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 64,
+      "base_add": 59,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 2048,
+      "base_add": 1888,
+      "base_sub": 448
+    },
+    "logical_shared_operand_read_bytes": 9728,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 64,
+      "base_add": 59,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 131072,
+      "base_add": 120832,
+      "base_sub": 28672
+    },
+    "logical_shared_operand_read_bytes": 622592,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 64,
+      "base_add": 59,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 67108864,
+      "base_add": 61865984,
+      "base_sub": 14680064
+    },
+    "logical_shared_operand_read_bytes": 318767104,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "base",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 64,
+      "base_add": 59,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 536870912,
+      "base_add": 494927872,
+      "base_sub": 117440512
+    },
+    "logical_shared_operand_read_bytes": 2550136832,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  }
+]

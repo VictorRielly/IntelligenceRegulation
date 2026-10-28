@@ -1,0 +1,7 @@
+[05:17:13Z] queue A2 start
+[05:17:13Z] r9-dd-probes2 exit 0
+[05:17:15Z] r9-xr-ddtl-as-plain exit 1
+[05:17:26Z] r9-xr-dd8b-as-plain exit 1
+[05:17:28Z] r9-xr-r8tl-as-dd exit 1
+[05:17:38Z] r9-xr-r88b-as-dd exit 1
+[05:17:38Z] queue A2 end

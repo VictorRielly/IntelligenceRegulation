@@ -1,0 +1,21 @@
+{"event": "layer0-precheck", "status": "not-covered", "fingerprint": "90f5015994827ccf681d97ff23fa4aa99c890fd25d0d93dc467f75cf653a3d22", "note": "no vocabulary scan is recorded for this export's layer 0; nothing claimed"}
+pins from /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/approvals/token_profile_approval_tinyllama_dg_rot1_T128.json: expect-statement 0f2467fc77336366fdaf335d2ca890051d8fef36498f81d31ad1a6a05e0b998f, expect-token-profile 13679e42bc6f60fdccb09177a250e965b355cfe9a84fe406b8848019f7f39756
+[zk60-guard 15:25:13] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 15:26:13] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 15:27:13] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 15:28:13] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 15:29:13] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 15:30:13] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 15:31:13] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 15:32:13] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 15:32:37] START tio-r8tl-d3-cli-prove class=cpu need=4.2G cap=6G enforce=cgroup+watchdog waited=445s run=99854e44c73f
+[zk60-guard 15:35:50] END tio-r8tl-d3-cli-prove exit=0 child_wall=192s peak_rss=3.70G min_avail=7.28G
+owner directory: /home/victor/zk60-artifacts/token-io/run-tinyllama_dg_rot1_T128-r8tl-ho00-a5e544c2a5c1.owner-private
+[zk60-guard 15:35:50] START tio-r8tl-d4-cli-verify class=cpu need=3.5G cap=5G enforce=cgroup+watchdog waited=0s run=f0d1570f30f3
+[zk60-guard 15:36:13] END tio-r8tl-d4-cli-verify exit=0 child_wall=23s peak_rss=1.14G min_avail=10.91G
+[zk60-guard 15:36:13] START tio-r8tl-d5-cli-recheck class=cpu need=3.5G cap=5G enforce=cgroup+watchdog waited=0s run=0cadb96aed37
+[zk60-guard 15:36:36] END tio-r8tl-d5-cli-recheck exit=0 child_wall=23s peak_rss=1.15G min_avail=10.91G
+[zk60-guard 15:36:37] START tio-r8tl-d6-cli-owner class=cpu need=3.5G cap=5G enforce=cgroup+watchdog waited=0s run=f28ba5beacb0
+[zk60-guard 15:37:00] END tio-r8tl-d6-cli-owner exit=0 child_wall=23s peak_rss=1.17G min_avail=9.98G
+[zk60-guard 15:37:00] START tio-r8tl-d7-cli-input-owner class=cpu need=3.5G cap=5G enforce=cgroup+watchdog waited=0s run=aea891b697de
+[zk60-guard 15:37:23] END tio-r8tl-d7-cli-input-owner exit=0 child_wall=23s peak_rss=1.16G min_avail=10.06G

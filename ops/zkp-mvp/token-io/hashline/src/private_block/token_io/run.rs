@@ -20,7 +20,8 @@ use super::super::protocol::{self, CoreView};
 use super::super::run::RunShape;
 use super::super::shape::Shape;
 use super::super::timing;
-use super::super::trained_statement::TrainedModelStatement;
+use super::super::shape::NormCalibration;
+use super::super::trained_statement::{apply_own, cal_field, has_own, TrainedModelStatement, OWN_FIELDS};
 use super::super::wire::{self, SegGeom, Segment};
 use super::super::witness::Witness;
 use super::super::BlockPublic;
@@ -56,12 +57,14 @@ pub(crate) struct TokenRunStatement {
     /// parameter line; PRIVATE (review R2-3): the constructor is its only
     /// source, read through [`TokenRunStatement::whole_run`]
     whole_run: WholeRun,
-    /// NATIVE R6 ported (R3, 10-19): each block stage's softmax score shift,
-    /// the run shape's unless the trained statement's layer record carries
-    /// its own (`LayerRecord::sh_s`, bound by the model identity the header
-    /// absorbs); block stage `k` is proved and verified at
-    /// [`TokenRunStatement::stage_shape`]`(k)`
-    stage_sh_s: Vec<u32>,
+    /// NATIVE R8 ported (round 7; R6 for `sh_s`): each block stage's
+    /// calibration, the run shape's unless the trained statement's layer
+    /// record carries own constants (`LayerRecord::own`: any of the eleven
+    /// export-chosen fields, bound by the model identity the header absorbs);
+    /// block stage `k` is proved and verified at
+    /// [`TokenRunStatement::stage_shape`]`(k)`. The token stages' own final
+    /// norm and head constants are the token profile's, never these.
+    stage_cal: Vec<NormCalibration>,
 }
 
 /// **THE DERIVED WHOLE-RUN FIGURE (D27; review TR-1).** A union bound over
@@ -211,22 +214,25 @@ impl TokenRunStatement {
         variant_is_built(&tp)?;
         let (in_spec, out_spec) = endpoint_specs(sh, context, &tp)?;
         let whole_run = whole_run_of(sh, l, &tp);
-        // NATIVE R6 ported: a layer's own score shift, validated at the
-        // trained door (`Shape::with_score_shift`: the one-limb window, the
-        // constructor's rebuild, the trained class)
-        let mut stage_sh_s = vec![sh.sh_s; l];
+        // NATIVE R8 ported (R6 for sh_s): a layer's own constants, its whole
+        // calibration validated at the trained door
+        // (`Shape::with_layer_calibration`: every class, the plane list
+        // unmoved, the constructor's rebuild, the trained class)
+        let base = sh.norm_calibration();
+        let mut stage_cal = vec![base; l];
         for (k, r) in model.layers.iter().enumerate() {
             // review TR3-3: the record read for stage k IS block k's (made
             // local here; `check_against` above already aligns them)
             if block_digests.get(k) != Some(&r.block_digest) {
                 return Err(format!("token I/O run: layer record {k} (layer {}) is not block {k}'s digest (review TR3-3)", r.index));
             }
-            if let Some(v) = r.sh_s {
-                sh.with_score_shift(v).map_err(|e| format!("token I/O run: layer {}'s own score shift: {e}", r.index))?;
-                stage_sh_s[k] = v;
+            if has_own(&r.own) {
+                let cal = apply_own(&base, &r.own).map_err(|e| format!("token I/O run: layer {}: {e}", r.index))?;
+                sh.with_layer_calibration(&cal).map_err(|e| format!("token I/O run: layer {}'s own calibration: {e}", r.index))?;
+                stage_cal[k] = cal;
             }
         }
-        Ok(TokenRunStatement { rs, context, block_digests, model_identity: model.identity(), tp, in_spec, out_spec, in_root: roots.0, out_root: roots.1, scale: scales.0, whole_run, stage_sh_s })
+        Ok(TokenRunStatement { rs, context, block_digests, model_identity: model.identity(), tp, in_spec, out_spec, in_root: roots.0, out_root: roots.1, scale: scales.0, whole_run, stage_cal })
     }
 
     pub(crate) fn sh(&self) -> &Shape {
@@ -240,15 +246,16 @@ impl TokenRunStatement {
     pub(crate) fn whole_run(&self) -> &WholeRun {
         &self.whole_run
     }
-    /// **NATIVE R6 ported: the shape block stage `k` is proved and verified
-    /// at** — the run shape, or (a layer with its own score shift) the same
-    /// shape with that `sh_s`, rebuilt through the trained door
+    /// **NATIVE R8 ported (R6 for sh_s): the shape block stage `k` is proved
+    /// and verified at** — the run shape, or (a layer with its own constants)
+    /// the same shape with that layer's calibration, rebuilt through the
+    /// trained door
     pub(crate) fn stage_shape(&self, k: usize) -> Result<Shape, String> {
-        let v = *self.stage_sh_s.get(k).ok_or_else(|| format!("token I/O run: no block stage {k}"))?;
-        if v == self.sh().sh_s {
+        let cal = *self.stage_cal.get(k).ok_or_else(|| format!("token I/O run: no block stage {k}"))?;
+        if cal == self.sh().norm_calibration() {
             Ok(self.sh().clone())
         } else {
-            self.sh().with_score_shift(v)
+            self.sh().with_layer_calibration(&cal)
         }
     }
     pub(crate) fn l(&self) -> usize {
@@ -349,10 +356,19 @@ impl TokenRunStatement {
         ));
         for k in 0..l {
             let (p, q) = (self.boundary_spec(k)?, self.boundary_spec(k + 1)?);
-            // NATIVE R6 ported: a block stage whose layer has its own score
-            // shift says so (and so in the schedule digest the header absorbs);
-            // every other run's lines are what they were
-            let own = if self.stage_sh_s[k] != self.sh().sh_s { format!("; score shift {} (the layer's own; the run's is {})", self.stage_sh_s[k], self.sh().sh_s) } else { String::new() };
+            // NATIVE R8 ported (R6 for sh_s): a block stage whose layer has its
+            // own constants says so, one clause per constant in the canonical
+            // order with R8's labels (and so in the schedule digest the header
+            // absorbs); a run-wide run's lines are what they were, and an
+            // sh_s-only clause is R6's text
+            let base = self.sh().norm_calibration();
+            let mut own = String::new();
+            for (i, (_, _, label)) in OWN_FIELDS.iter().enumerate() {
+                let (v, b) = (cal_field(&self.stage_cal[k], i), cal_field(&base, i));
+                if v != b {
+                    own.push_str(&format!("; {label} {v} (the layer's own; the run's is {b})"));
+                }
+            }
             out.push(format!(
                 "stage {:02} (block {k}): commits boundary {}{}; slot 21 claims boundary {} at pair row {}; slot 22 claims boundary {} at pair row {}; opens M A H then boundary {}; data rows {}{own}",
                 k + 1,
@@ -417,6 +433,101 @@ impl TokenRunStatement {
         tr.absorb(b"calibration", &self.calibration());
         tr.absorb(b"schedule", &self.schedule_digest()?);
         Ok(tr)
+    }
+
+    /// **TOKEN I/O (round 7; the gate lane's capture request 2.3): the
+    /// run's public words for the run capture** — the block part exactly as
+    /// `RunStatement::capture_header` gives it (every word the token header
+    /// absorbs, in absorb order, so the recorder rebuilds the header from
+    /// this alone and compares it with the binding), plus the token facts.
+    /// Test-only, like the capture itself.
+    #[cfg(test)]
+    pub(crate) fn capture_header(&self) -> Result<super::super::run_capture::RunHeader, String> {
+        use super::super::run_capture::{BoundaryFacts, RunHeader, TokenEndpointFacts, TokenFacts};
+        let sh = self.sh();
+        let tp = &self.tp;
+        let t = tp.tier;
+        let mut boundaries = Vec::with_capacity(self.l() + 1);
+        for j in 0..=self.l() {
+            let spec = self.boundary_spec(j)?;
+            boundaries.push(BoundaryFacts {
+                index: j,
+                scale: spec.scale(),
+                sites: spec.sites(),
+                data_rows: spec.data_rows(),
+                rows: spec.commitment_rows(),
+                site_rows: spec.site_rows(),
+                prox_row: spec.prox_row(),
+                log_n: spec.log_n(),
+                inv_rate: sh.endpoint_inv_rate,
+                checks: sh.opened_cols,
+                digest: spec.digest(),
+                plane: (sh.t_pad, sh.d_pad),
+            });
+        }
+        let ep = |e: &EndpointSpecG| {
+            let d = e.data_rows();
+            TokenEndpointFacts { rows: e.commitment_rows(), data_rows: d, sites: 1, site_rows: vec![d, d + 1], prox_row: d + 2, log_n: t.ep_log_n, inv_rate: t.ep_inv_rate, checks: t.opened_cols, plane: (1, e.len()), digest: e.digest(), scale: 0 }
+        };
+        let token = TokenFacts {
+            run_profile: self.profile(),
+            v: tp.v,
+            v_pad: tp.v_pad,
+            tokens: tp.tokens,
+            t_pad: tp.t_pad,
+            d: tp.d,
+            d_pad: tp.d_pad,
+            variant: tp.variant.tag(),
+            mode: "i",
+            limbs: tp.limbs,
+            window_bits: tp.window_bits,
+            mult_bits: tp.mult_bits,
+            emb_digest: tp.emb_digest,
+            head_digest: tp.head_digest,
+            bos: tp.bos,
+            final_norm: (tp.norm.g0, tp.norm.cn, tp.norm.tn, tp.norm.ceps),
+            scales: (self.scale, self.scale),
+            tier: (t.name, t.opened_cols, t.stage_log_n, t.stage_inv_rate, t.ep_log_n, t.ep_inv_rate),
+            endpoints: [ep(&self.in_spec), ep(&self.out_spec)],
+            input_root: self.in_root,
+            output_root: self.out_root,
+            boundaries: boundaries.clone(),
+            r_emb_len: clog2(tp.d_pad),
+            stage_layouts: [stage_in::layout(sh, tp).describe(), stage_out::layout(sh, tp).describe()],
+        };
+        Ok(RunHeader {
+            profile: self.profile(),
+            l: self.l(),
+            sh: sh.clone(),
+            run_shape_words: [self.l(), sh.tokens, sh.width, sh.hidden, sh.q_heads, sh.kv_heads, sh.head_dim, tp.v].iter().map(|v| *v as u64).collect(),
+            expected_bytes: self.expected_bytes(),
+            public_statement: self.public_statement(),
+            parameter_line: self.parameter_line()?,
+            calibration: self.calibration(),
+            schedule_digest: self.schedule_digest()?,
+            context: self.context,
+            block_digests: self.block_digests.clone(),
+            boundary_scales: vec![self.scale; self.l() + 1],
+            external_input_root: self.in_root,
+            external_output_root: self.out_root,
+            external_rows: self.in_spec.commitment_rows(),
+            external_data_rows: self.in_spec.data_rows(),
+            external_log_n: t.ep_log_n,
+            external_inv_rate: t.ep_inv_rate,
+            stage_lines: self.stage_lines()?,
+            layout_description: Layout::for_shape(sh)?.describe(),
+            boundaries,
+            external_scales: (0, 0),
+            token: Some(token),
+            // ROUND 12 (gate round 16): a token run carries no classifier facts
+            classify: None,
+        })
+    }
+
+    /// the run binding (the header transcript's state), for the capture
+    #[cfg(test)]
+    pub(crate) fn binding(&self) -> Result<Digest, String> {
+        Ok(self.transcript()?.state())
     }
 
     /// the NTT domain one run needs: the block's, the boundaries', the
@@ -515,6 +626,13 @@ pub(crate) trait TokenRunSource {
     fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String>;
     /// `A_out`'s planes (asked FIRST, before any segment exists: review R2-5)
     fn stage_out(&mut self) -> Result<StageOutWitness, String>;
+    /// **ROUND 9 (F-T1): block `k`'s witness for the SEALING PASS**, before
+    /// any run header (ruling H-1): the source builds or borrows it at the
+    /// stage's shape `sh` and hands it to `check` (the prover's CS-3
+    /// lookup-miss check), leaving its proving-pass state untouched; the
+    /// proving pass asks again through [`TokenRunSource::witness`]. A source
+    /// that checks parity against an export checks it here too.
+    fn seal_check(&mut self, k: usize, blk: &BlockPublic, sh: &Shape, check: &mut dyn FnMut(&Witness) -> Result<(), String>) -> Result<(), String>;
 }
 
 #[derive(Debug, Default)]
@@ -591,6 +709,19 @@ pub(crate) fn prove_token_run(
 /// failure) can still come after earlier segments, so a sink must treat what
 /// it receives as UNPUBLISHED until this function returns `Ok` (the CLI's
 /// sink writes `<out>.incomplete/` and renames it only then).
+#[cfg(test)]
+thread_local! {
+    /// ROUND 9 (F-T1), test only: how many token run headers the prover
+    /// built on this thread (the header is the first thing a run writes)
+    static RUN_HEADERS: std::cell::Cell<u64> = const { std::cell::Cell::new(0) };
+}
+
+/// ROUND 9 (F-T1), test only: the run headers built on this thread so far
+#[cfg(test)]
+pub(crate) fn run_headers() -> u64 {
+    RUN_HEADERS.with(|c| c.get())
+}
+
 pub(crate) fn prove_token_run_with(
     st: &TokenRunStatement,
     blocks: &mut dyn TokenBlocks,
@@ -616,26 +747,43 @@ pub(crate) fn prove_token_run_with(
     if owners.input.commitment().root != st.in_root || owners.output.commitment().root != st.out_root || owners.input.cm.rows != st.in_spec.commitment_rows() || owners.output.cm.rows != st.out_spec.commitment_rows() {
         return Err("token I/O run: the token endpoint owners are not the statement's".into());
     }
-    // review R2-5: the stage-OUT witness is taken, and its byte-lookup
-    // refusal run, BEFORE the first segment reaches the sink, so a refused
-    // witness publishes nothing. (D20's final-norm refusals already fire in
-    // the honest pipeline, before any header.) A sink must still treat what
-    // it receives as unpublished until this function returns Ok.
-    let wout = src.stage_out()?;
-    if !cheating && stage_out::byte_misses(&stage_out::layout(sh, tp), tp, &wout)? > 0 {
-        return Err("token I/O stage OUT: the witness looks up a value that is not a byte (the class of the miss only)".into());
+    // **ROUND 9 (F-T1): THE SEALING PASS** — every refusal of an
+    // inadmissible run BEFORE the run header (ruling H-1), as the native
+    // trained stack does since R6: stage IN's indexed lookup and the input
+    // endpoint's plane, every block's CS-1 / CS-4 / CS-6 check (review TR3-1)
+    // and its CS-3 lookup-miss check on its witness, stage OUT's byte lookups
+    // (review R2-5) and the output endpoint's plane. A refused run builds no
+    // header and hands the sink nothing. (D20's final-norm refusals already
+    // fire in the honest pipeline.) A sink must still treat what it receives
+    // as unpublished until this function returns Ok.
+    let (win, b_in_plane) = src.stage_in()?;
+    if !cheating {
+        stage_in::lookup_misses(tp, tables, &win, &b_in_plane).map_err(|e| format!("{e} (refused in the sealing pass, before any header: F-T1)"))?;
+        let prompt: Vec<u64> = win.tok[..tp.tokens].iter().map(|x| x.0).collect();
+        endpoint_is_the_witnesss(&owners.input, &st.in_spec, &stage_in::endpoint_plane(tp, &prompt), "input")?;
     }
-    // review TR3-1: every block's CS-1 / CS-4 / CS-6 check BEFORE the first
-    // segment (the per-stage check below stays: a block that changes between
-    // the two is refused at its stage)
     for k in 0..l {
         let blk = blocks.block(k)?;
         stage_block_is_the_statements(st, k, &blk, !cheating)?;
+        let (ssh, lay) = (st.stage_shape(k)?, st.block_layout(k)?);
+        src.seal_check(k, &blk, &ssh, &mut |w| if cheating { Ok(()) } else { protocol::check_lookup_misses(&ssh, &lay, &blk, w).map_err(|e| format!("block {k}: {e} (refused in the sealing pass, before any header: F-T1)")) })?;
+    }
+    let wout = src.stage_out()?;
+    if !cheating {
+        if stage_out::byte_misses(&stage_out::layout(sh, tp), tp, &wout)? > 0 {
+            return Err("token I/O stage OUT: the witness looks up a value that is not a byte (the class of the miss only; refused in the sealing pass, before any header: F-T1)".into());
+        }
+        let tok = wout.planes.get(stage_out::A_TOK).and_then(|p| p.first()).ok_or("token I/O stage OUT: witness shape")?.0;
+        endpoint_is_the_witnesss(&owners.output, &st.out_spec, &stage_out::endpoint_plane(tp, tok), "output")?;
     }
     let mut rng = ZkRng::from_os(&super::super::hash_domain::run_seed_domain(st.rs.profile())).map_err(|e| format!("token I/O run randomness: {e}"))?;
     let tag = sh.hash_tag();
     let ntt = NttTables::new(st.ntt_log());
     let mut tr = st.transcript()?;
+    // ROUND 9 (F-T1): the test-only count of run headers this thread has
+    // built, so a test can show a refused run built none
+    #[cfg(test)]
+    RUN_HEADERS.with(|c| c.set(c.get() + 1));
     let binding = tr.state();
     let mut stats = TokenRunStats::default();
     let TokenOwners { input: in_ep, output: out_ep } = owners;
@@ -643,7 +791,6 @@ pub(crate) fn prove_token_run_with(
     // ---- stage IN
     let t0 = Instant::now();
     let start = position_tag(&tr);
-    let (win, b_in_plane) = src.stage_in()?;
     let in_lay = stage_in::layout(sh, tp);
     let b0 = st.boundary_spec(0)?;
     let inp = stage_in::prove(&in_lay, tp, tables, win, &b0, &b_in_plane, in_ep, &ntt, &mut rng, &mut tr, &tag)?;
@@ -750,10 +897,17 @@ pub(crate) fn verify_token_run_with(st: &TokenRunStatement, blocks: &mut dyn Tok
     let start = position_tag(&tr);
     let (seg, end) = st.in_geom(&in_lay).decode(&segments[0], &binding, &start)?;
     let b0 = st.boundary_spec(0)?;
+    // TOKEN I/O (round 7; capture request 2.2): the run capture opens stage
+    // IN where `RunVerifier::step` opens a stage (decoded, before the stage
+    // words). A no-op unless a recorder is attached.
+    #[cfg(test)]
+    super::super::run_capture::stage_begin_stage(0, "IN", &segments[0], start, seg.b_root, seg.a_root, seg.h_root, seg.mask_root, stage_in::capture_planes(&in_lay), &tr);
     let (mut pending, b_root) = stage_in::verify(&in_lay, tp, tables, &seg, &b0, &st.in_spec, &st.in_root, &ntt, &mut tr, &tag)?;
     if position_tag(&tr) != end {
         return Err("token I/O run: stage IN's trailer is not the verifier's own transcript position".into());
     }
+    #[cfg(test)]
+    super::super::run_capture::stage_end(0, end, &tr);
     let mut prev: (BoundarySpec, Digest) = (b0, b_root);
 
     // ---- the blocks
@@ -765,6 +919,8 @@ pub(crate) fn verify_token_run_with(st: &TokenRunStatement, blocks: &mut dyn Tok
         let start = position_tag(&tr);
         let (seg, end) = wire::decode_segment(&segments[k + 1], &lay, st.block_geom(k)?, &binding, &start)?;
         super::super::hash_domain::segment_paths_are_the_tree_depth(&seg, sh)?;
+        #[cfg(test)]
+        super::super::run_capture::stage_begin_stage(k + 1, "BLOCK", &segments[k + 1], start, seg.b_root, seg.a_root, seg.h_root, seg.mask_root, super::super::run_capture::StagePlanes::Block(&lay), &tr);
         tr.absorb_u64(b"pb-run-stage", (k + 1) as u64);
         tr.absorb(b"pb-run-block", &st.block_digests[k]);
         let spec = st.boundary_spec(k + 1)?;
@@ -775,16 +931,46 @@ pub(crate) fn verify_token_run_with(st: &TokenRunStatement, blocks: &mut dyn Tok
         let ([ic, oc], _) = protocol::verify_core(&ssh, &lay, &blk, view, &ntt, &mut tr, &mut ph).map_err(|e| format!("block {k}: {e}"))?;
         drop(blk);
         let mut claims = std::mem::take(&mut pending);
+        #[cfg(test)]
+        let (pending_n, incoming_n) = (claims.len(), ic.len());
         claims.extend(ic);
         let (pspec, proot) = prev;
         boundary::check_opening(&pspec, &claims, &tr)?;
         let bp = pspec.params();
+        #[cfg(test)]
+        let rc_before = super::super::run_capture::checkpoint(&tr);
         pcs::verify_zk_tagged(&bp, &ZkOpts::standard(&bp), &protocol::commitment(proot, pspec.commitment_rows(), pspec.log_n()), &claims, &seg.in_open, &ntt, &mut tr, &tag).map_err(|e| format!("boundary {k}{}: {e}", if k == 0 { " (B_in)" } else { "" }))?;
+        // TOKEN I/O (round 7): the boundary opening, as `RunVerifier::step`
+        // wraps it; B_in (k = 0) carries stage IN's IN-01 claims, a later
+        // boundary the previous block's outgoing equality slot's
+        #[cfg(test)]
+        super::super::run_capture::pcs(
+            super::super::run_capture::Geom {
+                role: "Input",
+                commitment_kind: if k == 0 { "B-in" } else { "internal-boundary" },
+                params: bp,
+                root: proot,
+                rows: pspec.commitment_rows(),
+                data_rows: pspec.data_rows(),
+                site_rows: pspec.site_rows(),
+                sum_rows: None,
+                prox_row: pspec.prox_row(),
+                boundary: Some(k),
+                claim_sources: vec![if k == 0 { (0, stage_in::SI_QZC, pending_n) } else { (k, super::super::layout::SC_IO_OUT, pending_n) }, (k + 1, super::super::layout::SC_IO_IN, incoming_n)],
+            },
+            &claims,
+            &seg.in_open,
+            &ntt,
+            rc_before,
+            &tr,
+        );
         pending = oc;
         prev = (spec, root);
         if position_tag(&tr) != end {
             return Err(format!("token I/O run: block segment {k}'s trailer is not the verifier's own transcript position"));
         }
+        #[cfg(test)]
+        super::super::run_capture::stage_end(k + 1, end, &tr);
     }
 
     // ---- stage OUT
@@ -792,9 +978,16 @@ pub(crate) fn verify_token_run_with(st: &TokenRunStatement, blocks: &mut dyn Tok
     let start = position_tag(&tr);
     let (seg, end) = st.out_geom(&out_lay)?.decode(&segments[l + 1], &binding, &start)?;
     let (bspec, broot) = prev;
+    #[cfg(test)]
+    super::super::run_capture::stage_begin_stage(l + 1, "OUT", &segments[l + 1], start, seg.b_root, seg.a_root, seg.h_root, seg.mask_root, stage_out::capture_planes(&out_lay, tp), &tr);
     stage_out::verify(&out_lay, tp, tables, &seg, &bspec, &broot, pending, &st.out_spec, &st.out_root, (l + 1) as u64, &ntt, &mut tr, &tag)?;
     if position_tag(&tr) != end {
         return Err("token I/O run: stage OUT's trailer is not the verifier's own transcript position".into());
+    }
+    #[cfg(test)]
+    {
+        super::super::run_capture::stage_end(l + 1, end, &tr);
+        super::super::run_capture::run_accepted();
     }
     Ok(())
 }
@@ -921,6 +1114,18 @@ pub(crate) fn downstream_at(shapes: &[Shape], tp: &TokenProfile, tables: &TokenT
 /// the honest source: hands out the pipeline's own values, each once
 pub(crate) struct PipelineSource<'a>(pub &'a mut HonestPipeline);
 
+/// **ROUND 9 (F-T1): a token endpoint's sealed plane is the witness's** —
+/// the owner's committed words (`data[..len]`, exactly what the owner's
+/// check reads) are the plane the stage witnesses imply: the prompt and zero
+/// pads (input), the decided id and zero pads (output). Checked in the
+/// sealing pass; names the endpoint only, never a word.
+fn endpoint_is_the_witnesss(ep: &CommittedZk, spec: &EndpointSpecG, plane: &[Fp], which: &str) -> Result<(), String> {
+    if plane.len() != spec.len() || ep.data.len() < spec.len() || ep.data[..spec.len()] != *plane {
+        return Err(format!("token I/O: the {which} token endpoint's sealed plane is not the stage witnesses' (refused in the sealing pass, before any header: F-T1)"));
+    }
+    Ok(())
+}
+
 impl TokenRunSource for PipelineSource<'_> {
     fn stage_in(&mut self) -> Result<(StageInWitness, Vec<i16>), String> {
         Ok((self.0.stage_in.clone(), self.0.b_in.clone()))
@@ -933,5 +1138,8 @@ impl TokenRunSource for PipelineSource<'_> {
     }
     fn stage_out(&mut self) -> Result<StageOutWitness, String> {
         Ok(self.0.stage_out.clone())
+    }
+    fn seal_check(&mut self, k: usize, _blk: &BlockPublic, _sh: &Shape, check: &mut dyn FnMut(&Witness) -> Result<(), String>) -> Result<(), String> {
+        check(self.0.witnesses.get(k).and_then(|w| w.as_ref()).ok_or_else(|| format!("token I/O pipeline: no witness for block {k}"))?)
     }
 }

@@ -1,0 +1,6 @@
+{
+  "written_utc": "2026-10-26T18:03:24.271147+00:00",
+  "base": "R12 acceptance source 1e406781f734e9f35f066516a35bf6b9ef97dee164ece4f43bbe7b3e00735fc7; S1 remains live and unchanged",
+  "spec_sha256": "06f6173b604ea70fc1d6470ca0749ebaefb001bc8b6640e3ae628927f8e5ad1a",
+  "scope": "isolated R13 implementation copy; not frozen or integrated"
+}

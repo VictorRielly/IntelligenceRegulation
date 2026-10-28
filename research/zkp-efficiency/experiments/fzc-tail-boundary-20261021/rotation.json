@@ -1,0 +1,20 @@
+{
+  "current": [
+    "sumcheck/GKR",
+    "memory traffic",
+    "batching/amortization"
+  ],
+  "next": [
+    "memory traffic: mapped/pinned lifetime",
+    "lookup arguments and softmax"
+  ],
+  "queue": [
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "lookup arguments and softmax",
+    "memory traffic",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proof composition"
+  ]
+}

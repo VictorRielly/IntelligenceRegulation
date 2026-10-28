@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "seed": 202610210116,
+  "checks": 515,
+  "synthetic_rows": 200,
+  "encoded_positions": 6900,
+  "scale_entries": 33,
+  "literal_multiplications_per_inverse": 127,
+  "negative_controls": [
+    "scale_reject_-1",
+    "scale_reject_33",
+    "scale_reject_64",
+    "table_reject_33",
+    "max_log_before_lookup",
+    "empty_transform",
+    "non_power_of_two",
+    "undersized_transform_tables",
+    "unguarded_formula_33_is_wrong",
+    "double_normalization_detected",
+    "wrong_length_scale_detected",
+    "forward_must_keep_scale_one",
+    "fresh_pad_change_detected",
+    "coset_meets_subgroup",
+    "pad_capacity"
+  ],
+  "wall_seconds": 0.12672946701059118,
+  "rss_kib": 15028,
+  "scope": "Exact public scale/CPU-style row adapter only; no native/GPU/proof execution"
+}

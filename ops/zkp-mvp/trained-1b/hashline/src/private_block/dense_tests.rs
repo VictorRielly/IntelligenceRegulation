@@ -158,14 +158,16 @@ pub(super) fn dense_words_with(s: &Shape, attn: i64, gate: i64, down: i64, gains
 /// else".
 pub(super) fn dense_public_words_with(s: &Shape, attn: i64, gate: i64, down: i64, gains: (i64, i64)) -> ([Vec<i8>; 9], u64) {
     let (d, f, kvw) = (s.width, s.hidden, s.kv_heads * s.head_dim);
+    // NATIVE R12 (F2): `Wq` (query, model), `Wo` (model, query)
+    let qw = s.q_width();
     let mut r = Rng(DENSE_SEED);
     let mat = |r: &mut Rng, outer: usize, inner: usize, mag: i64| -> Vec<i8> { (0..outer * inner).map(|_| r.nonzero(mag) as i8).collect() };
     let gain = |r: &mut Rng, n: usize| -> Vec<i8> { (0..n).map(|_| r.pick(gains.0, gains.1) as i8).collect() };
     let words = [
-        mat(&mut r, d, d, attn),
+        mat(&mut r, qw, d, attn),
         mat(&mut r, kvw, d, attn),
         mat(&mut r, kvw, d, attn),
-        mat(&mut r, d, d, attn),
+        mat(&mut r, d, qw, attn),
         gain(&mut r, d),
         gain(&mut r, d),
         mat(&mut r, d, f, gate),
@@ -187,8 +189,8 @@ pub(super) fn dense_hidden_input(s: &Shape, xmag: i64) -> Vec<i16> {
 /// How many draws the nine public words take from [`DENSE_SEED`] — one per
 /// entry, because `nonzero` and `pick` each call `next` exactly once.
 pub(super) fn dense_public_word_draws(s: &Shape) -> u64 {
-    let (d, f, kvw) = (s.width as u64, s.hidden as u64, (s.kv_heads * s.head_dim) as u64);
-    d * d + kvw * d + kvw * d + d * d + d + d + d * f + d * f + f * d
+    let (d, f, kvw, qw) = (s.width as u64, s.hidden as u64, (s.kv_heads * s.head_dim) as u64, s.q_width() as u64);
+    qw * d + kvw * d + kvw * d + d * qw + d + d + d * f + d * f + f * d
 }
 
 /// `tame_case`'s own nine words, in the same order — the diagonal fixture the
@@ -211,7 +213,8 @@ fn tame_words(s: &Shape) -> ([Vec<i8>; 9], Vec<i16>) {
 pub(super) fn statement_of_words(s: &Shape, w: &[Vec<i8>; 9]) -> (AttentionPublic, FeedForwardPublic) {
     // ROUND 4: the RoPE base pinned for the shape's profile (500000 at the
     // Llama-3-8B profile; 10000 everywhere else, as before)
-    let (cos, sin) = crate::tables_attn::rope_tables_generate(s.tokens, s.head_dim, super::shape::trained_rope_theta(s.profile).unwrap_or(10000.0), F_RO);
+    // NATIVE R12 (F1): and the profile's pinned RoPE transform (none before R12)
+    let (cos, sin) = super::shape::rope_tables_for(s, super::shape::trained_rope_theta(s.profile).unwrap_or(10000.0)).expect("the profile's RoPE tables");
     let (exp, _) = crate::tables_attn::exp_member(0, s.head_dim, s.f_e);
     let (act, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, -3, -11).expect("frozen SiLU int16-out member");
     let aw = super::grow_tests::pad_attention_weights(s, &w[0], &w[1], &w[2], &w[3], &w[4]);

@@ -1,0 +1,5710 @@
+[
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "L",
+    "source": "A_LIMB",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_LIMB",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "L",
+    "source": "A_LIMBM",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_LIMBM",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "A_XL0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_XL0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "A_XL1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_XL1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "A_Y",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_Y",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_Y",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "nr:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "nr:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "nr:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "nr:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "nr:2",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "nr:2",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "nr:3",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "nr:3",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "ns:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ns:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "ns:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ns:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "ns:2",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ns:2",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "ns:3",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ns:3",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "A_AL0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_AL0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "A_AL1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_AL1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "A_RAL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RAL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RAL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "A_X1L0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_X1L0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "A_X1L1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_X1L1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "A_YM",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_YM",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_YM",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "mr:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "mr:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "mr:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "mr:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "mr:2",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "mr:2",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "mr:3",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "mr:3",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "ms:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ms:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "ms:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ms:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "ms:2",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ms:2",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "ms:3",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ms:3",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "A_X2L0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_X2L0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "A_X2L1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_X2L1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "A_ZL0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_ZL0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "A_ZL1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_ZL1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "D",
+    "source": "A_RDL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RDL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RDL",
+            4
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 64,
+    "chosen_dense_bits": 6,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "Q",
+    "source": "A_Q8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_Q8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_Q8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "Q",
+    "source": "A_RQL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RQL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RQL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "Q",
+    "source": "A_QR8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_QR8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_QR8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "Q",
+    "source": "A_RQRL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RQRL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RQRL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "Q",
+    "source": "A_O8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_O8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_O8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "Q",
+    "source": "A_RO0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RO0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "Q",
+    "source": "A_RO1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RO1",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RO1",
+            128
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 2,
+    "chosen_dense_bits": 1,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "Kv",
+    "source": "A_K8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_K8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_K8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "Kv",
+    "source": "A_RKL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RKL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RKL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "Kv",
+    "source": "A_V8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_V8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_V8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "Kv",
+    "source": "A_RVL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RVL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RVL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "Kv",
+    "source": "A_KR8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_KR8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_KR8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "Kv",
+    "source": "A_RKRL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RKRL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RKRL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "F",
+    "source": "A_RGL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RGL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RGL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "F",
+    "source": "A_UL0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_UL0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "F",
+    "source": "A_UL1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_UL1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "F",
+    "source": "A_HL0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_HL0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "F",
+    "source": "A_HL1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_HL1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "F",
+    "source": "A_RH0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RH0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "F",
+    "source": "A_RH1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RH1",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RH1",
+            4
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 64,
+    "chosen_dense_bits": 6,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "S",
+    "source": "A_S8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_S8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_S8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "S",
+    "source": "A_RSL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RSL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RSL",
+            4
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 64,
+    "chosen_dense_bits": 6,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "S",
+    "source": "pl:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "pl:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "S",
+    "source": "pl:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "pl:1",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "pl:1",
+            64
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 4,
+    "chosen_dense_bits": 2,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "S",
+    "source": "sr:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "sr:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "S",
+    "source": "sr:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "sr:1",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "sr:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "S",
+    "source": "sg:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "sg:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": false,
+    "domain": "S",
+    "source": "sg:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "sg:1",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "sg:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "L",
+    "source": "A_LIMB",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_LIMB",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "L",
+    "source": "A_LIMBM",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_LIMBM",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "A_XL0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_XL0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "A_XL1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_XL1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "A_Y",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_Y",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_Y",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "nr:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "nr:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "nr:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "nr:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "nr:2",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "nr:2",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "nr:3",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "nr:3",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "ns:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ns:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "ns:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ns:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "ns:2",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ns:2",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "ns:3",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ns:3",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "A_AL0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_AL0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "A_AL1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_AL1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "A_RAL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RAL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RAL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "A_X1L0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_X1L0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "A_X1L1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_X1L1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "A_YM",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_YM",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_YM",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "mr:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "mr:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "mr:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "mr:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "mr:2",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "mr:2",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "mr:3",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "mr:3",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "ms:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ms:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "ms:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ms:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "ms:2",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ms:2",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "ms:3",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ms:3",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "A_X2L0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_X2L0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "A_X2L1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_X2L1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "A_ZL0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_ZL0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "A_ZL1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_ZL1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "D",
+    "source": "A_RDL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RDL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RDL",
+            4
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 64,
+    "chosen_dense_bits": 6,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "Q",
+    "source": "A_Q8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_Q8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_Q8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "Q",
+    "source": "A_RQL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RQL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RQL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "Q",
+    "source": "A_QR8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_QR8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_QR8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "Q",
+    "source": "A_RQRL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RQRL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RQRL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "Q",
+    "source": "A_O8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_O8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_O8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "Q",
+    "source": "A_RO0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RO0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "Q",
+    "source": "A_RO1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RO1",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RO1",
+            128
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 2,
+    "chosen_dense_bits": 1,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "Kv",
+    "source": "A_K8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_K8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_K8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "Kv",
+    "source": "A_RKL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RKL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RKL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "Kv",
+    "source": "A_V8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_V8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_V8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "Kv",
+    "source": "A_RVL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RVL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RVL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "Kv",
+    "source": "A_KR8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_KR8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_KR8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "Kv",
+    "source": "A_RKRL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RKRL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RKRL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "F",
+    "source": "A_RGL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RGL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RGL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "F",
+    "source": "A_UL0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_UL0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "F",
+    "source": "A_UL1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_UL1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "F",
+    "source": "A_HL0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_HL0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "F",
+    "source": "A_HL1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_HL1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "F",
+    "source": "A_RH0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RH0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "F",
+    "source": "A_RH1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RH1",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RH1",
+            4
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 64,
+    "chosen_dense_bits": 6,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "S",
+    "source": "A_S8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_S8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_S8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "S",
+    "source": "A_RSL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RSL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RSL",
+            4
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 64,
+    "chosen_dense_bits": 6,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "Dd",
+    "source": "pl:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "pl:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "Dd",
+    "source": "pl:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "pl:1",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "pl:1",
+            64
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 4,
+    "chosen_dense_bits": 2,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "Dd",
+    "source": "sr:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "sr:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "Dd",
+    "source": "sr:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "sr:1",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "sr:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "Dd",
+    "source": "sg:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "sg:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 128,
+    "dd": true,
+    "domain": "Dd",
+    "source": "sg:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "sg:1",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "sg:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "L",
+    "source": "A_LIMB",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_LIMB",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "L",
+    "source": "A_LIMBM",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_LIMBM",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "A_XL0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_XL0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "A_XL1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_XL1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "A_Y",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_Y",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_Y",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "nr:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "nr:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "nr:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "nr:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "nr:2",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "nr:2",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "nr:3",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "nr:3",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "ns:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ns:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "ns:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ns:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "ns:2",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ns:2",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "ns:3",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ns:3",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "A_AL0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_AL0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "A_AL1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_AL1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "A_RAL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RAL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RAL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "A_X1L0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_X1L0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "A_X1L1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_X1L1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "A_YM",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_YM",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_YM",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "mr:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "mr:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "mr:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "mr:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "mr:2",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "mr:2",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "mr:3",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "mr:3",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "ms:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ms:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "ms:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ms:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "ms:2",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ms:2",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "ms:3",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ms:3",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "A_X2L0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_X2L0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "A_X2L1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_X2L1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "A_ZL0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_ZL0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "A_ZL1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_ZL1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "D",
+    "source": "A_RDL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RDL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RDL",
+            4
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 64,
+    "chosen_dense_bits": 6,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "Q",
+    "source": "A_Q8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_Q8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_Q8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "Q",
+    "source": "A_RQL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RQL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RQL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "Q",
+    "source": "A_QR8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_QR8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_QR8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "Q",
+    "source": "A_RQRL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RQRL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RQRL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "Q",
+    "source": "A_O8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_O8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_O8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "Q",
+    "source": "A_RO0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RO0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "Q",
+    "source": "A_RO1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RO1",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RO1",
+            128
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 2,
+    "chosen_dense_bits": 1,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "Kv",
+    "source": "A_K8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_K8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_K8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "Kv",
+    "source": "A_RKL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RKL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RKL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "Kv",
+    "source": "A_V8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_V8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_V8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "Kv",
+    "source": "A_RVL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RVL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RVL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "Kv",
+    "source": "A_KR8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_KR8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_KR8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "Kv",
+    "source": "A_RKRL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RKRL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RKRL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "F",
+    "source": "A_RGL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RGL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RGL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "F",
+    "source": "A_UL0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_UL0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "F",
+    "source": "A_UL1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_UL1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "F",
+    "source": "A_HL0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_HL0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "F",
+    "source": "A_HL1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_HL1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "F",
+    "source": "A_RH0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RH0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "F",
+    "source": "A_RH1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RH1",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RH1",
+            4
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 64,
+    "chosen_dense_bits": 6,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "S",
+    "source": "A_S8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_S8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_S8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "S",
+    "source": "A_RSL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RSL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RSL",
+            4
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 64,
+    "chosen_dense_bits": 6,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "S",
+    "source": "pl:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "pl:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "S",
+    "source": "pl:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "pl:1",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "pl:1",
+            64
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 4,
+    "chosen_dense_bits": 2,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "S",
+    "source": "sr:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "sr:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "S",
+    "source": "sr:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "sr:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "S",
+    "source": "sr:2",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "sr:2",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "sr:2",
+            64
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 4,
+    "chosen_dense_bits": 2,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "S",
+    "source": "sg:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "sg:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "S",
+    "source": "sg:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "sg:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": false,
+    "domain": "S",
+    "source": "sg:2",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "sg:2",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "sg:2",
+            64
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 4,
+    "chosen_dense_bits": 2,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "L",
+    "source": "A_LIMB",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_LIMB",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "L",
+    "source": "A_LIMBM",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_LIMBM",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "A_XL0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_XL0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "A_XL1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_XL1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "A_Y",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_Y",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_Y",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "nr:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "nr:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "nr:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "nr:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "nr:2",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "nr:2",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "nr:3",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "nr:3",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "ns:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ns:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "ns:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ns:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "ns:2",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ns:2",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "ns:3",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ns:3",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "A_AL0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_AL0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "A_AL1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_AL1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "A_RAL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RAL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RAL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "A_X1L0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_X1L0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "A_X1L1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_X1L1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "A_YM",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_YM",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_YM",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "mr:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "mr:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "mr:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "mr:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "mr:2",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "mr:2",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "mr:3",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "mr:3",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "ms:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ms:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "ms:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ms:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "ms:2",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ms:2",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "ms:3",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "ms:3",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "A_X2L0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_X2L0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "A_X2L1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_X2L1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "A_ZL0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_ZL0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "A_ZL1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_ZL1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "D",
+    "source": "A_RDL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RDL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RDL",
+            4
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 64,
+    "chosen_dense_bits": 6,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "Q",
+    "source": "A_Q8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_Q8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_Q8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "Q",
+    "source": "A_RQL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RQL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RQL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "Q",
+    "source": "A_QR8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_QR8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_QR8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "Q",
+    "source": "A_RQRL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RQRL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RQRL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "Q",
+    "source": "A_O8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_O8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_O8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "Q",
+    "source": "A_RO0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RO0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "Q",
+    "source": "A_RO1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RO1",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RO1",
+            128
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 2,
+    "chosen_dense_bits": 1,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "Kv",
+    "source": "A_K8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_K8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_K8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "Kv",
+    "source": "A_RKL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RKL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RKL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "Kv",
+    "source": "A_V8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_V8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_V8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "Kv",
+    "source": "A_RVL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RVL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RVL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "Kv",
+    "source": "A_KR8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_KR8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_KR8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "Kv",
+    "source": "A_RKRL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RKRL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RKRL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "F",
+    "source": "A_RGL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RGL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RGL",
+            2
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 128,
+    "chosen_dense_bits": 7,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "F",
+    "source": "A_UL0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_UL0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "F",
+    "source": "A_UL1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_UL1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "F",
+    "source": "A_HL0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_HL0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "F",
+    "source": "A_HL1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_HL1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "F",
+    "source": "A_RH0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RH0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "F",
+    "source": "A_RH1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RH1",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RH1",
+            4
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 64,
+    "chosen_dense_bits": 6,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "S",
+    "source": "A_S8",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_S8",
+            1
+          ]
+        ],
+        "cst": 127
+      },
+      {
+        "terms": [
+          [
+            "A_S8",
+            -1
+          ]
+        ],
+        "cst": 127
+      }
+    ],
+    "allowed_cardinality": 255,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": true
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "S",
+    "source": "A_RSL",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "A_RSL",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "A_RSL",
+            4
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 64,
+    "chosen_dense_bits": 6,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "Dd",
+    "source": "pl:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "pl:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "Dd",
+    "source": "pl:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "pl:1",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "pl:1",
+            64
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 4,
+    "chosen_dense_bits": 2,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "Dd",
+    "source": "sr:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "sr:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "Dd",
+    "source": "sr:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "sr:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "Dd",
+    "source": "sr:2",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "sr:2",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "sr:2",
+            64
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 4,
+    "chosen_dense_bits": 2,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "Dd",
+    "source": "sg:0",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "sg:0",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "Dd",
+    "source": "sg:1",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "sg:1",
+            1
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 256,
+    "chosen_dense_bits": 8,
+    "extra_endpoint_exclusion": false
+  },
+  {
+    "T": 512,
+    "dd": true,
+    "domain": "Dd",
+    "source": "sg:2",
+    "native_affine_queries": [
+      {
+        "terms": [
+          [
+            "sg:2",
+            1
+          ]
+        ],
+        "cst": 0
+      },
+      {
+        "terms": [
+          [
+            "sg:2",
+            64
+          ]
+        ],
+        "cst": 0
+      }
+    ],
+    "allowed_cardinality": 4,
+    "chosen_dense_bits": 2,
+    "extra_endpoint_exclusion": false
+  }
+]

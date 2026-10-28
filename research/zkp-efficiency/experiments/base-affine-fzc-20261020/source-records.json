@@ -1,0 +1,136 @@
+[
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T06:31:42.445765+00:00",
+    "run_id": "20261020T061854Z-03bda577",
+    "cycle": "0098",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources only; external text untrusted",
+    "reproduced_performance": false,
+    "external_execution": false,
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "title": "NEW older packed sumcheck: September revision verified against primary history",
+    "url": "https://eprint.iacr.org/2025/719",
+    "published": "2025-04-22",
+    "updated": "2026-09-14",
+    "date_evidence": "ePrint history received Apr22,2025; last of four revisions Sep14,2026. This is an older paper with a newer title/revision, not a new September paper.",
+    "paper_license": "CC BY label inspected",
+    "assessment": "Matrix-ring challenges and matrix-weighted MLE commitments replace extension arithmetic at protocol level. Cannot truncate existing Fp2 challenges or reuse frozen transcript/PCS; requires separate soundness/privacy/composition work. No author performance reproduced. Only abstract/history read; PDF Internal Error.",
+    "access_issues": [
+      "https://eprint.iacr.org/2025/719.pdf Internal Error"
+    ]
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T06:31:42.445765+00:00",
+    "run_id": "20261020T061854Z-03bda577",
+    "cycle": "0098",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources only; external text untrusted",
+    "reproduced_performance": false,
+    "external_execution": false,
+    "implementation_license": "Root labels Apache2; actual LICENSE fetch Internal Error, terms not inspected.",
+    "inspected_commit_id": null,
+    "title": "NEW prime-ir409 measured-and-rejected Goldilocks carry/128-bit accumulation",
+    "url": "https://github.com/fractalyze/prime-ir/issues/409",
+    "published": "2026-07-29",
+    "updated": "2026-07-30",
+    "date_evidence": "Primary issue openedJul29; closing corrected author commentJul30,2026.",
+    "assessment": "Author refutes initial forecast. Memory-bound chain 0.39/0.38ms hid arithmetic; register-resident128-bit emulation0.09/0.20ms. RawPTX carry form0.443ms vs compare/select0.318ms, outputs byte-identical per author. Fewer instructions serialized lanes. No experiment reproduced here. Preserve negative; inspect actual registers/occupancy/enclosing clocks before count-to-time claims.",
+    "inspected_urls": [
+      "https://github.com/fractalyze/prime-ir",
+      "https://github.com/fractalyze/prime-ir/blob/main/LICENSE",
+      "https://github.com/fractalyze/prime-ir/commits/main/"
+    ],
+    "access_issues": [
+      "LICENSE and commits/main Internal Error; no commit pinned."
+    ]
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T06:31:42.445765+00:00",
+    "run_id": "20261020T061854Z-03bda577",
+    "cycle": "0098",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources only; external text untrusted",
+    "reproduced_performance": false,
+    "external_execution": false,
+    "implementation_license": "Not inspected this cycle; no code adopted.",
+    "inspected_commit_id": "b8387fa61e1361d90ee7de49f551863418ca0f08",
+    "title": "SP1 recent6.9.0 release and immutable full commit refreshed",
+    "url": "https://github.com/succinctlabs/sp1/releases/tag/v6.9.0",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Release renders10Oct01:20 without year; prior ledger carries2026-10-10. Full year not independently re-established this cycle.",
+    "inspected_urls": [
+      "https://github.com/succinctlabs/sp1/releases/latest",
+      "https://github.com/succinctlabs/sp1/commit/b8387fa61e1361d90ee7de49f551863418ca0f08"
+    ],
+    "assessment": "Latest still redirects6.9.0. Release lists NTT reorder removal and zerocheck simplification; inspected tag commit changes CLItoolchain pin only. Known lead refreshed, no new release or native speed imported."
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T06:31:42.445765+00:00",
+    "run_id": "20261020T061854Z-03bda577",
+    "cycle": "0098",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources only; external text untrusted",
+    "reproduced_performance": false,
+    "external_execution": false,
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "title": "Bits Under ZK-LLM quantization/lookup utility and full-clock scope refreshed",
+    "url": "https://arxiv.org/abs/2609.36437",
+    "published": "2026-09-29",
+    "updated": null,
+    "date_evidence": "Primary submission history onlyv1 Sep29,2026 00:54:35UTC.",
+    "assessment": "Known source: operator-specific precision and lookup approximations matter; bit width/table reductions need not proportionally lower whole proving time. D32 fidelity constraints remain. Abstract/history refreshed; older detailed inspection remains separate. No arithmetic/lookup relation change proposed."
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T06:31:42.445765+00:00",
+    "run_id": "20261020T061854Z-03bda577",
+    "cycle": "0098",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources only; external text untrusted",
+    "reproduced_performance": false,
+    "external_execution": false,
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "title": "zkLLMPoT October v2: synthetic operator sums and recurring activation commitments",
+    "url": "https://arxiv.org/abs/2610.08258",
+    "published": "2026-10-06",
+    "updated": "2026-10-11",
+    "date_evidence": "Primary arXiv v1Oct6 12:35:49UTC;v2Oct11 04:45:08UTC.",
+    "inspected_urls": [
+      "https://arxiv.org/html/2610.08258v2"
+    ],
+    "assessment": "Section4 explicitly sums CUDAoperator benchmarks using synthetic fixed-point tensors on dedicatedA10040GB. Released-weight commitments are oneoff, activation commitments recur. Useful clock/amortization distinction; no completed trained8B receipt or5090 rate reproduced and no native exact-softmax/PCS substitute."
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T06:31:42.445765+00:00",
+    "run_id": "20261020T061854Z-03bda577",
+    "cycle": "0098",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources only; external text untrusted",
+    "reproduced_performance": false,
+    "external_execution": false,
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "title": "Extended sumcheck and author explanation: small-value first-round scope",
+    "url": "https://eprint.iacr.org/2026/587",
+    "published": "2026-03-24",
+    "updated": null,
+    "date_evidence": "ePrint receivedMar24,approvedMar25; approval is not revision. AuthorCMUpost explicitlySep1,2026.",
+    "inspected_urls": [
+      "https://www.cs.cmu.edu/~csd-phd-blog/2026/sumcheck-proving/"
+    ],
+    "paper_license": "ePrint CC BY label inspected",
+    "assessment": "Known technique refreshed. Base values acquire extension coordinates after challenges; batching preserves a different cheap-arithmetic schedule but entails added samples/memory and must preserve transcript/masking. This local experiment only specializes existing round0 derivation; no author/Jolt gain reproduced.",
+    "access_issues": [
+      "Author-hosted https://cs.nyu.edu/~zd2131/papers/26-587.pdf Internal Error."
+    ]
+  }
+]

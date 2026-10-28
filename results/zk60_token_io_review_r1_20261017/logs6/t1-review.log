@@ -1,0 +1,198 @@
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1112:13
+     |
+1112 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:865:4
+    |
+865 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:258:19
+    |
+215 | impl Phases {
+    | ----------- method in this implementation
+...
+258 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:734:5
+    |
+727 | struct Rec {
+    |        --- field in this struct
+...
+734 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 15 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.09s
+     Running unittests src/lib.rs (/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r7-scratch/tree/hashline/target/release/deps/hashline-414636446491ba84)
+
+running 6 tests
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-token-io-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"31c2288d36199764e873deabcdde3d33c3ca7c1e274eea8ed9d646436567dc38","V":300,"seconds":0.038}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-token-io-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"31c2288d36199764e873deabcdde3d33c3ca7c1e274eea8ed9d646436567dc38","V":300,"seconds":0.053}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.211}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.238}
+REVIEW-R6 CONTROL RV6-2a | a prove refused mid-run (parity at block 0) | refused: token run: block 0's native output is not the export's x_out_L00 (parity) | left behind: [] | AS PREDICTED
+REVIEW-R6 CONTROL RV6-2b | a stale <out>.incomplete/ from a crashed prove | refused: /tmp/tio-rv6-partial-627425/runs/stale.incomplete exists; a token run's directories must be new (review TR5-1: claimed atomically, never removed by a prove that did not create it) | stale segment kept: true | AS PREDICTED
+test private_block::token_io::cli::review_r6::rv6_2_a_mid_run_refusal_leaves_nothing_and_a_stale_claim_is_untouched ... ok
+REVIEW-R6 CONTROL RV6-3a | an explicit --owner-dir reached through a symlink into a git working tree | refused: --owner-dir /tmp/tio-rv6-place-627425/link-into-repo/er/x.owner-private: inside the git working tree /tmp/tio-rv6-place-627425/repo (/tmp/tio-rv6-place-627425/repo/.git exists); the owners' decommitments are private (D21 | AS PREDICTED
+REVIEW-R6 CONTROL RV6-3b | the default owner dir, run directly under $HOME (named through a symlink) | ACCEPTED (exit 0) | AS PREDICTED
+REVIEW-R6 CONTROL RV6-3c | the default owner dir, run in $HOME/zk60-artifacts (an ancestor of the base, not $HOME) | refused: --owner-dir /tmp/tio-rv6-place-627425/home/zk60-artifacts/token-io/run-ab2134f99785.owner-private: inside the run's parent directory /tmp/tio-rv6-place-627425/home/zk60-artifacts; the owners' decommitments are private (D | AS PREDICTED
+REVIEW-R6 NOTE | the DEFAULT owner directory when $HOME itself is a git working tree: ACCEPTED (exit 0)
+REVIEW-R6 NOTE | an EXPLICIT owner directory in the same $HOME: refused: --owner-dir /tmp/tio-rv6-place-627425/git-home/x.owner-private: inside the git working tree /tmp/tio-rv6-place-627425/git-home (/tmp/tio-rv6-place-627425/git-home/.git exists); the owners' decommitments are private (D21)
+REVIEW-R6 NOTE | the default owner directory's path given explicitly for a run directly under $HOME: refused: --owner-dir /tmp/tio-rv6-place-627425/home/zk60-artifacts/token-io/run2-323d2f729663.owner-private: inside the run's parent directory /tmp/tio-rv6-place-627425/home; the owners' decommitments are private (D21) and never 
+test private_block::token_io::cli::review_r6::rv6_3_owner_dir_placement_edges ... ok
+REVIEW-R6 NOTE | block 1's own constants at the rung: ["sh_s=6 (run 5)", "norm_tn=9 (run 10)", "norm_cn_a=700 (run 1336)", "norm_cn_m=1100 (run 2158)", "norm_ceps=16777259 (run 33554467)", "sh_ao=7 (run 6)", "sh_qkv=7 (run 8)", "sh_o=11 (run 10)", "sh_g=7 (run 8)", "sh_h=14 (run 13)", "sh_z=6 (run 5)"]
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.483}
+{"event":"segment","index":2,"bytes":2959224,"elapsed_seconds":1.660}
+{"event":"proved","run":"/tmp/tio-rv6-race-627425/p1/same0","owner_dir":"/tmp/tio-rv6-race-627425/owners/same0.owner-private","segments":3,"receipt_bytes":11605016,"prove_seconds":1.660,"witness_seconds":0.047,"block_load_seconds":0.027,"parity_layers":1,"whole_run_floor_bits":94,"trained_statement_identity":"31c2288d36199764e873deabcdde3d33c3ca7c1e274eea8ed9d646436567dc38","vmhwm_mib":360,"total_seconds":1.772,"backend":"gpu: off (built without --features gpu-cuda)","statement":"UNVERIFIED until zk60_token_io verify publishes <run>/statement/"}
+REVIEW-R6 CONTROL RV6-1a.0 | two proves naming the SAME owner directory at once (round-5 TR5-1 reproduction) | ACCEPTED (exit 0) | refused: /tmp/tio-rv6-race-627425/owners/same0.owner-private exists; a run's owner directory must be new (review TR5-1: claimed atomically, never removed by a prove that did not create it) | winner's decommitments present: true | loser left: [] | AS PREDICTED
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-token-io-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"31c2288d36199764e873deabcdde3d33c3ca7c1e274eea8ed9d646436567dc38","V":300,"seconds":0.042}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.152}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.538}
+{"event":"segment","index":2,"bytes":2959224,"elapsed_seconds":1.746}
+{"event":"proved","run":"/tmp/tio-rv6-race-627425/runs/one0","owner_dir":"/tmp/tio-rv6-race-627425/owners/a0.owner-private","segments":3,"receipt_bytes":11605016,"prove_seconds":1.747,"witness_seconds":0.053,"block_load_seconds":0.043,"parity_layers":1,"whole_run_floor_bits":94,"trained_statement_identity":"31c2288d36199764e873deabcdde3d33c3ca7c1e274eea8ed9d646436567dc38","vmhwm_mib":375,"total_seconds":1.818,"backend":"gpu: off (built without --features gpu-cuda)","statement":"UNVERIFIED until zk60_token_io verify publishes <run>/statement/"}
+REVIEW-R6 CONTROL RV6-1b.0 | two proves naming the SAME --out at once | ACCEPTED (exit 0) | refused: /tmp/tio-rv6-race-627425/runs/one0.incomplete exists; a token run's directories must be new (review TR5-1: claimed atomically, never removed by a prove that did not create it) | winner's run, statement and decommitments intact: true | loser's owner dir left: false | AS PREDICTED
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-token-io-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"31c2288d36199764e873deabcdde3d33c3ca7c1e274eea8ed9d646436567dc38","V":300,"seconds":0.045}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.162}
+REVIEW-R6 CONTROL RV6-5.0 | the honest receipt read under a statement with the own constants on layer 0 instead of layer 1 | Some("token I/O wire: this segment belongs to another run") | AS PREDICTED
+REVIEW-R6 CONTROL RV6-5.1 | the honest receipt read under a statement with the own constants on both layers | Some("token I/O wire: this segment belongs to another run") | AS PREDICTED
+REVIEW-R6 CONTROL RV6-5.2 | the honest receipt read under a statement with layer 1's own sh_s dropped (the run's value) | Some("token I/O wire: this segment belongs to another run") | AS PREDICTED
+REVIEW-R6 CONTROL RV6-5.3 | the honest receipt read under a statement with layer 1's own norm_tn dropped (the run's value) | Some("token I/O wire: this segment belongs to another run") | AS PREDICTED
+REVIEW-R6 CONTROL RV6-5.4 | the honest receipt read under a statement with layer 1's own norm_cn_a dropped (the run's value) | Some("token I/O wire: this segment belongs to another run") | AS PREDICTED
+REVIEW-R6 CONTROL RV6-5.5 | the honest receipt read under a statement with layer 1's own norm_cn_m dropped (the run's value) | Some("token I/O wire: this segment belongs to another run") | AS PREDICTED
+REVIEW-R6 CONTROL RV6-5.6 | the honest receipt read under a statement with layer 1's own norm_ceps dropped (the run's value) | Some("token I/O wire: this segment belongs to another run") | AS PREDICTED
+REVIEW-R6 CONTROL RV6-5.7 | the honest receipt read under a statement with layer 1's own sh_ao dropped (the run's value) | Some("token I/O wire: this segment belongs to another run") | AS PREDICTED
+REVIEW-R6 CONTROL RV6-5.8 | the honest receipt read under a statement with layer 1's own sh_qkv dropped (the run's value) | Some("token I/O wire: this segment belongs to another run") | AS PREDICTED
+REVIEW-R6 CONTROL RV6-5.9 | the honest receipt read under a statement with layer 1's own sh_o dropped (the run's value) | Some("token I/O wire: this segment belongs to another run") | AS PREDICTED
+REVIEW-R6 CONTROL RV6-5.10 | the honest receipt read under a statement with layer 1's own sh_g dropped (the run's value) | Some("token I/O wire: this segment belongs to another run") | AS PREDICTED
+REVIEW-R6 CONTROL RV6-5.11 | the honest receipt read under a statement with layer 1's own sh_h dropped (the run's value) | Some("token I/O wire: this segment belongs to another run") | AS PREDICTED
+REVIEW-R6 CONTROL RV6-5.12 | the honest receipt read under a statement with layer 1's own sh_z dropped (the run's value) | Some("token I/O wire: this segment belongs to another run") | AS PREDICTED
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.698}
+{"event":"segment","index":2,"bytes":2959224,"elapsed_seconds":1.882}
+{"event":"proved","run":"/tmp/tio-rv6-race-627425/p1/same1","owner_dir":"/tmp/tio-rv6-race-627425/owners/same1.owner-private","segments":3,"receipt_bytes":11605016,"prove_seconds":1.883,"witness_seconds":0.050,"block_load_seconds":0.033,"parity_layers":1,"whole_run_floor_bits":94,"trained_statement_identity":"31c2288d36199764e873deabcdde3d33c3ca7c1e274eea8ed9d646436567dc38","vmhwm_mib":390,"total_seconds":1.960,"backend":"gpu: off (built without --features gpu-cuda)","statement":"UNVERIFIED until zk60_token_io verify publishes <run>/statement/"}
+REVIEW-R6 CONTROL RV6-1a.1 | two proves naming the SAME owner directory at once (round-5 TR5-1 reproduction) | ACCEPTED (exit 0) | refused: /tmp/tio-rv6-race-627425/owners/same1.owner-private exists; a run's owner directory must be new (review TR5-1: claimed atomically, never removed by a prove that did not create it) | winner's decommitments present: true | loser left: [] | AS PREDICTED
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-token-io-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"31c2288d36199764e873deabcdde3d33c3ca7c1e274eea8ed9d646436567dc38","V":300,"seconds":0.032}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.153}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.546}
+{"event":"segment","index":2,"bytes":2959224,"elapsed_seconds":1.760}
+{"event":"proved","run":"/tmp/tio-rv6-race-627425/runs/one1","owner_dir":"/tmp/tio-rv6-race-627425/owners/a1.owner-private","segments":3,"receipt_bytes":11605016,"prove_seconds":1.760,"witness_seconds":0.044,"block_load_seconds":0.014,"parity_layers":1,"whole_run_floor_bits":94,"trained_statement_identity":"31c2288d36199764e873deabcdde3d33c3ca7c1e274eea8ed9d646436567dc38","vmhwm_mib":401,"total_seconds":1.845,"backend":"gpu: off (built without --features gpu-cuda)","statement":"UNVERIFIED until zk60_token_io verify publishes <run>/statement/"}
+REVIEW-R6 CONTROL RV6-1b.1 | two proves naming the SAME --out at once | ACCEPTED (exit 0) | refused: /tmp/tio-rv6-race-627425/runs/one1.incomplete exists; a token run's directories must be new (review TR5-1: claimed atomically, never removed by a prove that did not create it) | winner's run, statement and decommitments intact: true | loser's owner dir left: false | AS PREDICTED
+test private_block::token_io::cli::review_r6::rv6_1_concurrent_proves_never_remove_a_rivals_directories ... ok
+REVIEW-R6 CONTROL RV6-4.sh_s | block 1 witnessed with sh_s at the run's value under the per-layer statement | Some("block 1: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim") | AS PREDICTED
+REVIEW-R6 CONTROL RV6-4.norm_tn | block 1 witnessed with norm_tn at the run's value under the per-layer statement | Some("block 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim") | AS PREDICTED
+REVIEW-R6 CONTROL RV6-6 | blocks 0 and 1 witnessed at each other's own calibration (swapped) under the honest statement | Some("block 0: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim") | AS PREDICTED
+REVIEW-R6 CONTROL RV6-6b | the honest receipt under a statement with the two layers' records swapped | Some("token I/O wire: this segment belongs to another run") | AS PREDICTED
+test private_block::token_io::r3_tests::review_r6::rv6_6_swapped_layer_calibrations_are_refused ... ok
+REVIEW-R6 CONTROL RV6-4.norm_cn_a | block 1 witnessed with norm_cn_a at the run's value under the per-layer statement | Some("block 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim") | AS PREDICTED
+REVIEW-R6 CONTROL RV6-4.norm_cn_m | block 1 witnessed with norm_cn_m at the run's value under the per-layer statement | Some("block 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim") | AS PREDICTED
+REVIEW-R6 CONTROL RV6-4.norm_ceps | block 1 witnessed with norm_ceps at the run's value under the per-layer statement | Some("block 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim") | AS PREDICTED
+REVIEW-R6 CONTROL RV6-4.sh_ao | block 1 witnessed with sh_ao at the run's value under the per-layer statement | Some("block 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim") | AS PREDICTED
+REVIEW-R6 CONTROL RV6-4.sh_qkv | block 1 witnessed with sh_qkv at the run's value under the per-layer statement | Some("block 1: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim") | AS PREDICTED
+REVIEW-R6 CONTROL RV6-4.sh_o | block 1 witnessed with sh_o at the run's value under the per-layer statement | Some("block 1: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim") | AS PREDICTED
+REVIEW-R6 CONTROL RV6-4.sh_g | block 1 witnessed with sh_g at the run's value under the per-layer statement | Some("block 1: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim") | AS PREDICTED
+REVIEW-R6 CONTROL RV6-4.sh_h | block 1 witnessed with sh_h at the run's value under the per-layer statement | Some("block 1: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim") | AS PREDICTED
+REVIEW-R6 CONTROL RV6-4.sh_z | block 1 witnessed with sh_z at the run's value under the per-layer statement | Some("block 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim") | AS PREDICTED
+REVIEW-R6 NOTE | RV6-4 summary: refused at block 1 for ["sh_s", "norm_tn", "norm_cn_a", "norm_cn_m", "norm_ceps", "sh_ao", "sh_qkv", "sh_o", "sh_g", "sh_h", "sh_z"]; output unmoved (nothing to forge) for []; not admissible alone []
+test private_block::token_io::r3_tests::review_r6::rv6_4_5_every_own_field_is_enforced_and_bound ... ok
+REVIEW-R6 CONTROL RV6-7 | 62 hostile receipts verified without and with a recorder | panics 0, accepted 0, bundles 0 | AS PREDICTED
+test private_block::token_io::r3_tests::review_r6::rv6_7_hostile_receipts_with_and_without_a_recorder ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 645 filtered out; finished in 55.26s
+

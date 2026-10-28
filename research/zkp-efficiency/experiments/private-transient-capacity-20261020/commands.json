@@ -1,0 +1,223 @@
+[
+  {
+    "leaf": "model.py",
+    "started_at": "2026-10-20T03:23:00.646355+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.5138191870064475,
+    "maxrss_kib": 98696,
+    "sha256": "4dc483e2672d85051eb9f68bc252d626848737990e9fd6b738a1556c95345c40",
+    "stdout": "00-model.py.stdout.log",
+    "stderr": "00-model.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "model.py",
+    "started_at": "2026-10-20T03:24:09.403548+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.6245682379958453,
+    "maxrss_kib": 98820,
+    "sha256": "4c6a82941fbf7274c175731e4bdd08caa213a58b67e7a5e3b251eef3011e6b0d",
+    "stdout": "01-model.py.stdout.log",
+    "stderr": "01-model.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "audit.py",
+    "started_at": "2026-10-20T03:24:22.746257+00:00",
+    "exit_code": 1,
+    "wall_seconds": 0.12225955098983832,
+    "maxrss_kib": 26820,
+    "sha256": "f1e1117df1f8ce010d8e40338f1054802a079885174767b240fff40502e96372",
+    "stdout": "02-audit.py.stdout.log",
+    "stderr": "02-audit.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "audit.py",
+    "started_at": "2026-10-20T03:24:30.121368+00:00",
+    "exit_code": 1,
+    "wall_seconds": 0.08498367801075801,
+    "maxrss_kib": 27060,
+    "sha256": "6881eb448736e318fb5bce736ff6d904872cbd6d934c44eebb4c9562248ddba6",
+    "stdout": "03-audit.py.stdout.log",
+    "stderr": "03-audit.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "audit.py",
+    "started_at": "2026-10-20T03:24:44.503954+00:00",
+    "exit_code": 0,
+    "wall_seconds": 1.421406270004809,
+    "maxrss_kib": 48964,
+    "sha256": "00d369ca87aed3f145f42ecfc3e350c6c3792173db1c2c6bc52c6df87a41935d",
+    "stdout": "04-audit.py.stdout.log",
+    "stderr": "04-audit.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "layout_probe.py",
+    "started_at": "2026-10-20T03:26:48.368302+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.7782840270083398,
+    "maxrss_kib": 49076,
+    "sha256": "288f178b25e480e7266e52efdc38e55462d058489b7f98a2a60903ed97a6cc1f",
+    "stdout": "05-layout_probe.py.stdout.log",
+    "stderr": "05-layout_probe.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "model.py",
+    "started_at": "2026-10-20T03:29:05.644578+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.4162939600064419,
+    "maxrss_kib": 98824,
+    "sha256": "2b85a3a1784861df178874d0ffd83e189c7c0bf66f7a45d2b0d7fbff476f5826",
+    "stdout": "06-model.py.stdout.log",
+    "stderr": "06-model.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "audit.py",
+    "started_at": "2026-10-20T03:29:19.198050+00:00",
+    "exit_code": 0,
+    "wall_seconds": 1.2735276000021258,
+    "maxrss_kib": 48932,
+    "sha256": "00d369ca87aed3f145f42ecfc3e350c6c3792173db1c2c6bc52c6df87a41935d",
+    "stdout": "07-audit.py.stdout.log",
+    "stderr": "07-audit.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "layout_probe.py",
+    "started_at": "2026-10-20T03:29:31.208045+00:00",
+    "exit_code": 0,
+    "wall_seconds": 1.0648655080003664,
+    "maxrss_kib": 49072,
+    "sha256": "288f178b25e480e7266e52efdc38e55462d058489b7f98a2a60903ed97a6cc1f",
+    "stdout": "08-layout_probe.py.stdout.log",
+    "stderr": "08-layout_probe.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "model.py",
+    "started_at": "2026-10-20T03:31:27.959745+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.4880455560050905,
+    "maxrss_kib": 98652,
+    "sha256": "9bb0e4e341de3085231331486aedc692261bea97b13ffb54ead5c7d904ebdda0",
+    "stdout": "09-model.py.stdout.log",
+    "stderr": "09-model.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "audit.py",
+    "started_at": "2026-10-20T03:31:33.103733+00:00",
+    "exit_code": 0,
+    "wall_seconds": 1.0205861380090937,
+    "maxrss_kib": 48928,
+    "sha256": "00d369ca87aed3f145f42ecfc3e350c6c3792173db1c2c6bc52c6df87a41935d",
+    "stdout": "10-audit.py.stdout.log",
+    "stderr": "10-audit.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "layout_probe.py",
+    "started_at": "2026-10-20T03:31:34.206971+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.8695147990074474,
+    "maxrss_kib": 49076,
+    "sha256": "021f06493d2da599927be09043843979826c7a793f7b8ddc879d164cc3eda3e5",
+    "stdout": "11-layout_probe.py.stdout.log",
+    "stderr": "11-layout_probe.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "validate.py",
+    "started_at": "2026-10-20T03:34:50.766766+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.086882545001572,
+    "maxrss_kib": 28736,
+    "sha256": "42dd0b2e1406c30d11f3c4279c7f54ce5915b3a3e2d771cf932deacfcd71fdd8",
+    "stdout": "12-validate.py.stdout.log",
+    "stderr": "12-validate.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  }
+]

@@ -1,0 +1,1990 @@
+{
+ "tool": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/scripts/zk60_native_rg_tokenterminals.py",
+ "poly_engine_self_test": true,
+ "replay": {
+  "bundle": "tinyllama-t32-L2-dense-pt1",
+  "profile": "hashline-zk-mr1/private-token-io-run-tinyllama-1.1b-t32-trained-statement-public-row/1",
+  "hash_rule": "blake3-keyed/1",
+  "stages": 4,
+  "run_binding_reproduced": true,
+  "positions_checked": 344,
+  "challenges_checked": 9838,
+  "final_counter": 10926,
+  "not_rederived": [],
+  "failures": [],
+  "ok": true
+ },
+ "token_terminals": {
+  "what": "per new-stage slot: fin == c*mask_eval + poly(vals) (token_io.rs:974-992), the polynomial transcribed from define (stage_in.rs:149-221, stage_out.rs:336-542) and evaluated on the recorded terminals, the public tables at rho and the re-derived definition challenges; compared with terminal_polynomial (= fin - c*mask_eval, run_capture.rs:1209) and with fin recomputed from the rounds",
+  "bundle": "tinyllama-t32-L2-dense-pt1",
+  "challenges_from": "transcript replay (TokenRunReplay)",
+  "replay_ok": true,
+  "source_pins": {
+   "read_at": {
+    "src/private_block/token_io/stage_in.rs": "0387e6b1a9f6",
+    "src/private_block/token_io/stage_out.rs": "69abed433fd7",
+    "src/private_block/token_io.rs": "396daba1a494",
+    "src/private_block/run_capture.rs": "aaff4e6e20c4"
+   },
+   "moved": [],
+   "missing": [],
+   "ok": true
+  },
+  "shape": {
+   "V": 32000,
+   "V_pad": 32768,
+   "T": 32,
+   "t_pad": 32,
+   "d": 2048,
+   "d_pad": 2048,
+   "limbs_derived": 7,
+   "bos": 1,
+   "final_norm": {
+    "g0": 127,
+    "cn": 5664,
+    "tn": 10,
+    "ceps": 74429
+   },
+   "domain_logs": {
+    "Ti": 12,
+    "Voc": 15,
+    "Lo": 12,
+    "Do": 12,
+    "Vo": 15,
+    "Tab": 12
+   },
+   "findings": [],
+   "ok": true
+  },
+  "public_tables_included": true,
+  "check_digests": true,
+  "prefer_captured": false,
+  "slots": [
+   {
+    "stage": "IN",
+    "stage_index": 0,
+    "slot": 0,
+    "name": "IN-00 IO-in: token endpoint = supp_T tok (whole padded plane)",
+    "kind": "Standalone",
+    "equal": true,
+    "expansion_monomials": 2,
+    "parts": [
+     "eq(tau)",
+     "endpoint - supp_T * tok"
+    ],
+    "tables": [
+     "eq",
+     "public",
+     "A-in:A_TOK",
+     "E-token-in:E-token-in"
+    ],
+    "counts": {
+     "tables": 4,
+     "eq": 1,
+     "public": 1,
+     "private": 2,
+     "definition_draws": 8,
+     "draw_layout": [
+      [
+       "tau",
+       8
+      ]
+     ],
+     "rounds": 9
+    },
+    "hosted": [],
+    "public_tables": [
+     {
+      "table": 1,
+      "what": "supp(32) over 256",
+      "len": 256,
+      "class": "indicator",
+      "captured_values_match_own_digest": true,
+      "eval_from_captured_values": [
+       17512927711345963917,
+       7019001129678131321
+      ],
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "eval_from_rebuilt": [
+       17512927711345963917,
+       7019001129678131321
+      ],
+      "evaluations_agree": true
+     }
+    ],
+    "structure_findings": [],
+    "findings": [],
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_round_consistency": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "expansion_reproduces_poly": true
+   },
+   {
+    "stage": "IN",
+    "stage_index": 0,
+    "slot": 1,
+    "name": "IN-01 query zero-check: LogUp + BOS (own mu_bos) + pad, fresh mu each",
+    "kind": "Standalone",
+    "equal": true,
+    "expansion_monomials": 9,
+    "parts": [
+     "eq(tau)",
+     "mu0 LogUp h_q (alpha - q) - supp_T",
+     "mu1 BOS u0 (tok - bos)",
+     "mu2 pad (1 - supp_T)(tok + zeta h_q)"
+    ],
+    "tables": [
+     "eq",
+     "public",
+     "public",
+     "A-in:A_TOK",
+     "H-in:H_Q",
+     "B-in:B-in"
+    ],
+    "counts": {
+     "tables": 6,
+     "eq": 1,
+     "public": 2,
+     "private": 3,
+     "definition_draws": 16,
+     "draw_layout": [
+      [
+       "tau",
+       12
+      ],
+      [
+       "mu",
+       3
+      ],
+      [
+       "zeta",
+       1
+      ]
+     ],
+     "rounds": 13
+    },
+    "hosted": [],
+    "public_tables": [
+     {
+      "table": 1,
+      "what": "supp(32) over 4096",
+      "len": 4096,
+      "class": "indicator",
+      "captured_values_match_own_digest": true,
+      "eval_from_captured_values": [
+       6855686379234507217,
+       5914132606411264295
+      ],
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "eval_from_rebuilt": [
+       6855686379234507217,
+       5914132606411264295
+      ],
+      "evaluations_agree": true
+     },
+     {
+      "table": 2,
+      "what": "supp(1) over 4096",
+      "len": 4096,
+      "class": "indicator",
+      "captured_values_match_own_digest": true,
+      "eval_from_captured_values": [
+       16711301964859387212,
+       9440546172942026354
+      ],
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "eval_from_rebuilt": [
+       16711301964859387212,
+       9440546172942026354
+      ],
+      "evaluations_agree": true
+     }
+    ],
+    "structure_findings": [],
+    "findings": [],
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_round_consistency": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "expansion_reproduces_poly": true
+   },
+   {
+    "stage": "IN",
+    "stage_index": 0,
+    "slot": 2,
+    "name": "IN-02 table zero-check: h_tab (alpha - tau) = m + pad, fresh mu each",
+    "kind": "Standalone",
+    "equal": true,
+    "expansion_monomials": 5,
+    "parts": [
+     "eq(tau)",
+     "mu0 h_tab (alpha - tau) - m",
+     "mu1 pad (1 - supp_V)(m + zeta h_tab)"
+    ],
+    "tables": [
+     "eq",
+     "public",
+     "public",
+     "A-in:A_MULT",
+     "H-in:H_TAB"
+    ],
+    "counts": {
+     "tables": 5,
+     "eq": 1,
+     "public": 2,
+     "private": 2,
+     "definition_draws": 18,
+     "draw_layout": [
+      [
+       "tau",
+       15
+      ],
+      [
+       "mu",
+       2
+      ],
+      [
+       "zeta",
+       1
+      ]
+     ],
+     "rounds": 16
+    },
+    "hosted": [],
+    "public_tables": [
+     {
+      "table": 1,
+      "what": "supp(32000) over 32768",
+      "len": 32768,
+      "class": "indicator",
+      "captured_values_match_own_digest": true,
+      "eval_from_captured_values": [
+       2190881926230302023,
+       7314071094362858389
+      ],
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "eval_from_rebuilt": [
+       2190881926230302023,
+       7314071094362858389
+      ],
+      "evaluations_agree": true
+     },
+     {
+      "table": 2,
+      "what": "captured tau_tab",
+      "len": 32768,
+      "class": "values",
+      "captured_values_match_own_digest": true,
+      "eval_from_captured_values": [
+       17621734475559064105,
+       6147985263392867120
+      ],
+      "rebuilt": false,
+      "structure_findings": [],
+      "evaluations_agree": null
+     }
+    ],
+    "structure_findings": [],
+    "findings": [],
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_round_consistency": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "expansion_reproduces_poly": true
+   },
+   {
+    "stage": "IN",
+    "stage_index": 0,
+    "slot": 3,
+    "name": "IN-03 ZS zero-sum row",
+    "kind": "Standalone",
+    "equal": true,
+    "expansion_monomials": 1,
+    "parts": [
+     "ones * u"
+    ],
+    "tables": [
+     "public",
+     "H-in:H_U"
+    ],
+    "counts": {
+     "tables": 2,
+     "eq": 0,
+     "public": 1,
+     "private": 1,
+     "definition_draws": 0,
+     "draw_layout": [],
+     "rounds": 13
+    },
+    "hosted": [],
+    "public_tables": [
+     {
+      "table": 0,
+      "what": "ones over 4096",
+      "len": 4096,
+      "class": "constant-MLE",
+      "captured_values_match_own_digest": true,
+      "eval_from_captured_values": [
+       1,
+       0
+      ],
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "eval_from_rebuilt": [
+       1,
+       0
+      ],
+      "evaluations_agree": true
+     }
+    ],
+    "structure_findings": [],
+    "findings": [],
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_round_consistency": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "expansion_reproduces_poly": true
+   },
+   {
+    "stage": "OUT",
+    "stage_index": 3,
+    "slot": 0,
+    "name": "OUT-00 IO-in: x = B_out row T-1 (fixed public row bits)",
+    "kind": "Standalone",
+    "equal": true,
+    "expansion_monomials": 2,
+    "parts": [
+     "eq(tau)",
+     "x - B_out(T-1, .)"
+    ],
+    "tables": [
+     "eq",
+     "A-out:A_X",
+     "B-out:B-out"
+    ],
+    "counts": {
+     "tables": 3,
+     "eq": 1,
+     "public": 0,
+     "private": 2,
+     "definition_draws": 11,
+     "draw_layout": [
+      [
+       "tau",
+       11
+      ]
+     ],
+     "rounds": 12
+    },
+    "hosted": [],
+    "public_tables": [],
+    "structure_findings": [],
+    "findings": [],
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_round_consistency": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "expansion_reproduces_poly": true
+   },
+   {
+    "stage": "OUT",
+    "stage_index": 3,
+    "slot": 1,
+    "name": "OUT-01 SS final-norm row sum (private, hosted by TZC)",
+    "kind": "Private",
+    "equal": true,
+    "expansion_monomials": 1,
+    "parts": [
+     "supp_d * x * x"
+    ],
+    "tables": [
+     "public",
+     "A-out:A_X"
+    ],
+    "counts": {
+     "tables": 2,
+     "eq": 0,
+     "public": 1,
+     "private": 1,
+     "definition_draws": 0,
+     "draw_layout": [],
+     "rounds": 13
+    },
+    "hosted": [],
+    "public_tables": [
+     {
+      "table": 0,
+      "what": "supp(2048) over 4096",
+      "len": 4096,
+      "class": "indicator",
+      "captured_values_match_own_digest": true,
+      "eval_from_captured_values": [
+       9776623743834350313,
+       5896465364641310867
+      ],
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "eval_from_rebuilt": [
+       9776623743834350313,
+       5896465364641310867
+      ],
+      "evaluations_agree": true
+     }
+    ],
+    "structure_findings": [],
+    "findings": [],
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_round_consistency": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "expansion_reproduces_poly": true
+   },
+   {
+    "stage": "OUT",
+    "stage_index": 3,
+    "slot": 2,
+    "name": "OUT-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
+    "kind": "Host",
+    "equal": true,
+    "expansion_monomials": 19,
+    "parts": [
+     "eq(tau)",
+     "mu0 Dsq - D^2",
+     "mu1 D - limbs(D)",
+     "mu2 2D - a1 - a2",
+     "mu3 pad (1 - u0)(D + zeta Dsq)",
+     "nu u0 (Dsq + a1 - Ceps) [host term of SS]"
+    ],
+    "tables": [
+     "eq",
+     "public",
+     "A-out:A_D",
+     "A-out:A_DSQ",
+     "A-out:A_LIMB",
+     "A-out:A_LIMB",
+     "A-out:A_LIMB",
+     "A-out:A_LIMB",
+     "A-out:A_LIMB",
+     "A-out:A_LIMB",
+     "A-out:A_LIMB",
+     "A-out:A_LIMB",
+     "A-out:A_LIMB"
+    ],
+    "counts": {
+     "tables": 13,
+     "eq": 1,
+     "public": 1,
+     "private": 11,
+     "definition_draws": 7,
+     "draw_layout": [
+      [
+       "tau",
+       1
+      ],
+      [
+       "mu",
+       4
+      ],
+      [
+       "nu",
+       1
+      ],
+      [
+       "zeta",
+       1
+      ]
+     ],
+     "rounds": 2
+    },
+    "hosted": [
+     {
+      "slot": 1,
+      "coefficient_rederived_and_equal": true
+     }
+    ],
+    "public_tables": [
+     {
+      "table": 1,
+      "what": "supp(1) over 2",
+      "len": 2,
+      "class": "indicator",
+      "captured_values_match_own_digest": true,
+      "eval_from_captured_values": [
+       1463929920723341042,
+       5525692539100236934
+      ],
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "eval_from_rebuilt": [
+       1463929920723341042,
+       5525692539100236934
+      ],
+      "evaluations_agree": true
+     }
+    ],
+    "structure_findings": [],
+    "findings": [],
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_round_consistency": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "expansion_reproduces_poly": true
+   },
+   {
+    "stage": "OUT",
+    "stage_index": 3,
+    "slot": 3,
+    "name": "OUT-03 LZC limb lookups (+pad)",
+    "kind": "Standalone",
+    "equal": true,
+    "expansion_monomials": 5,
+    "parts": [
+     "eq(tau)",
+     "mu0 helper h(alpha - limb - g_u8) - 1",
+     "mu1 pad (1 - live) limb"
+    ],
+    "tables": [
+     "eq",
+     "public",
+     "A-out:A_LIMB",
+     "H-out:H_LO"
+    ],
+    "counts": {
+     "tables": 4,
+     "eq": 1,
+     "public": 1,
+     "private": 2,
+     "definition_draws": 14,
+     "draw_layout": [
+      [
+       "tau",
+       12
+      ],
+      [
+       "mu",
+       2
+      ]
+     ],
+     "rounds": 13
+    },
+    "hosted": [],
+    "public_tables": [
+     {
+      "table": 1,
+      "what": "live isqrt limb positions over 4096",
+      "len": 4096,
+      "class": "indicator",
+      "captured_values_match_own_digest": true,
+      "eval_from_captured_values": [
+       15126416634949631279,
+       6984652897005881416
+      ],
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "eval_from_rebuilt": [
+       15126416634949631279,
+       6984652897005881416
+      ],
+      "evaluations_agree": true
+     }
+    ],
+    "structure_findings": [],
+    "findings": [],
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_round_consistency": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "expansion_reproduces_poly": true
+   },
+   {
+    "stage": "OUT",
+    "stage_index": 3,
+    "slot": 4,
+    "name": "OUT-04 HEAD matmul sum_i y(i) W'(r_j, i) (private, hosted by VZC)",
+    "kind": "Private",
+    "equal": true,
+    "expansion_monomials": 1,
+    "parts": [
+     "y * Wf(r_j)"
+    ],
+    "tables": [
+     "A-out:A_Y",
+     "public"
+    ],
+    "counts": {
+     "tables": 2,
+     "eq": 0,
+     "public": 1,
+     "private": 1,
+     "definition_draws": 15,
+     "draw_layout": [
+      [
+       "r_j",
+       15
+      ]
+     ],
+     "rounds": 12
+    },
+    "hosted": [],
+    "public_tables": [
+     {
+      "table": 1,
+      "what": "captured head_fold",
+      "len": 2048,
+      "class": "values",
+      "captured_values_match_own_digest": true,
+      "eval_from_captured_values": [
+       12524903294474893628,
+       16712531763698945015
+      ],
+      "rebuilt": false,
+      "structure_findings": [],
+      "evaluations_agree": null
+     }
+    ],
+    "structure_findings": [],
+    "findings": [],
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_round_consistency": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "expansion_reproduces_poly": true
+   },
+   {
+    "stage": "OUT",
+    "stage_index": 3,
+    "slot": 5,
+    "name": "OUT-05 DZC final-norm quotient + x limbs + helpers (+pad)",
+    "kind": "Standalone",
+    "equal": true,
+    "expansion_monomials": 50,
+    "parts": [
+     "eq(tau)",
+     "supp_d (mu0 c0 quotient + mu1 c1 remainder window + mu2 c2 x limbs)",
+     "6 helpers on 12 byte lookups (mu3..mu8)",
+     "mu9 pad (1 - supp_d) zeta-fold of 12 planes"
+    ],
+    "tables": [
+     "eq",
+     "public",
+     "A-out:A_X",
+     "A-out:A_XL0",
+     "A-out:A_XL1",
+     "A-out:A_Y",
+     "A-out:A_RHO0",
+     "A-out:A_RHO1",
+     "A-out:A_RHO2",
+     "A-out:A_RHO3",
+     "A-out:A_SIG0",
+     "A-out:A_SIG1",
+     "A-out:A_SIG2",
+     "A-out:A_SIG3",
+     "A-out:A_D",
+     "H-out:H_D0",
+     "H-out:H_D1",
+     "H-out:H_D2",
+     "H-out:H_D3",
+     "H-out:H_D4",
+     "H-out:H_D5"
+    ],
+    "counts": {
+     "tables": 21,
+     "eq": 1,
+     "public": 1,
+     "private": 19,
+     "definition_draws": 23,
+     "draw_layout": [
+      [
+       "tau",
+       12
+      ],
+      [
+       "mu",
+       10
+      ],
+      [
+       "zeta",
+       1
+      ]
+     ],
+     "rounds": 13
+    },
+    "hosted": [],
+    "public_tables": [
+     {
+      "table": 1,
+      "what": "supp(2048) over 4096",
+      "len": 4096,
+      "class": "indicator",
+      "captured_values_match_own_digest": true,
+      "eval_from_captured_values": [
+       9036473211660002209,
+       14684878641292904346
+      ],
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "eval_from_rebuilt": [
+       9036473211660002209,
+       14684878641292904346
+      ],
+      "evaluations_agree": true
+     }
+    ],
+    "structure_findings": [],
+    "findings": [],
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_round_consistency": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "expansion_reproduces_poly": true
+   },
+   {
+    "stage": "OUT",
+    "stage_index": 3,
+    "slot": 6,
+    "name": "OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
+    "kind": "Host",
+    "equal": true,
+    "expansion_monomials": 42,
+    "parts": [
+     "eq(tau)",
+     "mu0 e(1 - e)",
+     "4 helpers on 7 limb lookups",
+     "pad (1 - supp_V) zeta-fold of e and the limbs",
+     "nu eq(r_j) supp_V (M + 2^-v (iota - tok - delta)) [host term of HEAD]"
+    ],
+    "tables": [
+     "eq",
+     "eq",
+     "public",
+     "public",
+     "A-out:A_E",
+     "A-out:A_LAM0",
+     "A-out:A_LAM1",
+     "A-out:A_LAM2",
+     "A-out:A_LAM3",
+     "A-out:A_LAM4",
+     "A-out:A_LAM5",
+     "A-out:A_LAM6",
+     "A-out:A_TOK",
+     "A-out:A_M",
+     "H-out:H_V0",
+     "H-out:H_V1",
+     "H-out:H_V2",
+     "H-out:H_V3"
+    ],
+    "counts": {
+     "tables": 18,
+     "eq": 2,
+     "public": 2,
+     "private": 14,
+     "definition_draws": 23,
+     "draw_layout": [
+      [
+       "tau",
+       15
+      ],
+      [
+       "mu",
+       6
+      ],
+      [
+       "nu",
+       1
+      ],
+      [
+       "zeta",
+       1
+      ]
+     ],
+     "rounds": 16
+    },
+    "hosted": [
+     {
+      "slot": 4,
+      "coefficient_rederived_and_equal": true
+     }
+    ],
+    "public_tables": [
+     {
+      "table": 2,
+      "what": "supp(32000) over 32768",
+      "len": 32768,
+      "class": "indicator",
+      "captured_values_match_own_digest": true,
+      "eval_from_captured_values": [
+       13639903859263500905,
+       9435205168344958514
+      ],
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "eval_from_rebuilt": [
+       13639903859263500905,
+       9435205168344958514
+      ],
+      "evaluations_agree": true
+     },
+     {
+      "table": 3,
+      "what": "iota over 32768",
+      "len": 32768,
+      "class": "values",
+      "captured_values_match_own_digest": true,
+      "eval_from_captured_values": [
+       6927012510366921032,
+       6959274354757165188
+      ],
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "eval_from_rebuilt": [
+       6927012510366921032,
+       6959274354757165188
+      ],
+      "evaluations_agree": true
+     }
+    ],
+    "structure_findings": [],
+    "findings": [],
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_round_consistency": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "expansion_reproduces_poly": true
+   },
+   {
+    "stage": "OUT",
+    "stage_index": 3,
+    "slot": 7,
+    "name": "OUT-07 RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
+    "kind": "Standalone",
+    "equal": true,
+    "expansion_monomials": 11,
+    "parts": [
+     "supp_V e (c1 + c2 iota + c3 delta)",
+     "- u0 (c1 + c2 tok)"
+    ],
+    "tables": [
+     "public",
+     "public",
+     "public",
+     "A-out:A_E",
+     "A-out:A_LAM0",
+     "A-out:A_LAM1",
+     "A-out:A_LAM2",
+     "A-out:A_LAM3",
+     "A-out:A_LAM4",
+     "A-out:A_LAM5",
+     "A-out:A_LAM6",
+     "A-out:A_TOK"
+    ],
+    "counts": {
+     "tables": 12,
+     "eq": 0,
+     "public": 3,
+     "private": 9,
+     "definition_draws": 3,
+     "draw_layout": [
+      [
+       "rsel_c",
+       3
+      ]
+     ],
+     "rounds": 16
+    },
+    "hosted": [],
+    "public_tables": [
+     {
+      "table": 0,
+      "what": "supp(32000) over 32768",
+      "len": 32768,
+      "class": "indicator",
+      "captured_values_match_own_digest": true,
+      "eval_from_captured_values": [
+       8631592379760271113,
+       16176924248935880004
+      ],
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "eval_from_rebuilt": [
+       8631592379760271113,
+       16176924248935880004
+      ],
+      "evaluations_agree": true
+     },
+     {
+      "table": 1,
+      "what": "iota over 32768",
+      "len": 32768,
+      "class": "values",
+      "captured_values_match_own_digest": true,
+      "eval_from_captured_values": [
+       5820887199296133749,
+       7637868054747371994
+      ],
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "eval_from_rebuilt": [
+       5820887199296133749,
+       7637868054747371994
+      ],
+      "evaluations_agree": true
+     },
+     {
+      "table": 2,
+      "what": "supp(1) over 32768",
+      "len": 32768,
+      "class": "indicator",
+      "captured_values_match_own_digest": true,
+      "eval_from_captured_values": [
+       7990232878110842354,
+       13099943091223216535
+      ],
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "eval_from_rebuilt": [
+       7990232878110842354,
+       13099943091223216535
+      ],
+      "evaluations_agree": true
+     }
+    ],
+    "structure_findings": [],
+    "findings": [],
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_round_consistency": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "expansion_reproduces_poly": true
+   },
+   {
+    "stage": "OUT",
+    "stage_index": 3,
+    "slot": 8,
+    "name": "OUT-08 TAB byte-table helper (+pad)",
+    "kind": "Standalone",
+    "equal": true,
+    "expansion_monomials": 5,
+    "parts": [
+     "eq(tau)",
+     "mu0 h (alpha - tv) - m",
+     "mu1 pad (1 - supp_256)(m + zeta h)"
+    ],
+    "tables": [
+     "eq",
+     "public",
+     "public",
+     "A-out:A_MU8",
+     "H-out:H_GU8"
+    ],
+    "counts": {
+     "tables": 5,
+     "eq": 1,
+     "public": 2,
+     "private": 2,
+     "definition_draws": 15,
+     "draw_layout": [
+      [
+       "tau",
+       12
+      ],
+      [
+       "mu",
+       2
+      ],
+      [
+       "zeta",
+       1
+      ]
+     ],
+     "rounds": 13
+    },
+    "hosted": [],
+    "public_tables": [
+     {
+      "table": 1,
+      "what": "supp(256) over 4096",
+      "len": 4096,
+      "class": "indicator",
+      "captured_values_match_own_digest": true,
+      "eval_from_captured_values": [
+       18217835013081620115,
+       1133217146619946954
+      ],
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "eval_from_rebuilt": [
+       18217835013081620115,
+       1133217146619946954
+      ],
+      "evaluations_agree": true
+     },
+     {
+      "table": 2,
+      "what": "byte table k(z%256)+g_u8 over 4096",
+      "len": 4096,
+      "class": "values",
+      "captured_values_match_own_digest": true,
+      "eval_from_captured_values": [
+       9675054150403192693,
+       8441835522050423474
+      ],
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "eval_from_rebuilt": [
+       9675054150403192693,
+       8441835522050423474
+      ],
+      "evaluations_agree": true
+     }
+    ],
+    "structure_findings": [],
+    "findings": [],
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_round_consistency": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "expansion_reproduces_poly": true
+   },
+   {
+    "stage": "OUT",
+    "stage_index": 3,
+    "slot": 9,
+    "name": "OUT-09 ZS zero-sum row",
+    "kind": "Standalone",
+    "equal": true,
+    "expansion_monomials": 1,
+    "parts": [
+     "ones * u"
+    ],
+    "tables": [
+     "public",
+     "H-out:H_U"
+    ],
+    "counts": {
+     "tables": 2,
+     "eq": 0,
+     "public": 1,
+     "private": 1,
+     "definition_draws": 0,
+     "draw_layout": [],
+     "rounds": 13
+    },
+    "hosted": [],
+    "public_tables": [
+     {
+      "table": 0,
+      "what": "ones over 4096",
+      "len": 4096,
+      "class": "constant-MLE",
+      "captured_values_match_own_digest": true,
+      "eval_from_captured_values": [
+       1,
+       0
+      ],
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "eval_from_rebuilt": [
+       1,
+       0
+      ],
+      "evaluations_agree": true
+     }
+    ],
+    "structure_findings": [],
+    "findings": [],
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_round_consistency": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "expansion_reproduces_poly": true
+   },
+   {
+    "stage": "OUT",
+    "stage_index": 3,
+    "slot": 10,
+    "name": "OUT-10 IO-out: output endpoint = u0 tok (whole 256-word plane)",
+    "kind": "Standalone",
+    "equal": true,
+    "expansion_monomials": 2,
+    "parts": [
+     "eq(tau)",
+     "endpoint - u0 * tok"
+    ],
+    "tables": [
+     "eq",
+     "public",
+     "A-out:A_TOK",
+     "E-token-out:E-token-out"
+    ],
+    "counts": {
+     "tables": 4,
+     "eq": 1,
+     "public": 1,
+     "private": 2,
+     "definition_draws": 8,
+     "draw_layout": [
+      [
+       "tau",
+       8
+      ]
+     ],
+     "rounds": 9
+    },
+    "hosted": [],
+    "public_tables": [
+     {
+      "table": 1,
+      "what": "supp(1) over 256",
+      "len": 256,
+      "class": "indicator",
+      "captured_values_match_own_digest": true,
+      "eval_from_captured_values": [
+       8397781599821761237,
+       1701169953361241288
+      ],
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "eval_from_rebuilt": [
+       8397781599821761237,
+       1701169953361241288
+      ],
+      "evaluations_agree": true
+     }
+    ],
+    "structure_findings": [],
+    "findings": [],
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_round_consistency": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "expansion_reproduces_poly": true
+   }
+  ],
+  "findings": [],
+  "slots_checked": 15,
+  "slots_equal": 15,
+  "public_tables_rebuilt": 18,
+  "public_tables_taken_from_capture": 2,
+  "seconds": 0.98,
+  "taken_tables_do_not_establish": "that stage IN's tau table folds the embedding, and stage OUT's head fold the head, the statement names (no bundle carries those weights): checked for len, sha256 and builder structure only",
+  "mask_eval_not_established_here": "mask_eval is the verifier's derived g_val; its agreement with the committed mask is the M opening (G-3, token_mask_cfs)",
+  "ok": true
+ },
+ "nl1": {
+  "what": "S1 premises per new-stage slot on the symbolic expansion of the transcribed polynomial: a public TABLE factor in every monomial (eq or public table; the affine 1 - supp is split by the expansion, NL-3), max product degree <= declared degree, private-terminal count == the slot's terminals; one extension round with every private table in round 0, so S1's per-round premise is the public-factor condition",
+  "bundle": "tinyllama-t32-L2-dense-pt1",
+  "slots": [
+   {
+    "stage": "IN",
+    "slot": 0,
+    "name": "IN-00 IO-in: token endpoint = supp_T tok (whole padded plane)",
+    "declared_degree": 3,
+    "symbolic_challenges": {
+     "monomials": 2,
+     "terms_with_challenge_parts": 2,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 0,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 3,
+     "private_variables_appearing": 2,
+     "n_private_tables": 2,
+     "ext_rounds": 1
+    },
+    "challenges_at_run_values": {
+     "monomials": 2,
+     "terms_with_challenge_parts": 2,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 0,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 3,
+     "private_variables_appearing": 2,
+     "n_private_tables": 2,
+     "ext_rounds": 1
+    },
+    "public_factor_in_every_monomial": true,
+    "max_table_degree": 3,
+    "degree_fits": true,
+    "private_terminals_port": 2,
+    "terminals_recorded": 2,
+    "schedule_sites": 2,
+    "terminal_count_ok": true,
+    "every_private_table_appears": true,
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true
+   },
+   {
+    "stage": "IN",
+    "slot": 1,
+    "name": "IN-01 query zero-check: LogUp + BOS (own mu_bos) + pad, fresh mu each",
+    "declared_degree": 4,
+    "symbolic_challenges": {
+     "monomials": 9,
+     "terms_with_challenge_parts": 11,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 2,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 3,
+     "private_variables_appearing": 3,
+     "n_private_tables": 3,
+     "ext_rounds": 1
+    },
+    "challenges_at_run_values": {
+     "monomials": 9,
+     "terms_with_challenge_parts": 9,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 2,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 3,
+     "private_variables_appearing": 3,
+     "n_private_tables": 3,
+     "ext_rounds": 1
+    },
+    "public_factor_in_every_monomial": true,
+    "max_table_degree": 3,
+    "degree_fits": true,
+    "private_terminals_port": 3,
+    "terminals_recorded": 3,
+    "schedule_sites": 3,
+    "terminal_count_ok": true,
+    "every_private_table_appears": true,
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true
+   },
+   {
+    "stage": "IN",
+    "slot": 2,
+    "name": "IN-02 table zero-check: h_tab (alpha - tau) = m + pad, fresh mu each",
+    "declared_degree": 4,
+    "symbolic_challenges": {
+     "monomials": 5,
+     "terms_with_challenge_parts": 7,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 0,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 3,
+     "private_variables_appearing": 2,
+     "n_private_tables": 2,
+     "ext_rounds": 1
+    },
+    "challenges_at_run_values": {
+     "monomials": 5,
+     "terms_with_challenge_parts": 5,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 0,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 3,
+     "private_variables_appearing": 2,
+     "n_private_tables": 2,
+     "ext_rounds": 1
+    },
+    "public_factor_in_every_monomial": true,
+    "max_table_degree": 3,
+    "degree_fits": true,
+    "private_terminals_port": 2,
+    "terminals_recorded": 2,
+    "schedule_sites": 2,
+    "terminal_count_ok": true,
+    "every_private_table_appears": true,
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true
+   },
+   {
+    "stage": "IN",
+    "slot": 3,
+    "name": "IN-03 ZS zero-sum row",
+    "declared_degree": 2,
+    "symbolic_challenges": {
+     "monomials": 1,
+     "terms_with_challenge_parts": 1,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 0,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [
+      "ones over 4096*H_U"
+     ],
+     "max_table_degree": 2,
+     "private_variables_appearing": 1,
+     "n_private_tables": 1,
+     "ext_rounds": 1
+    },
+    "challenges_at_run_values": {
+     "monomials": 1,
+     "terms_with_challenge_parts": 1,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 0,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [
+      "ones over 4096*H_U"
+     ],
+     "max_table_degree": 2,
+     "private_variables_appearing": 1,
+     "n_private_tables": 1,
+     "ext_rounds": 1
+    },
+    "public_factor_in_every_monomial": true,
+    "max_table_degree": 2,
+    "degree_fits": true,
+    "private_terminals_port": 1,
+    "terminals_recorded": 1,
+    "schedule_sites": 1,
+    "terminal_count_ok": true,
+    "every_private_table_appears": true,
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true
+   },
+   {
+    "stage": "OUT",
+    "slot": 0,
+    "name": "OUT-00 IO-in: x = B_out row T-1 (fixed public row bits)",
+    "declared_degree": 2,
+    "symbolic_challenges": {
+     "monomials": 2,
+     "terms_with_challenge_parts": 2,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 0,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 2,
+     "private_variables_appearing": 2,
+     "n_private_tables": 2,
+     "ext_rounds": 1
+    },
+    "challenges_at_run_values": {
+     "monomials": 2,
+     "terms_with_challenge_parts": 2,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 0,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 2,
+     "private_variables_appearing": 2,
+     "n_private_tables": 2,
+     "ext_rounds": 1
+    },
+    "public_factor_in_every_monomial": true,
+    "max_table_degree": 2,
+    "degree_fits": true,
+    "private_terminals_port": 2,
+    "terminals_recorded": 2,
+    "schedule_sites": 2,
+    "terminal_count_ok": true,
+    "every_private_table_appears": true,
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true
+   },
+   {
+    "stage": "OUT",
+    "slot": 1,
+    "name": "OUT-01 SS final-norm row sum (private, hosted by TZC)",
+    "declared_degree": 4,
+    "symbolic_challenges": {
+     "monomials": 1,
+     "terms_with_challenge_parts": 1,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 0,
+     "monomials_whose_only_public_factors_are_indicators": [
+      "supp(2048) over 4096*A_X^2"
+     ],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 3,
+     "private_variables_appearing": 1,
+     "n_private_tables": 1,
+     "ext_rounds": 1
+    },
+    "challenges_at_run_values": {
+     "monomials": 1,
+     "terms_with_challenge_parts": 1,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 0,
+     "monomials_whose_only_public_factors_are_indicators": [
+      "supp(2048) over 4096*A_X^2"
+     ],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 3,
+     "private_variables_appearing": 1,
+     "n_private_tables": 1,
+     "ext_rounds": 1
+    },
+    "public_factor_in_every_monomial": true,
+    "max_table_degree": 3,
+    "degree_fits": true,
+    "private_terminals_port": 1,
+    "terminals_recorded": 1,
+    "schedule_sites": 1,
+    "terminal_count_ok": true,
+    "every_private_table_appears": true,
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true
+   },
+   {
+    "stage": "OUT",
+    "slot": 2,
+    "name": "OUT-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
+    "declared_degree": 3,
+    "symbolic_challenges": {
+     "monomials": 19,
+     "terms_with_challenge_parts": 22,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 1,
+     "monomials_whose_only_public_factors_are_indicators": [
+      "supp(1) over 2*A_DSQ",
+      "supp(1) over 2*A_LIMB",
+      "supp(1) over 2*A_LIMB",
+      "supp(1) over 2*A_LIMB",
+      "supp(1) over 2"
+     ],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 3,
+     "private_variables_appearing": 11,
+     "n_private_tables": 11,
+     "ext_rounds": 1
+    },
+    "challenges_at_run_values": {
+     "monomials": 19,
+     "terms_with_challenge_parts": 19,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 1,
+     "monomials_whose_only_public_factors_are_indicators": [
+      "supp(1) over 2*A_DSQ",
+      "supp(1) over 2*A_LIMB",
+      "supp(1) over 2*A_LIMB",
+      "supp(1) over 2*A_LIMB",
+      "supp(1) over 2"
+     ],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 3,
+     "private_variables_appearing": 11,
+     "n_private_tables": 11,
+     "ext_rounds": 1
+    },
+    "public_factor_in_every_monomial": true,
+    "max_table_degree": 3,
+    "degree_fits": true,
+    "private_terminals_port": 11,
+    "terminals_recorded": 11,
+    "schedule_sites": 11,
+    "terminal_count_ok": true,
+    "every_private_table_appears": true,
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true
+   },
+   {
+    "stage": "OUT",
+    "slot": 3,
+    "name": "OUT-03 LZC limb lookups (+pad)",
+    "declared_degree": 4,
+    "symbolic_challenges": {
+     "monomials": 5,
+     "terms_with_challenge_parts": 6,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 1,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 3,
+     "private_variables_appearing": 2,
+     "n_private_tables": 2,
+     "ext_rounds": 1
+    },
+    "challenges_at_run_values": {
+     "monomials": 5,
+     "terms_with_challenge_parts": 5,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 1,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 3,
+     "private_variables_appearing": 2,
+     "n_private_tables": 2,
+     "ext_rounds": 1
+    },
+    "public_factor_in_every_monomial": true,
+    "max_table_degree": 3,
+    "degree_fits": true,
+    "private_terminals_port": 2,
+    "terminals_recorded": 2,
+    "schedule_sites": 2,
+    "terminal_count_ok": true,
+    "every_private_table_appears": true,
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true
+   },
+   {
+    "stage": "OUT",
+    "slot": 4,
+    "name": "OUT-04 HEAD matmul sum_i y(i) W'(r_j, i) (private, hosted by VZC)",
+    "declared_degree": 2,
+    "symbolic_challenges": {
+     "monomials": 1,
+     "terms_with_challenge_parts": 1,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 0,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 2,
+     "private_variables_appearing": 1,
+     "n_private_tables": 1,
+     "ext_rounds": 1
+    },
+    "challenges_at_run_values": {
+     "monomials": 1,
+     "terms_with_challenge_parts": 1,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 0,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 2,
+     "private_variables_appearing": 1,
+     "n_private_tables": 1,
+     "ext_rounds": 1
+    },
+    "public_factor_in_every_monomial": true,
+    "max_table_degree": 2,
+    "degree_fits": true,
+    "private_terminals_port": 1,
+    "terminals_recorded": 1,
+    "schedule_sites": 1,
+    "terminal_count_ok": true,
+    "every_private_table_appears": true,
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true
+   },
+   {
+    "stage": "OUT",
+    "slot": 5,
+    "name": "OUT-05 DZC final-norm quotient + x limbs + helpers (+pad)",
+    "declared_degree": 5,
+    "symbolic_challenges": {
+     "monomials": 50,
+     "terms_with_challenge_parts": 115,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 2,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 4,
+     "private_variables_appearing": 19,
+     "n_private_tables": 19,
+     "ext_rounds": 1
+    },
+    "challenges_at_run_values": {
+     "monomials": 50,
+     "terms_with_challenge_parts": 50,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 2,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 4,
+     "private_variables_appearing": 19,
+     "n_private_tables": 19,
+     "ext_rounds": 1
+    },
+    "public_factor_in_every_monomial": true,
+    "max_table_degree": 4,
+    "degree_fits": true,
+    "private_terminals_port": 19,
+    "terminals_recorded": 19,
+    "schedule_sites": 19,
+    "terminal_count_ok": true,
+    "every_private_table_appears": true,
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true
+   },
+   {
+    "stage": "OUT",
+    "slot": 6,
+    "name": "OUT-06 VZC e(1-e) + head host term on keyed l* + helpers (+pad)",
+    "declared_degree": 5,
+    "symbolic_challenges": {
+     "monomials": 42,
+     "terms_with_challenge_parts": 68,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 2,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 4,
+     "private_variables_appearing": 14,
+     "n_private_tables": 14,
+     "ext_rounds": 1
+    },
+    "challenges_at_run_values": {
+     "monomials": 42,
+     "terms_with_challenge_parts": 42,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 2,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 4,
+     "private_variables_appearing": 14,
+     "n_private_tables": 14,
+     "ext_rounds": 1
+    },
+    "public_factor_in_every_monomial": true,
+    "max_table_degree": 4,
+    "degree_fits": true,
+    "private_terminals_port": 14,
+    "terminals_recorded": 14,
+    "schedule_sites": 14,
+    "terminal_count_ok": true,
+    "every_private_table_appears": true,
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true
+   },
+   {
+    "stage": "OUT",
+    "slot": 7,
+    "name": "OUT-07 RSEL supp e (c1 + c2 iota + c3 delta) - u0 (c1 + c2 tok) (standalone)",
+    "declared_degree": 4,
+    "symbolic_challenges": {
+     "monomials": 11,
+     "terms_with_challenge_parts": 11,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 1,
+     "monomials_whose_only_public_factors_are_indicators": [
+      "supp(32000) over 32768*A_E",
+      "supp(32000) over 32768*A_E*A_LAM0",
+      "supp(32000) over 32768*A_E*A_LAM1",
+      "supp(32000) over 32768*A_E*A_LAM2",
+      "supp(32000) over 32768*A_E*A_LAM3",
+      "supp(32000) over 32768*A_E*A_LAM4",
+      "supp(32000) over 32768*A_E*A_LAM5",
+      "supp(32000) over 32768*A_E*A_LAM6",
+      "supp(1) over 32768",
+      "supp(1) over 32768*A_TOK"
+     ],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 3,
+     "private_variables_appearing": 9,
+     "n_private_tables": 9,
+     "ext_rounds": 1
+    },
+    "challenges_at_run_values": {
+     "monomials": 11,
+     "terms_with_challenge_parts": 11,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 1,
+     "monomials_whose_only_public_factors_are_indicators": [
+      "supp(32000) over 32768*A_E",
+      "supp(32000) over 32768*A_E*A_LAM0",
+      "supp(32000) over 32768*A_E*A_LAM1",
+      "supp(32000) over 32768*A_E*A_LAM2",
+      "supp(32000) over 32768*A_E*A_LAM3",
+      "supp(32000) over 32768*A_E*A_LAM4",
+      "supp(32000) over 32768*A_E*A_LAM5",
+      "supp(32000) over 32768*A_E*A_LAM6",
+      "supp(1) over 32768*A_TOK",
+      "supp(1) over 32768"
+     ],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 3,
+     "private_variables_appearing": 9,
+     "n_private_tables": 9,
+     "ext_rounds": 1
+    },
+    "public_factor_in_every_monomial": true,
+    "max_table_degree": 3,
+    "degree_fits": true,
+    "private_terminals_port": 9,
+    "terminals_recorded": 9,
+    "schedule_sites": 9,
+    "terminal_count_ok": true,
+    "every_private_table_appears": true,
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true
+   },
+   {
+    "stage": "OUT",
+    "slot": 8,
+    "name": "OUT-08 TAB byte-table helper (+pad)",
+    "declared_degree": 3,
+    "symbolic_challenges": {
+     "monomials": 5,
+     "terms_with_challenge_parts": 7,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 0,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 3,
+     "private_variables_appearing": 2,
+     "n_private_tables": 2,
+     "ext_rounds": 1
+    },
+    "challenges_at_run_values": {
+     "monomials": 5,
+     "terms_with_challenge_parts": 5,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 0,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 3,
+     "private_variables_appearing": 2,
+     "n_private_tables": 2,
+     "ext_rounds": 1
+    },
+    "public_factor_in_every_monomial": true,
+    "max_table_degree": 3,
+    "degree_fits": true,
+    "private_terminals_port": 2,
+    "terminals_recorded": 2,
+    "schedule_sites": 2,
+    "terminal_count_ok": true,
+    "every_private_table_appears": true,
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true
+   },
+   {
+    "stage": "OUT",
+    "slot": 9,
+    "name": "OUT-09 ZS zero-sum row",
+    "declared_degree": 2,
+    "symbolic_challenges": {
+     "monomials": 1,
+     "terms_with_challenge_parts": 1,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 0,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [
+      "ones over 4096*H_U"
+     ],
+     "max_table_degree": 2,
+     "private_variables_appearing": 1,
+     "n_private_tables": 1,
+     "ext_rounds": 1
+    },
+    "challenges_at_run_values": {
+     "monomials": 1,
+     "terms_with_challenge_parts": 1,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 0,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [
+      "ones over 4096*H_U"
+     ],
+     "max_table_degree": 2,
+     "private_variables_appearing": 1,
+     "n_private_tables": 1,
+     "ext_rounds": 1
+    },
+    "public_factor_in_every_monomial": true,
+    "max_table_degree": 2,
+    "degree_fits": true,
+    "private_terminals_port": 1,
+    "terminals_recorded": 1,
+    "schedule_sites": 1,
+    "terminal_count_ok": true,
+    "every_private_table_appears": true,
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true
+   },
+   {
+    "stage": "OUT",
+    "slot": 10,
+    "name": "OUT-10 IO-out: output endpoint = u0 tok (whole 256-word plane)",
+    "declared_degree": 3,
+    "symbolic_challenges": {
+     "monomials": 2,
+     "terms_with_challenge_parts": 2,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 0,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 3,
+     "private_variables_appearing": 2,
+     "n_private_tables": 2,
+     "ext_rounds": 1
+    },
+    "challenges_at_run_values": {
+     "monomials": 2,
+     "terms_with_challenge_parts": 2,
+     "monomials_without_public_factor": [],
+     "public_factor_in_every_monomial": true,
+     "public_only_monomials": 0,
+     "monomials_whose_only_public_factors_are_indicators": [],
+     "monomials_whose_only_public_factor_has_a_constant_MLE": [],
+     "max_table_degree": 3,
+     "private_variables_appearing": 2,
+     "n_private_tables": 2,
+     "ext_rounds": 1
+    },
+    "public_factor_in_every_monomial": true,
+    "max_table_degree": 3,
+    "degree_fits": true,
+    "private_terminals_port": 2,
+    "terminals_recorded": 2,
+    "schedule_sites": 2,
+    "terminal_count_ok": true,
+    "every_private_table_appears": true,
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true
+   }
+  ],
+  "findings": [],
+  "slots_checked": 15,
+  "slots_with_premises": 15,
+  "observations": {
+   "slots_with_a_monomial_whose_only_public_factors_are_indicator_tables": [
+    "OUT-01",
+    "OUT-02",
+    "OUT-07"
+   ],
+   "slots_with_a_monomial_whose_only_public_factor_has_a_constant_MLE": [
+    "IN-03",
+    "OUT-09"
+   ]
+  },
+  "seconds": 0.03,
+  "ok": true
+ },
+ "controls": {
+  "TT-1_terminal_moved_IN-01": {
+   "fires": true,
+   "failed_slots": [
+    "IN-01"
+   ],
+   "what": "terminal 0 of IN-01 + 1"
+  },
+  "TT-2_terminal_moved_OUT-05": {
+   "fires": true,
+   "failed_slots": [
+    "OUT-05"
+   ],
+   "what": "terminal 3 of OUT-05 + 1"
+  },
+  "TT-3a_rebuildable_public_value_moved_OUT-07_iota": {
+   "fires": true,
+   "failed_slots": [
+    "OUT-07"
+   ],
+   "first_finding": "OUT-07: public table 1 (iota over 32768): digest mismatch; public table 1 (iota over 32768): the evaluation from the captured values differs from the rebuilt table's"
+  },
+  "TT-3b_same_digests_off_captured_values_used": {
+   "fires": true,
+   "failed_slots": [
+    "OUT-07"
+   ]
+  },
+  "TT-3c_taken_table_value_moved_IN-02_tau_digests_off": {
+   "fires": true,
+   "failed_slots": [
+    "IN-02"
+   ]
+  },
+  "TT-3d_same_digests_on": {
+   "fires": true,
+   "first_finding": "IN-02: poly != terminal_polynomial; fin != c*mask_eval + poly; public table 2 (captured tau_tab): digest mismatch"
+  },
+  "TT-4_pad_term_dropped": {
+   "fires": true,
+   "per_slot": {
+    "IN-01": true,
+    "IN-02": true,
+    "OUT-02": true,
+    "OUT-03": true,
+    "OUT-05": true,
+    "OUT-06": true,
+    "OUT-08": true
+   }
+  },
+  "TT-5_capture_eq_point_moved_OUT-03": {
+   "fires": true,
+   "first_finding": "OUT-03: table 0: the eq point / start the port DERIVED (tau) is not the capture's"
+  },
+  "TT-6_capture_hosted_coefficient_moved_OUT-06": {
+   "fires": true,
+   "failed_slots": [
+    "OUT-06"
+   ]
+  },
+  "TT-7_token_io_limbs_moved": {
+   "fires": true,
+   "first_finding": "shape facts differ from the re-derived geometry; no slot evaluated: token_io.limbs = 8, re-derived 7"
+  },
+  "NL-C1_private_only_monomial_IN-01": {
+   "fires": true,
+   "flagged": [
+    "A_TOK*H_Q"
+   ]
+  },
+  "NL-C2_affine_1_minus_supp_only_IN-01": {
+   "fires": true,
+   "flagged": [
+    "A_TOK"
+   ]
+  },
+  "NL-C3_bare_constant_IN-01": {
+   "fires": true,
+   "flagged": [
+    "1"
+   ]
+  },
+  "NL-C4_degree_overflow_IN-01": {
+   "fires": true,
+   "flagged": "degree 5 > 4"
+  },
+  "NL-C5_terminal_dropped_IN-02": {
+   "fires": true,
+   "counts": [
+    2,
+    1,
+    2
+   ]
+  },
+  "all_fire": true
+ },
+ "seconds": 19.7,
+ "peak_rss_mib": 140.6,
+ "ok": true
+}

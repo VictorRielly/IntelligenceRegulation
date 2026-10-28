@@ -1,0 +1,14 @@
+{
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "research_device": "CPU, one child worker pinned to first allowed core, nice19",
+  "accelerator_used": null,
+  "gpu_jobs": 0,
+  "est_memory_MiB": {
+    "probe": 64,
+    "audit": 64,
+    "census": 128
+  },
+  "caps": "512MiBAS;59sCPU+alarm;60sparent;single worker",
+  "native_build": false
+}

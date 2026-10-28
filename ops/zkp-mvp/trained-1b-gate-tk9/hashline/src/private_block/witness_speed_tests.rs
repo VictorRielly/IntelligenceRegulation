@@ -1,0 +1,95 @@
+//! **ROUND 3 (R3-1): the parallel witness products equal the sequential
+//! ones.** TEST CODE ONLY. The witness builder's matrix products became
+//! parallel (rayon) and cache-friendly; they are exact integer sums, so the
+//! planes cannot move. This module checks it directly against the round-2
+//! sequential products (`witness::matmul_reference`, verbatim), on random
+//! words of every class the call sites see (int8 and int16 inputs, zeros,
+//! and inputs outside the i32 fast path), at the trained rung's dimensions in
+//! the ordinary filter and at TinyLlama's in release (ignored). The whole
+//! witness's bit-exactness is also held by the frozen receipts, the slot-IR
+//! digests and the kernel parity tests of the suite, which this round leaves
+//! unchanged.
+
+use super::shape::Shape;
+use super::witness;
+
+/// a small deterministic generator (xorshift64*)
+struct Rng(u64);
+
+impl Rng {
+    fn next(&mut self) -> u64 {
+        self.0 ^= self.0 >> 12;
+        self.0 ^= self.0 << 25;
+        self.0 ^= self.0 >> 27;
+        self.0.wrapping_mul(0x2545_F491_4F6C_DD1D)
+    }
+    fn range(&mut self, lo: i64, hi: i64) -> i64 {
+        lo + (self.next() % ((hi - lo + 1) as u64)) as i64
+    }
+}
+
+/// one product at a shape's real dimensions, parallel against sequential
+#[allow(clippy::too_many_arguments)]
+fn check(sh: &Shape, r: &mut Rng, xs: usize, inner: usize, outer: usize, os: usize, in_out: bool, xlo: i64, xhi: i64) {
+    let rows = sh.t_pad;
+    let mut x = vec![0i64; rows * xs];
+    for t in 0..sh.tokens {
+        for i in 0..inner {
+            // a sprinkling of zeros exercises the skip on the in-out path
+            x[t * xs + i] = if r.next() % 7 == 0 { 0 } else { r.range(xlo, xhi) };
+        }
+    }
+    let w: Vec<i8> = (0..inner * outer).map(|_| r.range(-128, 127) as i8).collect();
+    let out_len = rows * os;
+    let want = witness::matmul_reference(sh.tokens, &x, xs, &w, inner, outer, os, out_len, in_out);
+    let got = witness::matmul_parallel(sh, &x, xs, &w, inner, outer, os, out_len, in_out);
+    assert_eq!(got, want, "{}: {} product {inner} -> {outer} (x in [{xlo}, {xhi}]) differs from the sequential one", sh.name, if in_out { "in-out" } else { "out-in" });
+}
+
+/// every product the builder makes at `sh`, with every input class
+fn every_product(sh: &Shape, seed: u64) {
+    let mut r = Rng(seed);
+    let (dp, fp, kvw) = (sh.d_pad, sh.f_pad, sh.kv_heads * sh.head_dim);
+    for (xlo, xhi) in [(-127i64, 127i64), (-32768, 32767), (-(1i64 << 40), 1i64 << 40)] {
+        // Wq, Wo (d -> d), Wk / Wv (d -> kvw): out-in
+        check(sh, &mut r, dp, dp, dp, dp, false, xlo, xhi);
+        check(sh, &mut r, dp, dp, kvw, kvw, false, xlo, xhi);
+        // Wg / Wu (d -> f), Wd (f -> d): in-out
+        check(sh, &mut r, dp, dp, fp, fp, true, xlo, xhi);
+        check(sh, &mut r, fp, fp, dp, dp, true, xlo, xhi);
+    }
+}
+
+#[test]
+fn the_parallel_products_equal_the_sequential_ones_at_the_trained_rung() {
+    every_product(&Shape::rung_tc(&super::trained_calib_tests::rung_tc_calibration()).unwrap(), 0x5233_0001);
+    every_product(&Shape::rung_c6(), 0x5233_0002);
+}
+
+/// the TinyLlama dimensions (heavy only because the SEQUENTIAL reference is
+/// slow: two products of 2048 x 8192 per input class)
+#[test]
+#[ignore = "release: the sequential reference at TinyLlama's dimensions"]
+fn the_parallel_products_equal_the_sequential_ones_at_the_tinyllama_dimensions() {
+    every_product(&super::trained_calib_tests::tinyllama_at(64), 0x5233_0003);
+}
+
+/// **The per-block witness time** at the trained TinyLlama shapes (generic
+/// dense witness), printed for the record with the thread count. Release.
+#[test]
+#[ignore = "release timing: TinyLlama witnesses at T32, T64 and T128"]
+fn native_witness_time_per_block_at_the_trained_tinyllama_shapes() {
+    for t in [32usize, 64, 128] {
+        let sh = super::trained_calib_tests::tinyllama_at(t);
+        let (w, input) = super::trained_calib_tests::trained_dense_words(&sh, super::trained_calib_tests::TRAINED_BANDS);
+        let (public, ff) = super::dense_tests::statement_of_words(&sh, &w);
+        let mut best = f64::MAX;
+        for _ in 0..3 {
+            let t0 = std::time::Instant::now();
+            let wit = witness::build_shaped(&sh, &public, &ff, &input).expect("the generic witness");
+            best = best.min(t0.elapsed().as_secs_f64());
+            drop(wit);
+        }
+        eprintln!("NATIVE R3-1 witness T{t}: best of 3 {best:.3} s per block on {} rayon threads (dense synthetic words; shared box)", rayon::current_num_threads());
+    }
+}

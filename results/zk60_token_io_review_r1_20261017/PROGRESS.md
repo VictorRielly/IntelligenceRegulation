@@ -316,3 +316,297 @@ token-io-review-r4-scratch/.
   LOW (owner-private sibling, 0755 dir, inside results/), TR4-4 INFO.
   Verdict: fit for a demo after the two small fixes (or an explicit
   verify-then-owner procedure and a shown table-SHA check).
+
+## ROUND 5 (2026-10-19 UTC): confirmation of the TR4 fixes
+
+Object: `ops/zkp-mvp/token-io/` at `manifest_final_r5.sha256` (sha256
+5f7d155e...); 5 files changed against r4 (`token_io/cli.rs`, `cli_tests.rs`,
+`load.rs`, `src/private_block.rs`, `examples/zk60_token_io.rs`). Write set:
+`ops/zkp-mvp/token-io-review-r5/` (+ `.sha256`), `ops/zkp-mvp/token-io-review-r5-scratch/`,
+this directory (`logs5/`, the review document).
+
+- 13:39:23 start. Frozen copy `ops/zkp-mvp/token-io-review-r5/` from the lane
+  tree; equal to `manifest_final_r5.sha256` [COUNTED]. Read the 5 diffs.
+  Static: TR4-1 `owner` / new `input-owner` call `check_run(published_only)`
+  (identity pin, token-profile pin, canonical statement, every segment
+  re-verified, segments.json equal to the hashes seen) before printing;
+  TR4-2 `--expect-token-profile` required (verify / owner / input-owner),
+  compared with `st.tp.digest_under(profile)` rebuilt from the tables;
+  TR4-3 `owner_dir_of`: `--owner-dir` or `$HOME/zk60-artifacts/token-io/<name>.owner-private`
+  (base 0700), refused when its canonical parent is under the run's
+  canonical parent; dir 0700 / files 0600; TR4-4 tables opened
+  O_NOFOLLOW|O_NONBLOCK after an lstat regular-file check, re-checked by
+  fstat; owner files and the unverified statement written before the final
+  rename. Candidate: prove's error path `remove_dir_all(&owners_dir)` also
+  runs when `create_private_dir` failed because the directory ALREADY
+  EXISTS (another prove created it after this one's existence check):
+  it would delete another run's decommitments (the default owner dir is
+  keyed by the run's base name only). Probe written (RV5-3 collision).
+- 13:45 scratch tree + `review_tests.rs` (RV5-1 owner/input-owner re-verify;
+  RV5-2 token-profile pin; RV5-3 placement, symlinked parent, same-name
+  collision) + `prep_b8_r5.py` (art-unverified, art-forged, art-r5,
+  tables-mult with one head multiplier changed and its manifest SHA
+  updated, tables-link with a symlinked embedding) + `launch_r5.sh`.
+- 13:47:17 launched detached `launch_r5.sh` (marker `logs5/launch_r5.done`);
+  queued behind the heavy lock (another lane's r8-check).
+- 13:46-13:49 layer-0 pre-check (light, unguarded python): the lane's 4 unit
+  tests OK; b7_T32 ho00 prompt `clear` exit 0; a prompt with 662 / 16309
+  refused exit 2, each named (id, text, positions, site V, the fix); b7_T64
+  and b6_T64 with the b7 embedding match the b7 fingerprint (their layer_00
+  manifest without RoPE and weights are byte-identical to b7's) and refuse
+  by name; non-b7 8B T32 `not-covered`; TinyLlama 1B `not-covered` (and
+  exit 1 with no token_io/ embedding); the fidelity lane's voc0 variant
+  `not-covered`; a malformed prompt exit 1. Logs `logs5/precheck/`.
+- 13:54-14:00 builds (scratch tree = frozen r5 + the cfg(test)-only review
+  module) exit 0; my CLI binary sha256 51269365... (the lane's r5 binary
+  da48f6d4...; they differ by the embedded build path).
+- 14:00:13-14:03:20 t1 token_io (cpu-guarded, peak rss 2.50 GiB): 39
+  passed / 0 failed / 6 ignored (the lane's 36 incl. tr4_1..tr4_3 + my 3);
+  78 AS PREDICTED, 0 NOT [MEASURED]. RV5-1: owner before any verifier
+  published refused; owner / input-owner after an honest verify OK; another
+  prompt refused ("the sealed input plane is not the owner's prompt"); owner
+  and input-owner after a tampered segment refused (stage OUT A pcs);
+  owner over a prover-written statement/ refused (segments.json not the
+  hashes this verifier verified). RV5-2: another head / half Cn under the
+  approved token-profile pin refused, nothing published; the same runs
+  accepted only under their OWN tables' pin (by design: the pin is the
+  verifier's choice); no pin refused. RV5-3: --owner-dir in the run's
+  parent, in a subdirectory of it, and through a symlink to it refused;
+  owner dir 0700, files 0600. FINDING TR5-1 REPRODUCED: two proves naming
+  the same owner directory at once: one exit 0, the other refused "File
+  exists", and the owner directory is GONE afterwards: a completed run
+  without its owners' decommitments (prove's error path removes an owner
+  directory it did not create).
+- 14:03-14:25 my CLI binary on the 8B artefacts (each cpu-guarded, peak rss
+  <= 2.86 GiB): p1/p2 `profile` on the prover export and the verifier copy
+  both e8238cf1...7132 = the lane's pin file; p3 one-multiplier tables
+  8b4a8b1e...; p4 symlinked embedding refused (not a regular file); c1/c2
+  owner / input-owner over art-tamper refused (block 19 pcs; round 4 printed
+  token 11); c3 unverified-only refused; c4 prover-written statement/
+  refused; c5 wrong pin / c6 no pin refused; c7 one-multiplier tables under
+  the approved pin refused (pin), c8 under their own pin refused (statement
+  not canonical); c9 owner token 11, c10 input-checked, c11 wrong prompt
+  refused; the lane's r5 run (hard-linked copy): c12 statement-checked, c13
+  token 11, c14 input-checked; c15 the round-4 output.dec over the r5 run
+  refused (root not rebuilt). launch_r5.done = 0.
+- 14:25 frozen r5 copy re-checked: 231 entries, 0 mismatches. Guard status:
+  no trv5-* job. NOTHING OF MINE PENDING.
+- 14:27 REVIEW4.md ROUND 5 section written. Verdict: the token CLI is
+  demo-fit now; TR4-1..4 closed; new TR5-1 LOW (prove's cleanup deletes an
+  owner directory it did not create: concurrent proves sharing an owner dir,
+  reproduced), TR5-2 INFO (pre-check: "clear" omits its scope; RoPE not
+  read at check; not-covered exits 0; refusal log names prompt tokens),
+  TR5-3 INFO (explicit --owner-dir may sit inside the repo; --out under
+  $HOME needs --owner-dir; the approved token-profile pin must come from
+  the approval record, not a profile run on the prover's files).
+
+## ROUND 6 (2026-10-19 UTC): the token lane's rounds 6 and 7 (REVIEW5.md)
+
+Object: `manifest_final_r7.sha256` (233 files, list eb912dd5...), the frozen
+copy `results/zk60_token_io_r1_20261017/frozen-r7/` (coordinator, 19:11Z).
+My copy `ops/zkp-mvp/token-io-review-r7/` (+ `.sha256`, list 5baa8e79...,
+made 19:11 from the lane tree before round 8 moved it): all 233 entries match
+the manifest, and every file equals frozen-r7's [COUNTED]. Write set: that
+copy, `ops/zkp-mvp/token-io-review-r7-scratch/`, this directory (`logs6/`,
+REVIEW5.md).
+
+- 19:10 start; read the lane ledger's round-6 / round-7 sections.
+- 19:12-19:15 R8 rebase, by diff3 (mine = my r5 copy, base = R7 frozen-tree,
+  theirs = R8 frozen-tree): `private_block.rs`, `trained_block.rs` (and
+  s24 / s33 / hash_domain_tests) = the 3-way merge exactly; `run.rs` = the
+  merge + 2 lines (`token: None` in the block run's capture header);
+  `s25_tests.rs` = the merge + the census row 6 -> 8; `run_capture.rs` R7 ==
+  R8, all lane changes; every other file = R8 byte for byte; 0 files only in
+  R8 [COUNTED].
+- 19:15-19:19 static: cli.rs (Claimed guard; owner_dir_at; git_working_tree_of;
+  default key = 12 hex of SHA-256 of the canonical run path; schema /2,
+  `/1` refused by name), token_io/run.rs (stage_cal from each record via
+  apply_own + with_layer_calibration, used by prove / verify / layouts; the
+  stage lines name each own constant; mirrors native run.rs), the hooks
+  (all `#[cfg(test)]`, no Result, no-ops when no recorder: `checkpoint`
+  returns None, `with` returns None; arguments are layout-derived; segment
+  count checked before `&segments[k]`; `slots.get(s)?` before `&slots[s]`),
+  the census (the 2 new `sha256_hex(` sites mirror the block writer's
+  segment / expected_bytes digests). Approval record: all 7 token_io file
+  SHA-256s and SHA256SUMS (216d13e4...) re-hashed from the fidelity export,
+  profile.json 82c7c752...c4f6 = the fidelity ledger's 15:48 entry, the
+  verifier copy = hard links of the export minus seq_*; the fidelity lane's
+  nexttoken JSON (integer 11, margin C 313,660,358; float 11) = the lane's
+  cross-check JSON.
+- 19:20:57 launched detached `launch_r6.sh` (marker `logs6/launch_r6.done`):
+  builds -> t1 my review tests (cli::review_r6: concurrent proves, mid-run
+  refusal, stale claim, placement edges; r3_tests::review_r6: per-field
+  cheating at block 1, receipt under other records, swapped layer
+  calibrations, hostile receipts with/without a recorder) -> t2 the lane's
+  token_io tests -> 8B probes on the r7 demo run (profile x3, re-check,
+  independent publication + compare, owner, input-owner, b7 identity pin,
+  b7 export, schema /1, own-calibration edits, tamper, owner on tamper, the
+  r6 /1 run).
+- 19:21-19:40 static, continued: the pre-check (`tools/layer0_precheck.py`
+  ddb3fcb3..., list 8f8341b3...): the lane's 6 python tests OK; voc0 ho00
+  `clear` with `scope` and `not_covered`; voc0 with 662 / 16309 `clear`
+  (no refusing token on that export); b7_T32 with 662 / 16309 exit 2 by
+  name; the fidelity lane's T128 voc0 variant (same layer-0 fingerprint,
+  RoPE 128 rows) `not-covered` by the new RoPE-prefix rule; b7_T64 exit 2.
+  The demo reads both pins from the approval record (export path checked).
+  Release binaries r7 (demo tree) vs r7c (capture tree): .text, .rodata,
+  .eh_frame byte-identical; 136 bytes differ in all (build-id + .data.rel.ro)
+  [COUNTED]. The guard's history keeps `cmd[:8]` (the demo's prompt sits
+  beyond it).
+- 22:28 UTC (the guard's local 15:28 PDT): the build was admitted after
+  11,268 s of heavy-lock wait (other lanes); builds exit 0 (232 s / 76 s);
+  my CLI binary 9a22336d... .
+- 23:41:33-23:42:29 t1 my review tests (cpu-guarded, peak 1.47 GiB): 6
+  passed / 0 failed; every CONTROL AS PREDICTED [MEASURED]: RV6-1 two real
+  concurrent proves (same owner dir; same --out), twice each: one exit 0,
+  the other refused at its claim, the winner's run / statement /
+  decommitments intact, the loser leaves nothing; RV6-2 mid-run refusal
+  leaves nothing, a stale `.incomplete/` refused and kept; RV6-3 git tree
+  through a symlink refused, default for a run under $HOME (via a symlink)
+  accepted, a run in $HOME/zk60-artifacts refused; NOTE: the default owner
+  dir is accepted when $HOME is itself a git working tree. RV6-4 all eleven
+  own fields: a block-1 witness with ANY one field put back to the run's
+  value, under the per-layer statement, refused at block 1 (11 of 11);
+  RV6-5 the honest receipt under 13 other record sets refused ("belongs to
+  another run"); RV6-6 swapped layer calibrations refused at block 0, and
+  the honest receipt under swapped records refused; RV6-7 62 hostile
+  receipts without and with a recorder: 0 panics, 0 accepted, 0 bundles.
+- 23:57:11-00:00:21 t2 the lane's token_io tests on the frozen tree
+  (cpu-guarded, after 882 s of lock wait; peak 2.43 GiB): 44 passed / 0
+  failed / 8 ignored, 67 AS PREDICTED / 0 NOT [MEASURED] (incl. the three
+  capture tests: the bundle self-consistency with the owner-decommitment
+  scan, the prover-path inertness, a tampered run writes no bundle). 8B
+  probes started 00:00:21.
+- 00:00-01:15 8B probes so far (my binary 9a22336d..., each cpu-guarded):
+  p1 `profile` on the FIDELITY lane's export and p2 on the verifier copy:
+  identity c3fb8c5b..., token profile e8238cf1... = the approval record's
+  pins; p3 on the b7_T32 copy: 47f01943... (the b7 record's pin holds under
+  the R8 code); c1 re-check statement-checked; c2 an independent
+  publication from the rebuilt unverified statement: statement.json and
+  segments.json byte-identical to the lane's; c3 owner token 11; c4
+  input-owner 32 tokens; c5 the b7 identity pin refused; c6 the b7 export +
+  b7 pins over the voc0 run refused (context).
+- ~01:05 COORDINATOR (t34): on the frozen-r7 prover path (i) a stage-IN
+  lookup miss and (ii) an input endpoint sealed over another prompt are not
+  refused by the prover; does the VERIFIER reject every such receipt?
+  Static answer: yes (stage IN: tok, m, B_in and the endpoint root are all
+  fixed before beta / gamma / alpha / r_emb; the LogUp sum claim is fixed
+  to 0 by the verifier and checked inside the H opening; every stage-IN
+  slot is standalone, so its sum is bound to 0 through the M opening; the
+  B_in claim from IN-01 is opened with block 0's B_in opening). Empirical:
+  the lane's DESIGN 6.1 controls in my t2 run on the frozen tree (#7, #10a
+  at IN-00; #16a/b/c2/d at the LogUp H opening; #16c at IN-02; #4/#5 at
+  IN-01). Added RV6-8 (the HONEST prover path, no cheating flag: (i-a/b/c)
+  lookup misses, (ii-a/b/c) foreign / padded / BOS-changed endpoint, and a
+  consistent other-prompt control); `launch_r6b.sh` (detached, marker
+  `logs6/launch_r6b.done`) rebuilds and runs it after launch_r6.
+- 01:15-01:21 the rest of the 8B probes: c7 statement with schema /1
+  refused by name; c8 `layers_with_own_calibration` emptied and c9 layer 1's
+  own sh_s 7 -> 6 both refused (not the canonical statement); c10 one byte
+  of segment-002 (block 1, the layer with its own sh_s) refused at block 1;
+  c11 owner over it refused; c12 the lane's r6 run (/1) refused by name
+  under the r7 binary. launch_r6.done = 0 (01:21:16). 15 probes, peak RSS
+  <= 2.83 GiB.
+- 01:21:57-01:25:56 launch_r6b: test build (218 s) then t3 RV6-8 (21 s):
+  on the HONEST prover path every t34 forgery produced a receipt, and the
+  verifier refused all six [MEASURED]: (i-a) a changed id with B_in row =
+  E[old], (i-b) one changed B_in word, (i-c) an id >= V: "stage IN H (the
+  LogUp sum claim is part of this opening)"; (ii-a) the endpoint over
+  another prompt, (ii-b) a nonzero pad word, (ii-c) position 0 changed:
+  "stage IN slot 00 [IN-00 IO-in ...]"; the consistent other-prompt
+  control ACCEPTED. launch_r6b.done = 0.
+- 01:26 both copies (mine, frozen-r7) re-checked against the manifest: 0
+  mismatches. Guard status: no trv6-* job. NOTHING OF MINE PENDING.
+- 01:28 REVIEW5.md final. Verdict: demo-fit. TR5-1..3 closed; the R8 rebase
+  exact; per-layer calibration enforced (11 of 11 fields) and bound; the
+  capture hooks inert / compiled out, no decommitment path, the census
+  bump a real classification; the voc0 approval record and cross-check
+  verified; the r7 8B demo re-verified (independent publication
+  byte-identical, token 11). t34: the verifier rejects (i) and (ii) (static
+  argument + the lane's controls + RV6-8). Findings: TR6-1 LOW (private
+  prompt on argv), TR6-2 LOW (sink contract gaps, the t34 cases; prover
+  hygiene), TR6-3..7 INFO.
+
+## ROUND 7 (2026-10-20 UTC): frozen-r9 (the lane's rounds 8, 9, 10) -> REVIEW6.md
+
+Object: `results/zk60_token_io_r1_20261017/frozen-r9/` (236 files =
+`manifest_final_r9.sha256`, list b666a991...). Write set: this directory
+(`logs7/`, REVIEW6.md), `ops/zkp-mvp/token-io-review-r9-scratch/`, and a
+0700 scratchpad directory for the 8B run's prompt file and owner directory
+(outside every git tree, as the CLI requires).
+
+- 04:33 start: frozen-r9 re-hashed, 236 of 236 match, none missing, none
+  extra [COUNTED]. Read the lane ledger's rounds 8-10. vs frozen-r7: 12
+  changed, 3 added; private_block/run.rs additive only (two T128 profile
+  constants, TOKEN_IO_RUN_PROFILES 3 -> 5, two run-shape arms); token_io.rs
+  (3 test modules, the census helpers' T128 rows); load.rs (the two T128
+  block profiles mapped).
+- 04:34-04:38 static: the generic sealing pass (`prove_token_run_with`):
+  stage IN `lookup_misses`, the input endpoint plane, every block's CS-1/4/6
+  and CS-3 through `seal_check`, stage OUT byte misses and the output
+  endpoint plane, ALL before `ZkRng::from_os` and `st.transcript()`; the
+  proving pass from the header on is r7's line for line (the only moved
+  line: `src.stage_in()`, which touches no transcript). The CLI's
+  `seal_chain` (builder chain from x_in_L00, int16, parity at every layer,
+  CS-3) and the next token from the builder's last plane; `--prompt`
+  refused; `read_prompt_file` (0600 / stdin); owner `--token-out` /
+  `--print`; OWNER_BASE `zk60-owner-private`; git's rule (`.git` dir with
+  HEAD, `gitdir:` file) for explicit and default; PR4-15 removal events and
+  `leftover_refusal`. Demo kit read (`tools/demo_present.sh`,
+  `DEMO_PRESENTER.md`) against the CPU baseline README and D27 / D33.
+- 04:40:00 launched detached `launch_r7.sh` (marker `logs7/launch_r7.done`):
+  builds -> t1 my review tests (cli_tests::review_r7: prompt-file edges,
+  owner token file, git-rule edges, owner-base modes) -> t2 the lane's
+  token_io tests (r9_*, r9v_*, t128_*, pr4_*) -> an 8B T32 end-to-end: prove
+  with the lane's NAMED r9 binary (the presenter demo's), verify / owner /
+  input-owner with my binary, a re-check with the r9 binary.
+- 04:52-04:57 builds exit 0 (219 s / 75 s); my binary eb1c2b74...; the
+  lane's named r9 binary = b56f1b71... (the frozen note's) [COUNTED].
+- 04:57:02-04:57:06 t1 my review tests: 4 passed / 0 failed, every CONTROL
+  AS PREDICTED [MEASURED]. RV7-1 prompt file: 0600 / 0400 accepted; 0640,
+  a symlink, a FIFO (no block), an empty and a malformed file refused (no
+  entry echoed); `--prompt=ids` refused (exit 2); NOTE `--label --prompt`
+  also exits 2 (harmless false positive). RV7-2: owner's default token file
+  `next_token` 0600 beside the decommitment; NOTE a second owner call with
+  the default path exits 1 AFTER a full re-verification (create_new); an
+  existing --token-out is never overwritten. RV7-3 git rule: stub (no HEAD)
+  accepted; .git dir with HEAD, `gitdir:` file, .git symlink refused; the
+  DEFAULT refused under a repo $HOME, accepted under a stub $HOME; NOTE a
+  non-gitfile .git file and a dangling HEAD are accepted (git does not take
+  either for a repository either). RV7-4: a fresh base is 0700 / 0700; NOTE
+  a pre-existing 0755 ~/zk60-owner-private stays 0755 (the owner dir itself
+  is 0700).
+- 04:57:06-05:00:37 t2 the lane's token_io tests on my build (peak 5.89
+  GiB): 61 passed / 0 failed / 9 ignored; 71 AS PREDICTED / 0 NOT
+  [MEASURED]. The five r9_* (every inadmissible witness refused before the
+  header; the honest run builds exactly one header); r9v V1-V4: the plain
+  prover STOPS in the sealing pass, the cheating prover (= the old path)
+  finishes and verify REJECTS at stage IN H (LogUp) / IN-00 / OUT-10;
+  t128: floors TinyLlama T128 2^-97.82 -> 97, 8B T128 2^-96.78 -> 96 (T32:
+  97 / 97); T32 and T128 receipts each refused under the other's statement,
+  each shape refused under the other T's profile; the seven pr4_* and tr6_3
+  pass. 8B T32 end-to-end started 05:00:37 (prove, the lane's r9 binary).
+- 05:00:37-05:10:54 the 8B T32 end-to-end [MEASURED, guard 0 s wait]: e1
+  prove with the lane's NAMED r9 binary b56f1b71... (the presenter demo's)
+  on b7voc0_T32 ho00 from a 0600 prompt file: sealed in 36.9 s (parity at
+  32 layers, block load 17.1 s), prove 208.6 s, total 288.7 s, 34 segments,
+  471,285,072 B, floor 97, peak 3.39 GiB; e2 my binary verify published
+  (48.0 s / 79.9 s); e3 owner with --token-out: next token 11 in a 0600
+  file, no token in the log; e4 input-owner 32 tokens; e5 re-check with
+  the r9 binary statement-checked. The r9 statement equals the round-7
+  run's except the two endpoint-root lines. launch_r7.done = 0.
+- 05:12 frozen-r9 re-hashed: 0 mismatches. Guard status: no trv7-* job.
+  NOTHING OF MINE PENDING.
+- 05:20 REVIEW6.md final. Verdict: frozen-r9 is demo-fit. The sealing pass
+  (generic + CLI) precedes the header for every input-provokable refusal,
+  changes no transcript byte or draw, cannot be switched off in release,
+  refuses no honest input; T128 floors 97 / 96, one 256-word endpoint row,
+  cross-T refusals both ways; PR4-15/16/17 and TR6-3 as built; r9v V1-V4
+  re-run and sound. Findings: TR7-1 LOW (the presenter page's "about 100x"
+  is the 32-block quiet-box ratio; the demo's next-word proof is ~135x
+  prove / ~186x with loading at 8B T32 on r9); TR7-2..7 INFO (8B options
+  not dry-run through the script on r9, 8b-t128 not at all; the answer id
+  on demo_decode's argv; three phrases slightly over the record; the CS-3
+  seal's dependence on sources / the CLI's copied stage-shape derivation;
+  a second default-path owner call fails after re-verifying; a
+  pre-existing owner base keeps a loose mode).

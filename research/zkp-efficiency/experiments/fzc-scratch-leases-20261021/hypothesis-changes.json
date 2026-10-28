@@ -1,0 +1,20 @@
+{
+  "preserved_entries": 34,
+  "changed_ranks": [
+    1,
+    2,
+    34
+  ],
+  "rank_order_unchanged": true,
+  "tested_rank": 34,
+  "owner_top_four_unchanged": true,
+  "new_question": "Can existing constructor stream sync cover prior uses so retained storage activates afterward without an added barrier?",
+  "negative_findings": [
+    "lazy fallback moves failure point",
+    "reset before sync can accept stale flag",
+    "capacity-sized fallback copy overreads smaller d_sums",
+    "growth increases transient host capacity",
+    "no measured allocation fraction or runtime gain"
+  ],
+  "concurrent_owner_update": "D33/D36 r11 extension, D38 application, first8DD gate evidence read at02:34UTC"
+}

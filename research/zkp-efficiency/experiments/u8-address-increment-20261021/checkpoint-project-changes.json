@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+      "startup_sha256": "696a1df351be0bb969d7e65ccb85c7bb82d2c525c0208d053eb640c8e91ff56b",
+      "current_sha256": "466f28769e743a43ace3d8ea460b2a0b872767cc3ce67c587b8355f973b4475e"
+    }
+  ],
+  "checked_utc": "2026-10-21T05:32:21.553202+00:00",
+  "agenda_unchanged": true
+}

@@ -1,0 +1,37 @@
+{
+ "what": "[gate round 15] D33's part of the frozen-r11 re-pin, in memory: which",
+ "bundle": "/home/victor/zk60-artifacts/tinyllama-trained-tk9-capture-dense-l1",
+ "tools": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v18/scripts",
+ "files_enforced_by_the_block_gate": 44,
+ "token_io_files_enforced": [],
+ "pin_checks": {
+  "tk9 bundle as captured": {
+   "terminal_pins_ok": true,
+   "terminal_pins_moved": [],
+   "run_layer_pins_ok": true,
+   "mask_layer_pins_ok": true
+  },
+  "the same with frozen-r11's two token digests": {
+   "terminal_pins_ok": true,
+   "terminal_pins_moved": [],
+   "run_layer_pins_ok": true,
+   "mask_layer_pins_ok": true
+  }
+ },
+ "tk9_pins": 52,
+ "other_pins_equal_to_frozen_r11": 49,
+ "other_pins_differing_from_frozen_r11": [],
+ "capture_writer": {
+  "file": "src/private_block/run_capture.rs",
+  "tk9_pin": "f47e28bf791aa225c9a0c19dd7f2662b2326846f847dcbc0041dac86be527289",
+  "gate_patch_base": "aaff4e6e20c4deca7a0342f5b7dd2b9ac53a2837432af72f57c8a852e479db5e",
+  "frozen_r11": "aaff4e6e20c4deca7a0342f5b7dd2b9ac53a2837432af72f57c8a852e479db5e",
+  "ok": true
+ },
+ "r11_token_digests_equal_frozen_r11_files": {
+  "src/private_block/token_io.rs": true,
+  "src/private_block/token_io/cli.rs": true
+ },
+ "ok": true,
+ "privacy_acceptance": false
+}

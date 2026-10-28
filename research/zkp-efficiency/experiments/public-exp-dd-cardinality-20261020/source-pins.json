@@ -1,0 +1,98 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/tables_attn.rs",
+    "snapshot": "source/r9__frozen-tree__hashline__src__tables_attn.rs",
+    "sha256": "5a874788e20581010b492d50ccc5e662255115c65b9eebcf2f88314733b121e3",
+    "bytes": 9318
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block.rs",
+    "snapshot": "source/r9__frozen-tree__hashline__src__private_block.rs",
+    "sha256": "5e50acd54e7e3e4926b03e9e329073116f278ad203fdcd175e3230464041432c",
+    "bytes": 62496
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/shape.rs",
+    "snapshot": "source/r9__frozen-tree__hashline__src__private_block__shape.rs",
+    "sha256": "e214db86945e0b9df8336edc7974041ebcfe77f2f1884a565a77a0392fca1165",
+    "bytes": 129620
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/layout.rs",
+    "snapshot": "source/r9__frozen-tree__hashline__src__private_block__layout.rs",
+    "sha256": "9332802e597beacab56cfa69cfe18325bc476d2ce6485f517051992b26d26efa",
+    "bytes": 74733
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/witness.rs",
+    "snapshot": "source/r9__frozen-tree__hashline__src__private_block__witness.rs",
+    "sha256": "d1a859187b58ac12c9bda0b0c98c25d85d24d87b6100724fd9d697f9b7fad607",
+    "bytes": 41300
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/r9_tests.rs",
+    "snapshot": "source/r9__frozen-tree__hashline__src__private_block__r9_tests.rs",
+    "sha256": "4851ec8f9faebee26391ab14ede992bdecf3819ccf4a214f1d33ae56656f06fb",
+    "bytes": 21476
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/trained_block.rs",
+    "snapshot": "source/r9__frozen-tree__hashline__src__private_block__trained_block.rs",
+    "sha256": "357e27974e4f3c8224cb0aca9e52a56d2e4ebef68b22e7e255febf2b3048628d",
+    "bytes": 158040
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/r9_ncol.py",
+    "snapshot": "source/r9__r9_ncol.py",
+    "sha256": "f286f94d37998723cf1231f4c0a6cf254831e45ad59fe715b5f200b6cdf808b0",
+    "bytes": 2688
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/r9_ncol.json",
+    "snapshot": "source/r9__r9_ncol.json",
+    "sha256": "254ddf2cc7a6d2ce5c1bf0f89374376c1e05e1240de4d4843ad00a2feafc7861",
+    "bytes": 12447
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/r9_counts.py",
+    "snapshot": "source/r9__r9_counts.py",
+    "sha256": "98de9781989c83299ceffd0022a3b64040ffa944169bb30c96ee57ca8ca0818e",
+    "bytes": 4515
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/r9_counts.json",
+    "snapshot": "source/r9__r9_counts.json",
+    "sha256": "ae24df761b94390667605d888394aca03f653d81f2ac07f9c135718e85e3b388",
+    "bytes": 1386
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/FROZEN.txt",
+    "snapshot": "source/r9__FROZEN.txt",
+    "sha256": "d3212f27a964acd77f53c47da6fa53dd5dd5de22ac82a8dd2d6635529c01a23a",
+    "bytes": 1705
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r10/r10_weight_range_cost.py",
+    "snapshot": "source/r10__r10_weight_range_cost.py",
+    "sha256": "ed23f51f8031b191c4079fe0e7312767647ccfd95df6ccb1e262f8478de985ad",
+    "bytes": 25948
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r11/r11_activation_cost.py",
+    "snapshot": "source/r11__r11_activation_cost.py",
+    "sha256": "c8dd304ad847276d45af26dcb4a5040832893ee8fc31b87811497e8351cd398c",
+    "bytes": 15071
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r11/ACTIVATION_COST.md",
+    "snapshot": "source/r11__ACTIVATION_COST.md",
+    "sha256": "5aa89bbc412e475e56da6982dc86635ef9ca118460b2b447147f37b94ca2f1f8",
+    "bytes": 18494
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r11/r11_activation_cost.json",
+    "snapshot": "source/r11__r11_activation_cost.json",
+    "sha256": "2b4ef7a5b821d36c4060a232599a0069a324ceaeb298990da2b6870713258363",
+    "bytes": 104633
+  }
+]

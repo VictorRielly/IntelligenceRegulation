@@ -1,0 +1,123 @@
+{
+  "cycle": "0102",
+  "run_id": "20261020T101854Z-5d2a545a",
+  "status": "complete",
+  "completed_utc": "2026-10-20T10:33:00.733012+00:00",
+  "experiment": "pcs-small-ntt-census-20261020",
+  "result": {
+    "seed": 270536706,
+    "checks": 619,
+    "profiles": 16,
+    "census_rows": 160,
+    "distinct_transform_geometries": 13,
+    "boundary_cases": 444,
+    "negative_controls": 9,
+    "summary": [
+      {
+        "log_cols": 12,
+        "inverse": {
+          "literal_requests": 4096,
+          "candidate_requests": 2048,
+          "active_words": 4096
+        },
+        "forward_resident": {
+          "literal_requests": 16384,
+          "candidate_requests": 16384,
+          "active_words": 16384
+        },
+        "forward_compact": {
+          "literal_requests": 4352,
+          "candidate_requests": 4352,
+          "active_words": 4352
+        },
+        "resident_pair_request_fraction_saved": 0.1,
+        "compact_pair_request_fraction_saved": 0.24242424242424243
+      },
+      {
+        "log_cols": 13,
+        "inverse": {
+          "literal_requests": 8192,
+          "candidate_requests": 4096,
+          "active_words": 8192
+        },
+        "forward_resident": {
+          "literal_requests": 32768,
+          "candidate_requests": 32768,
+          "active_words": 32768
+        },
+        "forward_compact": {
+          "literal_requests": 8448,
+          "candidate_requests": 8448,
+          "active_words": 8448
+        },
+        "resident_pair_request_fraction_saved": 0.1,
+        "compact_pair_request_fraction_saved": 0.24615384615384617
+      },
+      {
+        "log_cols": 14,
+        "inverse": {
+          "literal_requests": 16384,
+          "candidate_requests": 16384,
+          "active_words": 16384
+        },
+        "forward_resident": {
+          "literal_requests": 65536,
+          "candidate_requests": 65536,
+          "active_words": 65536
+        },
+        "forward_compact": {
+          "literal_requests": 16640,
+          "candidate_requests": 16640,
+          "active_words": 16640
+        },
+        "resident_pair_request_fraction_saved": 0.0,
+        "compact_pair_request_fraction_saved": 0.0
+      }
+    ],
+    "elapsed_s": 3.8500147860031575,
+    "maxrss_KiB": 20620,
+    "full_stack": {
+      "proofs": 0,
+      "passes": 0,
+      "positions": 0,
+      "context_length": null,
+      "device": null,
+      "witness_s": null,
+      "proof_s": null,
+      "serialization_s": null,
+      "verification_s": null,
+      "startup_s": null,
+      "startup_fraction": null,
+      "steady_rate": null,
+      "total_rate": null
+    },
+    "scope": "Public source geometry/address/request accounting, not native timing or complete proof"
+  },
+  "source_audit": {
+    "checks": 933,
+    "source_pins": 16,
+    "source_fragment_assertions": 64,
+    "rejected_source_mutations": 48,
+    "elapsed_s": 0.2836746129905805,
+    "maxrss_KiB": 23424,
+    "scope": "Pinned source fragments and independent census accounting, not Rust execution/profile admission"
+  },
+  "checkpoint_audit": {
+    "status": "PASS",
+    "checks": 57,
+    "checked_at_utc": "2026-10-20T10:33:00.733012+00:00",
+    "unchanged_source_pins": 16,
+    "prior_findings_and_sources_prefix_preserved": true,
+    "source_records_before": 591,
+    "source_records_after": 599,
+    "research_files_hashed": 25,
+    "new_complete_proofs": 0,
+    "native_build": false,
+    "gpu_invoked": false,
+    "final_state_updated_utc": "2026-10-20T10:33:40.242944+00:00"
+  },
+  "handoff": "handoffs/20261020-pcs-small-ntt-census.md",
+  "next_local": "R9 DD/nonDD per-domain lookup-helper words/multiplicity census",
+  "next_cycle_not_before": "2026-10-20T11:18:54Z",
+  "final_checkpoint_utc": "2026-10-20T10:33:40.242944+00:00"
+}

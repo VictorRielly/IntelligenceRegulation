@@ -70,7 +70,7 @@
   "hashline/src/private_block/protocol.rs": "85ca893173c4bfc0d8c88be69dbd0834831d4aec4ec9783c66e0b61d614615f6",
   "hashline/src/private_block/r4_tests.rs": "5572208513ecd65d96da598e128611bf0eb4cdf019c3ee17c5d65c5baa7729e9",
   "hashline/src/private_block/r6_tests.rs": "e04427c51e1c42c4e032b1e2ce3696c344d4e20c7d11d0e0ec27e8da3df74370",
-  "hashline/src/private_block/r8_tests.rs": "4403b6cbb1df0454e235de77f408c57eeb0366cd634a48009d9d56eefd140c6e",
+  "hashline/src/private_block/r8_tests.rs": "0f3e7b3dce1a15da3d5514a0982a12d5e7d3430a5020ff6afa7fa9d6f1757c1a",
   "hashline/src/private_block/refusals.rs": "bf7fa2cd005d2b8355ce6a727f4e3bb837be8b184f206f506f863a3923cf27ae",
   "hashline/src/private_block/review_d24_tests.rs": "0ed2019e020edeffadb471e81f3773ddaee3681ad0d29a9b16b8531538ddd06b",
   "hashline/src/private_block/review_tests.rs": "008c2205175f050ca6fa3d7582d2ebdd230be82324bdd170a1c20e3cd6be9b62",
@@ -224,6 +224,6 @@
  },
  "note": "sources at the start of the R8 targeted check",
  "root": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b",
- "tree_sha256": "760697bf89ce53daf522fa3c91cba026c0b15e5c45a185643f8a792545f5b326",
- "written_utc": "2026-10-19T13:37:19Z"
+ "tree_sha256": "7f64276abeceff666ff1269754bec83e0b0867b5d2812ae469bf76324d92ffb9",
+ "written_utc": "2026-10-19T13:43:15Z"
 }

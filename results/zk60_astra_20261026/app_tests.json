@@ -1,0 +1,9 @@
+{
+  "at": "2026-10-26T19:00:55Z",
+  "tests": 66,
+  "failures": 0,
+  "seconds": 2.338,
+  "scope": "synthetic contract and app tests, no real classifier proof or network transaction",
+  "host": true,
+  "command": "apps/proven-media/.venv/bin/python -m unittest discover -s apps/proven-media/tests -v"
+}

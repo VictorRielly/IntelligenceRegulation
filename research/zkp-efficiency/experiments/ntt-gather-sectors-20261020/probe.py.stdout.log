@@ -1,0 +1,32 @@
+{
+  "status": "PASS_SYNTHETIC_PUBLIC_ADDRESS_MODEL_ONLY",
+  "seed": 20261020101,
+  "specs": 21,
+  "checks": 6239,
+  "tile_schedules": 936,
+  "logical_words_checked": 3326208,
+  "stride_identity_cases": 560,
+  "negative_controls": 10,
+  "wall_s": 9.725249505994725,
+  "rss_kib": 22752,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "scope": "Address/zero-tail equivalence, source sector requests and sampled shared-bank address pressure over whole warps and fixed 16-lane groups. Fixed-group pressure is an issue-model sensitivity, not compiled instruction wavefronts; no native cache/DRAM/time/proof claims",
+  "full_stack": {
+    "proofs": 0,
+    "passes": 0,
+    "positions": 0,
+    "context_length": null,
+    "device": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "startup_s": null,
+    "startup_fraction": null,
+    "steady_rate": null,
+    "total_rate": null
+  }
+}

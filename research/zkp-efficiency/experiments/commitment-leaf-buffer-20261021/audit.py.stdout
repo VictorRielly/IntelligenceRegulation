@@ -1,0 +1,19 @@
+{
+  "status": "PASS_INDEPENDENT_ORDER_SOURCE_AND_COST_AUDIT",
+  "checks": 1050682,
+  "source_pins": 7,
+  "host_clear_sites": [
+    "commit_zk_chunked",
+    "commit_chunked",
+    "commit_chunked_upload"
+  ],
+  "symbolic_chunk_counts": 1024,
+  "controls": [
+    "best_fit_retained_backing_erases_request_saving",
+    "fresh_exact_backing_can_save_request"
+  ],
+  "wall_seconds": 1.3412453830242157,
+  "rss_kib": 15532,
+  "native_executed": false,
+  "private_proof_implemented": false
+}

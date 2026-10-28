@@ -1,0 +1,224 @@
+{
+ "bundle": "tinyllama-trained-tk9-capture-dense-l1",
+ "controls": [
+  {
+   "constants_that_differ": [
+    "norm_tn",
+    "norm_cn_a",
+    "norm_cn_m",
+    "norm_ceps",
+    "sh_ao",
+    "sh_qkv",
+    "sh_g",
+    "sh_z"
+   ],
+   "control": "TL-1",
+   "exactly_as_predicted": true,
+   "failing_slots": [
+    2,
+    14,
+    15,
+    16,
+    18
+   ],
+   "fires": true,
+   "ok": true,
+   "perturbation": "the frozen calibration (trained keys removed)",
+   "predicted_failing_slots": [
+    2,
+    14,
+    15,
+    16,
+    18
+   ]
+  },
+  {
+   "control": "TL-2/norm_tn",
+   "exactly_as_predicted": true,
+   "failing_slots": [
+    14
+   ],
+   "fires": true,
+   "ok": true,
+   "perturbation": "norm_tn 10 -> 11",
+   "predicted_failing_slots": [
+    14
+   ]
+  },
+  {
+   "control": "TL-2/norm_cn_a",
+   "exactly_as_predicted": true,
+   "failing_slots": [
+    14
+   ],
+   "fires": true,
+   "ok": true,
+   "perturbation": "norm_cn_a 3999 -> 4000",
+   "predicted_failing_slots": [
+    14
+   ]
+  },
+  {
+   "control": "TL-2/norm_cn_m",
+   "exactly_as_predicted": true,
+   "failing_slots": [
+    14
+   ],
+   "fires": true,
+   "ok": true,
+   "perturbation": "norm_cn_m 3122 -> 3123",
+   "predicted_failing_slots": [
+    14
+   ]
+  },
+  {
+   "control": "TL-2/norm_ceps",
+   "exactly_as_predicted": true,
+   "failing_slots": [
+    2
+   ],
+   "fires": true,
+   "ok": true,
+   "perturbation": "norm_ceps 91255 -> 91256",
+   "predicted_failing_slots": [
+    2
+   ]
+  },
+  {
+   "control": "TL-2/sh_ao",
+   "exactly_as_predicted": true,
+   "failing_slots": [
+    14
+   ],
+   "fires": true,
+   "ok": true,
+   "perturbation": "sh_ao 3 -> 4",
+   "predicted_failing_slots": [
+    14
+   ]
+  },
+  {
+   "control": "TL-2/sh_qkv",
+   "exactly_as_predicted": true,
+   "failing_slots": [
+    15,
+    16
+   ],
+   "fires": true,
+   "ok": true,
+   "perturbation": "sh_qkv 8 -> 7",
+   "predicted_failing_slots": [
+    15,
+    16
+   ]
+  },
+  {
+   "control": "TL-2/sh_s",
+   "exactly_as_predicted": true,
+   "failing_slots": [
+    17
+   ],
+   "fires": true,
+   "ok": true,
+   "perturbation": "sh_s 6 -> 7",
+   "predicted_failing_slots": [
+    17
+   ]
+  },
+  {
+   "control": "TL-2/sh_o",
+   "exactly_as_predicted": true,
+   "failing_slots": [
+    15
+   ],
+   "fires": true,
+   "ok": true,
+   "perturbation": "sh_o 9 -> 10",
+   "predicted_failing_slots": [
+    15
+   ]
+  },
+  {
+   "control": "TL-2/sh_g",
+   "exactly_as_predicted": true,
+   "failing_slots": [
+    18
+   ],
+   "fires": true,
+   "ok": true,
+   "perturbation": "sh_g 8 -> 7",
+   "predicted_failing_slots": [
+    18
+   ]
+  },
+  {
+   "control": "TL-2/sh_h",
+   "exactly_as_predicted": true,
+   "failing_slots": [
+    18
+   ],
+   "fires": true,
+   "ok": true,
+   "perturbation": "sh_h 14 -> 15",
+   "predicted_failing_slots": [
+    18
+   ]
+  },
+  {
+   "control": "TL-2/sh_z",
+   "exactly_as_predicted": true,
+   "failing_slots": [
+    14
+   ],
+   "fires": true,
+   "ok": true,
+   "perturbation": "sh_z 5 -> 6",
+   "predicted_failing_slots": [
+    14
+   ]
+  },
+  {
+   "control": "TL-3/keys-without-flag",
+   "ok": true,
+   "refused": true,
+   "why": "run.json shape: trained calibration keys ['norm_tn', 'norm_cn_a', 'norm_cn_m', 'norm_ceps', 'sh_ao', 'sh_qkv', 'sh_s', 'sh_o', 'sh_g', 'sh_h', 'sh_z'] without trained_calibration: true (flag None)"
+  },
+  {
+   "control": "TL-3/flag-without-a-key",
+   "ok": true,
+   "refused": true,
+   "why": "run.json shape declares a trained calibration but not ['norm_ceps']"
+  },
+  {
+   "control": "TL-3/flag-false-with-keys",
+   "ok": true,
+   "refused": true,
+   "why": "run.json shape: trained calibration keys ['norm_tn', 'norm_cn_a', 'norm_cn_m', 'norm_ceps', 'sh_ao', 'sh_qkv', 'sh_s', 'sh_o', 'sh_g', 'sh_h', 'sh_z'] without trained_calibration: true (flag False)"
+  },
+  {
+   "control": "TL-4",
+   "fires": null,
+   "ok": true,
+   "skipped": "no adjacent stage pair carries different lookup tables (a one-block run, or equal tables)"
+  }
+ ],
+ "families_run": [
+  "TL-1",
+  "TL-2",
+  "TL-3",
+  "TL-4"
+ ],
+ "fired": 15,
+ "honest": {
+  "ok": true,
+  "slot_checks_equal": 23,
+  "slot_checks_expected": 23
+ },
+ "of": 15,
+ "ok": true,
+ "privacy_property_established": false,
+ "skipped_by_name": [
+  "TL-4"
+ ],
+ "what": "[TINYLLAMA PORT, 2026-10-17] Controls on the port's OWN adaptation: the"
+}

@@ -1,0 +1,15 @@
+[zk60-guard 18:21:56] admission waiting: budget: 11+1 GiB > 11.9 GiB with live [fp-L_t_LOWg(light,3G), gate-tl128dd-l2-dense-everything(light,2.5G), fp-L_t_P2(light,3G), gate-ddts-tl128dd-l1-dense(light,1G), gate-dev10-ddts-l2(light,1.5G)]
+[zk60-guard 18:22:56] admission waiting: budget: 11+1 GiB > 11.9 GiB with live [fp-L_t_LOWg(light,3G), gate-tl128dd-l2-dense-everything(light,2.5G), fp-L_t_P2(light,3G), gate-ddts-tl128dd-l1-dense(light,1G), gate-dev10-ddts-l2(light,1.5G)]
+[zk60-guard 18:23:57] admission waiting: budget: 11.3+1 GiB > 11.9 GiB with live [fp-L_t_LOWg(light,3G), gate-tl128dd-l2-dense-everything(light,2.5G), fp-L_t_P2(light,3G), gate-r15-cli-build(build,1.8G), gate-ddts-tl128dd-l1-dense(light,1G)]
+[zk60-guard 18:24:57] admission waiting: budget: 11.3+1 GiB > 11.9 GiB with live [fp-L_t_LOWg(light,3G), gate-tl128dd-l2-dense-everything(light,2.5G), fp-L_t_P2(light,3G), gate-r15-cli-build(build,1.8G), gate-ddts-tl128dd-l1-dense(light,1G)]
+[zk60-guard 18:25:57] admission waiting: budget: 11.3+1 GiB > 11.9 GiB with live [fp-L_t_LOWg(light,3G), gate-tl128dd-l2-dense-everything(light,2.5G), fp-L_t_P2(light,3G), gate-r15-cli-build(build,1.8G), gate-ddts-tl128dd-l1-dense(light,1G)]
+[zk60-guard 18:26:07] START gate-ff-v17-tokengate-cli11 class=light need=1G cap=2G enforce=cgroup+watchdog waited=251s run=d1bd07d8634f
+[zk60-guard 18:45:46] END gate-ff-v17-tokengate-cli11 exit=1 child_wall=1179s peak_rss=0.60G min_avail=7.91G
+[zk60-guard 18:45:46] START gate-v18-tokengate-cli11 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=d0533cd478ea
+[zk60-guard 19:02:01] END gate-v18-tokengate-cli11 exit=0 child_wall=975s peak_rss=0.60G min_avail=6.91G
+[zk60-guard 19:02:01] START gate-v18-nl-cli11 class=light need=0.6G cap=1.5G enforce=cgroup+watchdog waited=0s run=4e19d10c567f
+[zk60-guard 19:02:13] END gate-v18-nl-cli11 exit=0 child_wall=12s peak_rss=0.13G min_avail=9.10G
+[zk60-guard 19:02:13] START gate-v18-ts-cli11 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=d3389ce3da45
+[zk60-guard 19:14:18] END gate-v18-ts-cli11 exit=0 child_wall=725s peak_rss=0.11G min_avail=7.93G
+[zk60-guard 19:14:18] START gate-unittests-v18 class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=4f6ee3643309
+[zk60-guard 19:15:04] END gate-unittests-v18 exit=0 child_wall=45s peak_rss=0.42G min_avail=8.35G

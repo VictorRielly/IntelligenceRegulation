@@ -1,0 +1,195 @@
+--- intake/README.md
++++ apps/proven-media/README.md
+@@ -21,6 +21,11 @@
+   audio are deferred.
+ 
+ Design: `DESIGN.md`. Ledger: `PROGRESS.md`.
++
++The optional [Base Sepolia publisher](TESTNET.md) is implemented and tested with
++controlled RPC responses. Deployment and real classifier integration are pending.
++It refuses the demo stub's unbound labels. The image path now uses the versioned
++integer-only `pm-img-area-v1` preprocessing library; image proofs remain in development.
+ 
+ ## Run it
+ 
+--- intake/proven_media/items.py
++++ apps/proven-media/proven_media/items.py
+@@ -13,9 +13,8 @@
+   4. layout: patch-major uint8 tensor (patch row, patch column, channel, 14 x 14).
+ The proof will bind to the post through the run's hidden input endpoint (the design's L3: the
+ binding blob travels with the post); until then the app records a SALTED commitment to the
+-canonical tensor. PROVISIONAL: the resample here is Pillow 10.4.0's BOX filter (integer
+-fixed-point for 8-bit images), standing in for the pinned reference implementation with test
+-vectors that the design lane owes; the spec id says so.
++canonical tensor. The versioned reference is image_preprocess.py: exact integer
++area overlaps, one final round-half-up, and test vectors. Image proofs remain in development.
+ """
+ from __future__ import annotations
+ 
+@@ -25,17 +24,19 @@
+ from dataclasses import dataclass, field
+ from pathlib import Path
+ 
+-IMAGE_SPEC_ID = "pm-img-v0-provisional"
+-CANVAS_PX = 224                       # POC canvas (pending Victor; 448 is the other option)
+-PATCH_PX = 14                         # Pixtral patch size
+-FILL_RGB = (123, 117, 104)            # the Pixtral/CLIP normalisation mean x 255, rounded
+-IMAGE_DOMAIN = b"zk60/proven-media/image/v0"
++from .image_preprocess import CANVAS_PX, PATCH_PX, FILL_RGB, SPEC_ID, MAX_PIXELS, letterbox_rgb8, patch_tensor
++
++IMAGE_SPEC_ID = SPEC_ID
++IMAGE_DOMAIN = b"zk60/proven-media/image/pm-img-area-v1"
+ IMAGE_SPEC_TEXT = (
+     f"{IMAGE_SPEC_ID}: decode once to a lossless RGB8 master (EXIF orientation applied, metadata dropped, PNG); "
+-    f"resize so the longest edge is {CANVAS_PX} px with an integer area-average resample (provisional: Pillow 10.4.0 BOX); "
++    f"resize so the longest edge is {CANVAS_PX} px, short edge nearest integer (ties up, minimum 1); "
++    "exact area-overlap integer weights, one final round-half-up (no intermediate rounding); "
+     f"centre on a {CANVAS_PX} x {CANVAS_PX} canvas filled with RGB {FILL_RGB} (the model's normalisation mean); "
+     f"lay out as a patch-major uint8 tensor ({CANVAS_PX // PATCH_PX} x {CANVAS_PX // PATCH_PX} patches of "
+-    f"{PATCH_PX} x {PATCH_PX} x 3). Normalisation and the patch convolution happen inside the proof. "
++    f"{PATCH_PX} x {PATCH_PX} x 3); odd padding puts the extra pixel on the right/bottom. "
++    "This RGB8 tensor has no model-specific plane padding; the future prover adds zero padding. "
++    "Normalisation and the patch convolution belong inside the future proof. "
+     "Binding: the run's hidden input endpoint (design L3); the app keeps a salted commitment to the tensor.")
+ 
+ 
+@@ -67,6 +68,8 @@
+ 
+     try:
+         with Image.open(io.BytesIO(raw)) as im:
++            if im.width < 1 or im.height < 1 or im.width * im.height > MAX_PIXELS:
++                raise ImageRefused("image dimensions out of range")
+             im.load()
+             im = ImageOps.exif_transpose(im)
+             if getattr(im, "is_animated", False):
+@@ -74,7 +77,7 @@
+             rgb = im.convert("RGB")
+     except Exception as e:
+         raise ImageRefused(f"not a decodable image ({type(e).__name__})")
+-    if rgb.width < 1 or rgb.height < 1 or rgb.width * rgb.height > 40_000_000:
++    if rgb.width < 1 or rgb.height < 1 or rgb.width * rgb.height > MAX_PIXELS:
+         raise ImageRefused("image dimensions out of range")
+     out = io.BytesIO()
+     rgb.save(out, "PNG", optimize=False)
+@@ -86,33 +89,27 @@
+     from PIL import Image
+ 
+     with Image.open(io.BytesIO(master_png)) as im:
+-        im = im.convert("RGB")
+-        w, h = im.size
+-        s = CANVAS_PX / max(w, h)
+-        nw, nh = max(1, round(w * s)), max(1, round(h * s))
+-        small = im.resize((nw, nh), Image.BOX)
+-        canvas = Image.new("RGB", (CANVAS_PX, CANVAS_PX), FILL_RGB)
+-        canvas.paste(small, ((CANVAS_PX - nw) // 2, (CANVAS_PX - nh) // 2))
+-        return canvas
++        if im.format != "PNG" or im.mode != "RGB" or getattr(im, "is_animated", False):
++            raise ImageRefused("canonical input must be a lossless, single-frame RGB8 PNG master")
++        try:
++            if im.width * im.height > MAX_PIXELS:
++                raise ValueError("image dimensions out of range")
++            raw = letterbox_rgb8(im.tobytes(), im.width, im.height)
++        except ValueError as e:
++            raise ImageRefused(str(e)) from e
++        return Image.frombytes("RGB", (CANVAS_PX, CANVAS_PX), raw)
+ 
+ 
+ def canonical_tensor(canvas) -> bytes:
+     """patch-major uint8 bytes: for each patch row, patch column: channel-major 14 x 14 planes"""
+-    raw = canvas.tobytes()            # row-major RGB
+-    n = CANVAS_PX // PATCH_PX
+-    out = bytearray()
+-    for pr in range(n):
+-        for pc in range(n):
+-            for ch in range(3):
+-                for y in range(pr * PATCH_PX, (pr + 1) * PATCH_PX):
+-                    base = (y * CANVAS_PX + pc * PATCH_PX) * 3 + ch
+-                    out += raw[base:base + PATCH_PX * 3:3]
+-    return bytes(out)
++    if canvas.mode != "RGB" or canvas.size != (CANVAS_PX, CANVAS_PX):
++        raise ImageRefused("expected a 224 x 224 RGB8 canvas")
++    return patch_tensor(canvas.tobytes())
+ 
+ 
+ def image_commitment(salt: bytes, tensor: bytes) -> str:
+     """the app's salted commitment to the canonical tensor:
+-    SHA-256("zk60/proven-media/image/v0" || salt_32 || u64-be len || tensor)"""
++    SHA-256(IMAGE_DOMAIN || salt_32 || u64-be len || tensor), with the spec in the domain."""
+     if len(salt) != 32:
+         raise ValueError("the salt is 32 bytes")
+     return hashlib.sha256(IMAGE_DOMAIN + salt + struct.pack(">Q", len(tensor)) + tensor).hexdigest()
+--- intake/proven_media/publisher.py
++++ apps/proven-media/proven_media/publisher.py
+@@ -77,6 +77,9 @@
+     chunk: int = 0                     # D41: which chunk of the item this proof covers
+     token_range: tuple = (0, 0)        # [start, end) in the item's content tokens
+     schema: str = PUB_SCHEMA
++    proof_verified: bool = False      # supplied by the app only after the fresh verifier accepts
++    verdict_bound: bool = False       # placeholder labels must never be sent to testnet
++    development_only: bool = False    # synthetic classifier rungs cannot label real media
+ 
+ 
+ @dataclass
+@@ -197,8 +200,32 @@
+         return None
+ 
+ 
++def make_publisher(root=None, *, mode=None, config_path=None, read_only=False):
++    mode = mode or os.environ.get("PM_PUBLISHER", "local")
++    if mode == "local":
++        return LocalChainPublisher(root)
++    if mode != "base-sepolia":
++        raise PublishError("unknown publisher mode")
++    from .base_sepolia import BaseSepoliaRPC, CHAIN_ID
++    from .testnet_publisher import BaseSepoliaPublisher
++    path = Path(config_path or os.environ.get("PM_SEPOLIA_CONFIG", ""))
++    try:
++        cfg = json.loads(path.read_text())
++        if cfg["schema"] != "proven-media/base-sepolia/1" or cfg["chain_id"] != CHAIN_ID:
++            raise PublishError("configuration must name Base Sepolia")
++        key_path = None if read_only else path.parent / cfg["key_file"]
++        transport = BaseSepoliaRPC(cfg["rpc_url"], cfg["contract"], cfg["runtime_code_hash"],
++                                   cfg["publisher_address"], key_path,
++                                   confirmations=cfg.get("confirmations", 3))
++    except (OSError, ValueError, KeyError) as e:
++        raise PublishError("invalid Base Sepolia configuration") from e
++    return BaseSepoliaPublisher(transport, root)
++
++
+ class LocalChainPublisher(Publisher):
+     name = "local-chain"
++    chain_name = CHAIN_NAME
++    contract = CONTRACT
+     description = ("LOCAL STUB: a content-addressed bundle store and a hash-chained block file on this machine, "
+                    "standing in for Filecoin + R2 (receipts), Arweave (manifests, statements, batch files) and an "
+                    "anchor contract on Base. No chain, network, wallet or key.")
+@@ -322,6 +349,7 @@
+         lh = leaf_hash(record.post_id, record.category, record.chunk, record.token_range, manifest_sha, statement_hash,
+                        record.verdict, record.model_id, record.policy_id, record.content_commitment)
+         a = AnchorRef(post_id=record.post_id, category=record.category, chunk=int(record.chunk),
++                      chain=self.chain_name, contract=self.contract,
+                       token_range=[int(record.token_range[0]), int(record.token_range[1])], status="pending", leaf_hash=lh,
+                       manifest_sha256=manifest_sha,
+                       manifest_uri=self.uri(manifest_sha), receipt_uris=[self.uri(s["sha256"]) for s in segs],
+@@ -433,6 +461,11 @@
+             reasons.append("not anchored yet: waiting for the next batch")
+             checks["anchored"] = False
+             return {"accepted": False, "pending": True, "reasons": reasons, "checks": checks, "manifest": manifest}
++        block = self._verify_anchor(a, chk)
++        return {"accepted": not reasons, "reasons": reasons, "checks": checks, "manifest": manifest,
++                "block": block}
++
++    def _verify_anchor(self, a: AnchorRef, chk) -> dict | None:
+         blocks = self.blocks_list()
+         ok_chain = all(b["block_hash"] == _block_hash(b) and
+                        b["prev_block_hash"] == (blocks[i - 1]["block_hash"] if i else "0" * 64)
+@@ -448,8 +481,7 @@
+                 chk("batch_file", bf["root"] == a.merkle_root and a.leaf_hash in bf["leaves"], "the batch file disagrees")
+             except (FileNotFoundError, PublishError) as e:
+                 chk("batch_file", False, str(e))
+-        return {"accepted": not reasons, "reasons": reasons, "checks": checks, "manifest": manifest,
+-                "block": {k: blk[k] for k in ("block_number", "block_hash", "ts")} if blk else None}
++        return {k: blk[k] for k in ("block_number", "block_hash", "ts")} if blk else None
+ 
+     # ------------------------------------------------------------ deletion (crypto-shredding happens in the app)
+     def delete_receipt(self, anchor_ref: AnchorRef) -> int:

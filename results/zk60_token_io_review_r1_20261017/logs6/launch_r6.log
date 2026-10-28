@@ -1,0 +1,378 @@
+[zk60-guard 12:20:57] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 12:21:57] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 12:22:57] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 12:23:57] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 12:24:57] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 12:25:58] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 12:26:58] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 12:27:58] waiting for /tmp/zk-heavy.lock (421s)
+[zk60-guard 12:28:58] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 12:29:58] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 12:30:58] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 12:31:58] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 12:32:58] waiting for /tmp/zk-heavy.lock (721s)
+[zk60-guard 12:33:58] waiting for /tmp/zk-heavy.lock (781s)
+[zk60-guard 12:34:58] waiting for /tmp/zk-heavy.lock (841s)
+[zk60-guard 12:35:58] waiting for /tmp/zk-heavy.lock (901s)
+[zk60-guard 12:36:58] waiting for /tmp/zk-heavy.lock (961s)
+[zk60-guard 12:37:58] waiting for /tmp/zk-heavy.lock (1021s)
+[zk60-guard 12:38:58] waiting for /tmp/zk-heavy.lock (1081s)
+[zk60-guard 12:39:59] waiting for /tmp/zk-heavy.lock (1141s)
+[zk60-guard 12:40:59] waiting for /tmp/zk-heavy.lock (1201s)
+[zk60-guard 12:41:59] waiting for /tmp/zk-heavy.lock (1261s)
+[zk60-guard 12:42:59] waiting for /tmp/zk-heavy.lock (1322s)
+[zk60-guard 12:43:59] waiting for /tmp/zk-heavy.lock (1382s)
+[zk60-guard 12:44:59] waiting for /tmp/zk-heavy.lock (1442s)
+[zk60-guard 12:45:59] waiting for /tmp/zk-heavy.lock (1502s)
+[zk60-guard 12:46:59] waiting for /tmp/zk-heavy.lock (1562s)
+[zk60-guard 12:47:59] waiting for /tmp/zk-heavy.lock (1622s)
+[zk60-guard 12:48:59] waiting for /tmp/zk-heavy.lock (1682s)
+[zk60-guard 12:49:59] waiting for /tmp/zk-heavy.lock (1742s)
+[zk60-guard 12:50:59] waiting for /tmp/zk-heavy.lock (1802s)
+[zk60-guard 12:51:59] waiting for /tmp/zk-heavy.lock (1862s)
+[zk60-guard 12:52:59] waiting for /tmp/zk-heavy.lock (1922s)
+[zk60-guard 12:54:00] waiting for /tmp/zk-heavy.lock (1982s)
+[zk60-guard 12:55:00] waiting for /tmp/zk-heavy.lock (2042s)
+[zk60-guard 12:56:00] waiting for /tmp/zk-heavy.lock (2102s)
+[zk60-guard 12:57:00] waiting for /tmp/zk-heavy.lock (2163s)
+[zk60-guard 12:58:00] waiting for /tmp/zk-heavy.lock (2223s)
+[zk60-guard 12:59:00] waiting for /tmp/zk-heavy.lock (2283s)
+[zk60-guard 13:00:00] waiting for /tmp/zk-heavy.lock (2343s)
+[zk60-guard 13:01:00] waiting for /tmp/zk-heavy.lock (2403s)
+[zk60-guard 13:02:00] waiting for /tmp/zk-heavy.lock (2463s)
+[zk60-guard 13:03:00] waiting for /tmp/zk-heavy.lock (2523s)
+[zk60-guard 13:04:00] waiting for /tmp/zk-heavy.lock (2583s)
+[zk60-guard 13:05:00] waiting for /tmp/zk-heavy.lock (2643s)
+[zk60-guard 13:06:00] waiting for /tmp/zk-heavy.lock (2703s)
+[zk60-guard 13:07:00] waiting for /tmp/zk-heavy.lock (2763s)
+[zk60-guard 13:08:01] waiting for /tmp/zk-heavy.lock (2823s)
+[zk60-guard 13:09:01] waiting for /tmp/zk-heavy.lock (2883s)
+[zk60-guard 13:10:01] waiting for /tmp/zk-heavy.lock (2943s)
+[zk60-guard 13:11:01] waiting for /tmp/zk-heavy.lock (3004s)
+[zk60-guard 13:12:01] waiting for /tmp/zk-heavy.lock (3064s)
+[zk60-guard 13:13:01] waiting for /tmp/zk-heavy.lock (3124s)
+[zk60-guard 13:14:01] waiting for /tmp/zk-heavy.lock (3184s)
+[zk60-guard 13:15:01] waiting for /tmp/zk-heavy.lock (3244s)
+[zk60-guard 13:16:01] waiting for /tmp/zk-heavy.lock (3304s)
+[zk60-guard 13:17:01] waiting for /tmp/zk-heavy.lock (3364s)
+[zk60-guard 13:18:01] waiting for /tmp/zk-heavy.lock (3424s)
+[zk60-guard 13:19:01] waiting for /tmp/zk-heavy.lock (3484s)
+[zk60-guard 13:20:01] waiting for /tmp/zk-heavy.lock (3544s)
+[zk60-guard 13:21:01] waiting for /tmp/zk-heavy.lock (3604s)
+[zk60-guard 13:22:02] waiting for /tmp/zk-heavy.lock (3664s)
+[zk60-guard 13:23:02] waiting for /tmp/zk-heavy.lock (3724s)
+[zk60-guard 13:24:02] waiting for /tmp/zk-heavy.lock (3784s)
+[zk60-guard 13:25:02] waiting for /tmp/zk-heavy.lock (3845s)
+[zk60-guard 13:26:02] waiting for /tmp/zk-heavy.lock (3905s)
+[zk60-guard 13:27:02] waiting for /tmp/zk-heavy.lock (3965s)
+[zk60-guard 13:28:02] waiting for /tmp/zk-heavy.lock (4025s)
+[zk60-guard 13:29:02] waiting for /tmp/zk-heavy.lock (4085s)
+[zk60-guard 13:30:02] waiting for /tmp/zk-heavy.lock (4145s)
+[zk60-guard 13:31:02] waiting for /tmp/zk-heavy.lock (4205s)
+[zk60-guard 13:32:02] waiting for /tmp/zk-heavy.lock (4265s)
+[zk60-guard 13:33:02] waiting for /tmp/zk-heavy.lock (4325s)
+[zk60-guard 13:34:02] waiting for /tmp/zk-heavy.lock (4385s)
+[zk60-guard 13:35:02] waiting for /tmp/zk-heavy.lock (4445s)
+[zk60-guard 13:36:03] waiting for /tmp/zk-heavy.lock (4505s)
+[zk60-guard 13:37:03] waiting for /tmp/zk-heavy.lock (4565s)
+[zk60-guard 13:38:03] waiting for /tmp/zk-heavy.lock (4625s)
+[zk60-guard 13:39:03] waiting for /tmp/zk-heavy.lock (4686s)
+[zk60-guard 13:40:03] waiting for /tmp/zk-heavy.lock (4746s)
+[zk60-guard 13:41:03] waiting for /tmp/zk-heavy.lock (4806s)
+[zk60-guard 13:42:03] waiting for /tmp/zk-heavy.lock (4866s)
+[zk60-guard 13:43:03] waiting for /tmp/zk-heavy.lock (4926s)
+[zk60-guard 13:44:03] waiting for /tmp/zk-heavy.lock (4986s)
+[zk60-guard 13:45:03] waiting for /tmp/zk-heavy.lock (5046s)
+[zk60-guard 13:46:03] waiting for /tmp/zk-heavy.lock (5106s)
+[zk60-guard 13:47:03] waiting for /tmp/zk-heavy.lock (5166s)
+[zk60-guard 13:48:03] waiting for /tmp/zk-heavy.lock (5226s)
+[zk60-guard 13:49:03] waiting for /tmp/zk-heavy.lock (5286s)
+[zk60-guard 13:50:04] waiting for /tmp/zk-heavy.lock (5346s)
+[zk60-guard 13:51:04] waiting for /tmp/zk-heavy.lock (5406s)
+[zk60-guard 13:52:04] waiting for /tmp/zk-heavy.lock (5466s)
+[zk60-guard 13:53:04] waiting for /tmp/zk-heavy.lock (5527s)
+[zk60-guard 13:54:04] waiting for /tmp/zk-heavy.lock (5587s)
+[zk60-guard 13:55:04] waiting for /tmp/zk-heavy.lock (5647s)
+[zk60-guard 13:56:04] waiting for /tmp/zk-heavy.lock (5707s)
+[zk60-guard 13:57:04] waiting for /tmp/zk-heavy.lock (5767s)
+[zk60-guard 13:58:04] waiting for /tmp/zk-heavy.lock (5827s)
+[zk60-guard 13:59:04] waiting for /tmp/zk-heavy.lock (5887s)
+[zk60-guard 14:00:04] waiting for /tmp/zk-heavy.lock (5947s)
+[zk60-guard 14:01:04] waiting for /tmp/zk-heavy.lock (6007s)
+[zk60-guard 14:02:04] waiting for /tmp/zk-heavy.lock (6067s)
+[zk60-guard 14:03:04] waiting for /tmp/zk-heavy.lock (6127s)
+[zk60-guard 14:04:04] waiting for /tmp/zk-heavy.lock (6187s)
+[zk60-guard 14:05:05] waiting for /tmp/zk-heavy.lock (6247s)
+[zk60-guard 14:06:05] waiting for /tmp/zk-heavy.lock (6307s)
+[zk60-guard 14:07:05] waiting for /tmp/zk-heavy.lock (6368s)
+[zk60-guard 14:08:05] waiting for /tmp/zk-heavy.lock (6428s)
+[zk60-guard 14:09:05] waiting for /tmp/zk-heavy.lock (6488s)
+[zk60-guard 14:10:05] waiting for /tmp/zk-heavy.lock (6548s)
+[zk60-guard 14:11:05] waiting for /tmp/zk-heavy.lock (6608s)
+[zk60-guard 14:12:05] waiting for /tmp/zk-heavy.lock (6668s)
+[zk60-guard 14:13:05] waiting for /tmp/zk-heavy.lock (6728s)
+[zk60-guard 14:14:05] waiting for /tmp/zk-heavy.lock (6788s)
+[zk60-guard 14:15:05] waiting for /tmp/zk-heavy.lock (6848s)
+[zk60-guard 14:16:05] waiting for /tmp/zk-heavy.lock (6908s)
+[zk60-guard 14:17:05] waiting for /tmp/zk-heavy.lock (6968s)
+[zk60-guard 14:18:05] waiting for /tmp/zk-heavy.lock (7028s)
+[zk60-guard 14:19:06] waiting for /tmp/zk-heavy.lock (7088s)
+[zk60-guard 14:20:06] waiting for /tmp/zk-heavy.lock (7148s)
+[zk60-guard 14:21:06] waiting for /tmp/zk-heavy.lock (7209s)
+[zk60-guard 14:22:06] waiting for /tmp/zk-heavy.lock (7269s)
+[zk60-guard 14:23:06] waiting for /tmp/zk-heavy.lock (7329s)
+[zk60-guard 14:24:06] waiting for /tmp/zk-heavy.lock (7389s)
+[zk60-guard 14:25:06] waiting for /tmp/zk-heavy.lock (7449s)
+[zk60-guard 14:26:06] waiting for /tmp/zk-heavy.lock (7509s)
+[zk60-guard 14:27:06] waiting for /tmp/zk-heavy.lock (7569s)
+[zk60-guard 14:28:06] waiting for /tmp/zk-heavy.lock (7629s)
+[zk60-guard 14:29:06] waiting for /tmp/zk-heavy.lock (7689s)
+[zk60-guard 14:30:06] waiting for /tmp/zk-heavy.lock (7749s)
+[zk60-guard 14:31:06] waiting for /tmp/zk-heavy.lock (7809s)
+[zk60-guard 14:32:06] waiting for /tmp/zk-heavy.lock (7869s)
+[zk60-guard 14:33:07] waiting for /tmp/zk-heavy.lock (7929s)
+[zk60-guard 14:34:07] waiting for /tmp/zk-heavy.lock (7989s)
+[zk60-guard 14:35:07] waiting for /tmp/zk-heavy.lock (8050s)
+[zk60-guard 14:36:07] waiting for /tmp/zk-heavy.lock (8110s)
+[zk60-guard 14:37:07] waiting for /tmp/zk-heavy.lock (8170s)
+[zk60-guard 14:38:07] waiting for /tmp/zk-heavy.lock (8230s)
+[zk60-guard 14:39:07] waiting for /tmp/zk-heavy.lock (8290s)
+[zk60-guard 14:40:07] waiting for /tmp/zk-heavy.lock (8350s)
+[zk60-guard 14:41:07] waiting for /tmp/zk-heavy.lock (8410s)
+[zk60-guard 14:42:07] waiting for /tmp/zk-heavy.lock (8470s)
+[zk60-guard 14:43:07] waiting for /tmp/zk-heavy.lock (8530s)
+[zk60-guard 14:44:07] waiting for /tmp/zk-heavy.lock (8590s)
+[zk60-guard 14:45:07] waiting for /tmp/zk-heavy.lock (8650s)
+[zk60-guard 14:46:07] waiting for /tmp/zk-heavy.lock (8710s)
+[zk60-guard 14:47:08] waiting for /tmp/zk-heavy.lock (8770s)
+[zk60-guard 14:48:08] waiting for /tmp/zk-heavy.lock (8830s)
+[zk60-guard 14:49:08] waiting for /tmp/zk-heavy.lock (8890s)
+[zk60-guard 14:50:08] waiting for /tmp/zk-heavy.lock (8951s)
+[zk60-guard 14:51:08] waiting for /tmp/zk-heavy.lock (9011s)
+[zk60-guard 14:52:08] waiting for /tmp/zk-heavy.lock (9071s)
+[zk60-guard 14:53:08] waiting for /tmp/zk-heavy.lock (9131s)
+[zk60-guard 14:54:08] waiting for /tmp/zk-heavy.lock (9191s)
+[zk60-guard 14:55:08] waiting for /tmp/zk-heavy.lock (9251s)
+[zk60-guard 14:56:08] waiting for /tmp/zk-heavy.lock (9311s)
+[zk60-guard 14:57:08] waiting for /tmp/zk-heavy.lock (9371s)
+[zk60-guard 14:58:08] waiting for /tmp/zk-heavy.lock (9431s)
+[zk60-guard 14:59:08] waiting for /tmp/zk-heavy.lock (9491s)
+[zk60-guard 15:00:08] waiting for /tmp/zk-heavy.lock (9551s)
+[zk60-guard 15:01:09] waiting for /tmp/zk-heavy.lock (9611s)
+[zk60-guard 15:02:09] waiting for /tmp/zk-heavy.lock (9671s)
+[zk60-guard 15:03:09] waiting for /tmp/zk-heavy.lock (9731s)
+[zk60-guard 15:04:09] waiting for /tmp/zk-heavy.lock (9792s)
+[zk60-guard 15:05:09] waiting for /tmp/zk-heavy.lock (9852s)
+[zk60-guard 15:06:09] waiting for /tmp/zk-heavy.lock (9912s)
+[zk60-guard 15:07:09] waiting for /tmp/zk-heavy.lock (9972s)
+[zk60-guard 15:08:09] waiting for /tmp/zk-heavy.lock (10032s)
+[zk60-guard 15:09:09] waiting for /tmp/zk-heavy.lock (10092s)
+[zk60-guard 15:10:09] waiting for /tmp/zk-heavy.lock (10152s)
+[zk60-guard 15:11:09] waiting for /tmp/zk-heavy.lock (10212s)
+[zk60-guard 15:12:09] waiting for /tmp/zk-heavy.lock (10272s)
+[zk60-guard 15:13:09] waiting for /tmp/zk-heavy.lock (10332s)
+[zk60-guard 15:14:09] waiting for /tmp/zk-heavy.lock (10392s)
+[zk60-guard 15:15:10] waiting for /tmp/zk-heavy.lock (10452s)
+[zk60-guard 15:16:10] waiting for /tmp/zk-heavy.lock (10512s)
+[zk60-guard 15:17:10] waiting for /tmp/zk-heavy.lock (10572s)
+[zk60-guard 15:18:10] waiting for /tmp/zk-heavy.lock (10633s)
+[zk60-guard 15:19:10] waiting for /tmp/zk-heavy.lock (10693s)
+[zk60-guard 15:20:10] waiting for /tmp/zk-heavy.lock (10753s)
+[zk60-guard 15:21:10] waiting for /tmp/zk-heavy.lock (10813s)
+[zk60-guard 15:22:10] waiting for /tmp/zk-heavy.lock (10873s)
+[zk60-guard 15:23:10] waiting for /tmp/zk-heavy.lock (10933s)
+[zk60-guard 15:24:10] waiting for /tmp/zk-heavy.lock (10993s)
+[zk60-guard 15:25:10] waiting for /tmp/zk-heavy.lock (11053s)
+[zk60-guard 15:26:10] waiting for /tmp/zk-heavy.lock (11113s)
+[zk60-guard 15:27:10] waiting for /tmp/zk-heavy.lock (11173s)
+[zk60-guard 15:28:10] waiting for /tmp/zk-heavy.lock (11233s)
+[zk60-guard 15:28:46] START trv6-b1-build-tests class=build need=3G cap=5G enforce=cgroup+watchdog waited=11268s run=1aa1875f1044
+[zk60-guard 15:32:37] END trv6-b1-build-tests exit=0 child_wall=232s peak_rss=1.99G min_avail=10.08G
+[zk60-guard 15:32:38] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 15:33:38] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 15:34:38] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 15:35:38] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 15:36:38] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 15:37:23] START trv6-b2-build-cli class=build need=3G cap=5G enforce=cgroup+watchdog waited=285s run=79f0fb7ac835
+[zk60-guard 15:38:39] END trv6-b2-build-cli exit=0 child_wall=76s peak_rss=1.13G min_avail=11.03G
+[zk60-guard 15:38:39] admission waiting: budget: 7+5 GiB > 11.9 GiB with live [gate-token-v10-llama3-8b-t32-L1-fixed-pt1(light,4G), fp-L_combo2_w16u(light,3G)]
+[zk60-guard 15:39:39] admission waiting: budget: 7+5 GiB > 11.9 GiB with live [gate-token-v10-llama3-8b-t32-L1-fixed-pt1(light,4G), fp-L_combo2_w16u(light,3G)]
+[zk60-guard 15:40:39] admission waiting: budget: 7+5 GiB > 11.9 GiB with live [gate-token-v10-llama3-8b-t32-L1-fixed-pt1(light,4G), fp-L_combo2_w16u(light,3G)]
+[zk60-guard 15:41:39] admission waiting: budget: 7+5 GiB > 11.9 GiB with live [gate-token-v10-llama3-8b-t32-L1-fixed-pt1(light,4G), fp-L_combo2_w16u(light,3G)]
+[zk60-guard 15:42:39] admission waiting: budget: 7+5 GiB > 11.9 GiB with live [gate-token-v10-llama3-8b-t32-L1-fixed-pt1(light,4G), fp-L_combo2_w16u(light,3G)]
+[zk60-guard 15:43:39] admission waiting: budget: 7+5 GiB > 11.9 GiB with live [gate-token-v10-llama3-8b-t32-L1-fixed-pt1(light,4G), fp-L_combo2_w16u(light,3G)]
+[zk60-guard 15:44:40] admission waiting: budget: 7+5 GiB > 11.9 GiB with live [gate-token-v10-llama3-8b-t32-L1-fixed-pt1(light,4G), fp-L_combo2_w16u(light,3G)]
+[zk60-guard 15:45:40] admission waiting: budget: 7+5 GiB > 11.9 GiB with live [gate-token-v10-llama3-8b-t32-L1-fixed-pt1(light,4G), fp-L_combo2_w16u(light,3G)]
+[zk60-guard 15:46:40] admission waiting: budget: 7+5 GiB > 11.9 GiB with live [gate-token-v10-llama3-8b-t32-L1-fixed-pt1(light,4G), fp-L_combo2_w16u(light,3G)]
+[zk60-guard 15:47:40] admission waiting: budget: 7+5 GiB > 11.9 GiB with live [gate-token-v10-llama3-8b-t32-L1-fixed-pt1(light,4G), fp-L_combo2_w16u(light,3G)]
+[zk60-guard 15:48:40] admission waiting: budget: 7.5+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u(light,3G), gate-token-v10-llama3-8b-t32-L2-dense-pt1(light,4.5G)]
+[zk60-guard 15:49:40] admission waiting: budget: 7.5+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u(light,3G), gate-token-v10-llama3-8b-t32-L2-dense-pt1(light,4.5G)]
+[zk60-guard 15:50:41] admission waiting: budget: 7.5+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u(light,3G), gate-token-v10-llama3-8b-t32-L2-dense-pt1(light,4.5G)]
+[zk60-guard 15:51:41] admission waiting: budget: 7.5+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u(light,3G), gate-token-v10-llama3-8b-t32-L2-dense-pt1(light,4.5G)]
+[zk60-guard 15:52:41] admission waiting: budget: 7.5+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u(light,3G), gate-token-v10-llama3-8b-t32-L2-dense-pt1(light,4.5G)]
+[zk60-guard 15:53:41] admission waiting: budget: 7.5+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u(light,3G), gate-token-v10-llama3-8b-t32-L2-dense-pt1(light,4.5G)]
+[zk60-guard 15:54:41] admission waiting: budget: 7.5+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u(light,3G), gate-token-v10-llama3-8b-t32-L2-dense-pt1(light,4.5G)]
+[zk60-guard 15:55:41] admission waiting: budget: 7.5+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u(light,3G), gate-token-v10-llama3-8b-t32-L2-dense-pt1(light,4.5G)]
+[zk60-guard 15:56:41] admission waiting: budget: 7.5+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u(light,3G), gate-token-v10-llama3-8b-t32-L2-dense-pt1(light,4.5G)]
+[zk60-guard 15:57:42] admission waiting: budget: 7.5+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u(light,3G), gate-token-v10-llama3-8b-t32-L2-dense-pt1(light,4.5G)]
+[zk60-guard 15:58:42] admission waiting: budget: 7.5+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u(light,3G), gate-token-v10-llama3-8b-t32-L2-dense-pt1(light,4.5G)]
+[zk60-guard 15:59:42] admission waiting: budget: 7.5+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u(light,3G), gate-token-v10-llama3-8b-t32-L2-dense-pt1(light,4.5G)]
+[zk60-guard 16:00:42] admission waiting: budget: 7.5+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u(light,3G), gate-token-v10-llama3-8b-t32-L2-dense-pt1(light,4.5G)]
+[zk60-guard 16:01:42] admission waiting: budget: 7.5+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u(light,3G), gate-token-v10-llama3-8b-t32-L2-dense-pt1(light,4.5G)]
+[zk60-guard 16:02:42] admission waiting: budget: 7.5+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u(light,3G), gate-token-v10-llama3-8b-t32-L2-dense-pt1(light,4.5G)]
+[zk60-guard 16:03:42] admission waiting: budget: 7.5+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u(light,3G), gate-token-v10-llama3-8b-t32-L2-dense-pt1(light,4.5G)]
+[zk60-guard 16:04:43] admission waiting: budget: 7.5+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u(light,3G), gate-token-v10-llama3-8b-t32-L2-fixed-pt1(light,4.5G)]
+[zk60-guard 16:05:43] admission waiting: budget: 7.5+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u(light,3G), gate-token-v10-llama3-8b-t32-L2-fixed-pt1(light,4.5G)]
+[zk60-guard 16:06:43] admission waiting: budget: 7.5+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u(light,3G), gate-token-v10-llama3-8b-t32-L2-fixed-pt1(light,4.5G)]
+[zk60-guard 16:07:43] admission waiting: budget: 7.5+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u(light,3G), gate-token-v10-llama3-8b-t32-L2-fixed-pt1(light,4.5G)]
+[zk60-guard 16:08:43] admission waiting: budget: 7+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u_na(light,2.5G), gate-token-v10-llama3-8b-t32-L2-fixed-pt1(light,4.5G)]
+[zk60-guard 16:09:43] admission waiting: budget: 7+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u_na(light,2.5G), gate-token-v10-llama3-8b-t32-L2-fixed-pt1(light,4.5G)]
+[zk60-guard 16:10:44] admission waiting: budget: 7+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u_na(light,2.5G), gate-token-v10-llama3-8b-t32-L2-fixed-pt1(light,4.5G)]
+[zk60-guard 16:11:44] admission waiting: budget: 7+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u_na(light,2.5G), gate-token-v10-llama3-8b-t32-L2-fixed-pt1(light,4.5G)]
+[zk60-guard 16:12:44] admission waiting: budget: 7+5 GiB > 11.9 GiB with live [fp-L_combo2_w16u_na(light,2.5G), gate-token-v10-llama3-8b-t32-L2-fixed-pt1(light,4.5G)]
+[zk60-guard 16:13:44] admission waiting: budget: 7+5 GiB > 11.9 GiB with live [gate-token-v10-llama3-8b-t32-L2-fixed-pt1(light,4.5G), fp-L_combo2_w16u_naw(light,2.5G)]
+[zk60-guard 16:14:44] admission waiting: budget: 7+5 GiB > 11.9 GiB with live [gate-token-v10-llama3-8b-t32-L2-fixed-pt1(light,4.5G), fp-L_combo2_w16u_naw(light,2.5G)]
+[zk60-guard 16:15:44] admission waiting: budget: 7+5 GiB > 11.9 GiB with live [gate-token-v10-llama3-8b-t32-L2-fixed-pt1(light,4.5G), fp-L_combo2_w16u_naw(light,2.5G)]
+[zk60-guard 16:16:44] admission waiting: budget: 7+5 GiB > 11.9 GiB with live [gate-token-v10-llama3-8b-t32-L2-fixed-pt1(light,4.5G), fp-L_combo2_w16u_naw(light,2.5G)]
+[zk60-guard 16:17:45] admission waiting: budget: 7+5 GiB > 11.9 GiB with live [gate-token-v10-llama3-8b-t32-L2-fixed-pt1(light,4.5G), fp-L_combo2_w16u_naw(light,2.5G)]
+[zk60-guard 16:18:45] admission waiting: budget: 7+5 GiB > 11.9 GiB with live [gate-token-v10-llama3-8b-t32-L2-fixed-pt1(light,4.5G), fp-L_combo2_w16u_naw(light,2.5G)]
+[zk60-guard 16:19:45] admission waiting: budget: 8.5+5 GiB > 11.9 GiB with live [gate-tk7-l22-zero-a(light,6G), fp-L_combo2_w16u_naw(light,2.5G)]
+[zk60-guard 16:20:45] admission waiting: budget: 9+5 GiB > 11.9 GiB with live [gate-tk7-l22-zero-a(light,6G), fp-L_e8_dg_gnar(light,3G)]
+[zk60-guard 16:21:45] admission waiting: budget: 9+5 GiB > 11.9 GiB with live [gate-tk7-l22-zero-a(light,6G), fp-L_e8_dg_gnar(light,3G)]
+[zk60-guard 16:22:45] admission waiting: budget: 9+5 GiB > 11.9 GiB with live [gate-tk7-l22-zero-a(light,6G), fp-L_e8_dg_gnar(light,3G)]
+[zk60-guard 16:23:46] admission waiting: budget: 9+5 GiB > 11.9 GiB with live [gate-tk7-l22-zero-a(light,6G), fp-L_e8_dg_gnar(light,3G)]
+[zk60-guard 16:24:46] admission waiting: budget: 9+5 GiB > 11.9 GiB with live [gate-tk7-l22-zero-a(light,6G), fp-L_e8_dg_gnar(light,3G)]
+[zk60-guard 16:25:46] admission waiting: budget: 9+5 GiB > 11.9 GiB with live [gate-tk7-l22-zero-a(light,6G), fp-L_e8_dg_gnar(light,3G)]
+[zk60-guard 16:26:46] admission waiting: budget: 9+5 GiB > 11.9 GiB with live [gate-tk7-l22-zero-a(light,6G), fp-L_e8_dg_gnar(light,3G)]
+[zk60-guard 16:27:46] admission waiting: budget: 9+5 GiB > 11.9 GiB with live [gate-tk7-l22-zero-a(light,6G), fp-L_e8_dg_gnar(light,3G)]
+[zk60-guard 16:28:46] admission waiting: budget: 9+5 GiB > 11.9 GiB with live [gate-tk7-l22-zero-a(light,6G), fp-L_e8_dg_gnar(light,3G)]
+[zk60-guard 16:29:46] admission waiting: budget: 9+5 GiB > 11.9 GiB with live [gate-tk7-l22-zero-a(light,6G), fp-L_e8_dg_gnar(light,3G)]
+[zk60-guard 16:30:47] admission waiting: budget: 9+5 GiB > 11.9 GiB with live [gate-tk7-l22-zero-a(light,6G), fp-L_e8_dg_gnar(light,3G)]
+[zk60-guard 16:31:47] admission waiting: budget: 9+5 GiB > 11.9 GiB with live [gate-tk7-l22-dense-a(light,6G), fp-L_e8_dg_gnar(light,3G)]
+[zk60-guard 16:32:47] admission waiting: budget: 9+5 GiB > 11.9 GiB with live [gate-tk7-l22-dense-a(light,6G), fp-L_e8_dg_gnar(light,3G)]
+[zk60-guard 16:33:47] admission waiting: budget: 9+5 GiB > 11.9 GiB with live [gate-tk7-l22-dense-a(light,6G), fp-L_e8_dg_gnar(light,3G)]
+[zk60-guard 16:34:47] admission waiting: budget: 9+5 GiB > 11.9 GiB with live [gate-tk7-l22-dense-a(light,6G), fp-L_e8_dg_gnar(light,3G)]
+[zk60-guard 16:35:47] admission waiting: budget: 9+5 GiB > 11.9 GiB with live [gate-tk7-l22-dense-a(light,6G), fp-L_e8_dg_gnar(light,3G)]
+[zk60-guard 16:36:48] admission waiting: budget: 9+5 GiB > 11.9 GiB with live [gate-tk7-l22-dense-a(light,6G), fp-L_e8_dg_gnar(light,3G)]
+[zk60-guard 16:37:48] admission waiting: budget: 9+5 GiB > 11.9 GiB with live [gate-tk7-l22-dense-a(light,6G), fp-L_e8_dg_gnar(light,3G)]
+[zk60-guard 16:38:48] admission waiting: budget: 9+5 GiB > 11.9 GiB with live [gate-tk7-l22-dense-a(light,6G), fp-L_e8_dg_gnar(light,3G)]
+[zk60-guard 16:39:48] admission waiting: budget: 9+5 GiB > 11.9 GiB with live [gate-tk7-l22-dense-a(light,6G), fp-L_e8_dg_gnar(light,3G)]
+[zk60-guard 16:40:48] admission waiting: budget: 9+5 GiB > 11.9 GiB with live [gate-tk7-l22-dense-a(light,6G), fp-L_e8_dg_gnar(light,3G)]
+[zk60-guard 16:41:33] START trv6-t1-review class=cpu need=5G cap=8G enforce=cgroup+watchdog waited=3775s run=93091b3e4b09
+[zk60-guard 16:42:29] END trv6-t1-review exit=0 child_wall=55s peak_rss=1.47G min_avail=10.25G
+[zk60-guard 16:42:29] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 16:43:29] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 16:44:29] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 16:45:29] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 16:46:29] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 16:47:29] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 16:48:29] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 16:49:29] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 16:50:30] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 16:51:30] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 16:52:30] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 16:53:30] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 16:54:30] waiting for /tmp/zk-heavy.lock (721s)
+[zk60-guard 16:55:30] waiting for /tmp/zk-heavy.lock (781s)
+[zk60-guard 16:56:30] waiting for /tmp/zk-heavy.lock (841s)
+[zk60-guard 16:57:11] START trv6-t2-token-io class=cpu need=5G cap=8G enforce=cgroup+watchdog waited=882s run=fa1f9251cedc
+[zk60-guard 17:00:21] END trv6-t2-token-io exit=0 child_wall=189s peak_rss=2.43G min_avail=8.82G
+[zk60-guard 17:00:21] START trv6-p1-profile-fidelity-export class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=ee81c8d9d16b
+[zk60-guard 17:01:04] END trv6-p1-profile-fidelity-export exit=0 child_wall=44s peak_rss=1.84G min_avail=9.41G
+[zk60-guard 17:01:04] START trv6-p2-profile-verifier-copy class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=ea30b910c76a
+[zk60-guard 17:01:45] END trv6-p2-profile-verifier-copy exit=0 child_wall=41s peak_rss=1.89G min_avail=9.20G
+[zk60-guard 17:01:45] START trv6-p3-profile-b7 class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=d990362298fe
+[zk60-guard 17:02:28] END trv6-p3-profile-b7 exit=0 child_wall=43s peak_rss=1.81G min_avail=9.23G
+[zk60-guard 17:02:28] START trv6-c1-verify-recheck class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=2f3f804601cf
+[zk60-guard 17:04:09] END trv6-c1-verify-recheck exit=0 child_wall=101s peak_rss=2.81G min_avail=8.58G
+[zk60-guard 17:04:09] START trv6-c2-verify-publish class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=74f60b3048a2
+[zk60-guard 17:05:50] END trv6-c2-verify-publish exit=0 child_wall=100s peak_rss=2.83G min_avail=8.40G
+[zk60-guard 17:05:50] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 17:06:50] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 17:07:50] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 17:08:50] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 17:09:50] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 17:10:50] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 17:11:50] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 17:12:50] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 17:13:50] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 17:14:50] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 17:15:50] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 17:16:51] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 17:17:51] waiting for /tmp/zk-heavy.lock (721s)
+[zk60-guard 17:18:51] waiting for /tmp/zk-heavy.lock (781s)
+[zk60-guard 17:19:51] waiting for /tmp/zk-heavy.lock (841s)
+[zk60-guard 17:20:51] waiting for /tmp/zk-heavy.lock (901s)
+[zk60-guard 17:21:51] waiting for /tmp/zk-heavy.lock (961s)
+[zk60-guard 17:22:51] waiting for /tmp/zk-heavy.lock (1021s)
+[zk60-guard 17:23:51] waiting for /tmp/zk-heavy.lock (1081s)
+[zk60-guard 17:24:51] waiting for /tmp/zk-heavy.lock (1141s)
+[zk60-guard 17:25:51] waiting for /tmp/zk-heavy.lock (1201s)
+[zk60-guard 17:26:51] waiting for /tmp/zk-heavy.lock (1262s)
+[zk60-guard 17:27:51] waiting for /tmp/zk-heavy.lock (1322s)
+[zk60-guard 17:28:51] waiting for /tmp/zk-heavy.lock (1382s)
+[zk60-guard 17:29:51] waiting for /tmp/zk-heavy.lock (1442s)
+[zk60-guard 17:30:52] waiting for /tmp/zk-heavy.lock (1502s)
+[zk60-guard 17:31:52] waiting for /tmp/zk-heavy.lock (1562s)
+[zk60-guard 17:32:52] waiting for /tmp/zk-heavy.lock (1622s)
+[zk60-guard 17:33:52] waiting for /tmp/zk-heavy.lock (1682s)
+[zk60-guard 17:34:52] waiting for /tmp/zk-heavy.lock (1742s)
+[zk60-guard 17:35:52] waiting for /tmp/zk-heavy.lock (1802s)
+[zk60-guard 17:36:52] waiting for /tmp/zk-heavy.lock (1862s)
+[zk60-guard 17:37:52] waiting for /tmp/zk-heavy.lock (1922s)
+[zk60-guard 17:38:52] waiting for /tmp/zk-heavy.lock (1982s)
+[zk60-guard 17:39:52] waiting for /tmp/zk-heavy.lock (2042s)
+[zk60-guard 17:40:52] waiting for /tmp/zk-heavy.lock (2103s)
+[zk60-guard 17:41:52] waiting for /tmp/zk-heavy.lock (2163s)
+[zk60-guard 17:42:52] waiting for /tmp/zk-heavy.lock (2223s)
+[zk60-guard 17:43:53] waiting for /tmp/zk-heavy.lock (2283s)
+[zk60-guard 17:44:53] waiting for /tmp/zk-heavy.lock (2343s)
+[zk60-guard 17:45:53] waiting for /tmp/zk-heavy.lock (2403s)
+[zk60-guard 17:46:53] waiting for /tmp/zk-heavy.lock (2463s)
+[zk60-guard 17:47:53] waiting for /tmp/zk-heavy.lock (2523s)
+[zk60-guard 17:48:53] waiting for /tmp/zk-heavy.lock (2583s)
+[zk60-guard 17:49:53] waiting for /tmp/zk-heavy.lock (2643s)
+[zk60-guard 17:50:53] waiting for /tmp/zk-heavy.lock (2703s)
+[zk60-guard 17:51:53] waiting for /tmp/zk-heavy.lock (2763s)
+[zk60-guard 17:52:53] waiting for /tmp/zk-heavy.lock (2823s)
+[zk60-guard 17:53:50] START trv6-c3-owner class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=2881s run=ebe2d20d312f
+[zk60-guard 17:55:11] END trv6-c3-owner exit=0 child_wall=80s peak_rss=2.82G min_avail=9.25G
+[zk60-guard 17:55:11] START trv6-c4-input-owner class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=32d625ac7ea9
+[zk60-guard 17:56:32] END trv6-c4-input-owner exit=0 child_wall=81s peak_rss=2.82G min_avail=9.36G
+[zk60-guard 17:56:32] START trv6-c5-verify-b7-identity-pin class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=ed195e022ac6
+[zk60-guard 17:56:51] END trv6-c5-verify-b7-identity-pin exit=1 child_wall=19s peak_rss=1.09G min_avail=10.70G
+[zk60-guard 17:56:51] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 17:57:51] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 17:58:51] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 17:59:52] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 18:00:52] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 18:01:52] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 18:02:52] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 18:03:52] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 18:04:52] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 18:05:52] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 18:06:52] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 18:07:52] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 18:08:52] waiting for /tmp/zk-heavy.lock (721s)
+[zk60-guard 18:09:52] waiting for /tmp/zk-heavy.lock (781s)
+[zk60-guard 18:10:52] waiting for /tmp/zk-heavy.lock (841s)
+[zk60-guard 18:11:52] waiting for /tmp/zk-heavy.lock (901s)
+[zk60-guard 18:12:52] waiting for /tmp/zk-heavy.lock (961s)
+[zk60-guard 18:13:53] waiting for /tmp/zk-heavy.lock (1021s)
+[zk60-guard 18:14:53] waiting for /tmp/zk-heavy.lock (1081s)
+[zk60-guard 18:15:53] waiting for /tmp/zk-heavy.lock (1141s)
+[zk60-guard 18:16:53] waiting for /tmp/zk-heavy.lock (1201s)
+[zk60-guard 18:17:14] START trv6-c6-verify-b7-export class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=1222s run=6eea27353ed1
+[zk60-guard 18:17:37] END trv6-c6-verify-b7-export exit=1 child_wall=23s peak_rss=1.83G min_avail=10.18G
+[zk60-guard 18:17:37] START trv6-c7-verify-schema1 class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=496ed55fe238
+[zk60-guard 18:18:00] END trv6-c7-verify-schema1 exit=1 child_wall=23s peak_rss=1.68G min_avail=11.13G
+[zk60-guard 18:18:00] START trv6-c8-verify-owncal-empty class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=0a69f58b4e67
+[zk60-guard 18:18:32] END trv6-c8-verify-owncal-empty exit=1 child_wall=33s peak_rss=1.84G min_avail=10.30G
+[zk60-guard 18:18:32] START trv6-c9-verify-owncal-shs6 class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=a6dffe2ec580
+[zk60-guard 18:19:06] END trv6-c9-verify-owncal-shs6 exit=1 child_wall=33s peak_rss=1.82G min_avail=10.37G
+[zk60-guard 18:19:06] START trv6-c10-verify-tamper class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=f4e4b10562d8
+[zk60-guard 18:19:51] END trv6-c10-verify-tamper exit=1 child_wall=46s peak_rss=2.49G min_avail=9.75G
+[zk60-guard 18:19:52] START trv6-c11-owner-tamper class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=d12cc80d3274
+[zk60-guard 18:20:37] END trv6-c11-owner-tamper exit=1 child_wall=45s peak_rss=2.71G min_avail=9.56G
+[zk60-guard 18:20:37] START trv6-c12-verify-r6-run-schema1 class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=9c31c929790e
+[zk60-guard 18:20:59] END trv6-c12-verify-r6-run-schema1 exit=1 child_wall=22s peak_rss=1.75G min_avail=10.73G

@@ -1,0 +1,1 @@
+Review refinement: the Python consumed-wrapper initially transferred all13 lists. The Rust proposal moves12 Vec buffers and retains the512B inline act copy. Final model now copies act and checks its distinct identity, while all12 vector identities transfer. Layout bytes/ledger unchanged. No native proof was ever claimed.

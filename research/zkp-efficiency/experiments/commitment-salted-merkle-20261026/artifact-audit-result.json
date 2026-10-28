@@ -1,0 +1,17 @@
+{
+  "status": "PASS_FINAL_ARTIFACT_AUDIT",
+  "checks": 1477,
+  "immutable_artifacts": 77,
+  "source_pins": 12,
+  "prior_source_records_preserved": 799,
+  "total_source_records": 807,
+  "prior_hypotheses_preserved": 37,
+  "total_hypotheses": 38,
+  "patch_applies_in_memory_only": true,
+  "production_patch_applied": false,
+  "native_build": false,
+  "gpu": false,
+  "diagnostic_wall_seconds": 0.03680890999385156,
+  "rss_kib": 24868,
+  "utc": "2026-10-26T17:43:38.447752+00:00"
+}

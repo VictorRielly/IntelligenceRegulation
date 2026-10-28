@@ -37,6 +37,8 @@ FW_PARQUET = Path("/home/victor/models/fineweb-edu/sample/10BT/000_00000.parquet
 FW_SHA256 = "b1ba7b2ce4cb5ea6ef42dca40263eabb85f37700d01693a68e9b30a31d78e871"
 WT_PARQUET = DATA / "wikitext2" / "test.parquet"
 WT_SHA256 = "5f1bea067869d04849c0f975a2b29c4ff47d867f484f5010ea5e861eab246d91"
+WV_PARQUET = DATA / "wikitext2" / "validation.parquet"      # calibration only (never evaluated)
+WV_SHA256 = "204929b7ff9d6184953f867dedb860e40aa69c078fc1e54b3baaa8fb28511c4c"
 LB_PARQUET = DATA / "lambada_openai" / "en_test.parquet"
 LB_SHA256 = "99d8a9e54cda761c6340ddd4fa6feda7f846ffb0e716afa52968dea75495eea7"
 FW_ROW_GROUP = 3
@@ -94,9 +96,9 @@ def fineweb(tok: Tok, T: int, n: int, row_group: int = FW_ROW_GROUP):
     return seqs, meta, mask
 
 
-def wikitext(tok: Tok, T: int, n: int):
+def wikitext(tok: Tok, T: int, n: int, path: Path = WT_PARQUET):
     pq = _pq()
-    rows = pq.read_table(WT_PARQUET).to_pydict()["text"]
+    rows = pq.read_table(path).to_pydict()["text"]
     ids = tok.encode("\n\n".join(rows))
     w = T - 1
     nwin = len(ids) // w
@@ -150,13 +152,15 @@ def build(model: str, T: int, spec: str):
             off = int(off)
         n = int(n)
         fn = {"fineweb": fineweb, "wikitext": wikitext, "lambada": lambda t, T_, n_: lambada(t, T_, n_, off),
-              "fwcal": lambda t, T_, n_: fineweb(t, T_, n_, row_group=0)}[name]
+              "fwcal": lambda t, T_, n_: fineweb(t, T_, n_, row_group=0),
+              "wtval": lambda t, T_, n_: wikitext(t, T_, n_, path=WV_PARQUET)}[name]
         s, m, k = fn(tok, T, n)
         assert all(len(x) == T for x in s)
         seqs += s
         meta += m
         masks.append(k)
         src = {"fineweb": (FW_PARQUET, FW_SHA256), "fwcal": (FW_PARQUET, FW_SHA256), "wikitext": (WT_PARQUET, WT_SHA256),
+               "wtval": (WV_PARQUET, WV_SHA256),
                "lambada": (LB_PARQUET, LB_SHA256)}[name]
         info["corpora"][name] = {"n": n, "offset": off, "source": str(src[0]), "sha256_expected": src[1]}
         if name == "lambada":

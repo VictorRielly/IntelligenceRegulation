@@ -1,0 +1,178 @@
+[
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/pool-live-capacity-20261020/capacity_model.py"
+    ],
+    "started_at": "2026-10-20T00:23:30.367545+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.257489911004086,
+    "maxrss_kib": 30740,
+    "source_sha256": "963f5a66ae8ba09e82c4d7c86bb0047e90e5771a6b2e0661511be115e1522daf",
+    "stdout": "00-capacity_model.py.stdout.log",
+    "stderr": "00-capacity_model.py.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "single_cpu_affinity": true,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/pool-live-capacity-20261020/audit.py"
+    ],
+    "started_at": "2026-10-20T00:24:22.027261+00:00",
+    "exit_code": 0,
+    "wall_seconds": 1.5362208540027495,
+    "maxrss_kib": 21996,
+    "source_sha256": "25ad22866b2ec883cb38999fce927019f052b190143ac3630fdf7ed440989638",
+    "stdout": "01-audit.py.stdout.log",
+    "stderr": "01-audit.py.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "single_cpu_affinity": true,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/pool-live-capacity-20261020/capacity_model.py"
+    ],
+    "started_at": "2026-10-20T00:25:05.111975+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.22709012900304515,
+    "maxrss_kib": 30532,
+    "source_sha256": "9440540f02dcdffb32ca4868fac839b1de992161d80ebb2770efa99d85da9fcd",
+    "stdout": "02-capacity_model.py.stdout.log",
+    "stderr": "02-capacity_model.py.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "single_cpu_affinity": true,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/pool-live-capacity-20261020/audit.py"
+    ],
+    "started_at": "2026-10-20T00:25:05.436952+00:00",
+    "exit_code": 0,
+    "wall_seconds": 1.3942647209914867,
+    "maxrss_kib": 22376,
+    "source_sha256": "efde4f2c567208acee3f776186b2000483e20bb38994a8669440162b547838d7",
+    "stdout": "03-audit.py.stdout.log",
+    "stderr": "03-audit.py.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "single_cpu_affinity": true,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/pool-live-capacity-20261020/capacity_model.py"
+    ],
+    "started_at": "2026-10-20T00:26:41.365783+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.2474232639942784,
+    "maxrss_kib": 30832,
+    "source_sha256": "f79aaa63b01b547e046cc912ad3bf419f17563235b77bca05f708ae7cbeec939",
+    "stdout": "04-capacity_model.py.stdout.log",
+    "stderr": "04-capacity_model.py.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "single_cpu_affinity": true,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/pool-live-capacity-20261020/audit.py"
+    ],
+    "started_at": "2026-10-20T00:26:41.707609+00:00",
+    "exit_code": 0,
+    "wall_seconds": 1.531864732998656,
+    "maxrss_kib": 22856,
+    "source_sha256": "0c92552e5ceb3381b57c21b77047f1fcf154e8e828fd7689ead4cb19e66b0b2b",
+    "stdout": "05-audit.py.stdout.log",
+    "stderr": "05-audit.py.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "single_cpu_affinity": true,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/pool-live-capacity-20261020/validate.py"
+    ],
+    "started_at": "2026-10-20T00:30:47.822145+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.14319912499922793,
+    "maxrss_kib": 29196,
+    "source_sha256": "4074bb26961a04a52204285d112c3359189b82e48b2cd4ea50a4b1a6a7eedbb9",
+    "stdout": "06-validate.py.stdout.log",
+    "stderr": "06-validate.py.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "single_cpu_affinity": true,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/pool-live-capacity-20261020/validate.py"
+    ],
+    "started_at": "2026-10-20T00:31:41.377658+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.07811247499193996,
+    "maxrss_kib": 29236,
+    "source_sha256": "4074bb26961a04a52204285d112c3359189b82e48b2cd4ea50a4b1a6a7eedbb9",
+    "stdout": "07-validate.py.stdout.log",
+    "stderr": "07-validate.py.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "single_cpu_affinity": true,
+      "nice": 19
+    }
+  }
+]

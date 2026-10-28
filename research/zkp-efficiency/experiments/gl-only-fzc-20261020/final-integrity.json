@@ -1,0 +1,325 @@
+{
+  "checked_at": "2026-10-20T07:36:06.281760+00:00",
+  "files": [
+    {
+      "path": "experiments/gl-only-fzc-20261020/00-probe.py.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/00-probe.py.stdout.log",
+      "bytes": 647,
+      "sha256": "5e9915b106677e40ef2a6b8fd14e1e62604f037c8dd9cef8d76a75e60187db50"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/01-validate.py.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/01-validate.py.stdout.log",
+      "bytes": 170,
+      "sha256": "049ea3e4fddae33700bd3bdbb9e4c017f3db66f030fa59be7803e6c046934b3e"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/02-probe.py.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/02-probe.py.stdout.log",
+      "bytes": 646,
+      "sha256": "da4230d09c1c6fbb6f3ac29b5928c3c118a0a20c9362a5ddad562539beda7df5"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/03-validate.py.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/03-validate.py.stdout.log",
+      "bytes": 170,
+      "sha256": "1d132cf1ef2c2569899b589003f8baf83eae5fd147c47924c3e3584b14a48dcf"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/README.md",
+      "bytes": 8427,
+      "sha256": "e303e2a69c70063bc82607c3ba6cc58a1b75c47c4b9bd5b03fcb4a6bceba0df1"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/affine.py",
+      "bytes": 3438,
+      "sha256": "5766f7aab7a132dcae1b105dc4c30022c226ad1b6d2c591addf397ae07816f6b"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/base_pair.py",
+      "bytes": 1473,
+      "sha256": "c1c284ef18f25cc7926af82ecbdb3d083e1c72256e85f9a02e21c74b8d96cd1a"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/candidate_gl_only.cuh",
+      "bytes": 2805,
+      "sha256": "39c82f0e7d21d6a58aaa2e9d6d97d10b5cfdc6c909afb2d7b9f33ac926870758"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/cases.json",
+      "bytes": 18825,
+      "sha256": "7efe84092cd420b7ef7e9042ad3f4d4569b68d6e4ad99d25f510df18b107671f"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/commands.json",
+      "bytes": 2572,
+      "sha256": "c3c9c99120a2566e4d0cda9181f8a88cb753ffa0994d4209864eca0d401fbfea"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/completion.json",
+      "bytes": 779,
+      "sha256": "9a20b49722a46d875033f2205eeac8c81de939fea22defa813acaa1c934bde33"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/cost-cases.json",
+      "bytes": 55623,
+      "sha256": "6fb2cd1821df31a7c68cd94f4efef516d389f52e70b94b1ec94123e135671052"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/gl_only.py",
+      "bytes": 829,
+      "sha256": "12ba3dfe98519676b765f655f460cf8fdd97c3ebe1a5e46f61edd6eb058a304e"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/hardware.json",
+      "bytes": 261,
+      "sha256": "e3601f4df20d6e917571e074390c26bc0d62b7531a056c42b2fb41e9488fdd9f"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/hypotheses.json",
+      "bytes": 19242,
+      "sha256": "183ad6f7f965e2f760ad15b25882bd844dfc316aad7027af49ec55adc25efb63"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/initial-before-final-value-check/cases.json",
+      "bytes": 18825,
+      "sha256": "7efe84092cd420b7ef7e9042ad3f4d4569b68d6e4ad99d25f510df18b107671f"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/initial-before-final-value-check/cost-cases.json",
+      "bytes": 55623,
+      "sha256": "6fb2cd1821df31a7c68cd94f4efef516d389f52e70b94b1ec94123e135671052"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/initial-before-final-value-check/negative-controls.json",
+      "bytes": 432,
+      "sha256": "5496635603de2a393c81f1d3eb79e7063ec260ba8ff11fcf7d98f26f688dc7c1"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/initial-before-final-value-check/result.json",
+      "bytes": 735,
+      "sha256": "a157448d8cfa489cb584a0d66e280fdb0c43aef23b1bbe1235949bab1b8caf88"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/initial-before-final-value-check/validation-result.json",
+      "bytes": 184,
+      "sha256": "355029cf192195a6a0e09e80e61b060d63d73027f71a892d4913a32f2b07dc4d"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/negative-controls.json",
+      "bytes": 432,
+      "sha256": "5496635603de2a393c81f1d3eb79e7063ec260ba8ff11fcf7d98f26f688dc7c1"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/prior-result.json",
+      "bytes": 735,
+      "sha256": "922ca6127c2cd7957e9cdca6f9ff515454fcf81aa805fa1411d8eacff25365ea"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/prior_fzc_model.py",
+      "bytes": 12013,
+      "sha256": "e72661099c934b4cadb82a9db989d746e0022a372f30993db00142d9df9b3678"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/probe.py",
+      "bytes": 8754,
+      "sha256": "4f7948d06ef63f7a82cbd08b44ab47f63bcaefad63c1329fbf41bc730ded31a9"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/reference.py",
+      "bytes": 2739,
+      "sha256": "11e8cbbe360aa762f4f331c7727d49727a46fed04f0818b41afdda0a88ce1223"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/research-code-manifest.json",
+      "bytes": 1243,
+      "sha256": "7de5cabdb29acb1c50d13916ddccfdc000e6af5be427d8c9ea39aecffc43b6ba"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/result.json",
+      "bytes": 734,
+      "sha256": "1adf4051557c2806467c1ba5e0bce4e90d3024cdc930cbe6ac07bad6864a6097"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/run_bounded.py",
+      "bytes": 1426,
+      "sha256": "de7c13fc152a15e5fff37d9a3606b70e1d3ad4db3f68189818d19d38fe1f177c"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/searches.json",
+      "bytes": 1205,
+      "sha256": "055987643e8d9c7c08b3d91f71bf7adf854dbe07bf860d510b191304448697ae"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/source-ledger-index.json",
+      "bytes": 17842,
+      "sha256": "9067f2eeb8ddef59380970d8e2fd893f8c2b160f334a50897e0160bcd7ad0a0a"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/source-manifest.json",
+      "bytes": 3744,
+      "sha256": "bf21acd2597fa12bca92851b5b37affd07a47bea7c9dc48ed865df34a1bfab7b"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/source-records.json",
+      "bytes": 8220,
+      "sha256": "6903de804a3d1122f5b308a2ee53e79c4bfcee000174033e71ac1e7e1a36be07"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/startup/CLAUDE.md",
+      "bytes": 14089,
+      "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/startup/argument.rs",
+      "bytes": 109208,
+      "sha256": "9e70bbe558d7771b16f2a6f7f526ad3e548895d32ed0f6b897b85d0dd48b29b5"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/startup/cuda.rs",
+      "bytes": 258588,
+      "sha256": "dcc0e4bcd76c009827d30d8b1547e043118619948f59e63e75b132c5e6a38629"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/startup/docs__zkmatrix-poc__MVP_STATUS.md",
+      "bytes": 82654,
+      "sha256": "76ad894710072eaabe86fd2c8d1313ed5cf98110a5963d1c9686f2b5f95b6102"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/startup/docs__zkmatrix-poc__ZK60_CODEX_FABLE_COORDINATION.md",
+      "bytes": 64889,
+      "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/startup/docs__zkmatrix-poc__ZK60_DECISIONS.md",
+      "bytes": 102129,
+      "sha256": "9a7730c640fe8611327257a7df68f3da3be30cb1885cd3e7640b5ba2e22b869f"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/startup/docs__zkmatrix-poc__ZK60_THROUGHPUT_TARGET.md",
+      "bytes": 4941,
+      "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/startup/field.rs",
+      "bytes": 11065,
+      "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/startup/fzc.rs",
+      "bytes": 15913,
+      "sha256": "af3cd6ac97f85347ed95ebac732c920a18ab921013be3ec31657e28cfb35ecc1"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/startup/fzc_kernels.cu",
+      "bytes": 50114,
+      "sha256": "7109e9cbba958876db03f538715258d07d2976c12b3959a293d2371c64bf356e"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/startup/kernels.cu",
+      "bytes": 79413,
+      "sha256": "4b27e23f2a880a7d67597d7cd2de59799b1c0068a52b2ce9abdbfa8108b0dc2a"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/startup/mle.rs",
+      "bytes": 15255,
+      "sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/startup/research__zkp-efficiency__AGENDA.md",
+      "bytes": 5603,
+      "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/startup/research__zkp-efficiency__FINDINGS.md",
+      "bytes": 712119,
+      "sha256": "72605629b41dc716902b2eb55ea0a2d3ed477361b1b6ce440e098e3e94e6afcf"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/startup/research__zkp-efficiency__PROGRESS.md",
+      "bytes": 2080,
+      "sha256": "a11e2eeaa4f903c022f8f989ebf91ca3c06aebd2f3d87a8566bae14db1f2e5e5"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/startup/research__zkp-efficiency__STATE.md",
+      "bytes": 5178,
+      "sha256": "a11df5510f14217e09b831d7ba7e639cf565eaf151e0be3ad84eb58bb18f7960"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/startup/research__zkp-efficiency__sources.jsonl",
+      "bytes": 729030,
+      "sha256": "3ad615503436c7eb4bebff7e4fb667d1a6e3fa346b0806aa796bffb653b06909"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/startup/sumcheck.rs",
+      "bytes": 22023,
+      "sha256": "fc7374bbd5e5cc4ede62e8a21d325eb62acff9b9dcc786d12eae39efbdfdbb95"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/startup-manifest.json",
+      "bytes": 24873,
+      "sha256": "abe4f8b18cc0afdf1e876c19da59b036d6f302ddc90cde9fdee8fc4ece0865e4"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/summary.json",
+      "bytes": 1974,
+      "sha256": "19f9b808728c7ec7d2803f54692b57bbc4d47314058ff06be90ed1b3366e5907"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/validate.py",
+      "bytes": 2469,
+      "sha256": "a3dcc97c77d78e0770b2c32f7a82da615840ca8ed9bc8e5f1d74fe0277de1d11"
+    },
+    {
+      "path": "experiments/gl-only-fzc-20261020/validation-result.json",
+      "bytes": 184,
+      "sha256": "9d544be87f2cc86c6d3c3b4ec9f97837c7ce1ac8d16910483e86f2ec6794b0d4"
+    },
+    {
+      "path": "STATE.md",
+      "bytes": 4923,
+      "sha256": "130d6d90949641e8778c05b080cb8039d9383714186cbe265f408822e54ae5fd"
+    },
+    {
+      "path": "PROGRESS.md",
+      "bytes": 1998,
+      "sha256": "696bfa9b001d02f41ff553e0a438543abb055ab3cf25ccb895f36309fceef91a"
+    },
+    {
+      "path": "FINDINGS.md",
+      "bytes": 717946,
+      "sha256": "3c5daff55ca154da4784a85bb7178126be618c7e934f53a5d2d9d7bada03d1c6"
+    },
+    {
+      "path": "sources.jsonl",
+      "bytes": 736671,
+      "sha256": "e4a2b0c3e47a512027e6635b1834515ee9055df1cf5cdabf391caa0d8562c653"
+    },
+    {
+      "path": "progress/20261020T071854Z-1076bec1.md",
+      "bytes": 3120,
+      "sha256": "aca552c3cbf69bb139fc9f7c1390ff9072276361d0fa7967086cf06f81c87e91"
+    },
+    {
+      "path": "handoffs/20261020-gl-only-affine-fzc.md",
+      "bytes": 2829,
+      "sha256": "30071294ab10232df5b5c59e09c53f918a789f057ea793a88e685fe0861165c7"
+    }
+  ]
+}

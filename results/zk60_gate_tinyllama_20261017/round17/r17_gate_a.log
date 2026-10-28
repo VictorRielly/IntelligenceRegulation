@@ -1,0 +1,18 @@
+[zk60-guard 12:46:54] START gate-v20-classify-rung-L1-v0 class=light need=0.8G cap=2G enforce=cgroup+watchdog waited=0s run=dc6b23475527
+[zk60-guard 12:56:23] END gate-v20-classify-rung-L1-v0 exit=0 child_wall=569s peak_rss=0.28G min_avail=6.04G
+[zk60-guard 12:56:23] admission waiting: swap in use > 1 GiB (box is already under pressure)
+[zk60-guard 12:57:23] admission waiting: swap in use > 1 GiB (box is already under pressure)
+[zk60-guard 12:58:23] admission waiting: swap in use > 1 GiB (box is already under pressure)
+[zk60-guard 12:59:24] admission waiting: swap in use > 1 GiB (box is already under pressure)
+[zk60-guard 13:00:24] START gate-v20-classify-rung-L1-v1 class=light need=0.8G cap=2G enforce=cgroup+watchdog waited=241s run=6c0b919a2dad
+[zk60-guard 13:09:29] END gate-v20-classify-rung-L1-v1 exit=0 child_wall=545s peak_rss=0.28G min_avail=5.09G
+[zk60-guard 13:09:29] START gate-v20-classify-rung-L1-vtie class=light need=0.8G cap=2G enforce=cgroup+watchdog waited=0s run=70bd0431b6b8
+[zk60-guard 13:17:54] END gate-v20-classify-rung-L1-vtie exit=0 child_wall=505s peak_rss=0.28G min_avail=10.04G
+[zk60-guard 13:17:54] START gate-v20-classify-rung-L2-v1-chunk1o27 class=light need=0.8G cap=2G enforce=cgroup+watchdog waited=0s run=997ebbad00ab
+[zk60-guard 13:29:12] END gate-v20-classify-rung-L2-v1-chunk1o27 exit=0 child_wall=678s peak_rss=0.32G min_avail=5.27G
+[zk60-guard 13:29:13] START gate-ff-v19-reader class=light need=0.3G cap=1G enforce=cgroup+watchdog waited=0s run=2b7a91d31ebe
+[zk60-guard 13:29:13] END gate-ff-v19-reader exit=1 child_wall=1s peak_rss=0.04G min_avail=12.94G
+[zk60-guard 13:29:13] START gate-d41-item-chunk1o27 class=light need=0.3G cap=1G enforce=cgroup+watchdog waited=0s run=0784f71c7815
+[zk60-guard 13:29:14] END gate-d41-item-chunk1o27 exit=0 child_wall=1s peak_rss=0.09G min_avail=12.94G
+[zk60-guard 13:29:14] START gate-unittests-v20 class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=de97e1b98507
+[zk60-guard 13:30:17] END gate-unittests-v20 exit=0 child_wall=63s peak_rss=0.43G min_avail=12.51G

@@ -1,0 +1,408 @@
+{
+  "status": "PASS_SYNTHETIC_PUBLIC_ADDRESS_MODEL_ONLY",
+  "seed": 20261020101,
+  "specs": 21,
+  "checks": 5303,
+  "tile_schedules": 936,
+  "logical_words_checked": 3326208,
+  "stride_identity_cases": 560,
+  "negative_controls": 10,
+  "wall_s": 10.079263505991548,
+  "rss_kib": 22740,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "dense_summary": [
+    {
+      "logn": 5,
+      "tiles_per_row": 1,
+      "modes": {
+        "literal": {
+          "source_words": 32,
+          "requested_sectors": 8,
+          "unique_source_sectors": 8,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 1.0
+        },
+        "rotate1": {
+          "source_words": 32,
+          "requested_sectors": 8,
+          "unique_source_sectors": 8,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 1.0
+        },
+        "rotate2": {
+          "source_words": 32,
+          "requested_sectors": 8,
+          "unique_source_sectors": 8,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 1.0
+        },
+        "reverse": {
+          "source_words": 32,
+          "requested_sectors": 8,
+          "unique_source_sectors": 8,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 1.0
+        }
+      }
+    },
+    {
+      "logn": 6,
+      "tiles_per_row": 1,
+      "modes": {
+        "literal": {
+          "source_words": 64,
+          "requested_sectors": 32,
+          "unique_source_sectors": 16,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 0.5
+        },
+        "rotate1": {
+          "source_words": 64,
+          "requested_sectors": 32,
+          "unique_source_sectors": 16,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 0.5
+        },
+        "rotate2": {
+          "source_words": 64,
+          "requested_sectors": 16,
+          "unique_source_sectors": 16,
+          "bank_peak_unique_u32_words_sampled": 4,
+          "global_load_useful_byte_fraction": 1.0
+        },
+        "reverse": {
+          "source_words": 64,
+          "requested_sectors": 16,
+          "unique_source_sectors": 16,
+          "bank_peak_unique_u32_words_sampled": 4,
+          "global_load_useful_byte_fraction": 1.0
+        }
+      }
+    },
+    {
+      "logn": 8,
+      "tiles_per_row": 1,
+      "modes": {
+        "literal": {
+          "source_words": 256,
+          "requested_sectors": 256,
+          "unique_source_sectors": 64,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 0.25
+        },
+        "rotate1": {
+          "source_words": 256,
+          "requested_sectors": 128,
+          "unique_source_sectors": 64,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 0.5
+        },
+        "rotate2": {
+          "source_words": 256,
+          "requested_sectors": 64,
+          "unique_source_sectors": 64,
+          "bank_peak_unique_u32_words_sampled": 4,
+          "global_load_useful_byte_fraction": 1.0
+        },
+        "reverse": {
+          "source_words": 256,
+          "requested_sectors": 64,
+          "unique_source_sectors": 64,
+          "bank_peak_unique_u32_words_sampled": 16,
+          "global_load_useful_byte_fraction": 1.0
+        }
+      }
+    },
+    {
+      "logn": 10,
+      "tiles_per_row": 1,
+      "modes": {
+        "literal": {
+          "source_words": 1024,
+          "requested_sectors": 1024,
+          "unique_source_sectors": 256,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 0.25
+        },
+        "rotate1": {
+          "source_words": 1024,
+          "requested_sectors": 512,
+          "unique_source_sectors": 256,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 0.5
+        },
+        "rotate2": {
+          "source_words": 1024,
+          "requested_sectors": 256,
+          "unique_source_sectors": 256,
+          "bank_peak_unique_u32_words_sampled": 4,
+          "global_load_useful_byte_fraction": 1.0
+        },
+        "reverse": {
+          "source_words": 1024,
+          "requested_sectors": 256,
+          "unique_source_sectors": 256,
+          "bank_peak_unique_u32_words_sampled": 32,
+          "global_load_useful_byte_fraction": 1.0
+        }
+      }
+    },
+    {
+      "logn": 11,
+      "tiles_per_row": 1,
+      "modes": {
+        "literal": {
+          "source_words": 2048,
+          "requested_sectors": 2048,
+          "unique_source_sectors": 512,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 0.25
+        },
+        "rotate1": {
+          "source_words": 2048,
+          "requested_sectors": 1024,
+          "unique_source_sectors": 512,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 0.5
+        },
+        "rotate2": {
+          "source_words": 2048,
+          "requested_sectors": 512,
+          "unique_source_sectors": 512,
+          "bank_peak_unique_u32_words_sampled": 4,
+          "global_load_useful_byte_fraction": 1.0
+        },
+        "reverse": {
+          "source_words": 2048,
+          "requested_sectors": 512,
+          "unique_source_sectors": 512,
+          "bank_peak_unique_u32_words_sampled": 32,
+          "global_load_useful_byte_fraction": 1.0
+        }
+      }
+    },
+    {
+      "logn": 12,
+      "tiles_per_row": 1,
+      "modes": {
+        "literal": {
+          "source_words": 4096,
+          "requested_sectors": 4096,
+          "unique_source_sectors": 1024,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 0.25
+        },
+        "rotate1": {
+          "source_words": 4096,
+          "requested_sectors": 2048,
+          "unique_source_sectors": 1024,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 0.5
+        },
+        "rotate2": {
+          "source_words": 4096,
+          "requested_sectors": 1024,
+          "unique_source_sectors": 1024,
+          "bank_peak_unique_u32_words_sampled": 4,
+          "global_load_useful_byte_fraction": 1.0
+        },
+        "reverse": {
+          "source_words": 4096,
+          "requested_sectors": 1024,
+          "unique_source_sectors": 1024,
+          "bank_peak_unique_u32_words_sampled": 32,
+          "global_load_useful_byte_fraction": 1.0
+        }
+      }
+    },
+    {
+      "logn": 13,
+      "tiles_per_row": 2,
+      "modes": {
+        "literal": {
+          "source_words": 4096,
+          "requested_sectors": 4096,
+          "unique_source_sectors": 2048,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 0.25
+        },
+        "rotate1": {
+          "source_words": 4096,
+          "requested_sectors": 2048,
+          "unique_source_sectors": 2048,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 0.5
+        },
+        "rotate2": {
+          "source_words": 4096,
+          "requested_sectors": 2048,
+          "unique_source_sectors": 2048,
+          "bank_peak_unique_u32_words_sampled": 4,
+          "global_load_useful_byte_fraction": 0.5
+        },
+        "reverse": {
+          "source_words": 4096,
+          "requested_sectors": 2048,
+          "unique_source_sectors": 2048,
+          "bank_peak_unique_u32_words_sampled": 32,
+          "global_load_useful_byte_fraction": 0.5
+        }
+      }
+    },
+    {
+      "logn": 14,
+      "tiles_per_row": 4,
+      "modes": {
+        "literal": {
+          "source_words": 4096,
+          "requested_sectors": 4096,
+          "unique_source_sectors": 4096,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 0.25
+        },
+        "rotate1": {
+          "source_words": 4096,
+          "requested_sectors": 4096,
+          "unique_source_sectors": 4096,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 0.25
+        },
+        "rotate2": {
+          "source_words": 4096,
+          "requested_sectors": 4096,
+          "unique_source_sectors": 4096,
+          "bank_peak_unique_u32_words_sampled": 4,
+          "global_load_useful_byte_fraction": 0.25
+        },
+        "reverse": {
+          "source_words": 4096,
+          "requested_sectors": 4096,
+          "unique_source_sectors": 4096,
+          "bank_peak_unique_u32_words_sampled": 32,
+          "global_load_useful_byte_fraction": 0.25
+        }
+      }
+    },
+    {
+      "logn": 16,
+      "tiles_per_row": 16,
+      "modes": {
+        "literal": {
+          "source_words": 4096,
+          "requested_sectors": 4096,
+          "unique_source_sectors": 4096,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 0.25
+        },
+        "rotate1": {
+          "source_words": 4096,
+          "requested_sectors": 4096,
+          "unique_source_sectors": 4096,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 0.25
+        },
+        "rotate2": {
+          "source_words": 4096,
+          "requested_sectors": 4096,
+          "unique_source_sectors": 4096,
+          "bank_peak_unique_u32_words_sampled": 4,
+          "global_load_useful_byte_fraction": 0.25
+        },
+        "reverse": {
+          "source_words": 4096,
+          "requested_sectors": 4096,
+          "unique_source_sectors": 4096,
+          "bank_peak_unique_u32_words_sampled": 32,
+          "global_load_useful_byte_fraction": 0.25
+        }
+      }
+    },
+    {
+      "logn": 20,
+      "tiles_per_row": 256,
+      "modes": {
+        "literal": {
+          "source_words": 4096,
+          "requested_sectors": 4096,
+          "unique_source_sectors": 4096,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 0.25
+        },
+        "rotate1": {
+          "source_words": 4096,
+          "requested_sectors": 4096,
+          "unique_source_sectors": 4096,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 0.25
+        },
+        "rotate2": {
+          "source_words": 4096,
+          "requested_sectors": 4096,
+          "unique_source_sectors": 4096,
+          "bank_peak_unique_u32_words_sampled": 4,
+          "global_load_useful_byte_fraction": 0.25
+        },
+        "reverse": {
+          "source_words": 4096,
+          "requested_sectors": 4096,
+          "unique_source_sectors": 4096,
+          "bank_peak_unique_u32_words_sampled": 32,
+          "global_load_useful_byte_fraction": 0.25
+        }
+      }
+    },
+    {
+      "logn": 24,
+      "tiles_per_row": 4096,
+      "modes": {
+        "literal": {
+          "source_words": 4096,
+          "requested_sectors": 4096,
+          "unique_source_sectors": 4096,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 0.25
+        },
+        "rotate1": {
+          "source_words": 4096,
+          "requested_sectors": 4096,
+          "unique_source_sectors": 4096,
+          "bank_peak_unique_u32_words_sampled": 2,
+          "global_load_useful_byte_fraction": 0.25
+        },
+        "rotate2": {
+          "source_words": 4096,
+          "requested_sectors": 4096,
+          "unique_source_sectors": 4096,
+          "bank_peak_unique_u32_words_sampled": 4,
+          "global_load_useful_byte_fraction": 0.25
+        },
+        "reverse": {
+          "source_words": 4096,
+          "requested_sectors": 4096,
+          "unique_source_sectors": 4096,
+          "bank_peak_unique_u32_words_sampled": 32,
+          "global_load_useful_byte_fraction": 0.25
+        }
+      }
+    }
+  ],
+  "scope": "Address/zero-tail equivalence, source sector requests and sampled shared-bank address pressure; no native instruction/cache/DRAM/time/proof claims",
+  "full_stack": {
+    "proofs": 0,
+    "passes": 0,
+    "positions": 0,
+    "context_length": null,
+    "device": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "startup_s": null,
+    "startup_fraction": null,
+    "steady_rate": null,
+    "total_rate": null
+  }
+}

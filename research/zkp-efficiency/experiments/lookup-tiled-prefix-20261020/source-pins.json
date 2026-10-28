@@ -1,0 +1,48 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/shape.rs",
+    "snapshot": "source/shape.rs",
+    "sha256": "e214db86945e0b9df8336edc7974041ebcfe77f2f1884a565a77a0392fca1165",
+    "bytes": 129620
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/layout.rs",
+    "snapshot": "source/layout.rs",
+    "sha256": "9332802e597beacab56cfa69cfe18325bc476d2ce6485f517051992b26d26efa",
+    "bytes": 74733
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/argument.rs",
+    "snapshot": "source/argument.rs",
+    "sha256": "112352bc35c8b877cba50707a5ea64ea239ec6c684becb193ad981bd643ff4f5",
+    "bytes": 110974
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/protocol.rs",
+    "snapshot": "source/protocol.rs",
+    "sha256": "c482402329e4da32a70c780435b2077e8054d1805b1006289f571820017564a4",
+    "bytes": 77946
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/r9_counts.json",
+    "snapshot": "source/r9_counts.json",
+    "sha256": "ae24df761b94390667605d888394aca03f653d81f2ac07f9c135718e85e3b388",
+    "bytes": 1386
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-owned-consumer-20261020/owned.py",
+    "sha256": "6b537ea1afb71f4afa601f0fb81ee750ceafc91bc6dfe377fb9cb61031116cab"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-layer-consumer-20261020/reference.py",
+    "sha256": "34a4012dcbdcfdb7c9b434271e650318a4f06554ad69f0b5c5e1c9924581b731"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-owned-consumer-20261020/census.json",
+    "sha256": "7eac93de723bf8e54a8337b4447916cda80d1cd64c51ec6162f8ed8525798ba1"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-owned-consumer-20261020/hypotheses.json",
+    "sha256": "f4672840dd9c5714de17bacdcccfa360374e7888f83428d0dea8ecad5f7b50a8"
+  }
+]

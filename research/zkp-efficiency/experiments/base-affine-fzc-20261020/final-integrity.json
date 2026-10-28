@@ -1,0 +1,37 @@
+{
+  "status": "PASS_FINAL_INTEGRITY",
+  "checks": 25,
+  "at": "2026-10-20T06:35:57.782893+00:00",
+  "artifacts": [
+    {
+      "path": "STATE.md",
+      "sha256": "a11df5510f14217e09b831d7ba7e639cf565eaf151e0be3ad84eb58bb18f7960"
+    },
+    {
+      "path": "FINDINGS.md",
+      "sha256": "72605629b41dc716902b2eb55ea0a2d3ed477361b1b6ce440e098e3e94e6afcf"
+    },
+    {
+      "path": "PROGRESS.md",
+      "sha256": "a11e2eeaa4f903c022f8f989ebf91ca3c06aebd2f3d87a8566bae14db1f2e5e5"
+    },
+    {
+      "path": "sources.jsonl",
+      "sha256": "3ad615503436c7eb4bebff7e4fb667d1a6e3fa346b0806aa796bffb653b06909"
+    },
+    {
+      "path": "experiments/base-affine-fzc-20261020/README.md",
+      "sha256": "465d67e504a0069e3fe16f5aad5eac15c0ce966fdc2c12bdc1bc096419d6b2a1"
+    },
+    {
+      "path": "progress/20261020T061854Z-03bda577.md",
+      "sha256": "a11e2eeaa4f903c022f8f989ebf91ca3c06aebd2f3d87a8566bae14db1f2e5e5"
+    },
+    {
+      "path": "handoffs/20261020-base-paired-affine-fzc.md",
+      "sha256": "9209f7485ca0535df7f27354094f0bb36812a5394f45958c94963e2d0fcb2048"
+    }
+  ],
+  "new_verified_full_stack_proofs": 0,
+  "native_source_pins_unchanged": 8
+}

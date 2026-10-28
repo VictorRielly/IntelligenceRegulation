@@ -1,0 +1,357 @@
+{
+  "status": "PASS_SYNTHETIC_CONSTRUCTORS_ONLY",
+  "seed": 202610260127,
+  "checks": 3353,
+  "fixtures": 6,
+  "constructor_cases": 204,
+  "compared_output_entries": 2264184,
+  "lengths": [
+    0,
+    1,
+    2,
+    7,
+    255,
+    256,
+    257,
+    511,
+    512,
+    513,
+    1023,
+    1024,
+    4096,
+    16384,
+    32768,
+    65536,
+    65537
+  ],
+  "copy_schedule_lengths": 1025,
+  "malformed_adapter_cases": 48,
+  "zero_denominator_alpha_cases": 256,
+  "mle_cases": 30,
+  "control_types": 13,
+  "controls": [
+    "stale beta detected",
+    "stale gamma detected",
+    "public table change detected",
+    "exp act confusion detected",
+    "incorrect modulo 255 detected",
+    "index lifted instead of repeated detected",
+    "dropped extension coordinate detected",
+    "rotated prefix detected",
+    "fresh challenges alter SHA256 diagnostic bytes",
+    "empty length never reads malformed table",
+    "short input does not eagerly read 256 rows",
+    "signed minimum conversion preserved",
+    "padded denominator zero remains visible"
+  ],
+  "source_api_counts": [
+    {
+      "length": 0,
+      "baseline": {},
+      "candidate": {},
+      "output_payload_bytes": 0,
+      "extra_separate_rust_scratch_bytes": 0,
+      "new_logical_copy_read_bytes": 0,
+      "unchanged_output_store_bytes": 0
+    },
+    {
+      "length": 1,
+      "baseline": {
+        "from_i64": 2,
+        "mul": 1,
+        "add": 2
+      },
+      "candidate": {
+        "from_i64": 2,
+        "mul": 1,
+        "add": 2
+      },
+      "output_payload_bytes": 16,
+      "extra_separate_rust_scratch_bytes": 0,
+      "new_logical_copy_read_bytes": 0,
+      "unchanged_output_store_bytes": 16
+    },
+    {
+      "length": 2,
+      "baseline": {
+        "from_i64": 4,
+        "mul": 2,
+        "add": 4
+      },
+      "candidate": {
+        "from_i64": 4,
+        "mul": 2,
+        "add": 4
+      },
+      "output_payload_bytes": 32,
+      "extra_separate_rust_scratch_bytes": 0,
+      "new_logical_copy_read_bytes": 0,
+      "unchanged_output_store_bytes": 32
+    },
+    {
+      "length": 7,
+      "baseline": {
+        "from_i64": 14,
+        "mul": 7,
+        "add": 14
+      },
+      "candidate": {
+        "from_i64": 14,
+        "mul": 7,
+        "add": 14
+      },
+      "output_payload_bytes": 112,
+      "extra_separate_rust_scratch_bytes": 0,
+      "new_logical_copy_read_bytes": 0,
+      "unchanged_output_store_bytes": 112
+    },
+    {
+      "length": 255,
+      "baseline": {
+        "from_i64": 510,
+        "mul": 255,
+        "add": 510
+      },
+      "candidate": {
+        "from_i64": 510,
+        "mul": 255,
+        "add": 510
+      },
+      "output_payload_bytes": 4080,
+      "extra_separate_rust_scratch_bytes": 0,
+      "new_logical_copy_read_bytes": 0,
+      "unchanged_output_store_bytes": 4080
+    },
+    {
+      "length": 256,
+      "baseline": {
+        "from_i64": 512,
+        "mul": 256,
+        "add": 512
+      },
+      "candidate": {
+        "from_i64": 512,
+        "mul": 256,
+        "add": 512
+      },
+      "output_payload_bytes": 4096,
+      "extra_separate_rust_scratch_bytes": 0,
+      "new_logical_copy_read_bytes": 0,
+      "unchanged_output_store_bytes": 4096
+    },
+    {
+      "length": 257,
+      "baseline": {
+        "from_i64": 514,
+        "mul": 257,
+        "add": 514
+      },
+      "candidate": {
+        "from_i64": 512,
+        "mul": 256,
+        "add": 512,
+        "copy_rows": 1,
+        "copy_calls": 1
+      },
+      "output_payload_bytes": 4112,
+      "extra_separate_rust_scratch_bytes": 0,
+      "new_logical_copy_read_bytes": 16,
+      "unchanged_output_store_bytes": 4112
+    },
+    {
+      "length": 511,
+      "baseline": {
+        "from_i64": 1022,
+        "mul": 511,
+        "add": 1022
+      },
+      "candidate": {
+        "from_i64": 512,
+        "mul": 256,
+        "add": 512,
+        "copy_rows": 255,
+        "copy_calls": 1
+      },
+      "output_payload_bytes": 8176,
+      "extra_separate_rust_scratch_bytes": 0,
+      "new_logical_copy_read_bytes": 4080,
+      "unchanged_output_store_bytes": 8176
+    },
+    {
+      "length": 512,
+      "baseline": {
+        "from_i64": 1024,
+        "mul": 512,
+        "add": 1024
+      },
+      "candidate": {
+        "from_i64": 512,
+        "mul": 256,
+        "add": 512,
+        "copy_rows": 256,
+        "copy_calls": 1
+      },
+      "output_payload_bytes": 8192,
+      "extra_separate_rust_scratch_bytes": 0,
+      "new_logical_copy_read_bytes": 4096,
+      "unchanged_output_store_bytes": 8192
+    },
+    {
+      "length": 513,
+      "baseline": {
+        "from_i64": 1026,
+        "mul": 513,
+        "add": 1026
+      },
+      "candidate": {
+        "from_i64": 512,
+        "mul": 256,
+        "add": 512,
+        "copy_rows": 257,
+        "copy_calls": 2
+      },
+      "output_payload_bytes": 8208,
+      "extra_separate_rust_scratch_bytes": 0,
+      "new_logical_copy_read_bytes": 4112,
+      "unchanged_output_store_bytes": 8208
+    },
+    {
+      "length": 1023,
+      "baseline": {
+        "from_i64": 2046,
+        "mul": 1023,
+        "add": 2046
+      },
+      "candidate": {
+        "from_i64": 512,
+        "mul": 256,
+        "add": 512,
+        "copy_rows": 767,
+        "copy_calls": 2
+      },
+      "output_payload_bytes": 16368,
+      "extra_separate_rust_scratch_bytes": 0,
+      "new_logical_copy_read_bytes": 12272,
+      "unchanged_output_store_bytes": 16368
+    },
+    {
+      "length": 1024,
+      "baseline": {
+        "from_i64": 2048,
+        "mul": 1024,
+        "add": 2048
+      },
+      "candidate": {
+        "from_i64": 512,
+        "mul": 256,
+        "add": 512,
+        "copy_rows": 768,
+        "copy_calls": 2
+      },
+      "output_payload_bytes": 16384,
+      "extra_separate_rust_scratch_bytes": 0,
+      "new_logical_copy_read_bytes": 12288,
+      "unchanged_output_store_bytes": 16384
+    },
+    {
+      "length": 4096,
+      "baseline": {
+        "from_i64": 8192,
+        "mul": 4096,
+        "add": 8192
+      },
+      "candidate": {
+        "from_i64": 512,
+        "mul": 256,
+        "add": 512,
+        "copy_rows": 3840,
+        "copy_calls": 4
+      },
+      "output_payload_bytes": 65536,
+      "extra_separate_rust_scratch_bytes": 0,
+      "new_logical_copy_read_bytes": 61440,
+      "unchanged_output_store_bytes": 65536
+    },
+    {
+      "length": 16384,
+      "baseline": {
+        "from_i64": 32768,
+        "mul": 16384,
+        "add": 32768
+      },
+      "candidate": {
+        "from_i64": 512,
+        "mul": 256,
+        "add": 512,
+        "copy_rows": 16128,
+        "copy_calls": 6
+      },
+      "output_payload_bytes": 262144,
+      "extra_separate_rust_scratch_bytes": 0,
+      "new_logical_copy_read_bytes": 258048,
+      "unchanged_output_store_bytes": 262144
+    },
+    {
+      "length": 32768,
+      "baseline": {
+        "from_i64": 65536,
+        "mul": 32768,
+        "add": 65536
+      },
+      "candidate": {
+        "from_i64": 512,
+        "mul": 256,
+        "add": 512,
+        "copy_rows": 32512,
+        "copy_calls": 7
+      },
+      "output_payload_bytes": 524288,
+      "extra_separate_rust_scratch_bytes": 0,
+      "new_logical_copy_read_bytes": 520192,
+      "unchanged_output_store_bytes": 524288
+    },
+    {
+      "length": 65536,
+      "baseline": {
+        "from_i64": 131072,
+        "mul": 65536,
+        "add": 131072
+      },
+      "candidate": {
+        "from_i64": 512,
+        "mul": 256,
+        "add": 512,
+        "copy_rows": 65280,
+        "copy_calls": 8
+      },
+      "output_payload_bytes": 1048576,
+      "extra_separate_rust_scratch_bytes": 0,
+      "new_logical_copy_read_bytes": 1044480,
+      "unchanged_output_store_bytes": 1048576
+    },
+    {
+      "length": 65537,
+      "baseline": {
+        "from_i64": 131074,
+        "mul": 65537,
+        "add": 131074
+      },
+      "candidate": {
+        "from_i64": 512,
+        "mul": 256,
+        "add": 512,
+        "copy_rows": 65281,
+        "copy_calls": 9
+      },
+      "output_payload_bytes": 1048592,
+      "extra_separate_rust_scratch_bytes": 0,
+      "new_logical_copy_read_bytes": 1044496,
+      "unchanged_output_store_bytes": 1048592
+    }
+  ],
+  "elapsed_seconds": 9.16953408200061,
+  "max_rss_kib": 56076,
+  "native_proofs": 0,
+  "oracle": "Separately authored integer coordinate / original-cube MLE reference",
+  "limits": "No native Rust, transcript, masks, PCS, GPU, receipt or privacy evidence. SHA256 diagnostic only."
+}

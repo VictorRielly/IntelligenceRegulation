@@ -1,0 +1,14 @@
+{
+ "kind": "randomized Sylvester Hadamard",
+ "n": 2048,
+ "seed": 1,
+ "file": {
+  "name": "rotation_sign.bin",
+  "dtype": "float64 little-endian",
+  "shape": [
+   2048
+  ],
+  "sha256": "db7b32c2445beded0a2cc56c5739f8cc84aa6f50fd0e9e18aebbe6ef7ab873a1"
+ },
+ "definition": "R = H diag(sign) / sqrt(2048); x' = x R^T; see export/TOKEN_IO_SPEC.md"
+}

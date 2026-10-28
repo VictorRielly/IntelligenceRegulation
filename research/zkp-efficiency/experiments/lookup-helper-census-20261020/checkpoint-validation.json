@@ -1,0 +1,47 @@
+{
+  "status": "PASS",
+  "checks": 243,
+  "checked_utc": "2026-10-20T11:31:48.858743+00:00",
+  "prior_findings_and_source_prefix_preserved": true,
+  "source_records_before": 599,
+  "source_records_after": 605,
+  "unchanged_native_source_pins": 5,
+  "research_files_hashed": 22,
+  "new_complete_proofs": 0,
+  "native_build": false,
+  "gpu_invoked": false,
+  "latest_experiment_commands": [
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-helper-census-20261020/validate.py"
+      ],
+      "returncode": 0,
+      "parent_elapsed_s": 0.06620090498472564,
+      "limits": {
+        "CPU_s": 59,
+        "alarm_s": 59,
+        "parent_s": 60,
+        "address_space_MiB": 512,
+        "threads": 1,
+        "nice": 19
+      }
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-helper-census-20261020/validate.py"
+      ],
+      "returncode": 0,
+      "parent_elapsed_s": 0.06622867402620614,
+      "limits": {
+        "CPU_s": 59,
+        "alarm_s": 59,
+        "parent_s": 60,
+        "address_space_MiB": 512,
+        "threads": 1,
+        "nice": 19
+      }
+    }
+  ]
+}

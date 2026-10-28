@@ -1,0 +1,102 @@
+stage-00.json A: groups 38, surjective 38, disclosed 0 {}, joint [] (780.1 s)
+stage-00.json H: groups 10, surjective 9, disclosed 2 {'9': 2}, joint [([7, 9], 2)] (3254.7 s)
+stage-00.json Input: groups 1, surjective 1, disclosed 0 {}, joint [] (3259.7 s)
+stage-01.json A: groups 38, surjective 38, disclosed 0 {}, joint [] (4015.0 s)
+stage-01.json H: groups 10, surjective 9, disclosed 2 {'9': 2}, joint [([7, 9], 2)] (5791.7 s)
+stage-01.json Input: groups 2, surjective 2, disclosed 0 {}, joint [] (5797.0 s)
+stage-01.json Output: groups 1, surjective 1, disclosed 0 {}, joint [] (5799.9 s)
+   control honest reference: rank 32770 / expected-honest 32770, disclosed 0 (original form 0), expect surjective, disclosed 0
+   control C1 shared reserved pair: rank 32768 / expected-honest 32770, disclosed 2 (original form 2), expect fires
+   control C2 cm = 0 (pair removed): rank 32768 / expected-honest 32770, disclosed 2 (original form 2), expect fires
+   control C3 lambda_c = 0: rank 32770 / expected-honest 32770, disclosed 0 (original form 0), expect does not fire (as in the review of record)
+   control C6 cw = delta (one nonzero entry): rank 32770 / expected-honest 32770, disclosed 0 (original form 0), expect does not fire
+   control C8 pair weights Fp-dependent: rank 32770 / expected-honest 32770, disclosed 0 (original form 0), expect does not fire at an Fp2 column key (as in the review of record)
+   control G7-D1 duplicate claim: same data weights, its OWN reserved pair (cm, cm U): rank 32772 / expected-honest 32772, disclosed 0 (original form 0), expect surjective, disclosed 0
+   control G7-D2 duplicate claim: an exact copy (two identical coordinates, shared pair): rank 32770 / expected-honest 32772, disclosed 0 (original form 0), expect rank short by 2 of the onto-lemma's 2(N+m)-2; disclosed 0 (the repeated coordinate's equality holds for data too)
+   control G7-D3 control: a copy sharing the pair whose DATA weights differ in one row: rank 32770 / expected-honest 32772, disclosed 2 (original form 2), expect fires
+{
+ "stage0:A": {
+  "groups": 38,
+  "surjective": 38,
+  "disclosed_Fp": 0,
+  "disclosed_by_group": {},
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "stage0:H": {
+  "groups": 10,
+  "surjective": 9,
+  "disclosed_Fp": 2,
+  "disclosed_by_group": {
+   "9": 2
+  },
+  "joint": [
+   [
+    [
+     7,
+     9
+    ],
+    2
+   ]
+  ],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "stage0:Input": {
+  "groups": 1,
+  "surjective": 1,
+  "disclosed_Fp": 0,
+  "disclosed_by_group": {},
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "stage1:A": {
+  "groups": 38,
+  "surjective": 38,
+  "disclosed_Fp": 0,
+  "disclosed_by_group": {},
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "stage1:H": {
+  "groups": 10,
+  "surjective": 9,
+  "disclosed_Fp": 2,
+  "disclosed_by_group": {
+   "9": 2
+  },
+  "joint": [
+   [
+    [
+     7,
+     9
+    ],
+    2
+   ]
+  ],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "stage1:Input": {
+  "groups": 2,
+  "surjective": 2,
+  "disclosed_Fp": 0,
+  "disclosed_by_group": {},
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "stage1:Output": {
+  "groups": 1,
+  "surjective": 1,
+  "disclosed_Fp": 0,
+  "disclosed_by_group": {},
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ }
+}
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round14/dd_long/ddts-tl128dd-l2-zero.json

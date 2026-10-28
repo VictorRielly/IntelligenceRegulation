@@ -1,0 +1,101 @@
+--- results/zk60_1b_calibration_20260929/tlcalib.py
++++ results/zk60_shieldstral_export_20261026/vendor/tlcalib.py
+@@ -44,26 +44,10 @@
+ import numpy as np
+ 
+ HERE = Path(__file__).resolve().parent
+-REPO = HERE.parents[1]
+-IMPORTER_DIR = REPO / "results" / "zk60_1b_checkpoint_20260927"
+-# Model selection (lane B5): ZK60_MODEL=llama3-8b before import switches the
+-# checkpoint, the geometry GEO and the shard pins; default = TinyLlama (B/B2/B3/B4).
+-MODEL_NAME = os.environ.get("ZK60_MODEL", "tinyllama")
+-MODEL_DIR = Path("/home/victor/models/tinyllama-1.1b-chat-fe8a4ea1")
+-MODEL_SHA256 = "6e6001da2106d4757498752a021df6c2bdc332c650aae4bae6b0c004dcf14933"
+-MODEL_SHARDS = {"model.safetensors": MODEL_SHA256}
+-if MODEL_NAME == "llama3-8b":
+-    MODEL_DIR = REPO / "local-models" / "zk60-llama3-8b"
+-    MODEL_SHARDS = {
+-        "model-00001-of-00004.safetensors": "f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33",
+-        "model-00002-of-00004.safetensors": "d9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c",
+-        "model-00003-of-00004.safetensors": "4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc",
+-        "model-00004-of-00004.safetensors": "5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb"}
+-elif MODEL_NAME != "tinyllama":
+-    raise ValueError(f"unknown ZK60_MODEL {MODEL_NAME}")
+-sys.path.insert(0, str(IMPORTER_DIR))
+-import importer_zk60_1b_checkpoint as importer  # noqa: E402
+-
++REPO = HERE.parents[2]
++MODEL_NAME = "shieldstral-3b"
++from shieldstral_geometry import MODEL, rope_tables
++MODEL_SHA256 = MODEL['sha256']
+ TWO53 = 1 << 53
+ I16 = (-32768, 32767)
+ I8N = (-127, 127)
+@@ -103,7 +87,8 @@
+ # ------------------------------------------------------------------ checkpoint
+ 
+ def open_checkpoint():
+-    return importer.Checkpoint(MODEL_DIR, expected_shards=MODEL_SHARDS)
++    from shieldstral_weights import Checkpoint
++    return Checkpoint()
+ 
+ 
+ def tensor_f32(ref, max_bytes: int | None = None) -> np.ndarray:
+@@ -139,15 +124,14 @@
+         return self.KV * self.dh
+ 
+ 
+-GEO = Geo() if MODEL_NAME == "tinyllama" else Geo(d=4096, f=14336, H=32, KV=8, dh=128, eps=1e-5, theta=500000.0)
++GEO = Geo(d=3072, f=9216, H=32, KV=8, dh=128, eps=1e-5, theta=1000000.0)
+ 
+ 
+ # ------------------------------------------------------------------ float reference
+ 
+ def rope_f32(T: int, g: Geo = GEO):
+-    inv = (1.0 / (np.float32(g.theta) ** (np.arange(0, g.dh, 2, dtype=np.int64).astype(np.float32) / np.float32(g.dh)))).astype(np.float32)
+-    freqs = np.arange(T, dtype=np.float32)[:, None] * inv[None, :]
+-    return np.cos(freqs).astype(np.float32), np.sin(freqs).astype(np.float32)
++    assert g == GEO
++    return tuple(t.astype(np.float32) for t in rope_tables(T))
+ 
+ 
+ def f_xhat(x: np.ndarray, eps: float) -> np.ndarray:
+@@ -189,7 +173,7 @@
+     p /= p.sum(-1, keepdims=True)
+     vg = v.transpose(0, 2, 1, 3)[:, :, None]                           # (N,KV,1,T,dh)
+     o5 = p @ vg                                                        # (N,KV,G,T,dh)
+-    o = o5.transpose(0, 3, 1, 2, 4).reshape(N, T, d)
++    o = o5.transpose(0, 3, 1, 2, 4).reshape(N, T, g.H * g.dh)
+     ao = o @ W["self_attn.o_proj.weight"].T
+     x1 = x + ao
+     xm = f_xhat(x1, g.eps)
+@@ -425,18 +409,8 @@
+ 
+ 
+ def rope_tables_int(T: int, dh: int, theta: float, f_ro: int):
+-    """tables_attn::rope_tables_generate: c = round_half_up(cos(t base^(-2i/dh)) 2^f_ro)."""
+-    half = dh // 2
+-    scale = float(2 ** f_ro)
+-    c = np.zeros((T, half), dtype=np.int64)
+-    s = np.zeros((T, half), dtype=np.int64)
+-    for i in range(half):
+-        th = theta ** (-2.0 * i / dh)
+-        for t in range(T):
+-            a = t * th
+-            c[t, i] = math.floor(math.cos(a) * scale + 0.5)
+-            s[t, i] = math.floor(math.sin(a) * scale + 0.5)
+-    return c, s
++    assert dh == GEO.dh and theta == GEO.theta
++    return rope_tables(T, f_ro)
+ 
+ 
+ def exp_table(lam: float, f_e: int) -> np.ndarray:
+@@ -504,7 +478,7 @@
+     # B4-3 experiment hook: getattr(P, "o_class16") puts o in the int16 class
+     # (NOT a native relation; absent = the native int8 subset)
+     o = rec.check("O", requant(oacc, P.sh_o), *(I16 if getattr(P, "o_class16", False) else I8N), seq0, clamp)
+-    o8 = o.transpose(0, 3, 1, 2, 4).reshape(N, T, d)
++    o8 = o.transpose(0, 3, 1, 2, 4).reshape(N, T, g.H * g.dh)
+     ao = rec.check("AO", requant(M["o"](o8), P.sh_ao), *I16, seq0, clamp)
+     x1 = rec.check("residual 1", x + ao, *I16, seq0, clamp)
+     nm, _ = i_norm(x1, P.gamma_m, P.cn_m, P.tn, P.ceps, P.norm_wrho, rec, "norm_m", seq0, clamp)

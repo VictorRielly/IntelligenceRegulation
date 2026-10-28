@@ -73,6 +73,43 @@ pub(crate) enum Tab {
 }
 
 pub(crate) type Poly = Box<dyn Fn(&[Fp2]) -> Fp2 + Send + Sync>;
+
+// **NATIVE R9, TEST BUILDS ONLY: the LAPSED constructions D30 forbids**,
+// switched on both sides of a test (the prover and the verifier in one
+// thread) so that a mutation test can show its cheat PASSES against the
+// lapse and is CAUGHT by the construction as built. A release build has no
+// switch: `dd_lapse` is the constant `false` there.
+#[cfg(test)]
+thread_local! {
+    static DD_LAPSE: std::cell::Cell<u8> = const { std::cell::Cell::new(0) };
+}
+/// CHECK.md D-3: the division clauses gated off the LAST dictionary slot of
+/// every row (an unconstrained position)
+pub(crate) const DD_LAPSE_GATE_LAST_SLOT: u8 = 1;
+/// CHECK.md D-4: the row key dropped from the tuple
+pub(crate) const DD_LAPSE_DROP_KEY: u8 = 2;
+/// D30 condition 3: the dictionary's two LogUp columns left out of the single
+/// value-0 sum claim
+pub(crate) const DD_LAPSE_OUT_OF_SUM: u8 = 4;
+
+/// TEST ONLY: set the lapse bits (0 = the construction as built)
+#[cfg(test)]
+pub(crate) fn set_dd_lapse(v: u8) {
+    DD_LAPSE.with(|c| c.set(v));
+}
+
+/// whether a lapse bit is set (always `false` in a release build)
+pub(crate) fn dd_lapse(bit: u8) -> bool {
+    #[cfg(test)]
+    {
+        DD_LAPSE.with(|c| c.get()) & bit != 0
+    }
+    #[cfg(not(test))]
+    {
+        let _ = bit;
+        false
+    }
+}
 type GroupPoly = std::sync::Arc<dyn Fn(usize, &[Fp2]) -> Fp2 + Send + Sync>;
 
 pub(crate) struct SlotDef {
@@ -133,6 +170,9 @@ pub(crate) struct Ctx<'a> {
     pub g_exp: Fp2,
     /// `gamma * TAG_ACT`, the third table tag (T2 decision 4)
     pub g_act: Fp2,
+    /// NATIVE R9 (D30, B-5): `gamma * TAG_DD`, the dictionary's tag (read by
+    /// a DD profile's two dictionary relations only; no new challenge)
+    pub g_dd: Fp2,
 }
 
 #[derive(Default)]
@@ -1288,19 +1328,23 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             // the output projection write the full width; the key and value
             // projections write `kv_heads * head_dim`.
             let kvw = sh.kv_heads * sh.head_dim;
-            let (plane, w, outer): (usize, &[i8], usize) = match slot {
-                SC_QMM => (ids.at(A_Y), ctx.public.wq.as_slice(), sh.d_pad),
-                SC_KMM => (ids.at(A_Y), ctx.public.wk.as_slice(), kvw),
-                SC_VMM => (ids.at(A_Y), ctx.public.wv.as_slice(), kvw),
-                _ => (ids.at(A_O8), ctx.public.wo.as_slice(), sh.d_pad),
+            // NATIVE R12 (F2): `Wq` writes the QUERY axis (`q_pad`) and reads
+            // the model axis; `Wo` reads the query axis and writes the model
+            // axis. At every profile before R12 `q_pad == d_pad`, so no
+            // challenge length, coordinate or fold moves.
+            let (plane, w, outer, inner): (usize, &[i8], usize, usize) = match slot {
+                SC_QMM => (ids.at(A_Y), ctx.public.wq.as_slice(), sh.q_pad(), sh.d_pad),
+                SC_KMM => (ids.at(A_Y), ctx.public.wk.as_slice(), kvw, sh.d_pad),
+                SC_VMM => (ids.at(A_Y), ctx.public.wv.as_slice(), kvw, sh.d_pad),
+                _ => (ids.at(A_O8), ctx.public.wo.as_slice(), sh.d_pad, sh.q_pad()),
             };
             let r_j = tr.challenge_fp2_vec(lg(outer));
             let point = cat(&[&pts.r_q, &r_j]);
             let mut coords = fixed(&pts.r_q);
-            coords.extend(rho(0..ld));
+            coords.extend(rho(0..lg(inner)));
             b.a_at(plane, coords, 0)?;
             // w is (output j, input i): sum_j eq(r_j, j) w[j, i]
-            b.public(fold_rows_i8(w, outer, sh.d_pad, &eq_table_msb(&r_j)));
+            b.public(fold_rows_i8(w, outer, inner, &eq_table_msb(&r_j)));
             match slot {
                 SC_QMM => pts.pq = point,
                 SC_KMM => pts.pk = point,
@@ -1716,6 +1760,67 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             };
             b.finish(Box::new(poly), hosted)
         }
+        // **NATIVE R9 (D30): the softmax zero-check on a DD profile.** Each
+        // score entry keeps S8, RSL, ZSEL, E and P and the argmax clauses c0,
+        // c1, its byte lookups (sym(s8), rsl) and the exp pair; it carries NO
+        // division clause and no quotient / remainder limbs. Instead ONE
+        // tuple lookup puts (key = the row's Sum, mask * E, P) into its row's
+        // dictionary: `h_t * (alpha - (gamma TAG_DD + Sum + beta mask E +
+        // beta^2 P)) = 1`. Membership forces P = floor(mask E 2^F_P / Sum),
+        // because every dictionary slot proves exactly that quotient (`SC_DD`)
+        // and every value mask * E takes is in the public e column (B-7).
+        // Hosts 07 and 10 as before. A DD profile has no padded score
+        // position (`Shape::check_dd_geometry`).
+        SC_SZC if sh.dd_cap > 0 => {
+            if pad_on {
+                return Err("private block: a DD profile's softmax zero-check would host a pad term; D30 here needs an unpadded score domain".into());
+            }
+            let tau = tr.challenge_fp2_vec(sh.log(Dom::S));
+            let n_help = sh.helpers(Dom::S);
+            let mu = tr.challenge_fp2_vec(2 + n_help + 2);
+            let nu = nonzero(tr.challenge_fp2_vec(2))?;
+            let lam = pts.lam_z;
+            b.eq(&tau, 0);
+            b.eq(&pts.p_ht, 0);
+            b.eq(&pts.p_s, 0);
+            let im = b.public(causal_mask_at(sh));
+            let idx = b.a_range(ids.at(A_S8), ids.at(A_P))?;
+            let lht = sh.log(Dom::Ht);
+            let imx = b.a_slice(lay.a_off[ids.at(A_MX)], lht, rho(0..lht), 0)?;
+            let isum = b.a_slice(lay.a_off[ids.at(A_SUM)], lht, rho(0..lht), 0)?;
+            let h0 = b.h(hids.first_helper(Dom::S))?;
+            for j in 1..n_help {
+                b.h(hids.helper(Dom::S, j))?;
+            }
+            let ihx = b.h(hids.sexp())?;
+            let iht = b.h(hids.stuple())?;
+            let lks = lk_tables(lay, Dom::S, &b.shaped, g_u8);
+            let b_shs = k(1i64 << sh.sh_s).c0;
+            let k_s_half = k(super::witness::half(sh.sh_s));
+            let per_row = (sh.size(Dom::S) / sh.size(Dom::Ht)) as i64;
+            let hosted = vec![(SC_RS, nu[0].mul(k(per_row))), (SC_SCORE, nu[1])];
+            let ght = Gate(b.supp(Dom::Ht, cube)?);
+            let gs = Gate(b.supp(Dom::S, cube)?);
+            let (g_dd, beta2) = (ctx.g_dd, beta.mul(beta));
+            let keyed = !dd_lapse(DD_LAPSE_DROP_KEY);
+            let poly = move |v: &[Fp2]| {
+                let at = |p: usize| v[idx[p]];
+                let host_rs = nu[0].mul(ght.at(v)).mul(v[isum].add(lam));
+                let host_s = nu[1].mul(gs.at(v)).mul(at(A_S8).mul_base(b_shs).add(at(A_RSL)).sub(k_s_half));
+                let (mask, s8, zsel, e, p, sum) = (v[im], at(A_S8), at(A_ZSEL), at(A_E), at(A_P), v[isum]);
+                let delta = v[imx].sub(mask.mul(s8.add(k(-MASK_SCORE)))).add(k(-MASK_SCORE));
+                let c0 = zsel.mul(zsel).sub(zsel);
+                let c1 = zsel.mul(delta);
+                let cx = v[ihx].mul(alpha.sub(delta.add(beta.mul(e)).add(g_exp))).sub(Fp2::ONE);
+                // the tuple lookup into this row's dictionary (D30)
+                let key = if keyed { sum } else { Fp2::ZERO };
+                let ct = v[iht].mul(alpha.sub(g_dd.add(key).add(beta.mul(mask.mul(e))).add(beta2.mul(p)))).sub(Fp2::ONE);
+                let clauses = mu[0].mul(c0).add(mu[1].mul(c1));
+                let zc = helper_sum(v, &lks, h0, alpha, &mu[2..2 + n_help]).add(mu[2 + n_help].mul(cx)).add(mu[3 + n_help].mul(ct)).add(gs.at(v).mul(clauses));
+                v[0].mul(zc).add(v[1].mul(host_rs)).add(v[2].mul(host_s))
+            };
+            b.finish(Box::new(poly), hosted)
+        }
         SC_SZC => {
             let tau = tr.challenge_fp2_vec(sh.log(Dom::S));
             let n_help = sh.helpers(Dom::S);
@@ -1918,6 +2023,80 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             b.h(hids.u())?;
             b.finish(Box::new(|v: &[Fp2]| v[0].mul(v[1])), vec![])
         }
+        // **NATIVE R9 (D30; CHECK.md B-1..B-5): the dictionary zero-check.**
+        // On the cube (h, t | k) of `dd_cap` slots per row, at EVERY slot — no
+        // usage gate, no `k < n_E` indicator (B-1) — today's exact-division
+        // relation, verbatim, with the public e column for `mask * E`:
+        //   c2: e 2^F_P - P_dict Sum - rho_s = 0
+        //   c3: rho_s + sigma_s + 1 - Sum = 0
+        //   c4: P_dict = limbs(P_dict)
+        // and the limbs' byte lookups with their top pins (the dictionary's own
+        // helper planes), so 0 <= rho_s < Sum and P_dict is the floor quotient;
+        // `Sum` is `A_SUM` read on the leading (h, t) variables, a claim site
+        // of this slot (B-4). Then the TABLE helper of the committed table
+        // side: `g (alpha - (gamma TAG_DD + Sum + beta e + beta^2 P_dict)) =
+        // M_dd` (B-5), whose plane enters the single value-0 sum claim with
+        // sign -1 (`HIds::is_table`, D30 condition 3). Every plane is
+        // committed (`A`: P_dict, its limbs, M_dd before every LogUp challenge,
+        // B-2; `H`: the helpers) and opened only at its own reserved site.
+        SC_DD => {
+            if sh.dd_cap == 0 {
+                return Err("private block: the dictionary slot at a profile without a dictionary".into());
+            }
+            if pad_on {
+                return Err("private block: a DD profile's dictionary would host a pad term; D30 here needs an unpadded dictionary".into());
+            }
+            let ldd = sh.log(Dom::Dd);
+            let tau = tr.challenge_fp2_vec(ldd);
+            let n_help = sh.helpers(Dom::Dd);
+            let mu = tr.challenge_fp2_vec(3 + n_help + 1);
+            b.eq(&tau, 0);
+            let _ = b.a_range(ids.pdict(), ids.mdd())?;
+            let (ipd, imd) = (b.tab(ids.pdict()), b.tab(ids.mdd()));
+            let i_pl: Vec<usize> = (0..lp).map(|kk| b.tab(ids.pl(kk))).collect();
+            let i_sr: Vec<usize> = (0..ls).map(|kk| b.tab(ids.sr(kk))).collect();
+            let i_sg: Vec<usize> = (0..ls).map(|kk| b.tab(ids.sg(kk))).collect();
+            let lht = sh.log(Dom::Ht);
+            let isum = b.a_slice(lay.a_off[ids.at(A_SUM)], lht, rho(0..lht), 0)?;
+            // the public e column, constant in (h, t): slot k's value
+            let ecol = ctx.public.dd_e_column(sh.dd_cap)?;
+            let cap = sh.dd_cap;
+            let ie = b.public((0..(1usize << ldd)).map(|x| k(ecol[x % cap])).collect());
+            let h0 = b.h(hids.first_helper(Dom::Dd))?;
+            for j in 1..n_help {
+                b.h(hids.helper(Dom::Dd, j))?;
+            }
+            let ig = b.h(hids.gdd())?;
+            let lks = lk_tables(lay, Dom::Dd, &b.shaped, g_u8);
+            let b_fp = k(1 << F_P).c0;
+            let lw = |ix: &[usize]| -> Vec<(usize, Fp)> { ix.iter().enumerate().map(|(kk, i)| (*i, pow256(kk).c0)).collect() };
+            let (w_sr, w_sg, w_pl) = (lw(&i_sr), lw(&i_sg), lw(&i_pl));
+            let (g_dd, beta2) = (ctx.g_dd, beta.mul(beta));
+            let keyed = !dd_lapse(DD_LAPSE_DROP_KEY);
+            // the D-3 lapse's public "used slot" gate: 0 on every row's last
+            // slot (test builds, lapsed only)
+            let gate = if dd_lapse(DD_LAPSE_GATE_LAST_SLOT) { Some(b.public((0..(1usize << ldd)).map(|x| if x % cap == cap - 1 { Fp2::ZERO } else { Fp2::ONE }).collect())) } else { None };
+            let poly = move |v: &[Fp2]| {
+                let lb = |w: &[(usize, Fp)]| match w.split_first() {
+                    None => Fp2::ZERO,
+                    Some(((i0, _), rest)) => rest.iter().fold(v[*i0], |a, (i, c)| a.add(v[*i].mul_base(*c))),
+                };
+                let (pd, md, sum, e) = (v[ipd], v[imd], v[isum], v[ie]);
+                let sr = lb(&w_sr);
+                let c2 = e.mul_base(b_fp).sub(pd.mul(sum)).sub(sr);
+                let c3 = lb(&w_sg).add(sr).add(Fp2::ONE).sub(sum);
+                let c4 = pd.sub(lb(&w_pl));
+                let key = if keyed { sum } else { Fp2::ZERO };
+                let ctab = v[ig].mul(alpha.sub(g_dd.add(key).add(beta.mul(e)).add(beta2.mul(pd)))).sub(md);
+                let division = mu[0].mul(c2).add(mu[1].mul(c3)).add(mu[2].mul(c4));
+                let division = match gate {
+                    Some(gi) => v[gi].mul(division),
+                    None => division,
+                };
+                v[0].mul(division.add(helper_sum(v, &lks, h0, alpha, &mu[3..3 + n_help])).add(mu[3 + n_help].mul(ctab)))
+            };
+            b.finish(Box::new(poly), vec![])
+        }
         SC_IO_IN | SC_IO_OUT => {
             let tau = tr.challenge_fp2_vec(sh.log(Dom::D));
             b.eq(&tau, 0);
@@ -1941,7 +2120,9 @@ pub(crate) fn argument(side: &mut Side, ctx: &Ctx, tr: &mut Transcript, ph: &mut
     let mut acc = Acc::default();
     let mut pts = Points::default();
     let sh = ctx.lay.shape();
-    for slot in 0..N_SLOTS {
+    // NATIVE R9: THIS profile's slots — the twenty-three, plus the
+    // dictionary zero-check on a DD profile (appended last)
+    for slot in 0..sh.n_slots() {
         #[cfg(test)]
         super::capture::start_slot(side, tr);
         #[cfg(test)]
@@ -1957,7 +2138,7 @@ pub(crate) fn argument(side: &mut Side, ctx: &Ctx, tr: &mut Transcript, ph: &mut
     }
     let hosts = std::mem::take(&mut acc.host_fs);
     acc.fs.extend(hosts);
-    if acc.fs.len() != N_FUNCTIONALS {
+    if acc.fs.len() != sh.n_functionals() {
         return Err("private block: functional count differs from the declared schedule".into());
     }
     Ok(acc)

@@ -1,0 +1,50 @@
+# ZKP efficiency progress
+
+Cycle0084 — `20261019T161854Z-4bc2599e` — 2026-10-19 UTC.
+
+**No speed improvement measured.** The reviewed R8 source already shares
+NTT tables across blocks and caches GPU twiddle uploads. Public setup reuse
+has a narrower scope than per-layer costs would suggest.
+
+The bounded experiment rejects partial LRU for repeated ordered32-layer
+scans: capacities1..31 give0hits. Fixed public pinned4 gives60/512 synthetic
+request hits at8passes,retaining0.907GiB payload; all32 need7.254GiB before
+proof buffers. A Shape-only whole-stage layout cache also uses wrong boundary
+mask rows; its per-stage IO overlay must be rebuilt. No native cache/proof
+or speed comparison was run.
+
+PASS:66129 source/public-field/site/schedule checks,13 controls;
+independent audit1400 checks/5 controls. Main/audit
+0.345/0.096s,peak24872KiB,
+one nice19 CoreUltra9 185H CPU core. Seven LIVE records append
+455->462; recent StateSync/P3 and ICICLE plus older
+cuZK; Pipelonk full-text/artifact access blocked. No external gain reproduced.
+
+Carried owner R8 CPU 8B diagnostic, T128 /32 blocks /one16-thread pass,
+GPU off, n=1: total478.737s, diagnostic128/478.737=0.267370
+positions/s. Prove_run393.785s includes witness hand-over98.348s, itself
+including block loads17.595s. Sealing wall84.824s includes overlapping load
+tasks27.151s and witness tasks80.897s. **The JSON load_seconds field is
+seal.load_s only**, not all loads. These nested/overlapped clocks must not be
+added. Receipt922711264B. Fresh verify42.709s plus initial load13.681s;
+recheck34.395s plus load10.739s. Verification control time is separate from
+the basic verify clock. Startup fraction, isolated serialization and steady
+slope are unmeasured. Researcher did not reverify any receipt.
+
+Seam:shared immutable public owner between seal_and_record and BlockCache::get,
+with complete identity and unchanged CS/H-1 gates. Native clocks/memory and
+proof/privacy tests remain blocked on owner work. Next:public-only pinned-owner
+trace with stale-key/identity/peak controls; owner verified resident1/2/4/8
+GPU passes remain first. [Experiment](experiments/public-setup-lifetimes-20261019/README.md),
+[handoff](handoffs/20261019-public-setup-lifetimes.md),
+[dated report](progress/20261019T161854Z-4bc2599e.md).
+
+New target proofs/passes/positions **0/0/0**, device none. Target
+steady/total rates, startup fraction and witness/proof/serialization/
+verification clocks unmeasured. No long prefill, resident proof series or
+decode ran. Synthetic pass counts are constructor requests, not proved work.
+Larger workloads remain allowed; attention may grow quadratically. Complete
+private8B / >=50 proved positions/s on5090/named high-end GPU remains
+unchanged/unachieved.
+Only research files written; no runtime/production/Git/receipt/calibration/
+safety/instruction/reviewer changes. Saved reports do not establish delivery.

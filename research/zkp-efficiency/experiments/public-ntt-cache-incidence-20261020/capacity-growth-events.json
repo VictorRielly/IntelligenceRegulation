@@ -1,0 +1,44 @@
+[
+  {
+    "kind": "allocate:small",
+    "bytes": 32,
+    "pinned": 0,
+    "leases": 1
+  },
+  {
+    "kind": "publish:small",
+    "bytes": 32,
+    "pinned": 1,
+    "leases": 1
+  },
+  {
+    "kind": "allocate:large",
+    "bytes": 96,
+    "pinned": 1,
+    "leases": 2
+  },
+  {
+    "kind": "publish:large",
+    "bytes": 96,
+    "pinned": 1,
+    "leases": 2
+  },
+  {
+    "kind": "evict",
+    "bytes": 96,
+    "pinned": 0,
+    "leases": 2
+  },
+  {
+    "kind": "release:small",
+    "bytes": 64,
+    "pinned": 0,
+    "leases": 1
+  },
+  {
+    "kind": "release:large",
+    "bytes": 0,
+    "pinned": 0,
+    "leases": 0
+  }
+]

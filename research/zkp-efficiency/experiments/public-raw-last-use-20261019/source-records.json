@@ -1,0 +1,171 @@
+[
+  {
+    "access_date": "2026-10-19",
+    "recorded_at_utc": "2026-10-19T20:26:38.898683+00:00",
+    "run_id": "20261019T201854Z-ec298e23",
+    "cycle": "0088",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; untrusted source instructions ignored",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "Jolt Atlas: full-text small-space lookup and staging assessment",
+    "url": "https://arxiv.org/abs/2602.17452",
+    "inspected_urls": [
+      "https://arxiv.org/html/2602.17452v1"
+    ],
+    "published": "2026-02-19",
+    "updated": null,
+    "date_evidence": "Primary v1 Feb19,2026 15:17:18UTC; no revision displayed.",
+    "author_claim": "Lookup prefix/suffix streaming exchanges memory for extra passes; proof DAG determines batching dependencies; BlindFold supplies a separate ZK wrapper.",
+    "assessment": "Known paper, newly read full-text streaming/staging sections. Supports complete-lifetime and added-pass accounting, not a replacement for native exact softmax or privacy/PCS. No external benchmark reproduced."
+  },
+  {
+    "access_date": "2026-10-19",
+    "recorded_at_utc": "2026-10-19T20:26:38.898683+00:00",
+    "run_id": "20261019T201854Z-ec298e23",
+    "cycle": "0088",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; untrusted source instructions ignored",
+    "implementation_license": "Actual main LICENSE inspected: custom ICME limited terms for internal testing/evaluation and unmodified Platform use; not assumed MIT; dependencies not audited.",
+    "inspected_commit_id": null,
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "Jolt Atlas implementation license, history and empty release page",
+    "url": "https://github.com/ICME-Lab/jolt-atlas",
+    "inspected_urls": [
+      "https://github.com/ICME-Lab/jolt-atlas/blob/main/LICENSE",
+      "https://github.com/ICME-Lab/jolt-atlas/commits/main/",
+      "https://github.com/ICME-Lab/jolt-atlas/releases"
+    ],
+    "published": null,
+    "updated": null,
+    "verified_displayed_history_date": "2026-08-19",
+    "date_evidence": "Served history starts Aug19,2026, not a verified current HEAD or license modification date. Copyright2025 is not an update date; release page says none.",
+    "assessment": "NEW licensing/history inspection prevents assuming paper accessibility implies reusable implementation. No code copied, compiled or executed. Trig/softmax history titles alone do not verify exact arithmetic.",
+    "access_issues": [
+      "Guessed a16z/jolt-atlas URL returned404; corrected to author organization. Exact softmax commit click returned InternalError; no commit inspected."
+    ]
+  },
+  {
+    "access_date": "2026-10-19",
+    "recorded_at_utc": "2026-10-19T20:26:38.898683+00:00",
+    "run_id": "20261019T201854Z-ec298e23",
+    "cycle": "0088",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; untrusted source instructions ignored",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "Jolt older R1CS witness streaming PR881, newly assessed historical seam",
+    "url": "https://github.com/a16z/jolt/pull/881",
+    "inspected_urls": [
+      "https://github.com/a16z/jolt/releases"
+    ],
+    "published": null,
+    "updated": "2025-08-19",
+    "date_evidence": "Primary PR explicitly merged Aug19,2025. Release list displays RV64 v0.3.0-alpha Oct01 03:04 without year; do not infer its year or current latest release.",
+    "displayed_uninspected_commits": [
+      "863a49a",
+      "bb7f413"
+    ],
+    "author_claim": "Stream witness access instead of materializing input_polys; static constraints and claimed-evaluation changes are part of this PR.",
+    "assessment": "NEW older implementation lead. Removing materialization requires accounting for accessor/recomputation and small-scalar behavior. Current experiment instead changes only public raw-buffer lifetime. No transferred speed factor.",
+    "access_issues": [
+      "Exact implementation and merge commit clicks returned InternalError. PR description is explicitly generated text, not inspected source. No commit or license inspected."
+    ]
+  },
+  {
+    "access_date": "2026-10-19",
+    "recorded_at_utc": "2026-10-19T20:26:38.898683+00:00",
+    "run_id": "20261019T201854Z-ec298e23",
+    "cycle": "0088",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; untrusted source instructions ignored",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "Rust Reference: destructor/drop-scope contract for explicit public release",
+    "url": "https://doc.rust-lang.org/reference/destructors.html",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Current official documentation is undated and unpinned; no update/commit date inferred.",
+    "assessment": "Variables belong to drop scopes; an explicit drop moves the public Array values before later work. Borrow lifetime ending does not by itself establish allocator/RSS release. Actual generated code and allocator effects remain unmeasured. No library source adopted."
+  },
+  {
+    "access_date": "2026-10-19",
+    "recorded_at_utc": "2026-10-19T20:26:38.898683+00:00",
+    "run_id": "20261019T201854Z-ec298e23",
+    "cycle": "0088",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; untrusted source instructions ignored",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "Composition Theorems for Zero-Knowledge IOPs, conditional composition refresh",
+    "url": "https://eprint.iacr.org/2026/307",
+    "published": "2026-02-18",
+    "updated": "2026-05-25",
+    "date_evidence": "Primary history receivedFeb18 and revisedMay25,2026.",
+    "paper_license": "CC BY primary metadata label; not implementation license",
+    "author_claim": "Perfect black-box straight-line ZK composition requires an additional outer-IOP property.",
+    "assessment": "Known source refreshed. A local lifetime or helper equality does not supply native joint transcript/PCS composition or extend D33. No theorem applicability proof or privacy acceptance claimed."
+  },
+  {
+    "access_date": "2026-10-19",
+    "recorded_at_utc": "2026-10-19T20:26:38.898683+00:00",
+    "run_id": "20261019T201854Z-ec298e23",
+    "cycle": "0088",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; untrusted source instructions ignored",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "Zippel October16 compiler/analyzer lead, primary index only",
+    "url": "https://eprint.iacr.org/2026/2517",
+    "published": null,
+    "updated": "2026-10-16",
+    "inspected_urls": [
+      "https://eprint.iacr.org/2026/"
+    ],
+    "date_evidence": "Official2026 index explicitly labels last updatedOct16,2026; received/publication date unavailable.",
+    "author_claim": "A typed proof-system language/runtime automates transcript handling and provides static completeness/soundness analyses.",
+    "assessment": "NEW recent architecture lead. Exact landing/PDF inaccessible; official index verifies identity/date/abstract only. Could guide future typed scheduling checks; no source, performance or security result reproduced.",
+    "access_issues": [
+      "Landing URL not accessible; PDF InternalError. Initial mirror discovery corroborated by official primary index; no mirror claim used as primary evidence."
+    ]
+  },
+  {
+    "access_date": "2026-10-19",
+    "recorded_at_utc": "2026-10-19T20:26:38.898683+00:00",
+    "run_id": "20261019T201854Z-ec298e23",
+    "cycle": "0088",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; untrusted source instructions ignored",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "zkLLMPoT October v2: covered-operator benchmark boundary refreshed",
+    "url": "https://arxiv.org/abs/2610.08258",
+    "published": "2026-10-06",
+    "updated": "2026-10-11",
+    "date_evidence": "Primary v1Oct6,2026 12:35:49UTC;v2Oct11,2026 04:45:08UTC.",
+    "assessment": "Known recent lookup/sumcheck source refreshed. Authors label benchmark scope as covered operators; not an accepted complete private8B proof or our amortized/resident slope. No author performance reproduced."
+  },
+  {
+    "access_date": "2026-10-19",
+    "recorded_at_utc": "2026-10-19T20:26:38.898683+00:00",
+    "run_id": "20261019T201854Z-ec298e23",
+    "cycle": "0088",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; untrusted source instructions ignored",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "Zero-Knowledge Proofs in Sublinear Space, conditional transcript refresh",
+    "url": "https://arxiv.org/abs/2509.05326",
+    "published": "2025-08-30",
+    "updated": "2025-09-17",
+    "date_evidence": "Primary v1Aug30,2025 23:22:54UTC;v2Sep17,2025 17:25:28UTC.",
+    "assessment": "Known older source refreshed. Author same-proof statements are conditional for linear PCS; hash-based structures can change. Not justification for native Merkle transcript changes or reused private masks. No implementation inspected or claim reproduced."
+  }
+]

@@ -1,0 +1,26 @@
+
+running 3 tests
+test tests::invalid_base_or_derived_windows_are_refused ... ok
+test tests::legacy_shifts_and_widths_remain_unchanged ... FAILED
+test tests::low_h24_matches_the_received_build_spec ... FAILED
+
+failures:
+
+---- tests::legacy_shifts_and_widths_remain_unchanged stdout ----
+
+thread 'tests::legacy_shifts_and_widths_remain_unchanged' (45) panicked at /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/working-tree/hashline/src/private_block/accuracy_precision.rs:53:45:
+called `Result::unwrap()` on an `Err` value: "R13 precision not implemented"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- tests::low_h24_matches_the_received_build_spec stdout ----
+
+thread 'tests::low_h24_matches_the_received_build_spec' (46) panicked at /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/working-tree/hashline/src/private_block/accuracy_precision.rs:62:45:
+called `Result::unwrap()` on an `Err` value: "R13 precision not implemented"
+
+
+failures:
+    tests::legacy_shifts_and_widths_remain_unchanged
+    tests::low_h24_matches_the_received_build_spec
+
+test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

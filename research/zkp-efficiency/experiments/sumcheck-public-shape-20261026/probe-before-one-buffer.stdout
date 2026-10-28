@@ -1,0 +1,125 @@
+{
+  "status": "PASS_ARITHMETIC_MODEL_ONLY",
+  "seed": 202610260126,
+  "checks": 6244,
+  "interpolation_fixtures": 108,
+  "point_evaluations": 1836,
+  "masked_chain_cases": 40,
+  "masked_chain_rounds": 120,
+  "rows_tested_masked_plus_unmasked": 240,
+  "control_types": 10,
+  "controls": [
+    "fresh synthetic CFS coefficients per fixture",
+    "wrong inverse factorial detected",
+    "reversed node order detected",
+    "stale challenge result detected",
+    "dropped extension coordinate detected",
+    "changed mask coefficients detected",
+    "empty inherited result",
+    "single inherited result",
+    "high degree generic fallback",
+    "nodes need no challenge inversion"
+  ],
+  "per_call_source_api_counts": [
+    {
+      "samples": 2,
+      "degree": 1,
+      "literal": {
+        "ext_sub_base": 2,
+        "ext_mul": 4,
+        "base_den_mul": 2,
+        "base_inv": 2,
+        "ext_mul_base": 2,
+        "ext_add": 2
+      },
+      "prepared": {
+        "ext_sub": 1,
+        "ext_mul_base": 1,
+        "ext_sub_base": 1,
+        "ext_mul": 1,
+        "ext_add": 1
+      }
+    },
+    {
+      "samples": 3,
+      "degree": 2,
+      "literal": {
+        "ext_sub_base": 6,
+        "ext_mul": 9,
+        "base_den_mul": 6,
+        "base_inv": 3,
+        "ext_mul_base": 3,
+        "ext_add": 3
+      },
+      "prepared": {
+        "ext_sub": 3,
+        "ext_mul_base": 2,
+        "ext_sub_base": 2,
+        "ext_mul": 2,
+        "ext_add": 2
+      }
+    },
+    {
+      "samples": 4,
+      "degree": 3,
+      "literal": {
+        "ext_sub_base": 12,
+        "ext_mul": 16,
+        "base_den_mul": 12,
+        "base_inv": 4,
+        "ext_mul_base": 4,
+        "ext_add": 4
+      },
+      "prepared": {
+        "ext_sub": 6,
+        "ext_mul_base": 3,
+        "ext_sub_base": 3,
+        "ext_mul": 3,
+        "ext_add": 3
+      }
+    },
+    {
+      "samples": 5,
+      "degree": 4,
+      "literal": {
+        "ext_sub_base": 20,
+        "ext_mul": 25,
+        "base_den_mul": 20,
+        "base_inv": 5,
+        "ext_mul_base": 5,
+        "ext_add": 5
+      },
+      "prepared": {
+        "ext_sub": 10,
+        "ext_mul_base": 4,
+        "ext_sub_base": 4,
+        "ext_mul": 4,
+        "ext_add": 4
+      }
+    },
+    {
+      "samples": 6,
+      "degree": 5,
+      "literal": {
+        "ext_sub_base": 30,
+        "ext_mul": 36,
+        "base_den_mul": 30,
+        "base_inv": 6,
+        "ext_mul_base": 6,
+        "ext_add": 6
+      },
+      "prepared": {
+        "ext_sub": 15,
+        "ext_mul_base": 5,
+        "ext_sub_base": 5,
+        "ext_mul": 5,
+        "ext_add": 5
+      }
+    }
+  ],
+  "elapsed_seconds": 0.9652536390058231,
+  "max_rss_kib": 15440,
+  "native_proofs": 0,
+  "oracle": "Separate local Vandermonde solve / direct original cube; both implementations researcher-authored",
+  "transcript": "SHA256 mock only; no native BLAKE3/CFS/PCS proof or privacy test"
+}

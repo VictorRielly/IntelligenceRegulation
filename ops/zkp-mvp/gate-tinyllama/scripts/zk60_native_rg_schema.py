@@ -137,6 +137,14 @@ ALLOWED_KEYS = (
     'sh_h',
     'sh_z',
     'd_max',
+    # [v17, gate round 14] a DD profile's public dictionary geometry (D30;
+    # the gate's R9 capture patch H-2), written only when dd_cap > 0
+    'dd_cap',
+    'dd_log',
+    'dd_helpers',
+    'tag_dd',
+    'm_rows',
+    'n_functionals',
     'input_root',
     'output_root',
     'rows',

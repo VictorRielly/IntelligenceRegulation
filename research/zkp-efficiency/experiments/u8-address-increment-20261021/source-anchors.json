@@ -1,0 +1,97 @@
+[
+  {
+    "file": "protocol.rs",
+    "line": 1149,
+    "fragment": "let u8_inv = u8_denominator_inverses(alpha, g_u8);"
+  },
+  {
+    "file": "protocol.rs",
+    "line": 1161,
+    "fragment": "helper_pair_inverses_u8(&cols[2 * k], second"
+  },
+  {
+    "file": "protocol.rs",
+    "line": 1164,
+    "fragment": "write_h(&mut h_data, lay.h_off[first + k], &col);"
+  },
+  {
+    "file": "protocol.rs",
+    "line": 1140,
+    "fragment": "let alpha = tr.challenge_fp2();"
+  },
+  {
+    "file": "protocol.rs",
+    "line": 1120,
+    "fragment": "absorb_root(tr, b\"A\""
+  },
+  {
+    "file": "protocol.rs",
+    "line": 1132,
+    "fragment": "tr.absorb(b\"M\", &mask_root);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 943,
+    "fragment": "h.mul(d1).mul(d2).sub(d1.add(d2))"
+  },
+  {
+    "file": "argument.rs",
+    "line": 945,
+    "fragment": "h.mul(d1).sub(Fp2::ONE)"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1970,
+    "fragment": "b.a(ids.at(A_MU8))?;"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1963,
+    "fragment": "SC_TAB => {"
+  },
+  {
+    "file": "layout.rs",
+    "line": 794,
+    "fragment": "pub(crate) fn lookups_at("
+  },
+  {
+    "file": "layout.rs",
+    "line": 818,
+    "fragment": "v.push(scaled(ids.nr(ln - 1), norm_scale));"
+  },
+  {
+    "file": "core-pcs.rs",
+    "line": 727,
+    "fragment": "let pads = rng.fp_vec(rows * q);"
+  },
+  {
+    "file": "core-pcs.rs",
+    "line": 728,
+    "fragment": "let salts: Vec<[u8; 32]> = (0..nn).map(|_| rng.bytes32()).collect();"
+  },
+  {
+    "file": "core-pcs.rs",
+    "line": 785,
+    "fragment": "let encoded = encode_buffer::encode_rows(ntt, data_ref, n, &pads, q, &pows);"
+  },
+  {
+    "file": "core-pcs.rs",
+    "line": 786,
+    "fragment": "let leaves = hash_columns_keyed(&encoded, rows, nn, tag.column_key());"
+  },
+  {
+    "file": "core-pcs.rs",
+    "line": 663,
+    "fragment": "let mut coeffs = msg.to_vec();"
+  },
+  {
+    "file": "core-pcs.rs",
+    "line": 228,
+    "fragment": "ntt.inverse(&mut coeffs);"
+  },
+  {
+    "file": "core-pcs.rs",
+    "line": 676,
+    "fragment": "ntt.forward(out);"
+  }
+]

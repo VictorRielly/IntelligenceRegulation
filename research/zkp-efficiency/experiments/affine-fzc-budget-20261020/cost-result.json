@@ -1,0 +1,14 @@
+{
+  "status": "PASS_PARTIAL_SOURCE_ACCOUNTING_ONLY",
+  "cases": 720,
+  "checks": 2180,
+  "negative_controls": 7,
+  "wall_seconds": 0.3492783010005951,
+  "rss_kib": 13016,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "scope": "Native source-call counts before compilation; logical shared reads assuming unused-load DCE; not physical traffic, cache, occupancy, timings, peak or complete proof",
+  "new_verified_full_stack_proofs": 0
+}

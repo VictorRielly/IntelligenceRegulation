@@ -1,0 +1,17 @@
+[05:04:22Z] queue A start
+[05:11:52Z] r9-cli-build exit 0
+[05:12:44Z] r9-dd-tl exit 0
+[05:15:16Z] r9-dd-8b exit 0
+[05:15:33Z] r9-compat-tl exit 0
+[05:16:21Z] r9-compat-8b exit 0
+[05:16:21Z] r9-x-ddtl-noflag exit 1
+[05:16:23Z] r9-x-ddtl-noflag-pin exit 1
+[05:16:23Z] r9-x-r8tl-dd exit 1
+[05:16:25Z] r9-x-r8tl-dd-pin exit 1
+[05:16:25Z] r9-x-dd8b-noflag exit 1
+[05:16:26Z] r9-dd-probes exit 1
+[05:16:56Z] r9-sb-dd-prove exit 0
+[05:16:56Z] single-block DD identity 19a27016662b984ca88cfc85b1bc74f7eca3f86620af51f537318e486356e25f
+[05:17:01Z] r9-sb-dd-verify exit 0
+[05:17:01Z] r9-sb-x-noflag exit 1
+[05:17:01Z] queue A end

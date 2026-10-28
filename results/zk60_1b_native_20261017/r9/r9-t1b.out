@@ -1,0 +1,2 @@
+[zk60-guard 10:24:21] START r9-t1b class=cpu need=4G cap=7G enforce=cgroup+watchdog waited=0s run=316f323d04eb
+[zk60-guard 10:27:20] END r9-t1b exit=0 child_wall=179s peak_rss=1.80G min_avail=9.96G

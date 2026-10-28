@@ -1,0 +1,66 @@
+[
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-owned-consumer-20261020/probe.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 20.58460079599172,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-owned-consumer-20261020/validate.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 0.3684409369889181,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-owned-consumer-20261020/probe.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 21.798064052010886,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-owned-consumer-20261020/validate.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 0.4193101060227491,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  }
+]

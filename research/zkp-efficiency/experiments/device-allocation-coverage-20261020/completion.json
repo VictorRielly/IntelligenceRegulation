@@ -1,0 +1,11 @@
+{
+  "status": "COMPLETE",
+  "run_id": "20261020T011854Z-224b9b69",
+  "checkpoint": "2026-10-20T01:31:06.037153+00:00",
+  "deadline": "2026-10-20T01:38:54Z",
+  "next_cycle_not_before": "2026-10-20T02:18:54Z",
+  "new_verified_full_stack_proofs": 0,
+  "source_records": 7,
+  "local_experiment_status": "PASS",
+  "native_patch_status": "UNBUILT_UNAPPLIED"
+}

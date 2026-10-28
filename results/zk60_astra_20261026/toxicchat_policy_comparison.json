@@ -1,0 +1,113 @@
+{
+  "scope": "MEASURED completed ToxicChat200 paired strict/moderate results. Broad toxicity is a proxy, not category ground truth. No policy recommendation before complete OpenAI category comparison.",
+  "source_sha256": {
+    "zk60_shieldstral_prep_20261021/bench/toxicchat_cat_sexual.jsonl": "f85c3b01ab2046312576fa527baaa459fd08997fa2e27013b6a7594969effa85",
+    "zk60_shieldstral_prep_20261021/bench/toxicchat_mod_sexual.jsonl": "67e055c1bc42dfd0df60dc3d6cbb8051eca65b756d9fd1049272aa4c7024d052",
+    "zk60_shieldstral_prep_20261021/bench/toxicchat_cat_violence.jsonl": "f48967b56de140accb038aa80261b87a2c1f07d033e0364ceca7a18313cb005b",
+    "zk60_shieldstral_prep_20261021/bench/toxicchat_mod_violence.jsonl": "ce8e7f2542c59ff8ffb8b2f2bcd6f009efaa5db0e0ebf26fc5f189ffd37d5dcd",
+    "zk60_shieldstral_prep_20261021/bench/toxicchat_cat_hate.jsonl": "2467fae597b0888509b3fba71a7627ab21e4fa85d6713c8564d360e1eee610b1",
+    "zk60_shieldstral_prep_20261021/bench/toxicchat_mod_hate.jsonl": "f18549a00a74977c837225c2af57d07bd3202996516eb72b41ea0e61e6a2c7aa"
+  },
+  "categories": {
+    "sexual": {
+      "strict": {
+        "precision": 0.7692307692307693,
+        "recall": 0.7142857142857143,
+        "f1": 0.7407407407407407,
+        "tp": 20,
+        "fp": 6,
+        "fn": 8,
+        "flag_count": 26,
+        "median_abs_margin": 9.006600379943848,
+        "abs_margin_below_1": 2
+      },
+      "moderate": {
+        "precision": 0.7692307692307693,
+        "recall": 0.7142857142857143,
+        "f1": 0.7407407407407407,
+        "tp": 20,
+        "fp": 6,
+        "fn": 8,
+        "flag_count": 26,
+        "median_abs_margin": 8.883644104003906,
+        "abs_margin_below_1": 2
+      },
+      "strict_yes_moderate_no": [],
+      "strict_no_moderate_yes": []
+    },
+    "violence": {
+      "strict": {
+        "precision": 0.4,
+        "recall": 0.07142857142857142,
+        "f1": 0.12121212121212122,
+        "tp": 2,
+        "fp": 3,
+        "fn": 26,
+        "flag_count": 5,
+        "median_abs_margin": 11.45821762084961,
+        "abs_margin_below_1": 2
+      },
+      "moderate": {
+        "precision": 0.4,
+        "recall": 0.07142857142857142,
+        "f1": 0.12121212121212122,
+        "tp": 2,
+        "fp": 3,
+        "fn": 26,
+        "flag_count": 5,
+        "median_abs_margin": 11.366506576538086,
+        "abs_margin_below_1": 3
+      },
+      "strict_yes_moderate_no": [],
+      "strict_no_moderate_yes": []
+    },
+    "hate": {
+      "strict": {
+        "precision": 0.75,
+        "recall": 0.10714285714285714,
+        "f1": 0.1875,
+        "tp": 3,
+        "fp": 1,
+        "fn": 25,
+        "flag_count": 4,
+        "median_abs_margin": 9.661598205566406,
+        "abs_margin_below_1": 4
+      },
+      "moderate": {
+        "precision": 0.6,
+        "recall": 0.10714285714285714,
+        "f1": 0.18181818181818182,
+        "tp": 3,
+        "fp": 2,
+        "fn": 25,
+        "flag_count": 5,
+        "median_abs_margin": 9.409601211547852,
+        "abs_margin_below_1": 3
+      },
+      "strict_yes_moderate_no": [],
+      "strict_no_moderate_yes": [
+        "6bc5067ea3ae4d754bb0fce1d872d21763f632b8ba4efd2fc31d2ce7d71b81c5"
+      ]
+    }
+  },
+  "union_vs_toxicity": {
+    "strict": {
+      "precision": 0.6875,
+      "recall": 0.7857142857142857,
+      "f1": 0.7333333333333333,
+      "tp": 22,
+      "fp": 10,
+      "fn": 6,
+      "flag_count": 32
+    },
+    "moderate": {
+      "precision": 0.6666666666666666,
+      "recall": 0.7857142857142857,
+      "f1": 0.7213114754098361,
+      "tp": 22,
+      "fp": 11,
+      "fn": 6,
+      "flag_count": 33
+    }
+  }
+}

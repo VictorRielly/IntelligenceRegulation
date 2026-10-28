@@ -1,0 +1,39 @@
+{
+  "status": "PASS",
+  "checks": 1455,
+  "controls": {
+    "load_address": true,
+    "input_address": true,
+    "output_address": true,
+    "instance_map": true,
+    "out_of_bounds": true,
+    "dependency": true
+  },
+  "templates": 10,
+  "calls": 19,
+  "scratch_bytes": 208,
+  "map_storage_bytes": 634,
+  "logical_map_bytes_requested_per_row": 634,
+  "scalar_logical_bytes": 4320,
+  "unique_logical_bytes": 8528,
+  "shared_logical_bytes": 9162,
+  "physical_DRAM_bytes": null,
+  "original_fold_reads": 118,
+  "original_fold_writes": 59,
+  "original_fold_field_ops": {
+    "add": 59,
+    "sub": 59,
+    "mul": 59
+  },
+  "wall_seconds": 0.32031226699473336,
+  "rss_kib": 22524,
+  "threads": 1,
+  "cpu_affinity": [
+    0
+  ],
+  "limits": "59s CPU/wall;512MiBAS;one nice19 CPU",
+  "scope": "Symbolic template lineage,public address maps,initialized crossing slots,compiled call graph/ELF sizes and source pins. Static stack extent and logical requested bytes are not physical traffic/GPU registers or proof time."
+}
+baseline {'code_bytes': 33543, 'instructions': 7171, 'functions': 5, 'local_sub_bytes': 360, 'push_bytes': 48, 'red_zone_bytes': 0, 'own_span_below_entry_rsp_bytes': 408, 'call_count': 884, 'instruction_lines': 7012, 'rsp_references': 2455, 'call_chain_span_below_entry_rsp_bytes': 424, 'symbol_bytes': 32967}
+unique {'code_bytes': 145739, 'instructions': 39737, 'functions': 20, 'local_sub_bytes': 208, 'push_bytes': 40, 'red_zone_bytes': 0, 'own_span_below_entry_rsp_bytes': 248, 'call_count': 19, 'instruction_lines': 120, 'rsp_references': 5, 'call_chain_span_below_entry_rsp_bytes': 504, 'symbol_bytes': 405}
+driven {'code_bytes': 78421, 'instructions': 21420, 'functions': 11, 'local_sub_bytes': 208, 'push_bytes': 40, 'red_zone_bytes': 0, 'own_span_below_entry_rsp_bytes': 248, 'call_count': 19, 'instruction_lines': 131, 'rsp_references': 5, 'call_chain_span_below_entry_rsp_bytes': 504, 'symbol_bytes': 482}

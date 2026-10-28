@@ -1,0 +1,67 @@
+[
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-layer-dd-caps-20261020/vendor/r10/r10_weight_range_cost.py",
+    "copy": "vendor/r10/r10_weight_range_cost.py",
+    "sha256": "ed23f51f8031b191c4079fe0e7312767647ccfd95df6ccb1e262f8478de985ad"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-layer-dd-caps-20261020/vendor/r11/r11_activation_cost.py",
+    "copy": "vendor/r11/r11_activation_cost.py",
+    "sha256": "c8dd304ad847276d45af26dcb4a5040832893ee8fc31b87811497e8351cd398c"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-layer-dd-caps-20261020/result.json",
+    "copy": "prior/result.json",
+    "sha256": "156540f30ba996df7d4b13bf1e1d1901109b01bd3b0b84e0df107ab973e1d81f"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-layer-dd-caps-20261020/validation-result.json",
+    "copy": "prior/validation-result.json",
+    "sha256": "fad760d91964901b072984426aadec656d68e113ac2f80c74705b2195284838a"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-layer-dd-caps-20261020/hypotheses.json",
+    "copy": "prior/hypotheses.json",
+    "sha256": "c1c3954235065d2c4008dfb44a7b35c2ff1665ec9d04e516a00471a6f5cf4814"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-layer-dd-caps-20261020/README.md",
+    "copy": "prior/README.md",
+    "sha256": "110342912737e0a9b60f7c656d8e1d47d40ea6f51a09196492259f53f62b97fa"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/shape.rs",
+    "copy": "source/shape.rs",
+    "sha256": "e214db86945e0b9df8336edc7974041ebcfe77f2f1884a565a77a0392fca1165"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/layout.rs",
+    "copy": "source/layout.rs",
+    "sha256": "9332802e597beacab56cfa69cfe18325bc476d2ce6485f517051992b26d26efa"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/argument.rs",
+    "copy": "source/argument.rs",
+    "sha256": "112352bc35c8b877cba50707a5ea64ea239ec6c684becb193ad981bd643ff4f5"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/protocol.rs",
+    "copy": "source/protocol.rs",
+    "sha256": "c482402329e4da32a70c780435b2077e8054d1805b1006289f571820017564a4"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/witness.rs",
+    "copy": "source/witness.rs",
+    "sha256": "d1a859187b58ac12c9bda0b0c98c25d85d24d87b6100724fd9d697f9b7fad607"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/zkp-core/src/field.rs",
+    "copy": "source/field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-layer-dd-caps-20261020/probe.py",
+    "copy": "prior/probe.py",
+    "sha256": "befdc558bc6c1e733128db05f382f8ef27ab42387b312b8272c2e1c731d2a80e"
+  }
+]

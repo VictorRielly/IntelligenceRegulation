@@ -1,0 +1,18 @@
+[
+  {
+    "path": "STATE.md",
+    "sha256": "e72f0abb836276b7a64a5ac0521711e51b84455f152604cdeedae437da6600b3"
+  },
+  {
+    "path": "PROGRESS.md",
+    "sha256": "40cd0b1f8d5c83c656260a85d038db613f11b1f438449396c0cac89ad0dc2088"
+  },
+  {
+    "path": "FINDINGS.md",
+    "sha256": "d4ade32f2318abb5ab1ebff746d2ef403b072f0eee96f016ef424e05d5d908db"
+  },
+  {
+    "path": "progress/20261021T051854Z-3d9d2756.md",
+    "sha256": "f69b981f3871dac2bcc38d029c0e39f67606b22fe866b7d248dd122c3fd88cd8"
+  }
+]

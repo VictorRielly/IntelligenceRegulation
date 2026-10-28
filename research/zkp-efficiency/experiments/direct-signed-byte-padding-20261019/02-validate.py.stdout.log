@@ -1,0 +1,1 @@
+{"status": "PASS", "checks": 222, "source_pins": 18, "r8_manifest_matches": 14, "patch_hunks_checked_in_memory": 4, "prior_findings_and_sources_preserved": true, "wall_seconds": 0.04260629300551955, "rss_kib": 18344, "threads": 1, "finished_utc": "2026-10-19T19:28:53.950805+00:00", "scope": "Static patch/source/evidence/report consistency only; no Rust compile or proof."}

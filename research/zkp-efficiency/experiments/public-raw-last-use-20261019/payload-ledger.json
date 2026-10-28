@@ -1,0 +1,787 @@
+{
+  "raw11_bytes": 218114560,
+  "raw_mib": 208.01025390625,
+  "rows": [
+    {
+      "decode_mode": "native_decode",
+      "constructor": "borrowed_copy",
+      "hash_workers": 1,
+      "pins": 0,
+      "full": true,
+      "before_phase_bytes": [
+        520672256,
+        705199616,
+        772177408
+      ],
+      "after_phase_bytes": [
+        520672256,
+        705199616,
+        554062848
+      ],
+      "before_envelope_bytes": 772177408,
+      "after_envelope_bytes": 705199616,
+      "saving_bytes": 66977792,
+      "before_current_next_pins_bytes": 1015588864,
+      "after_current_next_pins_bytes": 948611072,
+      "after_gib": 0.8834629058837891,
+      "limiting_phase": "constructor"
+    },
+    {
+      "decode_mode": "native_decode",
+      "constructor": "borrowed_copy",
+      "hash_workers": 1,
+      "pins": 0,
+      "full": false,
+      "before_phase_bytes": [
+        520672256,
+        705199616,
+        705068544
+      ],
+      "after_phase_bytes": [
+        520672256,
+        705199616,
+        486953984
+      ],
+      "before_envelope_bytes": 705199616,
+      "after_envelope_bytes": 705199616,
+      "saving_bytes": 0,
+      "before_current_next_pins_bytes": 948611072,
+      "after_current_next_pins_bytes": 948611072,
+      "after_gib": 0.8834629058837891,
+      "limiting_phase": "constructor"
+    },
+    {
+      "decode_mode": "native_decode",
+      "constructor": "borrowed_copy",
+      "hash_workers": 1,
+      "pins": 4,
+      "full": true,
+      "before_phase_bytes": [
+        520672256,
+        705199616,
+        772177408
+      ],
+      "after_phase_bytes": [
+        520672256,
+        705199616,
+        554062848
+      ],
+      "before_envelope_bytes": 772177408,
+      "after_envelope_bytes": 705199616,
+      "saving_bytes": 66977792,
+      "before_current_next_pins_bytes": 1989234688,
+      "after_current_next_pins_bytes": 1922256896,
+      "after_gib": 1.7902412414550781,
+      "limiting_phase": "constructor"
+    },
+    {
+      "decode_mode": "native_decode",
+      "constructor": "borrowed_copy",
+      "hash_workers": 1,
+      "pins": 4,
+      "full": false,
+      "before_phase_bytes": [
+        520672256,
+        705199616,
+        705068544
+      ],
+      "after_phase_bytes": [
+        520672256,
+        705199616,
+        486953984
+      ],
+      "before_envelope_bytes": 705199616,
+      "after_envelope_bytes": 705199616,
+      "saving_bytes": 0,
+      "before_current_next_pins_bytes": 1922256896,
+      "after_current_next_pins_bytes": 1922256896,
+      "after_gib": 1.7902412414550781,
+      "limiting_phase": "constructor"
+    },
+    {
+      "decode_mode": "native_decode",
+      "constructor": "borrowed_copy",
+      "hash_workers": 16,
+      "pins": 0,
+      "full": true,
+      "before_phase_bytes": [
+        520672256,
+        705199616,
+        948346368
+      ],
+      "after_phase_bytes": [
+        520672256,
+        705199616,
+        730231808
+      ],
+      "before_envelope_bytes": 948346368,
+      "after_envelope_bytes": 730231808,
+      "saving_bytes": 218114560,
+      "before_current_next_pins_bytes": 1191757824,
+      "after_current_next_pins_bytes": 973643264,
+      "after_gib": 0.906775951385498,
+      "limiting_phase": "record"
+    },
+    {
+      "decode_mode": "native_decode",
+      "constructor": "borrowed_copy",
+      "hash_workers": 16,
+      "pins": 0,
+      "full": false,
+      "before_phase_bytes": [
+        520672256,
+        705199616,
+        705068544
+      ],
+      "after_phase_bytes": [
+        520672256,
+        705199616,
+        486953984
+      ],
+      "before_envelope_bytes": 705199616,
+      "after_envelope_bytes": 705199616,
+      "saving_bytes": 0,
+      "before_current_next_pins_bytes": 948611072,
+      "after_current_next_pins_bytes": 948611072,
+      "after_gib": 0.8834629058837891,
+      "limiting_phase": "constructor"
+    },
+    {
+      "decode_mode": "native_decode",
+      "constructor": "borrowed_copy",
+      "hash_workers": 16,
+      "pins": 4,
+      "full": true,
+      "before_phase_bytes": [
+        520672256,
+        705199616,
+        948346368
+      ],
+      "after_phase_bytes": [
+        520672256,
+        705199616,
+        730231808
+      ],
+      "before_envelope_bytes": 948346368,
+      "after_envelope_bytes": 730231808,
+      "saving_bytes": 218114560,
+      "before_current_next_pins_bytes": 2165403648,
+      "after_current_next_pins_bytes": 1947289088,
+      "after_gib": 1.813554286956787,
+      "limiting_phase": "record"
+    },
+    {
+      "decode_mode": "native_decode",
+      "constructor": "borrowed_copy",
+      "hash_workers": 16,
+      "pins": 4,
+      "full": false,
+      "before_phase_bytes": [
+        520672256,
+        705199616,
+        705068544
+      ],
+      "after_phase_bytes": [
+        520672256,
+        705199616,
+        486953984
+      ],
+      "before_envelope_bytes": 705199616,
+      "after_envelope_bytes": 705199616,
+      "saving_bytes": 0,
+      "before_current_next_pins_bytes": 1922256896,
+      "after_current_next_pins_bytes": 1922256896,
+      "after_gib": 1.7902412414550781,
+      "limiting_phase": "constructor"
+    },
+    {
+      "decode_mode": "native_decode",
+      "constructor": "checked_move",
+      "hash_workers": 1,
+      "pins": 0,
+      "full": true,
+      "before_phase_bytes": [
+        520672256,
+        461790720,
+        528768512
+      ],
+      "after_phase_bytes": [
+        520672256,
+        461790720,
+        310653952
+      ],
+      "before_envelope_bytes": 528768512,
+      "after_envelope_bytes": 520672256,
+      "saving_bytes": 8096256,
+      "before_current_next_pins_bytes": 772179968,
+      "after_current_next_pins_bytes": 764083712,
+      "after_gib": 0.7116084098815918,
+      "limiting_phase": "pad"
+    },
+    {
+      "decode_mode": "native_decode",
+      "constructor": "checked_move",
+      "hash_workers": 1,
+      "pins": 0,
+      "full": false,
+      "before_phase_bytes": [
+        520672256,
+        461790720,
+        461659648
+      ],
+      "after_phase_bytes": [
+        520672256,
+        461790720,
+        243545088
+      ],
+      "before_envelope_bytes": 520672256,
+      "after_envelope_bytes": 520672256,
+      "saving_bytes": 0,
+      "before_current_next_pins_bytes": 764083712,
+      "after_current_next_pins_bytes": 764083712,
+      "after_gib": 0.7116084098815918,
+      "limiting_phase": "pad"
+    },
+    {
+      "decode_mode": "native_decode",
+      "constructor": "checked_move",
+      "hash_workers": 1,
+      "pins": 4,
+      "full": true,
+      "before_phase_bytes": [
+        520672256,
+        461790720,
+        528768512
+      ],
+      "after_phase_bytes": [
+        520672256,
+        461790720,
+        310653952
+      ],
+      "before_envelope_bytes": 528768512,
+      "after_envelope_bytes": 520672256,
+      "saving_bytes": 8096256,
+      "before_current_next_pins_bytes": 1745825792,
+      "after_current_next_pins_bytes": 1737729536,
+      "after_gib": 1.6183867454528809,
+      "limiting_phase": "pad"
+    },
+    {
+      "decode_mode": "native_decode",
+      "constructor": "checked_move",
+      "hash_workers": 1,
+      "pins": 4,
+      "full": false,
+      "before_phase_bytes": [
+        520672256,
+        461790720,
+        461659648
+      ],
+      "after_phase_bytes": [
+        520672256,
+        461790720,
+        243545088
+      ],
+      "before_envelope_bytes": 520672256,
+      "after_envelope_bytes": 520672256,
+      "saving_bytes": 0,
+      "before_current_next_pins_bytes": 1737729536,
+      "after_current_next_pins_bytes": 1737729536,
+      "after_gib": 1.6183867454528809,
+      "limiting_phase": "pad"
+    },
+    {
+      "decode_mode": "native_decode",
+      "constructor": "checked_move",
+      "hash_workers": 16,
+      "pins": 0,
+      "full": true,
+      "before_phase_bytes": [
+        520672256,
+        461790720,
+        704937472
+      ],
+      "after_phase_bytes": [
+        520672256,
+        461790720,
+        486822912
+      ],
+      "before_envelope_bytes": 704937472,
+      "after_envelope_bytes": 520672256,
+      "saving_bytes": 184265216,
+      "before_current_next_pins_bytes": 948348928,
+      "after_current_next_pins_bytes": 764083712,
+      "after_gib": 0.7116084098815918,
+      "limiting_phase": "pad"
+    },
+    {
+      "decode_mode": "native_decode",
+      "constructor": "checked_move",
+      "hash_workers": 16,
+      "pins": 0,
+      "full": false,
+      "before_phase_bytes": [
+        520672256,
+        461790720,
+        461659648
+      ],
+      "after_phase_bytes": [
+        520672256,
+        461790720,
+        243545088
+      ],
+      "before_envelope_bytes": 520672256,
+      "after_envelope_bytes": 520672256,
+      "saving_bytes": 0,
+      "before_current_next_pins_bytes": 764083712,
+      "after_current_next_pins_bytes": 764083712,
+      "after_gib": 0.7116084098815918,
+      "limiting_phase": "pad"
+    },
+    {
+      "decode_mode": "native_decode",
+      "constructor": "checked_move",
+      "hash_workers": 16,
+      "pins": 4,
+      "full": true,
+      "before_phase_bytes": [
+        520672256,
+        461790720,
+        704937472
+      ],
+      "after_phase_bytes": [
+        520672256,
+        461790720,
+        486822912
+      ],
+      "before_envelope_bytes": 704937472,
+      "after_envelope_bytes": 520672256,
+      "saving_bytes": 184265216,
+      "before_current_next_pins_bytes": 1921994752,
+      "after_current_next_pins_bytes": 1737729536,
+      "after_gib": 1.6183867454528809,
+      "limiting_phase": "pad"
+    },
+    {
+      "decode_mode": "native_decode",
+      "constructor": "checked_move",
+      "hash_workers": 16,
+      "pins": 4,
+      "full": false,
+      "before_phase_bytes": [
+        520672256,
+        461790720,
+        461659648
+      ],
+      "after_phase_bytes": [
+        520672256,
+        461790720,
+        243545088
+      ],
+      "before_envelope_bytes": 520672256,
+      "after_envelope_bytes": 520672256,
+      "saving_bytes": 0,
+      "before_current_next_pins_bytes": 1737729536,
+      "after_current_next_pins_bytes": 1737729536,
+      "after_gib": 1.6183867454528809,
+      "limiting_phase": "pad"
+    },
+    {
+      "decode_mode": "prior_direct_decode",
+      "constructor": "borrowed_copy",
+      "hash_workers": 1,
+      "pins": 0,
+      "full": true,
+      "before_phase_bytes": [
+        461952000,
+        705199616,
+        772177408
+      ],
+      "after_phase_bytes": [
+        461952000,
+        705199616,
+        554062848
+      ],
+      "before_envelope_bytes": 772177408,
+      "after_envelope_bytes": 705199616,
+      "saving_bytes": 66977792,
+      "before_current_next_pins_bytes": 1015588864,
+      "after_current_next_pins_bytes": 948611072,
+      "after_gib": 0.8834629058837891,
+      "limiting_phase": "constructor"
+    },
+    {
+      "decode_mode": "prior_direct_decode",
+      "constructor": "borrowed_copy",
+      "hash_workers": 1,
+      "pins": 0,
+      "full": false,
+      "before_phase_bytes": [
+        461952000,
+        705199616,
+        705068544
+      ],
+      "after_phase_bytes": [
+        461952000,
+        705199616,
+        486953984
+      ],
+      "before_envelope_bytes": 705199616,
+      "after_envelope_bytes": 705199616,
+      "saving_bytes": 0,
+      "before_current_next_pins_bytes": 948611072,
+      "after_current_next_pins_bytes": 948611072,
+      "after_gib": 0.8834629058837891,
+      "limiting_phase": "constructor"
+    },
+    {
+      "decode_mode": "prior_direct_decode",
+      "constructor": "borrowed_copy",
+      "hash_workers": 1,
+      "pins": 4,
+      "full": true,
+      "before_phase_bytes": [
+        461952000,
+        705199616,
+        772177408
+      ],
+      "after_phase_bytes": [
+        461952000,
+        705199616,
+        554062848
+      ],
+      "before_envelope_bytes": 772177408,
+      "after_envelope_bytes": 705199616,
+      "saving_bytes": 66977792,
+      "before_current_next_pins_bytes": 1989234688,
+      "after_current_next_pins_bytes": 1922256896,
+      "after_gib": 1.7902412414550781,
+      "limiting_phase": "constructor"
+    },
+    {
+      "decode_mode": "prior_direct_decode",
+      "constructor": "borrowed_copy",
+      "hash_workers": 1,
+      "pins": 4,
+      "full": false,
+      "before_phase_bytes": [
+        461952000,
+        705199616,
+        705068544
+      ],
+      "after_phase_bytes": [
+        461952000,
+        705199616,
+        486953984
+      ],
+      "before_envelope_bytes": 705199616,
+      "after_envelope_bytes": 705199616,
+      "saving_bytes": 0,
+      "before_current_next_pins_bytes": 1922256896,
+      "after_current_next_pins_bytes": 1922256896,
+      "after_gib": 1.7902412414550781,
+      "limiting_phase": "constructor"
+    },
+    {
+      "decode_mode": "prior_direct_decode",
+      "constructor": "borrowed_copy",
+      "hash_workers": 16,
+      "pins": 0,
+      "full": true,
+      "before_phase_bytes": [
+        461952000,
+        705199616,
+        948346368
+      ],
+      "after_phase_bytes": [
+        461952000,
+        705199616,
+        730231808
+      ],
+      "before_envelope_bytes": 948346368,
+      "after_envelope_bytes": 730231808,
+      "saving_bytes": 218114560,
+      "before_current_next_pins_bytes": 1191757824,
+      "after_current_next_pins_bytes": 973643264,
+      "after_gib": 0.906775951385498,
+      "limiting_phase": "record"
+    },
+    {
+      "decode_mode": "prior_direct_decode",
+      "constructor": "borrowed_copy",
+      "hash_workers": 16,
+      "pins": 0,
+      "full": false,
+      "before_phase_bytes": [
+        461952000,
+        705199616,
+        705068544
+      ],
+      "after_phase_bytes": [
+        461952000,
+        705199616,
+        486953984
+      ],
+      "before_envelope_bytes": 705199616,
+      "after_envelope_bytes": 705199616,
+      "saving_bytes": 0,
+      "before_current_next_pins_bytes": 948611072,
+      "after_current_next_pins_bytes": 948611072,
+      "after_gib": 0.8834629058837891,
+      "limiting_phase": "constructor"
+    },
+    {
+      "decode_mode": "prior_direct_decode",
+      "constructor": "borrowed_copy",
+      "hash_workers": 16,
+      "pins": 4,
+      "full": true,
+      "before_phase_bytes": [
+        461952000,
+        705199616,
+        948346368
+      ],
+      "after_phase_bytes": [
+        461952000,
+        705199616,
+        730231808
+      ],
+      "before_envelope_bytes": 948346368,
+      "after_envelope_bytes": 730231808,
+      "saving_bytes": 218114560,
+      "before_current_next_pins_bytes": 2165403648,
+      "after_current_next_pins_bytes": 1947289088,
+      "after_gib": 1.813554286956787,
+      "limiting_phase": "record"
+    },
+    {
+      "decode_mode": "prior_direct_decode",
+      "constructor": "borrowed_copy",
+      "hash_workers": 16,
+      "pins": 4,
+      "full": false,
+      "before_phase_bytes": [
+        461952000,
+        705199616,
+        705068544
+      ],
+      "after_phase_bytes": [
+        461952000,
+        705199616,
+        486953984
+      ],
+      "before_envelope_bytes": 705199616,
+      "after_envelope_bytes": 705199616,
+      "saving_bytes": 0,
+      "before_current_next_pins_bytes": 1922256896,
+      "after_current_next_pins_bytes": 1922256896,
+      "after_gib": 1.7902412414550781,
+      "limiting_phase": "constructor"
+    },
+    {
+      "decode_mode": "prior_direct_decode",
+      "constructor": "checked_move",
+      "hash_workers": 1,
+      "pins": 0,
+      "full": true,
+      "before_phase_bytes": [
+        461952000,
+        461790720,
+        528768512
+      ],
+      "after_phase_bytes": [
+        461952000,
+        461790720,
+        310653952
+      ],
+      "before_envelope_bytes": 528768512,
+      "after_envelope_bytes": 461952000,
+      "saving_bytes": 66816512,
+      "before_current_next_pins_bytes": 772179968,
+      "after_current_next_pins_bytes": 705363456,
+      "after_gib": 0.6569209098815918,
+      "limiting_phase": "pad"
+    },
+    {
+      "decode_mode": "prior_direct_decode",
+      "constructor": "checked_move",
+      "hash_workers": 1,
+      "pins": 0,
+      "full": false,
+      "before_phase_bytes": [
+        461952000,
+        461790720,
+        461659648
+      ],
+      "after_phase_bytes": [
+        461952000,
+        461790720,
+        243545088
+      ],
+      "before_envelope_bytes": 461952000,
+      "after_envelope_bytes": 461952000,
+      "saving_bytes": 0,
+      "before_current_next_pins_bytes": 705363456,
+      "after_current_next_pins_bytes": 705363456,
+      "after_gib": 0.6569209098815918,
+      "limiting_phase": "pad"
+    },
+    {
+      "decode_mode": "prior_direct_decode",
+      "constructor": "checked_move",
+      "hash_workers": 1,
+      "pins": 4,
+      "full": true,
+      "before_phase_bytes": [
+        461952000,
+        461790720,
+        528768512
+      ],
+      "after_phase_bytes": [
+        461952000,
+        461790720,
+        310653952
+      ],
+      "before_envelope_bytes": 528768512,
+      "after_envelope_bytes": 461952000,
+      "saving_bytes": 66816512,
+      "before_current_next_pins_bytes": 1745825792,
+      "after_current_next_pins_bytes": 1679009280,
+      "after_gib": 1.5636992454528809,
+      "limiting_phase": "pad"
+    },
+    {
+      "decode_mode": "prior_direct_decode",
+      "constructor": "checked_move",
+      "hash_workers": 1,
+      "pins": 4,
+      "full": false,
+      "before_phase_bytes": [
+        461952000,
+        461790720,
+        461659648
+      ],
+      "after_phase_bytes": [
+        461952000,
+        461790720,
+        243545088
+      ],
+      "before_envelope_bytes": 461952000,
+      "after_envelope_bytes": 461952000,
+      "saving_bytes": 0,
+      "before_current_next_pins_bytes": 1679009280,
+      "after_current_next_pins_bytes": 1679009280,
+      "after_gib": 1.5636992454528809,
+      "limiting_phase": "pad"
+    },
+    {
+      "decode_mode": "prior_direct_decode",
+      "constructor": "checked_move",
+      "hash_workers": 16,
+      "pins": 0,
+      "full": true,
+      "before_phase_bytes": [
+        461952000,
+        461790720,
+        704937472
+      ],
+      "after_phase_bytes": [
+        461952000,
+        461790720,
+        486822912
+      ],
+      "before_envelope_bytes": 704937472,
+      "after_envelope_bytes": 486822912,
+      "saving_bytes": 218114560,
+      "before_current_next_pins_bytes": 948348928,
+      "after_current_next_pins_bytes": 730234368,
+      "after_gib": 0.6800837516784668,
+      "limiting_phase": "record"
+    },
+    {
+      "decode_mode": "prior_direct_decode",
+      "constructor": "checked_move",
+      "hash_workers": 16,
+      "pins": 0,
+      "full": false,
+      "before_phase_bytes": [
+        461952000,
+        461790720,
+        461659648
+      ],
+      "after_phase_bytes": [
+        461952000,
+        461790720,
+        243545088
+      ],
+      "before_envelope_bytes": 461952000,
+      "after_envelope_bytes": 461952000,
+      "saving_bytes": 0,
+      "before_current_next_pins_bytes": 705363456,
+      "after_current_next_pins_bytes": 705363456,
+      "after_gib": 0.6569209098815918,
+      "limiting_phase": "pad"
+    },
+    {
+      "decode_mode": "prior_direct_decode",
+      "constructor": "checked_move",
+      "hash_workers": 16,
+      "pins": 4,
+      "full": true,
+      "before_phase_bytes": [
+        461952000,
+        461790720,
+        704937472
+      ],
+      "after_phase_bytes": [
+        461952000,
+        461790720,
+        486822912
+      ],
+      "before_envelope_bytes": 704937472,
+      "after_envelope_bytes": 486822912,
+      "saving_bytes": 218114560,
+      "before_current_next_pins_bytes": 1921994752,
+      "after_current_next_pins_bytes": 1703880192,
+      "after_gib": 1.5868620872497559,
+      "limiting_phase": "record"
+    },
+    {
+      "decode_mode": "prior_direct_decode",
+      "constructor": "checked_move",
+      "hash_workers": 16,
+      "pins": 4,
+      "full": false,
+      "before_phase_bytes": [
+        461952000,
+        461790720,
+        461659648
+      ],
+      "after_phase_bytes": [
+        461952000,
+        461790720,
+        243545088
+      ],
+      "before_envelope_bytes": 461952000,
+      "after_envelope_bytes": 461952000,
+      "saving_bytes": 0,
+      "before_current_next_pins_bytes": 1679009280,
+      "after_current_next_pins_bytes": 1679009280,
+      "after_gib": 1.5636992454528809,
+      "limiting_phase": "pad"
+    }
+  ],
+  "scope": "Conservative enumerated public payload envelopes, not actual RSS/VRAM/allocator/timing or complete peak. Release changes record/return phase only.",
+  "exclusions": [
+    "allocator/capacity slack",
+    "JSON/manifest/source_tensors",
+    "Rayon stacks and metadata",
+    "file/page cache",
+    "witness/planes",
+    "proof/commitment",
+    "serialization",
+    "GPU/device buffers",
+    "additional evicted live leases",
+    "private witness/proof state retained by owner"
+  ]
+}

@@ -1,0 +1,47 @@
+[
+  {
+    "file": "hashline/src/private_block/trained_block.rs",
+    "finding": "Full seal load, reduced reload then actual block digest; current Arc already shared between witness and block source. Seal prefetch has current+next overlap.",
+    "lines": [
+      909,
+      917,
+      1807,
+      1812,
+      1813,
+      2034,
+      2066,
+      2587
+    ]
+  },
+  {
+    "file": "hashline/src/private_block.rs",
+    "finding": "Private owned public fields, immutable getters; digest streams canonical words but allocates i8->u8 vectors. Construction-only candidate; no runtime call count assumed.",
+    "lines": [
+      592,
+      710,
+      733,
+      757
+    ]
+  },
+  {
+    "file": "hashline/src/private_block/run.rs",
+    "finding": "In-memory source hashes blocks in CS6; trained CacheBlocks uses digest-list check instead. Native run transcript uses already bound digests.",
+    "lines": [
+      573,
+      818,
+      863,
+      914,
+      933
+    ]
+  },
+  {
+    "file": "hashline/src/private_block/protocol.rs",
+    "finding": "Full public.digest transcript call is a single-block wrapper, not another hash in trained streaming prove_core path.",
+    "lines": [
+      113,
+      121,
+      846,
+      1362
+    ]
+  }
+]

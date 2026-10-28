@@ -1,0 +1,7 @@
+
+running 1 test
+test private_block::token_io::capture_tests::capture_a_tinyllama_token_run ... TOKEN CAPTURE tinyllama-t32: L=22 from layer 0, dense prompt, public tables values: load 4.5 s, prove 68.8 s, verify+record 9.6 s, peak RSS 3.01 GiB; 384847865 B in /home/victor/zk60-artifacts/token-io-r9-gate/captures/tinyllama-t32-L22-dense-pt1 ([2552570, 3611098, 3609868, 3608432, 3606657, 3609440, 3610323, 3609297, 3610165, 3611617, 3612957, 3609543, 3610211, 3609355, 3607266, 3604169, 3610244, 3611230, 3609376, 3610682, 3607994, 3611479, 3608626, 4916141] B stage files, arrays.bin 297908880 B)
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 662 filtered out; finished in 94.91s
+

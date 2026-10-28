@@ -1,0 +1,268 @@
+{
+ "what": "[GATE ROUND 16, tools v19, 2026-10-21] The CLASSIFIER stages' slot",
+ "geometry": "R-C1 classifier rung (T32 / d384, V 300, P0 8 + n 23 + S 1)",
+ "privacy_acceptance": false,
+ "honest": [
+  {
+   "margin": -69496,
+   "c": 51541,
+   "verdict": 0,
+   "tie": false,
+   "MRG_H": true,
+   "ZC_H": true,
+   "LU_H": true
+  },
+  {
+   "margin": 132872,
+   "c": 51541,
+   "verdict": 1,
+   "tie": false,
+   "MRG_H": true,
+   "ZC_H": true,
+   "LU_H": true
+  },
+  {
+   "margin": 746545,
+   "c": 51541,
+   "verdict": 1,
+   "tie": false,
+   "MRG_H": true,
+   "ZC_H": true,
+   "LU_H": true
+  },
+  {
+   "margin": 51541,
+   "c": 51541,
+   "verdict": 0,
+   "tie": true,
+   "MRG_H": true,
+   "ZC_H": true,
+   "LU_H": true
+  },
+  {
+   "margin": 1287031,
+   "c": 51541,
+   "verdict": 1,
+   "tie": false,
+   "MRG_H": true,
+   "ZC_H": true,
+   "LU_H": true
+  },
+  {
+   "margin": -1386027,
+   "c": 51541,
+   "verdict": 0,
+   "tie": false,
+   "MRG_H": true,
+   "ZC_H": true,
+   "LU_H": true
+  }
+ ],
+ "controls": [
+  {
+   "control": "MC-1",
+   "what": "verdict flipped 1 -> 0, the honest limbs kept",
+   "predicted": {
+    "MRG_H": false
+   },
+   "got": {
+    "MRG_H": false,
+    "ZC_H": true,
+    "LU_H": true
+   },
+   "fires_as_predicted": true
+  },
+  {
+   "control": "MC-2",
+   "what": "verdict flipped 1 -> 0, limbs re-made from delta' = -delta - 1 (the top limb negative)",
+   "predicted": {
+    "MRG_H": true,
+    "LU_H": false
+   },
+   "got": {
+    "MRG_H": true,
+    "ZC_H": true,
+    "LU_H": false
+   },
+   "fires_as_predicted": true,
+   "delta_prime": -81331
+  },
+  {
+   "control": "MC-3",
+   "what": "a margin limb raised by 256, the next lowered by 1 (delta kept)",
+   "predicted": {
+    "MRG_H": true,
+    "LU_H": false
+   },
+   "got": {
+    "MRG_H": true,
+    "ZC_H": true,
+    "LU_H": false
+   },
+   "fires_as_predicted": true
+  },
+  {
+   "control": "MC-4",
+   "what": "limb-plane entry 37 (a pad) set to 1",
+   "predicted": {
+    "ZC_H": false
+   },
+   "got": {
+    "MRG_H": true,
+    "ZC_H": false,
+    "LU_H": true
+   },
+   "fires_as_predicted": true
+  },
+  {
+   "control": "MC-5",
+   "what": "the port's threshold c + 1 (the host constant b + c moved)",
+   "predicted": {
+    "MRG_H": false
+   },
+   "got": {
+    "MRG_H": false,
+    "ZC_H": true,
+    "LU_H": true
+   },
+   "fires_as_predicted": true
+  },
+  {
+   "control": "MC-6",
+   "what": "the margin vector negated, its own digest computed: the door compares the statement's / export's digest with the table's",
+   "predicted": {
+    "digest_equal": false
+   },
+   "got": {
+    "digest_equal": false
+   },
+   "fires_as_predicted": true,
+   "note": "with -w and verdict 1 - b every relation holds (design \u00a74.2): only the verifier's own derivation of w refuses it"
+  },
+  {
+   "control": "MC-7",
+   "what": "the run header without `classify-verdict`",
+   "predicted": {
+    "honest_ok": true,
+    "perturbed_ok": false
+   },
+   "got": {
+    "honest_ok": true,
+    "perturbed_ok": false
+   },
+   "fires_as_predicted": true
+  },
+  {
+   "control": "IC-1",
+   "what": "one template id changed (position 2)",
+   "predicted": {
+    "ZC_H": false
+   },
+   "got": {
+    "MRG_H": null,
+    "ZC_H": false,
+    "LU_H": true
+   },
+   "fires_as_predicted": true
+  },
+  {
+   "control": "IC-3",
+   "what": "a control id (2 < num_special) at a content position",
+   "predicted": {
+    "LU_H": false
+   },
+   "got": {
+    "MRG_H": null,
+    "ZC_H": true,
+    "LU_H": false
+   },
+   "fires_as_predicted": true
+  },
+  {
+   "control": "IC-4",
+   "what": "the template's own control ids (positions [0, 1, 2, 3]) match their entries",
+   "predicted": {
+    "LU_H": true,
+    "ZC_H": true
+   },
+   "got": {
+    "MRG_H": null,
+    "ZC_H": true,
+    "LU_H": true
+   },
+   "fires_as_predicted": true
+  },
+  {
+   "control": "IC-2",
+   "what": "a wrong template id with a compensating query helper: passes a SHARED template coefficient, refused by R-C1's fresh mu2",
+   "predicted": {
+    "fires": true
+   },
+   "got": {
+    "shared_coefficient": {
+     "nonzero_points": [],
+     "forgery_passes_pointwise": true
+    },
+    "fresh_coefficient": {
+     "nonzero_points": [
+      3
+     ],
+     "forgery_passes_pointwise": false
+    },
+    "fires": true
+   },
+   "fires_as_predicted": true
+  },
+  {
+   "control": "PI-1",
+   "what": "the classifier OUT-C plane table read by v18's token stage-OUT geometry (refused by name) and by v19's (equal)",
+   "predicted": {
+    "v18_refuses": true,
+    "v19_equal": true
+   },
+   "got": {
+    "v18_refuses": true,
+    "v19_equal": true,
+    "v18_findings": [
+     "stage OUT: `a_rows` is 76 in the bundle, 121 re-derived",
+     "stage OUT: `a_data_rows` is 16 in the bundle, 25 re-derived",
+     "stage OUT: `a_mask_base` is 16 in the bundle, 25 re-derived",
+     "stage OUT: `a_prox` is 74 in the bundle, 119 re-derived"
+    ]
+   },
+   "fires_as_predicted": true
+  }
+ ],
+ "findings": [],
+ "honest_in_c": {
+  "ZC_H": true,
+  "LU_H": true
+ },
+ "one_bit": {
+  "public_tables": 10,
+  "rebuildable_from_public_data_and_b": true,
+  "tables_moved_by_flipping_b": [
+   "margin_g"
+  ],
+  "hidden_witnesses_tried": 6,
+  "margins": [
+   -69496,
+   132872,
+   746545,
+   51541,
+   1287031,
+   -1386027
+  ],
+  "public_tables_independent_of_the_hidden_witness": true,
+  "margin_and_limbs_private": true,
+  "ok": true
+ },
+ "nl1_static": {
+  "slots_checked": 12,
+  "slots_with_premises": 12,
+  "findings": []
+ },
+ "fired": 12,
+ "of": 12,
+ "ok": true
+}

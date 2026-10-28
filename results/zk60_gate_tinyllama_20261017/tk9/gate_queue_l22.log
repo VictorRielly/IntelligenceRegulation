@@ -1,0 +1,14 @@
+[zk60-guard 20:17:53] START gate-tk9-schema class=light need=1.2G cap=2G enforce=cgroup+watchdog waited=0s run=ae1dd568a4e2
+[zk60-guard 20:18:53] END gate-tk9-schema exit=0 child_wall=60s peak_rss=0.82G min_avail=9.89G
+[zk60-guard 20:18:54] START gate-tk9-g10-l22 class=light need=1.8G cap=2.5G enforce=cgroup+watchdog waited=0s run=4405337355a8
+[zk60-guard 20:19:19] END gate-tk9-g10-l22 exit=0 child_wall=25s peak_rss=1.31G min_avail=9.69G
+[zk60-guard 20:19:19] admission waiting: budget: 8.1+6.2 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L2-fixed-pt1(light,0.6G), gate-tk9-l1-zero-a(light,0.5G), tio-demo-prove(cpu,3.5G), fp-L_build_l8_dg_w16u(light,3.5G)]
+[zk60-guard 20:20:19] admission waiting: budget: 7.6+6.2 GiB > 11.9 GiB with live [gate-tk9-pincontrols-l1(light,0.5G), gate-ts-llama3-8b-t32-L2-fixed-pt1(light,0.6G), tio-demo-verify(cpu,3G), fp-L_build_l8_dg_w16u(light,3.5G)]
+[zk60-guard 20:21:04] START gate-tk9-l22-zero-a class=light need=6.2G cap=7G enforce=cgroup+watchdog waited=105s run=f21d6357bbbd
+[zk60-guard 20:33:02] END gate-tk9-l22-zero-a exit=0 child_wall=717s peak_rss=5.37G min_avail=5.52G
+[zk60-guard 20:33:02] START gate-tk9-l22-dense-a class=light need=6.2G cap=7G enforce=cgroup+watchdog waited=0s run=79c5c22afa93
+[zk60-guard 20:45:15] END gate-tk9-l22-dense-a exit=0 child_wall=733s peak_rss=5.52G min_avail=5.49G
+[zk60-guard 20:45:15] START gate-predict-validated-dense class=light need=1.6G cap=2.5G enforce=cgroup+watchdog waited=0s run=f85b12150f2b
+[zk60-guard 20:45:29] END gate-predict-validated-dense exit=0 child_wall=14s peak_rss=1.09G min_avail=10.40G
+[zk60-guard 20:45:29] START gate-predict-validated-zero class=light need=1.6G cap=2.5G enforce=cgroup+watchdog waited=0s run=1fadad1cba73
+[zk60-guard 20:45:45] END gate-predict-validated-zero exit=0 child_wall=15s peak_rss=1.09G min_avail=9.70G

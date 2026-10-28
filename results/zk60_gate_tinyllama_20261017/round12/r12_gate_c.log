@@ -1,0 +1,47 @@
+[zk60-guard 22:51:56] waiting for admission lock (0s)
+[zk60-guard 22:51:57] START gate-r9-nl-tinyllama-t32-L1-dense-pt1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=1s run=ca85074ca1dc
+[zk60-guard 22:52:05] END gate-r9-nl-tinyllama-t32-L1-dense-pt1 exit=0 child_wall=7s peak_rss=0.10G min_avail=9.18G
+[zk60-guard 22:52:10] START gate-r9-nl-tinyllama-t32-L1-fixed-pt1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=5ed2084f43f4
+[zk60-guard 22:52:21] END gate-r9-nl-tinyllama-t32-L1-fixed-pt1 exit=0 child_wall=11s peak_rss=0.11G min_avail=8.58G
+[zk60-guard 22:52:26] START gate-r9-nl-tinyllama-t32-L2-dense-pt1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=cf9963e05ce6
+[zk60-guard 22:52:38] END gate-r9-nl-tinyllama-t32-L2-dense-pt1 exit=0 child_wall=12s peak_rss=0.13G min_avail=8.12G
+[zk60-guard 22:52:43] START gate-r9-nl-tinyllama-t32-L2-fixed-pt1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=abd68fc3e426
+[zk60-guard 22:52:54] END gate-r9-nl-tinyllama-t32-L2-fixed-pt1 exit=0 child_wall=11s peak_rss=0.13G min_avail=8.06G
+[zk60-guard 22:53:59] START gate-r9-nl-tinyllama-t32-L22-dense-pt1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=30448f4755e7
+[zk60-guard 22:54:23] END gate-r9-nl-tinyllama-t32-L22-dense-pt1 exit=0 child_wall=24s peak_rss=0.62G min_avail=7.63G
+[zk60-guard 22:55:28] START gate-r9-nl-tinyllama-t32-L22-fixed-pt1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=112edf7a36fb
+[zk60-guard 22:55:43] END gate-r9-nl-tinyllama-t32-L22-fixed-pt1 exit=0 child_wall=15s peak_rss=0.61G min_avail=6.86G
+[zk60-guard 22:56:19] START gate-r9-nl-llama3-8b-t32-L1-dense-pt1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=1e9051b3ffad
+[zk60-guard 22:56:29] END gate-r9-nl-llama3-8b-t32-L1-dense-pt1 exit=0 child_wall=11s peak_rss=0.16G min_avail=8.72G
+[zk60-guard 22:57:04] START gate-r9-nl-llama3-8b-t32-L1-fixed-pt1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=4d10046b14c4
+[zk60-guard 22:57:14] END gate-r9-nl-llama3-8b-t32-L1-fixed-pt1 exit=0 child_wall=10s peak_rss=0.16G min_avail=8.25G
+[zk60-guard 22:58:19] START gate-r9-nl-llama3-8b-t32-L2-dense-pt1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=e2675c128018
+[zk60-guard 22:58:30] END gate-r9-nl-llama3-8b-t32-L2-dense-pt1 exit=0 child_wall=11s peak_rss=0.19G min_avail=10.03G
+[zk60-guard 23:03:05] START gate-r9-nl-llama3-8b-t32-L2-fixed-pt1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=eeb402ebe193
+[zk60-guard 23:03:16] END gate-r9-nl-llama3-8b-t32-L2-fixed-pt1 exit=0 child_wall=11s peak_rss=0.19G min_avail=9.67G
+[zk60-guard 23:03:17] START gate-r9-cal-all class=light need=1G cap=1.5G enforce=cgroup+watchdog waited=0s run=ad32328aa288
+[zk60-guard 23:03:47] END gate-r9-cal-all exit=0 child_wall=30s peak_rss=0.61G min_avail=9.45G
+[zk60-guard 23:03:47] START gate-r9-ts-tinyllama-t32-L1-dense-pt1 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=c3747ce78568
+[zk60-guard 23:12:53] END gate-r9-ts-tinyllama-t32-L1-dense-pt1 exit=0 child_wall=546s peak_rss=0.11G min_avail=8.99G
+[zk60-guard 23:12:53] START gate-r9-ts-tinyllama-t32-L1-fixed-pt1 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=9bc8e7e97065
+[zk60-guard 23:21:46] END gate-r9-ts-tinyllama-t32-L1-fixed-pt1 exit=0 child_wall=533s peak_rss=0.11G min_avail=8.79G
+[zk60-guard 23:21:46] START gate-r9-ts-tinyllama-t32-L2-dense-pt1 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=227cf2c669e0
+[zk60-guard 23:30:43] END gate-r9-ts-tinyllama-t32-L2-dense-pt1 exit=0 child_wall=538s peak_rss=0.11G min_avail=8.74G
+[zk60-guard 23:53:43] START gate-r9-ts-tinyllama-t32-L2-fixed-pt1 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=891be507e7fc
+[zk60-guard 00:05:15] END gate-r9-ts-tinyllama-t32-L2-fixed-pt1 exit=0 child_wall=691s peak_rss=0.11G min_avail=7.75G
+[zk60-guard 00:05:15] START gate-r9-ts-tinyllama-t32-L22-dense-pt1 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=0ebe139baa18
+[zk60-guard 00:16:46] END gate-r9-ts-tinyllama-t32-L22-dense-pt1 exit=0 child_wall=691s peak_rss=0.33G min_avail=7.98G
+[zk60-guard 00:16:46] START gate-r9-ts-tinyllama-t32-L22-fixed-pt1 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=19750d1c7171
+[zk60-guard 00:28:25] END gate-r9-ts-tinyllama-t32-L22-fixed-pt1 exit=0 child_wall=699s peak_rss=0.32G min_avail=8.59G
+[zk60-guard 00:28:25] START gate-r9-ts-llama3-8b-t32-L1-dense-pt1 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=143da4447805
+[zk60-guard 00:56:32] END gate-r9-ts-llama3-8b-t32-L1-dense-pt1 exit=0 child_wall=1687s peak_rss=0.11G min_avail=8.34G
+[zk60-guard 00:56:32] START gate-r9-ts-llama3-8b-t32-L1-fixed-pt1 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=4ec018afbc1d
+[zk60-guard 01:23:07] END gate-r9-ts-llama3-8b-t32-L1-fixed-pt1 exit=0 child_wall=1595s peak_rss=0.11G min_avail=7.37G
+[zk60-guard 02:00:07] START gate-r9-ts-llama3-8b-t32-L2-dense-pt1 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=31d461552074
+[zk60-guard 02:24:33] END gate-r9-ts-llama3-8b-t32-L2-dense-pt1 exit=0 child_wall=1466s peak_rss=0.11G min_avail=7.28G
+[zk60-guard 02:24:33] START gate-r9-ts-llama3-8b-t32-L2-fixed-pt1 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=b6dd1b2207c1
+[zk60-guard 02:48:10] END gate-r9-ts-llama3-8b-t32-L2-fixed-pt1 exit=0 child_wall=1417s peak_rss=0.12G min_avail=10.33G
+[zk60-guard 02:48:10] START gate-r9-ts-block-tinyllama-t32-L1-dense-pt1 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=2eddd9f7ba2f
+[zk60-guard 03:00:07] END gate-r9-ts-block-tinyllama-t32-L1-dense-pt1 exit=0 child_wall=717s peak_rss=0.25G min_avail=10.41G
+[zk60-guard 03:00:07] START gate-r9-ts-block-tinyllama-t32-L1-fixed-pt1 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=368188c037ac
+[zk60-guard 03:11:49] END gate-r9-ts-block-tinyllama-t32-L1-fixed-pt1 exit=0 child_wall=703s peak_rss=0.25G min_avail=10.45G

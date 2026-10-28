@@ -306,7 +306,7 @@ fn the_looked_columns_are_the_79f0726_serial_maps_through_both_branches() {
         let blk = BlockPublic::new(public, ff);
         let w = super::witness::build_shaped(&sh, blk.attention(), blk.feed_forward(), &x).expect("an honest witness at this shape");
         let lay = Layout::for_shape(&sh).expect("the layout of this shape");
-        for dom in lay.lookup_doms() {
+        for dom in lay.lookup_doms().iter() {
             let want = lookup_values_79f0726(&lay, &w, *dom);
             assert_eq!(lookup_values_at(&lay, &w, *dom, usize::MAX), want, "{} {dom:?}: the forced-serial columns moved", sh.name);
             assert_eq!(lookup_values_at(&lay, &w, *dom, 0), want, "{} {dom:?}: the forced-parallel columns moved", sh.name);

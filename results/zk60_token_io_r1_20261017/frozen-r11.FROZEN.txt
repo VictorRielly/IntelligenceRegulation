@@ -1,0 +1,14 @@
+Token-I/O lane round-11 tree frozen at 2026-10-20T07:30Z (review REVIEW6 TR7-5 / TR7-6 / TR7-7 on top of frozen-r9).
+copy:     /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r11/
+source:   /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io/ (build target/ directories excluded,
+          BASELINE.sha256 excluded as by tools/manifest.py)
+manifest: /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/manifest_final_r11.sha256
+          (237 files, list sha256 d8075d76a32ed2483d600ebf511181247254b21413aee93c565dffbeecbd4cbe = manifest_r11B = r11C);
+          all 237 entries re-hashed in the copy: match, no missing, no extra.
+binary:   cli/zk60_token_io.r11.release.bin (0c9f247c0f91162177f8ed90285f8664cc4dd36ebd8934dc650804bafe5c2c6b,
+          cli/binaries_r11.sha256; build note cli/zk60_token_io.r11.BUILD.txt), built from this tree.
+suite:    s14 (logs/s14-suite.log) on this tree: exit 0, 771 passed, 0 failed, 40 ignored, 29 test binaries.
+vs frozen-r9: 4 changed (examples/zk60_token_io.rs doc header; token_io.rs one mod line; token_io/cli.rs;
+          token_io/cli_tests.rs), 1 added (token_io/r11_tests.rs): ALL token-only; no block / run file changed
+          since frozen-r9 (vs frozen-r7 the one block/run file remains private_block/run.rs, round 8, additive).
+Not a privacy acceptance. The lane's working copy may move on; this copy does not change.

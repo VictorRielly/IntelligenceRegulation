@@ -1,0 +1,89 @@
+{
+  "seed": 270536706,
+  "checks": 619,
+  "profiles": 16,
+  "census_rows": 160,
+  "distinct_transform_geometries": 13,
+  "boundary_cases": 444,
+  "negative_controls": 9,
+  "summary": [
+    {
+      "log_cols": 12,
+      "inverse": {
+        "literal_requests": 4096,
+        "candidate_requests": 2048,
+        "active_words": 4096
+      },
+      "forward_resident": {
+        "literal_requests": 16384,
+        "candidate_requests": 16384,
+        "active_words": 16384
+      },
+      "forward_compact": {
+        "literal_requests": 4352,
+        "candidate_requests": 4352,
+        "active_words": 4352
+      },
+      "resident_pair_request_fraction_saved": 0.1,
+      "compact_pair_request_fraction_saved": 0.24242424242424243
+    },
+    {
+      "log_cols": 13,
+      "inverse": {
+        "literal_requests": 8192,
+        "candidate_requests": 4096,
+        "active_words": 8192
+      },
+      "forward_resident": {
+        "literal_requests": 32768,
+        "candidate_requests": 32768,
+        "active_words": 32768
+      },
+      "forward_compact": {
+        "literal_requests": 8448,
+        "candidate_requests": 8448,
+        "active_words": 8448
+      },
+      "resident_pair_request_fraction_saved": 0.1,
+      "compact_pair_request_fraction_saved": 0.24615384615384617
+    },
+    {
+      "log_cols": 14,
+      "inverse": {
+        "literal_requests": 16384,
+        "candidate_requests": 16384,
+        "active_words": 16384
+      },
+      "forward_resident": {
+        "literal_requests": 65536,
+        "candidate_requests": 65536,
+        "active_words": 65536
+      },
+      "forward_compact": {
+        "literal_requests": 16640,
+        "candidate_requests": 16640,
+        "active_words": 16640
+      },
+      "resident_pair_request_fraction_saved": 0.0,
+      "compact_pair_request_fraction_saved": 0.0
+    }
+  ],
+  "elapsed_s": 3.8500147860031575,
+  "maxrss_KiB": 20620,
+  "full_stack": {
+    "proofs": 0,
+    "passes": 0,
+    "positions": 0,
+    "context_length": null,
+    "device": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "startup_s": null,
+    "startup_fraction": null,
+    "steady_rate": null,
+    "total_rate": null
+  },
+  "scope": "Public source geometry/address/request accounting, not native timing or complete proof"
+}

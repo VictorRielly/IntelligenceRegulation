@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "checks": 56,
+  "artifacts": 55,
+  "source_records": 462,
+  "new_source_records": 7,
+  "completed_utc": "2026-10-19T16:34:25.891307+00:00",
+  "all_pins_unchanged": true,
+  "prior_findings_sources_preserved": true
+}

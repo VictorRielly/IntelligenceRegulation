@@ -1,0 +1,18 @@
+{
+  "observed_utc": "2026-10-26T17:55:15Z",
+  "source": "results/zk60_fidelity_parity_20261019/runs/llama3-8b/e8_LOWh8v6_lam0/refusal_fixcheck.json",
+  "sha256": "a633be5ecc168bd6d9886be3f92235aebdc788b4c179cecdc2b0a828d762d409",
+  "seqs": [
+    9,
+    96
+  ],
+  "overrides": {
+    "gate_pc": "-5:mc8:tm4:ng4",
+    "sh_s_plus": {
+      "15": 1
+    },
+    "to_end": true
+  },
+  "violations": [],
+  "scope": "two previously refused sequences only; final fidelity spec/report not yet published"
+}

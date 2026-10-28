@@ -1,0 +1,6 @@
+{
+  "reports": "Final progress, state and prose reports were refined after checkpoint.py draft generation; final artifacts are authoritative.",
+  "tool_issue": "One apply_patch request attempted delete/add on the same file and was rejected before writes; corrected with ordinary research-file writes.",
+  "network": "Exact primary-source fetch failures are retained in source-records.json.",
+  "writes": "Only research directory outside runtime; no Git operations, GPU, production or external writes/messages."
+}

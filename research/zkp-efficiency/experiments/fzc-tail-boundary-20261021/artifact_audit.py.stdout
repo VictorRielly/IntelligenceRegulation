@@ -1,0 +1,1 @@
+{"status": "PASS", "checks": 213, "artifact_hashes": 54, "source_pins": 11, "prior_source_records": 727, "new_source_records": 10, "prior_hypotheses_preserved": 31, "ranked_hypotheses": 34, "live_source_changes_after_capture": [], "concurrent_document_updates": [], "wall_seconds": 0.05728248000377789, "rss_kib": 23460, "finished_utc": "2026-10-21T01:35:13.986602+00:00"}

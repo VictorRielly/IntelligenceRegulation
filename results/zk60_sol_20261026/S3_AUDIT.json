@@ -1,0 +1,26 @@
+{
+  "written_utc": "2026-10-26T19:00:31Z",
+  "s3_complete": true,
+  "guard_sha256": "87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c",
+  "fifo_enabled": false,
+  "suites": {
+    "test_zk60_resource_guard.py": 45,
+    "test_zk60_guard_fix.py": 31,
+    "test_zk60_guarded_command.py": 8,
+    "test_zk60_techweek_demo.py": 13,
+    "test_zk60_private_stack_benchmark.py": 14
+  },
+  "static_pins_verified": true,
+  "dynamic_consumer_unchanged": true,
+  "source_snapshot_sha256": {
+    "scripts/zk60_resource_guard.py": "87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c",
+    "scripts/zk60_guarded_command.py": "5506541c04691fb091d27d9668f86fe97e355b3b00e07daf3f609bd6532f1e47",
+    "scripts/zk60_techweek_demo.py": "00da932f4028d673b8c45a15fbc32739cc3cb96257b825ace96e282a98cda63d",
+    "scripts/zk60_private_stack_benchmark.py": "b883c56d9bfa126913ab6697fdac6b20b0c896de497f4d348f4cbfc2e444c21a",
+    "tests/test_zk60_guard_fix.py": "7814c8f43f8ab5fc337fbe1ffa1c1740f8eb812ca58e93bd90a59747cff512c9",
+    "docs/zkmatrix-poc/ZK60_RESOURCE_PROTOCOL.md": "b4bbcfe806ffd274148897dd772f075db9808379679bc9fdcf80b60a3b1fbec2",
+    "ops/zkp-mvp/RECOVERY_COORDINATION.md": "bfd24d85de3b99dc5973ce22ba519b59fd99370c9ab6f906aee45404f26dc21a"
+  },
+  "patch_sha256": "e57c8fdd023cf0b0d41d046924359fda682285e658b6381071309c4f6c4f56d1",
+  "rollback_guard_sha256": "f0b87668b9ad3bc42683d95a16314b54973b8e36be576b25183302287168e772"
+}

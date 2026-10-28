@@ -1,0 +1,2994 @@
+{
+  "status": "PASS",
+  "checks": 45703,
+  "source_cases": 59,
+  "events": 4602,
+  "corruption_controls": 590,
+  "seed": 2026102092,
+  "geometry_pairs": [
+    {
+      "rows": 1,
+      "n": 32,
+      "compact": false,
+      "no_drain_peak_bytes": 106592,
+      "drain_peak_bytes": 106592,
+      "no_drain_fresh": 5,
+      "drain_fresh": 20,
+      "fresh_delta": 15
+    },
+    {
+      "rows": 1,
+      "n": 32,
+      "compact": true,
+      "no_drain_peak_bytes": 105888,
+      "drain_peak_bytes": 105888,
+      "no_drain_fresh": 5,
+      "drain_fresh": 20,
+      "fresh_delta": 15
+    },
+    {
+      "rows": 127,
+      "n": 1024,
+      "compact": false,
+      "no_drain_peak_bytes": 13794848,
+      "drain_peak_bytes": 13794848,
+      "no_drain_fresh": 5,
+      "drain_fresh": 20,
+      "fresh_delta": 15
+    },
+    {
+      "rows": 127,
+      "n": 1024,
+      "compact": true,
+      "no_drain_peak_bytes": 10738720,
+      "drain_peak_bytes": 10738720,
+      "no_drain_fresh": 5,
+      "drain_fresh": 20,
+      "fresh_delta": 15
+    },
+    {
+      "rows": 128,
+      "n": 1024,
+      "compact": false,
+      "no_drain_peak_bytes": 13877280,
+      "drain_peak_bytes": 13877280,
+      "no_drain_fresh": 5,
+      "drain_fresh": 20,
+      "fresh_delta": 15
+    },
+    {
+      "rows": 128,
+      "n": 1024,
+      "compact": true,
+      "no_drain_peak_bytes": 10797088,
+      "drain_peak_bytes": 10797088,
+      "no_drain_fresh": 5,
+      "drain_fresh": 20,
+      "fresh_delta": 15
+    },
+    {
+      "rows": 129,
+      "n": 1024,
+      "compact": false,
+      "no_drain_peak_bytes": 13885984,
+      "drain_peak_bytes": 13885984,
+      "no_drain_fresh": 5,
+      "drain_fresh": 20,
+      "fresh_delta": 15
+    },
+    {
+      "rows": 129,
+      "n": 1024,
+      "compact": true,
+      "no_drain_peak_bytes": 10805792,
+      "drain_peak_bytes": 10805792,
+      "no_drain_fresh": 5,
+      "drain_fresh": 20,
+      "fresh_delta": 15
+    },
+    {
+      "rows": 257,
+      "n": 4096,
+      "compact": false,
+      "no_drain_peak_bytes": 59605536,
+      "drain_peak_bytes": 59605536,
+      "no_drain_fresh": 5,
+      "drain_fresh": 20,
+      "fresh_delta": 15
+    },
+    {
+      "rows": 257,
+      "n": 4096,
+      "compact": true,
+      "no_drain_peak_bytes": 47088160,
+      "drain_peak_bytes": 47088160,
+      "no_drain_fresh": 5,
+      "drain_fresh": 20,
+      "fresh_delta": 15
+    },
+    {
+      "rows": 3033,
+      "n": 16384,
+      "compact": false,
+      "no_drain_peak_bytes": 603304480,
+      "drain_peak_bytes": 603304480,
+      "no_drain_fresh": 5,
+      "drain_fresh": 20,
+      "fresh_delta": 15
+    },
+    {
+      "rows": 3033,
+      "n": 16384,
+      "compact": true,
+      "no_drain_peak_bytes": 553038368,
+      "drain_peak_bytes": 553038368,
+      "no_drain_fresh": 5,
+      "drain_fresh": 20,
+      "fresh_delta": 15
+    },
+    {
+      "rows": 3028,
+      "n": 16384,
+      "compact": false,
+      "no_drain_peak_bytes": 602646560,
+      "drain_peak_bytes": 602646560,
+      "no_drain_fresh": 5,
+      "drain_fresh": 20,
+      "fresh_delta": 15
+    },
+    {
+      "rows": 3028,
+      "n": 16384,
+      "compact": true,
+      "no_drain_peak_bytes": 552380448,
+      "drain_peak_bytes": 552380448,
+      "no_drain_fresh": 5,
+      "drain_fresh": 20,
+      "fresh_delta": 15
+    }
+  ],
+  "summaries": [
+    {
+      "name": "best-fit-tail-and-ties",
+      "peak_bytes": 2048,
+      "final_bytes": 2048,
+      "idle_bytes": 0,
+      "idle_count": 0,
+      "fresh_attempts": 3,
+      "fresh_bytes": 2048,
+      "reuse_events": 3,
+      "reuse_capacity_bytes": 2048,
+      "reuse_requested_bytes": 24,
+      "raw_count": 0,
+      "raw_bytes": 0,
+      "failures": []
+    },
+    {
+      "name": "count-cap-is-not-byte-cap",
+      "peak_bytes": 17448321280,
+      "final_bytes": 17179885312,
+      "idle_bytes": 17179885312,
+      "idle_count": 64,
+      "fresh_attempts": 65,
+      "fresh_bytes": 17448321280,
+      "reuse_events": 0,
+      "reuse_capacity_bytes": 0,
+      "reuse_requested_bytes": 0,
+      "raw_count": 0,
+      "raw_bytes": 0,
+      "failures": []
+    },
+    {
+      "name": "one-shot-reuse-raw-cap",
+      "peak_bytes": 352,
+      "final_bytes": 352,
+      "idle_bytes": 128,
+      "idle_count": 1,
+      "fresh_attempts": 3,
+      "fresh_bytes": 320,
+      "reuse_events": 1,
+      "reuse_capacity_bytes": 128,
+      "reuse_requested_bytes": 128,
+      "raw_count": 1,
+      "raw_bytes": 32,
+      "failures": [
+        {
+          "step": 5,
+          "status": "injected"
+        },
+        {
+          "step": 8,
+          "status": "cap"
+        }
+      ]
+    },
+    {
+      "name": "volume-versus-peak",
+      "peak_bytes": 1024,
+      "final_bytes": 0,
+      "idle_bytes": 0,
+      "idle_count": 0,
+      "fresh_attempts": 40,
+      "fresh_bytes": 40960,
+      "reuse_events": 0,
+      "reuse_capacity_bytes": 0,
+      "reuse_requested_bytes": 0,
+      "raw_count": 0,
+      "raw_bytes": 0,
+      "failures": []
+    },
+    {
+      "name": "deferred-free-needs-sync",
+      "peak_bytes": 768,
+      "final_bytes": 768,
+      "idle_bytes": 0,
+      "idle_count": 0,
+      "fresh_attempts": 2,
+      "fresh_bytes": 768,
+      "reuse_events": 0,
+      "reuse_capacity_bytes": 0,
+      "reuse_requested_bytes": 0,
+      "raw_count": 1,
+      "raw_bytes": 512,
+      "failures": [
+        {
+          "step": 4,
+          "status": "oom"
+        }
+      ]
+    },
+    {
+      "name": "immediate-free-bracket",
+      "peak_bytes": 1280,
+      "final_bytes": 1280,
+      "idle_bytes": 0,
+      "idle_count": 0,
+      "fresh_attempts": 2,
+      "fresh_bytes": 768,
+      "reuse_events": 0,
+      "reuse_capacity_bytes": 0,
+      "reuse_requested_bytes": 0,
+      "raw_count": 2,
+      "raw_bytes": 1024,
+      "failures": []
+    },
+    {
+      "name": "returned-resident-capacity",
+      "peak_bytes": 10496,
+      "final_bytes": 10496,
+      "idle_bytes": 0,
+      "idle_count": 0,
+      "fresh_attempts": 5,
+      "fresh_bytes": 9984,
+      "reuse_events": 1,
+      "reuse_capacity_bytes": 4096,
+      "reuse_requested_bytes": 256,
+      "raw_count": 1,
+      "raw_bytes": 512,
+      "failures": [
+        {
+          "step": 4,
+          "status": "injected"
+        }
+      ]
+    },
+    {
+      "name": "chunked-1-32-compact0-drain0",
+      "peak_bytes": 106592,
+      "final_bytes": 101376,
+      "idle_bytes": 101376,
+      "idle_count": 5,
+      "fresh_attempts": 5,
+      "fresh_bytes": 101376,
+      "reuse_events": 15,
+      "reuse_capacity_bytes": 304128,
+      "reuse_requested_bytes": 304128,
+      "raw_count": 12,
+      "raw_bytes": 20736,
+      "failures": []
+    },
+    {
+      "name": "chunked-1-32-compact0-drain1",
+      "peak_bytes": 106592,
+      "final_bytes": 101376,
+      "idle_bytes": 101376,
+      "idle_count": 5,
+      "fresh_attempts": 20,
+      "fresh_bytes": 405504,
+      "reuse_events": 0,
+      "reuse_capacity_bytes": 0,
+      "reuse_requested_bytes": 0,
+      "raw_count": 12,
+      "raw_bytes": 20736,
+      "failures": []
+    },
+    {
+      "name": "chunked-1-32-compact1-drain0",
+      "peak_bytes": 105888,
+      "final_bytes": 100672,
+      "idle_bytes": 100672,
+      "idle_count": 5,
+      "fresh_attempts": 5,
+      "fresh_bytes": 100672,
+      "reuse_events": 15,
+      "reuse_capacity_bytes": 302016,
+      "reuse_requested_bytes": 302016,
+      "raw_count": 12,
+      "raw_bytes": 20736,
+      "failures": []
+    },
+    {
+      "name": "chunked-1-32-compact1-drain1",
+      "peak_bytes": 105888,
+      "final_bytes": 100672,
+      "idle_bytes": 100672,
+      "idle_count": 5,
+      "fresh_attempts": 20,
+      "fresh_bytes": 402688,
+      "reuse_events": 0,
+      "reuse_capacity_bytes": 0,
+      "reuse_requested_bytes": 0,
+      "raw_count": 12,
+      "raw_bytes": 20736,
+      "failures": []
+    },
+    {
+      "name": "chunked-127-1024-compact0-drain0",
+      "peak_bytes": 13794848,
+      "final_bytes": 13565952,
+      "idle_bytes": 13565952,
+      "idle_count": 5,
+      "fresh_attempts": 5,
+      "fresh_bytes": 13565952,
+      "reuse_events": 15,
+      "reuse_capacity_bytes": 40697856,
+      "reuse_requested_bytes": 40697856,
+      "raw_count": 12,
+      "raw_bytes": 915456,
+      "failures": []
+    },
+    {
+      "name": "chunked-127-1024-compact0-drain1",
+      "peak_bytes": 13794848,
+      "final_bytes": 13565952,
+      "idle_bytes": 13565952,
+      "idle_count": 5,
+      "fresh_attempts": 20,
+      "fresh_bytes": 54263808,
+      "reuse_events": 0,
+      "reuse_capacity_bytes": 0,
+      "reuse_requested_bytes": 0,
+      "raw_count": 12,
+      "raw_bytes": 915456,
+      "failures": []
+    },
+    {
+      "name": "chunked-127-1024-compact1-drain0",
+      "peak_bytes": 10738720,
+      "final_bytes": 10509824,
+      "idle_bytes": 10509824,
+      "idle_count": 5,
+      "fresh_attempts": 5,
+      "fresh_bytes": 10509824,
+      "reuse_events": 15,
+      "reuse_capacity_bytes": 31529472,
+      "reuse_requested_bytes": 31529472,
+      "raw_count": 12,
+      "raw_bytes": 915456,
+      "failures": []
+    },
+    {
+      "name": "chunked-127-1024-compact1-drain1",
+      "peak_bytes": 10738720,
+      "final_bytes": 10509824,
+      "idle_bytes": 10509824,
+      "idle_count": 5,
+      "fresh_attempts": 20,
+      "fresh_bytes": 42039296,
+      "reuse_events": 0,
+      "reuse_capacity_bytes": 0,
+      "reuse_requested_bytes": 0,
+      "raw_count": 12,
+      "raw_bytes": 915456,
+      "failures": []
+    },
+    {
+      "name": "chunked-128-1024-compact0-drain0",
+      "peak_bytes": 13877280,
+      "final_bytes": 13647872,
+      "idle_bytes": 13647872,
+      "idle_count": 5,
+      "fresh_attempts": 5,
+      "fresh_bytes": 13647872,
+      "reuse_events": 15,
+      "reuse_capacity_bytes": 40943616,
+      "reuse_requested_bytes": 40943616,
+      "raw_count": 12,
+      "raw_bytes": 917504,
+      "failures": []
+    },
+    {
+      "name": "chunked-128-1024-compact0-drain1",
+      "peak_bytes": 13877280,
+      "final_bytes": 13647872,
+      "idle_bytes": 13647872,
+      "idle_count": 5,
+      "fresh_attempts": 20,
+      "fresh_bytes": 54591488,
+      "reuse_events": 0,
+      "reuse_capacity_bytes": 0,
+      "reuse_requested_bytes": 0,
+      "raw_count": 12,
+      "raw_bytes": 917504,
+      "failures": []
+    },
+    {
+      "name": "chunked-128-1024-compact1-drain0",
+      "peak_bytes": 10797088,
+      "final_bytes": 10567680,
+      "idle_bytes": 10567680,
+      "idle_count": 5,
+      "fresh_attempts": 5,
+      "fresh_bytes": 10567680,
+      "reuse_events": 15,
+      "reuse_capacity_bytes": 31703040,
+      "reuse_requested_bytes": 31703040,
+      "raw_count": 12,
+      "raw_bytes": 917504,
+      "failures": []
+    },
+    {
+      "name": "chunked-128-1024-compact1-drain1",
+      "peak_bytes": 10797088,
+      "final_bytes": 10567680,
+      "idle_bytes": 10567680,
+      "idle_count": 5,
+      "fresh_attempts": 20,
+      "fresh_bytes": 42270720,
+      "reuse_events": 0,
+      "reuse_capacity_bytes": 0,
+      "reuse_requested_bytes": 0,
+      "raw_count": 12,
+      "raw_bytes": 917504,
+      "failures": []
+    },
+    {
+      "name": "chunked-129-1024-compact0-drain0",
+      "peak_bytes": 13885984,
+      "final_bytes": 13656064,
+      "idle_bytes": 13656064,
+      "idle_count": 5,
+      "fresh_attempts": 5,
+      "fresh_bytes": 13656064,
+      "reuse_events": 15,
+      "reuse_capacity_bytes": 40968192,
+      "reuse_requested_bytes": 40968192,
+      "raw_count": 12,
+      "raw_bytes": 919552,
+      "failures": []
+    },
+    {
+      "name": "chunked-129-1024-compact0-drain1",
+      "peak_bytes": 13885984,
+      "final_bytes": 13656064,
+      "idle_bytes": 13656064,
+      "idle_count": 5,
+      "fresh_attempts": 20,
+      "fresh_bytes": 54624256,
+      "reuse_events": 0,
+      "reuse_capacity_bytes": 0,
+      "reuse_requested_bytes": 0,
+      "raw_count": 12,
+      "raw_bytes": 919552,
+      "failures": []
+    },
+    {
+      "name": "chunked-129-1024-compact1-drain0",
+      "peak_bytes": 10805792,
+      "final_bytes": 10575872,
+      "idle_bytes": 10575872,
+      "idle_count": 5,
+      "fresh_attempts": 5,
+      "fresh_bytes": 10575872,
+      "reuse_events": 15,
+      "reuse_capacity_bytes": 31727616,
+      "reuse_requested_bytes": 31727616,
+      "raw_count": 12,
+      "raw_bytes": 919552,
+      "failures": []
+    },
+    {
+      "name": "chunked-129-1024-compact1-drain1",
+      "peak_bytes": 10805792,
+      "final_bytes": 10575872,
+      "idle_bytes": 10575872,
+      "idle_count": 5,
+      "fresh_attempts": 20,
+      "fresh_bytes": 42303488,
+      "reuse_events": 0,
+      "reuse_capacity_bytes": 0,
+      "reuse_requested_bytes": 0,
+      "raw_count": 12,
+      "raw_bytes": 919552,
+      "failures": []
+    },
+    {
+      "name": "chunked-257-4096-compact0-drain0",
+      "peak_bytes": 59605536,
+      "final_bytes": 58818560,
+      "idle_bytes": 58818560,
+      "idle_count": 5,
+      "fresh_attempts": 5,
+      "fresh_bytes": 58818560,
+      "reuse_events": 15,
+      "reuse_capacity_bytes": 176455680,
+      "reuse_requested_bytes": 176455680,
+      "raw_count": 12,
+      "raw_bytes": 3147776,
+      "failures": []
+    },
+    {
+      "name": "chunked-257-4096-compact0-drain1",
+      "peak_bytes": 59605536,
+      "final_bytes": 58818560,
+      "idle_bytes": 58818560,
+      "idle_count": 5,
+      "fresh_attempts": 20,
+      "fresh_bytes": 235274240,
+      "reuse_events": 0,
+      "reuse_capacity_bytes": 0,
+      "reuse_requested_bytes": 0,
+      "raw_count": 12,
+      "raw_bytes": 3147776,
+      "failures": []
+    },
+    {
+      "name": "chunked-257-4096-compact1-drain0",
+      "peak_bytes": 47088160,
+      "final_bytes": 46301184,
+      "idle_bytes": 46301184,
+      "idle_count": 5,
+      "fresh_attempts": 5,
+      "fresh_bytes": 46301184,
+      "reuse_events": 15,
+      "reuse_capacity_bytes": 138903552,
+      "reuse_requested_bytes": 138903552,
+      "raw_count": 12,
+      "raw_bytes": 3147776,
+      "failures": []
+    },
+    {
+      "name": "chunked-257-4096-compact1-drain1",
+      "peak_bytes": 47088160,
+      "final_bytes": 46301184,
+      "idle_bytes": 46301184,
+      "idle_count": 5,
+      "fresh_attempts": 20,
+      "fresh_bytes": 185204736,
+      "reuse_events": 0,
+      "reuse_capacity_bytes": 0,
+      "reuse_requested_bytes": 0,
+      "raw_count": 12,
+      "raw_bytes": 3147776,
+      "failures": []
+    },
+    {
+      "name": "chunked-3033-16384-compact0-drain0",
+      "peak_bytes": 603304480,
+      "final_bytes": 599130112,
+      "idle_bytes": 599130112,
+      "idle_count": 5,
+      "fresh_attempts": 5,
+      "fresh_bytes": 599130112,
+      "reuse_events": 15,
+      "reuse_capacity_bytes": 1797390336,
+      "reuse_requested_bytes": 1797390336,
+      "raw_count": 12,
+      "raw_bytes": 16697344,
+      "failures": []
+    },
+    {
+      "name": "chunked-3033-16384-compact0-drain1",
+      "peak_bytes": 603304480,
+      "final_bytes": 599130112,
+      "idle_bytes": 599130112,
+      "idle_count": 5,
+      "fresh_attempts": 20,
+      "fresh_bytes": 2396520448,
+      "reuse_events": 0,
+      "reuse_capacity_bytes": 0,
+      "reuse_requested_bytes": 0,
+      "raw_count": 12,
+      "raw_bytes": 16697344,
+      "failures": []
+    },
+    {
+      "name": "chunked-3033-16384-compact1-drain0",
+      "peak_bytes": 553038368,
+      "final_bytes": 548864000,
+      "idle_bytes": 548864000,
+      "idle_count": 5,
+      "fresh_attempts": 5,
+      "fresh_bytes": 548864000,
+      "reuse_events": 15,
+      "reuse_capacity_bytes": 1646592000,
+      "reuse_requested_bytes": 1646592000,
+      "raw_count": 12,
+      "raw_bytes": 16697344,
+      "failures": []
+    },
+    {
+      "name": "chunked-3033-16384-compact1-drain1",
+      "peak_bytes": 553038368,
+      "final_bytes": 548864000,
+      "idle_bytes": 548864000,
+      "idle_count": 5,
+      "fresh_attempts": 20,
+      "fresh_bytes": 2195456000,
+      "reuse_events": 0,
+      "reuse_capacity_bytes": 0,
+      "reuse_requested_bytes": 0,
+      "raw_count": 12,
+      "raw_bytes": 16697344,
+      "failures": []
+    },
+    {
+      "name": "chunked-3028-16384-compact0-drain0",
+      "peak_bytes": 602646560,
+      "final_bytes": 598474752,
+      "idle_bytes": 598474752,
+      "idle_count": 5,
+      "fresh_attempts": 5,
+      "fresh_bytes": 598474752,
+      "reuse_events": 15,
+      "reuse_capacity_bytes": 1795424256,
+      "reuse_requested_bytes": 1795424256,
+      "raw_count": 12,
+      "raw_bytes": 16687104,
+      "failures": []
+    },
+    {
+      "name": "chunked-3028-16384-compact0-drain1",
+      "peak_bytes": 602646560,
+      "final_bytes": 598474752,
+      "idle_bytes": 598474752,
+      "idle_count": 5,
+      "fresh_attempts": 20,
+      "fresh_bytes": 2393899008,
+      "reuse_events": 0,
+      "reuse_capacity_bytes": 0,
+      "reuse_requested_bytes": 0,
+      "raw_count": 12,
+      "raw_bytes": 16687104,
+      "failures": []
+    },
+    {
+      "name": "chunked-3028-16384-compact1-drain0",
+      "peak_bytes": 552380448,
+      "final_bytes": 548208640,
+      "idle_bytes": 548208640,
+      "idle_count": 5,
+      "fresh_attempts": 5,
+      "fresh_bytes": 548208640,
+      "reuse_events": 15,
+      "reuse_capacity_bytes": 1644625920,
+      "reuse_requested_bytes": 1644625920,
+      "raw_count": 12,
+      "raw_bytes": 16687104,
+      "failures": []
+    },
+    {
+      "name": "chunked-3028-16384-compact1-drain1",
+      "peak_bytes": 552380448,
+      "final_bytes": 548208640,
+      "idle_bytes": 548208640,
+      "idle_count": 5,
+      "fresh_attempts": 20,
+      "fresh_bytes": 2192834560,
+      "reuse_events": 0,
+      "reuse_capacity_bytes": 0,
+      "reuse_requested_bytes": 0,
+      "raw_count": 12,
+      "raw_bytes": 16687104,
+      "failures": []
+    },
+    {
+      "name": "mixed-rows-drain0",
+      "peak_bytes": 1794484768,
+      "final_bytes": 1790312448,
+      "idle_bytes": 1790312448,
+      "idle_count": 8,
+      "fresh_attempts": 8,
+      "fresh_bytes": 1790312448,
+      "reuse_events": 12,
+      "reuse_capacity_bytes": 604766208,
+      "reuse_requested_bytes": 604766208,
+      "raw_count": 12,
+      "raw_bytes": 16691712,
+      "failures": []
+    },
+    {
+      "name": "mixed-rows-drain1",
+      "peak_bytes": 603304480,
+      "final_bytes": 598605824,
+      "idle_bytes": 598605824,
+      "idle_count": 5,
+      "fresh_attempts": 20,
+      "fresh_bytes": 2395078656,
+      "reuse_events": 0,
+      "reuse_capacity_bytes": 0,
+      "reuse_requested_bytes": 0,
+      "raw_count": 12,
+      "raw_bytes": 16691712,
+      "failures": []
+    },
+    {
+      "name": "mixed-rows-retain-next",
+      "peak_bytes": 603304480,
+      "final_bytes": 598605824,
+      "idle_bytes": 598605824,
+      "idle_count": 5,
+      "fresh_attempts": 8,
+      "fresh_bytes": 1790312448,
+      "reuse_events": 12,
+      "reuse_capacity_bytes": 604766208,
+      "reuse_requested_bytes": 604766208,
+      "raw_count": 12,
+      "raw_bytes": 16691712,
+      "failures": []
+    },
+    {
+      "name": "retain-multiplicity-and-live-guard",
+      "peak_bytes": 1344,
+      "final_bytes": 1280,
+      "idle_bytes": 0,
+      "idle_count": 0,
+      "fresh_attempts": 4,
+      "fresh_bytes": 1344,
+      "reuse_events": 2,
+      "reuse_capacity_bytes": 256,
+      "reuse_requested_bytes": 256,
+      "raw_count": 0,
+      "raw_bytes": 0,
+      "failures": []
+    },
+    {
+      "name": "random-0",
+      "peak_bytes": 4096,
+      "final_bytes": 4076,
+      "idle_bytes": 24,
+      "idle_count": 1,
+      "fresh_attempts": 7,
+      "fresh_bytes": 4056,
+      "reuse_events": 1,
+      "reuse_capacity_bytes": 256,
+      "reuse_requested_bytes": 128,
+      "raw_count": 3,
+      "raw_bytes": 548,
+      "failures": [
+        {
+          "step": 21,
+          "status": "oom"
+        },
+        {
+          "step": 22,
+          "status": "oom"
+        },
+        {
+          "step": 23,
+          "status": "oom"
+        },
+        {
+          "step": 24,
+          "status": "oom"
+        },
+        {
+          "step": 26,
+          "status": "oom"
+        },
+        {
+          "step": 27,
+          "status": "oom"
+        },
+        {
+          "step": 29,
+          "status": "oom"
+        },
+        {
+          "step": 31,
+          "status": "oom"
+        },
+        {
+          "step": 32,
+          "status": "oom"
+        },
+        {
+          "step": 33,
+          "status": "oom"
+        },
+        {
+          "step": 34,
+          "status": "injected"
+        },
+        {
+          "step": 36,
+          "status": "oom"
+        },
+        {
+          "step": 37,
+          "status": "oom"
+        },
+        {
+          "step": 39,
+          "status": "oom"
+        },
+        {
+          "step": 40,
+          "status": "oom"
+        },
+        {
+          "step": 41,
+          "status": "oom"
+        },
+        {
+          "step": 42,
+          "status": "oom"
+        },
+        {
+          "step": 43,
+          "status": "oom"
+        },
+        {
+          "step": 44,
+          "status": "oom"
+        },
+        {
+          "step": 45,
+          "status": "oom"
+        },
+        {
+          "step": 47,
+          "status": "oom"
+        },
+        {
+          "step": 53,
+          "status": "injected"
+        },
+        {
+          "step": 55,
+          "status": "oom"
+        },
+        {
+          "step": 56,
+          "status": "oom"
+        },
+        {
+          "step": 62,
+          "status": "oom"
+        },
+        {
+          "step": 64,
+          "status": "oom"
+        },
+        {
+          "step": 66,
+          "status": "oom"
+        },
+        {
+          "step": 78,
+          "status": "injected"
+        },
+        {
+          "step": 80,
+          "status": "oom"
+        },
+        {
+          "step": 86,
+          "status": "injected"
+        },
+        {
+          "step": 88,
+          "status": "oom"
+        },
+        {
+          "step": 94,
+          "status": "oom"
+        },
+        {
+          "step": 96,
+          "status": "oom"
+        }
+      ]
+    },
+    {
+      "name": "random-1",
+      "peak_bytes": 4076,
+      "final_bytes": 3996,
+      "idle_bytes": 0,
+      "idle_count": 0,
+      "fresh_attempts": 4,
+      "fresh_bytes": 3928,
+      "reuse_events": 4,
+      "reuse_capacity_bytes": 568,
+      "reuse_requested_bytes": 72,
+      "raw_count": 4,
+      "raw_bytes": 580,
+      "failures": [
+        {
+          "step": 23,
+          "status": "injected"
+        },
+        {
+          "step": 34,
+          "status": "injected"
+        },
+        {
+          "step": 41,
+          "status": "oom"
+        },
+        {
+          "step": 42,
+          "status": "oom"
+        },
+        {
+          "step": 47,
+          "status": "oom"
+        },
+        {
+          "step": 49,
+          "status": "oom"
+        },
+        {
+          "step": 52,
+          "status": "injected"
+        },
+        {
+          "step": 53,
+          "status": "oom"
+        },
+        {
+          "step": 61,
+          "status": "oom"
+        },
+        {
+          "step": 62,
+          "status": "oom"
+        },
+        {
+          "step": 63,
+          "status": "oom"
+        },
+        {
+          "step": 64,
+          "status": "oom"
+        },
+        {
+          "step": 65,
+          "status": "oom"
+        },
+        {
+          "step": 72,
+          "status": "oom"
+        },
+        {
+          "step": 75,
+          "status": "oom"
+        },
+        {
+          "step": 76,
+          "status": "oom"
+        },
+        {
+          "step": 77,
+          "status": "injected"
+        },
+        {
+          "step": 89,
+          "status": "oom"
+        },
+        {
+          "step": 94,
+          "status": "oom"
+        },
+        {
+          "step": 95,
+          "status": "injected"
+        },
+        {
+          "step": 98,
+          "status": "oom"
+        },
+        {
+          "step": 99,
+          "status": "oom"
+        }
+      ]
+    },
+    {
+      "name": "random-2",
+      "peak_bytes": 4092,
+      "final_bytes": 4016,
+      "idle_bytes": 512,
+      "idle_count": 1,
+      "fresh_attempts": 0,
+      "fresh_bytes": 4184,
+      "reuse_events": 6,
+      "reuse_capacity_bytes": 712,
+      "reuse_requested_bytes": 104,
+      "raw_count": 6,
+      "raw_bytes": 644,
+      "failures": [
+        {
+          "step": 1,
+          "status": "injected"
+        },
+        {
+          "step": 7,
+          "status": "injected"
+        },
+        {
+          "step": 15,
+          "status": "injected"
+        },
+        {
+          "step": 23,
+          "status": "injected"
+        },
+        {
+          "step": 37,
+          "status": "injected"
+        },
+        {
+          "step": 43,
+          "status": "injected"
+        },
+        {
+          "step": 51,
+          "status": "injected"
+        },
+        {
+          "step": 58,
+          "status": "oom"
+        },
+        {
+          "step": 67,
+          "status": "oom"
+        },
+        {
+          "step": 73,
+          "status": "oom"
+        },
+        {
+          "step": 76,
+          "status": "oom"
+        },
+        {
+          "step": 78,
+          "status": "oom"
+        },
+        {
+          "step": 82,
+          "status": "oom"
+        },
+        {
+          "step": 89,
+          "status": "oom"
+        },
+        {
+          "step": 92,
+          "status": "oom"
+        },
+        {
+          "step": 95,
+          "status": "injected"
+        }
+      ]
+    },
+    {
+      "name": "random-3",
+      "peak_bytes": 4088,
+      "final_bytes": 4084,
+      "idle_bytes": 128,
+      "idle_count": 1,
+      "fresh_attempts": 0,
+      "fresh_bytes": 4640,
+      "reuse_events": 3,
+      "reuse_capacity_bytes": 1344,
+      "reuse_requested_bytes": 544,
+      "raw_count": 3,
+      "raw_bytes": 68,
+      "failures": [
+        {
+          "step": 20,
+          "status": "injected"
+        },
+        {
+          "step": 28,
+          "status": "oom"
+        },
+        {
+          "step": 36,
+          "status": "injected"
+        },
+        {
+          "step": 44,
+          "status": "oom"
+        },
+        {
+          "step": 50,
+          "status": "injected"
+        },
+        {
+          "step": 63,
+          "status": "oom"
+        },
+        {
+          "step": 64,
+          "status": "oom"
+        },
+        {
+          "step": 66,
+          "status": "oom"
+        },
+        {
+          "step": 72,
+          "status": "injected"
+        },
+        {
+          "step": 76,
+          "status": "injected"
+        },
+        {
+          "step": 79,
+          "status": "oom"
+        },
+        {
+          "step": 82,
+          "status": "oom"
+        },
+        {
+          "step": 84,
+          "status": "oom"
+        },
+        {
+          "step": 85,
+          "status": "oom"
+        },
+        {
+          "step": 86,
+          "status": "oom"
+        },
+        {
+          "step": 92,
+          "status": "oom"
+        },
+        {
+          "step": 94,
+          "status": "oom"
+        },
+        {
+          "step": 95,
+          "status": "oom"
+        },
+        {
+          "step": 97,
+          "status": "oom"
+        },
+        {
+          "step": 98,
+          "status": "oom"
+        }
+      ]
+    },
+    {
+      "name": "random-4",
+      "peak_bytes": 4096,
+      "final_bytes": 4068,
+      "idle_bytes": 64,
+      "idle_count": 1,
+      "fresh_attempts": 0,
+      "fresh_bytes": 4088,
+      "reuse_events": 4,
+      "reuse_capacity_bytes": 1408,
+      "reuse_requested_bytes": 1080,
+      "raw_count": 5,
+      "raw_bytes": 556,
+      "failures": [
+        {
+          "step": 10,
+          "status": "injected"
+        },
+        {
+          "step": 19,
+          "status": "injected"
+        },
+        {
+          "step": 28,
+          "status": "oom"
+        },
+        {
+          "step": 30,
+          "status": "oom"
+        },
+        {
+          "step": 31,
+          "status": "injected"
+        },
+        {
+          "step": 41,
+          "status": "injected"
+        },
+        {
+          "step": 47,
+          "status": "injected"
+        },
+        {
+          "step": 61,
+          "status": "oom"
+        },
+        {
+          "step": 62,
+          "status": "oom"
+        },
+        {
+          "step": 67,
+          "status": "oom"
+        },
+        {
+          "step": 68,
+          "status": "injected"
+        },
+        {
+          "step": 70,
+          "status": "oom"
+        },
+        {
+          "step": 74,
+          "status": "oom"
+        },
+        {
+          "step": 75,
+          "status": "oom"
+        },
+        {
+          "step": 76,
+          "status": "oom"
+        },
+        {
+          "step": 77,
+          "status": "oom"
+        },
+        {
+          "step": 79,
+          "status": "oom"
+        },
+        {
+          "step": 81,
+          "status": "oom"
+        },
+        {
+          "step": 86,
+          "status": "oom"
+        },
+        {
+          "step": 90,
+          "status": "injected"
+        },
+        {
+          "step": 92,
+          "status": "oom"
+        },
+        {
+          "step": 93,
+          "status": "oom"
+        },
+        {
+          "step": 94,
+          "status": "oom"
+        }
+      ]
+    },
+    {
+      "name": "random-5",
+      "peak_bytes": 4096,
+      "final_bytes": 4072,
+      "idle_bytes": 0,
+      "idle_count": 0,
+      "fresh_attempts": 1,
+      "fresh_bytes": 4056,
+      "reuse_events": 6,
+      "reuse_capacity_bytes": 1680,
+      "reuse_requested_bytes": 440,
+      "raw_count": 4,
+      "raw_bytes": 44,
+      "failures": [
+        {
+          "step": 18,
+          "status": "injected"
+        },
+        {
+          "step": 22,
+          "status": "injected"
+        },
+        {
+          "step": 53,
+          "status": "injected"
+        },
+        {
+          "step": 60,
+          "status": "oom"
+        },
+        {
+          "step": 61,
+          "status": "oom"
+        },
+        {
+          "step": 62,
+          "status": "oom"
+        },
+        {
+          "step": 63,
+          "status": "oom"
+        },
+        {
+          "step": 66,
+          "status": "oom"
+        },
+        {
+          "step": 70,
+          "status": "injected"
+        },
+        {
+          "step": 72,
+          "status": "oom"
+        },
+        {
+          "step": 73,
+          "status": "injected"
+        },
+        {
+          "step": 74,
+          "status": "oom"
+        },
+        {
+          "step": 75,
+          "status": "oom"
+        },
+        {
+          "step": 76,
+          "status": "oom"
+        },
+        {
+          "step": 77,
+          "status": "oom"
+        },
+        {
+          "step": 79,
+          "status": "oom"
+        },
+        {
+          "step": 80,
+          "status": "oom"
+        },
+        {
+          "step": 81,
+          "status": "oom"
+        },
+        {
+          "step": 82,
+          "status": "oom"
+        },
+        {
+          "step": 83,
+          "status": "oom"
+        },
+        {
+          "step": 84,
+          "status": "oom"
+        },
+        {
+          "step": 86,
+          "status": "oom"
+        },
+        {
+          "step": 88,
+          "status": "injected"
+        },
+        {
+          "step": 90,
+          "status": "oom"
+        },
+        {
+          "step": 92,
+          "status": "injected"
+        },
+        {
+          "step": 93,
+          "status": "oom"
+        },
+        {
+          "step": 94,
+          "status": "oom"
+        }
+      ]
+    },
+    {
+      "name": "random-6",
+      "peak_bytes": 4096,
+      "final_bytes": 3904,
+      "idle_bytes": 0,
+      "idle_count": 0,
+      "fresh_attempts": 7,
+      "fresh_bytes": 3888,
+      "reuse_events": 4,
+      "reuse_capacity_bytes": 584,
+      "reuse_requested_bytes": 64,
+      "raw_count": 5,
+      "raw_bytes": 556,
+      "failures": [
+        {
+          "step": 7,
+          "status": "injected"
+        },
+        {
+          "step": 10,
+          "status": "injected"
+        },
+        {
+          "step": 30,
+          "status": "injected"
+        },
+        {
+          "step": 35,
+          "status": "injected"
+        },
+        {
+          "step": 47,
+          "status": "injected"
+        },
+        {
+          "step": 54,
+          "status": "oom"
+        },
+        {
+          "step": 57,
+          "status": "injected"
+        },
+        {
+          "step": 65,
+          "status": "injected"
+        },
+        {
+          "step": 68,
+          "status": "oom"
+        },
+        {
+          "step": 72,
+          "status": "injected"
+        },
+        {
+          "step": 76,
+          "status": "oom"
+        },
+        {
+          "step": 77,
+          "status": "oom"
+        },
+        {
+          "step": 78,
+          "status": "injected"
+        },
+        {
+          "step": 80,
+          "status": "oom"
+        },
+        {
+          "step": 85,
+          "status": "oom"
+        },
+        {
+          "step": 87,
+          "status": "injected"
+        },
+        {
+          "step": 91,
+          "status": "oom"
+        },
+        {
+          "step": 93,
+          "status": "oom"
+        },
+        {
+          "step": 96,
+          "status": "oom"
+        }
+      ]
+    },
+    {
+      "name": "random-7",
+      "peak_bytes": 4096,
+      "final_bytes": 4096,
+      "idle_bytes": 0,
+      "idle_count": 0,
+      "fresh_attempts": 6,
+      "fresh_bytes": 3824,
+      "reuse_events": 2,
+      "reuse_capacity_bytes": 512,
+      "reuse_requested_bytes": 320,
+      "raw_count": 6,
+      "raw_bytes": 108,
+      "failures": [
+        {
+          "step": 3,
+          "status": "injected"
+        },
+        {
+          "step": 16,
+          "status": "injected"
+        },
+        {
+          "step": 31,
+          "status": "injected"
+        },
+        {
+          "step": 46,
+          "status": "oom"
+        },
+        {
+          "step": 49,
+          "status": "injected"
+        },
+        {
+          "step": 50,
+          "status": "oom"
+        },
+        {
+          "step": 51,
+          "status": "oom"
+        },
+        {
+          "step": 53,
+          "status": "oom"
+        },
+        {
+          "step": 59,
+          "status": "oom"
+        },
+        {
+          "step": 60,
+          "status": "oom"
+        },
+        {
+          "step": 61,
+          "status": "oom"
+        },
+        {
+          "step": 62,
+          "status": "oom"
+        },
+        {
+          "step": 63,
+          "status": "injected"
+        },
+        {
+          "step": 68,
+          "status": "oom"
+        },
+        {
+          "step": 74,
+          "status": "injected"
+        },
+        {
+          "step": 76,
+          "status": "oom"
+        },
+        {
+          "step": 79,
+          "status": "injected"
+        },
+        {
+          "step": 86,
+          "status": "oom"
+        },
+        {
+          "step": 90,
+          "status": "oom"
+        },
+        {
+          "step": 91,
+          "status": "injected"
+        },
+        {
+          "step": 93,
+          "status": "oom"
+        },
+        {
+          "step": 95,
+          "status": "oom"
+        },
+        {
+          "step": 96,
+          "status": "oom"
+        },
+        {
+          "step": 97,
+          "status": "oom"
+        },
+        {
+          "step": 99,
+          "status": "oom"
+        }
+      ]
+    },
+    {
+      "name": "random-8",
+      "peak_bytes": 4096,
+      "final_bytes": 4092,
+      "idle_bytes": 8,
+      "idle_count": 1,
+      "fresh_attempts": 4,
+      "fresh_bytes": 3728,
+      "reuse_events": 6,
+      "reuse_capacity_bytes": 2152,
+      "reuse_requested_bytes": 232,
+      "raw_count": 5,
+      "raw_bytes": 584,
+      "failures": [
+        {
+          "step": 22,
+          "status": "injected"
+        },
+        {
+          "step": 29,
+          "status": "oom"
+        },
+        {
+          "step": 33,
+          "status": "oom"
+        },
+        {
+          "step": 34,
+          "status": "oom"
+        },
+        {
+          "step": 35,
+          "status": "oom"
+        },
+        {
+          "step": 43,
+          "status": "oom"
+        },
+        {
+          "step": 47,
+          "status": "injected"
+        },
+        {
+          "step": 53,
+          "status": "injected"
+        },
+        {
+          "step": 63,
+          "status": "oom"
+        },
+        {
+          "step": 65,
+          "status": "injected"
+        },
+        {
+          "step": 69,
+          "status": "oom"
+        },
+        {
+          "step": 71,
+          "status": "oom"
+        },
+        {
+          "step": 72,
+          "status": "oom"
+        },
+        {
+          "step": 73,
+          "status": "oom"
+        },
+        {
+          "step": 74,
+          "status": "oom"
+        },
+        {
+          "step": 75,
+          "status": "oom"
+        },
+        {
+          "step": 77,
+          "status": "oom"
+        },
+        {
+          "step": 78,
+          "status": "oom"
+        },
+        {
+          "step": 80,
+          "status": "oom"
+        },
+        {
+          "step": 82,
+          "status": "oom"
+        },
+        {
+          "step": 83,
+          "status": "oom"
+        },
+        {
+          "step": 84,
+          "status": "injected"
+        },
+        {
+          "step": 86,
+          "status": "oom"
+        },
+        {
+          "step": 87,
+          "status": "oom"
+        },
+        {
+          "step": 88,
+          "status": "oom"
+        },
+        {
+          "step": 89,
+          "status": "oom"
+        },
+        {
+          "step": 91,
+          "status": "oom"
+        },
+        {
+          "step": 92,
+          "status": "oom"
+        },
+        {
+          "step": 94,
+          "status": "oom"
+        },
+        {
+          "step": 95,
+          "status": "oom"
+        },
+        {
+          "step": 96,
+          "status": "injected"
+        },
+        {
+          "step": 97,
+          "status": "oom"
+        }
+      ]
+    },
+    {
+      "name": "random-9",
+      "peak_bytes": 3952,
+      "final_bytes": 3896,
+      "idle_bytes": 0,
+      "idle_count": 0,
+      "fresh_attempts": 1,
+      "fresh_bytes": 4400,
+      "reuse_events": 5,
+      "reuse_capacity_bytes": 920,
+      "reuse_requested_bytes": 176,
+      "raw_count": 2,
+      "raw_bytes": 36,
+      "failures": [
+        {
+          "step": 13,
+          "status": "injected"
+        },
+        {
+          "step": 28,
+          "status": "oom"
+        },
+        {
+          "step": 30,
+          "status": "oom"
+        },
+        {
+          "step": 32,
+          "status": "oom"
+        },
+        {
+          "step": 34,
+          "status": "oom"
+        },
+        {
+          "step": 36,
+          "status": "oom"
+        },
+        {
+          "step": 37,
+          "status": "oom"
+        },
+        {
+          "step": 40,
+          "status": "oom"
+        },
+        {
+          "step": 41,
+          "status": "oom"
+        },
+        {
+          "step": 46,
+          "status": "oom"
+        },
+        {
+          "step": 48,
+          "status": "oom"
+        },
+        {
+          "step": 50,
+          "status": "injected"
+        },
+        {
+          "step": 54,
+          "status": "injected"
+        },
+        {
+          "step": 58,
+          "status": "oom"
+        },
+        {
+          "step": 59,
+          "status": "injected"
+        },
+        {
+          "step": 68,
+          "status": "oom"
+        },
+        {
+          "step": 69,
+          "status": "oom"
+        },
+        {
+          "step": 73,
+          "status": "oom"
+        },
+        {
+          "step": 85,
+          "status": "injected"
+        },
+        {
+          "step": 87,
+          "status": "oom"
+        },
+        {
+          "step": 90,
+          "status": "injected"
+        },
+        {
+          "step": 91,
+          "status": "oom"
+        },
+        {
+          "step": 92,
+          "status": "oom"
+        },
+        {
+          "step": 99,
+          "status": "oom"
+        }
+      ]
+    },
+    {
+      "name": "random-10",
+      "peak_bytes": 4092,
+      "final_bytes": 4084,
+      "idle_bytes": 0,
+      "idle_count": 0,
+      "fresh_attempts": 1,
+      "fresh_bytes": 4232,
+      "reuse_events": 2,
+      "reuse_capacity_bytes": 192,
+      "reuse_requested_bytes": 88,
+      "raw_count": 7,
+      "raw_bytes": 620,
+      "failures": [
+        {
+          "step": 34,
+          "status": "injected"
+        },
+        {
+          "step": 40,
+          "status": "oom"
+        },
+        {
+          "step": 41,
+          "status": "oom"
+        },
+        {
+          "step": 43,
+          "status": "oom"
+        },
+        {
+          "step": 46,
+          "status": "oom"
+        },
+        {
+          "step": 48,
+          "status": "oom"
+        },
+        {
+          "step": 50,
+          "status": "oom"
+        },
+        {
+          "step": 59,
+          "status": "injected"
+        },
+        {
+          "step": 63,
+          "status": "oom"
+        },
+        {
+          "step": 70,
+          "status": "oom"
+        },
+        {
+          "step": 74,
+          "status": "injected"
+        },
+        {
+          "step": 76,
+          "status": "oom"
+        },
+        {
+          "step": 79,
+          "status": "oom"
+        },
+        {
+          "step": 83,
+          "status": "oom"
+        },
+        {
+          "step": 86,
+          "status": "oom"
+        },
+        {
+          "step": 90,
+          "status": "oom"
+        },
+        {
+          "step": 91,
+          "status": "oom"
+        },
+        {
+          "step": 92,
+          "status": "injected"
+        },
+        {
+          "step": 99,
+          "status": "injected"
+        }
+      ]
+    },
+    {
+      "name": "random-11",
+      "peak_bytes": 4072,
+      "final_bytes": 4072,
+      "idle_bytes": 0,
+      "idle_count": 0,
+      "fresh_attempts": 4,
+      "fresh_bytes": 3264,
+      "reuse_events": 10,
+      "reuse_capacity_bytes": 1680,
+      "reuse_requested_bytes": 200,
+      "raw_count": 3,
+      "raw_bytes": 40,
+      "failures": [
+        {
+          "step": 23,
+          "status": "injected"
+        },
+        {
+          "step": 45,
+          "status": "oom"
+        },
+        {
+          "step": 53,
+          "status": "injected"
+        },
+        {
+          "step": 58,
+          "status": "injected"
+        },
+        {
+          "step": 61,
+          "status": "oom"
+        },
+        {
+          "step": 64,
+          "status": "oom"
+        },
+        {
+          "step": 65,
+          "status": "injected"
+        },
+        {
+          "step": 67,
+          "status": "oom"
+        },
+        {
+          "step": 69,
+          "status": "injected"
+        },
+        {
+          "step": 72,
+          "status": "oom"
+        },
+        {
+          "step": 73,
+          "status": "oom"
+        },
+        {
+          "step": 75,
+          "status": "oom"
+        },
+        {
+          "step": 81,
+          "status": "oom"
+        },
+        {
+          "step": 82,
+          "status": "oom"
+        },
+        {
+          "step": 85,
+          "status": "injected"
+        },
+        {
+          "step": 86,
+          "status": "oom"
+        },
+        {
+          "step": 92,
+          "status": "oom"
+        },
+        {
+          "step": 95,
+          "status": "injected"
+        },
+        {
+          "step": 96,
+          "status": "oom"
+        }
+      ]
+    },
+    {
+      "name": "random-12",
+      "peak_bytes": 4096,
+      "final_bytes": 4096,
+      "idle_bytes": 64,
+      "idle_count": 1,
+      "fresh_attempts": 1,
+      "fresh_bytes": 4592,
+      "reuse_events": 2,
+      "reuse_capacity_bytes": 80,
+      "reuse_requested_bytes": 32,
+      "raw_count": 1,
+      "raw_bytes": 512,
+      "failures": [
+        {
+          "step": 11,
+          "status": "injected"
+        },
+        {
+          "step": 26,
+          "status": "injected"
+        },
+        {
+          "step": 38,
+          "status": "injected"
+        },
+        {
+          "step": 45,
+          "status": "oom"
+        },
+        {
+          "step": 47,
+          "status": "oom"
+        },
+        {
+          "step": 48,
+          "status": "oom"
+        },
+        {
+          "step": 51,
+          "status": "oom"
+        },
+        {
+          "step": 52,
+          "status": "oom"
+        },
+        {
+          "step": 54,
+          "status": "oom"
+        },
+        {
+          "step": 58,
+          "status": "oom"
+        },
+        {
+          "step": 59,
+          "status": "oom"
+        },
+        {
+          "step": 60,
+          "status": "oom"
+        },
+        {
+          "step": 61,
+          "status": "oom"
+        },
+        {
+          "step": 63,
+          "status": "oom"
+        },
+        {
+          "step": 64,
+          "status": "oom"
+        },
+        {
+          "step": 65,
+          "status": "oom"
+        },
+        {
+          "step": 66,
+          "status": "oom"
+        },
+        {
+          "step": 69,
+          "status": "oom"
+        },
+        {
+          "step": 73,
+          "status": "oom"
+        },
+        {
+          "step": 76,
+          "status": "injected"
+        },
+        {
+          "step": 77,
+          "status": "oom"
+        },
+        {
+          "step": 78,
+          "status": "oom"
+        },
+        {
+          "step": 80,
+          "status": "injected"
+        },
+        {
+          "step": 82,
+          "status": "oom"
+        },
+        {
+          "step": 83,
+          "status": "oom"
+        },
+        {
+          "step": 84,
+          "status": "oom"
+        },
+        {
+          "step": 85,
+          "status": "oom"
+        },
+        {
+          "step": 86,
+          "status": "oom"
+        },
+        {
+          "step": 87,
+          "status": "oom"
+        },
+        {
+          "step": 88,
+          "status": "oom"
+        },
+        {
+          "step": 89,
+          "status": "oom"
+        },
+        {
+          "step": 91,
+          "status": "oom"
+        },
+        {
+          "step": 92,
+          "status": "oom"
+        },
+        {
+          "step": 93,
+          "status": "oom"
+        },
+        {
+          "step": 98,
+          "status": "oom"
+        }
+      ]
+    },
+    {
+      "name": "random-13",
+      "peak_bytes": 4032,
+      "final_bytes": 3912,
+      "idle_bytes": 0,
+      "idle_count": 0,
+      "fresh_attempts": 10,
+      "fresh_bytes": 3480,
+      "reuse_events": 7,
+      "reuse_capacity_bytes": 1264,
+      "reuse_requested_bytes": 696,
+      "raw_count": 5,
+      "raw_bytes": 104,
+      "failures": [
+        {
+          "step": 9,
+          "status": "injected"
+        },
+        {
+          "step": 44,
+          "status": "injected"
+        },
+        {
+          "step": 47,
+          "status": "oom"
+        },
+        {
+          "step": 49,
+          "status": "injected"
+        },
+        {
+          "step": 54,
+          "status": "oom"
+        },
+        {
+          "step": 57,
+          "status": "oom"
+        },
+        {
+          "step": 59,
+          "status": "injected"
+        },
+        {
+          "step": 64,
+          "status": "oom"
+        },
+        {
+          "step": 67,
+          "status": "oom"
+        },
+        {
+          "step": 72,
+          "status": "injected"
+        },
+        {
+          "step": 74,
+          "status": "oom"
+        },
+        {
+          "step": 79,
+          "status": "oom"
+        },
+        {
+          "step": 80,
+          "status": "injected"
+        },
+        {
+          "step": 88,
+          "status": "injected"
+        },
+        {
+          "step": 92,
+          "status": "oom"
+        },
+        {
+          "step": 93,
+          "status": "oom"
+        },
+        {
+          "step": 94,
+          "status": "oom"
+        },
+        {
+          "step": 96,
+          "status": "oom"
+        },
+        {
+          "step": 99,
+          "status": "oom"
+        }
+      ]
+    },
+    {
+      "name": "random-14",
+      "peak_bytes": 3992,
+      "final_bytes": 3976,
+      "idle_bytes": 8,
+      "idle_count": 1,
+      "fresh_attempts": 9,
+      "fresh_bytes": 4744,
+      "reuse_events": 6,
+      "reuse_capacity_bytes": 1360,
+      "reuse_requested_bytes": 416,
+      "raw_count": 3,
+      "raw_bytes": 12,
+      "failures": [
+        {
+          "step": 12,
+          "status": "injected"
+        },
+        {
+          "step": 16,
+          "status": "injected"
+        },
+        {
+          "step": 24,
+          "status": "injected"
+        },
+        {
+          "step": 39,
+          "status": "injected"
+        },
+        {
+          "step": 55,
+          "status": "injected"
+        },
+        {
+          "step": 58,
+          "status": "injected"
+        },
+        {
+          "step": 68,
+          "status": "injected"
+        },
+        {
+          "step": 72,
+          "status": "oom"
+        },
+        {
+          "step": 73,
+          "status": "oom"
+        },
+        {
+          "step": 74,
+          "status": "oom"
+        },
+        {
+          "step": 79,
+          "status": "oom"
+        },
+        {
+          "step": 81,
+          "status": "oom"
+        },
+        {
+          "step": 84,
+          "status": "injected"
+        },
+        {
+          "step": 92,
+          "status": "oom"
+        }
+      ]
+    },
+    {
+      "name": "random-15",
+      "peak_bytes": 4088,
+      "final_bytes": 4088,
+      "idle_bytes": 64,
+      "idle_count": 1,
+      "fresh_attempts": 18,
+      "fresh_bytes": 4376,
+      "reuse_events": 8,
+      "reuse_capacity_bytes": 2848,
+      "reuse_requested_bytes": 1640,
+      "raw_count": 1,
+      "raw_bytes": 4,
+      "failures": [
+        {
+          "step": 11,
+          "status": "oom"
+        },
+        {
+          "step": 19,
+          "status": "injected"
+        },
+        {
+          "step": 21,
+          "status": "oom"
+        },
+        {
+          "step": 24,
+          "status": "oom"
+        },
+        {
+          "step": 26,
+          "status": "injected"
+        },
+        {
+          "step": 28,
+          "status": "oom"
+        },
+        {
+          "step": 29,
+          "status": "oom"
+        },
+        {
+          "step": 33,
+          "status": "injected"
+        },
+        {
+          "step": 34,
+          "status": "oom"
+        },
+        {
+          "step": 41,
+          "status": "oom"
+        },
+        {
+          "step": 42,
+          "status": "oom"
+        },
+        {
+          "step": 45,
+          "status": "oom"
+        },
+        {
+          "step": 48,
+          "status": "oom"
+        },
+        {
+          "step": 51,
+          "status": "oom"
+        },
+        {
+          "step": 57,
+          "status": "injected"
+        },
+        {
+          "step": 63,
+          "status": "injected"
+        },
+        {
+          "step": 65,
+          "status": "oom"
+        },
+        {
+          "step": 67,
+          "status": "oom"
+        },
+        {
+          "step": 69,
+          "status": "injected"
+        },
+        {
+          "step": 71,
+          "status": "oom"
+        },
+        {
+          "step": 75,
+          "status": "oom"
+        },
+        {
+          "step": 81,
+          "status": "oom"
+        },
+        {
+          "step": 82,
+          "status": "oom"
+        },
+        {
+          "step": 83,
+          "status": "oom"
+        },
+        {
+          "step": 85,
+          "status": "oom"
+        },
+        {
+          "step": 87,
+          "status": "oom"
+        },
+        {
+          "step": 88,
+          "status": "oom"
+        },
+        {
+          "step": 90,
+          "status": "oom"
+        },
+        {
+          "step": 91,
+          "status": "oom"
+        },
+        {
+          "step": 92,
+          "status": "oom"
+        },
+        {
+          "step": 94,
+          "status": "oom"
+        },
+        {
+          "step": 95,
+          "status": "oom"
+        },
+        {
+          "step": 96,
+          "status": "oom"
+        },
+        {
+          "step": 99,
+          "status": "oom"
+        }
+      ]
+    },
+    {
+      "name": "random-16",
+      "peak_bytes": 3964,
+      "final_bytes": 3828,
+      "idle_bytes": 64,
+      "idle_count": 1,
+      "fresh_attempts": 5,
+      "fresh_bytes": 3896,
+      "reuse_events": 5,
+      "reuse_capacity_bytes": 936,
+      "reuse_requested_bytes": 928,
+      "raw_count": 3,
+      "raw_bytes": 68,
+      "failures": [
+        {
+          "step": 6,
+          "status": "injected"
+        },
+        {
+          "step": 18,
+          "status": "injected"
+        },
+        {
+          "step": 36,
+          "status": "oom"
+        },
+        {
+          "step": 41,
+          "status": "injected"
+        },
+        {
+          "step": 52,
+          "status": "injected"
+        },
+        {
+          "step": 53,
+          "status": "oom"
+        },
+        {
+          "step": 58,
+          "status": "oom"
+        },
+        {
+          "step": 59,
+          "status": "oom"
+        },
+        {
+          "step": 60,
+          "status": "oom"
+        },
+        {
+          "step": 62,
+          "status": "injected"
+        },
+        {
+          "step": 64,
+          "status": "oom"
+        },
+        {
+          "step": 73,
+          "status": "oom"
+        },
+        {
+          "step": 74,
+          "status": "injected"
+        },
+        {
+          "step": 76,
+          "status": "oom"
+        },
+        {
+          "step": 78,
+          "status": "oom"
+        },
+        {
+          "step": 88,
+          "status": "injected"
+        },
+        {
+          "step": 93,
+          "status": "oom"
+        },
+        {
+          "step": 94,
+          "status": "injected"
+        },
+        {
+          "step": 95,
+          "status": "oom"
+        },
+        {
+          "step": 97,
+          "status": "oom"
+        },
+        {
+          "step": 99,
+          "status": "oom"
+        }
+      ]
+    },
+    {
+      "name": "random-17",
+      "peak_bytes": 4096,
+      "final_bytes": 4096,
+      "idle_bytes": 0,
+      "idle_count": 0,
+      "fresh_attempts": 9,
+      "fresh_bytes": 4656,
+      "reuse_events": 5,
+      "reuse_capacity_bytes": 1792,
+      "reuse_requested_bytes": 1304,
+      "raw_count": 5,
+      "raw_bytes": 528,
+      "failures": [
+        {
+          "step": 12,
+          "status": "injected"
+        },
+        {
+          "step": 34,
+          "status": "injected"
+        },
+        {
+          "step": 51,
+          "status": "oom"
+        },
+        {
+          "step": 52,
+          "status": "injected"
+        },
+        {
+          "step": 59,
+          "status": "injected"
+        },
+        {
+          "step": 62,
+          "status": "oom"
+        },
+        {
+          "step": 66,
+          "status": "injected"
+        },
+        {
+          "step": 69,
+          "status": "oom"
+        },
+        {
+          "step": 70,
+          "status": "oom"
+        },
+        {
+          "step": 74,
+          "status": "oom"
+        },
+        {
+          "step": 75,
+          "status": "oom"
+        },
+        {
+          "step": 76,
+          "status": "oom"
+        },
+        {
+          "step": 85,
+          "status": "oom"
+        },
+        {
+          "step": 86,
+          "status": "injected"
+        },
+        {
+          "step": 88,
+          "status": "oom"
+        },
+        {
+          "step": 93,
+          "status": "oom"
+        },
+        {
+          "step": 95,
+          "status": "oom"
+        },
+        {
+          "step": 96,
+          "status": "oom"
+        },
+        {
+          "step": 99,
+          "status": "oom"
+        }
+      ]
+    },
+    {
+      "name": "random-18",
+      "peak_bytes": 4096,
+      "final_bytes": 4056,
+      "idle_bytes": 24,
+      "idle_count": 1,
+      "fresh_attempts": 0,
+      "fresh_bytes": 4544,
+      "reuse_events": 0,
+      "reuse_capacity_bytes": 0,
+      "reuse_requested_bytes": 0,
+      "raw_count": 5,
+      "raw_bytes": 104,
+      "failures": [
+        {
+          "step": 14,
+          "status": "injected"
+        },
+        {
+          "step": 23,
+          "status": "injected"
+        },
+        {
+          "step": 26,
+          "status": "injected"
+        },
+        {
+          "step": 37,
+          "status": "oom"
+        },
+        {
+          "step": 38,
+          "status": "oom"
+        },
+        {
+          "step": 39,
+          "status": "oom"
+        },
+        {
+          "step": 41,
+          "status": "oom"
+        },
+        {
+          "step": 42,
+          "status": "oom"
+        },
+        {
+          "step": 44,
+          "status": "oom"
+        },
+        {
+          "step": 47,
+          "status": "oom"
+        },
+        {
+          "step": 48,
+          "status": "oom"
+        },
+        {
+          "step": 49,
+          "status": "oom"
+        },
+        {
+          "step": 50,
+          "status": "oom"
+        },
+        {
+          "step": 52,
+          "status": "injected"
+        },
+        {
+          "step": 56,
+          "status": "oom"
+        },
+        {
+          "step": 61,
+          "status": "oom"
+        },
+        {
+          "step": 63,
+          "status": "oom"
+        },
+        {
+          "step": 64,
+          "status": "injected"
+        },
+        {
+          "step": 65,
+          "status": "oom"
+        },
+        {
+          "step": 67,
+          "status": "oom"
+        },
+        {
+          "step": 68,
+          "status": "oom"
+        },
+        {
+          "step": 70,
+          "status": "oom"
+        },
+        {
+          "step": 72,
+          "status": "oom"
+        },
+        {
+          "step": 73,
+          "status": "oom"
+        },
+        {
+          "step": 74,
+          "status": "oom"
+        },
+        {
+          "step": 76,
+          "status": "oom"
+        },
+        {
+          "step": 77,
+          "status": "oom"
+        },
+        {
+          "step": 78,
+          "status": "oom"
+        },
+        {
+          "step": 79,
+          "status": "oom"
+        },
+        {
+          "step": 81,
+          "status": "oom"
+        },
+        {
+          "step": 82,
+          "status": "oom"
+        },
+        {
+          "step": 83,
+          "status": "oom"
+        },
+        {
+          "step": 84,
+          "status": "oom"
+        },
+        {
+          "step": 86,
+          "status": "oom"
+        },
+        {
+          "step": 87,
+          "status": "oom"
+        },
+        {
+          "step": 88,
+          "status": "oom"
+        },
+        {
+          "step": 89,
+          "status": "oom"
+        },
+        {
+          "step": 90,
+          "status": "oom"
+        },
+        {
+          "step": 91,
+          "status": "oom"
+        },
+        {
+          "step": 93,
+          "status": "oom"
+        },
+        {
+          "step": 94,
+          "status": "oom"
+        },
+        {
+          "step": 97,
+          "status": "oom"
+        }
+      ]
+    },
+    {
+      "name": "random-19",
+      "peak_bytes": 3972,
+      "final_bytes": 3948,
+      "idle_bytes": 0,
+      "idle_count": 0,
+      "fresh_attempts": 7,
+      "fresh_bytes": 3336,
+      "reuse_events": 6,
+      "reuse_capacity_bytes": 416,
+      "reuse_requested_bytes": 360,
+      "raw_count": 4,
+      "raw_bytes": 1088,
+      "failures": [
+        {
+          "step": 14,
+          "status": "injected"
+        },
+        {
+          "step": 31,
+          "status": "injected"
+        },
+        {
+          "step": 35,
+          "status": "injected"
+        },
+        {
+          "step": 44,
+          "status": "injected"
+        },
+        {
+          "step": 56,
+          "status": "injected"
+        },
+        {
+          "step": 62,
+          "status": "oom"
+        },
+        {
+          "step": 66,
+          "status": "oom"
+        },
+        {
+          "step": 67,
+          "status": "oom"
+        },
+        {
+          "step": 68,
+          "status": "oom"
+        },
+        {
+          "step": 72,
+          "status": "oom"
+        },
+        {
+          "step": 81,
+          "status": "injected"
+        },
+        {
+          "step": 84,
+          "status": "injected"
+        },
+        {
+          "step": 91,
+          "status": "oom"
+        },
+        {
+          "step": 99,
+          "status": "oom"
+        }
+      ]
+    }
+  ],
+  "wall_seconds": 1.489126551998197,
+  "rss_kib": 22856,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "nice": 19,
+  "native_proofs": 0,
+  "verified_positions": 0,
+  "scope": "independent capacity-policy/interval audit only; native peak,bytes,privacy,speed unmeasured"
+}

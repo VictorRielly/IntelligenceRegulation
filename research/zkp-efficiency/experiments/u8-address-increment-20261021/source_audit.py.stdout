@@ -1,0 +1,1 @@
+{"status": "PASS_SOURCE_OBLIGATIONS_ONLY", "checks": 51, "live_copy_pins": 6, "fragment_mutations": 19, "wall_seconds": 0.0054566900071222335, "rss_kib": 14840, "limits": "Substring/source-order checks, not compiler/native protocol or security review"}

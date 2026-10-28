@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "checks": 93,
+  "elapsed_s": 0.010769148007966578,
+  "maxrss_KiB": 19956,
+  "source_ledger": 692,
+  "original_source_records_preserved": 682,
+  "prior_findings_prefix_preserved": true,
+  "agenda_unchanged": true
+}

@@ -216,7 +216,7 @@ pub(super) const SHARED_SOURCE_FILES: [&str; 29] = [
     "../zkp-core/src/tables.rs",
 ];
 
-pub(super) const OWN_SOURCE_FILES: [&str; 17] = [
+pub(super) const OWN_SOURCE_FILES: [&str; 20] = [
     "src/private_block/run_capture.rs",
     "src/private_block/run.rs",
     "src/private_block/boundary.rs",
@@ -262,6 +262,13 @@ pub(super) const OWN_SOURCE_FILES: [&str; 17] = [
     // context label and the statement files), so a trained capture pins it.
     // It was excused in `NOT_ON_THE_RUNS_PATH` until R5b.
     "src/private_block/trained_block.rs",
+    // NATIVE R12 (F1): the RoPE frequency transforms, which decide the public
+    // cos / sin tables a trained run binds (the loader's generator)
+    "src/private_block/rope.rs",
+    // R12b: these decide whether the token tables are derived from the
+    // authenticated model before their digests enter a trained statement.
+    "src/private_block/tied_tables.rs",
+    "src/private_block/tied_tables/derive.rs",
 ];
 
 /// **The production modules of `private_block` that are NOT source pins, with
@@ -1373,7 +1380,7 @@ fn write_run(r: &Rec) -> Vec<u8> {
         sh.endpoint_general,
         sh.norm_wrho,
         sh.wrho_s,
-        sh.slots().iter().map(|&(n, e, d)| [n, e, d]).collect::<Vec<_>>(),
+        sh.slots().iter().take(sh.n_slots()).map(|&(n, e, d)| [n, e, d]).collect::<Vec<_>>(),
         sh.a_groups(),
         sh.h_groups()
     )

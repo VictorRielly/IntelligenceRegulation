@@ -1,0 +1,10 @@
+{
+ "run": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/stack-llama3_8b_pg_rot1_b7voc0_T128-ho00-cpu",
+ "prove_start": "2026-10-19T16:04:14.164547Z",
+ "prove_end": "2026-10-19T16:12:13Z",
+ "label": "quiet box",
+ "overlapping": [],
+ "boundary_ties": [],
+ "tolerance_s": 1.5,
+ "note": "guarded jobs only (unguarded processes are not in the history); jobs still running at the time of this scan are not in the history yet; re-run the scan later to be sure"
+}

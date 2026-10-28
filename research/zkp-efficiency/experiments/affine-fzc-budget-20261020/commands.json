@@ -1,0 +1,156 @@
+[
+  {
+    "leaf": "pair_probe.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/affine-fzc-budget-20261020/pair_probe.py"
+    ],
+    "started_at": "2026-10-20T05:23:31.669486+00:00",
+    "exit_code": 0,
+    "wall_seconds": 1.8819509290042333,
+    "maxrss_kib": 17016,
+    "sha256": "57f2c504bf65b76aae89c80d891dd50b662be9f0f901e74a6af1aba127d23740",
+    "stdout": "00-pair_probe.py.stdout.log",
+    "stderr": "00-pair_probe.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "cost_probe.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/affine-fzc-budget-20261020/cost_probe.py"
+    ],
+    "started_at": "2026-10-20T05:25:11.260659+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.4356849530013278,
+    "maxrss_kib": 16804,
+    "sha256": "07f8ac00ad6ee0286a9fcfc85ce323b885a90f2eb51045a6cb737ca317af90b2",
+    "stdout": "01-cost_probe.py.stdout.log",
+    "stderr": "01-cost_probe.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "cost_probe.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/affine-fzc-budget-20261020/cost_probe.py"
+    ],
+    "started_at": "2026-10-20T05:27:51.698091+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.35789406900585163,
+    "maxrss_kib": 16548,
+    "sha256": "0d7661e744a56aafdf49c070bde9785a3202534e283ce9cd7992c04dfc731088",
+    "stdout": "02-cost_probe.py.stdout.log",
+    "stderr": "02-cost_probe.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "pair_probe.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/affine-fzc-budget-20261020/pair_probe.py"
+    ],
+    "started_at": "2026-10-20T05:28:47.239930+00:00",
+    "exit_code": 0,
+    "wall_seconds": 1.987778041002457,
+    "maxrss_kib": 17224,
+    "sha256": "499831c6c333ef4bb2a9d807dd3edb2c772d88ff0398484110f959d2ed306805",
+    "stdout": "03-pair_probe.py.stdout.log",
+    "stderr": "03-pair_probe.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "validate.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/affine-fzc-budget-20261020/validate.py"
+    ],
+    "started_at": "2026-10-20T05:29:16.342206+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.05375396799354348,
+    "maxrss_kib": 16328,
+    "sha256": "a3e06f83e0b53d73ba1e015dece8a795818b4b9dc011cdd48ba05602334c6055",
+    "stdout": "04-validate.py.stdout.log",
+    "stderr": "04-validate.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "cost_probe.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/affine-fzc-budget-20261020/cost_probe.py"
+    ],
+    "started_at": "2026-10-20T05:33:41.611028+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.4203558820008766,
+    "maxrss_kib": 17608,
+    "sha256": "9c221ede98f703a82520ecb688f1013ef1cb47bc334d0829ddde5b1e89878e6f",
+    "stdout": "05-cost_probe.py.stdout.log",
+    "stderr": "05-cost_probe.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "validate.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/affine-fzc-budget-20261020/validate.py"
+    ],
+    "started_at": "2026-10-20T05:33:42.122571+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.040883492009015754,
+    "maxrss_kib": 16588,
+    "sha256": "0f04f337025c5db773214a770301f292a353d5d22aeafffaba68671e47c25825",
+    "stdout": "06-validate.py.stdout.log",
+    "stderr": "06-validate.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  }
+]

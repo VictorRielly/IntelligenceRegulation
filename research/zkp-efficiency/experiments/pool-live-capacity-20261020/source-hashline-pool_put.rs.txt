@@ -1,0 +1,6 @@
+fn pool_put(buf: CudaSlice<u64>) {
+    let mut pool = POOL.lock().unwrap();
+    if pool.len() < 64 {
+        pool.push(buf);
+    }
+}

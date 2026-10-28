@@ -1,0 +1,115 @@
+{
+  "raw11_bytes": 218114560,
+  "padded_i8_bytes": 243277824,
+  "public_payload_bytes": 243411456,
+  "rope_pair_bytes": 131072,
+  "support_index_reservation_bytes": 131072,
+  "avoided_to_vec_bytes_per_load": 243410944,
+  "avoided_vector_allocations_per_load": 12,
+  "unchanged_act_inline_copy_bytes": 512,
+  "max_decode_temporary_bytes": 58720256,
+  "pad_index_map_reservation_bytes": 294912,
+  "tables_stack_payload_bytes": 2560,
+  "exported_branch_extra_rope_reservation_bytes": 131072,
+  "rows": [
+    {
+      "mode": "borrowed_copy",
+      "native_workers_accounted": 1,
+      "pins": 0,
+      "pad_phase_bytes": 520672256,
+      "constructor_phase_bytes": 705199616,
+      "record_phase_bytes": 772177408,
+      "loader_payload_envelope_bytes": 772177408,
+      "current_next_with_pins_payload_envelope_bytes": 1015588864,
+      "envelope_gib": 0.9458408355712891
+    },
+    {
+      "mode": "borrowed_copy",
+      "native_workers_accounted": 1,
+      "pins": 4,
+      "pad_phase_bytes": 520672256,
+      "constructor_phase_bytes": 705199616,
+      "record_phase_bytes": 772177408,
+      "loader_payload_envelope_bytes": 772177408,
+      "current_next_with_pins_payload_envelope_bytes": 1989234688,
+      "envelope_gib": 1.8526191711425781
+    },
+    {
+      "mode": "borrowed_copy",
+      "native_workers_accounted": 16,
+      "pins": 0,
+      "pad_phase_bytes": 520672256,
+      "constructor_phase_bytes": 705330688,
+      "record_phase_bytes": 948346368,
+      "loader_payload_envelope_bytes": 948346368,
+      "current_next_with_pins_payload_envelope_bytes": 1191757824,
+      "envelope_gib": 1.1099109649658203
+    },
+    {
+      "mode": "borrowed_copy",
+      "native_workers_accounted": 16,
+      "pins": 4,
+      "pad_phase_bytes": 520672256,
+      "constructor_phase_bytes": 705330688,
+      "record_phase_bytes": 948346368,
+      "loader_payload_envelope_bytes": 948346368,
+      "current_next_with_pins_payload_envelope_bytes": 2165403648,
+      "envelope_gib": 2.0166893005371094
+    },
+    {
+      "mode": "checked_move",
+      "native_workers_accounted": 1,
+      "pins": 0,
+      "pad_phase_bytes": 520672256,
+      "constructor_phase_bytes": 461790720,
+      "record_phase_bytes": 528768512,
+      "loader_payload_envelope_bytes": 528768512,
+      "current_next_with_pins_payload_envelope_bytes": 772179968,
+      "envelope_gib": 0.7191486358642578
+    },
+    {
+      "mode": "checked_move",
+      "native_workers_accounted": 1,
+      "pins": 4,
+      "pad_phase_bytes": 520672256,
+      "constructor_phase_bytes": 461790720,
+      "record_phase_bytes": 528768512,
+      "loader_payload_envelope_bytes": 528768512,
+      "current_next_with_pins_payload_envelope_bytes": 1745825792,
+      "envelope_gib": 1.6259269714355469
+    },
+    {
+      "mode": "checked_move",
+      "native_workers_accounted": 16,
+      "pins": 0,
+      "pad_phase_bytes": 520672256,
+      "constructor_phase_bytes": 461921792,
+      "record_phase_bytes": 704937472,
+      "loader_payload_envelope_bytes": 704937472,
+      "current_next_with_pins_payload_envelope_bytes": 948348928,
+      "envelope_gib": 0.8832187652587891
+    },
+    {
+      "mode": "checked_move",
+      "native_workers_accounted": 16,
+      "pins": 4,
+      "pad_phase_bytes": 520672256,
+      "constructor_phase_bytes": 461921792,
+      "record_phase_bytes": 704937472,
+      "loader_payload_envelope_bytes": 704937472,
+      "current_next_with_pins_payload_envelope_bytes": 1921994752,
+      "envelope_gib": 1.7899971008300781
+    }
+  ],
+  "exclusions": [
+    "allocator/capacity slack",
+    "JSON/manifest/source_tensors",
+    "Rayon stacks and metadata",
+    "file/page cache",
+    "witness/planes",
+    "proof/commitment",
+    "serialization",
+    "GPU/device buffers"
+  ],
+  "scope": "Full sealing load with LayerRecord::of_block; source-lifetime logical payload envelopes only. NOT actual allocator peaks, host limits, fit, VRAM or time. Reload skips LayerRecord and needs its own timeline."
+}

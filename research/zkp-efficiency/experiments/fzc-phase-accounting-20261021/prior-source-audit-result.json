@@ -1,0 +1,376 @@
+{
+  "status": "PASS_SOURCE_AND_SEPARATE_REFERENCE_ONLY",
+  "checks": 61,
+  "source_pins": 4,
+  "interleavings": 105,
+  "control_counts": {
+    "timeout_drop": 67,
+    "published_flag": 46,
+    "a_sync_only": 1
+  },
+  "role_error_paths": [
+    {
+      "failure": "none",
+      "other_stream": false,
+      "late_sync": "none",
+      "safe_roles": {
+        "mapped": true,
+        "fallback": true
+      },
+      "attempt": "continue"
+    },
+    {
+      "failure": "none",
+      "other_stream": false,
+      "late_sync": "a_success",
+      "safe_roles": {
+        "mapped": true,
+        "fallback": true
+      },
+      "attempt": "continue"
+    },
+    {
+      "failure": "none",
+      "other_stream": false,
+      "late_sync": "a_and_b_success",
+      "safe_roles": {
+        "mapped": true,
+        "fallback": true
+      },
+      "attempt": "continue"
+    },
+    {
+      "failure": "none",
+      "other_stream": true,
+      "late_sync": "none",
+      "safe_roles": {
+        "mapped": false,
+        "fallback": true
+      },
+      "attempt": "continue"
+    },
+    {
+      "failure": "none",
+      "other_stream": true,
+      "late_sync": "a_success",
+      "safe_roles": {
+        "mapped": false,
+        "fallback": true
+      },
+      "attempt": "continue"
+    },
+    {
+      "failure": "none",
+      "other_stream": true,
+      "late_sync": "a_and_b_success",
+      "safe_roles": {
+        "mapped": true,
+        "fallback": true
+      },
+      "attempt": "continue"
+    },
+    {
+      "failure": "bind_before_copy",
+      "other_stream": false,
+      "late_sync": "none",
+      "safe_roles": {
+        "mapped": false,
+        "fallback": true
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "bind_before_copy",
+      "other_stream": false,
+      "late_sync": "a_success",
+      "safe_roles": {
+        "mapped": true,
+        "fallback": true
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "bind_before_copy",
+      "other_stream": false,
+      "late_sync": "a_and_b_success",
+      "safe_roles": {
+        "mapped": true,
+        "fallback": true
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "bind_before_copy",
+      "other_stream": true,
+      "late_sync": "none",
+      "safe_roles": {
+        "mapped": false,
+        "fallback": true
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "bind_before_copy",
+      "other_stream": true,
+      "late_sync": "a_success",
+      "safe_roles": {
+        "mapped": false,
+        "fallback": true
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "bind_before_copy",
+      "other_stream": true,
+      "late_sync": "a_and_b_success",
+      "safe_roles": {
+        "mapped": true,
+        "fallback": true
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "copy_error",
+      "other_stream": false,
+      "late_sync": "none",
+      "safe_roles": {
+        "mapped": false,
+        "fallback": false
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "copy_error",
+      "other_stream": false,
+      "late_sync": "a_success",
+      "safe_roles": {
+        "mapped": true,
+        "fallback": true
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "copy_error",
+      "other_stream": false,
+      "late_sync": "a_and_b_success",
+      "safe_roles": {
+        "mapped": true,
+        "fallback": true
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "copy_error",
+      "other_stream": true,
+      "late_sync": "none",
+      "safe_roles": {
+        "mapped": false,
+        "fallback": false
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "copy_error",
+      "other_stream": true,
+      "late_sync": "a_success",
+      "safe_roles": {
+        "mapped": false,
+        "fallback": true
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "copy_error",
+      "other_stream": true,
+      "late_sync": "a_and_b_success",
+      "safe_roles": {
+        "mapped": true,
+        "fallback": true
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "event_record_error",
+      "other_stream": false,
+      "late_sync": "none",
+      "safe_roles": {
+        "mapped": false,
+        "fallback": false
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "event_record_error",
+      "other_stream": false,
+      "late_sync": "a_success",
+      "safe_roles": {
+        "mapped": true,
+        "fallback": true
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "event_record_error",
+      "other_stream": false,
+      "late_sync": "a_and_b_success",
+      "safe_roles": {
+        "mapped": true,
+        "fallback": true
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "event_record_error",
+      "other_stream": true,
+      "late_sync": "none",
+      "safe_roles": {
+        "mapped": false,
+        "fallback": false
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "event_record_error",
+      "other_stream": true,
+      "late_sync": "a_success",
+      "safe_roles": {
+        "mapped": false,
+        "fallback": true
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "event_record_error",
+      "other_stream": true,
+      "late_sync": "a_and_b_success",
+      "safe_roles": {
+        "mapped": true,
+        "fallback": true
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "sync_error",
+      "other_stream": false,
+      "late_sync": "none",
+      "safe_roles": {
+        "mapped": false,
+        "fallback": false
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "sync_error",
+      "other_stream": false,
+      "late_sync": "a_success",
+      "safe_roles": {
+        "mapped": true,
+        "fallback": true
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "sync_error",
+      "other_stream": false,
+      "late_sync": "a_and_b_success",
+      "safe_roles": {
+        "mapped": true,
+        "fallback": true
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "sync_error",
+      "other_stream": true,
+      "late_sync": "none",
+      "safe_roles": {
+        "mapped": false,
+        "fallback": false
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "sync_error",
+      "other_stream": true,
+      "late_sync": "a_success",
+      "safe_roles": {
+        "mapped": false,
+        "fallback": true
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "sync_error",
+      "other_stream": true,
+      "late_sync": "a_and_b_success",
+      "safe_roles": {
+        "mapped": true,
+        "fallback": true
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "context_poison",
+      "other_stream": false,
+      "late_sync": "none",
+      "safe_roles": {
+        "mapped": false,
+        "fallback": false
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "context_poison",
+      "other_stream": false,
+      "late_sync": "a_success",
+      "safe_roles": {
+        "mapped": false,
+        "fallback": false
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "context_poison",
+      "other_stream": false,
+      "late_sync": "a_and_b_success",
+      "safe_roles": {
+        "mapped": false,
+        "fallback": false
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "context_poison",
+      "other_stream": true,
+      "late_sync": "none",
+      "safe_roles": {
+        "mapped": false,
+        "fallback": false
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "context_poison",
+      "other_stream": true,
+      "late_sync": "a_success",
+      "safe_roles": {
+        "mapped": false,
+        "fallback": false
+      },
+      "attempt": "refuse"
+    },
+    {
+      "failure": "context_poison",
+      "other_stream": true,
+      "late_sync": "a_and_b_success",
+      "safe_roles": {
+        "mapped": false,
+        "fallback": false
+      },
+      "attempt": "refuse"
+    }
+  ],
+  "wall_seconds": 0.012096251011826098,
+  "rss_kib": 14908,
+  "caveat": "Operation completion is a conservative last-use bound, not evidence of actual post-flag mapped accesses or a native use-after-free."
+}

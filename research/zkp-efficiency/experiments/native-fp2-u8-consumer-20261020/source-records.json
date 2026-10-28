@@ -1,0 +1,260 @@
+[
+  {
+    "title": "LogUp-GKR native-field and private-wrapper boundary refreshed",
+    "url": "https://eprint.iacr.org/2023/1284",
+    "publication_date": "2023-08-27",
+    "verified_update_date": "2025-02-20",
+    "assessment": "Author fraction-GKR commitment reduction motivates the prospective consumer. It does not supply this native private circuit, CFS/PCS or ordered original-A binding. No author gain reproduced.",
+    "paper_license": "CC BY metadata",
+    "implementation_license": null,
+    "cycle": "0108",
+    "run_id": "20261020T161854Z-f0b8edce",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T16:28:20.715292+00:00",
+    "inspected_commit_id": null,
+    "external_execution": false,
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; embedded instructions ignored",
+    "prior_exact_url_records": 6
+  },
+  {
+    "title": "Goldilocks quadratic extension implementation polynomial checked",
+    "url": "https://github.com/Plonky3/Plonky3/blob/main/goldilocks/src/extension.rs",
+    "additional_urls": [
+      "https://github.com/Plonky3/Plonky3/blob/main/LICENSE-MIT"
+    ],
+    "publication_date": null,
+    "verified_update_date": null,
+    "date_basis": "Runtime source last-commit metadata not rendered. Crawl age is not an update date.",
+    "implementation_license": "MIT terms inspected at main/LICENSE-MIT; not a commit-pinned package/license audit.",
+    "assessment": "Source declares X^2-7 for quadratic extension. Local experiment instead executes pinned project field/helper extraction; external source not copied or run. Matching polynomial alone does not validate representation or proof interfaces.",
+    "cycle": "0108",
+    "run_id": "20261020T161854Z-f0b8edce",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T16:28:20.715292+00:00",
+    "inspected_commit_id": null,
+    "external_execution": false,
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; embedded instructions ignored",
+    "prior_exact_url_records": 0
+  },
+  {
+    "title": "Plonky3 equality kernel PR refreshed, prior assessment retained",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2305",
+    "additional_urls": [
+      "https://github.com/Plonky3/Plonky3/blob/main/multilinear-util/src/point.rs"
+    ],
+    "publication_date": "2026-09-22",
+    "verified_update_date": "2026-09-23",
+    "implementation_license": "MIT terms inspected separately at main; no external code adopted.",
+    "reported_short_commit_ids": [
+      "8e0f9f0",
+      "128b24b",
+      "cdb48a0"
+    ],
+    "assessment": "Author/reviewer claim one multiplication plus subtraction per equality expansion and a packed-base parallel regression. Previously assessed in0032/0050/0064, not new. Candidate keeps prior two-product factor builder; gains not combined. Current main point.rs fetch serves an older-looking source view and is not aligned to this PR.",
+    "blockers": [
+      {
+        "url": "https://github.com/Plonky3/Plonky3/pull/2305/files",
+        "error": "Native LIVE click Internal Error"
+      },
+      {
+        "url": "https://github.com/Plonky3/Plonky3/pull/2305/commits",
+        "error": "Native LIVE Internal Error"
+      },
+      {
+        "url": "https://github.com/Plonky3/Plonky3/commit/cdb48a0",
+        "error": "Merge-commit click Internal Error; no commit diff inspected"
+      }
+    ],
+    "cycle": "0108",
+    "run_id": "20261020T161854Z-f0b8edce",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T16:28:20.715292+00:00",
+    "inspected_commit_id": null,
+    "external_execution": false,
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; embedded instructions ignored",
+    "prior_exact_url_records": 2
+  },
+  {
+    "title": "Recent sumcheck rc.2 release refresh, inconsistent release-list view",
+    "url": "https://github.com/Plonky3/Plonky3/releases/tag/p3-sumcheck-v0.9.0-rc.2",
+    "additional_urls": [
+      "https://github.com/Plonky3/Plonky3/releases"
+    ],
+    "publication_date": null,
+    "verified_update_date": null,
+    "date_basis": "Exact tag page renders16Oct10:17 without year; prior ledger dated2026-10-16, not newly independently verified. Search listing also servedSep23 v0.8.0 view; current latest version not established.",
+    "reported_short_commit_ids": [
+      "fe5e46d"
+    ],
+    "implementation_license": "MIT terms inspected at repository main; release alignment not audited.",
+    "assessment": "Release includes equality, bind/measure and mask RNG changes. No release optimization diff inspected this cycle, no implementation adopted and no author gain reproduced.",
+    "cycle": "0108",
+    "run_id": "20261020T161854Z-f0b8edce",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T16:28:20.715292+00:00",
+    "inspected_commit_id": null,
+    "external_execution": false,
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; embedded instructions ignored",
+    "prior_exact_url_records": 4
+  },
+  {
+    "title": "Cryptographic RNG obligation refresh for future private consumer",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2260",
+    "publication_date": "2026-09-20",
+    "verified_update_date": "2026-09-20",
+    "reported_short_commit_ids": [
+      "876dc37",
+      "05b1c11"
+    ],
+    "implementation_license": "MIT terms inspected at repository main; no package adoption.",
+    "assessment": "Primary author/reviewer describe CryptoRng bounds on actual HVZK mask draws. Predictable synthetic RNG here generates public test fixtures only and is not privacy machinery. No upstream tests/replay demonstration reproduced.",
+    "cycle": "0108",
+    "run_id": "20261020T161854Z-f0b8edce",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T16:28:20.715292+00:00",
+    "inspected_commit_id": null,
+    "external_execution": false,
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; embedded instructions ignored",
+    "prior_exact_url_records": 2
+  },
+  {
+    "title": "Chimera October16 revision refreshed for whole-proof integration filter",
+    "url": "https://eprint.iacr.org/2026/1388",
+    "publication_date": "2026-07-07",
+    "verified_update_date": "2026-10-16",
+    "implementation_license": null,
+    "assessment": "Author BN254 Spartan chunk-to-resident/late-CPU sumcheck has enclosing proof measurements. It supports charging source scans and transition overhead; no timing or guarantee transfers to the native Goldilocks/private fraction-tree redesign.",
+    "cycle": "0108",
+    "run_id": "20261020T161854Z-f0b8edce",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T16:28:20.715292+00:00",
+    "inspected_commit_id": null,
+    "external_execution": false,
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; embedded instructions ignored",
+    "prior_exact_url_records": 10
+  },
+  {
+    "title": "NEW older batch inversion integration screen: OpenSSLNTRU",
+    "url": "https://www.usenix.org/system/files/sec22-bernstein.pdf",
+    "publication_date": null,
+    "publication_date_range": [
+      "2022-08-10",
+      "2022-08-12"
+    ],
+    "verified_update_date": null,
+    "date_basis": "Primary proceedings cover givesUSENIX Security August10-12,2022. Exact first-online/publication/update day not verified.",
+    "implementation_license": null,
+    "assessment": "Read section2.2 and integration motivation: Montgomery batch inversion exchanges n inversions for one plus3n-3 multiplications; paper charges full TLS integration and latency/cache effects. Project batch_inverse2 and256-entry U8 cache already use the method, so it is not a new proportional native speed gain. No TLS/NTRU/GPU benchmark or code reproduced.",
+    "cycle": "0108",
+    "run_id": "20261020T161854Z-f0b8edce",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T16:28:20.715292+00:00",
+    "inspected_commit_id": null,
+    "external_execution": false,
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; embedded instructions ignored",
+    "prior_exact_url_records": 0
+  },
+  {
+    "title": "NEW older GPU arithmetic screen, exact PDF access blocker",
+    "url": "https://eprint.iacr.org/2012/002",
+    "publication_date": "2012-01-02",
+    "verified_update_date": null,
+    "date_basis": "Primary receivedJan2,2012; page calls it updated Indocrypt2010 work, no further revision date shown.",
+    "paper_license": "CC BY metadata",
+    "implementation_license": null,
+    "assessment": "Abstract uses binary F2^131, bitslicing and old GPU hardware, unlike native Goldilocks. Primary PDF search snippet mentions inversion batching; no full algorithm inspected because PDF403, and no performance transferred.",
+    "blockers": [
+      {
+        "url": "https://eprint.iacr.org/2012/002.pdf",
+        "error": "Native LIVE open returned403Forbidden/InternalError; no bypass"
+      }
+    ],
+    "cycle": "0108",
+    "run_id": "20261020T161854Z-f0b8edce",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T16:28:20.715292+00:00",
+    "inspected_commit_id": null,
+    "external_execution": false,
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; embedded instructions ignored",
+    "prior_exact_url_records": 0
+  },
+  {
+    "title": "MLE lookup compatibility older lead refreshed, not new",
+    "url": "https://eprint.iacr.org/2024/1058",
+    "publication_date": "2024-06-28",
+    "verified_update_date": "2024-12-06",
+    "implementation_license": null,
+    "paper_license": "CC BY metadata",
+    "assessment": "Previously assessed in0046/0068/0102. Abstract targets table-independent/MLE-compatible lookups, but native U8 table is256 entries and already cached per attempt. Does not establish native hash-PCS/masking compatibility.",
+    "blockers": [
+      {
+        "url": "https://eprint.iacr.org/2024/1058.pdf",
+        "error": "Native LIVE Internal Error"
+      }
+    ],
+    "cycle": "0108",
+    "run_id": "20261020T161854Z-f0b8edce",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T16:28:20.715292+00:00",
+    "inspected_commit_id": null,
+    "external_execution": false,
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; embedded instructions ignored",
+    "prior_exact_url_records": 4
+  },
+  {
+    "title": "Jolt Atlas streaming lookup privacy-wrapper filter refreshed",
+    "url": "https://arxiv.org/abs/2602.17452",
+    "publication_date": "2026-02-19",
+    "verified_update_date": null,
+    "date_basis": "Primary v1February19,2026 15:17:18UTC; no later revision displayed.",
+    "implementation_license": null,
+    "assessment": "Prior0088 paper/license findings retained. Abstract distinguishes lookup streaming from BlindFold ZK wrapping; no neural teleportation, arithmetic change or license adoption authorized. Only paper abstract/history refreshed this cycle.",
+    "cycle": "0108",
+    "run_id": "20261020T161854Z-f0b8edce",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T16:28:20.715292+00:00",
+    "inspected_commit_id": null,
+    "external_execution": false,
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; embedded instructions ignored",
+    "prior_exact_url_records": 3
+  },
+  {
+    "title": "Original logarithmic derivative multi-column lookup refreshed",
+    "url": "https://eprint.iacr.org/2022/1530",
+    "publication_date": "2022-11-04",
+    "verified_update_date": "2025-02-20",
+    "implementation_license": null,
+    "paper_license": "CC BY metadata",
+    "assessment": "Author single-multiplicity/multi-column batching framing reinforces retaining one global histogram and ordered original links; no operation-count or complete proof gain reproduced.",
+    "cycle": "0108",
+    "run_id": "20261020T161854Z-f0b8edce",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T16:28:20.715292+00:00",
+    "inspected_commit_id": null,
+    "external_execution": false,
+    "reproduced_performance": false,
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; embedded instructions ignored",
+    "prior_exact_url_records": 3
+  }
+]

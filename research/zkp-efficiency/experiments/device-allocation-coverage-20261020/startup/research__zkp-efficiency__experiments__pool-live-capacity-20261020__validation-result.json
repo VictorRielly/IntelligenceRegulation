@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "checks": 231,
+  "input_pins": 17,
+  "direction_pins": 8,
+  "source_records_before": 517,
+  "source_records_after": 524,
+  "new_source_records": 7,
+  "experiment_cases": 59,
+  "experiment_checks": 45703,
+  "corruption_controls": 590,
+  "artifact_pins": 85,
+  "wall_seconds": 0.03928951900161337,
+  "rss_kib": 29044,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "nice": 19,
+  "checked_at": "2026-10-20T00:31:41.442158+00:00",
+  "scope": "provenance/resource/report consistency only;no native/GPU/proof"
+}

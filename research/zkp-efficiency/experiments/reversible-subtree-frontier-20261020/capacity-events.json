@@ -1,0 +1,5653 @@
+[
+  {
+    "n": 2097152,
+    "f": 12,
+    "B": 512,
+    "mode": "direct",
+    "columns": 84,
+    "counts": {
+      "source_reads": 23068672,
+      "cache_key_reads": 0,
+      "build_muls": 50356221,
+      "build_adds": 16785407,
+      "restore_muls": 0,
+      "restore_subs": 0,
+      "inversions": 0
+    },
+    "peak_bytes": 33839872,
+    "peak_phase": "d21/resident",
+    "events": [
+      {
+        "phase": "frontier-build",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "dfs": 44
+        },
+        "bytes": 268160
+      },
+      {
+        "phase": "d1/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 4,
+          "consumer-tile": 4,
+          "scalars": 20
+        },
+        "bytes": 267904
+      },
+      {
+        "phase": "d1/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 4,
+          "eq": 0,
+          "scalars": 20
+        },
+        "bytes": 267840
+      },
+      {
+        "phase": "d2/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 8,
+          "consumer-tile": 4,
+          "scalars": 24
+        },
+        "bytes": 268032
+      },
+      {
+        "phase": "d2/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 8,
+          "eq": 2,
+          "scalars": 24
+        },
+        "bytes": 268000
+      },
+      {
+        "phase": "d3/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 16,
+          "consumer-tile": 4,
+          "scalars": 28
+        },
+        "bytes": 268224
+      },
+      {
+        "phase": "d3/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 16,
+          "eq": 3,
+          "scalars": 28
+        },
+        "bytes": 268208
+      },
+      {
+        "phase": "d4/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 32,
+          "consumer-tile": 4,
+          "scalars": 32
+        },
+        "bytes": 268544
+      },
+      {
+        "phase": "d4/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 32,
+          "eq": 4,
+          "scalars": 32
+        },
+        "bytes": 268544
+      },
+      {
+        "phase": "d5/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 64,
+          "consumer-tile": 4,
+          "scalars": 36
+        },
+        "bytes": 269120
+      },
+      {
+        "phase": "d5/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 64,
+          "eq": 6,
+          "scalars": 36
+        },
+        "bytes": 269152
+      },
+      {
+        "phase": "d6/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 128,
+          "consumer-tile": 4,
+          "scalars": 40
+        },
+        "bytes": 270208
+      },
+      {
+        "phase": "d6/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 128,
+          "eq": 8,
+          "scalars": 40
+        },
+        "bytes": 270272
+      },
+      {
+        "phase": "d7/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 256,
+          "consumer-tile": 4,
+          "scalars": 44
+        },
+        "bytes": 272320
+      },
+      {
+        "phase": "d7/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 256,
+          "eq": 12,
+          "scalars": 44
+        },
+        "bytes": 272448
+      },
+      {
+        "phase": "d8/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 512,
+          "consumer-tile": 4,
+          "scalars": 48
+        },
+        "bytes": 276480
+      },
+      {
+        "phase": "d8/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 512,
+          "eq": 16,
+          "scalars": 48
+        },
+        "bytes": 276672
+      },
+      {
+        "phase": "d9/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 1024,
+          "consumer-tile": 4,
+          "scalars": 52
+        },
+        "bytes": 284736
+      },
+      {
+        "phase": "d9/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 1024,
+          "eq": 24,
+          "scalars": 52
+        },
+        "bytes": 285056
+      },
+      {
+        "phase": "d10/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 2048,
+          "consumer-tile": 4,
+          "scalars": 56
+        },
+        "bytes": 301184
+      },
+      {
+        "phase": "d10/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 2048,
+          "eq": 32,
+          "scalars": 56
+        },
+        "bytes": 301632
+      },
+      {
+        "phase": "d11/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 4096,
+          "consumer-tile": 4,
+          "scalars": 60
+        },
+        "bytes": 334016
+      },
+      {
+        "phase": "d11/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 4096,
+          "eq": 48,
+          "scalars": 60
+        },
+        "bytes": 334720
+      },
+      {
+        "phase": "d12/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 8192,
+          "consumer-tile": 4,
+          "scalars": 64
+        },
+        "bytes": 399616
+      },
+      {
+        "phase": "d12/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 8192,
+          "eq": 64,
+          "scalars": 64
+        },
+        "bytes": 400576
+      },
+      {
+        "phase": "d13/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 16384,
+          "consumer-tile": 4,
+          "scalars": 68,
+          "source-dfs": 18
+        },
+        "bytes": 531040
+      },
+      {
+        "phase": "d13/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 16384,
+          "eq": 96,
+          "scalars": 68
+        },
+        "bytes": 532224
+      },
+      {
+        "phase": "d14/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 32768,
+          "consumer-tile": 4,
+          "scalars": 72,
+          "source-dfs": 16
+        },
+        "bytes": 793216
+      },
+      {
+        "phase": "d14/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 32768,
+          "eq": 128,
+          "scalars": 72
+        },
+        "bytes": 794944
+      },
+      {
+        "phase": "d15/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 65536,
+          "consumer-tile": 4,
+          "scalars": 76,
+          "source-dfs": 14
+        },
+        "bytes": 1317536
+      },
+      {
+        "phase": "d15/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 65536,
+          "eq": 192,
+          "scalars": 76
+        },
+        "bytes": 1320320
+      },
+      {
+        "phase": "d16/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 131072,
+          "consumer-tile": 4,
+          "scalars": 80,
+          "source-dfs": 12
+        },
+        "bytes": 2366144
+      },
+      {
+        "phase": "d16/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 131072,
+          "eq": 256,
+          "scalars": 80
+        },
+        "bytes": 2369984
+      },
+      {
+        "phase": "d17/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 262144,
+          "consumer-tile": 4,
+          "scalars": 84,
+          "source-dfs": 10
+        },
+        "bytes": 4463328
+      },
+      {
+        "phase": "d17/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 262144,
+          "eq": 384,
+          "scalars": 84
+        },
+        "bytes": 4469248
+      },
+      {
+        "phase": "d18/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 524288,
+          "consumer-tile": 4,
+          "scalars": 88,
+          "source-dfs": 8
+        },
+        "bytes": 8657664
+      },
+      {
+        "phase": "d18/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 524288,
+          "eq": 512,
+          "scalars": 88
+        },
+        "bytes": 8665664
+      },
+      {
+        "phase": "d19/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 1048576,
+          "consumer-tile": 4,
+          "scalars": 92,
+          "source-dfs": 6
+        },
+        "bytes": 17046304
+      },
+      {
+        "phase": "d19/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 1048576,
+          "eq": 768,
+          "scalars": 92
+        },
+        "bytes": 17058432
+      },
+      {
+        "phase": "d20/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 4,
+          "scalars": 96,
+          "source-dfs": 4
+        },
+        "bytes": 33823552
+      },
+      {
+        "phase": "d20/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 96
+        },
+        "bytes": 33839808
+      },
+      {
+        "phase": "d21/prefix0",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "consumer-tile": 8,
+          "eq": 1536,
+          "scalars": 100,
+          "source-dfs": 2
+        },
+        "bytes": 293792
+      },
+      {
+        "phase": "d21/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 8,
+          "scalars": 100,
+          "source-dfs": 2
+        },
+        "bytes": 33823648
+      },
+      {
+        "phase": "d21/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 100
+        },
+        "bytes": 33839872
+      }
+    ]
+  },
+  {
+    "n": 2097152,
+    "f": 12,
+    "B": 512,
+    "mode": "batch",
+    "columns": 84,
+    "counts": {
+      "source_reads": 23068672,
+      "cache_key_reads": 0,
+      "build_muls": 69083133,
+      "build_adds": 23027711,
+      "restore_muls": 36790272,
+      "restore_subs": 6242304,
+      "inversions": 221184
+    },
+    "peak_bytes": 33844096,
+    "peak_phase": "d21/materialize",
+    "events": [
+      {
+        "phase": "frontier-build",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "dfs": 44
+        },
+        "bytes": 268160
+      },
+      {
+        "phase": "d1/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 4,
+          "consumer-tile": 4,
+          "scalars": 20
+        },
+        "bytes": 267904
+      },
+      {
+        "phase": "d1/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 4,
+          "eq": 0,
+          "scalars": 20
+        },
+        "bytes": 267840
+      },
+      {
+        "phase": "d2/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 8,
+          "consumer-tile": 4,
+          "scalars": 24
+        },
+        "bytes": 268032
+      },
+      {
+        "phase": "d2/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 8,
+          "eq": 2,
+          "scalars": 24
+        },
+        "bytes": 268000
+      },
+      {
+        "phase": "d3/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 16,
+          "consumer-tile": 4,
+          "scalars": 28
+        },
+        "bytes": 268224
+      },
+      {
+        "phase": "d3/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 16,
+          "eq": 3,
+          "scalars": 28
+        },
+        "bytes": 268208
+      },
+      {
+        "phase": "d4/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 32,
+          "consumer-tile": 4,
+          "scalars": 32
+        },
+        "bytes": 268544
+      },
+      {
+        "phase": "d4/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 32,
+          "eq": 4,
+          "scalars": 32
+        },
+        "bytes": 268544
+      },
+      {
+        "phase": "d5/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 64,
+          "consumer-tile": 4,
+          "scalars": 36
+        },
+        "bytes": 269120
+      },
+      {
+        "phase": "d5/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 64,
+          "eq": 6,
+          "scalars": 36
+        },
+        "bytes": 269152
+      },
+      {
+        "phase": "d6/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 128,
+          "consumer-tile": 4,
+          "scalars": 40
+        },
+        "bytes": 270208
+      },
+      {
+        "phase": "d6/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 128,
+          "eq": 8,
+          "scalars": 40
+        },
+        "bytes": 270272
+      },
+      {
+        "phase": "d7/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 256,
+          "consumer-tile": 4,
+          "scalars": 44
+        },
+        "bytes": 272320
+      },
+      {
+        "phase": "d7/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 256,
+          "eq": 12,
+          "scalars": 44
+        },
+        "bytes": 272448
+      },
+      {
+        "phase": "d8/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 512,
+          "consumer-tile": 4,
+          "scalars": 48
+        },
+        "bytes": 276480
+      },
+      {
+        "phase": "d8/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 512,
+          "eq": 16,
+          "scalars": 48
+        },
+        "bytes": 276672
+      },
+      {
+        "phase": "d9/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 1024,
+          "consumer-tile": 4,
+          "scalars": 52
+        },
+        "bytes": 284736
+      },
+      {
+        "phase": "d9/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 1024,
+          "eq": 24,
+          "scalars": 52
+        },
+        "bytes": 285056
+      },
+      {
+        "phase": "d10/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 2048,
+          "consumer-tile": 4,
+          "scalars": 56
+        },
+        "bytes": 301184
+      },
+      {
+        "phase": "d10/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 2048,
+          "eq": 32,
+          "scalars": 56
+        },
+        "bytes": 301632
+      },
+      {
+        "phase": "d11/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 4096,
+          "consumer-tile": 4,
+          "scalars": 60
+        },
+        "bytes": 334016
+      },
+      {
+        "phase": "d11/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 4096,
+          "eq": 48,
+          "scalars": 60
+        },
+        "bytes": 334720
+      },
+      {
+        "phase": "d12/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 8192,
+          "consumer-tile": 4,
+          "scalars": 64
+        },
+        "bytes": 399616
+      },
+      {
+        "phase": "d12/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 8192,
+          "eq": 64,
+          "scalars": 64
+        },
+        "bytes": 400576
+      },
+      {
+        "phase": "d13/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 16384,
+          "consumer-tile": 4,
+          "scalars": 68,
+          "reversible-tile": 1024,
+          "batch-prefix": 1
+        },
+        "bytes": 547152
+      },
+      {
+        "phase": "d13/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 16384,
+          "eq": 96,
+          "scalars": 68
+        },
+        "bytes": 532224
+      },
+      {
+        "phase": "d14/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 32768,
+          "consumer-tile": 4,
+          "scalars": 72,
+          "reversible-tile": 1024,
+          "batch-prefix": 2
+        },
+        "bytes": 809376
+      },
+      {
+        "phase": "d14/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 32768,
+          "eq": 128,
+          "scalars": 72
+        },
+        "bytes": 794944
+      },
+      {
+        "phase": "d15/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 65536,
+          "consumer-tile": 4,
+          "scalars": 76,
+          "reversible-tile": 1024,
+          "batch-prefix": 4
+        },
+        "bytes": 1333760
+      },
+      {
+        "phase": "d15/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 65536,
+          "eq": 192,
+          "scalars": 76
+        },
+        "bytes": 1320320
+      },
+      {
+        "phase": "d16/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 131072,
+          "consumer-tile": 4,
+          "scalars": 80,
+          "reversible-tile": 1024,
+          "batch-prefix": 8
+        },
+        "bytes": 2382464
+      },
+      {
+        "phase": "d16/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 131072,
+          "eq": 256,
+          "scalars": 80
+        },
+        "bytes": 2369984
+      },
+      {
+        "phase": "d17/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 262144,
+          "consumer-tile": 4,
+          "scalars": 84,
+          "reversible-tile": 1024,
+          "batch-prefix": 16
+        },
+        "bytes": 4479808
+      },
+      {
+        "phase": "d17/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 262144,
+          "eq": 384,
+          "scalars": 84
+        },
+        "bytes": 4469248
+      },
+      {
+        "phase": "d18/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 524288,
+          "consumer-tile": 4,
+          "scalars": 88,
+          "reversible-tile": 1024,
+          "batch-prefix": 32
+        },
+        "bytes": 8674432
+      },
+      {
+        "phase": "d18/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 524288,
+          "eq": 512,
+          "scalars": 88
+        },
+        "bytes": 8665664
+      },
+      {
+        "phase": "d19/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 1048576,
+          "consumer-tile": 4,
+          "scalars": 92,
+          "reversible-tile": 1024,
+          "batch-prefix": 64
+        },
+        "bytes": 17063616
+      },
+      {
+        "phase": "d19/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 1048576,
+          "eq": 768,
+          "scalars": 92
+        },
+        "bytes": 17058432
+      },
+      {
+        "phase": "d20/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 4,
+          "scalars": 96,
+          "reversible-tile": 1024,
+          "batch-prefix": 128
+        },
+        "bytes": 33841920
+      },
+      {
+        "phase": "d20/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 96
+        },
+        "bytes": 33839808
+      },
+      {
+        "phase": "d21/prefix0",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "consumer-tile": 8,
+          "eq": 1536,
+          "scalars": 100,
+          "reversible-tile": 1024,
+          "batch-prefix": 256
+        },
+        "bytes": 314240
+      },
+      {
+        "phase": "d21/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 8,
+          "scalars": 100,
+          "reversible-tile": 1024,
+          "batch-prefix": 256
+        },
+        "bytes": 33844096
+      },
+      {
+        "phase": "d21/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 100
+        },
+        "bytes": 33839872
+      }
+    ]
+  },
+  {
+    "n": 2097152,
+    "f": 12,
+    "B": 512,
+    "mode": "cached",
+    "columns": 84,
+    "counts": {
+      "source_reads": 23068672,
+      "cache_key_reads": 2097152,
+      "build_muls": 69083133,
+      "build_adds": 23027711,
+      "restore_muls": 30523392,
+      "restore_subs": 6242304,
+      "inversions": 212992
+    },
+    "peak_bytes": 33842048,
+    "peak_phase": "d21/materialize",
+    "events": [
+      {
+        "phase": "frontier-build",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "dfs": 44
+        },
+        "bytes": 268160
+      },
+      {
+        "phase": "d1/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 4,
+          "consumer-tile": 4,
+          "scalars": 20
+        },
+        "bytes": 267904
+      },
+      {
+        "phase": "d1/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 4,
+          "eq": 0,
+          "scalars": 20
+        },
+        "bytes": 267840
+      },
+      {
+        "phase": "d2/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 8,
+          "consumer-tile": 4,
+          "scalars": 24
+        },
+        "bytes": 268032
+      },
+      {
+        "phase": "d2/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 8,
+          "eq": 2,
+          "scalars": 24
+        },
+        "bytes": 268000
+      },
+      {
+        "phase": "d3/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 16,
+          "consumer-tile": 4,
+          "scalars": 28
+        },
+        "bytes": 268224
+      },
+      {
+        "phase": "d3/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 16,
+          "eq": 3,
+          "scalars": 28
+        },
+        "bytes": 268208
+      },
+      {
+        "phase": "d4/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 32,
+          "consumer-tile": 4,
+          "scalars": 32
+        },
+        "bytes": 268544
+      },
+      {
+        "phase": "d4/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 32,
+          "eq": 4,
+          "scalars": 32
+        },
+        "bytes": 268544
+      },
+      {
+        "phase": "d5/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 64,
+          "consumer-tile": 4,
+          "scalars": 36
+        },
+        "bytes": 269120
+      },
+      {
+        "phase": "d5/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 64,
+          "eq": 6,
+          "scalars": 36
+        },
+        "bytes": 269152
+      },
+      {
+        "phase": "d6/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 128,
+          "consumer-tile": 4,
+          "scalars": 40
+        },
+        "bytes": 270208
+      },
+      {
+        "phase": "d6/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 128,
+          "eq": 8,
+          "scalars": 40
+        },
+        "bytes": 270272
+      },
+      {
+        "phase": "d7/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 256,
+          "consumer-tile": 4,
+          "scalars": 44
+        },
+        "bytes": 272320
+      },
+      {
+        "phase": "d7/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 256,
+          "eq": 12,
+          "scalars": 44
+        },
+        "bytes": 272448
+      },
+      {
+        "phase": "d8/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 512,
+          "consumer-tile": 4,
+          "scalars": 48
+        },
+        "bytes": 276480
+      },
+      {
+        "phase": "d8/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 512,
+          "eq": 16,
+          "scalars": 48
+        },
+        "bytes": 276672
+      },
+      {
+        "phase": "d9/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 1024,
+          "consumer-tile": 4,
+          "scalars": 52
+        },
+        "bytes": 284736
+      },
+      {
+        "phase": "d9/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 1024,
+          "eq": 24,
+          "scalars": 52
+        },
+        "bytes": 285056
+      },
+      {
+        "phase": "d10/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 2048,
+          "consumer-tile": 4,
+          "scalars": 56
+        },
+        "bytes": 301184
+      },
+      {
+        "phase": "d10/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 2048,
+          "eq": 32,
+          "scalars": 56
+        },
+        "bytes": 301632
+      },
+      {
+        "phase": "d11/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 4096,
+          "consumer-tile": 4,
+          "scalars": 60
+        },
+        "bytes": 334016
+      },
+      {
+        "phase": "d11/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 4096,
+          "eq": 48,
+          "scalars": 60
+        },
+        "bytes": 334720
+      },
+      {
+        "phase": "d12/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 8192,
+          "consumer-tile": 4,
+          "scalars": 64
+        },
+        "bytes": 399616
+      },
+      {
+        "phase": "d12/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 8192,
+          "eq": 64,
+          "scalars": 64
+        },
+        "bytes": 400576
+      },
+      {
+        "phase": "d13/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 16384,
+          "consumer-tile": 4,
+          "scalars": 68,
+          "reversible-tile": 1024,
+          "batch-prefix": 1
+        },
+        "bytes": 547152
+      },
+      {
+        "phase": "d13/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 16384,
+          "eq": 96,
+          "scalars": 68
+        },
+        "bytes": 532224
+      },
+      {
+        "phase": "d14/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 32768,
+          "consumer-tile": 4,
+          "scalars": 72,
+          "reversible-tile": 1024,
+          "batch-prefix": 2
+        },
+        "bytes": 809376
+      },
+      {
+        "phase": "d14/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 32768,
+          "eq": 128,
+          "scalars": 72
+        },
+        "bytes": 794944
+      },
+      {
+        "phase": "d15/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 65536,
+          "consumer-tile": 4,
+          "scalars": 76,
+          "reversible-tile": 1024,
+          "batch-prefix": 4
+        },
+        "bytes": 1333760
+      },
+      {
+        "phase": "d15/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 65536,
+          "eq": 192,
+          "scalars": 76
+        },
+        "bytes": 1320320
+      },
+      {
+        "phase": "d16/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 131072,
+          "consumer-tile": 4,
+          "scalars": 80,
+          "reversible-tile": 1024,
+          "batch-prefix": 8
+        },
+        "bytes": 2382464
+      },
+      {
+        "phase": "d16/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 131072,
+          "eq": 256,
+          "scalars": 80
+        },
+        "bytes": 2369984
+      },
+      {
+        "phase": "d17/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 262144,
+          "consumer-tile": 4,
+          "scalars": 84,
+          "reversible-tile": 1024,
+          "batch-prefix": 16
+        },
+        "bytes": 4479808
+      },
+      {
+        "phase": "d17/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 262144,
+          "eq": 384,
+          "scalars": 84
+        },
+        "bytes": 4469248
+      },
+      {
+        "phase": "d18/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 524288,
+          "consumer-tile": 4,
+          "scalars": 88,
+          "reversible-tile": 1024,
+          "batch-prefix": 32
+        },
+        "bytes": 8674432
+      },
+      {
+        "phase": "d18/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 524288,
+          "eq": 512,
+          "scalars": 88
+        },
+        "bytes": 8665664
+      },
+      {
+        "phase": "d19/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 1048576,
+          "consumer-tile": 4,
+          "scalars": 92,
+          "reversible-tile": 1024,
+          "batch-prefix": 64
+        },
+        "bytes": 17063616
+      },
+      {
+        "phase": "d19/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 1048576,
+          "eq": 768,
+          "scalars": 92
+        },
+        "bytes": 17058432
+      },
+      {
+        "phase": "d20/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 4,
+          "scalars": 96,
+          "reversible-tile": 1024,
+          "batch-prefix": 128
+        },
+        "bytes": 33841920
+      },
+      {
+        "phase": "d20/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 96
+        },
+        "bytes": 33839808
+      },
+      {
+        "phase": "d21/prefix0",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "consumer-tile": 8,
+          "eq": 1536,
+          "scalars": 100,
+          "reversible-tile": 1024,
+          "batch-prefix": 128
+        },
+        "bytes": 312192
+      },
+      {
+        "phase": "d21/materialize",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 8,
+          "scalars": 100,
+          "reversible-tile": 1024,
+          "batch-prefix": 128
+        },
+        "bytes": 33842048
+      },
+      {
+        "phase": "d21/resident",
+        "alloc_E": {
+          "frontier+roots": 16716,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 100
+        },
+        "bytes": 33839872
+      }
+    ]
+  },
+  {
+    "n": 2097152,
+    "f": 14,
+    "B": 128,
+    "mode": "direct",
+    "columns": 84,
+    "counts": {
+      "source_reads": 18874368,
+      "cache_key_reads": 0,
+      "build_muls": 37847037,
+      "build_adds": 12615679,
+      "restore_muls": 0,
+      "restore_subs": 0,
+      "inversions": 0
+    },
+    "peak_bytes": 34626304,
+    "peak_phase": "d21/resident",
+    "events": [
+      {
+        "phase": "frontier-build",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "dfs": 44
+        },
+        "bytes": 1054592
+      },
+      {
+        "phase": "d1/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 4,
+          "consumer-tile": 4,
+          "scalars": 20
+        },
+        "bytes": 1054336
+      },
+      {
+        "phase": "d1/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 4,
+          "eq": 0,
+          "scalars": 20
+        },
+        "bytes": 1054272
+      },
+      {
+        "phase": "d2/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 8,
+          "consumer-tile": 4,
+          "scalars": 24
+        },
+        "bytes": 1054464
+      },
+      {
+        "phase": "d2/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 8,
+          "eq": 2,
+          "scalars": 24
+        },
+        "bytes": 1054432
+      },
+      {
+        "phase": "d3/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 16,
+          "consumer-tile": 4,
+          "scalars": 28
+        },
+        "bytes": 1054656
+      },
+      {
+        "phase": "d3/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 16,
+          "eq": 3,
+          "scalars": 28
+        },
+        "bytes": 1054640
+      },
+      {
+        "phase": "d4/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 32,
+          "consumer-tile": 4,
+          "scalars": 32
+        },
+        "bytes": 1054976
+      },
+      {
+        "phase": "d4/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 32,
+          "eq": 4,
+          "scalars": 32
+        },
+        "bytes": 1054976
+      },
+      {
+        "phase": "d5/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 64,
+          "consumer-tile": 4,
+          "scalars": 36
+        },
+        "bytes": 1055552
+      },
+      {
+        "phase": "d5/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 64,
+          "eq": 6,
+          "scalars": 36
+        },
+        "bytes": 1055584
+      },
+      {
+        "phase": "d6/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 128,
+          "consumer-tile": 4,
+          "scalars": 40
+        },
+        "bytes": 1056640
+      },
+      {
+        "phase": "d6/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 128,
+          "eq": 8,
+          "scalars": 40
+        },
+        "bytes": 1056704
+      },
+      {
+        "phase": "d7/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 256,
+          "consumer-tile": 4,
+          "scalars": 44
+        },
+        "bytes": 1058752
+      },
+      {
+        "phase": "d7/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 256,
+          "eq": 12,
+          "scalars": 44
+        },
+        "bytes": 1058880
+      },
+      {
+        "phase": "d8/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 512,
+          "consumer-tile": 4,
+          "scalars": 48
+        },
+        "bytes": 1062912
+      },
+      {
+        "phase": "d8/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 512,
+          "eq": 16,
+          "scalars": 48
+        },
+        "bytes": 1063104
+      },
+      {
+        "phase": "d9/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 1024,
+          "consumer-tile": 4,
+          "scalars": 52
+        },
+        "bytes": 1071168
+      },
+      {
+        "phase": "d9/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 1024,
+          "eq": 24,
+          "scalars": 52
+        },
+        "bytes": 1071488
+      },
+      {
+        "phase": "d10/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 2048,
+          "consumer-tile": 4,
+          "scalars": 56
+        },
+        "bytes": 1087616
+      },
+      {
+        "phase": "d10/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 2048,
+          "eq": 32,
+          "scalars": 56
+        },
+        "bytes": 1088064
+      },
+      {
+        "phase": "d11/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 4096,
+          "consumer-tile": 4,
+          "scalars": 60
+        },
+        "bytes": 1120448
+      },
+      {
+        "phase": "d11/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 4096,
+          "eq": 48,
+          "scalars": 60
+        },
+        "bytes": 1121152
+      },
+      {
+        "phase": "d12/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 8192,
+          "consumer-tile": 4,
+          "scalars": 64
+        },
+        "bytes": 1186048
+      },
+      {
+        "phase": "d12/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 8192,
+          "eq": 64,
+          "scalars": 64
+        },
+        "bytes": 1187008
+      },
+      {
+        "phase": "d13/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 16384,
+          "consumer-tile": 4,
+          "scalars": 68
+        },
+        "bytes": 1317184
+      },
+      {
+        "phase": "d13/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 16384,
+          "eq": 96,
+          "scalars": 68
+        },
+        "bytes": 1318656
+      },
+      {
+        "phase": "d14/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 32768,
+          "consumer-tile": 4,
+          "scalars": 72
+        },
+        "bytes": 1579392
+      },
+      {
+        "phase": "d14/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 32768,
+          "eq": 128,
+          "scalars": 72
+        },
+        "bytes": 1581376
+      },
+      {
+        "phase": "d15/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 65536,
+          "consumer-tile": 4,
+          "scalars": 76,
+          "source-dfs": 14
+        },
+        "bytes": 2103968
+      },
+      {
+        "phase": "d15/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 65536,
+          "eq": 192,
+          "scalars": 76
+        },
+        "bytes": 2106752
+      },
+      {
+        "phase": "d16/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 131072,
+          "consumer-tile": 4,
+          "scalars": 80,
+          "source-dfs": 12
+        },
+        "bytes": 3152576
+      },
+      {
+        "phase": "d16/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 131072,
+          "eq": 256,
+          "scalars": 80
+        },
+        "bytes": 3156416
+      },
+      {
+        "phase": "d17/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 262144,
+          "consumer-tile": 4,
+          "scalars": 84,
+          "source-dfs": 10
+        },
+        "bytes": 5249760
+      },
+      {
+        "phase": "d17/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 262144,
+          "eq": 384,
+          "scalars": 84
+        },
+        "bytes": 5255680
+      },
+      {
+        "phase": "d18/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 524288,
+          "consumer-tile": 4,
+          "scalars": 88,
+          "source-dfs": 8
+        },
+        "bytes": 9444096
+      },
+      {
+        "phase": "d18/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 524288,
+          "eq": 512,
+          "scalars": 88
+        },
+        "bytes": 9452096
+      },
+      {
+        "phase": "d19/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 1048576,
+          "consumer-tile": 4,
+          "scalars": 92,
+          "source-dfs": 6
+        },
+        "bytes": 17832736
+      },
+      {
+        "phase": "d19/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 1048576,
+          "eq": 768,
+          "scalars": 92
+        },
+        "bytes": 17844864
+      },
+      {
+        "phase": "d20/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 4,
+          "scalars": 96,
+          "source-dfs": 4
+        },
+        "bytes": 34609984
+      },
+      {
+        "phase": "d20/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 96
+        },
+        "bytes": 34626240
+      },
+      {
+        "phase": "d21/prefix0",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "consumer-tile": 8,
+          "eq": 1536,
+          "scalars": 100,
+          "source-dfs": 2
+        },
+        "bytes": 1080224
+      },
+      {
+        "phase": "d21/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 8,
+          "scalars": 100,
+          "source-dfs": 2
+        },
+        "bytes": 34610080
+      },
+      {
+        "phase": "d21/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 100
+        },
+        "bytes": 34626304
+      }
+    ]
+  },
+  {
+    "n": 2097152,
+    "f": 14,
+    "B": 128,
+    "mode": "batch",
+    "columns": 84,
+    "counts": {
+      "source_reads": 18874368,
+      "cache_key_reads": 0,
+      "build_muls": 56229885,
+      "build_adds": 18743295,
+      "restore_muls": 35045376,
+      "restore_subs": 6127616,
+      "inversions": 573440
+    },
+    "peak_bytes": 34626304,
+    "peak_phase": "d21/resident",
+    "events": [
+      {
+        "phase": "frontier-build",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "dfs": 44
+        },
+        "bytes": 1054592
+      },
+      {
+        "phase": "d1/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 4,
+          "consumer-tile": 4,
+          "scalars": 20
+        },
+        "bytes": 1054336
+      },
+      {
+        "phase": "d1/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 4,
+          "eq": 0,
+          "scalars": 20
+        },
+        "bytes": 1054272
+      },
+      {
+        "phase": "d2/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 8,
+          "consumer-tile": 4,
+          "scalars": 24
+        },
+        "bytes": 1054464
+      },
+      {
+        "phase": "d2/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 8,
+          "eq": 2,
+          "scalars": 24
+        },
+        "bytes": 1054432
+      },
+      {
+        "phase": "d3/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 16,
+          "consumer-tile": 4,
+          "scalars": 28
+        },
+        "bytes": 1054656
+      },
+      {
+        "phase": "d3/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 16,
+          "eq": 3,
+          "scalars": 28
+        },
+        "bytes": 1054640
+      },
+      {
+        "phase": "d4/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 32,
+          "consumer-tile": 4,
+          "scalars": 32
+        },
+        "bytes": 1054976
+      },
+      {
+        "phase": "d4/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 32,
+          "eq": 4,
+          "scalars": 32
+        },
+        "bytes": 1054976
+      },
+      {
+        "phase": "d5/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 64,
+          "consumer-tile": 4,
+          "scalars": 36
+        },
+        "bytes": 1055552
+      },
+      {
+        "phase": "d5/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 64,
+          "eq": 6,
+          "scalars": 36
+        },
+        "bytes": 1055584
+      },
+      {
+        "phase": "d6/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 128,
+          "consumer-tile": 4,
+          "scalars": 40
+        },
+        "bytes": 1056640
+      },
+      {
+        "phase": "d6/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 128,
+          "eq": 8,
+          "scalars": 40
+        },
+        "bytes": 1056704
+      },
+      {
+        "phase": "d7/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 256,
+          "consumer-tile": 4,
+          "scalars": 44
+        },
+        "bytes": 1058752
+      },
+      {
+        "phase": "d7/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 256,
+          "eq": 12,
+          "scalars": 44
+        },
+        "bytes": 1058880
+      },
+      {
+        "phase": "d8/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 512,
+          "consumer-tile": 4,
+          "scalars": 48
+        },
+        "bytes": 1062912
+      },
+      {
+        "phase": "d8/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 512,
+          "eq": 16,
+          "scalars": 48
+        },
+        "bytes": 1063104
+      },
+      {
+        "phase": "d9/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 1024,
+          "consumer-tile": 4,
+          "scalars": 52
+        },
+        "bytes": 1071168
+      },
+      {
+        "phase": "d9/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 1024,
+          "eq": 24,
+          "scalars": 52
+        },
+        "bytes": 1071488
+      },
+      {
+        "phase": "d10/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 2048,
+          "consumer-tile": 4,
+          "scalars": 56
+        },
+        "bytes": 1087616
+      },
+      {
+        "phase": "d10/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 2048,
+          "eq": 32,
+          "scalars": 56
+        },
+        "bytes": 1088064
+      },
+      {
+        "phase": "d11/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 4096,
+          "consumer-tile": 4,
+          "scalars": 60
+        },
+        "bytes": 1120448
+      },
+      {
+        "phase": "d11/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 4096,
+          "eq": 48,
+          "scalars": 60
+        },
+        "bytes": 1121152
+      },
+      {
+        "phase": "d12/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 8192,
+          "consumer-tile": 4,
+          "scalars": 64
+        },
+        "bytes": 1186048
+      },
+      {
+        "phase": "d12/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 8192,
+          "eq": 64,
+          "scalars": 64
+        },
+        "bytes": 1187008
+      },
+      {
+        "phase": "d13/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 16384,
+          "consumer-tile": 4,
+          "scalars": 68
+        },
+        "bytes": 1317184
+      },
+      {
+        "phase": "d13/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 16384,
+          "eq": 96,
+          "scalars": 68
+        },
+        "bytes": 1318656
+      },
+      {
+        "phase": "d14/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 32768,
+          "consumer-tile": 4,
+          "scalars": 72
+        },
+        "bytes": 1579392
+      },
+      {
+        "phase": "d14/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 32768,
+          "eq": 128,
+          "scalars": 72
+        },
+        "bytes": 1581376
+      },
+      {
+        "phase": "d15/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 65536,
+          "consumer-tile": 4,
+          "scalars": 76,
+          "reversible-tile": 256,
+          "batch-prefix": 1
+        },
+        "bytes": 2107856
+      },
+      {
+        "phase": "d15/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 65536,
+          "eq": 192,
+          "scalars": 76
+        },
+        "bytes": 2106752
+      },
+      {
+        "phase": "d16/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 131072,
+          "consumer-tile": 4,
+          "scalars": 80,
+          "reversible-tile": 256,
+          "batch-prefix": 2
+        },
+        "bytes": 3156512
+      },
+      {
+        "phase": "d16/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 131072,
+          "eq": 256,
+          "scalars": 80
+        },
+        "bytes": 3156416
+      },
+      {
+        "phase": "d17/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 262144,
+          "consumer-tile": 4,
+          "scalars": 84,
+          "reversible-tile": 256,
+          "batch-prefix": 4
+        },
+        "bytes": 5253760
+      },
+      {
+        "phase": "d17/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 262144,
+          "eq": 384,
+          "scalars": 84
+        },
+        "bytes": 5255680
+      },
+      {
+        "phase": "d18/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 524288,
+          "consumer-tile": 4,
+          "scalars": 88,
+          "reversible-tile": 256,
+          "batch-prefix": 8
+        },
+        "bytes": 9448192
+      },
+      {
+        "phase": "d18/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 524288,
+          "eq": 512,
+          "scalars": 88
+        },
+        "bytes": 9452096
+      },
+      {
+        "phase": "d19/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 1048576,
+          "consumer-tile": 4,
+          "scalars": 92,
+          "reversible-tile": 256,
+          "batch-prefix": 16
+        },
+        "bytes": 17836992
+      },
+      {
+        "phase": "d19/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 1048576,
+          "eq": 768,
+          "scalars": 92
+        },
+        "bytes": 17844864
+      },
+      {
+        "phase": "d20/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 4,
+          "scalars": 96,
+          "reversible-tile": 256,
+          "batch-prefix": 32
+        },
+        "bytes": 34614528
+      },
+      {
+        "phase": "d20/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 96
+        },
+        "bytes": 34626240
+      },
+      {
+        "phase": "d21/prefix0",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "consumer-tile": 8,
+          "eq": 1536,
+          "scalars": 100,
+          "reversible-tile": 256,
+          "batch-prefix": 64
+        },
+        "bytes": 1085312
+      },
+      {
+        "phase": "d21/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 8,
+          "scalars": 100,
+          "reversible-tile": 256,
+          "batch-prefix": 64
+        },
+        "bytes": 34615168
+      },
+      {
+        "phase": "d21/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 100
+        },
+        "bytes": 34626304
+      }
+    ]
+  },
+  {
+    "n": 2097152,
+    "f": 14,
+    "B": 128,
+    "mode": "cached",
+    "columns": 84,
+    "counts": {
+      "source_reads": 18874368,
+      "cache_key_reads": 2097152,
+      "build_muls": 56229885,
+      "build_adds": 18743295,
+      "restore_muls": 28852224,
+      "restore_subs": 6127616,
+      "inversions": 540672
+    },
+    "peak_bytes": 34626304,
+    "peak_phase": "d21/resident",
+    "events": [
+      {
+        "phase": "frontier-build",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "dfs": 44
+        },
+        "bytes": 1054592
+      },
+      {
+        "phase": "d1/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 4,
+          "consumer-tile": 4,
+          "scalars": 20
+        },
+        "bytes": 1054336
+      },
+      {
+        "phase": "d1/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 4,
+          "eq": 0,
+          "scalars": 20
+        },
+        "bytes": 1054272
+      },
+      {
+        "phase": "d2/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 8,
+          "consumer-tile": 4,
+          "scalars": 24
+        },
+        "bytes": 1054464
+      },
+      {
+        "phase": "d2/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 8,
+          "eq": 2,
+          "scalars": 24
+        },
+        "bytes": 1054432
+      },
+      {
+        "phase": "d3/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 16,
+          "consumer-tile": 4,
+          "scalars": 28
+        },
+        "bytes": 1054656
+      },
+      {
+        "phase": "d3/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 16,
+          "eq": 3,
+          "scalars": 28
+        },
+        "bytes": 1054640
+      },
+      {
+        "phase": "d4/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 32,
+          "consumer-tile": 4,
+          "scalars": 32
+        },
+        "bytes": 1054976
+      },
+      {
+        "phase": "d4/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 32,
+          "eq": 4,
+          "scalars": 32
+        },
+        "bytes": 1054976
+      },
+      {
+        "phase": "d5/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 64,
+          "consumer-tile": 4,
+          "scalars": 36
+        },
+        "bytes": 1055552
+      },
+      {
+        "phase": "d5/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 64,
+          "eq": 6,
+          "scalars": 36
+        },
+        "bytes": 1055584
+      },
+      {
+        "phase": "d6/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 128,
+          "consumer-tile": 4,
+          "scalars": 40
+        },
+        "bytes": 1056640
+      },
+      {
+        "phase": "d6/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 128,
+          "eq": 8,
+          "scalars": 40
+        },
+        "bytes": 1056704
+      },
+      {
+        "phase": "d7/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 256,
+          "consumer-tile": 4,
+          "scalars": 44
+        },
+        "bytes": 1058752
+      },
+      {
+        "phase": "d7/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 256,
+          "eq": 12,
+          "scalars": 44
+        },
+        "bytes": 1058880
+      },
+      {
+        "phase": "d8/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 512,
+          "consumer-tile": 4,
+          "scalars": 48
+        },
+        "bytes": 1062912
+      },
+      {
+        "phase": "d8/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 512,
+          "eq": 16,
+          "scalars": 48
+        },
+        "bytes": 1063104
+      },
+      {
+        "phase": "d9/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 1024,
+          "consumer-tile": 4,
+          "scalars": 52
+        },
+        "bytes": 1071168
+      },
+      {
+        "phase": "d9/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 1024,
+          "eq": 24,
+          "scalars": 52
+        },
+        "bytes": 1071488
+      },
+      {
+        "phase": "d10/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 2048,
+          "consumer-tile": 4,
+          "scalars": 56
+        },
+        "bytes": 1087616
+      },
+      {
+        "phase": "d10/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 2048,
+          "eq": 32,
+          "scalars": 56
+        },
+        "bytes": 1088064
+      },
+      {
+        "phase": "d11/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 4096,
+          "consumer-tile": 4,
+          "scalars": 60
+        },
+        "bytes": 1120448
+      },
+      {
+        "phase": "d11/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 4096,
+          "eq": 48,
+          "scalars": 60
+        },
+        "bytes": 1121152
+      },
+      {
+        "phase": "d12/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 8192,
+          "consumer-tile": 4,
+          "scalars": 64
+        },
+        "bytes": 1186048
+      },
+      {
+        "phase": "d12/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 8192,
+          "eq": 64,
+          "scalars": 64
+        },
+        "bytes": 1187008
+      },
+      {
+        "phase": "d13/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 16384,
+          "consumer-tile": 4,
+          "scalars": 68
+        },
+        "bytes": 1317184
+      },
+      {
+        "phase": "d13/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 16384,
+          "eq": 96,
+          "scalars": 68
+        },
+        "bytes": 1318656
+      },
+      {
+        "phase": "d14/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 32768,
+          "consumer-tile": 4,
+          "scalars": 72
+        },
+        "bytes": 1579392
+      },
+      {
+        "phase": "d14/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 32768,
+          "eq": 128,
+          "scalars": 72
+        },
+        "bytes": 1581376
+      },
+      {
+        "phase": "d15/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 65536,
+          "consumer-tile": 4,
+          "scalars": 76,
+          "reversible-tile": 256,
+          "batch-prefix": 1
+        },
+        "bytes": 2107856
+      },
+      {
+        "phase": "d15/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 65536,
+          "eq": 192,
+          "scalars": 76
+        },
+        "bytes": 2106752
+      },
+      {
+        "phase": "d16/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 131072,
+          "consumer-tile": 4,
+          "scalars": 80,
+          "reversible-tile": 256,
+          "batch-prefix": 2
+        },
+        "bytes": 3156512
+      },
+      {
+        "phase": "d16/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 131072,
+          "eq": 256,
+          "scalars": 80
+        },
+        "bytes": 3156416
+      },
+      {
+        "phase": "d17/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 262144,
+          "consumer-tile": 4,
+          "scalars": 84,
+          "reversible-tile": 256,
+          "batch-prefix": 4
+        },
+        "bytes": 5253760
+      },
+      {
+        "phase": "d17/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 262144,
+          "eq": 384,
+          "scalars": 84
+        },
+        "bytes": 5255680
+      },
+      {
+        "phase": "d18/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 524288,
+          "consumer-tile": 4,
+          "scalars": 88,
+          "reversible-tile": 256,
+          "batch-prefix": 8
+        },
+        "bytes": 9448192
+      },
+      {
+        "phase": "d18/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 524288,
+          "eq": 512,
+          "scalars": 88
+        },
+        "bytes": 9452096
+      },
+      {
+        "phase": "d19/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 1048576,
+          "consumer-tile": 4,
+          "scalars": 92,
+          "reversible-tile": 256,
+          "batch-prefix": 16
+        },
+        "bytes": 17836992
+      },
+      {
+        "phase": "d19/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 1048576,
+          "eq": 768,
+          "scalars": 92
+        },
+        "bytes": 17844864
+      },
+      {
+        "phase": "d20/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 4,
+          "scalars": 96,
+          "reversible-tile": 256,
+          "batch-prefix": 32
+        },
+        "bytes": 34614528
+      },
+      {
+        "phase": "d20/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 96
+        },
+        "bytes": 34626240
+      },
+      {
+        "phase": "d21/prefix0",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "consumer-tile": 8,
+          "eq": 1536,
+          "scalars": 100,
+          "reversible-tile": 256,
+          "batch-prefix": 32
+        },
+        "bytes": 1084800
+      },
+      {
+        "phase": "d21/materialize",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 8,
+          "scalars": 100,
+          "reversible-tile": 256,
+          "batch-prefix": 32
+        },
+        "bytes": 34614656
+      },
+      {
+        "phase": "d21/resident",
+        "alloc_E": {
+          "frontier+roots": 65868,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 100
+        },
+        "bytes": 34626304
+      }
+    ]
+  },
+  {
+    "n": 2097152,
+    "f": 15,
+    "B": 64,
+    "mode": "direct",
+    "columns": 84,
+    "counts": {
+      "source_reads": 16777216,
+      "cache_key_reads": 0,
+      "build_muls": 31653885,
+      "build_adds": 10551295,
+      "restore_muls": 0,
+      "restore_subs": 0,
+      "inversions": 0
+    },
+    "peak_bytes": 35674880,
+    "peak_phase": "d21/resident",
+    "events": [
+      {
+        "phase": "frontier-build",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "dfs": 44
+        },
+        "bytes": 2103168
+      },
+      {
+        "phase": "d1/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 4,
+          "consumer-tile": 4,
+          "scalars": 20
+        },
+        "bytes": 2102912
+      },
+      {
+        "phase": "d1/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 4,
+          "eq": 0,
+          "scalars": 20
+        },
+        "bytes": 2102848
+      },
+      {
+        "phase": "d2/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 8,
+          "consumer-tile": 4,
+          "scalars": 24
+        },
+        "bytes": 2103040
+      },
+      {
+        "phase": "d2/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 8,
+          "eq": 2,
+          "scalars": 24
+        },
+        "bytes": 2103008
+      },
+      {
+        "phase": "d3/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 16,
+          "consumer-tile": 4,
+          "scalars": 28
+        },
+        "bytes": 2103232
+      },
+      {
+        "phase": "d3/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 16,
+          "eq": 3,
+          "scalars": 28
+        },
+        "bytes": 2103216
+      },
+      {
+        "phase": "d4/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 32,
+          "consumer-tile": 4,
+          "scalars": 32
+        },
+        "bytes": 2103552
+      },
+      {
+        "phase": "d4/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 32,
+          "eq": 4,
+          "scalars": 32
+        },
+        "bytes": 2103552
+      },
+      {
+        "phase": "d5/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 64,
+          "consumer-tile": 4,
+          "scalars": 36
+        },
+        "bytes": 2104128
+      },
+      {
+        "phase": "d5/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 64,
+          "eq": 6,
+          "scalars": 36
+        },
+        "bytes": 2104160
+      },
+      {
+        "phase": "d6/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 128,
+          "consumer-tile": 4,
+          "scalars": 40
+        },
+        "bytes": 2105216
+      },
+      {
+        "phase": "d6/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 128,
+          "eq": 8,
+          "scalars": 40
+        },
+        "bytes": 2105280
+      },
+      {
+        "phase": "d7/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 256,
+          "consumer-tile": 4,
+          "scalars": 44
+        },
+        "bytes": 2107328
+      },
+      {
+        "phase": "d7/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 256,
+          "eq": 12,
+          "scalars": 44
+        },
+        "bytes": 2107456
+      },
+      {
+        "phase": "d8/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 512,
+          "consumer-tile": 4,
+          "scalars": 48
+        },
+        "bytes": 2111488
+      },
+      {
+        "phase": "d8/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 512,
+          "eq": 16,
+          "scalars": 48
+        },
+        "bytes": 2111680
+      },
+      {
+        "phase": "d9/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 1024,
+          "consumer-tile": 4,
+          "scalars": 52
+        },
+        "bytes": 2119744
+      },
+      {
+        "phase": "d9/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 1024,
+          "eq": 24,
+          "scalars": 52
+        },
+        "bytes": 2120064
+      },
+      {
+        "phase": "d10/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 2048,
+          "consumer-tile": 4,
+          "scalars": 56
+        },
+        "bytes": 2136192
+      },
+      {
+        "phase": "d10/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 2048,
+          "eq": 32,
+          "scalars": 56
+        },
+        "bytes": 2136640
+      },
+      {
+        "phase": "d11/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 4096,
+          "consumer-tile": 4,
+          "scalars": 60
+        },
+        "bytes": 2169024
+      },
+      {
+        "phase": "d11/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 4096,
+          "eq": 48,
+          "scalars": 60
+        },
+        "bytes": 2169728
+      },
+      {
+        "phase": "d12/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 8192,
+          "consumer-tile": 4,
+          "scalars": 64
+        },
+        "bytes": 2234624
+      },
+      {
+        "phase": "d12/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 8192,
+          "eq": 64,
+          "scalars": 64
+        },
+        "bytes": 2235584
+      },
+      {
+        "phase": "d13/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 16384,
+          "consumer-tile": 4,
+          "scalars": 68
+        },
+        "bytes": 2365760
+      },
+      {
+        "phase": "d13/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 16384,
+          "eq": 96,
+          "scalars": 68
+        },
+        "bytes": 2367232
+      },
+      {
+        "phase": "d14/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 32768,
+          "consumer-tile": 4,
+          "scalars": 72
+        },
+        "bytes": 2627968
+      },
+      {
+        "phase": "d14/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 32768,
+          "eq": 128,
+          "scalars": 72
+        },
+        "bytes": 2629952
+      },
+      {
+        "phase": "d15/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 65536,
+          "consumer-tile": 4,
+          "scalars": 76
+        },
+        "bytes": 3152320
+      },
+      {
+        "phase": "d15/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 65536,
+          "eq": 192,
+          "scalars": 76
+        },
+        "bytes": 3155328
+      },
+      {
+        "phase": "d16/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 131072,
+          "consumer-tile": 4,
+          "scalars": 80,
+          "source-dfs": 12
+        },
+        "bytes": 4201152
+      },
+      {
+        "phase": "d16/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 131072,
+          "eq": 256,
+          "scalars": 80
+        },
+        "bytes": 4204992
+      },
+      {
+        "phase": "d17/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 262144,
+          "consumer-tile": 4,
+          "scalars": 84,
+          "source-dfs": 10
+        },
+        "bytes": 6298336
+      },
+      {
+        "phase": "d17/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 262144,
+          "eq": 384,
+          "scalars": 84
+        },
+        "bytes": 6304256
+      },
+      {
+        "phase": "d18/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 524288,
+          "consumer-tile": 4,
+          "scalars": 88,
+          "source-dfs": 8
+        },
+        "bytes": 10492672
+      },
+      {
+        "phase": "d18/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 524288,
+          "eq": 512,
+          "scalars": 88
+        },
+        "bytes": 10500672
+      },
+      {
+        "phase": "d19/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 1048576,
+          "consumer-tile": 4,
+          "scalars": 92,
+          "source-dfs": 6
+        },
+        "bytes": 18881312
+      },
+      {
+        "phase": "d19/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 1048576,
+          "eq": 768,
+          "scalars": 92
+        },
+        "bytes": 18893440
+      },
+      {
+        "phase": "d20/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 4,
+          "scalars": 96,
+          "source-dfs": 4
+        },
+        "bytes": 35658560
+      },
+      {
+        "phase": "d20/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 96
+        },
+        "bytes": 35674816
+      },
+      {
+        "phase": "d21/prefix0",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "consumer-tile": 8,
+          "eq": 1536,
+          "scalars": 100,
+          "source-dfs": 2
+        },
+        "bytes": 2128800
+      },
+      {
+        "phase": "d21/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 8,
+          "scalars": 100,
+          "source-dfs": 2
+        },
+        "bytes": 35658656
+      },
+      {
+        "phase": "d21/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 100
+        },
+        "bytes": 35674880
+      }
+    ]
+  },
+  {
+    "n": 2097152,
+    "f": 15,
+    "B": 64,
+    "mode": "batch",
+    "columns": 84,
+    "counts": {
+      "source_reads": 16777216,
+      "cache_key_reads": 0,
+      "build_muls": 49643517,
+      "build_adds": 16547839,
+      "restore_muls": 33325056,
+      "restore_subs": 5996544,
+      "inversions": 884736
+    },
+    "peak_bytes": 35674880,
+    "peak_phase": "d21/resident",
+    "events": [
+      {
+        "phase": "frontier-build",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "dfs": 44
+        },
+        "bytes": 2103168
+      },
+      {
+        "phase": "d1/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 4,
+          "consumer-tile": 4,
+          "scalars": 20
+        },
+        "bytes": 2102912
+      },
+      {
+        "phase": "d1/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 4,
+          "eq": 0,
+          "scalars": 20
+        },
+        "bytes": 2102848
+      },
+      {
+        "phase": "d2/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 8,
+          "consumer-tile": 4,
+          "scalars": 24
+        },
+        "bytes": 2103040
+      },
+      {
+        "phase": "d2/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 8,
+          "eq": 2,
+          "scalars": 24
+        },
+        "bytes": 2103008
+      },
+      {
+        "phase": "d3/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 16,
+          "consumer-tile": 4,
+          "scalars": 28
+        },
+        "bytes": 2103232
+      },
+      {
+        "phase": "d3/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 16,
+          "eq": 3,
+          "scalars": 28
+        },
+        "bytes": 2103216
+      },
+      {
+        "phase": "d4/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 32,
+          "consumer-tile": 4,
+          "scalars": 32
+        },
+        "bytes": 2103552
+      },
+      {
+        "phase": "d4/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 32,
+          "eq": 4,
+          "scalars": 32
+        },
+        "bytes": 2103552
+      },
+      {
+        "phase": "d5/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 64,
+          "consumer-tile": 4,
+          "scalars": 36
+        },
+        "bytes": 2104128
+      },
+      {
+        "phase": "d5/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 64,
+          "eq": 6,
+          "scalars": 36
+        },
+        "bytes": 2104160
+      },
+      {
+        "phase": "d6/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 128,
+          "consumer-tile": 4,
+          "scalars": 40
+        },
+        "bytes": 2105216
+      },
+      {
+        "phase": "d6/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 128,
+          "eq": 8,
+          "scalars": 40
+        },
+        "bytes": 2105280
+      },
+      {
+        "phase": "d7/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 256,
+          "consumer-tile": 4,
+          "scalars": 44
+        },
+        "bytes": 2107328
+      },
+      {
+        "phase": "d7/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 256,
+          "eq": 12,
+          "scalars": 44
+        },
+        "bytes": 2107456
+      },
+      {
+        "phase": "d8/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 512,
+          "consumer-tile": 4,
+          "scalars": 48
+        },
+        "bytes": 2111488
+      },
+      {
+        "phase": "d8/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 512,
+          "eq": 16,
+          "scalars": 48
+        },
+        "bytes": 2111680
+      },
+      {
+        "phase": "d9/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 1024,
+          "consumer-tile": 4,
+          "scalars": 52
+        },
+        "bytes": 2119744
+      },
+      {
+        "phase": "d9/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 1024,
+          "eq": 24,
+          "scalars": 52
+        },
+        "bytes": 2120064
+      },
+      {
+        "phase": "d10/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 2048,
+          "consumer-tile": 4,
+          "scalars": 56
+        },
+        "bytes": 2136192
+      },
+      {
+        "phase": "d10/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 2048,
+          "eq": 32,
+          "scalars": 56
+        },
+        "bytes": 2136640
+      },
+      {
+        "phase": "d11/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 4096,
+          "consumer-tile": 4,
+          "scalars": 60
+        },
+        "bytes": 2169024
+      },
+      {
+        "phase": "d11/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 4096,
+          "eq": 48,
+          "scalars": 60
+        },
+        "bytes": 2169728
+      },
+      {
+        "phase": "d12/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 8192,
+          "consumer-tile": 4,
+          "scalars": 64
+        },
+        "bytes": 2234624
+      },
+      {
+        "phase": "d12/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 8192,
+          "eq": 64,
+          "scalars": 64
+        },
+        "bytes": 2235584
+      },
+      {
+        "phase": "d13/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 16384,
+          "consumer-tile": 4,
+          "scalars": 68
+        },
+        "bytes": 2365760
+      },
+      {
+        "phase": "d13/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 16384,
+          "eq": 96,
+          "scalars": 68
+        },
+        "bytes": 2367232
+      },
+      {
+        "phase": "d14/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 32768,
+          "consumer-tile": 4,
+          "scalars": 72
+        },
+        "bytes": 2627968
+      },
+      {
+        "phase": "d14/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 32768,
+          "eq": 128,
+          "scalars": 72
+        },
+        "bytes": 2629952
+      },
+      {
+        "phase": "d15/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 65536,
+          "consumer-tile": 4,
+          "scalars": 76
+        },
+        "bytes": 3152320
+      },
+      {
+        "phase": "d15/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 65536,
+          "eq": 192,
+          "scalars": 76
+        },
+        "bytes": 3155328
+      },
+      {
+        "phase": "d16/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 131072,
+          "consumer-tile": 4,
+          "scalars": 80,
+          "reversible-tile": 128,
+          "batch-prefix": 1
+        },
+        "bytes": 4203024
+      },
+      {
+        "phase": "d16/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 131072,
+          "eq": 256,
+          "scalars": 80
+        },
+        "bytes": 4204992
+      },
+      {
+        "phase": "d17/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 262144,
+          "consumer-tile": 4,
+          "scalars": 84,
+          "reversible-tile": 128,
+          "batch-prefix": 2
+        },
+        "bytes": 6300256
+      },
+      {
+        "phase": "d17/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 262144,
+          "eq": 384,
+          "scalars": 84
+        },
+        "bytes": 6304256
+      },
+      {
+        "phase": "d18/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 524288,
+          "consumer-tile": 4,
+          "scalars": 88,
+          "reversible-tile": 128,
+          "batch-prefix": 4
+        },
+        "bytes": 10494656
+      },
+      {
+        "phase": "d18/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 524288,
+          "eq": 512,
+          "scalars": 88
+        },
+        "bytes": 10500672
+      },
+      {
+        "phase": "d19/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 1048576,
+          "consumer-tile": 4,
+          "scalars": 92,
+          "reversible-tile": 128,
+          "batch-prefix": 8
+        },
+        "bytes": 18883392
+      },
+      {
+        "phase": "d19/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 1048576,
+          "eq": 768,
+          "scalars": 92
+        },
+        "bytes": 18893440
+      },
+      {
+        "phase": "d20/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 4,
+          "scalars": 96,
+          "reversible-tile": 128,
+          "batch-prefix": 16
+        },
+        "bytes": 35660800
+      },
+      {
+        "phase": "d20/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 96
+        },
+        "bytes": 35674816
+      },
+      {
+        "phase": "d21/prefix0",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "consumer-tile": 8,
+          "eq": 1536,
+          "scalars": 100,
+          "reversible-tile": 128,
+          "batch-prefix": 32
+        },
+        "bytes": 2131328
+      },
+      {
+        "phase": "d21/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 8,
+          "scalars": 100,
+          "reversible-tile": 128,
+          "batch-prefix": 32
+        },
+        "bytes": 35661184
+      },
+      {
+        "phase": "d21/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 100
+        },
+        "bytes": 35674880
+      }
+    ]
+  },
+  {
+    "n": 2097152,
+    "f": 15,
+    "B": 64,
+    "mode": "cached",
+    "columns": 84,
+    "counts": {
+      "source_reads": 16777216,
+      "cache_key_reads": 2097152,
+      "build_muls": 49643517,
+      "build_adds": 16547839,
+      "restore_muls": 27230208,
+      "restore_subs": 5996544,
+      "inversions": 819200
+    },
+    "peak_bytes": 35674880,
+    "peak_phase": "d21/resident",
+    "events": [
+      {
+        "phase": "frontier-build",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "dfs": 44
+        },
+        "bytes": 2103168
+      },
+      {
+        "phase": "d1/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 4,
+          "consumer-tile": 4,
+          "scalars": 20
+        },
+        "bytes": 2102912
+      },
+      {
+        "phase": "d1/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 4,
+          "eq": 0,
+          "scalars": 20
+        },
+        "bytes": 2102848
+      },
+      {
+        "phase": "d2/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 8,
+          "consumer-tile": 4,
+          "scalars": 24
+        },
+        "bytes": 2103040
+      },
+      {
+        "phase": "d2/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 8,
+          "eq": 2,
+          "scalars": 24
+        },
+        "bytes": 2103008
+      },
+      {
+        "phase": "d3/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 16,
+          "consumer-tile": 4,
+          "scalars": 28
+        },
+        "bytes": 2103232
+      },
+      {
+        "phase": "d3/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 16,
+          "eq": 3,
+          "scalars": 28
+        },
+        "bytes": 2103216
+      },
+      {
+        "phase": "d4/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 32,
+          "consumer-tile": 4,
+          "scalars": 32
+        },
+        "bytes": 2103552
+      },
+      {
+        "phase": "d4/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 32,
+          "eq": 4,
+          "scalars": 32
+        },
+        "bytes": 2103552
+      },
+      {
+        "phase": "d5/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 64,
+          "consumer-tile": 4,
+          "scalars": 36
+        },
+        "bytes": 2104128
+      },
+      {
+        "phase": "d5/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 64,
+          "eq": 6,
+          "scalars": 36
+        },
+        "bytes": 2104160
+      },
+      {
+        "phase": "d6/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 128,
+          "consumer-tile": 4,
+          "scalars": 40
+        },
+        "bytes": 2105216
+      },
+      {
+        "phase": "d6/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 128,
+          "eq": 8,
+          "scalars": 40
+        },
+        "bytes": 2105280
+      },
+      {
+        "phase": "d7/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 256,
+          "consumer-tile": 4,
+          "scalars": 44
+        },
+        "bytes": 2107328
+      },
+      {
+        "phase": "d7/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 256,
+          "eq": 12,
+          "scalars": 44
+        },
+        "bytes": 2107456
+      },
+      {
+        "phase": "d8/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 512,
+          "consumer-tile": 4,
+          "scalars": 48
+        },
+        "bytes": 2111488
+      },
+      {
+        "phase": "d8/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 512,
+          "eq": 16,
+          "scalars": 48
+        },
+        "bytes": 2111680
+      },
+      {
+        "phase": "d9/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 1024,
+          "consumer-tile": 4,
+          "scalars": 52
+        },
+        "bytes": 2119744
+      },
+      {
+        "phase": "d9/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 1024,
+          "eq": 24,
+          "scalars": 52
+        },
+        "bytes": 2120064
+      },
+      {
+        "phase": "d10/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 2048,
+          "consumer-tile": 4,
+          "scalars": 56
+        },
+        "bytes": 2136192
+      },
+      {
+        "phase": "d10/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 2048,
+          "eq": 32,
+          "scalars": 56
+        },
+        "bytes": 2136640
+      },
+      {
+        "phase": "d11/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 4096,
+          "consumer-tile": 4,
+          "scalars": 60
+        },
+        "bytes": 2169024
+      },
+      {
+        "phase": "d11/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 4096,
+          "eq": 48,
+          "scalars": 60
+        },
+        "bytes": 2169728
+      },
+      {
+        "phase": "d12/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 8192,
+          "consumer-tile": 4,
+          "scalars": 64
+        },
+        "bytes": 2234624
+      },
+      {
+        "phase": "d12/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 8192,
+          "eq": 64,
+          "scalars": 64
+        },
+        "bytes": 2235584
+      },
+      {
+        "phase": "d13/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 16384,
+          "consumer-tile": 4,
+          "scalars": 68
+        },
+        "bytes": 2365760
+      },
+      {
+        "phase": "d13/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 16384,
+          "eq": 96,
+          "scalars": 68
+        },
+        "bytes": 2367232
+      },
+      {
+        "phase": "d14/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 32768,
+          "consumer-tile": 4,
+          "scalars": 72
+        },
+        "bytes": 2627968
+      },
+      {
+        "phase": "d14/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 32768,
+          "eq": 128,
+          "scalars": 72
+        },
+        "bytes": 2629952
+      },
+      {
+        "phase": "d15/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 65536,
+          "consumer-tile": 4,
+          "scalars": 76
+        },
+        "bytes": 3152320
+      },
+      {
+        "phase": "d15/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 65536,
+          "eq": 192,
+          "scalars": 76
+        },
+        "bytes": 3155328
+      },
+      {
+        "phase": "d16/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 131072,
+          "consumer-tile": 4,
+          "scalars": 80,
+          "reversible-tile": 128,
+          "batch-prefix": 1
+        },
+        "bytes": 4203024
+      },
+      {
+        "phase": "d16/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 131072,
+          "eq": 256,
+          "scalars": 80
+        },
+        "bytes": 4204992
+      },
+      {
+        "phase": "d17/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 262144,
+          "consumer-tile": 4,
+          "scalars": 84,
+          "reversible-tile": 128,
+          "batch-prefix": 2
+        },
+        "bytes": 6300256
+      },
+      {
+        "phase": "d17/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 262144,
+          "eq": 384,
+          "scalars": 84
+        },
+        "bytes": 6304256
+      },
+      {
+        "phase": "d18/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 524288,
+          "consumer-tile": 4,
+          "scalars": 88,
+          "reversible-tile": 128,
+          "batch-prefix": 4
+        },
+        "bytes": 10494656
+      },
+      {
+        "phase": "d18/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 524288,
+          "eq": 512,
+          "scalars": 88
+        },
+        "bytes": 10500672
+      },
+      {
+        "phase": "d19/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 1048576,
+          "consumer-tile": 4,
+          "scalars": 92,
+          "reversible-tile": 128,
+          "batch-prefix": 8
+        },
+        "bytes": 18883392
+      },
+      {
+        "phase": "d19/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 1048576,
+          "eq": 768,
+          "scalars": 92
+        },
+        "bytes": 18893440
+      },
+      {
+        "phase": "d20/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 4,
+          "scalars": 96,
+          "reversible-tile": 128,
+          "batch-prefix": 16
+        },
+        "bytes": 35660800
+      },
+      {
+        "phase": "d20/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 96
+        },
+        "bytes": 35674816
+      },
+      {
+        "phase": "d21/prefix0",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "consumer-tile": 8,
+          "eq": 1536,
+          "scalars": 100,
+          "reversible-tile": 128,
+          "batch-prefix": 16
+        },
+        "bytes": 2131072
+      },
+      {
+        "phase": "d21/materialize",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 8,
+          "scalars": 100,
+          "reversible-tile": 128,
+          "batch-prefix": 16
+        },
+        "bytes": 35660928
+      },
+      {
+        "phase": "d21/resident",
+        "alloc_E": {
+          "frontier+roots": 131404,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 100
+        },
+        "bytes": 35674880
+      }
+    ]
+  },
+  {
+    "n": 2097152,
+    "f": 16,
+    "B": 32,
+    "mode": "direct",
+    "columns": 84,
+    "counts": {
+      "source_reads": 14680064,
+      "cache_key_reads": 0,
+      "build_muls": 25559037,
+      "build_adds": 8519679,
+      "restore_muls": 0,
+      "restore_subs": 0,
+      "inversions": 0
+    },
+    "peak_bytes": 37772032,
+    "peak_phase": "d21/resident",
+    "events": [
+      {
+        "phase": "frontier-build",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "dfs": 44
+        },
+        "bytes": 4200320
+      },
+      {
+        "phase": "d1/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 4,
+          "consumer-tile": 4,
+          "scalars": 20
+        },
+        "bytes": 4200064
+      },
+      {
+        "phase": "d1/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 4,
+          "eq": 0,
+          "scalars": 20
+        },
+        "bytes": 4200000
+      },
+      {
+        "phase": "d2/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 8,
+          "consumer-tile": 4,
+          "scalars": 24
+        },
+        "bytes": 4200192
+      },
+      {
+        "phase": "d2/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 8,
+          "eq": 2,
+          "scalars": 24
+        },
+        "bytes": 4200160
+      },
+      {
+        "phase": "d3/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 16,
+          "consumer-tile": 4,
+          "scalars": 28
+        },
+        "bytes": 4200384
+      },
+      {
+        "phase": "d3/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 16,
+          "eq": 3,
+          "scalars": 28
+        },
+        "bytes": 4200368
+      },
+      {
+        "phase": "d4/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 32,
+          "consumer-tile": 4,
+          "scalars": 32
+        },
+        "bytes": 4200704
+      },
+      {
+        "phase": "d4/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 32,
+          "eq": 4,
+          "scalars": 32
+        },
+        "bytes": 4200704
+      },
+      {
+        "phase": "d5/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 64,
+          "consumer-tile": 4,
+          "scalars": 36
+        },
+        "bytes": 4201280
+      },
+      {
+        "phase": "d5/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 64,
+          "eq": 6,
+          "scalars": 36
+        },
+        "bytes": 4201312
+      },
+      {
+        "phase": "d6/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 128,
+          "consumer-tile": 4,
+          "scalars": 40
+        },
+        "bytes": 4202368
+      },
+      {
+        "phase": "d6/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 128,
+          "eq": 8,
+          "scalars": 40
+        },
+        "bytes": 4202432
+      },
+      {
+        "phase": "d7/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 256,
+          "consumer-tile": 4,
+          "scalars": 44
+        },
+        "bytes": 4204480
+      },
+      {
+        "phase": "d7/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 256,
+          "eq": 12,
+          "scalars": 44
+        },
+        "bytes": 4204608
+      },
+      {
+        "phase": "d8/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 512,
+          "consumer-tile": 4,
+          "scalars": 48
+        },
+        "bytes": 4208640
+      },
+      {
+        "phase": "d8/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 512,
+          "eq": 16,
+          "scalars": 48
+        },
+        "bytes": 4208832
+      },
+      {
+        "phase": "d9/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 1024,
+          "consumer-tile": 4,
+          "scalars": 52
+        },
+        "bytes": 4216896
+      },
+      {
+        "phase": "d9/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 1024,
+          "eq": 24,
+          "scalars": 52
+        },
+        "bytes": 4217216
+      },
+      {
+        "phase": "d10/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 2048,
+          "consumer-tile": 4,
+          "scalars": 56
+        },
+        "bytes": 4233344
+      },
+      {
+        "phase": "d10/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 2048,
+          "eq": 32,
+          "scalars": 56
+        },
+        "bytes": 4233792
+      },
+      {
+        "phase": "d11/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 4096,
+          "consumer-tile": 4,
+          "scalars": 60
+        },
+        "bytes": 4266176
+      },
+      {
+        "phase": "d11/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 4096,
+          "eq": 48,
+          "scalars": 60
+        },
+        "bytes": 4266880
+      },
+      {
+        "phase": "d12/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 8192,
+          "consumer-tile": 4,
+          "scalars": 64
+        },
+        "bytes": 4331776
+      },
+      {
+        "phase": "d12/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 8192,
+          "eq": 64,
+          "scalars": 64
+        },
+        "bytes": 4332736
+      },
+      {
+        "phase": "d13/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 16384,
+          "consumer-tile": 4,
+          "scalars": 68
+        },
+        "bytes": 4462912
+      },
+      {
+        "phase": "d13/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 16384,
+          "eq": 96,
+          "scalars": 68
+        },
+        "bytes": 4464384
+      },
+      {
+        "phase": "d14/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 32768,
+          "consumer-tile": 4,
+          "scalars": 72
+        },
+        "bytes": 4725120
+      },
+      {
+        "phase": "d14/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 32768,
+          "eq": 128,
+          "scalars": 72
+        },
+        "bytes": 4727104
+      },
+      {
+        "phase": "d15/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 65536,
+          "consumer-tile": 4,
+          "scalars": 76
+        },
+        "bytes": 5249472
+      },
+      {
+        "phase": "d15/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 65536,
+          "eq": 192,
+          "scalars": 76
+        },
+        "bytes": 5252480
+      },
+      {
+        "phase": "d16/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 131072,
+          "consumer-tile": 4,
+          "scalars": 80
+        },
+        "bytes": 6298112
+      },
+      {
+        "phase": "d16/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 131072,
+          "eq": 256,
+          "scalars": 80
+        },
+        "bytes": 6302144
+      },
+      {
+        "phase": "d17/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 262144,
+          "consumer-tile": 4,
+          "scalars": 84,
+          "source-dfs": 10
+        },
+        "bytes": 8395488
+      },
+      {
+        "phase": "d17/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 262144,
+          "eq": 384,
+          "scalars": 84
+        },
+        "bytes": 8401408
+      },
+      {
+        "phase": "d18/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 524288,
+          "consumer-tile": 4,
+          "scalars": 88,
+          "source-dfs": 8
+        },
+        "bytes": 12589824
+      },
+      {
+        "phase": "d18/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 524288,
+          "eq": 512,
+          "scalars": 88
+        },
+        "bytes": 12597824
+      },
+      {
+        "phase": "d19/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 1048576,
+          "consumer-tile": 4,
+          "scalars": 92,
+          "source-dfs": 6
+        },
+        "bytes": 20978464
+      },
+      {
+        "phase": "d19/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 1048576,
+          "eq": 768,
+          "scalars": 92
+        },
+        "bytes": 20990592
+      },
+      {
+        "phase": "d20/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 4,
+          "scalars": 96,
+          "source-dfs": 4
+        },
+        "bytes": 37755712
+      },
+      {
+        "phase": "d20/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 96
+        },
+        "bytes": 37771968
+      },
+      {
+        "phase": "d21/prefix0",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "consumer-tile": 8,
+          "eq": 1536,
+          "scalars": 100,
+          "source-dfs": 2
+        },
+        "bytes": 4225952
+      },
+      {
+        "phase": "d21/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 8,
+          "scalars": 100,
+          "source-dfs": 2
+        },
+        "bytes": 37755808
+      },
+      {
+        "phase": "d21/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 100
+        },
+        "bytes": 37772032
+      }
+    ]
+  },
+  {
+    "n": 2097152,
+    "f": 16,
+    "B": 32,
+    "mode": "batch",
+    "columns": 84,
+    "counts": {
+      "source_reads": 14680064,
+      "cache_key_reads": 0,
+      "build_muls": 42860541,
+      "build_adds": 14286847,
+      "restore_muls": 30670848,
+      "restore_subs": 5767168,
+      "inversions": 1310720
+    },
+    "peak_bytes": 37772032,
+    "peak_phase": "d21/resident",
+    "events": [
+      {
+        "phase": "frontier-build",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "dfs": 44
+        },
+        "bytes": 4200320
+      },
+      {
+        "phase": "d1/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 4,
+          "consumer-tile": 4,
+          "scalars": 20
+        },
+        "bytes": 4200064
+      },
+      {
+        "phase": "d1/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 4,
+          "eq": 0,
+          "scalars": 20
+        },
+        "bytes": 4200000
+      },
+      {
+        "phase": "d2/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 8,
+          "consumer-tile": 4,
+          "scalars": 24
+        },
+        "bytes": 4200192
+      },
+      {
+        "phase": "d2/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 8,
+          "eq": 2,
+          "scalars": 24
+        },
+        "bytes": 4200160
+      },
+      {
+        "phase": "d3/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 16,
+          "consumer-tile": 4,
+          "scalars": 28
+        },
+        "bytes": 4200384
+      },
+      {
+        "phase": "d3/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 16,
+          "eq": 3,
+          "scalars": 28
+        },
+        "bytes": 4200368
+      },
+      {
+        "phase": "d4/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 32,
+          "consumer-tile": 4,
+          "scalars": 32
+        },
+        "bytes": 4200704
+      },
+      {
+        "phase": "d4/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 32,
+          "eq": 4,
+          "scalars": 32
+        },
+        "bytes": 4200704
+      },
+      {
+        "phase": "d5/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 64,
+          "consumer-tile": 4,
+          "scalars": 36
+        },
+        "bytes": 4201280
+      },
+      {
+        "phase": "d5/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 64,
+          "eq": 6,
+          "scalars": 36
+        },
+        "bytes": 4201312
+      },
+      {
+        "phase": "d6/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 128,
+          "consumer-tile": 4,
+          "scalars": 40
+        },
+        "bytes": 4202368
+      },
+      {
+        "phase": "d6/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 128,
+          "eq": 8,
+          "scalars": 40
+        },
+        "bytes": 4202432
+      },
+      {
+        "phase": "d7/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 256,
+          "consumer-tile": 4,
+          "scalars": 44
+        },
+        "bytes": 4204480
+      },
+      {
+        "phase": "d7/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 256,
+          "eq": 12,
+          "scalars": 44
+        },
+        "bytes": 4204608
+      },
+      {
+        "phase": "d8/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 512,
+          "consumer-tile": 4,
+          "scalars": 48
+        },
+        "bytes": 4208640
+      },
+      {
+        "phase": "d8/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 512,
+          "eq": 16,
+          "scalars": 48
+        },
+        "bytes": 4208832
+      },
+      {
+        "phase": "d9/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 1024,
+          "consumer-tile": 4,
+          "scalars": 52
+        },
+        "bytes": 4216896
+      },
+      {
+        "phase": "d9/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 1024,
+          "eq": 24,
+          "scalars": 52
+        },
+        "bytes": 4217216
+      },
+      {
+        "phase": "d10/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 2048,
+          "consumer-tile": 4,
+          "scalars": 56
+        },
+        "bytes": 4233344
+      },
+      {
+        "phase": "d10/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 2048,
+          "eq": 32,
+          "scalars": 56
+        },
+        "bytes": 4233792
+      },
+      {
+        "phase": "d11/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 4096,
+          "consumer-tile": 4,
+          "scalars": 60
+        },
+        "bytes": 4266176
+      },
+      {
+        "phase": "d11/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 4096,
+          "eq": 48,
+          "scalars": 60
+        },
+        "bytes": 4266880
+      },
+      {
+        "phase": "d12/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 8192,
+          "consumer-tile": 4,
+          "scalars": 64
+        },
+        "bytes": 4331776
+      },
+      {
+        "phase": "d12/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 8192,
+          "eq": 64,
+          "scalars": 64
+        },
+        "bytes": 4332736
+      },
+      {
+        "phase": "d13/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 16384,
+          "consumer-tile": 4,
+          "scalars": 68
+        },
+        "bytes": 4462912
+      },
+      {
+        "phase": "d13/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 16384,
+          "eq": 96,
+          "scalars": 68
+        },
+        "bytes": 4464384
+      },
+      {
+        "phase": "d14/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 32768,
+          "consumer-tile": 4,
+          "scalars": 72
+        },
+        "bytes": 4725120
+      },
+      {
+        "phase": "d14/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 32768,
+          "eq": 128,
+          "scalars": 72
+        },
+        "bytes": 4727104
+      },
+      {
+        "phase": "d15/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 65536,
+          "consumer-tile": 4,
+          "scalars": 76
+        },
+        "bytes": 5249472
+      },
+      {
+        "phase": "d15/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 65536,
+          "eq": 192,
+          "scalars": 76
+        },
+        "bytes": 5252480
+      },
+      {
+        "phase": "d16/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 131072,
+          "consumer-tile": 4,
+          "scalars": 80
+        },
+        "bytes": 6298112
+      },
+      {
+        "phase": "d16/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 131072,
+          "eq": 256,
+          "scalars": 80
+        },
+        "bytes": 6302144
+      },
+      {
+        "phase": "d17/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 262144,
+          "consumer-tile": 4,
+          "scalars": 84,
+          "reversible-tile": 64,
+          "batch-prefix": 1
+        },
+        "bytes": 8396368
+      },
+      {
+        "phase": "d17/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 262144,
+          "eq": 384,
+          "scalars": 84
+        },
+        "bytes": 8401408
+      },
+      {
+        "phase": "d18/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 524288,
+          "consumer-tile": 4,
+          "scalars": 88,
+          "reversible-tile": 64,
+          "batch-prefix": 2
+        },
+        "bytes": 12590752
+      },
+      {
+        "phase": "d18/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 524288,
+          "eq": 512,
+          "scalars": 88
+        },
+        "bytes": 12597824
+      },
+      {
+        "phase": "d19/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 1048576,
+          "consumer-tile": 4,
+          "scalars": 92,
+          "reversible-tile": 64,
+          "batch-prefix": 4
+        },
+        "bytes": 20979456
+      },
+      {
+        "phase": "d19/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 1048576,
+          "eq": 768,
+          "scalars": 92
+        },
+        "bytes": 20990592
+      },
+      {
+        "phase": "d20/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 4,
+          "scalars": 96,
+          "reversible-tile": 64,
+          "batch-prefix": 8
+        },
+        "bytes": 37756800
+      },
+      {
+        "phase": "d20/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 96
+        },
+        "bytes": 37771968
+      },
+      {
+        "phase": "d21/prefix0",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "consumer-tile": 8,
+          "eq": 1536,
+          "scalars": 100,
+          "reversible-tile": 64,
+          "batch-prefix": 16
+        },
+        "bytes": 4227200
+      },
+      {
+        "phase": "d21/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 8,
+          "scalars": 100,
+          "reversible-tile": 64,
+          "batch-prefix": 16
+        },
+        "bytes": 37757056
+      },
+      {
+        "phase": "d21/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 100
+        },
+        "bytes": 37772032
+      }
+    ]
+  },
+  {
+    "n": 2097152,
+    "f": 16,
+    "B": 32,
+    "mode": "cached",
+    "columns": 84,
+    "counts": {
+      "source_reads": 14680064,
+      "cache_key_reads": 2097152,
+      "build_muls": 42860541,
+      "build_adds": 14286847,
+      "restore_muls": 24772608,
+      "restore_subs": 5767168,
+      "inversions": 1179648
+    },
+    "peak_bytes": 37772032,
+    "peak_phase": "d21/resident",
+    "events": [
+      {
+        "phase": "frontier-build",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "dfs": 44
+        },
+        "bytes": 4200320
+      },
+      {
+        "phase": "d1/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 4,
+          "consumer-tile": 4,
+          "scalars": 20
+        },
+        "bytes": 4200064
+      },
+      {
+        "phase": "d1/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 4,
+          "eq": 0,
+          "scalars": 20
+        },
+        "bytes": 4200000
+      },
+      {
+        "phase": "d2/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 8,
+          "consumer-tile": 4,
+          "scalars": 24
+        },
+        "bytes": 4200192
+      },
+      {
+        "phase": "d2/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 8,
+          "eq": 2,
+          "scalars": 24
+        },
+        "bytes": 4200160
+      },
+      {
+        "phase": "d3/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 16,
+          "consumer-tile": 4,
+          "scalars": 28
+        },
+        "bytes": 4200384
+      },
+      {
+        "phase": "d3/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 16,
+          "eq": 3,
+          "scalars": 28
+        },
+        "bytes": 4200368
+      },
+      {
+        "phase": "d4/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 32,
+          "consumer-tile": 4,
+          "scalars": 32
+        },
+        "bytes": 4200704
+      },
+      {
+        "phase": "d4/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 32,
+          "eq": 4,
+          "scalars": 32
+        },
+        "bytes": 4200704
+      },
+      {
+        "phase": "d5/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 64,
+          "consumer-tile": 4,
+          "scalars": 36
+        },
+        "bytes": 4201280
+      },
+      {
+        "phase": "d5/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 64,
+          "eq": 6,
+          "scalars": 36
+        },
+        "bytes": 4201312
+      },
+      {
+        "phase": "d6/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 128,
+          "consumer-tile": 4,
+          "scalars": 40
+        },
+        "bytes": 4202368
+      },
+      {
+        "phase": "d6/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 128,
+          "eq": 8,
+          "scalars": 40
+        },
+        "bytes": 4202432
+      },
+      {
+        "phase": "d7/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 256,
+          "consumer-tile": 4,
+          "scalars": 44
+        },
+        "bytes": 4204480
+      },
+      {
+        "phase": "d7/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 256,
+          "eq": 12,
+          "scalars": 44
+        },
+        "bytes": 4204608
+      },
+      {
+        "phase": "d8/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 512,
+          "consumer-tile": 4,
+          "scalars": 48
+        },
+        "bytes": 4208640
+      },
+      {
+        "phase": "d8/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 512,
+          "eq": 16,
+          "scalars": 48
+        },
+        "bytes": 4208832
+      },
+      {
+        "phase": "d9/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 1024,
+          "consumer-tile": 4,
+          "scalars": 52
+        },
+        "bytes": 4216896
+      },
+      {
+        "phase": "d9/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 1024,
+          "eq": 24,
+          "scalars": 52
+        },
+        "bytes": 4217216
+      },
+      {
+        "phase": "d10/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 2048,
+          "consumer-tile": 4,
+          "scalars": 56
+        },
+        "bytes": 4233344
+      },
+      {
+        "phase": "d10/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 2048,
+          "eq": 32,
+          "scalars": 56
+        },
+        "bytes": 4233792
+      },
+      {
+        "phase": "d11/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 4096,
+          "consumer-tile": 4,
+          "scalars": 60
+        },
+        "bytes": 4266176
+      },
+      {
+        "phase": "d11/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 4096,
+          "eq": 48,
+          "scalars": 60
+        },
+        "bytes": 4266880
+      },
+      {
+        "phase": "d12/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 8192,
+          "consumer-tile": 4,
+          "scalars": 64
+        },
+        "bytes": 4331776
+      },
+      {
+        "phase": "d12/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 8192,
+          "eq": 64,
+          "scalars": 64
+        },
+        "bytes": 4332736
+      },
+      {
+        "phase": "d13/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 16384,
+          "consumer-tile": 4,
+          "scalars": 68
+        },
+        "bytes": 4462912
+      },
+      {
+        "phase": "d13/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 16384,
+          "eq": 96,
+          "scalars": 68
+        },
+        "bytes": 4464384
+      },
+      {
+        "phase": "d14/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 32768,
+          "consumer-tile": 4,
+          "scalars": 72
+        },
+        "bytes": 4725120
+      },
+      {
+        "phase": "d14/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 32768,
+          "eq": 128,
+          "scalars": 72
+        },
+        "bytes": 4727104
+      },
+      {
+        "phase": "d15/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 65536,
+          "consumer-tile": 4,
+          "scalars": 76
+        },
+        "bytes": 5249472
+      },
+      {
+        "phase": "d15/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 65536,
+          "eq": 192,
+          "scalars": 76
+        },
+        "bytes": 5252480
+      },
+      {
+        "phase": "d16/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 131072,
+          "consumer-tile": 4,
+          "scalars": 80
+        },
+        "bytes": 6298112
+      },
+      {
+        "phase": "d16/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 131072,
+          "eq": 256,
+          "scalars": 80
+        },
+        "bytes": 6302144
+      },
+      {
+        "phase": "d17/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 262144,
+          "consumer-tile": 4,
+          "scalars": 84,
+          "reversible-tile": 64,
+          "batch-prefix": 1
+        },
+        "bytes": 8396368
+      },
+      {
+        "phase": "d17/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 262144,
+          "eq": 384,
+          "scalars": 84
+        },
+        "bytes": 8401408
+      },
+      {
+        "phase": "d18/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 524288,
+          "consumer-tile": 4,
+          "scalars": 88,
+          "reversible-tile": 64,
+          "batch-prefix": 2
+        },
+        "bytes": 12590752
+      },
+      {
+        "phase": "d18/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 524288,
+          "eq": 512,
+          "scalars": 88
+        },
+        "bytes": 12597824
+      },
+      {
+        "phase": "d19/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 1048576,
+          "consumer-tile": 4,
+          "scalars": 92,
+          "reversible-tile": 64,
+          "batch-prefix": 4
+        },
+        "bytes": 20979456
+      },
+      {
+        "phase": "d19/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 1048576,
+          "eq": 768,
+          "scalars": 92
+        },
+        "bytes": 20990592
+      },
+      {
+        "phase": "d20/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 4,
+          "scalars": 96,
+          "reversible-tile": 64,
+          "batch-prefix": 8
+        },
+        "bytes": 37756800
+      },
+      {
+        "phase": "d20/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 96
+        },
+        "bytes": 37771968
+      },
+      {
+        "phase": "d21/prefix0",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "consumer-tile": 8,
+          "eq": 1536,
+          "scalars": 100,
+          "reversible-tile": 64,
+          "batch-prefix": 8
+        },
+        "bytes": 4227072
+      },
+      {
+        "phase": "d21/materialize",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 2097152,
+          "consumer-tile": 8,
+          "scalars": 100,
+          "reversible-tile": 64,
+          "batch-prefix": 8
+        },
+        "bytes": 37756928
+      },
+      {
+        "phase": "d21/resident",
+        "alloc_E": {
+          "frontier+roots": 262476,
+          "resident-full-capacity": 2097152,
+          "eq": 1024,
+          "scalars": 100
+        },
+        "bytes": 37772032
+      }
+    ]
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "cpu": "model name\t: Intel(R) Core(TM) Ultra 9 185H",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "actual_gpu_used": false,
+  "estimated_experiment_memory_MiB": 64,
+  "hardware_scope": "CPU synthetic address arithmetic only; no GPU query/job"
+}

@@ -1,0 +1,208 @@
+[
+  {
+    "name": "compile0",
+    "argv": [
+      "/home/victor/.rustup/toolchains/1.90.0-x86_64-unknown-linux-gnu/bin/rustc",
+      "--edition=2021",
+      "-C",
+      "opt-level=0",
+      "-C",
+      "codegen-units=1",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/vec-allocation-scopes-20261019/probe.rs",
+      "-o",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/vec-allocation-scopes-20261019/probe-o0"
+    ],
+    "started_at": "2026-10-19T23:22:36.311047+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.5687606339924969,
+    "child_maxrss_kib": 136832,
+    "source_sha256": "0bf1aa8b6cc016ccf0467f2a14a988b323f2662af56f17ac071275df0a930f7d",
+    "stdout": "00-compile0.stdout.log",
+    "stderr": "00-compile0.stderr.log",
+    "limits": {
+      "single_cpu_affinity": true,
+      "nice": 19,
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "compiler_codegen_units": 1,
+      "compiler_helper_thread_count": "not observed; one CPU affinity"
+    }
+  },
+  {
+    "name": "compile3",
+    "argv": [
+      "/home/victor/.rustup/toolchains/1.90.0-x86_64-unknown-linux-gnu/bin/rustc",
+      "--edition=2021",
+      "-C",
+      "opt-level=3",
+      "-C",
+      "codegen-units=1",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/vec-allocation-scopes-20261019/probe.rs",
+      "-o",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/vec-allocation-scopes-20261019/probe-o3"
+    ],
+    "started_at": "2026-10-19T23:22:39.593856+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.7818989680090453,
+    "child_maxrss_kib": 138848,
+    "source_sha256": "0bf1aa8b6cc016ccf0467f2a14a988b323f2662af56f17ac071275df0a930f7d",
+    "stdout": "01-compile3.stdout.log",
+    "stderr": "01-compile3.stderr.log",
+    "limits": {
+      "single_cpu_affinity": true,
+      "nice": 19,
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "compiler_codegen_units": 1,
+      "compiler_helper_thread_count": "not observed; one CPU affinity"
+    }
+  },
+  {
+    "name": "probe0",
+    "argv": [
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/vec-allocation-scopes-20261019/probe-o0",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/vec-allocation-scopes-20261019/outputs-o0",
+      "2026101991"
+    ],
+    "started_at": "2026-10-19T23:22:40.466171+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.02670360400225036,
+    "child_maxrss_kib": 8744,
+    "source_sha256": "0bf1aa8b6cc016ccf0467f2a14a988b323f2662af56f17ac071275df0a930f7d",
+    "stdout": "02-probe0.stdout.log",
+    "stderr": "02-probe0.stderr.log",
+    "limits": {
+      "single_cpu_affinity": true,
+      "nice": 19,
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "compiler_codegen_units": 1,
+      "compiler_helper_thread_count": "not observed; one CPU affinity"
+    },
+    "binary_sha256": "126b50fae8e79c0f815e6bed7adca53a42398b98f4cbf0039a1421f2c832568b"
+  },
+  {
+    "name": "probe3",
+    "argv": [
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/vec-allocation-scopes-20261019/probe-o3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/vec-allocation-scopes-20261019/outputs-o3",
+      "2026101991"
+    ],
+    "started_at": "2026-10-19T23:22:40.602419+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.005583503007073887,
+    "child_maxrss_kib": 8556,
+    "source_sha256": "0bf1aa8b6cc016ccf0467f2a14a988b323f2662af56f17ac071275df0a930f7d",
+    "stdout": "03-probe3.stdout.log",
+    "stderr": "03-probe3.stderr.log",
+    "limits": {
+      "single_cpu_affinity": true,
+      "nice": 19,
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "compiler_codegen_units": 1,
+      "compiler_helper_thread_count": "not observed; one CPU affinity"
+    },
+    "binary_sha256": "c4cb829c0447eb84c64be152b311c7010f88fb3de507fee088cca6f4bd5af0e5"
+  },
+  {
+    "name": "audit.py",
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/vec-allocation-scopes-20261019/audit.py"
+    ],
+    "started_at": "2026-10-19T23:24:00.374113+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.8971385039913002,
+    "child_maxrss_kib": 18492,
+    "source_sha256": "62d0d9692a9363c23ac6dddecb38ce8194452c73b4e15b982f4ef72ac90b8e81",
+    "stdout": "04-audit.py.stdout.log",
+    "stderr": "04-audit.py.stderr.log",
+    "limits": {
+      "single_cpu_affinity": true,
+      "nice": 19,
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "compiler_codegen_units": 1,
+      "compiler_helper_thread_count": "not observed; one CPU affinity"
+    }
+  },
+  {
+    "name": "validate.py",
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/vec-allocation-scopes-20261019/validate.py"
+    ],
+    "started_at": "2026-10-19T23:29:05.225254+00:00",
+    "exit_code": 1,
+    "wall_seconds": 0.11437172000296414,
+    "child_maxrss_kib": 28820,
+    "source_sha256": "9be81abd67799cfab25aabd1285001aaf4672cb87008ce86b32d855035ff84b3",
+    "stdout": "05-validate.py.stdout.log",
+    "stderr": "05-validate.py.stderr.log",
+    "limits": {
+      "single_cpu_affinity": true,
+      "nice": 19,
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "compiler_codegen_units": 1,
+      "compiler_helper_thread_count": "not observed; one CPU affinity"
+    }
+  },
+  {
+    "name": "validate.py",
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/vec-allocation-scopes-20261019/validate.py"
+    ],
+    "started_at": "2026-10-19T23:29:44.461700+00:00",
+    "exit_code": 1,
+    "wall_seconds": 0.10041324299527332,
+    "child_maxrss_kib": 29964,
+    "source_sha256": "b8e8db31905b31d6d0190a2f45e22d771217fcdff97c6641ed1dcc3617f4fbc3",
+    "stdout": "06-validate.py.stdout.log",
+    "stderr": "06-validate.py.stderr.log",
+    "limits": {
+      "single_cpu_affinity": true,
+      "nice": 19,
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "compiler_codegen_units": 1,
+      "compiler_helper_thread_count": "not observed; one CPU affinity"
+    }
+  },
+  {
+    "name": "validate.py",
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/vec-allocation-scopes-20261019/validate.py"
+    ],
+    "started_at": "2026-10-19T23:29:54.608751+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.07788455899572,
+    "child_maxrss_kib": 21896,
+    "source_sha256": "bea699242b04025aada69675c6ae89eded76c2e85e7a06f9a9d009df8c35b58a",
+    "stdout": "07-validate.py.stdout.log",
+    "stderr": "07-validate.py.stderr.log",
+    "limits": {
+      "single_cpu_affinity": true,
+      "nice": 19,
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "compiler_codegen_units": 1,
+      "compiler_helper_thread_count": "not observed; one CPU affinity"
+    }
+  }
+]

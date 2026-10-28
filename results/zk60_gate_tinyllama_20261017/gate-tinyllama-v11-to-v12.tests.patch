@@ -1,0 +1,52 @@
+diff -ruN -x __pycache__ frozen_v11/tests/test_v4_status_g10.py frozen_v12/tests/test_v4_status_g10.py
+--- frozen_v11/tests/test_v4_status_g10.py	2026-10-19 12:34:33.047152479 -0700
++++ frozen_v12/tests/test_v4_status_g10.py	2026-10-19 17:46:20.019208928 -0700
+@@ -845,3 +845,48 @@
+         self.assertEqual(nc0["slot_checks_attempted"], 0)
+         self.assertIn(K.SHAPE_RS, T.PINNED_IF_PRESENT[TB.SHAPE_RS])
+ 
++
++class TokenRound10(unittest.TestCase):
++    """[v12, gate round 10] the NL-1 wrapper on the L1 token capture; the
++    surjection wrapper on the two token endpoints (small) with TS-1; the
++    calibration composition rule and the README parse"""
++
++    @unittest.skipUnless(os.path.isdir(TOKEN_L1), "the token capture is not on disk")
++    def test_nl1_s1_to_s5_on_the_new_slots(self):
++        import zk60_native_rg_tokennl as NLT
++        r = NLT.run(TOKEN_L1)
++        self.assertTrue(r["ok"], r["summary"])
++        self.assertEqual(r["summary"]["new_slots"], 15)
++        self.assertTrue(r["S5_controls"]["ok"])
++        for k, v in r["per_challenge_mode"].items():
++            self.assertTrue(v["fidelity_all"], k)
++
++    @unittest.skipUnless(os.path.isdir(TOKEN_L1), "the token capture is not on disk")
++    def test_surjection_on_the_token_endpoints(self):
++        import zk60_native_rg_tokents as TS
++        TT = TS.load_ts()
++        ents, _ = TS.load_token_roles(TT, TOKEN_L1, [0, 2])
++        eps = [e for e in ents if e["role"].name.startswith("E-token")]
++        self.assertEqual(len(eps), 2)
++        for e in eps:
++            r = TS.analyse(TT, e)
++            self.assertEqual(r["surjective_groups"], r["groups"])
++            self.assertEqual(r["total_disclosed_Fp"], 0)
++            TS.set_width(TT, e["log_cols"], e["inv_rate"])
++            role = e["role"]
++            c0 = role.groups[0][0]
++            rw0 = {i: v for i, v in role.rws[c0].items() if role.kind[i] == "data"}
++            pert = TT.analyse_group(role, 0, {"rws": {c0: rw0}}, also_original=True)
++            self.assertGreater(pert["disclosed_Fp"], 0)
++
++    @unittest.skipUnless(os.path.isdir(TOKEN_L1), "the token capture is not on disk")
++    def test_calibration_rule_and_readme(self):
++        import blake3
++        import zk60_native_rg_tokencal as TC
++        i, d = "11" * 32, "22" * 32
++        want = blake3.blake3(b"hashline/token-io-calibration/v1" + bytes.fromhex(i) + bytes.fromhex(d)).hexdigest()
++        self.assertEqual(TC.compose(i, d), want)
++        f = TC.readme_facts(TOKEN_L1)
++        self.assertEqual(f["layers"], [0])
++        self.assertTrue(f["export"].endswith("pg_rot1_b4_T32_cal128"))
++

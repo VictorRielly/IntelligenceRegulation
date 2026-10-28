@@ -1,0 +1,126 @@
+diff -ruN -x __pycache__ frozen_v10/tests/test_v4_status_g10.py frozen_v11/tests/test_v4_status_g10.py
+--- frozen_v10/tests/test_v4_status_g10.py	2026-10-19 12:10:55.496105342 -0700
++++ frozen_v11/tests/test_v4_status_g10.py	2026-10-19 12:34:33.047152479 -0700
+@@ -650,6 +650,94 @@
+         self.assertFalse(out["ok"])
+ 
+ 
++class TK7Pins(unittest.TestCase):
++    """[v11, gate round 8: the D33 re-pin] the tk7 readings.  Every digest
++    the tk7 module adds is the gate's tk7 copy's file; every one of the 52
++    pins a tk7 block bundle carries is either an R7 pin read in v8 at the
++    same digest, a token r7c reading, or the tk7 capture writer; a tk7 pin
++    set passes the run-layer, terminal and mask pin checks, and a moved tk7
++    pin is refused"""
++
++    TK7 = "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-tk7/hashline"
++    PINS = ("/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/"
++            "tk7/tk7-source-pins.v1.json")
++
++    def _sha(self, rel):
++        import hashlib
++        with open(os.path.join(self.TK7, rel), "rb") as fh:
++            return hashlib.sha256(fh.read()).hexdigest()
++
++    def _tk7_pins(self):
++        with open(self.PINS) as fh:
++            return {p["pin"]: p["sha256_gate_copy"] for p in json.load(fh)["pins"]}
++
++    @unittest.skipUnless(os.path.isdir(TK7) and os.path.isfile(PINS),
++                         "the gate's tk7 copy or its pin list is not on disk")
++    def test_every_tk7_digest_is_the_tk7_copys_file(self):
++        import zk60_native_rg_tinyllama_tk7_pins as K
++        import zk60_native_rg_tinyllama_r7_pins as R7
++        import zk60_native_rg_tinyllama_r5b_pins as R5B
++        import zk60_native_rg_tinyllama_r5_pins as R5
++        import zk60_native_rg_tokenio_r7c_pins as TP
++        for table in (K.RUN_LAYER_PINS, K.TERMINALS_PINNED_IF_PRESENT, K.MASK_LAYER_PINS):
++            for path, digests in table.items():
++                self.assertEqual(list(digests), [self._sha(path)], path)
++        for path, e in R5B.SHARED_NR4D_PINS.items():
++            self.assertEqual(e["sha256"], self._sha(path), path)
++        for path, e in R5.SHARED_G2_PINS.items():
++            self.assertEqual(e["sha256"], self._sha(path), path)
++        self.assertIn(self._sha("src/private_block/layout.rs"),
++                      R5.TERMINALS_ALSO_ACCEPTED["src/private_block/layout.rs"])
++        self.assertIn(self._sha("src/private_block/protocol.rs"),
++                      R7.TERMINALS_ALSO_ACCEPTED["src/private_block/protocol.rs"])
++        self.assertIn(self._sha("src/private_block/argument.rs"), R5.ARGUMENT_DEFINITIONS)
++        pins = self._tk7_pins()
++        self.assertEqual(len(pins), 52)
++        where = {}
++        for f, d in pins.items():
++            self.assertEqual(d, self._sha(f), f)
++            if TP.R7_PINS_READ_IN_V8.get(f) == d:
++                where[f] = "r7"
++            elif d in TP.TOKEN_R7C_READINGS.get(f, {}):
++                where[f] = "token"
++            elif f == "src/private_block/run_capture.rs" and d == K.RUN_CAPTURE_RS:
++                where[f] = "tk7"
++            else:
++                self.fail(f"{f} {d[:12]} has no reading")
++        self.assertEqual(sorted(where.values()).count("r7"), 40)
++        self.assertEqual(sorted(where.values()).count("token"), 11)
++        self.assertEqual(sorted(where.values()).count("tk7"), 1)
++
++    @unittest.skipUnless(os.path.isdir(TL1D) and os.path.isfile(PINS),
++                         "L = 1 bundle or the tk7 pin list not on disk")
++    def test_a_tk7_pin_set_is_accepted_and_a_moved_one_refused(self):
++        import types
++        import zk60_native_rg_runpins as RP
++        import zk60_native_rg_terminals as T
++        import zk60_native_rg_mask as M
++        with open(os.path.join(TL1D, "manifest.json")) as fh:
++            man = json.load(fh)
++        pins = self._tk7_pins()
++
++        def bundle(change=None):
++            mm = copy.deepcopy(man)
++            mm["source_pins"] = [{"file": f, "sha256": d} for f, d in pins.items()]
++            if change:
++                for p in mm["source_pins"]:
++                    if p["file"] == change:
++                        p["sha256"] = "1" * 64
++            return types.SimpleNamespace(manifest=mm, name="tk7-pin-set")
++        out = RP.check_run_layer_pins(bundle())
++        self.assertTrue(out["ok"], (out["pins_that_moved"], out["pins_missing_from_the_bundle"],
++                                    out.get("shared_files", {}).get("pins_that_moved")))
++        self.assertTrue(T.check_source_pins(bundle())["ok"])
++        self.assertTrue(M.check_mask_layer_pins(bundle())["ok"])
++        for f in ("src/private_block/run.rs", "src/private_block/run_capture.rs"):
++            self.assertFalse(RP.check_run_layer_pins(bundle(f))["ok"], f)
++        self.assertFalse(T.check_source_pins(bundle("src/private_block/shape.rs"))["ok"])
++        self.assertFalse(M.check_mask_layer_pins(bundle("src/private_block/shape.rs"))["ok"])
++
++
+ class TokenIoGeometry(unittest.TestCase):
+     """[gate round 7] the token stages' geometry, re-derived, equals the token
+     lane's own counted layouts (DESIGN §6.5) at R2 and R3"""
+@@ -733,3 +821,27 @@
+         self.assertGreater(j["identified_word_pairs"], 0)
+         c = TG.token_joint_controls(b, views)
+         self.assertTrue(c["ok"], c)
++
++class TokenBlocksV11(unittest.TestCase):
++    """[v11, gate round 8] the shape.rs reading is now in the terminals port
++    permanently: the block adapter adds nothing in memory, the block
++    terminals still pass on a token run, NC-0 still fires (it removes the
++    reading for its own call) and the reading is back afterwards"""
++
++    @unittest.skipUnless(os.path.isdir(TOKEN_L1), "the token capture is not on disk")
++    def test_block_terminals_and_nc0_with_the_permanent_reading(self):
++        import zk60_native_rg_tokengate as TG
++        import zk60_native_rg_tokenblocks as TB
++        import zk60_native_rg_terminals as T
++        import zk60_native_rg_tinyllama_tk7_pins as K
++        self.assertIn(K.SHAPE_RS, T.PINNED_IF_PRESENT[TB.SHAPE_RS])
++        b = TG.load(TOKEN_L1)
++        rp = TG.TokenRunReplay(b).run()
++        r = TB.token_block_terminals(b, rp, controls=True)
++        self.assertTrue(r["ok"], r["false_parts"])
++        self.assertEqual(r["status"], "PASS")
++        nc0 = r["controls"]["controls"]["NC-0_shape_rs_reading_not_added"]
++        self.assertTrue(nc0["ok"], nc0)
++        self.assertEqual(nc0["slot_checks_attempted"], 0)
++        self.assertIn(K.SHAPE_RS, T.PINNED_IF_PRESENT[TB.SHAPE_RS])
++

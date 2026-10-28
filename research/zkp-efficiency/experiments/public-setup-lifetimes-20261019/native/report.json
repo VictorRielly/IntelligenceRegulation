@@ -1,0 +1,321 @@
+{
+ "run": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/stack-llama3_8b_pg_rot1_b7voc0_T128-ho00-cpu",
+ "checks": {
+  "parity": "bit-exact at every layer",
+  "parity_bit_exact_every_layer": true,
+  "identity": "5585f5eed7a24a559ce76ddbd0413ddffd877637efb07d29bbd9408b4fc5a3b4",
+  "statement_published": true,
+  "statement_schema_2": true,
+  "statement_written_by_verifier": true,
+  "layers_with_own_sh_s": {
+   "1": 7
+  },
+  "run_sh_s": 6,
+  "layer_1_own_sh_s_7": true,
+  "layers_own_constants": {
+   "1": {
+    "sh_s": 7
+   }
+  },
+  "run_calibration": {
+   "norm_tn": 9,
+   "norm_cn_a": 2092,
+   "norm_cn_m": 1424,
+   "norm_ceps": 78617,
+   "sh_ao": 3,
+   "sh_qkv": 8,
+   "sh_s": 6,
+   "sh_o": 9,
+   "sh_g": 8,
+   "sh_h": 14,
+   "sh_z": 4,
+   "f_e": 9
+  },
+  "table_keys": {
+   "0": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "1": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -2,
+     -11
+    ]
+   },
+   "2": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -3,
+     -12
+    ]
+   },
+   "3": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "4": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "5": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "6": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -3,
+     -12
+    ]
+   },
+   "7": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "8": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "9": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "10": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "11": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -4,
+     -12
+    ]
+   },
+   "12": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -3,
+     -12
+    ]
+   },
+   "13": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -3,
+     -12
+    ]
+   },
+   "14": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -3,
+     -12
+    ]
+   },
+   "15": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "16": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "17": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "18": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "19": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "20": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "21": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "22": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "23": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "24": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "25": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "26": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "27": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -3,
+     -11
+    ]
+   },
+   "28": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -2,
+     -11
+    ]
+   },
+   "29": {
+    "exp_e_s": 3,
+    "silu_member": [
+     -2,
+     -11
+    ]
+   },
+   "30": {
+    "exp_e_s": 2,
+    "silu_member": [
+     -2,
+     -11
+    ]
+   },
+   "31": {
+    "exp_e_s": 4,
+    "silu_member": [
+     -1,
+     -10
+    ]
+   }
+  },
+  "unverified_dir_removed": true,
+  "verify": {
+   "verified": true,
+   "controls_refused": 11,
+   "published": true,
+   "checked": false,
+   "rejected": []
+  },
+  "recheck": {
+   "verified": true,
+   "controls_refused": 0,
+   "published": false,
+   "checked": true,
+   "rejected": []
+  }
+ },
+ "numbers": {
+  "prove": {
+   "blocks": 32,
+   "receipt_bytes": 922711264,
+   "prove_run_seconds": 393.785,
+   "of_which_witness_seconds": 98.348,
+   "sealing_pass_seconds": 84.824,
+   "load_seconds": 27.151,
+   "total_seconds": 478.737,
+   "vmhwm_mib": 6849,
+   "statement_identity": "5585f5eed7a24a559ce76ddbd0413ddffd877637efb07d29bbd9408b4fc5a3b4",
+   "guard_wall_s": 478.83545327186584,
+   "guard_peak_rss_gib": 6.69,
+   "guard_peak_cgroup_gib": 9.76
+  },
+  "verify": {
+   "blocks": 32,
+   "receipt_bytes": 922711264,
+   "load_seconds": 13.681,
+   "verify_seconds": 42.709,
+   "vmhwm_mib": 2128,
+   "guard_wall_s": 165.98196530342102,
+   "exit": "0"
+  },
+  "recheck": {
+   "blocks": 32,
+   "receipt_bytes": 922711264,
+   "load_seconds": 10.739,
+   "verify_seconds": 34.395,
+   "vmhwm_mib": 2100,
+   "guard_wall_s": 45.2034068107605,
+   "exit": "0"
+  }
+ },
+ "baseline": {
+  "run": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/stack-llama3_8b_pg_rot1_b7_T128-ho00-cpu",
+  "prove_run_seconds": 370.137,
+  "total_seconds": 471.58,
+  "receipt_bytes": 922711264,
+  "vmhwm_mib": 6599,
+  "guard_peak_rss_gib": 6.43,
+  "statement_identity": "97c4acda9da994c11790c2c8ec93b44beecb21501686b7e25965d2c18f970566",
+  "prove_ratio_run_over_base": 1.064,
+  "same_receipt_bytes": true
+ }
+}

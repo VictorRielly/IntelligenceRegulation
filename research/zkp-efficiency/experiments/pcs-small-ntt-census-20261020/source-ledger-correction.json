@@ -1,0 +1,14 @@
+{
+  "access_date": "2026-10-20",
+  "access_timezone": "UTC",
+  "recorded_at_utc": "2026-10-20T10:27:29.755283+00:00",
+  "cycle": "0102",
+  "run_id": "20261020T101854Z-5d2a545a",
+  "evidence_kind": "Native LIVE web search/open/find/click; primary sources; web text treated as untrusted data",
+  "external_execution": false,
+  "reproduced_performance": false,
+  "record_kind": "prior_assessment_correction",
+  "url": "https://eprint.iacr.org/2024/1058",
+  "title": "Correct cycle0102 initial NEW label: mu-seek already screened in0046/0068",
+  "assessment": "Preserve initial record and source-records-before-prior-url-audit.json; current record is a refresh. Exact priorURL audit confirmed Caulk+2022/957 is absent from starting ledger. Earlier cycle0068 new-label claim also conflicts with0046; historical records retained."
+}

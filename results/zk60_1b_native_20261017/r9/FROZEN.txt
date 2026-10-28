@@ -1,0 +1,10 @@
+R9 tree frozen for review at 2026-10-20T04:52:07Z
+tree sha256 af90c703ed7b2791d1771dd6e443edf4339bf5fa84a32e0d4a57ed38c3b0a41a
+manifest /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/manifest_frozen.json
+copy /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/
+CLIs r9/zk60_trained_block.release.bin and .gpu.release.bin (r9/binaries.sha256), built from this tree
+R9 = R8 + DD, the per-row division dictionary, built to register entry D30 (conditions 1-6) and CHECK.md B-1..B-8, profile-gated: three NEW profiles (TinyLlama T128 ...-t128-trained-ddict/1, Llama-3-8B T128 ...-llama-3-8b-t128-ddict32/1, dev rung ...-rung-dd-t32-dev/1), selected by --dd; every other profile byte-identical (seeded goldens, R8 receipts verify, no 24th slot).
+Restriction (refuses by name, changes no relation): a DD profile must have an unpadded dictionary - h_pad = q_heads, t_pad = T, cap a power of two, Dom::S and Dom::Dd at or above the row width (Shape::check_dd_geometry); B-3 is vacuous at the DD profiles.
+cap = 32. n_col = |{0} U exp outputs| per layer of every current export (r9/r9_ncol.json): TinyLlama worst 24 (8/14/24 at e_s 3/2/1); Llama-3-8B b6/b7/b7voc0 worst 19 (6/11/19); older Llama-3-8B pg_rot1_T32 (e_s 1) exactly 32 (passes; a 33-slot table is refused by name, tested).
+Key = the row Sum (D30 allows row id or Sum; CHECK.md S-4 option); TAG_DD = 141; dictionary slot SC_DD = 23 appended last (Standalone).
+NOT a soundness or privacy acceptance: D30 requires an independent soundness review, the rank lemma / NL-1 / gate passes on captures, before any DD receipt is called sound or private. R8 (r8/frozen-tree/, tree 7f64276a...) stays frozen.

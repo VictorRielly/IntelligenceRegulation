@@ -1,0 +1,20 @@
+{
+  "scope": "constructed public synthetic fixture: opposite chunk verdicts; no trained-model or native-proof claim",
+  "input_manifest_sha256": "bdc72f11c25598d3ad627e634268b66fdaf61a71fbb47cf613e544704bdb3419",
+  "tool_sha256": "ed61de619aaeeb098486eecf359934c3b7309384d1c5d7f17b8bde0a4d2d4fa3",
+  "table_dir": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/classifier_multi_tables",
+  "files": {
+    "classifier.json": "f7f260f0a534e21b32f30cbb439b15d6cb07b7f1d1b269129ff838a0f5a9cca7",
+    "embedding_int16.bin": "fbfc775b6a0cf6e6103b0676fd1286886d2ac860b155b433feafd636ccd9e380",
+    "margin_int16.bin": "678fc2530df876c200813a08814c933bcb35378d248da8e98232f86844a52eb8",
+    "token_io.json": "96032bb59b854d38fea3262bba9e865b740946b78465cd407d841fe415de7104"
+  },
+  "expected_chunk_verdict_bits": [
+    1,
+    0
+  ],
+  "integer_margins": [
+    16432,
+    -16335
+  ]
+}

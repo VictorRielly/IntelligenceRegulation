@@ -1,0 +1,28 @@
+{
+  "access_date": "2026-10-20",
+  "mode": "native LIVE web search/open/find",
+  "queries": [
+    "GPU NTT public preprocessing cache twiddles ICICLE domain release 2026 GitHub",
+    "zero knowledge GPU proving October 2026 sumcheck commitment amortization paper",
+    "site.github.com ingonyama-zk icicle releases v4 NTT domain",
+    "site:dev.ingonyama.com NTT domain \"coset\" \"device\"",
+    "GPU NTT on the fly twiddle generation memory bandwidth paper GitHub 2024",
+    "\"Chimera\" \"2026/1388\""
+  ],
+  "source_records": 9,
+  "exclusions": "Secondary aggregators,mirrors,uninspected search hits and inference-only rates were not used as evidence.",
+  "access_issues": [
+    {
+      "url": "https://dev.ingonyama.com/3.0.0/icicle/primitives/ntt",
+      "error": "Version4.0.0/primitives/ntt: URL not accessible via this tool"
+    },
+    {
+      "url": "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+      "error": "Pinned LICENSE fetch:Cache miss"
+    },
+    {
+      "url": "https://eprint.iacr.org/2024/1740",
+      "error": "PDF403Forbidden; no bypass"
+    }
+  ]
+}

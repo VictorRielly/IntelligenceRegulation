@@ -1,0 +1,30 @@
+[
+  {
+    "path": "STATE.md",
+    "sha256": "9c43c287a42897255860f668ee4db2c66f2b11941b16bb0f0ca3c4c5cf1280c2"
+  },
+  {
+    "path": "PROGRESS.md",
+    "sha256": "b20f80fe46cc6d0897f8633aa18ae4560bcf94bd1b7810d52fc8828f27c832f3"
+  },
+  {
+    "path": "FINDINGS.md",
+    "sha256": "258f26383a16b9e3e903f69aa4f5406f1e3355f0946e16ad9aa6e94562cc50ed"
+  },
+  {
+    "path": "sources.jsonl",
+    "sha256": "23f3412d820f7ba51fdffb42ef5f12063e2368d19a27fec2a74d86e892d1bc03"
+  },
+  {
+    "path": "progress/20261021T011854Z-d7ab1017.md",
+    "sha256": "99ac5e7811671d028df47748b72c481e80735c88130d1e681288e409426c9c84"
+  },
+  {
+    "path": "handoffs/20261021-fzc-tail-fold-pack.md",
+    "sha256": "2907d360da19b83c22c105ec9cbe82dd9f6db9218dfcfca88f56c46d15840353"
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/development-notes.md",
+    "sha256": "aafa136666bf08f986f7646fc183f075df04590bb11b8e79a04fba283ee1e160"
+  }
+]

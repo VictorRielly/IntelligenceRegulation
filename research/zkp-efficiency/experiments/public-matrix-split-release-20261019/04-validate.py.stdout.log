@@ -1,0 +1,1 @@
+{"changed_direction_documents": [], "checkpoint": "2026-10-19T21:34:46.947857+00:00", "checks": 319, "in_memory_patch_hunks": 2, "r8_manifest_matches": 14, "rss_kib": 20164, "scope": "Local provenance/semantic/synthetic/report gate; no Rust build, loader, proof, GPU or RSS benchmark", "source_pins": 18, "status": "PASS", "wall_seconds": 0.017409742999006994}

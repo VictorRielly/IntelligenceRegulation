@@ -126,15 +126,17 @@ fn band_down_run(sh: &Shape) -> Result<i64, String> {
 /// Wu, Wd]` from `seed`, in the recipe's fixed read order
 fn public_words(sh: &Shape, seed: u64) -> Result<[Vec<i8>; 9], String> {
     let (d, f, kvw) = (sh.width, sh.hidden, sh.kv_heads * sh.head_dim);
+    // NATIVE R12 (F2): `Wq` is (query, model), `Wo` (model, query)
+    let qw = sh.q_width();
     let down = band_down_run(sh)?;
     let mut r = SplitMix(seed);
     let mat = |r: &mut SplitMix, outer: usize, inner: usize, mag: i64| -> Vec<i8> { (0..outer * inner).map(|_| r.nonzero(mag) as i8).collect() };
     let gain = |r: &mut SplitMix, n: usize| -> Vec<i8> { (0..n).map(|_| r.pick(GAIN.0, GAIN.1) as i8).collect() };
     Ok([
-        mat(&mut r, d, d, BAND_ATTN),
+        mat(&mut r, qw, d, BAND_ATTN),
         mat(&mut r, kvw, d, BAND_ATTN),
         mat(&mut r, kvw, d, BAND_ATTN),
-        mat(&mut r, d, d, BAND_ATTN),
+        mat(&mut r, d, qw, BAND_ATTN),
         gain(&mut r, d),
         gain(&mut r, d),
         mat(&mut r, d, f, BAND_GATE),
@@ -169,16 +171,17 @@ fn pad_matrix(w: &[i8], to: usize, ti: usize, po: usize, pi: usize, omap: &dyn F
 fn block_of(sh: &Shape, seed: u64) -> Result<BlockPublic, String> {
     let w = public_words(sh, seed)?;
     let (d, f, dp, fp, kvw) = (sh.width, sh.hidden, sh.d_pad, sh.f_pad, sh.kv_heads * sh.head_dim);
+    let (qw, qp) = (sh.q_width(), sh.q_pad());
     let (cos, sin) = crate::tables_attn::rope_tables_generate(sh.tokens, sh.head_dim, 10000.0, F_RO);
     let (exp, _) = crate::tables_attn::exp_member(0, sh.head_dim, sh.f_e);
     let (act, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, -3, -11).ok_or("mvp driver: the frozen SiLU int16-out member is missing")?;
     let id = |i: usize| i;
     let q = |j: usize| q_axis_index(sh, j);
     let aw = [
-        pad_matrix(&w[0], d, d, dp, dp, &q, &id),
+        pad_matrix(&w[0], qw, d, qp, dp, &q, &id),
         pad_matrix(&w[1], kvw, d, kvw, dp, &id, &id),
         pad_matrix(&w[2], kvw, d, kvw, dp, &id, &id),
-        pad_matrix(&w[3], d, d, dp, dp, &id, &q),
+        pad_matrix(&w[3], d, qw, dp, qp, &id, &q),
         pad_matrix(&w[4], 1, d, 1, dp, &id, &id),
     ];
     let fw = [pad_matrix(&w[5], 1, d, 1, dp, &id, &id), pad_matrix(&w[6], d, f, dp, fp, &id, &id), pad_matrix(&w[7], d, f, dp, fp, &id, &id), pad_matrix(&w[8], f, d, fp, dp, &id, &id)];

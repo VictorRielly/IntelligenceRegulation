@@ -1,0 +1,20 @@
+{
+  "full_stack_proofs": 0,
+  "passes": 0,
+  "positions": 0,
+  "model_context": null,
+  "accelerator": null,
+  "device": "Intel Core Ultra 9 185H CPU,oneworker",
+  "witness_s": null,
+  "proof_s": null,
+  "serialization_s": null,
+  "verification_s": null,
+  "startup_s": null,
+  "startup_fraction": null,
+  "steady_rate": null,
+  "total_rate": null,
+  "prefill": false,
+  "resident_model_passes": false,
+  "decode": false,
+  "target_achieved": false
+}

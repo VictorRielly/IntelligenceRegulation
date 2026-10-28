@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "checks": 8629,
+  "Decimal_precision": 90,
+  "enumerated_public_entries": 20480,
+  "independent_arithmetic_positions": 3360,
+  "allocation_events": 4096,
+  "source_pins": 15,
+  "negative_controls": [
+    "rows_only_wire_T128",
+    "reused_AH_mask_rows_T128",
+    "ignored_M_encoded_rows_T128",
+    "rows_only_wire_T512",
+    "reused_AH_mask_rows_T512",
+    "ignored_M_encoded_rows_T512",
+    "capacity_not_mean",
+    "uniform_no_improvement_T128",
+    "uniform_no_improvement_T512"
+  ],
+  "elapsed_s": 0.01940615600324236,
+  "maxrss_KiB": 18024,
+  "scope": "Independent count/wire/synthetic allocation audit; no native proof/privacy validation"
+}

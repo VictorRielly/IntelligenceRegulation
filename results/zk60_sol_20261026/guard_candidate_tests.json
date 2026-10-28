@@ -1,0 +1,16 @@
+[
+  {
+    "suite": "new_tests",
+    "started_utc": "2026-10-26T17:43:44.646917+00:00",
+    "exit": 0,
+    "log": "results/zk60_sol_20261026/guard_candidate_new_tests.log",
+    "log_sha256": "79d9116a91d5460f1fe6dd3c546d7bdbe5dd378105151d4339baa52a378b6f1d"
+  },
+  {
+    "suite": "existing_on_candidate",
+    "started_utc": "2026-10-26T17:45:37.558977+00:00",
+    "exit": 0,
+    "log": "results/zk60_sol_20261026/guard_candidate_existing_on_candidate.log",
+    "log_sha256": "36cea0d90ebf72d66f21ee32ad218f6c8544221b7387d32e2442a9cb92833be5"
+  }
+]

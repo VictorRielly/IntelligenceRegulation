@@ -1,0 +1,51 @@
+{
+  "status": "PASS",
+  "seed": 2026101982,
+  "median_ns_per_row": {
+    "scalar": 3713.4014892578125,
+    "unique": 4542.7764892578125,
+    "shared": 4657.71484375
+  },
+  "paired_speedups": [
+    0.8175736788835569,
+    0.8004343746758703,
+    0.8348167396648172,
+    1.0913599808993308,
+    1.212878105671454,
+    0.9080371083685715,
+    1.2952629916472684,
+    0.987754029011893,
+    0.9893318669522132
+  ],
+  "median_ratio": 0.9753230160394172,
+  "compiler_argv": [
+    "rustc",
+    "--edition=2021",
+    "-C",
+    "codegen-units=1",
+    "-C",
+    "opt-level=1",
+    "-L",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-shared-templates-20261019",
+    "-l",
+    "dylib=kernels",
+    "-C",
+    "link-arg=-Wl,-rpath,/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-shared-templates-20261019",
+    "bench.rs",
+    "-o",
+    "bench"
+  ],
+  "compile_seconds": 0.26510482899902854,
+  "child_wall_seconds": 1.074709423002787,
+  "wall_seconds": 1.3405324769992149,
+  "rss_kib": 12040,
+  "child_peak_rss_kib": 123140,
+  "cpu_affinity": [
+    0
+  ],
+  "threads": 1,
+  "finished_utc": "2026-10-19T14:24:22.854280+00:00",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "scope": "Shared-host cache-resident 32 synthetic rows and one arbitrary synthetic parameter pack;8192 rows/sample;9 balanced rotating triplets,256 warmup rows/arm. Exact outputs and checksums agree. Baseline scalar noinline adapters;unique groups and shared templates inline native field. No full-D sampler,fold/reduction,model,witness,masks,PCS,serialization,verification,GPU or target rate. Not quiesced/p95.",
+  "limits": "59s CPU/wall,512MiB address space,one nice19 CPU;no Cargo/dependencies/GPU"
+}

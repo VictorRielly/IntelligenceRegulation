@@ -1,0 +1,20 @@
+{
+ "schema": "zk60-trained-block-run/2",
+ "scope": "ONE trained block under DD, the per-row division dictionary (D30; TinyLlama-1.1B or Llama-3-8B at T128, or the synthetic DD rung): the integer model the calibration export names; NOT a model pass; NOT a soundness or privacy acceptance (D30 requires an independent soundness review and the gate first); float fidelity is the calibration lane's measurement",
+ "prover_reported": {"backend": "gpu: off (built without --features gpu-cuda)", "gpu_declines": 0, "what": "self-reports of the prover (privacy review P-7): a CPU proof and a GPU proof have the same form, so no verifier can check these fields"},
+ "block_profile": "hashline-zk-mr1/private-block-rung-dd-t32-dev/1",
+ "run_profile": "hashline-zk-mr1/private-run-rung-dd-t32-dev/1",
+ "export_variant": "dd-good",
+ "export_profile_sha256": "6b9f528eeb1040629831be46c5ea7de3c559c70313cef1a5acd99dad68c1cfbc",
+ "calibration_tool_sha256": "b2788d99b39931f9e3c2e77e3e523d83db072eaf1ad494ccae5218f7a38f89ec",
+ "layer": 1,
+ "layer_manifest_sha256": "5b54a94181bc65dc5fdc034650d556f7b25d089175b8857dcd2cfd76143998e5",
+ "block_digest": "fcb2c92ac39b03cac6d08f83f5711c18cc1903ec9db50bc20fa62ce39b58f0aa",
+ "trained_statement_identity": "10e736bd6c82ae0e88562e82fdbe75b873c543c73f46dd70b5d5bb7580860aae",
+ "context_label": "zk60-trained-block",
+ "context": "ee232c9fb8accbfc6c2213e06c30ff8e6b526f2cb57547dc9cd57bb62894fc94",
+ "expected_io": "48424c4b45585031ee232c9fb8accbfc6c2213e06c30ff8e6b526f2cb57547dc9cd57bb62894fc94000000000000000000bc5e08016e056d55f69807b2ca2005a5247fab523ec96793eac156a3c943604d59f44053367007226b2afe96f57c4a4e660616d294050d9c15193b8b9876d9",
+ "rope_tables": "native generator at theta 10000 (the export carries no RoPE tables)",
+ "constants_source": "profile.json (uniform across the export's layers)",
+ "shape": {"tokens": 32, "width": 256, "hidden": 512, "q_heads": 8, "kv_heads": 2, "head_dim": 32, "log_cols": 10, "inv_rate": 4, "opened_cols": 256, "f_e": 12, "wrho_s": 17, "norm_wrho": 31, "norm_tn": 10, "norm_cn_a": 1336, "norm_cn_m": 2158, "norm_ceps": 33554467, "sh_ao": 6, "d_max": 524319}
+}

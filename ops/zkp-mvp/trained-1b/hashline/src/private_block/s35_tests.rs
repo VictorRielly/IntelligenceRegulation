@@ -365,7 +365,7 @@ fn walk_defs(sh: &Shape, mut f: impl FnMut(usize, &SlotDef)) {
     let lay = Layout::for_shape(sh).unwrap_or_else(|e| panic!("{}: layout: {e}", sh.name));
     let (public, ff, _) = super::grow_tests::tame_case(sh);
     let (alpha, beta, g_u8, g_exp, g_act) = ctx_scalars();
-    let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act };
+    let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act, g_dd: Fp2::ZERO };
     let mut tr = Transcript::new(sh.profile.as_bytes());
     let mut pts = Points::default();
     for s in 0..N_SLOTS {
@@ -381,7 +381,7 @@ fn walk_pairs(sh: &Shape, mut f: impl FnMut(usize, &SlotDef, &SlotIr)) {
     let lay = Layout::for_shape(sh).unwrap_or_else(|e| panic!("{}: layout: {e}", sh.name));
     let (public, ff, _) = super::grow_tests::tame_case(sh);
     let (alpha, beta, g_u8, g_exp, g_act) = ctx_scalars();
-    let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act };
+    let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act, g_dd: Fp2::ZERO };
     let mut tr_def = Transcript::new(sh.profile.as_bytes());
     let mut tr_ir = Transcript::new(sh.profile.as_bytes());
     let (mut pts, mut ipts) = (Points::default(), IrPoints::default());

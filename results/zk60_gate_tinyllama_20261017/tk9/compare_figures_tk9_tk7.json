@@ -1,0 +1,1603 @@
+{
+ "what": "[gate round 10, the frozen-r9 re-pin] The DETERMINISTIC figures of two gate",
+ "privacy_acceptance": false,
+ "every_pair_equal": true,
+ "pairs": [
+  {
+   "new": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l1/tk9-l1-dense-a.json",
+   "old": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk7/l1/tk7-l1-dense-a.json",
+   "figures_new": {
+    "replay_challenges": 4511,
+    "replay_positions": 127,
+    "run_binding_reproduced": true,
+    "hash_columns_checked": 1280,
+    "hash_columns_authenticated": 1280,
+    "hash_bytes": 7411712,
+    "commitments": [
+     [
+      "A@0",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@0",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "E-Input",
+      0,
+      21,
+      1,
+      1
+     ],
+     [
+      "E-Output",
+      0,
+      21,
+      1,
+      1
+     ]
+    ],
+    "terminal_slot_checks": [
+     23,
+     23
+    ],
+    "channels": {
+     "argued": 5,
+     "constructed": 2,
+     "derived": 5,
+     "open": 16
+    },
+    "mask_entries_recomputed": null,
+    "mask_entries_differing": null,
+    "full_preimage_differing": null,
+    "joint_couplings_respected": null,
+    "whole_run_joint_fp": 2,
+    "whole_run_joint_equals_sum_of_parts": true,
+    "E3_identity_equal": null,
+    "E3_statement_sha256": "5b7acd4da2736aec3b5fff349a27eeeccacb1aa1271d9a9d0f62c35c31d13bfd",
+    "export_ok": true
+   },
+   "differing": {},
+   "equal": true
+  },
+  {
+   "new": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l1/tk9-l1-zero-a.json",
+   "old": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk7/l1/tk7-l1-zero-a.json",
+   "figures_new": {
+    "replay_challenges": 4511,
+    "replay_positions": 127,
+    "run_binding_reproduced": true,
+    "hash_columns_checked": 1280,
+    "hash_columns_authenticated": 1280,
+    "hash_bytes": 7411712,
+    "commitments": [
+     [
+      "A@0",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@0",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "E-Input",
+      0,
+      21,
+      1,
+      1
+     ],
+     [
+      "E-Output",
+      0,
+      21,
+      1,
+      1
+     ]
+    ],
+    "terminal_slot_checks": [
+     23,
+     23
+    ],
+    "channels": {
+     "argued": 5,
+     "constructed": 2,
+     "derived": 5,
+     "open": 16
+    },
+    "mask_entries_recomputed": null,
+    "mask_entries_differing": null,
+    "full_preimage_differing": null,
+    "joint_couplings_respected": null,
+    "whole_run_joint_fp": 2,
+    "whole_run_joint_equals_sum_of_parts": true,
+    "E3_identity_equal": null,
+    "E3_statement_sha256": "5b7acd4da2736aec3b5fff349a27eeeccacb1aa1271d9a9d0f62c35c31d13bfd",
+    "export_ok": true
+   },
+   "differing": {},
+   "equal": true
+  },
+  {
+   "new": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l1/tk9-l1-dense-everything.json",
+   "old": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk7/l1/tk7-l1-dense-everything.json",
+   "figures_new": {
+    "replay_challenges": 4511,
+    "replay_positions": 127,
+    "run_binding_reproduced": true,
+    "hash_columns_checked": 1280,
+    "hash_columns_authenticated": 1280,
+    "hash_bytes": 7411712,
+    "commitments": [
+     [
+      "A@0",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@0",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "E-Input",
+      0,
+      21,
+      1,
+      1
+     ],
+     [
+      "E-Output",
+      0,
+      21,
+      1,
+      1
+     ]
+    ],
+    "terminal_slot_checks": [
+     23,
+     23
+    ],
+    "channels": {
+     "argued": 5,
+     "constructed": 10,
+     "derived": 5,
+     "open": 8
+    },
+    "mask_entries_recomputed": 16155,
+    "mask_entries_differing": 0,
+    "full_preimage_differing": 0,
+    "joint_couplings_respected": true,
+    "whole_run_joint_fp": 2,
+    "whole_run_joint_equals_sum_of_parts": true,
+    "E3_identity_equal": null,
+    "E3_statement_sha256": "5b7acd4da2736aec3b5fff349a27eeeccacb1aa1271d9a9d0f62c35c31d13bfd",
+    "export_ok": true
+   },
+   "differing": {},
+   "equal": true
+  },
+  {
+   "new": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l1/tk9-l1-zero-everything.json",
+   "old": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk7/l1/tk7-l1-zero-everything.json",
+   "figures_new": {
+    "replay_challenges": 4511,
+    "replay_positions": 127,
+    "run_binding_reproduced": true,
+    "hash_columns_checked": 1280,
+    "hash_columns_authenticated": 1280,
+    "hash_bytes": 7411712,
+    "commitments": [
+     [
+      "A@0",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@0",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "E-Input",
+      0,
+      21,
+      1,
+      1
+     ],
+     [
+      "E-Output",
+      0,
+      21,
+      1,
+      1
+     ]
+    ],
+    "terminal_slot_checks": [
+     23,
+     23
+    ],
+    "channels": {
+     "argued": 5,
+     "constructed": 10,
+     "derived": 5,
+     "open": 8
+    },
+    "mask_entries_recomputed": 16155,
+    "mask_entries_differing": 0,
+    "full_preimage_differing": 0,
+    "joint_couplings_respected": true,
+    "whole_run_joint_fp": 2,
+    "whole_run_joint_equals_sum_of_parts": true,
+    "E3_identity_equal": null,
+    "E3_statement_sha256": "5b7acd4da2736aec3b5fff349a27eeeccacb1aa1271d9a9d0f62c35c31d13bfd",
+    "export_ok": true
+   },
+   "differing": {},
+   "equal": true
+  },
+  {
+   "new": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l2/tk9-l2-dense-a.json",
+   "old": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk7/l2/tk7-l2-dense-a.json",
+   "figures_new": {
+    "replay_challenges": 9002,
+    "replay_positions": 251,
+    "run_binding_reproduced": true,
+    "hash_columns_checked": 2304,
+    "hash_columns_authenticated": 2304,
+    "hash_bytes": 14782464,
+    "commitments": [
+     [
+      "A@0",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@0",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "E-Input",
+      0,
+      21,
+      1,
+      1
+     ],
+     [
+      "A@1",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@1",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B0",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "E-Output",
+      0,
+      21,
+      1,
+      1
+     ]
+    ],
+    "terminal_slot_checks": [
+     46,
+     46
+    ],
+    "channels": {
+     "argued": 5,
+     "constructed": 2,
+     "derived": 5,
+     "open": 16
+    },
+    "mask_entries_recomputed": null,
+    "mask_entries_differing": null,
+    "full_preimage_differing": null,
+    "joint_couplings_respected": null,
+    "whole_run_joint_fp": 4,
+    "whole_run_joint_equals_sum_of_parts": true,
+    "E3_identity_equal": null,
+    "E3_statement_sha256": "5b7acd4da2736aec3b5fff349a27eeeccacb1aa1271d9a9d0f62c35c31d13bfd",
+    "export_ok": true
+   },
+   "differing": {},
+   "equal": true
+  },
+  {
+   "new": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l2/tk9-l2-zero-a.json",
+   "old": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk7/l2/tk7-l2-zero-a.json",
+   "figures_new": {
+    "replay_challenges": 9002,
+    "replay_positions": 251,
+    "run_binding_reproduced": true,
+    "hash_columns_checked": 2304,
+    "hash_columns_authenticated": 2304,
+    "hash_bytes": 14782464,
+    "commitments": [
+     [
+      "A@0",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@0",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "E-Input",
+      0,
+      21,
+      1,
+      1
+     ],
+     [
+      "A@1",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@1",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B0",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "E-Output",
+      0,
+      21,
+      1,
+      1
+     ]
+    ],
+    "terminal_slot_checks": [
+     46,
+     46
+    ],
+    "channels": {
+     "argued": 5,
+     "constructed": 2,
+     "derived": 5,
+     "open": 16
+    },
+    "mask_entries_recomputed": null,
+    "mask_entries_differing": null,
+    "full_preimage_differing": null,
+    "joint_couplings_respected": null,
+    "whole_run_joint_fp": 4,
+    "whole_run_joint_equals_sum_of_parts": true,
+    "E3_identity_equal": null,
+    "E3_statement_sha256": "5b7acd4da2736aec3b5fff349a27eeeccacb1aa1271d9a9d0f62c35c31d13bfd",
+    "export_ok": true
+   },
+   "differing": {},
+   "equal": true
+  },
+  {
+   "new": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l2/tk9-l2-dense-everything.json",
+   "old": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk7/l2/tk7-l2-dense-everything.json",
+   "figures_new": {
+    "replay_challenges": 9002,
+    "replay_positions": 251,
+    "run_binding_reproduced": true,
+    "hash_columns_checked": 2304,
+    "hash_columns_authenticated": 2304,
+    "hash_bytes": 14782464,
+    "commitments": [
+     [
+      "A@0",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@0",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "E-Input",
+      0,
+      21,
+      1,
+      1
+     ],
+     [
+      "A@1",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@1",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B0",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "E-Output",
+      0,
+      21,
+      1,
+      1
+     ]
+    ],
+    "terminal_slot_checks": [
+     46,
+     46
+    ],
+    "channels": {
+     "argued": 5,
+     "constructed": 10,
+     "derived": 5,
+     "open": 8
+    },
+    "mask_entries_recomputed": 32310,
+    "mask_entries_differing": 0,
+    "full_preimage_differing": 0,
+    "joint_couplings_respected": true,
+    "whole_run_joint_fp": 4,
+    "whole_run_joint_equals_sum_of_parts": true,
+    "E3_identity_equal": null,
+    "E3_statement_sha256": "5b7acd4da2736aec3b5fff349a27eeeccacb1aa1271d9a9d0f62c35c31d13bfd",
+    "export_ok": true
+   },
+   "differing": {},
+   "equal": true
+  },
+  {
+   "new": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l2/tk9-l2-zero-everything.json",
+   "old": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk7/l2/tk7-l2-zero-everything.json",
+   "figures_new": {
+    "replay_challenges": 9002,
+    "replay_positions": 251,
+    "run_binding_reproduced": true,
+    "hash_columns_checked": 2304,
+    "hash_columns_authenticated": 2304,
+    "hash_bytes": 14782464,
+    "commitments": [
+     [
+      "A@0",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@0",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "E-Input",
+      0,
+      21,
+      1,
+      1
+     ],
+     [
+      "A@1",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@1",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B0",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "E-Output",
+      0,
+      21,
+      1,
+      1
+     ]
+    ],
+    "terminal_slot_checks": [
+     46,
+     46
+    ],
+    "channels": {
+     "argued": 5,
+     "constructed": 10,
+     "derived": 5,
+     "open": 8
+    },
+    "mask_entries_recomputed": 32310,
+    "mask_entries_differing": 0,
+    "full_preimage_differing": 0,
+    "joint_couplings_respected": true,
+    "whole_run_joint_fp": 4,
+    "whole_run_joint_equals_sum_of_parts": true,
+    "E3_identity_equal": null,
+    "E3_statement_sha256": "5b7acd4da2736aec3b5fff349a27eeeccacb1aa1271d9a9d0f62c35c31d13bfd",
+    "export_ok": true
+   },
+   "differing": {},
+   "equal": true
+  },
+  {
+   "new": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l22/tk9-l22-dense-a.json",
+   "old": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk7/l22/tk7-l22-dense-a.json",
+   "figures_new": {
+    "replay_challenges": 98822,
+    "replay_positions": 2731,
+    "run_binding_reproduced": true,
+    "hash_columns_checked": 22784,
+    "hash_columns_authenticated": 22784,
+    "hash_bytes": 162197504,
+    "commitments": [
+     [
+      "A@0",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@0",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "E-Input",
+      0,
+      21,
+      1,
+      1
+     ],
+     [
+      "A@1",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@1",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B0",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@2",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@2",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B1",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@3",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@3",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B2",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@4",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@4",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B3",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@5",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@5",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B4",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@6",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@6",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B5",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@7",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@7",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B6",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@8",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@8",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B7",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@9",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@9",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B8",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@10",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@10",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B9",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@11",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@11",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B10",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@12",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@12",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B11",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@13",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@13",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B12",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@14",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@14",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B13",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@15",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@15",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B14",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@16",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@16",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B15",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@17",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@17",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B16",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@18",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@18",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B17",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@19",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@19",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B18",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@20",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@20",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B19",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@21",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@21",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B20",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "E-Output",
+      0,
+      21,
+      1,
+      1
+     ]
+    ],
+    "terminal_slot_checks": [
+     506,
+     506
+    ],
+    "channels": {
+     "argued": 5,
+     "constructed": 2,
+     "derived": 5,
+     "open": 16
+    },
+    "mask_entries_recomputed": null,
+    "mask_entries_differing": null,
+    "full_preimage_differing": null,
+    "joint_couplings_respected": null,
+    "whole_run_joint_fp": 44,
+    "whole_run_joint_equals_sum_of_parts": true,
+    "E3_identity_equal": true,
+    "E3_statement_sha256": "5b7acd4da2736aec3b5fff349a27eeeccacb1aa1271d9a9d0f62c35c31d13bfd",
+    "export_ok": true
+   },
+   "differing": {},
+   "equal": true
+  },
+  {
+   "new": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l22/tk9-l22-zero-a.json",
+   "old": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk7/l22/tk7-l22-zero-a.json",
+   "figures_new": {
+    "replay_challenges": 98822,
+    "replay_positions": 2731,
+    "run_binding_reproduced": true,
+    "hash_columns_checked": 22784,
+    "hash_columns_authenticated": 22784,
+    "hash_bytes": 162197504,
+    "commitments": [
+     [
+      "A@0",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@0",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "E-Input",
+      0,
+      21,
+      1,
+      1
+     ],
+     [
+      "A@1",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@1",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B0",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@2",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@2",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B1",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@3",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@3",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B2",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@4",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@4",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B3",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@5",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@5",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B4",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@6",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@6",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B5",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@7",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@7",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B6",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@8",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@8",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B7",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@9",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@9",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B8",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@10",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@10",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B9",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@11",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@11",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B10",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@12",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@12",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B11",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@13",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@13",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B12",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@14",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@14",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B13",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@15",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@15",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B14",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@16",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@16",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B15",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@17",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@17",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B16",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@18",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@18",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B17",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@19",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@19",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B18",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@20",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@20",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B19",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "A@21",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@21",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B20",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "E-Output",
+      0,
+      21,
+      1,
+      1
+     ]
+    ],
+    "terminal_slot_checks": [
+     506,
+     506
+    ],
+    "channels": {
+     "argued": 5,
+     "constructed": 2,
+     "derived": 5,
+     "open": 16
+    },
+    "mask_entries_recomputed": null,
+    "mask_entries_differing": null,
+    "full_preimage_differing": null,
+    "joint_couplings_respected": null,
+    "whole_run_joint_fp": 44,
+    "whole_run_joint_equals_sum_of_parts": true,
+    "E3_identity_equal": true,
+    "E3_statement_sha256": "5b7acd4da2736aec3b5fff349a27eeeccacb1aa1271d9a9d0f62c35c31d13bfd",
+    "export_ok": true
+   },
+   "differing": {},
+   "equal": true
+  }
+ ]
+}

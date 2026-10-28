@@ -1,0 +1,43 @@
+{
+  "status": "PASS",
+  "checks": 1389,
+  "observed_regions": 80,
+  "fixtures": 8,
+  "compiler_optimization_levels": [
+    0,
+    3
+  ],
+  "byte_vector_comparisons": 720,
+  "output_corruption_controls": 720,
+  "allocation_event_controls": 240,
+  "masquerade_controls": 32,
+  "seed": 2026101991,
+  "wall_seconds": 0.8565442580002127,
+  "rss_kib": 18316,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "nice": 19,
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "new_full_stack_proofs": 0,
+  "new_passes": 0,
+  "new_proved_positions": 0,
+  "device": null,
+  "proof_context": null,
+  "steady_rate": null,
+  "total_rate": null,
+  "startup_fraction": null,
+  "witness_seconds": null,
+  "proof_seconds": null,
+  "serialization_seconds": null,
+  "verification_seconds": null,
+  "scope": "Observed requested allocations for scalar synthetic Rust analogue only. No allocator usable bytes, RSS savings, Rayon, native loader or complete proof measured."
+}
+8B-ratio reduced proxy,not target-size arrays:
+{"opt": 3, "case": 7, "mode": 0, "peak_requested_bytes": 419200, "peak_decode_bytes": 172160, "allocation_count": 36, "allocated_bytes": 482848, "live_at_return_bytes": 237824, "decode_visits": [16384, 20480, 24576, 40960, 41088, 128, 57472, 114816, 172160], "counts_by_class": {"1": 9, "2": 9, "3": 9, "4": 9}, "formula_peak": 419200, "raw9_bytes": 213248, "padded9_bytes": 237824, "output_sha256": "70b220d0695d3b1eeaadca3467a7291d0178f1273ce21ad48a0c8c383daa0c5e"}
+{"opt": 3, "case": 7, "mode": 1, "peak_requested_bytes": 304384, "peak_decode_bytes": 57344, "allocation_count": 36, "allocated_bytes": 482848, "live_at_return_bytes": 237824, "decode_visits": [16384, 4096, 4096, 16384, 128, 128, 57344, 57344, 57344], "counts_by_class": {"1": 9, "2": 9, "3": 9, "4": 9}, "formula_peak": 304384, "raw9_bytes": 213248, "padded9_bytes": 237824, "output_sha256": "70b220d0695d3b1eeaadca3467a7291d0178f1273ce21ad48a0c8c383daa0c5e"}
+{"opt": 3, "case": 7, "mode": 2, "peak_requested_bytes": 460288, "peak_decode_bytes": 213248, "allocation_count": 36, "allocated_bytes": 482848, "live_at_return_bytes": 237824, "decode_visits": [41088, 41088, 41088, 41088, 41088, 213248, 213248, 213248, 213248], "counts_by_class": {"1": 9, "2": 9, "3": 9, "4": 9}, "formula_peak": 460288, "raw9_bytes": 213248, "padded9_bytes": 237824, "output_sha256": "70b220d0695d3b1eeaadca3467a7291d0178f1273ce21ad48a0c8c383daa0c5e"}
+{"opt": 3, "case": 7, "mode": 3, "peak_requested_bytes": 247040, "peak_decode_bytes": 0, "allocation_count": 27, "allocated_bytes": 269600, "live_at_return_bytes": 237824, "decode_visits": [0, 0, 0, 0, 0, 0, 0, 0, 0], "counts_by_class": {"2": 9, "3": 9, "4": 9}, "formula_peak": 247040, "raw9_bytes": 213248, "padded9_bytes": 237824, "output_sha256": "70b220d0695d3b1eeaadca3467a7291d0178f1273ce21ad48a0c8c383daa0c5e"}
+{"opt": 3, "case": 7, "mode": 4, "peak_requested_bytes": 475648, "peak_decode_bytes": 57344, "allocation_count": 45, "allocated_bytes": 720672, "live_at_return_bytes": 237824, "decode_visits": [16384, 4096, 4096, 16384, 128, 128, 57344, 57344, 57344], "counts_by_class": {"1": 9, "2": 9, "3": 9, "4": 9, "5": 9}, "formula_peak": 475648, "raw9_bytes": 213248, "padded9_bytes": 237824, "output_sha256": "70b220d0695d3b1eeaadca3467a7291d0178f1273ce21ad48a0c8c383daa0c5e"}

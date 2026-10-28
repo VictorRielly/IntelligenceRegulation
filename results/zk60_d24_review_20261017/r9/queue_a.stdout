@@ -1,0 +1,35 @@
+[zk60-guard 22:04:22] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 22:05:22] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 22:06:22] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 22:07:22] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 22:08:22] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 22:09:22] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 22:10:22] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 22:10:46] START r9-cli-build class=build need=2.5G cap=5G enforce=cgroup+watchdog waited=384s run=d75b431945bc
+[zk60-guard 22:11:52] END r9-cli-build exit=0 child_wall=66s peak_rss=1.08G min_avail=9.64G
+[zk60-guard 22:11:52] START r9-dd-tl class=cpu need=2G cap=5G enforce=cgroup+watchdog waited=0s run=babd7cd534c0
+[zk60-guard 22:12:44] END r9-dd-tl exit=0 child_wall=52s peak_rss=1.33G min_avail=10.71G
+[zk60-guard 22:12:44] START r9-dd-8b class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=9c59cda28303
+[zk60-guard 22:15:16] END r9-dd-8b exit=0 child_wall=152s peak_rss=2.25G min_avail=9.92G
+[zk60-guard 22:15:16] START r9-compat-tl class=cpu need=2G cap=5G enforce=cgroup+watchdog waited=0s run=fb6139182d31
+[zk60-guard 22:15:33] END r9-compat-tl exit=0 child_wall=17s peak_rss=0.73G min_avail=11.11G
+[zk60-guard 22:15:33] START r9-compat-8b class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=fb5f687f9896
+[zk60-guard 22:16:21] END r9-compat-8b exit=0 child_wall=48s peak_rss=1.76G min_avail=9.98G
+[zk60-guard 22:16:21] START r9-x-ddtl-noflag class=cpu need=2G cap=5G enforce=cgroup+watchdog waited=0s run=51c7191455c3
+[zk60-guard 22:16:21] END r9-x-ddtl-noflag exit=1 child_wall=0s peak_rss=0.00G min_avail=12.21G
+[zk60-guard 22:16:21] START r9-x-ddtl-noflag-pin class=cpu need=2G cap=5G enforce=cgroup+watchdog waited=0s run=5976032a1dde
+[zk60-guard 22:16:23] END r9-x-ddtl-noflag-pin exit=1 child_wall=2s peak_rss=0.48G min_avail=11.94G
+[zk60-guard 22:16:23] START r9-x-r8tl-dd class=cpu need=2G cap=5G enforce=cgroup+watchdog waited=0s run=5ca1ef62214e
+[zk60-guard 22:16:23] END r9-x-r8tl-dd exit=1 child_wall=0s peak_rss=0.00G min_avail=12.10G
+[zk60-guard 22:16:24] START r9-x-r8tl-dd-pin class=cpu need=2G cap=5G enforce=cgroup+watchdog waited=0s run=7db50c479a50
+[zk60-guard 22:16:25] END r9-x-r8tl-dd-pin exit=1 child_wall=2s peak_rss=0.67G min_avail=11.82G
+[zk60-guard 22:16:25] START r9-x-dd8b-noflag class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=f0e850c73668
+[zk60-guard 22:16:25] END r9-x-dd8b-noflag exit=1 child_wall=0s peak_rss=0.00G min_avail=12.34G
+[zk60-guard 22:16:26] START r9-dd-probes class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=2892a7dda4c2
+[zk60-guard 22:16:26] END r9-dd-probes exit=1 child_wall=0s peak_rss=0.00G min_avail=12.33G
+[zk60-guard 22:16:26] START r9-sb-dd-prove class=cpu need=6G cap=9G enforce=cgroup+watchdog waited=0s run=c30477a44912
+[zk60-guard 22:16:56] END r9-sb-dd-prove exit=0 child_wall=30s peak_rss=3.81G min_avail=8.23G
+[zk60-guard 22:16:56] START r9-sb-dd-verify class=cpu need=2G cap=5G enforce=cgroup+watchdog waited=0s run=aa9bdee2c1db
+[zk60-guard 22:17:01] END r9-sb-dd-verify exit=0 child_wall=5s peak_rss=0.49G min_avail=11.41G
+[zk60-guard 22:17:01] START r9-sb-x-noflag class=cpu need=2G cap=5G enforce=cgroup+watchdog waited=0s run=e67428414972
+[zk60-guard 22:17:01] END r9-sb-x-noflag exit=1 child_wall=0s peak_rss=0.00G min_avail=13.16G

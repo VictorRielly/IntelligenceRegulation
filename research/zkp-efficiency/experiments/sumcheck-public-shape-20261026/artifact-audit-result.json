@@ -1,0 +1,11 @@
+{
+  "status": "PASS_FINAL_INTEGRITY_ONLY",
+  "checks": 721,
+  "immutable_artifacts": 78,
+  "tested_code_pins": 15,
+  "retained_coordination_snapshot_pins": 1,
+  "patch_applied": "in memory only",
+  "new_verified_full_stack_positions": 0,
+  "elapsed_seconds": 0.015023190004285425,
+  "max_rss_kib": 19276
+}

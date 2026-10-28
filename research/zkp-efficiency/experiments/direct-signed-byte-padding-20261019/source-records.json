@@ -1,0 +1,187 @@
+[
+  {
+    "id": "cycle87-new-FluxZK-transfer-aware-NTT-source-filter",
+    "title": "FluxZK: transfer-aware MSM and out-of-core NTT artifact",
+    "url": "https://github.com/SJTU-Liquid/FluxZK",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Repository dates not exposed. Owner organization index served inconsistent FluxZK activity dates: search Jul19,2026 versus opened page Aug21,2026; neither is a verified current source date.",
+    "displayed_activity_dates": [
+      "2026-07-19",
+      "2026-08-21"
+    ],
+    "implementation_license": null,
+    "license_note": "Repository labels MIT and acknowledges Apache-2.0 sppark-derived code; actual LICENSE fetches failed. No full license or component coverage established.",
+    "inspected_commit_id": null,
+    "author_claim": "GPU transfer overlap, on-device/out-of-core NTT, and end-to-end benchmark targets with NUMA/PCIe sensitivity.",
+    "assessment": "NEW lead. Adopt complete host/device traffic and lifetime measurement boundaries, not a speed factor. Field, ordering, freshness and native commitment obligations require a separate port review; no code executed.",
+    "inspected_urls": [
+      "https://github.com/SJTU-Liquid",
+      "https://github.com/SJTU-Liquid/FluxZK/commits/main/",
+      "https://github.com/SJTU-Liquid/FluxZK/commits/master/",
+      "https://github.com/SJTU-Liquid/FluxZK/commits",
+      "https://github.com/SJTU-Liquid/FluxZK/activity",
+      "https://github.com/SJTU-Liquid/FluxZK/tree/main/ntt",
+      "https://github.com/SJTU-Liquid/FluxZK/blob/main/LICENSE",
+      "https://raw.githubusercontent.com/SJTU-Liquid/FluxZK/main/LICENSE",
+      "https://raw.githubusercontent.com/SJTU-Liquid/FluxZK/main/ntt/README.md",
+      "https://github.com/SJTU-Liquid/FluxZK/blob/main/scripts/ae_ooc_ntt_bench.py"
+    ],
+    "access_issues": [
+      "History/source/LICENSE/script pages returned Cache miss/InternalError; no commit inspected."
+    ],
+    "cycle": "0087",
+    "run_id": "20261019T191854Z-6444ea2f",
+    "accessed": "2026-10-19",
+    "recorded_at_utc": "2026-10-19 19:24:35 UTC",
+    "access_method": "Native LIVE web search/open/find",
+    "reproduced_performance": false,
+    "external_execution": false
+  },
+  {
+    "id": "cycle87-new-FluxZK-upcoming-SC26-date-scope",
+    "title": "FluxZK official SC26 program, future presentation boundary",
+    "url": "https://sc26.conference-program.com/presentation/?id=pap593&sess=sess231",
+    "published": null,
+    "updated": null,
+    "scheduled_presentation_date": "2026-11-19",
+    "date_evidence": "Official program explicitly schedules Thursday Nov19,2026 13:52-14:15 CST; future event is not publication or release date.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "author_claim": "Scales GPU workloads through overlap and out-of-core NTT; application improvement is described as an estimate on its workloads.",
+    "assessment": "Primary corroboration of artifact identity. Future conference slot and author estimates do not constitute reproduced throughput or our private-model evidence.",
+    "cycle": "0087",
+    "run_id": "20261019T191854Z-6444ea2f",
+    "accessed": "2026-10-19",
+    "recorded_at_utc": "2026-10-19 19:24:35 UTC",
+    "access_method": "Native LIVE web search/open/find",
+    "reproduced_performance": false,
+    "external_execution": false
+  },
+  {
+    "id": "cycle87-new-older-MoMA-code-generation-field-filter",
+    "title": "Code Generation for Cryptographic Kernels using Multi-word Modular Arithmetic on GPU",
+    "url": "https://arxiv.org/abs/2501.07535",
+    "published": "2025-01-13",
+    "updated": null,
+    "date_evidence": "Primary arXiv v1 MonJan13,2025 18:15:44 UTC; author PDF cites CGO March1-5,2025. No revision displayed.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "author_claim": "Compiler rewriting decomposes multiword arithmetic and generates optimized GPU NTT/BLAS kernels.",
+    "assessment": "NEW older technique assessed. Repo NTT entry points document128/256/384/768-bit operands; the native Goldilocks path has a different arithmetic/field contract. Generated-code gains cannot be transferred to native64-bit commitments or full-model proof clocks. No replacement proposed.",
+    "inspected_urls": [
+      "https://spiral.ece.cmu.edu/pub-spiral/pubfile/CGO_2025_Naifeng_376.pdf"
+    ],
+    "cycle": "0087",
+    "run_id": "20261019T191854Z-6444ea2f",
+    "accessed": "2026-10-19",
+    "recorded_at_utc": "2026-10-19 19:24:35 UTC",
+    "access_method": "Native LIVE web search/open/find",
+    "reproduced_performance": false,
+    "external_execution": false
+  },
+  {
+    "id": "cycle87-new-older-MoMA-license-and-implementation-scope",
+    "title": "MoMA implementation and SPIRAL license",
+    "url": "https://github.com/Naifeng/moma",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Floating main history/source dates unavailable; copyright range2018-2025 is not a commit date.",
+    "implementation_license": "SPIRAL License, actual main LICENSE read; two notice-retention conditions and disclaimer. No SPDX equivalence asserted; dependency licenses not audited.",
+    "license_url": "https://raw.githubusercontent.com/Naifeng/moma/main/LICENSE",
+    "inspected_commit_id": null,
+    "assessment": "Inspected README and actual license; compiler requires SPIRAL for generation and CUDA for execution, with pre-generated alternatives. Higher integration cost than the local public-byte seam; no code adopted or executed.",
+    "inspected_urls": [
+      "https://github.com/Naifeng/moma/blob/main/LICENSE",
+      "https://github.com/Naifeng/moma/commits/main/",
+      "https://github.com/Naifeng/moma/commits/main/README.md",
+      "https://github.com/Naifeng/moma/blob/main/cuda/cuda-test/ntt_code/README.md"
+    ],
+    "access_issues": [
+      "History and pre-generated-code README Cache miss/InternalError; no commit pin."
+    ],
+    "cycle": "0087",
+    "run_id": "20261019T191854Z-6444ea2f",
+    "accessed": "2026-10-19",
+    "recorded_at_utc": "2026-10-19 19:24:35 UTC",
+    "access_method": "Native LIVE web search/open/find",
+    "reproduced_performance": false,
+    "external_execution": false
+  },
+  {
+    "id": "cycle87-Chimera-Oct16-residency-and-enclosing-clock-refresh",
+    "title": "Chimera: hybrid GPU sumcheck backend",
+    "url": "https://eprint.iacr.org/2026/1388",
+    "published": "2026-07-07",
+    "updated": "2026-10-16",
+    "date_evidence": "Primary ePrint history explicitly receivedJul7 and revisedOct16,2026.",
+    "implementation_license": null,
+    "paper_license": "CC BY as declared by primary landing page; not implementation terms.",
+    "inspected_commit_id": null,
+    "author_claim": "Retains large arrays across GPU rounds, transfers compact transcript material, switches small tails to CPU; complete-prover gains are smaller than isolated sumcheck gains in Spartan BN254.",
+    "assessment": "Refresh cycle78. Supports owner whole-prover device/residency priority and enclosing-clock measurement. Not our field, proof relation, privacy construction or hardware; no author performance reproduced.",
+    "cycle": "0087",
+    "run_id": "20261019T191854Z-6444ea2f",
+    "accessed": "2026-10-19",
+    "recorded_at_utc": "2026-10-19 19:24:35 UTC",
+    "access_method": "Native LIVE web search/open/find",
+    "reproduced_performance": false,
+    "external_execution": false
+  },
+  {
+    "id": "cycle87-ICICLE-v4-release-and-version-only-commit-refresh",
+    "title": "ICICLE v4.0.0 release and inspected version bump",
+    "url": "https://github.com/ingonyama-zk/icicle/releases",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Release display Jul11 05:36 lacks year; inspected commit page exposes no date. No year inferred from crawl metadata.",
+    "implementation_license": null,
+    "inspected_commit_id": "6c77775961b0e4dc2be359feec1ac11536c18043",
+    "commit_scope": "Full URL version-bump diff inspected: two Cargo.toml edits only. Does not pin or validate GPU kernel changes.",
+    "inspected_urls": [
+      "https://github.com/ingonyama-zk/icicle/commit/6c77775961b0e4dc2be359feec1ac11536c18043",
+      "https://github.com/ingonyama-zk/icicle/pull/1000"
+    ],
+    "assessment": "Displayed release includes matmul/transpose fusion metadata, but PR1000 source fetch fails. Local byte-padding candidate is independently authored; no source or speed transfer.",
+    "access_issues": [
+      "PR1000 Cache miss. No license inspected this cycle."
+    ],
+    "cycle": "0087",
+    "run_id": "20261019T191854Z-6444ea2f",
+    "accessed": "2026-10-19",
+    "recorded_at_utc": "2026-10-19 19:24:35 UTC",
+    "access_method": "Native LIVE web search/open/find",
+    "reproduced_performance": false,
+    "external_execution": false
+  },
+  {
+    "id": "cycle87-new-Impeller-Oct14-graph-and-memory-planning-lead",
+    "title": "Impeller graph compiler and heterogeneous runtime",
+    "url": "https://github.com/SJTU-Liquid/Impeller",
+    "published": null,
+    "updated": null,
+    "verified_organization_activity_date": "2026-10-14",
+    "date_evidence": "Primary owner organization index explicitly shows UpdatedOct14,2026 for Impeller; not verified HEAD/file/publication date. README calls it an ASPLOS2027 artifact, a future venue label.",
+    "implementation_license": null,
+    "license_note": "README labels original code MIT and points to separate third-party notices; actual LICENSE fetches failed and notices not inspected. No component license clearance claimed.",
+    "inspected_commit_id": null,
+    "author_claim": "Typed intermediate graphs support memory planning, fusion and scheduling; runtime has explicit device addressing, streams, events and a pinned-memory pool.",
+    "assessment": "NEW recent repository lead. Useful question: can explicit public last-use boundaries reduce the actual peak after raw decode removal fails? Native integration would need field/order/transcript lifetimes and exact dynamic challenge dependencies. Not a drop-in protocol or evidence of an8B proof.",
+    "inspected_urls": [
+      "https://github.com/SJTU-Liquid",
+      "https://github.com/SJTU-Liquid/Impeller/commits/main/",
+      "https://github.com/SJTU-Liquid/Impeller/blob/main/LICENSE",
+      "https://raw.githubusercontent.com/SJTU-Liquid/Impeller/main/LICENSE"
+    ],
+    "access_issues": [
+      "History and LICENSE Cache miss/InternalError."
+    ],
+    "cycle": "0087",
+    "run_id": "20261019T191854Z-6444ea2f",
+    "accessed": "2026-10-19",
+    "recorded_at_utc": "2026-10-19 19:24:35 UTC",
+    "access_method": "Native LIVE web search/open/find",
+    "reproduced_performance": false,
+    "external_execution": false
+  }
+]

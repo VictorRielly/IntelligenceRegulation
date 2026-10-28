@@ -1,0 +1,35 @@
+{
+  "seed": 20261020104,
+  "checks": 959,
+  "tiny_schedule_cases": 116,
+  "fixtures": 10,
+  "negative_controls": [
+    "wrong_site_survives_root_only_check",
+    "ordered_leaf_binding_detects_wrong_site",
+    "drop_multiplicity",
+    "duplicate_global_histogram",
+    "zero_denominator_even_if_multiplicity_zero",
+    "degenerate_fraction_root_can_erase_nonzero_refusal",
+    "fresh_challenge_changes_cached_denominators",
+    "stack_all_floor_width_is_not_geometric",
+    "cross_field_does_not_authorize_native_privacy"
+  ],
+  "elapsed_s": 0.0662020719901193,
+  "maxrss_KiB": 16284,
+  "scope": "Integer arithmetic-layer lifetime/work upper bounds and tiny synthetic F65537 equality/refusal controls. No actual GKR/mask/PCS/native proof.",
+  "full_stack": {
+    "proofs": 0,
+    "passes": 0,
+    "positions": 0,
+    "context_length": null,
+    "device": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "startup_s": null,
+    "startup_fraction": null,
+    "steady_rate": null,
+    "total_rate": null
+  }
+}

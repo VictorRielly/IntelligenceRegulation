@@ -1,0 +1,244 @@
+[
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/device-allocation-coverage-20261020/census.py"
+    ],
+    "started_at": "2026-10-20T01:23:03.309331+00:00",
+    "exit_code": 1,
+    "wall_seconds": 0.5973378010094166,
+    "maxrss_kib": 27144,
+    "sha256": "89aaab408bbcf3ad04ebd87e516a8438f25892b77862338b2c64ceddcc1e5400",
+    "stdout": "00-census.py.stdout.log",
+    "stderr": "00-census.py.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "single_cpu": true,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/device-allocation-coverage-20261020/staging.py"
+    ],
+    "started_at": "2026-10-20T01:23:03.992681+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.5164669350051554,
+    "maxrss_kib": 20984,
+    "sha256": "48ab8c78a7d5724d15f79565798126b92ac37f1ff4c439d030db18a16461d227",
+    "stdout": "01-staging.py.stdout.log",
+    "stderr": "01-staging.py.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "single_cpu": true,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/device-allocation-coverage-20261020/census.py"
+    ],
+    "started_at": "2026-10-20T01:23:15.859405+00:00",
+    "exit_code": 0,
+    "wall_seconds": 4.823384589006309,
+    "maxrss_kib": 21956,
+    "sha256": "69674e942121d2439c92a520cb6b4c4ce9d0ce2f3e55205435fe1e01dad59d40",
+    "stdout": "02-census.py.stdout.log",
+    "stderr": "02-census.py.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "single_cpu": true,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/device-allocation-coverage-20261020/audit.py"
+    ],
+    "started_at": "2026-10-20T01:24:23.909132+00:00",
+    "exit_code": 1,
+    "wall_seconds": 0.23324904500623234,
+    "maxrss_kib": 30940,
+    "sha256": "77c77553af8c4dd63037f0de4fec3d2232eb3ee07de8a99b15326e8c6e2fa46f",
+    "stdout": "03-audit.py.stdout.log",
+    "stderr": "03-audit.py.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "single_cpu": true,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/device-allocation-coverage-20261020/census.py"
+    ],
+    "started_at": "2026-10-20T01:24:38.267714+00:00",
+    "exit_code": 0,
+    "wall_seconds": 4.571521500009112,
+    "maxrss_kib": 21984,
+    "sha256": "d2fd98ecc62439004851b1adc9845823cf83dd4707d21711e4b7cd882533a05f",
+    "stdout": "04-census.py.stdout.log",
+    "stderr": "04-census.py.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "single_cpu": true,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/device-allocation-coverage-20261020/audit.py"
+    ],
+    "started_at": "2026-10-20T01:24:42.924338+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.39083228100207634,
+    "maxrss_kib": 24032,
+    "sha256": "77c77553af8c4dd63037f0de4fec3d2232eb3ee07de8a99b15326e8c6e2fa46f",
+    "stdout": "05-audit.py.stdout.log",
+    "stderr": "05-audit.py.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "single_cpu": true,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/device-allocation-coverage-20261020/staging.py"
+    ],
+    "started_at": "2026-10-20T01:25:48.939555+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.8506881869980134,
+    "maxrss_kib": 23024,
+    "sha256": "3a371da55045debb2202cbf364600900d49fd9289150798c983ff09d8929901b",
+    "stdout": "06-staging.py.stdout.log",
+    "stderr": "06-staging.py.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "single_cpu": true,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/device-allocation-coverage-20261020/audit.py"
+    ],
+    "started_at": "2026-10-20T01:25:49.870696+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.4583979549934156,
+    "maxrss_kib": 26980,
+    "sha256": "7511e2df073600a6e8716776c9692cf27c5e81d8ba1879bb3e026a7fb1cad37a",
+    "stdout": "07-audit.py.stdout.log",
+    "stderr": "07-audit.py.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "single_cpu": true,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/device-allocation-coverage-20261020/audit.py"
+    ],
+    "started_at": "2026-10-20T01:27:41.968034+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.4306762430060189,
+    "maxrss_kib": 28252,
+    "sha256": "e573944b6a5ab393cd4d0e381d1620f0ea11ab885a0d8cc1eabf7cae4e64f510",
+    "stdout": "08-audit.py.stdout.log",
+    "stderr": "08-audit.py.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "single_cpu": true,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/device-allocation-coverage-20261020/audit.py"
+    ],
+    "started_at": "2026-10-20T01:28:06.441672+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.5571367980010109,
+    "maxrss_kib": 28476,
+    "sha256": "7078b87f12b9b9acb64edc400d8ccbec59b0069cc98287c600374635ced90152",
+    "stdout": "09-audit.py.stdout.log",
+    "stderr": "09-audit.py.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "single_cpu": true,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/device-allocation-coverage-20261020/validate.py"
+    ],
+    "started_at": "2026-10-20T01:31:40.982221+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.0607125959941186,
+    "maxrss_kib": 18648,
+    "sha256": "17c3feeacc27d162efb2ec248c0b316f03c957f7b421a218ff3be277c344bb8e",
+    "stdout": "10-validate.py.stdout.log",
+    "stderr": "10-validate.py.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "single_cpu": true,
+      "nice": 19
+    }
+  }
+]

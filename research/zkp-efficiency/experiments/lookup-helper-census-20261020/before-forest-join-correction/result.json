@@ -1,0 +1,37 @@
+{
+  "seed": 20261020103,
+  "checks": 924,
+  "fixtures": 40,
+  "negative_controls": [
+    "ignore_P3_lift",
+    "omit_odd_Q_lookup",
+    "omit_F_activation_helper",
+    "treat_F_true_hidden_as_padded",
+    "base_extension_word_confusion",
+    "public_table_does_not_replace_all_H",
+    "DD_S_relation_must_change_domain",
+    "norm_full_byte_boundary",
+    "sigma_limb_boundary",
+    "omitted_multiplicity",
+    "zero_multiplicity_still_requires_nonzero_denominator"
+  ],
+  "elapsed_s": 0.004559602006338537,
+  "maxrss_KiB": 15960,
+  "full_stack": {
+    "proofs": 0,
+    "passes": 0,
+    "positions": 0,
+    "context_length": null,
+    "device": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "startup_s": null,
+    "startup_fraction": null,
+    "steady_rate": null,
+    "total_rate": null
+  },
+  "scope": "integer source census and tiny F65537 fraction arithmetic, not GKR proof, native timing, capacity or traffic",
+  "tree_limits": "Separate U8 domain padded binary tree illustration only; GKR round counts omit batching/line reductions/final openings/masks. All tree arrays private. No net commitment saving or protocol proposed."
+}

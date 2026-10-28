@@ -1,0 +1,7 @@
+23:41:56 l1/predict-validated-dense exit 0 (--need-gib 0.8 --cap-gib 1.5)
+23:41:57 l1/predict-validated-zero exit 0 (--need-gib 0.8 --cap-gib 1.5)
+23:41:59 l2/predict-validated-dense exit 0 (--need-gib 0.8 --cap-gib 1.5)
+23:42:00 l2/predict-validated-zero exit 0 (--need-gib 0.8 --cap-gib 1.5)
+23:42:17 l22/predict-validated-dense exit 0 (--need-gib 0.8 --cap-gib 1.5)
+23:42:31 l22/predict-validated-zero exit 0 (--need-gib 0.8 --cap-gib 1.5)
+23:42:53 suite/unittests-v11 exit 0 (--need-gib 0.8 --cap-gib 1.5)

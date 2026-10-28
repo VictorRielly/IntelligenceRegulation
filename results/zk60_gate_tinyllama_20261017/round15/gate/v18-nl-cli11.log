@@ -1,0 +1,79 @@
+{
+ "new_slots": 15,
+ "T0_terminal_identity": "15/15",
+ "per_mode": {
+  "run": {
+   "F0": "15/15",
+   "S1": {
+    "premise_holds": 15,
+    "public_factor_every_monomial": 15,
+    "degree_fits": 15,
+    "budget_ok": 15,
+    "of": 15
+   },
+   "S4": {
+    "miniatures_pass": 15,
+    "terminal_map_onto": 15,
+    "private_gamma_control_fires": 15,
+    "of": 15
+   }
+  },
+  "random-1": {
+   "F0": "15/15",
+   "S1": {
+    "premise_holds": 15,
+    "public_factor_every_monomial": 15,
+    "degree_fits": 15,
+    "budget_ok": 15,
+    "of": 15
+   },
+   "S4": {
+    "miniatures_pass": 15,
+    "terminal_map_onto": 15,
+    "private_gamma_control_fires": 15,
+    "of": 15
+   }
+  },
+  "random-2": {
+   "F0": "15/15",
+   "S1": {
+    "premise_holds": 15,
+    "public_factor_every_monomial": 15,
+    "degree_fits": 15,
+    "budget_ok": 15,
+    "of": 15
+   },
+   "S4": {
+    "miniatures_pass": 15,
+    "terminal_map_onto": 15,
+    "private_gamma_control_fires": 15,
+    "of": 15
+   }
+  },
+  "random-3": {
+   "F0": "15/15",
+   "S1": {
+    "premise_holds": 15,
+    "public_factor_every_monomial": 15,
+    "degree_fits": 15,
+    "budget_ok": 15,
+    "of": 15
+   },
+   "S4": {
+    "miniatures_pass": 15,
+    "terminal_map_onto": 15,
+    "private_gamma_control_fires": 15,
+    "of": 15
+   }
+  }
+ },
+ "S3_tight": "45/45",
+ "S5": {
+  "N5_1_fires": "15/15",
+  "N5_2_fires": "8/8 (not applicable at slack > 0: 7)",
+  "N5_3_fires": true,
+  "N5_4_fires": true,
+  "F_1_fires": "15/15"
+ }
+}
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round15/gate/v18-nl-cli11.json  status PASS

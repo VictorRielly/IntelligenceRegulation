@@ -1,0 +1,2570 @@
+diff -ruN -x __pycache__ frozen_v16/scripts/zk60_native_rg_ddcontrols.py frozen_v17/scripts/zk60_native_rg_ddcontrols.py
+--- frozen_v16/scripts/zk60_native_rg_ddcontrols.py	1969-12-31 16:00:00.000000000 -0800
++++ frozen_v17/scripts/zk60_native_rg_ddcontrols.py	2026-10-20 01:15:23.418738725 -0700
+@@ -0,0 +1,242 @@
++#!/usr/bin/env python3
++"""[GATE ROUND 14, tools v17, 2026-10-20] Controls on the DD planes and
++slots of a native R9 DD capture (D30), each PREDICTED and each shown
++honest-then-perturbed, in memory only (no captured byte is touched):
++
++  DT-1  slot 23's terminal at `A_PDICT` changed by +1 in the last stage:
++        the identity fails at EXACTLY (that stage, 23), and the transcript
++        replay refuses the same bundle (`pb-term` absorbs the terminals);
++  DT-2  slot 17's terminal at `H_STUPLE` (the score entry's tuple helper)
++        changed by +1: fails at exactly (that stage, 17);
++  DT-3  slot 23's terminal at `H_GDD` (the dictionary's table helper)
++        changed by +1: fails at exactly (that stage, 23);
++  DT-4  the e column's LAST nonzero entry (slot n_col - 1) changed by +1 in
++        EVERY period (so the column stays periodic, starts at 0 and stays a
++        strictly increasing run then zero padding),
++        digest check OFF: the structure check passes, the ARITHMETIC fails at
++        exactly (that stage, 23) and the attribution to the stage's exp table
++        refuses; with the digest check on, the digest refuses it;
++  DT-5  the e column made non-increasing (its first two entries swapped,
++        digest off): the STRUCTURE check refuses it;
++  DT-6  the dictionary tag taken as 140 instead of TAG_DD = 141: slots 17
++        and 23 fail in EVERY stage and nothing else -- the tag enters both
++        DD relations and no other;
++  DT-7  slot 23's plane list with `H_GDD` dropped: the push-order check
++        refuses at slot 23 in every stage.
++
++    python3 zk60_native_rg_ddcontrols.py --bundle <DD capture> --evidence <dir> --name <name>
++
++NOTHING HERE IS A PRIVACY RESULT.
++"""
++
++from __future__ import annotations
++
++import argparse
++import copy
++import hashlib
++import json
++import os
++import resource
++import sys
++import time
++
++sys.dont_write_bytecode = True
++HERE = os.path.dirname(os.path.abspath(__file__))
++if HERE not in sys.path:
++    sys.path.insert(0, HERE)
++
++import zk60_native_rg_terminals as T  # noqa: E402
++from zk60_native_rg_block import load_bundle  # noqa: E402
++from zk60_native_rg_planes import plane_index_of  # noqa: E402
++from zk60_native_rg_replay import RunReplay  # noqa: E402
++
++
++def _sha(p):
++    with open(p, "rb") as fh:
++        return hashlib.sha256(fh.read()).hexdigest()
++
++
++def _failed(r):
++    return sorted({(row["stage"], s) for row in r["per_stage"] for s in row["checked"]
++                   if s not in row["equal"]}
++                  | {(row["stage"], e["slot"]) for row in r["per_stage"] for e in row["not_checked"]
++                     if e["why"] != "OPEN"})
++
++
++def _plus_one(x):
++    return [(int(x[0]) + 1) % T.P, int(x[1])]
++
++
++def _docs_with(bundle, stage, mutate):
++    docs = [st.doc for st in bundle.stages]
++    d = copy.deepcopy(docs[stage])
++    mutate(d)
++    docs = list(docs)
++    docs[stage] = d
++    return docs
++
++
++def _term_index(index, slot, name):
++    return [p.name for p in index.slot_planes[slot]].index(name)
++
++
++def _public_index(doc, slot, k):
++    """the table index of slot's k-th public table"""
++    pubs = [i for i, t in enumerate(doc["arguments"][slot]["tables"]) if t["kind"] == "public"]
++    return pubs[k]
++
++
++def run(bundle_dir):
++    t0 = time.time()
++    b = load_bundle(bundle_dir)
++    index, reason = plane_index_of(b)
++    if index is None:
++        raise SystemExit(f"no plane index: {reason}")
++    if int(b.run["shape"].get("dd_cap", 0)) <= 0:
++        raise SystemExit("not a DD bundle")
++    rp = RunReplay(b).run()
++    honest = T.check_terminals(b, index, replay=rp)
++    rec = {"what": "controls on the DD planes and slots, each predicted; NOT a privacy result",
++           "privacy_acceptance": False, "bundle": b.name, "bundle_dir": bundle_dir,
++           "honest": {"ok": honest["ok"], "slot_checks_equal": honest["slot_checks_equal"],
++                      "of": honest["slot_checks_expected"], "covered_slots": honest["covered_slots"]},
++           "controls": []}
++    if not honest["ok"] or T.SC_DD not in honest["covered_slots"]:
++        rec["ok"] = False
++        rec["skipped"] = "the honest case does not pass with slot 23 covered; a control would prove nothing"
++        return rec
++    last = b.blocks - 1
++    stages = list(range(b.blocks))
++
++    def term_control(cid, slot, name, what):
++        ti = _term_index(index, slot, name)
++
++        def mut(d):
++            d["arguments"][slot]["terminals"][ti] = _plus_one(d["arguments"][slot]["terminals"][ti])
++        docs = _docs_with(b, last, mut)
++        got = T.check_terminals(b, index, replay=rp, stage_docs=docs)
++        failed = _failed(got)
++        keep = b.stages[last].doc
++        b.stages[last].doc = docs[last]
++        try:
++            try:
++                rr = RunReplay(b).run()
++                rfail = list(rr.failures)
++            except Exception as exc:  # a refusal that raises
++                rfail = [str(exc)]
++        finally:
++            b.stages[last].doc = keep
++        rec["controls"].append({
++            "control": cid, "what": what, "stage": last, "slot": slot, "terminal": ti,
++            "predicted": [[last, slot]], "slots_that_failed": [list(x) for x in failed],
++            "replay_refuses": bool(rfail), "first_replay_refusal": (rfail[0] if rfail else "")[:200],
++            "restored": b.stages[last].doc is keep,
++            "fires": failed == [(last, slot)] and bool(rfail)})
++
++    term_control("DT-1", T.SC_DD, "A_PDICT", "slot 23's A_PDICT terminal +1 (the dictionary quotient)")
++    term_control("DT-2", T.SC_SZC, "H_STUPLE", "slot 17's H_STUPLE terminal +1 (the score entry's tuple helper)")
++    term_control("DT-3", T.SC_DD, "H_GDD", "slot 23's H_GDD terminal +1 (the dictionary's table helper)")
++
++    # DT-4: one e-column entry +1, digest off (arithmetic) and on (digest)
++    pi = _public_index(b.stages[last].doc, T.SC_DD, 0)
++
++    cap = int(b.run["shape"]["dd_cap"])
++
++    col0 = [int(v[0]) for v in list(b.stages[last].doc["arguments"][T.SC_DD]["tables"][pi]["values"])[:cap]]
++    n_col = 1
++    while n_col < cap and col0[n_col] > col0[n_col - 1]:
++        n_col += 1
++    k4 = n_col - 1
++
++    def mut4(d):
++        tab = d["arguments"][T.SC_DD]["tables"][pi]
++        vals = [list(x) for x in tab["values"]]      # the capture's lazy array, copied
++        for x in range(k4, len(vals), cap):
++            vals[x] = _plus_one(vals[x])
++        tab["values"] = vals
++    docs4 = _docs_with(b, last, mut4)
++    off = T.check_terminals(b, index, replay=rp, stage_docs=docs4, check_digests=False)
++    on = T.check_terminals(b, index, replay=rp, stage_docs=docs4)
++    off_failed = _failed(off)
++    att = [a for a in off.get("dd_e_column_attribution", []) if a["stage"] == last]
++    rec["controls"].append({
++        "control": "DT-4", "what": f"the e column's last nonzero entry (slot {k4}) +1 in every period",
++        "predicted_digest_off": [[last, T.SC_DD]], "digest_off_failed": [list(x) for x in off_failed],
++        "digest_off_structure_failures": off["public_table_structure_failures"][:3],
++        "attribution_at_the_stage": att,
++        "digest_on_refusals": on["public_table_digest_failures"][:3],
++        "fires": (off_failed == [(last, T.SC_DD)] and not off["public_table_structure_failures"]
++                  and bool(att) and att[0].get("ok") is False
++                  and bool(on["public_table_digest_failures"]))})
++
++    # DT-5: the e column made non-increasing (first two entries of every period swapped)
++
++    def mut5(d):
++        tab = d["arguments"][T.SC_DD]["tables"][pi]
++        vals = [list(x) for x in tab["values"]]
++        for x in range(0, len(vals), cap):
++            vals[x], vals[x + 1] = vals[x + 1], vals[x]
++        tab["values"] = vals
++    docs5 = _docs_with(b, last, mut5)
++    r5 = T.check_terminals(b, index, replay=rp, stage_docs=docs5, check_digests=False)
++    rec["controls"].append({
++        "control": "DT-5", "what": "the e column's first two entries swapped in every period (digest off)",
++        "structure_failures": r5["public_table_structure_failures"][:3],
++        "fires": any("does not start at 0" in f or "strictly increasing" in f
++                     for f in r5["public_table_structure_failures"])})
++
++    # DT-6: the dictionary tag taken as 140
++    keep_tag = T.TAG_DD
++    T.TAG_DD = 140
++    try:
++        r6 = T.check_terminals(b, index, replay=rp)
++    finally:
++        T.TAG_DD = keep_tag
++    f6 = _failed(r6)
++    want6 = sorted((k, s) for k in stages for s in (T.SC_SZC, T.SC_DD))
++    rec["controls"].append({
++        "control": "DT-6", "what": "the dictionary tag taken as 140 instead of 141",
++        "predicted": [list(x) for x in want6], "slots_that_failed": [list(x) for x in f6],
++        "tag_restored": T.TAG_DD == keep_tag, "fires": f6 == want6})
++
++    # DT-7: H_GDD dropped from slot 23's plane list
++    planes = [[p.name for p in row] for row in index.slot_planes]
++    planes[T.SC_DD] = [n for n in planes[T.SC_DD] if n != "H_GDD"]
++    r7 = T.check_terminals(b, index, replay=rp, slot_planes=planes)
++    f7 = _failed(r7)
++    rec["controls"].append({
++        "control": "DT-7", "what": "slot 23's plane list with H_GDD dropped",
++        "predicted": [[k, T.SC_DD] for k in stages], "slots_that_failed": [list(x) for x in f7],
++        "first_finding": next((f for f in r7["findings"] if "slot 23" in f), "")[:200],
++        "fires": f7 == [(k, T.SC_DD) for k in stages]})
++
++    rec["fired"] = sum(1 for c in rec["controls"] if c["fires"])
++    rec["of"] = len(rec["controls"])
++    rec["ok"] = rec["fired"] == rec["of"]
++    rec["status"] = "PASS" if rec["ok"] else "NOT-OK"
++    rec["seconds"] = round(time.time() - t0, 1)
++    rec["peak_rss_mb"] = round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024)
++    rec["tool_sha256"] = {os.path.basename(p): _sha(p) for p in (os.path.abspath(__file__), T.__file__)}
++    return rec
++
++
++def main(argv=None):
++    ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
++    ap.add_argument("--bundle", required=True)
++    ap.add_argument("--evidence", required=True)
++    ap.add_argument("--name", required=True)
++    a = ap.parse_args(argv)
++    rec = run(a.bundle)
++    os.makedirs(a.evidence, exist_ok=True)
++    out = os.path.join(a.evidence, a.name + ".json")
++    with open(out, "w") as fh:
++        json.dump(rec, fh, indent=1, default=str)
++    print(json.dumps({k: rec.get(k) for k in ("honest", "fired", "of", "status")}, indent=1))
++    for c in rec["controls"]:
++        print(c["control"], "fires" if c["fires"] else "DID NOT FIRE", c["what"])
++    print(f"record: {out}  status {rec['status']}")
++    return 0 if rec["ok"] else 1
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff -ruN -x __pycache__ frozen_v16/scripts/zk60_native_rg_ddnl.py frozen_v17/scripts/zk60_native_rg_ddnl.py
+--- frozen_v16/scripts/zk60_native_rg_ddnl.py	1969-12-31 16:00:00.000000000 -0800
++++ frozen_v17/scripts/zk60_native_rg_ddnl.py	2026-10-20 17:10:39.869066329 -0700
+@@ -0,0 +1,372 @@
++#!/usr/bin/env python3
++"""[GATE ROUND 14, tools v17, 2026-10-20] NL-1's machine check, stages S1-S5,
++on the DD slots of a native R9 DD capture (D30): slot 17, the softmax
++zero-check's DD arm (no division clause, one tuple lookup into the row's
++dictionary), and slot 23, `SC_DD`, the dictionary zero-check (Standalone,
++appended last).  The FROZEN `nl_check.py` (results/zk60_nonlinear_channel_shaped/,
++digests checked before import, no bytecode written there) is fed a slot IR of
++each DD slot built from the gate's own SYMBOLIC transcription of `argument.rs`
++R9, as a flat monomial expansion -- the token stages' method
++(`zk60_native_rg_tokennl.py`), whose S1-S5 functions this module calls.
++
++    python3 zk60_native_rg_ddnl.py --bundle <DD capture> --evidence <dir> --name <name>
++
++NOTHING HERE IS A PRIVACY RESULT OR A PRIVACY ACCEPTANCE.
++
++THE CHAIN OF FIDELITY (each a check, failing first where it could pass
++vacuously):
++  T-0  the terminals port (`zk60_native_rg_terminals.sc_szc_dd` / `sc_dd`)
++       equals the Rust terminal polynomial on THIS capture, every stage
++       (`check_terminals`);
++  X-0  this module's symbolic transcription, evaluated numerically, equals
++       the terminals port at random table values (three seeds per slot and
++       stage) -- two independent transcriptions of the same Rust;
++  F-0  the IR evaluated by `nl_check.Slot` equals the symbolic transcription
++       at random table values (three seeds);
++  F-1  (control) one IR coefficient perturbed: F-0 fails; X-1 (control) one
++       sign of the tuple's beta^2 term flipped in the symbolic transcription:
++       X-0 fails.
++
++Challenge modes: the run's re-derived values (the replay) and three random
++seeds.  S1 / S3 / S4 / S5 exactly as `zk60_native_rg_tokennl` runs them.
++"""
++
++from __future__ import annotations
++
++import argparse
++import hashlib
++import json
++import os
++import random
++import resource
++import sys
++import time
++
++sys.dont_write_bytecode = True
++HERE = os.path.dirname(os.path.abspath(__file__))
++if HERE not in sys.path:
++    sys.path.insert(0, HERE)
++
++import zk60_native_rg_terminals as T  # noqa: E402
++import zk60_native_rg_tokenterminals as TT  # noqa: E402
++import zk60_native_rg_tokennl as TN  # noqa: E402
++from zk60_native_rg_block import load_bundle  # noqa: E402
++from zk60_native_rg_planes import plane_index_of  # noqa: E402
++from zk60_native_rg_replay import RunReplay  # noqa: E402
++
++DD_SLOTS = (T.SC_SZC, T.SC_DD)
++
++
++def _sha(p):
++    with open(p, "rb") as fh:
++        return hashlib.sha256(fh.read()).hexdigest()
++
++
++def F(c):
++    """a challenge or constant as the ring element both rings accept"""
++    return c if isinstance(c, TT.F2) else TT.F2(c)
++
++
++# ---------------------------------------------------------------------------
++#  the SYMBOLIC transcription (operator arithmetic: TT.F2 numeric or TT.Poly)
++# ---------------------------------------------------------------------------
++def _helper_sum(v, lks, h0, alpha, mu):
++    """`helper_sum` (argument.rs), in operator form"""
++    def den(l):
++        terms, cst = l
++        a = F(cst)
++        for (i, c) in terms:
++            a = a + v[i] * F(T.k(c))
++        return F(alpha) - a
++
++    acc = None
++    for j in range((len(lks) + 1) // 2):
++        h = v[h0 + j]
++        d1 = den(lks[2 * j])
++        if 2 * j + 1 < len(lks):
++            d2 = den(lks[2 * j + 1])
++            rel = h * d1 * d2 - (d1 + d2)
++        else:
++            rel = h * d1 - F(T.ONE)
++        term = F(mu[j]) * rel
++        acc = term if acc is None else acc + term
++    return acc if acc is not None else F(T.ZERO)
++
++
++def _limbs(v, ix):
++    acc = None
++    for j, i in enumerate(ix):
++        t = v[i] * F(T.POW256[j])
++        acc = t if acc is None else acc + t
++    return acc
++
++
++def szc_dd_sym(v, cx, mu, nu, flip=False):
++    """argument.rs R9 `SC_SZC if sh.dd_cap > 0`, symbolic"""
++    n_help = cx.g.n_helpers("S")
++    im = cx.p("causal", None)
++    ght, gs = cx.p("supp", "Ht"), cx.p("supp", "S")
++    lks = cx.g.lk_tables(cx, "S")
++    one = F(T.ONE)
++    mask, s8 = v[im], v[cx.t("A_S8")]
++    zsel, e, pp = v[cx.t("A_ZSEL")], v[cx.t("A_E")], v[cx.t("A_P")]
++    sm, mx = v[cx.t("A_SUM")], v[cx.t("A_MX")]
++    k127 = F(T.k(-T.MASK_SCORE))
++    delta = mx - mask * (s8 + k127) + k127
++    c0 = zsel * zsel - zsel
++    c1 = zsel * delta
++    alpha, beta = F(cx.alpha), F(cx.beta)
++    cxx = v[cx.t("H_SEXP")] * (alpha - (delta + beta * e + F(cx.g_exp))) - one
++    beta2 = beta * beta
++    if flip:
++        beta2 = F(T.ZERO) - beta2
++    ct = v[cx.t("H_STUPLE")] * (alpha - (F(cx.g_dd) + sm + beta * (mask * e) + beta2 * pp)) - one
++    clauses = F(mu[0]) * c0 + F(mu[1]) * c1
++    g = v[gs] if gs is not None else one
++    zc = (_helper_sum(v, lks, cx.t("H_S0"), cx.alpha, mu[2:2 + n_help])
++          + F(mu[2 + n_help]) * cxx + F(mu[3 + n_help]) * ct + g * clauses)
++    gh = v[ght] if ght is not None else one
++    host_rs = F(nu[0]) * gh * (sm + F(cx.lam_z))
++    cal = cx.g.cal
++    host_s = F(nu[1]) * g * (F(T.k(1 << cal.sh_s)) * s8 + v[cx.t("A_RSL")] - F(T.k(T.Calibration.half(cal.sh_s))))
++    return v[cx.eq(0)] * zc + v[cx.eq(1)] * host_rs + v[cx.eq(2)] * host_s
++
++
++def dd_sym(v, cx, mu, flip=False):
++    """argument.rs R9 `SC_DD`, symbolic"""
++    ls, lp = cx.g.counts["ls"], cx.g.counts["lp"]
++    n_help = cx.g.n_helpers("Dd")
++    one = F(T.ONE)
++    ie = cx.c("dd_e_column")
++    pd, md, sm, e = v[cx.t("A_PDICT")], v[cx.t("A_MDD")], v[cx.t("A_SUM")], v[ie]
++    sr = _limbs(v, [cx.t(f"A_SR{j}") for j in range(ls)])
++    sg = _limbs(v, [cx.t(f"A_SG{j}") for j in range(ls)])
++    pl = _limbs(v, [cx.t(f"A_PL{j}") for j in range(lp)])
++    c2 = F(T.k(1 << T.F_P)) * e - pd * sm - sr
++    c3 = sg + sr + one - sm
++    c4 = pd - pl
++    alpha, beta = F(cx.alpha), F(cx.beta)
++    beta2 = beta * beta
++    if flip:
++        beta2 = F(T.ZERO) - beta2
++    ctab = v[cx.t("H_GDD")] * (alpha - (F(cx.g_dd) + sm + beta * e + beta2 * pd)) - md
++    division = F(mu[0]) * c2 + F(mu[1]) * c3 + F(mu[2]) * c4
++    lks = cx.g.lk_tables(cx, "Dd")
++    inner = division + _helper_sum(v, lks, cx.t("H_DD0"), cx.alpha, mu[3:3 + n_help]) + F(mu[3 + n_help]) * ctab
++    return v[cx.eq(0)] * inner
++
++
++class SlotDefDD:
++    """the minimal SlotDef shape `zk60_native_rg_tokennl` expects"""
++
++    def __init__(self, fn, tabs):
++        self.poly = fn
++        self.tabs = tabs
++
++
++def _draw_split(slot, cx, dc):
++    if slot == T.SC_SZC:
++        n_help = cx.g.n_helpers("S")
++        lt = cx.g.log("S")
++        n_mu = 2 + n_help + 2
++        return dc[lt:lt + n_mu], dc[lt + n_mu:lt + n_mu + 2]
++    n_help = cx.g.n_helpers("Dd")
++    lt = cx.g.log("Dd")
++    return dc[lt:lt + 3 + n_help + 1], []
++
++
++def slot_def(slot, cx, dc, flip=False):
++    mu, nu = _draw_split(slot, cx, dc)
++    if slot == T.SC_SZC:
++        return SlotDefDD(lambda v: szc_dd_sym(v, cx, mu, nu, flip), cx.arg["tables"])
++    return SlotDefDD(lambda v: dd_sym(v, cx, mu, flip), cx.arg["tables"])
++
++
++def _table_kind(i, tab, cx):
++    if tab["kind"] == "eq":
++        return f"eq(start={tab['start']},|point|={len(tab['point'])})", f"eq{i}"
++    if tab["kind"] == "public":
++        for key, j in cx.pub_of.items():
++            if j == i:
++                if key[0] == "supp":
++                    return f"supp({key[1]})", f"supp({key[1]})"
++                return "pub", key[1] if key[0] == "captured" else key[0]
++        return "pub", f"public{i}"
++    role = tab["role"]
++    if role == "A":
++        return "A", cx.names[cx.priv_idx.index(i)]
++    if role == "H":
++        return "H", cx.names[cx.priv_idx.index(i)]
++    return "EP", role
++
++
++def to_ir(stage, slot, arg, sd, cx):
++    names = [f"T{i:02d}" for i in range(len(sd.tabs))]
++    P = TT.Poly._co(sd.poly([TT.Poly.var(n) for n in names]))
++    idx = {n: i for i, n in enumerate(names)}
++    tables = []
++    for i, t in enumerate(sd.tabs):
++        k_, lab = _table_kind(i, t, cx)
++        tables.append({"kind": k_, "label": lab, "prov": "DD transcription (argument.rs R9)"})
++    terms = []
++    for mono, c in sorted(P.t.items()):
++        inner = []
++        for n, e in mono:
++            inner.extend([{"table": idx[n]}] * e)
++        terms.append({"coef": {"value": TN._fstr(c)}, "wrapper": [], "inner": inner, "degree": len(inner)})
++    maxdeg = max((t["degree"] for t in terms), default=0)
++    return {"slot": slot, "name": f"stage{stage:02d}-{slot:02d} {arg['name']}", "kind": arg["kind"],
++            "main_rounds": arg["main"], "extension_rounds": arg["extension"],
++            "declared_degree": arg["degree"], "max_product_degree": maxdeg,
++            "pad_on": False, "group_bits": 0, "tables": tables, "nodes": [], "terms": terms}
++
++
++def contexts(bundle, index, replay, chal="run", seed=0):
++    """(stage, slot, arg, SlotCtx, dc) for every DD slot of every stage"""
++    gate = T.TerminalGate(bundle, index)
++    out = []
++    for st in bundle.stages:
++        doc = st.doc
++        gate.set_stage(st.index)       # [v17] the stage's own calibration
++        logup = doc["logup_challenges"]
++        rng = random.Random(f"ddnl/{st.index}/{seed}")
++        if chal == "random":
++            logup = [[rng.randrange(T.P), rng.randrange(T.P)] for _ in logup]
++        gate.set_logup(logup)
++        lam_z = T.lam_z_of(doc)
++        if chal == "random":
++            lam_z = (rng.randrange(T.P), rng.randrange(T.P))
++        for s in DD_SLOTS:
++            arg = doc["arguments"][s]
++            dc = [T.f2_from_list(x) for x in arg["definition_challenges"]]
++            if chal == "random":
++                dc = [(rng.randrange(T.P), rng.randrange(T.P)) for _ in dc]
++            cx = T.SlotCtx(gate, arg, [p.name for p in index.slot_planes[s]], dc, lam_z)
++            gate.build_public(cx)
++            # freeze this stage's challenges into the context (the gate's are per stage)
++            cx.alpha, cx.beta = gate.alpha, gate.beta
++            cx.g_u8, cx.g_exp, cx.g_act, cx.g_dd = gate.g_u8, gate.g_exp, gate.g_act, gate.g_dd
++            out.append((st.index, s, arg, cx, dc))
++    return out
++
++
++def cross_check(cx, s, dc, seeds=(1, 2, 3), flip=False):
++    """X-0: the symbolic transcription at random table values equals the
++    terminals port's numeric polynomial"""
++    sd = slot_def(s, cx, dc, flip)
++    port = T.sc_szc_dd if s == T.SC_SZC else T.sc_dd
++    ok = []
++    for sd_ in seeds:
++        rng = random.Random(f"x0/{s}/{sd_}")
++        vals = [(rng.randrange(T.P), rng.randrange(T.P)) for _ in cx.arg["tables"]]
++        a = TT.F2._co(sd.poly([TT.F2(x) for x in vals]))
++        b = port(vals, cx)
++        ok.append(a == b)
++    return all(ok)
++
++
++def run(bundle_dir):
++    NL, NF = TN.load_nl()
++    t0 = time.time()
++    b = load_bundle(bundle_dir)
++    index, reason = plane_index_of(b)
++    if index is None:
++        raise SystemExit(f"no plane index: {reason}")
++    if int(b.run["shape"].get("dd_cap", 0)) <= 0:
++        raise SystemExit("not a DD bundle (run.json shape declares no dd_cap)")
++    rp = RunReplay(b).run()
++    rec = {"what": "NL-1 S1-S5 on the DD slots (17: SC_SZC's DD arm; 23: SC_DD), through the frozen "
++                   "nl_check with a slot IR built from the gate's symbolic transcription of argument.rs R9; "
++                   "NOT a privacy result",
++           "privacy_acceptance": False, "privacy_property_established": False,
++           "bundle": b.name, "bundle_dir": bundle_dir, "nl_check_pins": TN.NL_PINS}
++    tt = T.check_terminals(b, index, replay=rp)
++    per = [(r["stage"], s, s in r["equal"]) for r in tt["per_stage"] for s in DD_SLOTS]
++    rec["T0_terminal_identity_dd_slots"] = {
++        "checked": [f"stage {st} slot {s}" for st, s, _ in per],
++        "equal": sum(1 for *_x, e in per if e), "of": len(per),
++        "whole_terminal_check_ok": tt["ok"], "findings": tt["findings"][:10]}
++    modes = [("run", 0), ("random", 1), ("random", 2), ("random", 3)]
++    per_mode = {}
++    keep = {}
++    for chal, seed in modes:
++        key = chal if chal == "run" else f"random-{seed}"
++        cxs = contexts(b, index, rp, chal, seed)
++        sds = [slot_def(s, cx, dc) for (_st, s, _a, cx, dc) in cxs]
++        irs = [to_ir(st, s, arg, sd, cx) for (st, s, arg, cx, _dc), sd in zip(cxs, sds)]
++        slots = [NL.Slot(ir, "token", {}) for ir in irs]
++        x0 = [cross_check(cx, s, dc) for (_st, s, _a, cx, dc) in cxs]
++        fid = [TN.fidelity(NL, NF, ir, sd) for ir, sd in zip(irs, sds)]
++        s1 = [TN.s1_row(NL, NF, sl) for sl in slots]
++        s4 = TN.s4_rows(NL, NF, slots)
++        per_mode[key] = {
++            "X0_symbolic_equals_port": f"{sum(x0)}/{len(x0)}",
++            "F0_fidelity": f"{sum(fid)}/{len(fid)}",
++            "S1": s1,
++            "S1_summary": {"premise_holds": sum(1 for r in s1 if r["premise_holds"]),
++                           "public_factor_every_monomial": sum(1 for r in s1 if r["public_factor_in_every_monomial_exact"]),
++                           "degree_fits": sum(1 for r in s1 if r["degree_fits"]),
++                           "budget_ok": sum(1 for r in s1 if r["budget_ok"]), "of": len(s1)},
++            "S2": {"slots": len(s1), "sum_L": sum(r["L"] for r in s1), "sum_dimC": sum(r["dimC"] for r in s1),
++                   "worst_L": max(r["L"] for r in s1), "budget_all_ok": all(r["budget_ok"] for r in s1)},
++            "S4": s4,
++            "S4_summary": {"miniatures_pass": sum(1 for r in s4 if r["passes"]),
++                           "terminal_map_onto": sum(1 for r in s4 if r["terminal_map"]["onto_Fp2^m"]),
++                           "of": len(s4)},
++            "all_ok": all(x0) and all(fid)}
++        keep[key] = (cxs, irs, slots, sds)
++    cxs, irs, slots, sds = keep["run"]
++    pairs = sorted({(sl.main + sl.ext, sl.d) for sl in slots})
++    rec["S3_fact21"] = TN.s3_pairs(NL, NF, pairs)
++    ctl = TN.controls(NL, NF, irs, slots, sds)
++    # X-1: the symbolic transcription with the tuple's beta^2 sign flipped no
++    # longer equals the port (X-0 is not vacuous)
++    x1 = [{"stage": st, "slot": s, "fires": not cross_check(cx, s, dc, flip=True)} for (st, s, _a, cx, dc) in cxs]
++    ctl["X_1"] = x1
++    ctl["summary"]["X_1_fires"] = f"{sum(1 for x in x1 if x['fires'])}/{len(x1)}"
++    ctl["ok"] = bool(ctl["ok"] and all(x["fires"] for x in x1))
++    rec["S5_controls"] = ctl
++    rec["per_challenge_mode"] = per_mode
++    rec["ir_run_challenges"] = {"schema": "zk60-slot-ir/1-dd", "profile": b.run.get("profile"),
++                                "slot_count": len(irs), "slots": irs}
++    n = len(irs)
++    good = all(pm["all_ok"] and pm["S1_summary"]["premise_holds"] == n
++               and pm["S1_summary"]["public_factor_every_monomial"] == n
++               and pm["S1_summary"]["degree_fits"] == n and pm["S1_summary"]["budget_ok"] == n
++               and pm["S4_summary"]["miniatures_pass"] == n and pm["S4_summary"]["terminal_map_onto"] == n
++               for pm in per_mode.values())
++    t0ok = rec["T0_terminal_identity_dd_slots"]["equal"] == rec["T0_terminal_identity_dd_slots"]["of"] > 0
++    rec["summary"] = {
++        "dd_slot_instances": n,
++        "T0": f"{rec['T0_terminal_identity_dd_slots']['equal']}/{rec['T0_terminal_identity_dd_slots']['of']}",
++        "per_mode": {k: {"X0": v["X0_symbolic_equals_port"], "F0": v["F0_fidelity"], "S1": v["S1_summary"],
++                         "S4": v["S4_summary"]} for k, v in per_mode.items()},
++        "S3_tight": f"{rec['S3_fact21']['tight']}/{rec['S3_fact21']['checks']}",
++        "S5": ctl["summary"]}
++    rec["ok"] = bool(good and t0ok and rec["S3_fact21"]["tight"] == rec["S3_fact21"]["checks"] and ctl["ok"])
++    rec["status"] = "PASS" if rec["ok"] else "NOT-OK"
++    rec["seconds"] = round(time.time() - t0, 1)
++    rec["peak_rss_mb"] = round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024)
++    rec["tool_sha256"] = {os.path.basename(p): _sha(p) for p in (
++        os.path.abspath(__file__), T.__file__, TT.__file__, TN.__file__)}
++    return rec
++
++
++def main(argv=None):
++    ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
++    ap.add_argument("--bundle", required=True)
++    ap.add_argument("--evidence", required=True)
++    ap.add_argument("--name", required=True)
++    a = ap.parse_args(argv)
++    rec = run(a.bundle)
++    os.makedirs(a.evidence, exist_ok=True)
++    out = os.path.join(a.evidence, a.name + ".json")
++    with open(out, "w") as fh:
++        json.dump(rec, fh, indent=1, default=str)
++    print(json.dumps(rec["summary"], indent=1))
++    print(f"record: {out}  status {rec['status']}")
++    return 0 if rec["ok"] else 1
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff -ruN -x __pycache__ frozen_v16/scripts/zk60_native_rg_ddts.py frozen_v17/scripts/zk60_native_rg_ddts.py
+--- frozen_v16/scripts/zk60_native_rg_ddts.py	1969-12-31 16:00:00.000000000 -0800
++++ frozen_v17/scripts/zk60_native_rg_ddts.py	2026-10-20 01:15:23.426557379 -0700
+@@ -0,0 +1,185 @@
++#!/usr/bin/env python3
++"""[GATE ROUND 14, tools v17, 2026-10-20] The G-7 terminal surjection
++(`EV/g7/ts_trained.py`, frozen, digest checked by
++`zk60_native_rg_tokents.load_ts`) on EVERY commitment of a native R9 DD run
++capture (D30): each stage's A (which now carries the dictionary's planes
++P_dict, its limbs and M_dd, and slot 23's reserved pairs), H (with the tuple
++helper and the dictionary's table helper inside the one value-0 sum claim),
++and the IO commitments, at the bundle's own row width.
++
++    python3 zk60_native_rg_ddts.py --bundle <DD capture> --evidence <dir> --name <name>
++
++Per role: groups, surjective groups, disclosed Fp per group, joint components
++(groups sharing a non-data row, i.e. H's zero-sum pair), and the PCS census.
++
++CONTROLS, each predicted:
++  the review's own (C1 / C2 / C3 / C6 / C8 / G7-D1..D3) on the first
++      two-member group of stage 0's A, exactly as ts_trained runs them;
++  DS-1  the group holding SLOT 23's A claims (the dictionary planes and
++        A_SUM, located by the claim numbers the capture's slot-23 tables
++        carry) with one claim's reserved pair removed: it must disclose,
++        the honest group must not;
++  DS-2  the group holding SLOT 17's H_STUPLE claim (the tuple helper),
++        likewise, when that claim is outside the zero-sum rows.
++
++NOTHING HERE ESTABLISHES A PRIVACY PROPERTY.
++"""
++
++from __future__ import annotations
++
++import argparse
++import hashlib
++import json
++import os
++import resource
++import sys
++import time
++
++sys.dont_write_bytecode = True
++HERE = os.path.dirname(os.path.abspath(__file__))
++if HERE not in sys.path:
++    sys.path.insert(0, HERE)
++
++import zk60_native_rg_tokents as TSW  # noqa: E402
++
++SC_SZC, SC_DD = 17, 23
++
++
++def _sha(p):
++    with open(p, "rb") as fh:
++        return hashlib.sha256(fh.read()).hexdigest()
++
++
++def load_block_roles(TT, d):
++    run = json.load(open(os.path.join(d, "run.json")))
++    assert run["field_modulus"] == TT.P and run["extension_nonresidue"] == 7
++    arr = TT.Arrays(os.path.join(d, "arrays.bin"))
++    files = sorted(f for f in os.listdir(d) if f.startswith("stage-") and f.endswith(".json"))
++    out, docs = [], []
++    for k, sf in enumerate(files):
++        st = json.load(open(os.path.join(d, sf)))
++        docs.append(st)
++        cap = {"proof_sha256": st["segment_sha256"], "profile": run["profile"], "roles": []}
++        for r in st["roles"]:
++            pr = r["params"]
++            TSW.set_width(TT, pr["log_cols"], pr["inv_rate"])
++            rr = arr.resolve({kk: r[kk] for kk in TT.KEEP if kk in r})
++            cap["roles"].append(rr)
++            out.append({"stage": k, "stage_kind": "BLOCK", "file": sf, "profile": run["profile"],
++                        "log_cols": pr["log_cols"], "inv_rate": pr["inv_rate"],
++                        "role": TT.T.Role(cap, rr)})
++    return out, docs, arr.checked
++
++
++def _claims_of_slot(doc, slot, role):
++    return sorted({t["claim"] for t in doc["arguments"][slot]["tables"]
++                   if t["kind"] == "private" and t.get("role") == role})
++
++
++def _group_with(role, claims):
++    """the index of the group that holds one of `claims` (the role's own
++    claim numbering), and that claim's index in the role's claim list"""
++    want = set(claims)
++    for gi, g in enumerate(role.groups):
++        for c in g:
++            if c in want:
++                return gi, c
++    return None, None
++
++
++def pair_removed(TT, ent, gi, c0):
++    role = ent["role"]
++    TSW.set_width(TT, ent["log_cols"], ent["inv_rate"])
++    small = len({i for i in role.rws[c0] if role.kind[i] == "data"}) <= 4
++    honest = TT.analyse_group(role, gi, None, also_original=small)
++    rw0 = {i: v for i, v in role.rws[c0].items() if role.kind[i] == "data"}
++    pert = TT.analyse_group(role, gi, {"rws": {c0: rw0}}, also_original=small)
++    return {"stage": ent["stage"], "role": role.name, "group": gi, "claim": c0,
++            "group_size": len(role.groups[gi]),
++            "touches_zero_sum_rows": bool(set(role.rws[c0]) & set(role.u_rows)),
++            "honest_disclosed_Fp": honest["disclosed_Fp"], "pair_removed_disclosed_Fp": pert["disclosed_Fp"],
++            "fires": honest["disclosed_Fp"] == 0 and pert["disclosed_Fp"] > 0}
++
++
++def run(bundle_dir, controls=True):
++    TT = TSW.load_ts()
++    t0 = time.time()
++    ents, docs, nchk = load_block_roles(TT, bundle_dir)
++    rec = {"what": "the G-7 terminal surjection on every commitment of a native R9 DD run capture; "
++                   "NOT a privacy result",
++           "privacy_acceptance": False, "privacy_property_established": False,
++           "bundle": os.path.basename(bundle_dir), "arrays_checked": nchk,
++           "ts_trained_sha256": TSW.TS_TRAINED_PIN, "stage0": TT.T.stage0_selftest(), "roles": []}
++    for ent in ents:
++        r = TSW.analyse(TT, ent)
++        rec["roles"].append(r)
++        print(f"{ent['file']} {r['role']}: groups {r['groups']}, surjective {r['surjective_groups']}, "
++              f"disclosed {r['total_disclosed_Fp']} {r['disclosed_by_group']}, joint "
++              f"{[(j['groups'], j['disclosed_Fp']) for j in r['joint_components']]} ({time.time() - t0:.1f} s)",
++              flush=True)
++    if controls:
++        rec["controls"] = {}
++        a0 = next(e for e in ents if e["stage"] == 0 and e["role"].name.startswith("A"))
++        TSW.set_width(TT, a0["log_cols"], a0["inv_rate"])
++        crow = TT.controls(a0["role"])
++        fires = {r["control"]: r["fires"] for r in crow}
++        want = {"honest reference": False, "C1 shared reserved pair": True, "C2 cm = 0 (pair removed)": True}
++        rec["controls"]["review_controls_on_stage0_A"] = {"rows": crow, "fires": fires,
++                                                          "ok": all(fires.get(k) is v for k, v in want.items())}
++        ds = []
++        for e in ents:
++            nm = e["role"].name
++            doc = docs[e["stage"]]
++            if nm.startswith("A"):
++                gi, c0 = _group_with(e["role"], _claims_of_slot(doc, SC_DD, "A"))
++                if gi is None:
++                    ds.append({"control": "DS-1", "stage": e["stage"], "not_found": "no group holds slot 23's A claims"})
++                else:
++                    ds.append({"control": "DS-1", **pair_removed(TT, e, gi, c0)})
++            elif nm.startswith("H"):
++                gi, c0 = _group_with(e["role"], _claims_of_slot(doc, SC_SZC, "H")[-1:])
++                if gi is None:
++                    ds.append({"control": "DS-2", "stage": e["stage"], "not_found": "no group holds slot 17's last H claim"})
++                    continue
++                row = {"control": "DS-2", **pair_removed(TT, e, gi, c0)}
++                if row["touches_zero_sum_rows"]:
++                    row["not_applicable"] = "the tuple helper's claim touches the zero-sum rows"
++                    row["fires"] = None
++                ds.append(row)
++        live = [x for x in ds if x.get("fires") is not None and "not_found" not in x]
++        rec["controls"]["DS_dd_groups_pair_removed"] = {
++            "rows": ds, "ok": bool([x for x in live if x["control"] == "DS-1"]) and all(x["fires"] for x in live)}
++        rec["controls"]["ok"] = all(v.get("ok") for v in rec["controls"].values() if isinstance(v, dict))
++    rec["summary"] = {f"stage{r['stage']}:{r['role']}": {
++        "groups": r["groups"], "surjective": r["surjective_groups"],
++        "disclosed_Fp": r["total_disclosed_Fp"], "disclosed_by_group": r["disclosed_by_group"],
++        "joint": [(j["groups"], j["disclosed_Fp"]) for j in r["joint_components"]],
++        "census_identical_claims": r["census"].get("identical_claims"),
++        "census_equal_published_values": r["census"].get("equal_published_values")}
++        for r in rec["roles"]}
++    rec["seconds"] = round(time.time() - t0, 1)
++    rec["peak_rss_mb"] = round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024)
++    rec["tool_sha256"] = {os.path.basename(__file__): _sha(os.path.abspath(__file__)),
++                          os.path.basename(TSW.__file__): _sha(TSW.__file__)}
++    return rec
++
++
++def main(argv=None):
++    ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
++    ap.add_argument("--bundle", required=True)
++    ap.add_argument("--evidence", required=True)
++    ap.add_argument("--name", required=True)
++    ap.add_argument("--no-controls", action="store_true")
++    a = ap.parse_args(argv)
++    rec = run(a.bundle, controls=not a.no_controls)
++    os.makedirs(a.evidence, exist_ok=True)
++    out = os.path.join(a.evidence, a.name + ".json")
++    with open(out, "w") as fh:
++        json.dump(rec, fh, indent=1, default=str)
++    print(json.dumps(rec["summary"], indent=1, default=str))
++    print(f"record: {out}")
++    return 0 if rec.get("controls", {}).get("ok", True) else 1
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff -ruN -x __pycache__ frozen_v16/scripts/zk60_native_rg_exportcheck.py frozen_v17/scripts/zk60_native_rg_exportcheck.py
+--- frozen_v16/scripts/zk60_native_rg_exportcheck.py	2026-10-17 14:46:07.607403334 -0700
++++ frozen_v17/scripts/zk60_native_rg_exportcheck.py	2026-10-20 17:10:39.863053863 -0700
+@@ -36,6 +36,33 @@
+       export layer's `exp.bin` / `act.bin` (act widened to int64), and
+       `act[128] = 0`, `exp[0] = 2^f_e`.
+ 
++[v17, gate round 14] PER-LAYER CONSTANTS.  An export whose layers carry
++their own constants lists them in `profile.json["per_layer_constants_differ"]`
++and leaves them null in `profile_constants` (`tinyllama_dg_rot1_T128`:
++norm_cn_a, norm_cn_m, sh_ao, sh_h, sh_s, sh_z).  Native R8 then proves the run
++at a RUN calibration (`trained_block.rs` `run_constants`: each per-layer field
++the value tuple most of the run's layers carry, ties the smallest, fields in
++OWN_FIELDS order) and each layer that differs at its own (the stage line's
++clauses).  Tools v16 compared the run shape's per-layer fields with null and
++refused every such bundle.  v17:
++
++  E0  the export's integrity (`zk60_native_rg_tokenblocks.load_export`, X8):
++      every layer manifest hashes to profile.json's, every array to its
++      manifest, and every non-per-layer constant equals profile_constants;
++  E1  a per-layer field of the run shape equals the RUN calibration computed
++      from the run's export layers (above); every other field as before;
++  E3b (without --statement) each stage's layer IDENTIFIED from its slot-14
++      gains (the two public gamma tables, bound by the stage-8 terminal
++      identity) against every export layer, exactly one match each; the
++      README's declared layer list (not transcript-bound) must agree; with
++      --statement, the identification must agree with E3's map;
++  E5  each stage's calibration (the run shape plus its stage line's own
++      clauses, `zk60_native_rg_stagecal`, bound to the schedule digest)
++      equals its export layer's eleven constants.
++
++E1's per-layer part, E4 and E5 need the stage-to-layer map (E3 or E3b); a
++missing map is a refusal by name, never a pass.
++
+ WHAT IT DOES NOT SHOW.  That the export is the right calibration of the model
+ (the D24 review's subject), or anything about a hidden value.
+ 
+@@ -55,6 +82,8 @@
+ if HERE not in sys.path:
+     sys.path.insert(0, HERE)
+ 
++README_LAYERS_LIST = re.compile(r"layers \[([\d, ]*)\]")
++GAMMA_SLOT = 14
+ CONSTANTS = ("norm_tn", "norm_cn_a", "norm_cn_m", "norm_ceps", "sh_ao",
+              "sh_qkv", "sh_s", "sh_o", "sh_g", "sh_h", "sh_z", "f_e")
+ PARAM_SH = re.compile(r"/sh-g(\d+)-u0-h(\d+)-z(\d+)/")
+@@ -88,6 +117,52 @@
+     return None
+ 
+ 
++def SCAL_OWN(bundle) -> list:
++    """[v17] per stage: does its schedule line carry an own clause"""
++    import zk60_native_rg_stagecal as SCAL
++    return [bool(SCAL.OWN_CLAUSE.search(ln)) for ln in bundle.run.get("stage_lines") or []]
++
++
++def _readme_layers(bundle):
++    """the README's declared export layers (`layers [a, b, ..]`), or None"""
++    p = os.path.join(getattr(bundle, "dir", ""), "README.md")
++    if not os.path.exists(p):
++        return None
++    m = README_LAYERS_LIST.search(open(p).read())
++    if not m:
++        return None
++    return [int(x) for x in m.group(1).replace(" ", "").split(",") if x != ""]
++
++
++def _layers_by_gamma(bundle, exp) -> dict:
++    """[v17] E3b: each stage's slot-14 gains against every export layer"""
++    from zk60_native_jv_field import P, f2_from_list
++    width = int(bundle.run["shape"]["width"])
++    rows, f, lay = [], [], []
++    for st in bundle.stages:
++        pubs = [t for t in st.doc["arguments"][GAMMA_SLOT]["tables"] if t["kind"] == "public"]
++        match = []
++        if len(pubs) >= 2 and all("values" in t for t in pubs[:2]):
++            v0, v1 = pubs[0]["values"], pubs[1]["values"]
++            ga = [f2_from_list(v0[i]) for i in range(width)]
++            gm = [f2_from_list(v1[i]) for i in range(width)]
++            for layer, L_ in sorted(exp["layers"].items()):
++                tab = L_["tables"]
++                if (len(tab["gamma_a"]) == width
++                        and all(ga[i] == (tab["gamma_a"][i] % P, 0) for i in range(width))
++                        and all(gm[i] == (tab["gamma_m"][i] % P, 0) for i in range(width))):
++                    match.append(layer)
++        else:
++            f.append(f"stage {st.index}: slot {GAMMA_SLOT} carries no two public gain tables "
++                     "with values (a capture without public tables)")
++        if len(match) != 1:
++            f.append(f"stage {st.index}: the gains match export layers {match}, not exactly one")
++        rows.append({"stage": st.index, "layers_matching": match})
++        lay.append(match[0] if len(match) == 1 else None)
++    return {"per_stage": rows, "findings": f,
++            "layer_of_stage": lay if not f else None, "ok": not f}
++
++
+ def export_check(bundle, export_dir, statement_path=None, record=None) -> dict:
+     f: list[str] = []
+     out = {"what": "the bundle's trained calibration against the export it "
+@@ -103,10 +178,28 @@
+     out["export_profile_sha256"] = prof_sha
+     if sh.get("trained_calibration") is not True:
+         f.append("E1: the bundle declares no trained calibration")
++    # [v17] E0: the export's integrity and every layer's constants
++    per_layer = list(prof.get("per_layer_constants_differ") or [])
++    exp = None
++    try:
++        import zk60_native_rg_tokenblocks as TB
++        exp = TB.load_export(export_dir)
++        out["E0_export_integrity"] = {"ok": exp["X8"]["ok"], "layers": len(exp["layers"]),
++                                      "per_layer_constants_differ": per_layer}
++        f.extend(f"E0: {x}" for x in exp["findings"])
++    except Exception as exc:  # noqa: BLE001
++        out["E0_export_integrity"] = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
++        f.append(f"E0: the export does not load ({type(exc).__name__}: {exc})")
+     # E1
+     e1 = {}
++    deferred = []
+     for key in CONSTANTS:
+         got, want = sh.get(key), pc.get(key)
++        if key in per_layer:
++            # [v17] compared below with the run calibration of the run's layers
++            deferred.append(key)
++            e1[key] = {"bundle": got, "export": want, "per_layer": True}
++            continue
+         e1[key] = {"bundle": got, "export": want, "equal": got == want}
+         if got != want:
+             f.append(f"E1: {key} is {got} in the bundle and {want} in the export")
+@@ -165,6 +258,65 @@
+         out["E3_statement"] = {"checked": False,
+                                "why": "no --statement given (stage-to-layer map "
+                                "and identity not checked)"}
++    # [v17] E3b: each stage's layer identified from its gains
++    gm = _layers_by_gamma(bundle, exp) if exp is not None else None
++    declared = _readme_layers(bundle)
++    e3b = {"identified": gm, "readme_declared_layers": declared,
++           "what": "slot 14's two public gamma tables of each stage against every "
++                   "export layer's gamma_a / gamma_m; the README list is not "
++                   "transcript-bound and is only compared"}
++    map_source = "E3 (the statement)" if layer_of_stage is not None else None
++    if gm is not None and gm.get("layer_of_stage") is not None:
++        if layer_of_stage is None:
++            layer_of_stage, map_source = gm["layer_of_stage"], "E3b (the gains)"
++        elif gm["layer_of_stage"] != layer_of_stage:
++            f.append(f"E3b: the gains identify layers {gm['layer_of_stage']}, the "
++                     f"statement {layer_of_stage}")
++    elif gm is not None and layer_of_stage is None and (
++            deferred or any(SCAL_OWN(bundle)) or _recovered_tables(record) is not None):
++        # a refusal only where a check below needs the map
++        f.extend(f"E3b: {x}" for x in gm["findings"])
++    if declared is not None and layer_of_stage is not None and declared != layer_of_stage:
++        f.append(f"E3b: the README declares layers {declared}, the stages are layers "
++                 f"{layer_of_stage}")
++    e3b["layer_of_stage"], e3b["map_source"] = layer_of_stage, map_source
++    out["E3b_layers_by_gamma"] = e3b
++    # [v17] E1 (per-layer fields) and E5 (each stage's calibration)
++    if deferred or any(SCAL_OWN(bundle)):
++        if layer_of_stage is None or exp is None:
++            f.append(f"E1: per-layer constant(s) {deferred} cannot be checked: no "
++                     "stage-to-layer map (E3 / E3b)")
++        else:
++            cals = TB.calibrations(exp, layer_of_stage)
++            out["E1_run_calibration"] = {"layers": layer_of_stage,
++                                         "run_values": cals["run_values"],
++                                         "per_layer_fields": cals["per_layer_fields"],
++                                         "tally": cals["run_value_tally"],
++                                         "rule": cals["rule"]}
++            for key in deferred:
++                got, want = sh.get(key), cals["run_values"].get(key)
++                e1[key].update({"run_calibration": want, "equal": got == want})
++                if got != want:
++                    f.append(f"E1: {key} is {got} in the bundle and {want} in the run "
++                             f"calibration of export layers {layer_of_stage}")
++            e5 = {"per_stage": []}
++            try:
++                import zk60_native_rg_stagecal as SCAL
++                shapes, srec = SCAL.stage_shapes(bundle.run)
++                e5["stage_lines"] = srec
++                for k, layer in enumerate(layer_of_stage):
++                    want = cals["stage_values"][k]
++                    got = {key: int(shapes[k][key]) for key in want}
++                    diff = sorted(key for key in want if got[key] != int(want[key]))
++                    e5["per_stage"].append({"stage": k, "layer": layer,
++                                            "at_its_own_calibration": shapes[k] is not sh,
++                                            "differing": diff, "ok": not diff})
++                    for key in diff:
++                        f.append(f"E5: stage {k} (layer {layer}) is proved at {key} "
++                                 f"{got[key]}, the export layer's is {want[key]}")
++            except ValueError as exc:
++                f.append(f"E5: the stage lines do not give each stage's calibration ({exc})")
++            out["E5_stage_calibration"] = e5
+     # E4
+     tabs = _recovered_tables(record)
+     if tabs is None:
+@@ -172,7 +324,7 @@
+                             "this pass (stage 3 or 8 of this bundle needed)"}
+     elif layer_of_stage is None:
+         out["E4_tables"] = {"checked": False, "why": "no stage-to-layer map "
+-                            "(needs --statement)"}
++                            "(needs --statement or E3b's identification)"}
+         f.append("E4: recovered tables present but no stage-to-layer map to "
+                  "compare them with")
+     else:
+diff -ruN -x __pycache__ frozen_v16/scripts/zk60_native_rg_gcontrols.py frozen_v17/scripts/zk60_native_rg_gcontrols.py
+--- frozen_v16/scripts/zk60_native_rg_gcontrols.py	2026-09-22 20:28:15.294491022 -0700
++++ frozen_v17/scripts/zk60_native_rg_gcontrols.py	2026-10-20 17:10:39.869318878 -0700
+@@ -174,6 +174,7 @@
+     rows, repaired_ok, pre_ok = [], 0, 0
+     for st in bundle.stages:
+         doc = st.doc
++        gate.set_stage(st.index)       # [v17] the stage's own calibration
+         gate.set_logup(doc["logup_challenges"])
+         lam_z = lam_z_of(doc)
+         for slot in BILINEAR_SLOTS:
+@@ -394,7 +395,11 @@
+                 "skipped": f"this shape has lkv = {lkv}: a point of one entry "
+                            "cannot be reordered, so the control does not exist "
+                            "here",
+-                "fires": False})
++                # [v17, gate round 14] a NAMED not-applicable null, which the
++                # status module reads as such (it was False, an unexplained
++                # false leaf at every lkv < 2 shape: the DD rung's first
++                # everything-pass showed it)
++                "fires": None})
+         else:
+             docs7 = _docs_with_group_point_perturbed(bundle, 0, 8, swap=True)
+             g7 = GroupFactors(bundle, replay=replay, stage_docs=docs7)
+diff -ruN -x __pycache__ frozen_v16/scripts/zk60_native_rg_gqa.py frozen_v17/scripts/zk60_native_rg_gqa.py
+--- frozen_v16/scripts/zk60_native_rg_gqa.py	2026-10-17 14:13:32.758667417 -0700
++++ frozen_v17/scripts/zk60_native_rg_gqa.py	2026-10-20 01:15:23.376590648 -0700
+@@ -204,6 +204,11 @@
+ from zk60_native_rg_tinyllama_r5_pins import (  # noqa: E402
+     ARGUMENT_DEFINITIONS as _R5_ARG)
+ _tl_merge1(ARGUMENT_DEFINITIONS, _R5_ARG, "ARGUMENT_DEFINITIONS")
++# [TINYLLAMA PORT v17, gate round 14] native R9's argument.rs, READ
++# (`zk60_native_rg_tinyllama_r9_pins`): the same repaired definition
++from zk60_native_rg_tinyllama_r9_pins import (  # noqa: E402
++    ARGUMENT_DEFINITIONS as _R9_ARG)
++_tl_merge1(ARGUMENT_DEFINITIONS, _R9_ARG, "ARGUMENT_DEFINITIONS")
+ 
+ 
+ def clog2(v: int) -> int:
+diff -ruN -x __pycache__ frozen_v16/scripts/zk60_native_rg_m125controls.py frozen_v17/scripts/zk60_native_rg_m125controls.py
+--- frozen_v16/scripts/zk60_native_rg_m125controls.py	2026-10-19 02:33:01.244746462 -0700
++++ frozen_v17/scripts/zk60_native_rg_m125controls.py	2026-10-20 01:15:23.348437649 -0700
+@@ -219,6 +219,8 @@
+ INDICATOR_SLOTS = {
+     "D": {0, 1, 14}, "Q": {15}, "S": {4, 17}, "Ht": {17}, "Kv": {16},
+     "F": {18}, "L": {3}, "Tab": {19}, "T": {2},
++    # [v17, gate round 14] a DD profile's dictionary: only SC_DD reads it
++    "Dd": {23},
+ }
+ 
+ # [v7, review round 2 Q-8] the two refusals that name the host slot's
+@@ -230,6 +232,10 @@
+ _DRAW_COUNT = re.compile(
+     r"^slot (\d+): this slot consumes (\d+) definition draws \(.*\) and the "
+     r"capture declares (\d+)$")
++# [v17, gate round 14] the DD arms' own refusal (argument.rs R9: a DD profile
++# refuses `pad_on` by name, so a domain made to look padded never reaches a
++# draw count there)
++_DD_PAD = re.compile(r"^slot (\d+): a DD profile's .* would host a pad term")
+ # a domain made to look padded adds ONE support table to its host slot, and
+ # TWO definition draws (the pad mu and zeta) to it
+ _EXTRA = {"public-table count": 1, "definition-draw count": 2}
+@@ -254,10 +260,13 @@
+         m = rx.match(said[0])
+         if m and int(m[1]) == host:
+             return mech, (int(m[2]), int(m[3]))
++    m = _DD_PAD.match(said[0])
++    if m and int(m[1]) == host:
++        return "DD pad refusal", None
+     return None, None
+ 
+ 
+-def g4_criterion(dom: str, host: int, arm: str, stopped: set, said: list) -> dict:
++def g4_criterion(dom: str, host: int, arm: str, stopped: set, said: list, dd: bool = False) -> dict:
+     """[v7, finding G-4, tightened per review round 2 Q-8] one arm's verdict
+     for one domain.
+ 
+@@ -272,16 +281,19 @@
+       host slot may stop.  This is the refusal M9-3's criterion always
+       expected; before v7 no perturbation reached it."""
+     mech, nums = refusal_mechanism(host, said)
++    # [v17] a DD arm (slots 17 / 23 at a DD profile) has no pad arithmetic:
++    # its refusal is argument.rs R9's by name, with no draw surplus
++    dd_arm = dd and host in (17, 23)
+     if arm == "indicator":
+         want_slots = set(INDICATOR_SLOTS[dom])
+-        allowed = ("public-table count", "definition-draw count")
++        allowed = ("public-table count", "definition-draw count") + (("DD pad refusal",) if dd_arm else ())
+     elif arm == "draw-count":
+         want_slots = {host}
+-        allowed = ("definition-draw count",)
++        allowed = ("DD pad refusal",) if dd_arm else ("definition-draw count",)
+     else:
+         raise ValueError(f"unknown M9-3 arm {arm!r}")
+     surplus = nums[0] - nums[1] if nums else None
+-    mech_ok = mech in allowed and surplus == _EXTRA[mech]
++    mech_ok = mech in allowed and (mech == "DD pad refusal" or surplus == _EXTRA[mech])
+     exact = stopped == want_slots
+     return {"arm": arm, "refusal_mechanism": mech,
+             "port_and_capture_numbers": list(nums) if nums else None,
+@@ -305,6 +317,10 @@
+     hosts = {"T": (2, "SC_TZC"), "Kv": (16, "SC_KVZC"), "F": (18, "SC_FZC"),
+              "L": (3, "SC_LZC"), "D": (14, "SC_DZC"), "Q": (15, "SC_QZC"),
+              "S": (17, "SC_SZC"), "Tab": (19, "SC_TAB")}
++    # [v17, gate round 14] a DD profile's dictionary domain, hosted by SC_DD
++    dd = int(bundle.run["shape"].get("dd_cap", 0)) > 0
++    if dd:
++        hosts["Dd"] = (23, "SC_DD")
+     # **[ROUND 9b] FINDING P-F2, repaired here.**  Until now this read
+     # `index.geom`, and a `PlaneIndex` has no `geom`: the `except` below
+     # turned every domain's pad state into `None`, `unpadded` came out
+@@ -349,7 +365,7 @@
+         said = [f["why"] for s in bad["per_stage"]
+                 for f in s["not_checked"] if f["slot"] == slot]
+         stopped = _stopped_slots(bad) - honest_stopped
+-        crit = g4_criterion(dom, slot, arm, stopped, said)
++        crit = g4_criterion(dom, slot, arm, stopped, said, dd=dd)
+         return {"refusal": said[0] if said else None,
+                 "slots_that_stopped_being_checked": sorted(stopped),
+                 "fires": bool(said), **crit}
+diff -ruN -x __pycache__ frozen_v16/scripts/zk60_native_rg_mask.py frozen_v17/scripts/zk60_native_rg_mask.py
+--- frozen_v16/scripts/zk60_native_rg_mask.py	2026-10-19 12:32:50.768880888 -0700
++++ frozen_v17/scripts/zk60_native_rg_mask.py	2026-10-20 01:15:23.338577685 -0700
+@@ -562,6 +562,11 @@
+ from zk60_native_rg_tinyllama_tk7_pins import (  # noqa: E402
+     MASK_LAYER_PINS as _TK7_MLP)
+ _tl_merge2(MASK_LAYER_PINS, _TK7_MLP, "MASK_LAYER_PINS")
++# [TINYLLAMA PORT v17, gate round 14] native R9 (DD): argument.rs, layout.rs,
++# shape.rs (`zk60_native_rg_tinyllama_r9_pins`)
++from zk60_native_rg_tinyllama_r9_pins import (  # noqa: E402
++    MASK_LAYER_PINS as _R9_MLP)
++_tl_merge2(MASK_LAYER_PINS, _R9_MLP, "MASK_LAYER_PINS")
+ 
+ # Files the mask port transcribes that NO bundle pins, so that nothing in
+ # this module can check them.  The digests were read at the capture commits
+diff -ruN -x __pycache__ frozen_v16/scripts/zk60_native_rg_planes.py frozen_v17/scripts/zk60_native_rg_planes.py
+--- frozen_v16/scripts/zk60_native_rg_planes.py	2026-09-20 14:43:06.930215949 -0700
++++ frozen_v17/scripts/zk60_native_rg_planes.py	2026-10-20 01:15:23.359854158 -0700
+@@ -56,7 +56,10 @@
+ 
+ # the nine domains of `private_block::shape::Dom`, in the order `ALL_DOMS`
+ # declares them (`pad.rs`); a name outside this set is a refusal
+-DOMAINS = ("T", "Ht", "L", "D", "Q", "Kv", "S", "F", "Tab")
++# [v17, gate round 14] plus `Dom::Dd`, the per-row division dictionary of a DD
++# profile (native R9 / D30, `layout.rs`): present only when the shape carries
++# `dd_cap > 0`, which `PlaneIndex` checks below
++DOMAINS = ("T", "Ht", "L", "D", "Q", "Kv", "S", "F", "Tab", "Dd")
+ 
+ IO_NAMES = {"Input": "IO_IN", "Output": "IO_OUT"}
+ 
+@@ -191,6 +194,19 @@
+                     f"another plane of the same domain has {prev}"
+                 )
+ 
++        # [v17, gate round 14] the dictionary's domain is present EXACTLY when
++        # the shape declares a dictionary, and then unpadded at
++        # |Dom::Dd| = q_heads * tokens * dd_cap (`Shape::check_dd_geometry`, R9)
++        shp = bundle.run["shape"]
++        dd_cap = int(shp.get("dd_cap", 0))
++        has_dd = "Dd" in self.domain_log
++        if has_dd != (dd_cap > 0):
++            f.append(f"the plane index {'has' if has_dd else 'has no'} Dom::Dd plane and the shape declares dd_cap {dd_cap}")
++        if has_dd and dd_cap > 0:
++            want_dd = shp["q_heads"] * shp["tokens"] * dd_cap
++            if want_dd & (want_dd - 1) or self.domain_log["Dd"] != want_dd.bit_length() - 1:
++                f.append(f"Dom::Dd has log_size {self.domain_log['Dd']}, and an unpadded dictionary of {want_dd} slots does not")
++
+         # ------------------------------- the totals against the shape section
+         for st in bundle.stages:
+             for role_name, want in (("A", self.a_data_rows), ("H", self.h_data_rows)):
+diff -ruN -x __pycache__ frozen_v16/scripts/zk60_native_rg_predict.py frozen_v17/scripts/zk60_native_rg_predict.py
+--- frozen_v16/scripts/zk60_native_rg_predict.py	2026-10-17 04:31:16.147015300 -0700
++++ frozen_v17/scripts/zk60_native_rg_predict.py	2026-10-20 01:16:36.718189251 -0700
+@@ -79,6 +79,21 @@
+ # and slots 02, 03 and 19 take no helper into their `mu`.
+ HOST_SLOT = {d: s for s, (_n, _t, doms, *_r) in ZERO_CHECK_SLOTS.items()
+              for d in doms}
++# [v17, gate round 14] at a DD profile (native R9 / D30): slot 17's DD arm
++# draws tau(log S) + mu(2 + n_help + 2) + nu(2) and never a pad term, and
++# slot 23 (`SC_DD`) draws tau(log Dd) + mu(3 + n_help + 1) (argument.rs R9)
++DD_ZERO_CHECK_SLOTS = {
++    17: ("SC_SZC (DD)", "S", ("Ht", "S"), 1, 4, 2),
++    23: ("SC_DD", "Dd", ("Dd",), 1, 4, 0),
++}
++
++
++def zero_check_slots(bundle) -> dict:
++    """[v17] the zero-check slots of THIS bundle's profile"""
++    z = dict(ZERO_CHECK_SLOTS)
++    if int(bundle.shape.raw.get("dd_cap", 0)) > 0:
++        z.update(DD_ZERO_CHECK_SLOTS)
++    return z
+ 
+ 
+ def true_size(sh: dict, dom: str) -> int:
+@@ -93,6 +108,8 @@
+         "S": sh["q_heads"] * sh["tokens"] * sh["tokens"],
+         "F": sh["tokens"] * sh["hidden"],
+         "Tab": U8_LEN,
++        # [v17] the DD dictionary (h, t | k), unpadded at a DD profile
++        "Dd": sh["q_heads"] * sh["tokens"] * max(sh.get("dd_cap", 0), 1),
+     }[dom]
+ 
+ 
+@@ -111,11 +128,13 @@
+     """`Shape::helpers(dom)`, read from the plane index: the `H` planes of
+     the domain, minus the ONE extra pair helper `Dom::S` and `Dom::F` carry
+     (`H_SEXP`, `H_FACT`; shape.rs:486-489)."""
+-    extra = {"S": "H_SEXP", "F": "H_FACT"}
++    # [v17] plus the DD tuple helper on Dom::S and the dictionary's table
++    # helper on Dom::Dd at a DD profile
++    extra = {"S": ("H_SEXP", "H_STUPLE"), "F": ("H_FACT",), "Dd": ("H_GDD",)}
+     out: dict = {}
+     for p in bundle.run["plane_index"]["h_planes"]:
+         d = p["domain"]
+-        if p["name"] == extra.get(d):
++        if p["name"] in extra.get(d, ()):
+             continue
+         out[d] = out.get(d, 0) + 1
+     return out
+@@ -143,12 +162,13 @@
+             "domain_log": log,
+             "padded_size": 1 << log,
+             "pads": (1 << log) != ts,
+-            "host_slot": HOST_SLOT.get(d),
++            "host_slot": HOST_SLOT.get(d, 23 if d == "Dd" else None),
+         })
+     slots = []
+     declared = [len(s["definition_challenges"]) for s in bundle.stages[0].slots]
+-    for s in sorted(ZERO_CHECK_SLOTS):
+-        name, tau_dom, hosts, uses_help, base, nu = ZERO_CHECK_SLOTS[s]
++    zcs = zero_check_slots(bundle)
++    for s in sorted(zcs):
++        name, tau_dom, hosts, uses_help, base, nu = zcs[s]
+         on = any((1 << logs[d]) != true_size(sh, d) for d in hosts)
+         n_pad = 1 if on else 0
+         n_help = helps.get(tau_dom, 0) if uses_help else 0
+@@ -171,7 +191,7 @@
+         "domains_that_do_not_pad": [d["domain"] for d in doms
+                                     if not d["pads"]],
+         "per_zero_check_slot": slots,
+-        "slots_whose_draw_count_is_derived_here": sorted(ZERO_CHECK_SLOTS),
++        "slots_whose_draw_count_is_derived_here": sorted(zcs),
+         "all_derived_counts_equal_the_capture": all(x["equal"] for x in slots),
+         "disagreements": [
+             f"slot {x['slot']} ({x['name']}): this module derives "
+@@ -524,10 +544,10 @@
+             "definition_draws_per_stage": n_defs,
+             "definition_draws_are_read_from_the_capture": True,
+             "definition_draws_derived_for": sorted(
+-                set(ZERO_CHECK_SLOTS) | {8, 9}),
++                set(zero_check_slots(bundle)) | {8, 9}),
+             "definition_draws_still_read_from_the_capture": [
+                 s for s in range(sh.n_slots)
+-                if s not in ZERO_CHECK_SLOTS and s not in (8, 9)],
++                if s not in zero_check_slots(bundle) and s not in (8, 9)],
+             "bilinear_definition_draws_derived_and_compared": bilinear,
+             "sumcheck_rounds_per_stage": sc_rounds,
+             "m_proximity_rhos_per_stage": m_prox,
+@@ -543,7 +563,8 @@
+         },
+         "masking": {
+             "rows": 2 * sh.n_slots + 4,
+-            "functionals": 34,
++            # [v17] + SC_DD's eval and Gamma at a DD profile (a Standalone slot)
++            "functionals": 34 + (2 if int(sh.raw.get("dd_cap", 0)) > 0 else 0),
+             "slot_lengths": lens,
+             "largest_L": max(lens),
+             "largest_L_slot": lens.index(max(lens)),
+@@ -557,7 +578,7 @@
+             "slot_checks_expected": sh.n_slots * L,
+             "why": "public_tables_included is "
+             f"{bundle.public_tables_included}, so "
+-            + ("every slot's tables are carried and all 23 can be evaluated"
++            + (f"every slot's tables are carried and all {sh.n_slots} can be evaluated"
+                if bundle.public_tables_included
+                else "the eleven table-bearing slots stay open"),
+         },
+diff -ruN -x __pycache__ frozen_v16/scripts/zk60_native_rg_runpins.py frozen_v17/scripts/zk60_native_rg_runpins.py
+--- frozen_v16/scripts/zk60_native_rg_runpins.py	2026-10-19 20:10:49.018610723 -0700
++++ frozen_v17/scripts/zk60_native_rg_runpins.py	2026-10-20 01:15:23.404712304 -0700
+@@ -993,6 +993,12 @@
+     READINGS as _TK9_READINGS, RUN_LAYER_PINS as _TK9_RLP)
+ _tl_merge2(RUN_LAYER_PINS, _TK9_RLP, "RUN_LAYER_PINS")
+ _tl_merge1(READINGS, _TK9_READINGS, "READINGS")
++# [TINYLLAMA PORT v17, gate round 14] the native R9 (DD) tree's run.rs and the
++# gate's patched capture writer (`zk60_native_rg_tinyllama_r9_pins`)
++from zk60_native_rg_tinyllama_r9_pins import (  # noqa: E402
++    READINGS as _R9_READINGS, RUN_LAYER_PINS as _R9_RLP)
++_tl_merge2(RUN_LAYER_PINS, _R9_RLP, "RUN_LAYER_PINS")
++_tl_merge1(READINGS, _R9_READINGS, "READINGS")
+ 
+ # --------------------------------------------------------------------------
+ # 4.  WHICH STAGES A MOVED PIN SUSPENDS
+diff -ruN -x __pycache__ frozen_v16/scripts/zk60_native_rg_schema.py frozen_v17/scripts/zk60_native_rg_schema.py
+--- frozen_v16/scripts/zk60_native_rg_schema.py	2026-10-17 14:47:39.657145843 -0700
++++ frozen_v17/scripts/zk60_native_rg_schema.py	2026-10-20 01:15:23.383368406 -0700
+@@ -137,6 +137,14 @@
+     'sh_h',
+     'sh_z',
+     'd_max',
++    # [v17, gate round 14] a DD profile's public dictionary geometry (D30;
++    # the gate's R9 capture patch H-2), written only when dd_cap > 0
++    'dd_cap',
++    'dd_log',
++    'dd_helpers',
++    'tag_dd',
++    'm_rows',
++    'n_functionals',
+     'input_root',
+     'output_root',
+     'rows',
+diff -ruN -x __pycache__ frozen_v16/scripts/zk60_native_rg_stagecal.py frozen_v17/scripts/zk60_native_rg_stagecal.py
+--- frozen_v16/scripts/zk60_native_rg_stagecal.py	1969-12-31 16:00:00.000000000 -0800
++++ frozen_v17/scripts/zk60_native_rg_stagecal.py	2026-10-20 17:12:21.595213539 -0700
+@@ -0,0 +1,165 @@
++#!/usr/bin/env python3
++"""[v17, gate round 14] EACH STAGE'S CALIBRATION in a native run bundle.
++
++Native R8 (R6 for sh_s) lets a layer carry its own calibration constants: the
++run proves that block's stage at `Shape::with_layer_calibration(apply_own(
++base, own))` (R9 `run.rs` `stage_shape`, :547-554), and says so in that
++stage's schedule line, one clause per constant in the canonical order of
++`trained_statement.rs` `OWN_FIELDS` (:381-393):
++
++    "; {label} {v} (the layer's own; the run's is {b})"    (run.rs :525-541)
++
++The schedule digest the run header absorbs is
++
++    blake3("hashline/private-run-schedule/1" + length-framed lines:
++           parameter_line, layout_description..., stage_lines...)
++                                                       (run.rs :572-587)
++
++and the gate's replay absorbs `run.json["schedule_digest"]` as bytes, so the
++replayed challenges bind the DIGEST.  This module binds the LINES to it:
++before any stage is evaluated at a calibration other than the run shape's,
++the digest is recomputed from run.json's own lines and must equal
++run.json's `schedule_digest`.
++
++`stage_shapes(run)` returns one shape dict per stage: the run shape itself
++(the same object) where the stage's line carries no own clause, else a copy
++with the clause's values and `d_max` / `norm_wrho` re-derived exactly as
++`NormCalibration::derive_at_width` (shape.rs :273-311).  Each refusal is a
++`ValueError` with its reason:
++
++  SC-1  a clause whose run value is not the run shape's value;
++  SC-2  a clause whose own value equals the run's (one encoding per
++        statement, trained_statement.rs :367);
++  SC-3  clauses out of the canonical order, or one field twice;
++  SC-4  text after "data rows N" that is not exactly the parsed clauses;
++  SC-5  an own clause in a bundle whose recomputed schedule digest is not
++        run.json's (or cannot be recomputed);
++  SC-6  a clause in a bundle that declares no trained calibration;
++  SC-7  a re-derived window outside the plane list's four norm limbs
++        (25..=32 bits), or D_max outside the three isqrt limbs.
++
++At a bundle whose lines carry no own clause nothing here changes any figure:
++every stage is the run shape.  A token-I/O run (`"token_io"` in run.json) is
++not read here: its block stages reach the port through tokenblocks' per-block
++shim, each at its block's calibration, and `stage_shapes` returns no shape.
++
++NOTHING HERE IS A PRIVACY STATEMENT.
++"""
++
++from __future__ import annotations
++
++import math
++import re
++
++# `trained_statement.rs:381-393` (R9 tree): (shape key, stage-line label)
++OWN_FIELDS = (("sh_s", "score shift"), ("norm_tn", "norm tn"),
++              ("norm_cn_a", "norm cn_a"), ("norm_cn_m", "norm cn_m"),
++              ("norm_ceps", "norm ceps"), ("sh_ao", "ao shift"),
++              ("sh_qkv", "qkv shift"), ("sh_o", "o shift"), ("sh_g", "gate shift"),
++              ("sh_h", "product shift"), ("sh_z", "down shift"))
++LABEL_KEY = {lab: k for k, lab in OWN_FIELDS}
++ORDER = {k: i for i, (k, _lab) in enumerate(OWN_FIELDS)}
++OWN_CLAUSE = re.compile(r"; (" + "|".join(re.escape(lab) for _k, lab in OWN_FIELDS)
++                        + r") (-?\d+) \(the layer's own; the run's is (-?\d+)\)")
++DATA_ROWS = re.compile(r"; data rows \d+")
++SCHEDULE_DOMAIN = b"hashline/private-run-schedule/1"
++INT16_ABS = 32768
++LIMBS_ISQRT = 3
++
++
++def schedule_digest(run: dict) -> dict:
++    """run.rs `schedule_digest`, recomputed from run.json's own lines"""
++    out = {"what": "blake3('hashline/private-run-schedule/1' + length-framed "
++           "parameter_line, layout_description, stage_lines), run.rs:572-587"}
++    try:
++        import blake3
++        h = blake3.blake3()
++        h.update(SCHEDULE_DOMAIN)
++        for s in [run["parameter_line"]] + list(run["layout_description"]) + list(run["stage_lines"]):
++            bs = s.encode()
++            h.update(len(bs).to_bytes(8, "little"))
++            h.update(bs)
++        out["recomputed"] = h.hexdigest()
++        out["run_json"] = bytes(run["schedule_digest"]).hex()
++        out["equal"] = out["recomputed"] == out["run_json"]
++    except Exception as exc:  # noqa: BLE001
++        out["equal"] = False
++        out["error"] = f"{type(exc).__name__}: {exc}"
++    return out
++
++
++def derive(sh: dict) -> tuple[int, int]:
++    """`NormCalibration::derive_at_width` (shape.rs:296-311): (d_max, wrho)"""
++    d_max = math.isqrt(int(sh["norm_ceps"]) + int(sh["width"]) * INT16_ABS * INT16_ABS)
++    wrho = int(sh["norm_tn"]) + 1 + d_max.bit_length()
++    return d_max, wrho
++
++
++def own_clauses(line: str) -> list[tuple[str, int, int]]:
++    """(key, own value, run value) per clause, after SC-3 / SC-4"""
++    m = DATA_ROWS.search(line)
++    if not m:
++        raise ValueError(f"SC-4: the stage line has no 'data rows' field: {line!r}")
++    tail = line[m.end():]
++    got = OWN_CLAUSE.findall(tail)
++    rebuilt = "".join(f"; {lab} {v} (the layer's own; the run's is {b})" for lab, v, b in got)
++    if rebuilt != tail:
++        raise ValueError(f"SC-4: the stage line's text after 'data rows' is not exactly "
++                         f"its own clauses: {tail!r}")
++    keys = [LABEL_KEY[lab] for lab, _v, _b in got]
++    if len(set(keys)) != len(keys) or keys != sorted(keys, key=ORDER.get):
++        raise ValueError(f"SC-3: own clauses out of the canonical OWN_FIELDS order or "
++                         f"repeated: {keys}")
++    return [(LABEL_KEY[lab], int(v), int(b)) for lab, v, b in got]
++
++
++def stage_shapes(run: dict) -> tuple[list, dict]:
++    """(one shape dict per stage, a record of what was read)"""
++    sh = run["shape"]
++    lines = list(run.get("stage_lines") or [])
++    rec = {"stage_lines": len(lines), "stages_at_their_own_calibration": [],
++           "own_clauses": {}, "schedule_digest": None}
++    if "token_io" in run:
++        # a token-I/O run: its block stages reach the terminals port through
++        # `zk60_native_rg_tokenblocks.TokenBlockShim`, one shim per block at
++        # that block's calibration (X6 reads the clauses); nothing here
++        rec["not_applied"] = ("a token-I/O run: each block stage's calibration is "
++                              "carried by tokenblocks' per-block shim")
++        return [], rec
++    parsed = [own_clauses(ln) for ln in lines]
++    any_own = any(parsed)
++    dig = schedule_digest(run) if lines else {"equal": None, "why": "no stage lines"}
++    rec["schedule_digest"] = dig
++    if any_own:
++        if sh.get("trained_calibration") is not True:
++            raise ValueError("SC-6: own calibration clauses in a bundle that declares "
++                             "no trained calibration")
++        if not dig.get("equal"):
++            raise ValueError("SC-5: a stage line carries own calibration clauses and the "
++                             "schedule digest recomputed from run.json's lines is not "
++                             f"run.json's schedule_digest ({dig})")
++    shapes = []
++    for k, cl in enumerate(parsed):
++        if not cl:
++            shapes.append(sh)
++            continue
++        s = dict(sh)
++        for key, v, b in cl:
++            if int(sh[key]) != b:
++                raise ValueError(f"SC-1: stage {k}'s line says the run's {key} is {b}, "
++                                 f"the run shape {sh[key]}")
++            if v == b:
++                raise ValueError(f"SC-2: stage {k}'s own {key} equals the run's ({v})")
++            s[key] = v
++        d_max, wrho = derive(s)
++        if not (25 <= wrho <= 32) or 2 * d_max >= (1 << (8 * LIMBS_ISQRT)):
++            raise ValueError(f"SC-7: stage {k}'s calibration derives window {wrho} bits / "
++                             f"D_max {d_max}, outside the plane list's limbs")
++        s["d_max"], s["norm_wrho"] = d_max, wrho
++        shapes.append(s)
++        rec["stages_at_their_own_calibration"].append(k)
++        rec["own_clauses"][str(k)] = {key: {"own": v, "run": b} for key, v, b in cl}
++    if lines:
++        d0, w0 = derive(sh) if sh.get("trained_calibration") is True else (None, None)
++        rec["run_shape_derivation_equal"] = (d0 is None or (d0 == sh.get("d_max") and w0 == sh.get("norm_wrho")))
++    return shapes, rec
+diff -ruN -x __pycache__ frozen_v16/scripts/zk60_native_rg_tcontrols.py frozen_v17/scripts/zk60_native_rg_tcontrols.py
+--- frozen_v16/scripts/zk60_native_rg_tcontrols.py	2026-10-17 03:47:45.121222378 -0700
++++ frozen_v17/scripts/zk60_native_rg_tcontrols.py	2026-10-20 01:15:23.364177798 -0700
+@@ -187,7 +187,10 @@
+     # slot 17's `A_SR0` and `A_SR1`: the same domain, the same row count, and
+     # both read by the same polynomial, so the swap is invisible to any check
+     # that only counts planes.
+-    swap_slot = 17
++    # [v17, gate round 14] at a DD profile (native R9 / D30) the division
++    # limbs `A_SR*` / `A_SG*` are the DICTIONARY's: slot 23 (`SC_DD`) reads
++    # them and slot 17 does not, so the same swap is made in slot 23
++    swap_slot = 23 if int(bundle.run["shape"].get("dd_cap", 0)) > 0 else 17
+     names17 = _names(index)[swap_slot]
+     i, j = names17.index("A_SR0"), names17.index("A_SR1")
+     table = _swapped_table(bundle, swap_slot, i, j)
+@@ -361,7 +364,14 @@
+ PAD_HOSTS = {"T": (2, "SC_TZC"), "L": (3, "SC_LZC"), "D": (14, "SC_DZC"),
+              "Q": (15, "SC_QZC"), "Kv": (16, "SC_KVZC"), "S": (17, "SC_SZC"),
+              "Ht": (17, "SC_SZC"), "F": (18, "SC_FZC"),
+-             "Tab": (19, "SC_TAB")}
++             "Tab": (19, "SC_TAB"),
++             # [v17, gate round 14] a DD profile's dictionary (only where the
++             # plane index has a Dd domain)
++             "Dd": (23, "SC_DD")}
++# [v17, gate round 14] at a DD profile the DD arms of slots 17 and 23 have NO
++# pad arithmetic: argument.rs R9 refuses `pad_on` by name, so a flipped pad
++# state must be refused by THAT name (the draws never differ)
++DD_PAD_REFUSAL = "would host a pad term"
+ 
+ 
+ def _pad_rule_controls(bundle, index, replay, honest) -> list:
+@@ -416,6 +426,10 @@
+             SlotCtx.pad_on = real
+         names_both = bool(said) and ("definition draws" in said[0]
+                                      and "the capture declares" in said[0])
++        # [v17] a DD arm: refused by argument.rs R9's own name instead
++        dd_arm = int(bundle.run["shape"].get("dd_cap", 0)) > 0 and slot in (17, 23)
++        if dd_arm:
++            names_both = bool(said) and DD_PAD_REFUSAL in said[0]
+         per.append({
+             "domain": dom,
+             "slot": slot,
+diff -ruN -x __pycache__ frozen_v16/scripts/zk60_native_rg_terminals.py frozen_v17/scripts/zk60_native_rg_terminals.py
+--- frozen_v16/scripts/zk60_native_rg_terminals.py	2026-10-19 12:32:50.767636110 -0700
++++ frozen_v17/scripts/zk60_native_rg_terminals.py	2026-10-20 17:10:39.863483502 -0700
+@@ -110,6 +110,7 @@
+     sys.path.insert(0, HERE)
+ 
+ from zk60_native_jv_cfs import sumcheck_final  # noqa: E402
++import zk60_native_rg_stagecal as SCAL  # noqa: E402  [v17] each stage's calibration
+ from zk60_native_rg_gqa import (  # noqa: E402
+     ARGUMENT_DEFINITIONS,
+     BILINEAR_SLOTS,
+@@ -587,6 +588,14 @@
+ from zk60_native_rg_tinyllama_tk7_pins import (  # noqa: E402
+     TERMINALS_PINNED_IF_PRESENT as _TK7_PIP)
+ _tl_merge2(PINNED_IF_PRESENT, _TK7_PIP, "PINNED_IF_PRESENT")
++# [TINYLLAMA PORT v17, gate round 14] native R9 (DD): layout.rs, protocol.rs,
++# the gate's patched plane_index.rs, shape.rs and pad.rs
++# (`zk60_native_rg_tinyllama_r9_pins`); the DD slots are ported in `ports_for`
++from zk60_native_rg_tinyllama_r9_pins import (  # noqa: E402
++    TERMINALS_ALSO_ACCEPTED as _R9_AA,
++    TERMINALS_PINNED_IF_PRESENT as _R9_PIP)
++_tl_merge2(ALSO_ACCEPTED, _R9_AA, "ALSO_ACCEPTED")
++_tl_merge2(PINNED_IF_PRESENT, _R9_PIP, "PINNED_IF_PRESENT")
+ 
+ # **ROUND 4 (2026-09-20), finding S19-F1.**  `argument.rs` is the file that
+ # decides what a slot's polynomial IS, and its stage-20 digest carries a
+@@ -682,6 +691,12 @@
+ U8_LEN = 256         # layout.rs:59
+ # `gamma.mul_base(Fp::new(TAG))`, tables_attn.rs
+ TAG_EXP, TAG_U8, TAG_ACT = 129, 133, 134
++# [v17, gate round 14: DD, native R9 / D30] the dictionary's LogUp tag
++# (layout.rs R9 `TAG_DD = 141`) and its zero-check, APPENDED as slot 23
++# (`SC_DD`), present only on a DD profile (`Shape::n_slots`)
++TAG_DD = 141
++SC_DD = 23
++SC_SZC = 17
+ 
+ POW256 = [(pow(256, j, P), 0) for j in range(4)]
+ 
+@@ -802,6 +817,8 @@
+             "S": s["q_heads"] * s["tokens"] * s["tokens"],
+             "F": s["tokens"] * s["hidden"],
+             "Tab": U8_LEN,
++            # [v17, gate round 14] `Shape::true_size(Dom::Dd)` (R9)
++            "Dd": s["q_heads"] * s["tokens"] * max(s.get("dd_cap", 0), 1),
+         }[dom]
+ 
+     def pads(self, dom: str) -> bool:
+@@ -1037,6 +1054,24 @@
+         v += [_byte("A_RVL"), _scaled("A_RVL", one(cal.sh_qkv))]
+         v += _sym("A_KR8")
+         v += [_byte("A_RKRL"), _scaled("A_RKRL", 2)]
++    elif dom == "S" and shape_raw.get("dd_cap", 0) > 0:
++        # [v17, gate round 14] R9 `layout.rs::lookups_at`, `Dom::S` at a DD
++        # profile: the division limbs are the DICTIONARY's (D30), never a
++        # score entry's
++        v += _sym("A_S8")
++        v += [_byte("A_RSL"), _scaled("A_RSL", one(cal.sh_s))]
++    elif dom == "Dd":
++        # [v17, gate round 14] R9 `layout.rs::lookups_at`, `Dom::Dd if
++        # sh.dd_cap > 0`: the quotient's limbs with its top pin, then rho_s's
++        # and sigma_s's, each with its top pin -- at EVERY dictionary slot
++        if shape_raw.get("dd_cap", 0) <= 0:
++            raise ValueError("Dom::Dd lookups asked of a shape without a dictionary")
++        v += [_byte(f"A_PL{j}") for j in range(lp)]
++        v += [_scaled(f"A_PL{lp - 1}", p_scale)]
++        v += [_byte(f"A_SR{j}") for j in range(ls)]
++        v += [_scaled(f"A_SR{ls - 1}", sigma_scale)]
++        v += [_byte(f"A_SG{j}") for j in range(ls)]
++        v += [_scaled(f"A_SG{ls - 1}", sigma_scale)]
+     elif dom == "S":
+         v += _sym("A_S8")
+         v += [_byte("A_RSL"), _scaled("A_RSL", one(cal.sh_s))]
+@@ -1151,6 +1186,8 @@
+         self.structural = structural
+         self.alpha, self.beta = gate.alpha, gate.beta
+         self.g_u8, self.g_exp, self.g_act = gate.g_u8, gate.g_exp, gate.g_act
++        # [v17, gate round 14] the dictionary's tag (None off a DD profile)
++        self.g_dd = gate.g_dd
+         self.main = arg["main"]
+         self.cube = 1 << arg["main"]
+         self.names = list(plane_names)
+@@ -1517,6 +1554,122 @@
+                mul(mul(mul(nu[1], v[cx.eq(2)]), g), host_s))
+ 
+ 
++def _dd_draws(cx, lt: int, n_mu: int, n_nu: int):
++    """[v17] a DD slot's definition draws: `tau(lt)`, `mu(n_mu)`, `nu(n_nu)`
++    and NO pad draws (a DD profile refuses `pad_on` in both DD arms,
++    argument.rs R9).  Refused by name when the capture declares another
++    count."""
++    want = lt + n_mu + n_nu
++    if len(cx.dc) != want:
++        raise ValueError(
++            f"slot {cx.slot}: this DD slot consumes {want} definition draws "
++            f"(tau {lt} + mu {n_mu} + nu {n_nu}, no pad term) and the capture "
++            f"declares {len(cx.dc)}"
++        )
++    return cx.dc[lt:lt + n_mu], cx.dc[lt + n_mu:want]
++
++
++def sc_szc_dd(v, cx):
++    """[v17, gate round 14] `SC_SZC if sh.dd_cap > 0` (argument.rs R9, the
++    softmax zero-check on a DD profile).  Draws tau(log S), mu(2 + n_help +
++    2), nu(2); no pad term (refused at a DD profile).  Push order: eq(tau)
++    eq(p_ht) eq(p_s) public(causal), `A_S8 .. A_P` (no division limbs: they
++    are the dictionary's), the `A_MX` and `A_SUM` `Dom::Ht` slices,
++    `H_S0 .. H_S{n-1}`, `H_SEXP`, `H_STUPLE`.
++
++    Each score entry keeps the argmax clauses c0 / c1, its byte lookups
++    (sym(s8), rsl) and the exp pair, and carries ONE tuple lookup into its
++    row's dictionary:
++    `h_t * (alpha - (gamma TAG_DD + Sum + beta * mask * E + beta^2 P)) = 1`."""
++    if cx.g.dd_cap <= 0:
++        raise ValueError("the DD softmax zero-check at a shape without a dictionary")
++    # argument.rs R9: `if pad_on { return Err(..) }` -- a DD profile has no
++    # padded score position (`Shape::check_dd_geometry`)
++    if cx.pad_on("Ht", "S"):
++        raise ValueError(f"slot {cx.slot}: a DD profile's softmax zero-check would host a pad "
++                         "term; D30 here needs an unpadded score domain (argument.rs R9)")
++    n_help = cx.g.n_helpers("S")
++    cx.expect(["A_S8", "A_RSL", "A_ZSEL", "A_E", "A_P", "A_MX", "A_SUM"]
++              + [f"H_S{j}" for j in range(n_help)] + ["H_SEXP", "H_STUPLE"])
++    lt = cx.g.log("S")
++    mu, nu = _dd_draws(cx, lt, 2 + n_help + 2, 2)
++    if nu[0] == ZERO or nu[1] == ZERO:
++        raise ValueError(f"slot {cx.slot}: a zero nu draw (argument.rs `nonzero`)")
++    im = cx.p("causal", None)
++    ght, gs = cx.p("supp", "Ht"), cx.p("supp", "S")
++    imx, isum = cx.t("A_MX"), cx.t("A_SUM")
++    lks = cx.g.lk_tables(cx, "S")
++    mask, s8 = v[im], v[cx.t("A_S8")]
++    zsel, e, pp = v[cx.t("A_ZSEL")], v[cx.t("A_E")], v[cx.t("A_P")]
++    sm = v[isum]
++    delta = add(sub(v[imx], mul(mask, add(s8, k(-MASK_SCORE)))), k(-MASK_SCORE))
++    c0 = sub(mul(zsel, zsel), zsel)
++    c1 = mul(zsel, delta)
++    cxx = sub(mul(v[cx.t("H_SEXP")],
++                  sub(cx.alpha, add(add(delta, mul(cx.beta, e)), cx.g_exp))), ONE)
++    beta2 = mul(cx.beta, cx.beta)
++    ct = sub(mul(v[cx.t("H_STUPLE")],
++                 sub(cx.alpha, add(add(add(cx.g_dd, sm), mul(cx.beta, mul(mask, e))),
++                                   mul(beta2, pp)))), ONE)
++    clauses = add(mul(mu[0], c0), mul(mu[1], c1))
++    g = gate_at(gs, v)
++    zc = add(add(add(helper_sum(v, lks, cx.t("H_S0"), cx.alpha, mu[2:2 + n_help]),
++                     mul(mu[2 + n_help], cxx)),
++                 mul(mu[3 + n_help], ct)),
++             mul(g, clauses))
++    host_rs = mul(mul(nu[0], gate_at(ght, v)), add(sm, cx.lam_z))
++    cal = cx.g.cal
++    host_s = mul(mul(nu[1], g), sub(add(mul(k(1 << cal.sh_s), s8), v[cx.t("A_RSL")]),
++                                    k(Calibration.half(cal.sh_s))))
++    return add(add(mul(v[cx.eq(0)], zc), mul(v[cx.eq(1)], host_rs)),
++               mul(v[cx.eq(2)], host_s))
++
++
++def sc_dd(v, cx):
++    """[v17, gate round 14] `SC_DD` (argument.rs R9, slot 23, the dictionary
++    zero-check, Standalone).  Draws tau(log Dd), mu(3 + n_help + 1); no pad
++    term.  Push order: eq(tau), `A_PDICT A_PL0.. A_SR0.. A_SG0.. A_MDD` (the
++    `a_range(P_dict, M_dd)`), the `A_SUM` slice on the leading (h, t)
++    variables, public(e column), `H_DD0 .. H_DD{n-1}`, `H_GDD`.
++
++    At EVERY slot of the cube (h, t | k), no usage gate:
++      c2: e 2^F_P - P_dict Sum - rho_s = 0
++      c3: rho_s + sigma_s + 1 - Sum = 0
++      c4: P_dict = limbs(P_dict)
++    the limbs' byte lookups with their top pins, and the TABLE helper
++    `g (alpha - (gamma TAG_DD + Sum + beta e + beta^2 P_dict)) = M_dd`."""
++    if cx.g.dd_cap <= 0:
++        raise ValueError("the dictionary zero-check at a shape without a dictionary")
++    if cx.pad_on("Dd"):
++        raise ValueError(f"slot {cx.slot}: a DD profile's dictionary would host a pad term; "
++                         "D30 here needs an unpadded dictionary (argument.rs R9)")
++    ls, lp = cx.g.counts["ls"], cx.g.counts["lp"]
++    n_help = cx.g.n_helpers("Dd")
++    cx.expect(["A_PDICT"] + [f"A_PL{j}" for j in range(lp)]
++              + [f"A_SR{j}" for j in range(ls)] + [f"A_SG{j}" for j in range(ls)]
++              + ["A_MDD", "A_SUM"]
++              + [f"H_DD{j}" for j in range(n_help)] + ["H_GDD"])
++    lt = cx.g.log("Dd")
++    mu, _nu = _dd_draws(cx, lt, 3 + n_help + 1, 0)
++    ie = cx.c("dd_e_column")
++    pd, md, sm, e = v[cx.t("A_PDICT")], v[cx.t("A_MDD")], v[cx.t("A_SUM")], v[ie]
++    sr = limbs(v, [cx.t(f"A_SR{j}") for j in range(ls)])
++    sg = limbs(v, [cx.t(f"A_SG{j}") for j in range(ls)])
++    pl = limbs(v, [cx.t(f"A_PL{j}") for j in range(lp)])
++    c2 = sub(sub(mul(k(1 << F_P), e), mul(pd, sm)), sr)
++    c3 = sub(add(add(sg, sr), ONE), sm)
++    c4 = sub(pd, pl)
++    beta2 = mul(cx.beta, cx.beta)
++    ctab = sub(mul(v[cx.t("H_GDD")],
++                   sub(cx.alpha, add(add(add(cx.g_dd, sm), mul(cx.beta, e)), mul(beta2, pd)))),
++               md)
++    division = add(add(mul(mu[0], c2), mul(mu[1], c3)), mul(mu[2], c4))
++    lks = cx.g.lk_tables(cx, "Dd")
++    inner = add(add(division, helper_sum(v, lks, cx.t("H_DD0"), cx.alpha, mu[3:3 + n_help])),
++                mul(mu[3 + n_help], ctab))
++    return mul(v[cx.eq(0)], inner)
++
++
+ def sc_fzc(v, cx):
+     """`SC_FZC` (argument.rs:1189-1245).  Draws tau(log F),
+     mu(4 + n_help + n_pad), nu(2), zeta(1).  Push order: eq(tau) eq(p_g)
+@@ -1889,6 +2042,13 @@
+     20: [("ones", "Tab")],
+     21: [],
+     22: [],
++    # [v17, gate round 14] the dictionary zero-check's one public table: the
++    # e column `sorted({0} U the exp table's outputs)` padded with 0 to
++    # `cap`, constant in (h, t) (`AttentionPublic::dd_e_column`, R9) -- a
++    # function of the block's public exp table, TAKEN from the capture and
++    # checked for its structure and against the exp table the same stage's
++    # slot 19 carries
++    23: [("captured", "dd_e_column", "dd_e_column")],
+ }
+ 
+ # The slots whose port needs a table no tool can rebuild from a bundle, and
+@@ -1911,6 +2071,9 @@
+                   "(table_values_exp_at, argument.rs:843)",
+     "act_values": "the activation lookup table's public rows i + beta*act[i] + g_act "
+                   "(table_values_act_at, argument.rs:854)",
++    "dd_e_column": "the DD dictionary's public e column, sorted({0} U the exp table's "
++                   "outputs) padded with 0 to cap, tiled over (h, t) "
++                   "(AttentionPublic::dd_e_column, private_block.rs R9)",
+ }
+ 
+ TAKEN_FROM_CAPTURE = {
+@@ -1976,6 +2139,27 @@
+     (22, "SC_IO_OUT", sc_io_out, None),
+ )
+ 
++def ports_for(bundle) -> tuple:
++    """[v17, gate round 14] THIS bundle's ported slots.  Off a DD profile it
++    is `PORTS` exactly.  At a DD profile (native R9 / D30) slot 17 is the DD
++    softmax zero-check (`sc_szc_dd`: no division clause, one tuple lookup)
++    and slot 23, the dictionary zero-check, is APPENDED, so a DD bundle's
++    24th slot is never silently uncovered."""
++    if int(bundle.run["shape"].get("dd_cap", 0)) <= 0:
++        return PORTS
++    out = []
++    for s, nm, fn, r in PORTS:
++        if s == SC_SZC:
++            out.append((s, "SC_SZC (DD)", sc_szc_dd, r))
++        else:
++            out.append((s, nm, fn, r))
++    out.append((SC_DD, "SC_DD", sc_dd,
++                "the slot's public table is the dictionary's e column, a function of "
++                "the block's public exp table, which a bundle without "
++                "`public_tables_included` does not carry"))
++    return tuple(out)
++
++
+ # The twelve that need nothing but the shape, and the eleven that need the
+ # captured public tables as well.
+ COVERED_WITHOUT_TABLES = tuple(s for s, _n, fn, r in PORTS if fn is not None and r is None)
+@@ -1986,10 +2170,12 @@
+ def covered_at(bundle) -> tuple:
+     """Which slots this port can evaluate for THIS bundle: the twelve
+     shape-only ones always, and the other eleven only when the bundle
+-    carries its public tables' values."""
++    carries its public tables' values.  [v17] Over `ports_for(bundle)`, so a
++    DD bundle's slot 23 counts (with its tables) and is never dropped."""
++    ports = ports_for(bundle)
+     if getattr(bundle, "public_tables_included", False):
+-        return COVERED
+-    return COVERED_WITHOUT_TABLES
++        return tuple(s for s, _n, fn, _r in ports if fn is not None)
++    return tuple(s for s, _n, fn, r in ports if fn is not None and r is None)
+ 
+ 
+ # =====================================================================
+@@ -2005,8 +2191,26 @@
+         self.geom = PadGeometry(self.shape_raw, index.domain_log)
+         # [TINYLLAMA PORT] the slot closures read `cx.g.cal`
+         self.cal = self.geom.cal
++        # [v17, gate round 14] EACH STAGE'S CALIBRATION (native R8 / R9
++        # `run.rs::stage_shape`): a stage whose schedule line carries the
++        # layer's own constants is evaluated at that calibration, after the
++        # schedule digest is recomputed from run.json's lines
++        # (`zk60_native_rg_stagecal`).  A refusal there is held here and
++        # raised by `set_stage`, so no stage is evaluated at a guessed shape.
++        self.run_shape_raw = self.shape_raw
++        self.stage = None
++        try:
++            self.stage_shapes, self.stage_calibration = SCAL.stage_shapes(bundle.run)
++            self.stage_shape_error = None
++        except ValueError as exc:
++            self.stage_shapes, self.stage_calibration = None, None
++            self.stage_shape_error = str(exc)
+         self.alpha = self.beta = None
+         self.g_u8 = self.g_exp = self.g_act = None
++        # [v17, gate round 14] a DD profile (native R9 / D30): `dd_cap` slots
++        # per (h, t) row; the dictionary's tag is set per stage
++        self.dd_cap = int(self.shape_raw.get("dd_cap", 0))
++        self.g_dd = None
+         self.public_tables: dict[tuple, str] = {}
+         self.public_digest_failures: list[str] = []
+         # round 3: the tables that are TAKEN from the capture, and the
+@@ -2028,6 +2232,20 @@
+                        "lp": self._group("A_PL")}
+         self._lk_cache: dict[str, list] = {}
+ 
++    def set_stage(self, k: int) -> None:
++        """[v17] evaluate stage `k` at ITS shape: the run shape, or (a layer
++        with its own constants) the shape its schedule line declares"""
++        if self.stage_shape_error is not None:
++            raise ValueError(f"stage calibration refused: {self.stage_shape_error}")
++        sh = self.stage_shapes[k] if k < len(self.stage_shapes) else self.run_shape_raw
++        self.stage = k
++        if sh is self.shape_raw:
++            return
++        self.shape_raw = sh
++        self.geom = PadGeometry(sh, self.index.domain_log)
++        self.cal = self.geom.cal
++        self._lk_cache = {}
++
+     def _group(self, prefix: str) -> int:
+         pat = re.compile("^" + prefix + r"\d+$")
+         return sum(1 for p in self.index.a_planes if pat.match(p.name))
+@@ -2040,6 +2258,9 @@
+         self.g_u8 = mulb(gamma, TAG_U8)
+         self.g_exp = mulb(gamma, TAG_EXP)
+         self.g_act = mulb(gamma, TAG_ACT)
++        # [v17, gate round 14] protocol.rs R9: `g_dd = gamma * TAG_DD` at every
++        # profile (read by a DD profile's two dictionary relations only)
++        self.g_dd = mulb(gamma, TAG_DD)
+ 
+     def log(self, dom: str) -> int:
+         return self.geom.log(dom)
+@@ -2048,9 +2269,12 @@
+         """`Shape::helpers(dom)`, READ from the plane index: the `H` planes of
+         the domain, minus the ONE extra pair helper `Dom::S` and `Dom::F`
+         carry (`H_SEXP`, `H_FACT` -- shape.rs:486-489)."""
+-        extra = {"S": "H_SEXP", "F": "H_FACT"}.get(dom)
++        # [v17, gate round 14] at a DD profile `Dom::S` also carries the
++        # score entry's tuple helper `H_STUPLE`, and `Dom::Dd` carries the
++        # dictionary's table helper `H_GDD` (shape.rs R9 `h_plane_doms`)
++        extra = {"S": ("H_SEXP", "H_STUPLE"), "F": ("H_FACT",), "Dd": ("H_GDD",)}.get(dom, ())
+         return sum(1 for n in self.h_plane_names_by_domain.get(dom, [])
+-                   if n != extra)
++                   if n not in extra)
+ 
+     def lk_tables(self, cx, dom: str):
+         """`lk_tables` (argument.rs:634), in this slot's table-index space."""
+@@ -2236,6 +2460,8 @@
+             out += self._rope_structure(kind, dom, label, vals)
+         elif structure == "lookup_values":
+             out += self._lookup_structure(label, vals)
++        elif structure == "dd_e_column":
++            out += self._dd_e_column_structure(label, vals)
+         else:
+             out.append(f"{label}: no structure check is declared for it")
+         if out:
+@@ -2280,6 +2506,68 @@
+         )
+         return out
+ 
++    def _dd_e_column_structure(self, label: str, vals) -> list:
++        """[v17, gate round 14] `AttentionPublic::dd_e_column` (R9) tiled over
++        the dictionary's cube: base-field integers; period `cap` (constant in
++        (h, t)); in one period, 0 first, then a STRICTLY increasing run of the
++        table's distinct nonzero outputs, then zero padding to `cap`; length
++        |Dom::Dd|.  That it is THIS block's exp table's column is checked
++        against the same stage's slot-19 exp table (`dd_e_column_attribution`)."""
++        out = []
++        cap = self.dd_cap
++        if cap <= 0:
++            return [f"{label}: a dictionary column at a shape without a dictionary"]
++        if len(vals) != self.geom.size("Dd"):
++            return [f"{label}: {len(vals)} entries, not |Dom::Dd| = {self.geom.size('Dd')}"]
++        if any(x[1] != 0 for x in vals):
++            out.append(f"{label}: an entry with a nonzero extension coordinate")
++        per = [x for x in range(len(vals)) if vals[x] != vals[x % cap]]
++        if per:
++            out.append(f"{label}: not periodic in cap = {cap} ({len(per)} positions differ, first {per[0]})")
++        col = [vals[x][0] for x in range(cap)]
++        if any(c >= P // 2 for c in col):
++            out.append(f"{label}: an entry that is not a small nonnegative integer")
++        n = 1
++        while n < cap and col[n] > col[n - 1]:
++            n += 1
++        if col[0] != 0:
++            out.append(f"{label}: the column does not start at 0")
++        if any(c != 0 for c in col[n:]):
++            out.append(f"{label}: the column is not a strictly increasing run then zero padding")
++        self.structure_detail.setdefault(label, []).append({"cap": cap, "n_col": n, "padding": cap - n})
++        return out
++
++    def dd_e_column_attribution(self, doc) -> dict:
++        """[v17, gate round 14] the e column slot 23 carries IS this stage's
++        block exp table's: the exp table is recovered from the SAME stage's
++        slot-19 captured `exp_values` (`value[x] = x + beta T[x] + g_exp`, as
++        `_lookup_structure` does), and `sorted({0} U T)` padded with 0 to
++        `cap` (`dd_e_column_of`, private_block.rs R9) must equal one period of
++        the captured column.  Call after `set_logup` for the stage."""
++        cap = self.dd_cap
++        a19, a23 = doc["arguments"][19], doc["arguments"][SC_DD]
++        pub19 = [t for t in a19["tables"] if t["kind"] == "public"]
++        pub23 = [t for t in a23["tables"] if t["kind"] == "public"]
++        if len(pub19) < 2 or not pub23 or pub19[1].get("values") is None or pub23[0].get("values") is None:
++            return {"checked": False, "why": "the stage carries no public table values"}
++        ev = [f2_from_list(x) for x in pub19[1]["values"]]
++        binv = f2_inv(self.beta)
++        exp = []
++        for i in range(U8_LEN):
++            t = mul(sub(sub(ev[i], k(i)), self.g_exp), binv)
++            if t[1] != 0:
++                return {"checked": True, "ok": False, "why": f"exp entry {i} is not a base-field value"}
++            exp.append(t[0] if t[0] < P // 2 else t[0] - P)
++        col = sorted(set([0] + exp))
++        if len(col) > cap:
++            return {"checked": True, "ok": False, "why": f"the exp table needs {len(col)} slots, more than cap {cap}"}
++        want = col + [0] * (cap - len(col))
++        got_vals = [f2_from_list(x) for x in pub23[0]["values"][:cap]]
++        got = [v[0] if v[0] < P // 2 else v[0] - P for v in got_vals]
++        return {"checked": True, "n_col": len(col), "cap": cap,
++                "ok": got == want and all(v[1] == 0 for v in got_vals),
++                "first_difference": next((i for i in range(cap) if got[i] != want[i]), None)}
++
+     def _lookup_structure(self, label: str, vals) -> list:
+         """`table_values_exp_at` / `table_values_act_at` (argument.rs:843,
+         :854): `value[x] = (x % 256) + beta * T[x % 256] + g`.  The port
+@@ -2403,7 +2691,7 @@
+ 
+ def check_terminals(bundle, index, replay=None, structural=True,
+                     stage_docs=None, slot_planes=None, check_digests=True,
+-                    group=None, force_definition=None) -> dict:
++                    group=None, force_definition=None, stage_shapes=None) -> dict:
+     """The per-slot terminal identity over every stage of the run.
+ 
+     `stage_docs` / `slot_planes` override the bundle's own, which is how a
+@@ -2417,8 +2705,15 @@
+     caller -- the gate and every control -- gets the derived factor without
+     asking.  `force_definition` makes a control evaluate the OTHER
+     definition of those two slots on these bytes.
++
++    `stage_shapes` ([v17]) replaces the per-stage shapes read from the stage
++    lines, which is how a calibration control evaluates a stage at a shape
++    other than the one the run declares, without writing any file.
+     """
+     gate = TerminalGate(bundle, index)
++    if stage_shapes is not None:
++        gate.stage_shapes, gate.stage_shape_error = list(stage_shapes), None
++        gate.stage_calibration = {"overridden_by_a_control": True}
+     covered = covered_at(bundle)
+     out = {
+         "what": "fin_s == c_s * mask_eval_s + poly_s(vals_s), the verifier's own "
+@@ -2435,7 +2730,7 @@
+         "covered_slots": list(covered),
+         "covered_without_captured_tables": list(COVERED_WITHOUT_TABLES),
+         "covered_only_with_captured_tables": [s for s in covered
+-                                              if s in COVERED_WITH_TABLES],
++                                              if s in COVERED_WITH_TABLES or s == SC_DD],
+         "slot_checks_attempted": 0,
+         "slot_checks_equal": 0,
+         "slot_checks_matching_the_stored_terminal_polynomial": 0,
+@@ -2445,7 +2740,7 @@
+         "public_table_structure_checks": 0,
+         "public_table_structure_failures": [],
+         "open_slots": [{"slot": s, "name": n, "reason": r}
+-                       for s, n, fn, r in PORTS if s not in covered],
++                       for s, n, fn, r in ports_for(bundle) if s not in covered],
+         "per_stage": [],
+         "findings": [],
+         # [round 5, finding K4-F1] every key a CALLER reads, present from the
+@@ -2474,6 +2769,17 @@
+             "ok": False,
+         },
+     }
++    # [v17, gate round 14] each stage's calibration (native R8 / R9
++    # `stage_shape`), read from the stage lines and bound to the schedule
++    # digest; a refusal stops the check before any slot is evaluated
++    out["stage_calibration"] = gate.stage_calibration
++    if gate.stage_shape_error is not None:
++        out["findings"].append(f"stage calibration refused: {gate.stage_shape_error}")
++        out["refused_before_any_slot_was_evaluated"] = (
++            "a stage's calibration could not be bound to the schedule digest "
++            "or did not parse: NO slot of any stage was checked")
++        out["ok"] = False
++        return out
+     if not out["source_pins"]["ok"]:
+         out["findings"].append(
+             "the bundle's source pins are not the ones this port was read at: "
+@@ -2510,10 +2816,18 @@
+     }
+     for st in bundle.stages:
+         doc = docs[st.index]
++        gate.set_stage(st.index)
+         gate.set_logup(doc["logup_challenges"])
+         lam_z = lam_z_of(doc)
+         row = {"stage": st.index, "checked": [], "equal": [], "not_checked": []}
+-        for s, nm, fn, _reason in PORTS:
++        # [v17, gate round 14] at a DD bundle: the e column's attribution to
++        # this stage's exp table (slot 19's captured values)
++        if gate.dd_cap > 0:
++            att = gate.dd_e_column_attribution(doc)
++            out.setdefault("dd_e_column_attribution", []).append({"stage": st.index, **att})
++            if att.get("checked") and not att.get("ok"):
++                out["findings"].append(f"stage {st.index}: the dictionary's e column is not this stage's exp table's ({att})")
++        for s, nm, fn, _reason in ports_for(bundle):
+             arg = doc["arguments"][s]
+             if s not in covered:
+                 row["not_checked"].append({"slot": s, "name": nm, "why": "OPEN"})
+diff -ruN -x __pycache__ frozen_v16/scripts/zk60_native_rg_tinyllama_r9_pins.py frozen_v17/scripts/zk60_native_rg_tinyllama_r9_pins.py
+--- frozen_v16/scripts/zk60_native_rg_tinyllama_r9_pins.py	1969-12-31 16:00:00.000000000 -0800
++++ frozen_v17/scripts/zk60_native_rg_tinyllama_r9_pins.py	2026-10-20 01:15:23.402605476 -0700
+@@ -0,0 +1,267 @@
++#!/usr/bin/env python3
++"""[TINYLLAMA PORT, tools v17, 2026-10-20, gate round 14: DD, native R9] The
++READINGS behind every source pin of the bundles captured from the gate's copy
++of the native lane's frozen R9 tree, which the earlier readings do not cover.
++They are merged at the same definition sites as the R5b, R7, tk7 and tk9
++readings, one marked line each.  No existing digest or reading changes; the
++merge refuses a digest that is already present.
++
++THE TREE.  `ops/zkp-mvp/trained-1b-gate-r9/` is an rsync of
++`results/zk60_1b_native_20261017/r9/frozen-tree/` (tree af90c703..., 222 of
++222 files equal to `r9/manifest_frozen.json`), plus the gate's TEST-ONLY
++capture patch H-1..H-5 (`round14/DD_CAPTURE_HOOK_REQUEST.md`): three files,
++`run_capture.rs`, `plane_index.rs` and `run_capture_tests.rs`, all
++`#[cfg(test)]` (`private_block.rs:220-230`).  Every production file is
++byte-equal to R9.
++
++R9 = native R8 + DD, the per-row division dictionary (register D30; D24
++review r9 ACCEPTED it on soundness at the three DD profiles,
++`results/zk60_d24_review_20261017/R9_VERDICT.md`).  A capture pins 46 files;
++32 are byte-identical to the R7 pins read in v8.  The other 14 are read
++here, each against the closest digest this gate has read:
++
++* the nine files R8 did not change (protocol, argument, layout, shape,
++  wire, hash_domain, witness, pad, trained_statement): frozen-r7's bytes,
++  which the earlier readings hold, so each R9 reading is R9's own hunk;
++* run.rs, private_block.rs and trained_block.rs, which the token lane also
++  touched: read against frozen-r7's digest (the token r7c readings), the
++  token lane's hunks being ABSENT in native R9 and R9's DD hunks added;
++* the gate's two patched test-only files, read against R9's own.
++
++THE PROFILE GATE [READ].  Every R9 change is branched on `sh.dd_cap > 0`, a
++field set only for the three DD profiles (`shape.rs` R9 `DD_PROFILES`).  At
++every other profile the slots, the plane lists, the 50 mask rows, the 34
++functionals, the schedule and the transcript are R8's; the native lane's
++`r9_golden_tests.rs` asserts the non-DD byte identity, and D24 r9 confirmed
++it.  So the existing ports' transcriptions stay valid for non-DD bundles at
++these digests; at a DD bundle the DD slots are ported separately in v17
++(`zk60_native_rg_terminals.ports_for`: SC_SZC's DD arm and SC_DD).
++
++NOTHING HERE IS A PRIVACY STATEMENT.
++"""
++
++from __future__ import annotations
++
++TREE = ("uncommitted:ops/zkp-mvp/trained-1b-gate-r9 "
++        "(the native lane's frozen R9 tree af90c703 + the privacy-gate lane's test-only "
++        "DD capture patch H-1..H-5; sources manifest round14/trained-1b-gate-r9.sources.v1.sha256)",)
++R9_BUNDLES = ("dd-rung-l1-dense", "dd-rung-l1-zero", "dd-rung-l2-dense", "dd-rung-l2-zero",
++              "tl128dd-l1-dense", "tl128dd-l1-zero", "tl128dd-l2-dense", "tl128dd-l2-zero")
++
++RUN_RS = "cf80735dbea505fef939abb91ed23ed5d4b74d2a9a1464727f6f7058dfc11339"
++RUN_CAPTURE_RS = "c24b32c68cc83441163da1ffe5393af9fb5ebe70c54fadfdb4c6bab6bb9082f3"
++PLANE_INDEX_RS = "0fe9eb4d3cd83fc742de9c3f889cb498bd7ad51fcbc5e4ca9414542828d57222"
++ARGUMENT_RS = "112352bc35c8b877cba50707a5ea64ea239ec6c684becb193ad981bd643ff4f5"
++LAYOUT_RS = "9332802e597beacab56cfa69cfe18325bc476d2ce6485f517051992b26d26efa"
++PROTOCOL_RS = "c482402329e4da32a70c780435b2077e8054d1805b1006289f571820017564a4"
++SHAPE_RS = "e214db86945e0b9df8336edc7974041ebcfe77f2f1884a565a77a0392fca1165"
++PAD_RS = "20afa04f6418b4f14050736f55e21d7cf15718e4632323b30427f1c21ec5b4a8"
++
++# the report-only pins (no gate port transcribes them), each read
++REPORT_ONLY = {
++    "src/private_block/wire.rs": (
++        "f312067871bb87dc93436263b5820e5f3fb9a9623f190efc924023a28c5d41d0",
++        "read against `c8c13033` (R8 = frozen-r7): +14 / -14, ten hunks, every one "
++        "`N_SLOTS` -> `lay.n_slots()` or `M_ROWS` -> `lay.m_rows()` in the segment "
++        "size, the slot-count refusal, the mask-column length refusal and the two "
++        "parsers (prover and verifier).  23 and 50 at every non-DD profile"),
++    "src/private_block/hash_domain.rs": (
++        "2012142194303e3b7d4bf0757d89621ae9d78c000cd5b58aac33de43bd946214",
++        "read against `da61c1d9`: +4 / -2, one hunk in `imposed_at_shape`'s census: "
++        "the slot-term lengths over `0..sh.n_slots()` and the IO condition `s == "
++        "SC_IO_IN || s == SC_IO_OUT` (was `s >= SC_IO_IN`; equal over 0..23).  No "
++        "domain, label or key moves"),
++    "src/private_block.rs": (
++        "5e50acd54e7e3e4926b03e9e329073116f278ad203fdcd175e3230464041432c",
++        "read against `08551c3d` (native R8; frozen-r7's `45286ae8` is it plus the "
++        "token lane's `mod token_io` and CLI re-exports, absent here): +43 / -1.  "
++        "Two `#[cfg(test)]` module lines (r9_golden_tests, r9_tests); "
++        "`AttentionPublic::dd_e_column(cap)` / `dd_e_column_of(exp, cap)`: "
++        "sorted({0} U exp outputs) padded with 0 to cap, refused by name above cap "
++        "(D30 (6)); `BlockPublic::check_for_shape` calls it at a DD shape only"),
++    "src/private_block/witness.rs": (
++        "d1a859187b58ac12c9bda0b0c98c25d85d24d87b6100724fd9d697f9b7fad607",
++        "read against `130f6301`: +147 / -7, four hunks.  A `#[cfg(test)]` DD cheat "
++        "(off in release); the `Dom::Dd` position list; the score entry's division "
++        "limbs written only off DD; at DD, per (h, t) row and per slot k of the e "
++        "column, q = e_k 2^F_P / Sum, rho, sigma = Sum - 1 - rho range-checked, "
++        "P_dict and its limbs written, and M_dd counting each score entry's (mask E) "
++        "column position.  Off DD every plane is R8's"),
++    "src/private_block/trained_statement.rs": (
++        "ac61bf90cc0d93da24c6049d6be61e7d7b9d75c662ca3817d855692de777cb52",
++        "read against `e623c227`: +2 / -2, one hunk: the TinyLlama / Llama-3-8B "
++        "family tests also admit the DD profiles.  The identity encoder and `check` "
++        "are outside it"),
++    "src/private_block/trained_block.rs": (
++        "357e27974e4f3c8224cb0aca9e52a56d2e4ebef68b22e7e255febf2b3048628d",
++        "read against `0943bade` (frozen-r7 = native R8 `cc401eb4` plus the token "
++        "lane's ten `fn` -> `pub(crate) fn` visibility changes, absent here): R9's "
++        "hunks are the DD geometries (TinyLlamaDd, Llama3_8BDd, RungDdDev), "
++        "`Geometry::dd()` (refused by name off T128 / the DD rung), `is_dd`, their "
++        "run profiles, scope string and shape constructors (the DD rung fixes f_e "
++        "12), the trained door's cap refusal (D30 (6)) and the CLIs' `--dd` flag.  "
++        "Without `--dd` no geometry is DD"),
++}
++
++RUN_LAYER_PINS = {
++    "src/private_block/run.rs": {
++        RUN_RS: {
++            "blob": "13e61011dd0090dc90fbdb78c5ad4341648faabf",
++            "commits": TREE,
++            "bundles": R9_BUNDLES,
++            "bytes": 78868,
++        },
++    },
++    "src/private_block/run_capture.rs": {
++        RUN_CAPTURE_RS: {
++            "blob": "a08b1e5010b1518cebb82244bcafafcdc3234e8e",
++            "commits": TREE,
++            "bundles": R9_BUNDLES,
++            "bytes": 92248,
++            "pins_g2": True,
++            "pins_nr4d": True,
++        },
++    },
++}
++
++READINGS = {
++    ("src/private_block/run.rs", RUN_RS):
++        "[TINYLLAMA PORT v17, gate round 14] read against `2c158dc9` (frozen-r7, the "
++        "token r7c reading) and native R8's `d913a081`.  Native R9 has none of the "
++        "token lane's hunks (the TOKEN_IO profile constants, their shape arms, the "
++        "blocks-only refusal, `token: None`).  R9's hunks against R8, +19 / -1, five: "
++        "three DD run-profile constants (TinyLlama T128, Llama-3-8B T128, the DD "
++        "rung); their `registered_block_shape` arms; the DD block profiles' run "
++        "profiles in `run_profile_of`; `RunShape::rung_dd`; `M_ROWS` -> `lay.m_rows()` "
++        "in the commitment row list (50 off DD).  The header, the stage order, the "
++        "boundary absorb, the position tags, the opening order and `stage_shape` are "
++        "outside them",
++    ("src/private_block/run_capture.rs", RUN_CAPTURE_RS):
++        "[TINYLLAMA PORT v17, gate round 14] the gate's TEST-ONLY patch, read against "
++        "R9's own `e1c87a07` (= native R8's `1d43d68c` plus one line: `run.json`'s "
++        "slot list takes `n_slots` entries).  H-1: the stage close compares the "
++        "stage's own `lay.n_slots()` (was the constant 23).  H-2: `n_slots` is "
++        "`sh.n_slots()`, and at a DD shape six public geometry keys (dd_cap, dd_log, "
++        "dd_helpers, tag_dd, m_rows, n_functionals), each on the allow-list.  The "
++        "gate's trained-calibration shape keys (the R5b patch, line for line) and the "
++        "README's trained-weights sentence.  The recorder's own transcript replay, "
++        "the slot record, the plane-order check and every allow-list entry before "
++        "these are unchanged; `SHARED_SOURCE_FILES` pins G-2's and N-r4-d's three",
++}
++
++TERMINALS_ALSO_ACCEPTED = {
++    "src/private_block/layout.rs": {
++        LAYOUT_RS:
++            "[TINYLLAMA PORT v17, gate round 14] read against `ee871fff` (R8 = "
++            "frozen-r7): +184 / -32, 26 hunks, every one DD-gated or a widening "
++            "that is the identity off DD: `Dom::Dd`; `Ids::new`'s DD segment table "
++            "(the p / rho_s / sigma_s limbs move to Dom::Dd between P_dict and M_dd, "
++            "after the feed-forward planes); `HIds` gains `stuple` (Dom::S), the Dd "
++            "helpers and `gdd`, and `is_table` includes `gdd`; `lookups_at` puts the "
++            "division limbs on Dom::Dd at DD; `SC_DD = 23`, `MAX_SLOTS = 24`, "
++            "`TAG_DD = 141`, a 24th SLOT_NAMES / SLOT_KINDS entry (Standalone); "
++            "`slot_terms`' IO condition `==` (equal over 0..23); the Layout arrays "
++            "sized MAX_SLOTS and every prefix over `n_slots`; `m_rows`, "
++            "`lookup_doms`; the schedule's dictionary line (DD only).  Off DD the "
++            "plane lists, slots, sites and lookups this port transcribes are R8's",
++    },
++    "src/private_block/protocol.rs": {
++        PROTOCOL_RS:
++            "[TINYLLAMA PORT v17, gate round 14] read against `85ca8931` (R8 = R7): "
++            "+133 / -7, eleven hunks.  `logup_sum_claim` skips the two DD columns "
++            "only under a `#[cfg(test)]` lapse (constant false in release); "
++            "`dd_tuples` / `dd_misses` / `refuse_dictionary_misses` and CS-3 for the "
++            "dictionary in the sealing pass and in `prove_core` before the A mask "
++            "draws (DD only); `M_ROWS` -> `lay.m_rows()` in three phase marks; at DD "
++            "the H columns `stuple` and `gdd` written (every dictionary slot "
++            "inverted on every attempt, D30 (4)); `Ctx` carries `g_dd = gamma "
++            "TAG_DD` on both sides.  `transcript()`'s absorbs, the (beta, gamma, "
++            "alpha) draw, the slot loop, the commitment calls and the openings are "
++            "outside every hunk",
++    },
++    "src/private_block/plane_index.rs": {
++        PLANE_INDEX_RS:
++            "[TINYLLAMA PORT v17, gate round 14] the gate's TEST-ONLY patch H-3, read "
++            "against `13a7dd6f` (R7..R9).  At a DD shape only: the A and H name "
++            "tables in `Ids::new` / `HIds::new`'s DD order (A_PDICT, A_PL*, A_SR*, "
++            "A_SG* and A_MDD on Dom::Dd after the feed-forward block; H_STUPLE after "
++            "H_SEXP; H_DD* and H_GDD after H_FACT); the slot loop over "
++            "`lay.n_slots()`; the IO condition `s == SC_IO_IN || s == SC_IO_OUT`; "
++            "slot 23's push order (a_range(P_dict, M_dd), A_SUM, the Dd helpers, "
++            "gdd) and SC_SZC's DD push order (A_S8..A_P, A_MX, A_SUM, the S helpers, "
++            "H_SEXP, H_STUPLE).  Off DD every list is the R7 one",
++    },
++}
++
++TERMINALS_PINNED_IF_PRESENT = {
++    "src/private_block/shape.rs": {
++        SHAPE_RS:
++            "[TINYLLAMA PORT v17, gate round 14] read against `8c62519c` (R8 = "
++            "frozen-r7): +201 / -36, 25 hunks.  The three DD profiles and their "
++            "geometries (`DD_CAP = 32`); `dd_cap` set only for them and "
++            "`check_dd_geometry` (unpadded heads, tokens and dictionary; cap a power "
++            "of two); `Dom::Dd`'s log and size; the DD branches of `a_plane_doms`, "
++            "`h_plane_doms`, `lookups_per_position`, `claim_sites` (slot 23: the Dd "
++            "A planes + A_SUM, the Dd helpers + gdd; SC_SZC +1 H); `BASE_DEGREE`'s "
++            "24th entry (4); `slots` / `slot_terms` / `slot_lengths` over "
++            "`n_slots`; `n_slots`, `m_rows`, `n_functionals` (+2 at DD), A groups "
++            "+2 and H groups +1 at DD; `lookup_doms`.  Off DD every value this port "
++            "reads is R8's",
++    },
++    "src/private_block/pad.rs": {
++        PAD_RS:
++            "[TINYLLAMA PORT v17, gate round 14] read against `4f0c11c5`: +10 / -3, "
++            "five hunks.  `Dom::Dd`'s bit forms (h, t | k) and its host / indicator "
++            "slot SC_DD, listed for totality: a DD dictionary never pads "
++            "(`check_dd_geometry`), so no pad term is built for it; a test-only "
++            "array widened to MAX_SLOTS.  Every non-DD indicator is R8's",
++    },
++}
++
++MASK_LAYER_PINS = {
++    "src/private_block/argument.rs": {
++        ARGUMENT_RS: {
++            "commits": TREE,
++            "bundles": R9_BUNDLES,
++            "reading": "[TINYLLAMA PORT v17, gate round 14] read against `02df55eb`: "
++            "+179 / -2.  The slot loop runs `0..sh.n_slots()` and the functional "
++            "guard is `sh.n_functionals()` (23 / 34 off DD); `run_slot`'s "
++            "M-functional block, `fn sum_weights` and the host order are outside "
++            "the hunks, so the declared functional order is round 8's with SC_DD's "
++            "two functionals (eval, Gamma: a Standalone slot) in slot order",
++        },
++    },
++    "src/private_block/layout.rs": {
++        LAYOUT_RS: {
++            "commits": TREE,
++            "bundles": R9_BUNDLES,
++            "reading": "[TINYLLAMA PORT v17, gate round 14] see the terminals "
++            "reading; for this port: `M_ROWS = 2 N_SLOTS + 4` stays 50 and the "
++            "layout's `m_rows()` is `2 n_slots + 4` (52 at DD); `mask_specs` over "
++            "`slots()` (n_slots entries); SLOT_KINDS' 24th entry Standalone",
++        },
++    },
++    "src/private_block/shape.rs": {
++        SHAPE_RS: {
++            "commits": TREE,
++            "bundles": R9_BUNDLES,
++            "reading": "[TINYLLAMA PORT v17, gate round 14] `Shape::slots` over "
++            "`n_slots` (slot 23 on Dom::Dd, base degree 4), `n_functionals` 34 + 2 "
++            "at DD, `m_rows` 2 n_slots + 4; ruling C-4's budget is unchanged",
++        },
++    },
++}
++
++ARGUMENT_DEFINITIONS = {
++    ARGUMENT_RS: (
++        "repaired",
++        "[TINYLLAMA PORT v17, gate round 14] read against `02df55eb` (R8 = R7, the "
++        "repaired definition): +179 / -2, six hunks.  `#[cfg(test)]` DD lapse "
++        "switches (`dd_lapse` is the constant false in release); `Ctx.g_dd`; the "
++        "DD arm of SC_SZC (`if sh.dd_cap > 0`: no division clause, one tuple "
++        "lookup) and SC_DD (the dictionary zero-check), both refusing a pad term; "
++        "the slot loop over `n_slots` and the functional guard `n_functionals`.  "
++        "The bilinear arms SC_SCORE / SC_PV, every non-DD arm and every push "
++        "order outside DD are byte-identical -- stage 20's repaired definition",
++    ),
++}
+diff -ruN -x __pycache__ frozen_v16/scripts/zk60_native_rg_tlcontrols.py frozen_v17/scripts/zk60_native_rg_tlcontrols.py
+--- frozen_v16/scripts/zk60_native_rg_tlcontrols.py	2026-10-17 14:55:19.379820372 -0700
++++ frozen_v17/scripts/zk60_native_rg_tlcontrols.py	2026-10-20 17:12:21.595347071 -0700
+@@ -23,6 +23,24 @@
+   and keys present are each REFUSED by `Calibration` (no silent mixture of a
+   frozen and a trained reading).
+ 
++[v17, gate round 14] A run whose layers carry their OWN constants (native
++R8 / R9 `stage_shape`) is evaluated stage by stage at each stage's
++calibration (`zk60_native_rg_stagecal`).  TL-1 and TL-2 then perturb EVERY
++stage's shape (passed to `check_terminals` as `stage_shapes`), and their
++prediction is per (stage, slot): stage k fails in the slots that read a
++constant that differs at stage k.  Two families are added:
++
++* **TL-5** (the failing-first control of the per-stage calibration) each
++  stage with own constants evaluated at the RUN shape instead, as tools v16
++  would: predicted, exactly that stage's slots that read one of its own
++  constants, and nothing else.  Named not applicable at a run without own
++  constants.
++* **TL-6** the stage-line reader's refusals on edited copies of run.json:
++  an own value changed in a line (SC-5, the schedule digest), a clause's run
++  value that is not the shape's (SC-1), a clause equal to the run's (SC-2),
++  two clauses swapped (SC-3), and a mistyped label (SC-4).  Each must be
++  refused with its code.
++
+ Nothing is written to the bundle: each perturbation is a shallow copy of the
+ loaded bundle with a modified `run["shape"]`.  NOTHING HERE IS A PRIVACY
+ STATEMENT.
+@@ -49,6 +67,7 @@
+     Calibration,
+     check_terminals,
+ )
++import zk60_native_rg_stagecal as SCAL  # noqa: E402  [v17]
+ 
+ # Which slot's relation (or lookup list) reads which calibration constant,
+ # from `argument.rs` / `layout.rs` at the trained digests (the readings in
+@@ -152,10 +171,100 @@
+     return out
+ 
+ 
++def tl5_run_shape_at_own_stages(bundle, index, replay, shapes_of) -> list:
++    """[v17] **TL-5: a stage with its own constants evaluated at the RUN
++    shape** (what tools v16 did for every stage).  Predicted: exactly that
++    stage's slots that read one of its own constants fail, and no slot of
++    any other stage."""
++    run_shape = bundle.run["shape"]
++    own = [k for k, sh in enumerate(shapes_of) if sh is not run_shape]
++    if not own:
++        return [{"control": "TL-5", "skipped": "no stage carries its own "
++                 "calibration constants (every stage is at the run shape)",
++                 "ok": True, "fires": None}]
++    out = []
++    for k in own:
++        keys = [key for key in TRAINED_KEYS if int(shapes_of[k][key]) != int(run_shape[key])]
++        stages = list(shapes_of)
++        stages[k] = run_shape
++        rec = check_terminals(bundle, index, replay=replay, stage_shapes=stages)
++        got = _failing_pairs(rec)
++        want = {(k, sl) for key in keys for sl in READS[key]}
++        c = {"control": f"TL-5/stage-{k}", "perturbation": f"stage {k} evaluated "
++             f"at the run shape, not at its own {keys}",
++             "predicted_failing": sorted(list(x) for x in want),
++             "failing": sorted(list(x) for x in got), "fires": not rec["ok"],
++             "exactly_as_predicted": got == want}
++        c["ok"] = c["fires"] and c["exactly_as_predicted"]
++        out.append(c)
++    return out
++
++
++def tl6_stage_line_refusals(bundle) -> list:
++    """[v17] **TL-6: the stage-line reader refuses edited lines**, each by
++    its code (`zk60_native_rg_stagecal` SC-1..SC-5), on copies of run.json.
++    At a run whose lines carry no own clause, one is ADDED for SC-5 (an
++    unbound clause) and the others are named not applicable."""
++    run = bundle.run
++    if "token_io" in run:
++        return [{"control": "TL-6", "skipped": "a token-I/O run: the stage-line "
++                 "reader does not apply (tokenblocks' per-block shim)", "ok": True,
++                 "fires": None}]
++    lines = list(run.get("stage_lines") or [])
++    k = next((i for i, ln in enumerate(lines) if SCAL.OWN_CLAUSE.search(ln)), None)
++    cases = []
++    if k is None:
++        if not lines or run["shape"].get("trained_calibration") is not True:
++            return [{"control": "TL-6", "skipped": "no stage lines or no trained "
++                     "calibration", "ok": True, "fires": None}]
++        b = int(run["shape"]["sh_s"])
++        v = b + 1 if b + 1 <= WINDOWS["sh_s"][1] else b - 1
++        added = lines[-1] + f"; score shift {v} (the layer's own; the run's is {b})"
++        cases.append(("TL-6/added-clause", "SC-5", len(lines) - 1, added))
++    else:
++        ln = lines[k]
++        m = SCAL.OWN_CLAUSE.search(ln)
++        lab, v, b = m.group(1), int(m.group(2)), int(m.group(3))
++        clause = m.group(0)
++        cases.append(("TL-6/own-value-edited", "SC-5", k, ln.replace(
++            clause, f"; {lab} {v + 1} (the layer's own; the run's is {b})", 1)))
++        cases.append(("TL-6/run-value-not-the-shape's", "SC-1", k, ln.replace(
++            clause, f"; {lab} {v} (the layer's own; the run's is {b + 1})", 1)))
++        cases.append(("TL-6/own-equal-to-run", "SC-2", k, ln.replace(
++            clause, f"; {lab} {b} (the layer's own; the run's is {b})", 1)))
++        clauses = SCAL.OWN_CLAUSE.findall(ln[SCAL.DATA_ROWS.search(ln).end():])
++        if len(clauses) >= 2:
++            head = ln[:SCAL.DATA_ROWS.search(ln).end()]
++            sw = [clauses[1], clauses[0]] + clauses[2:]
++            cases.append(("TL-6/clauses-swapped", "SC-3", k, head + "".join(
++                f"; {a} {x} (the layer's own; the run's is {y})" for a, x, y in sw)))
++        cases.append(("TL-6/label-mistyped", "SC-4", k, ln.replace(
++            clause, clause.replace(lab, lab.upper(), 1), 1)))
++    out = []
++    for name, code, at, edited in cases:
++        r2 = dict(run)
++        l2 = list(lines)
++        l2[at] = edited
++        r2["stage_lines"] = l2
++        if code in ("SC-1", "SC-2", "SC-3", "SC-4"):
++            # bind the edited lines, so the refusal is the reader's and not the digest's
++            dig = SCAL.schedule_digest(r2)
++            r2["schedule_digest"] = list(bytes.fromhex(dig["recomputed"]))
++        try:
++            SCAL.stage_shapes(r2)
++            refused, why = False, None
++        except ValueError as exc:
++            refused, why = True, str(exc)
++        ok = refused and why.startswith(code)
++        out.append({"control": name, "stage": at, "expected_code": code,
++                    "refused": refused, "why": why, "fires": refused, "ok": ok})
++    return out
++
++
+ def tl_controls(bundle, index=None, replay=None, only=None) -> dict:
+     """`only`: a set of families to run ({"TL-1", "TL-2", "TL-3", "TL-4"}); all
+     by default"""
+-    fam = set(only) if only else {"TL-1", "TL-2", "TL-3", "TL-4"}
++    fam = set(only) if only else {"TL-1", "TL-2", "TL-3", "TL-4", "TL-5", "TL-6"}
+     shape = bundle.run["shape"]
+     cal = Calibration(shape)
+     if not cal.trained:
+@@ -177,33 +286,64 @@
+         out["why"] = "the honest identity does not hold; no control is meaningful"
+         return out
+ 
++    # [v17] each stage's calibration (the run shape where a stage carries no
++    # own constant); TL-1 / TL-2 perturb every stage's shape
++    stage_shapes, stage_rec = SCAL.stage_shapes(bundle.run)
++    out["stage_calibration"] = stage_rec
++    n_st = len(bundle.stages)
++    shapes_of = [stage_shapes[k] if k < len(stage_shapes) else shape for k in range(n_st)]
++
++    def _pairs_reading(keys_per_stage):
++        return {(k, sl) for k, keys in enumerate(keys_per_stage) for key in keys
++                for sl in READS[key]}
++
+     # TL-1: the frozen calibration
+     if "TL-1" in fam:
+         frozen_shape = {k: v for k, v in shape.items()
+                         if k not in TRAINED_KEYS + ("trained_calibration", "d_max")}
++        frozen_stages = [{k: v for k, v in sh.items()
++                          if k not in TRAINED_KEYS + ("trained_calibration", "d_max")}
++                         for sh in shapes_of]
+         differs = [k for k in TRAINED_KEYS if FROZEN_CALIBRATION[k] != cal.values[k]]
+-        want = set().union(*(READS[k] for k in differs)) if differs else set()
+-        rec = check_terminals(_with_shape(bundle, frozen_shape), index, replay=replay)
+-        got = _failing_slots(rec)
++        differs_at = [[k for k in TRAINED_KEYS if FROZEN_CALIBRATION[k] != int(sh[k])]
++                      for sh in shapes_of]
++        want = set().union(*(READS[k] for kk in differs_at for k in kk)) if any(differs_at) else set()
++        want_pairs = _pairs_reading(differs_at)
++        rec = check_terminals(_with_shape(bundle, frozen_shape), index, replay=replay,
++                              stage_shapes=frozen_stages)
++        got, got_pairs = _failing_slots(rec), _failing_pairs(rec)
+         c = {"control": "TL-1", "perturbation": "the frozen calibration "
+-             "(trained keys removed)", "constants_that_differ": differs,
++             "(trained keys removed) at every stage", "constants_that_differ": differs,
++             "constants_that_differ_per_stage": differs_at,
+              "predicted_failing_slots": sorted(want), "failing_slots": sorted(got),
+-             "fires": not rec["ok"], "exactly_as_predicted": got == want}
++             "predicted_failing_pairs": sorted(list(x) for x in want_pairs),
++             "failing_pairs": sorted(list(x) for x in got_pairs),
++             "fires": not rec["ok"],
++             "exactly_as_predicted": got == want and got_pairs == want_pairs}
+         c["ok"] = c["fires"] and c["exactly_as_predicted"]
+         out["controls"].append(c)
+ 
+-    # TL-2: each constant moved by one step inside its class
++    # TL-2: each constant moved by one step inside its class, at every stage
+     if "TL-2" in fam:
+         for name in TRAINED_KEYS:
+             moved = dict(shape)
+             moved[name] = _step(name, int(shape[name]))
+-            rec = check_terminals(_with_shape(bundle, moved), index, replay=replay)
+-            got = _failing_slots(rec)
++            moved_stages = [dict(sh, **{name: _step(name, int(sh[name]))}) for sh in shapes_of]
++            want_pairs = _pairs_reading([[name]] * n_st)
++            rec = check_terminals(_with_shape(bundle, moved), index, replay=replay,
++                                  stage_shapes=moved_stages)
++            got, got_pairs = _failing_slots(rec), _failing_pairs(rec)
++            per_stage = sorted({(sh[name], ms[name]) for sh, ms in zip(shapes_of, moved_stages)})
+             c = {"control": f"TL-2/{name}", "perturbation":
+-                 f"{name} {shape[name]} -> {moved[name]}",
++                 f"{name} {shape[name]} -> {moved[name]}" + (
++                     "" if len(per_stage) == 1 else
++                     f" (per stage {', '.join(f'{a} -> {b}' for a, b in per_stage)})"),
+                  "predicted_failing_slots": sorted(READS[name]),
+-                 "failing_slots": sorted(got), "fires": not rec["ok"],
+-                 "exactly_as_predicted": got == READS[name]}
++                 "failing_slots": sorted(got),
++                 "predicted_failing_pairs": sorted(list(x) for x in want_pairs),
++                 "failing_pairs": sorted(list(x) for x in got_pairs),
++                 "fires": not rec["ok"],
++                 "exactly_as_predicted": got == READS[name] and got_pairs == want_pairs}
+             c["ok"] = c["fires"] and c["exactly_as_predicted"]
+             out["controls"].append(c)
+ 
+@@ -227,6 +367,11 @@
+     # TL-4 (v5, review P-20): one layer reads another layer's table
+     if "TL-4" in fam:
+         out["controls"] += tl4_table_swaps(bundle, index, replay)
++    # TL-5 / TL-6 (v17): the per-stage calibration
++    if "TL-5" in fam:
++        out["controls"] += tl5_run_shape_at_own_stages(bundle, index, replay, shapes_of)
++    if "TL-6" in fam:
++        out["controls"] += tl6_stage_line_refusals(bundle)
+     live = [c for c in out["controls"] if not c.get("skipped")]
+     out["fired"] = sum(1 for c in live if c["ok"])
+     out["of"] = len(live)
+diff -ruN -x __pycache__ frozen_v16/scripts/zk60_native_run_gate.py frozen_v17/scripts/zk60_native_run_gate.py
+--- frozen_v16/scripts/zk60_native_run_gate.py	2026-10-19 20:10:49.018819455 -0700
++++ frozen_v17/scripts/zk60_native_run_gate.py	2026-10-20 17:15:27.759437048 -0700
+@@ -215,6 +215,11 @@
+     "zk60_native_rg_tokenio_r9_pins.py",
+     # [v15, gate round 10] the readings of the frozen-r9 (tk9) block bundles
+     "zk60_native_rg_tinyllama_tk9_pins.py",
++    # [v17, gate round 14] the readings of the native R9 (DD) bundles
++    "zk60_native_rg_tinyllama_r9_pins.py",
++    # [v17, gate round 14] each stage's calibration (native R8 / R9
++    # `stage_shape`), imported by the terminals port and the export check
++    "zk60_native_rg_stagecal.py",
+ ]
+ 
+ EXPECTED_DISCLOSED = {
+@@ -467,6 +472,15 @@
+             **({"refused_before_any_slot_was_evaluated":
+                 terms["refused_before_any_slot_was_evaluated"]}
+                if "refused_before_any_slot_was_evaluated" in terms else {}),
++            # [v17, gate round 14] present only where they apply, so no
++            # earlier record gains a leaf: the stages evaluated at their
++            # layer's own calibration (bound to the schedule digest), and at
++            # a DD bundle the e column's attribution to each stage's exp table
++            **({"stage_calibration": terms["stage_calibration"]}
++               if (terms.get("stage_calibration") or {}).get("stages_at_their_own_calibration")
++               else {}),
++            **({"dd_e_column_attribution": terms["dd_e_column_attribution"]}
++               if "dd_e_column_attribution" in terms else {}),
+         },
+         "controls": ctl,
+         "channel_status": "derived" if covered_ok else "open",

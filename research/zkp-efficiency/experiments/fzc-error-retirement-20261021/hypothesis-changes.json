@@ -1,0 +1,11 @@
+{
+  "preserved_entries": 34,
+  "changed_ranks": [
+    34
+  ],
+  "rank_order_unchanged": true,
+  "owner_top_four_unchanged": true,
+  "tested_rank": 34,
+  "new_question": "Can completion observed on an unrecorded/stale event accidentally certify retirement, and can quarantine be bounded before admission rather than after failure?",
+  "result": "Recorded success, generation/context, full captured frontier and closed submissions required. Reserve all active/idle/quarantined capacity before launch; failed frees remain charged. No time gain established."
+}

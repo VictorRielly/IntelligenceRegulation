@@ -1,0 +1,127 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/gpu/cuda.rs",
+    "snapshot": "r8__cuda.rs",
+    "sha256": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/pcs.rs",
+    "snapshot": "r8__pcs.rs",
+    "sha256": "8b14096b66f6597e3cdfe239a7359457dd17dfd475c2a5d0f4e112a41342127f"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/gpu/mod.rs",
+    "snapshot": "r8__gpu__mod.rs",
+    "sha256": "d651be2ccf8f19ff75fe6bca5ad42f4b773b569d0ae2017306f0bf819c51b283"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/protocol.rs",
+    "snapshot": "r8__private_block__protocol.rs",
+    "sha256": "85ca893173c4bfc0d8c88be69dbd0834831d4aec4ec9783c66e0b61d614615f6"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/run.rs",
+    "snapshot": "r8__private_block__run.rs",
+    "sha256": "d913a081b82d54b6a1a67cd938afe1700910e820d9b3a97019a398f8b61ea609"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/argument.rs",
+    "snapshot": "r8__private_block__argument.rs",
+    "sha256": "02df55ebec4da046d5522dfc14bf17a691c1fca851f014ba50a759502804e3b5"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/cuda.rs",
+    "snapshot": "gpu__cuda.rs",
+    "sha256": "dcc0e4bcd76c009827d30d8b1547e043118619948f59e63e75b132c5e6a38629"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/pcs.rs",
+    "snapshot": "gpu__pcs.rs",
+    "sha256": "8b14096b66f6597e3cdfe239a7359457dd17dfd475c2a5d0f4e112a41342127f"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/mod.rs",
+    "snapshot": "gpu__gpu__mod.rs",
+    "sha256": "f14964ed2103f3281c18456d9b61fb953e4100ec531106224d37cbe7082266f1"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/protocol.rs",
+    "snapshot": "gpu__private_block__protocol.rs",
+    "sha256": "4612a955a1148ba821e3d8722684ccb1d73304bb34955dcd3be28cafdbdc8e7d"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/run.rs",
+    "snapshot": "gpu__private_block__run.rs",
+    "sha256": "9d324ad0871f8932c5e872f74f6aa01e6e4120b8d23cea6771cddccd2e9c4daa"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/argument.rs",
+    "snapshot": "gpu__private_block__argument.rs",
+    "sha256": "9e70bbe558d7771b16f2a6f7f526ad3e548895d32ed0f6b897b85d0dd48b29b5"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/fzc.rs",
+    "snapshot": "gpu__gpu__fzc.rs",
+    "sha256": "af3cd6ac97f85347ed95ebac732c920a18ab921013be3ec31657e28cfb35ecc1"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/src/gpu/cuda.rs",
+    "snapshot": "root__cuda.rs",
+    "sha256": "a0ed0b3af7e38bd9a842cc0c024f9c12cc988c81fa586d2e4a67d5c7c5c11e9d"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/src/pcs.rs",
+    "snapshot": "root__pcs.rs",
+    "sha256": "9537915b26b21ea906b0098d14afedf65c3d33320619bd380d4987d0c5fcf5a7"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/src/gpu/mod.rs",
+    "snapshot": "root__gpu__mod.rs",
+    "sha256": "706ca7fafb3e54114ca7c7241541a52ed6238764314f2877585071a1be37a31c"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/src/private_block/protocol.rs",
+    "snapshot": "root__private_block__protocol.rs",
+    "sha256": "d9455a1054aab7e18e1cba0194416a83847e862db26d8b4f5b9cf982ba082d65"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/src/private_block/argument.rs",
+    "snapshot": "root__private_block__argument.rs",
+    "sha256": "e62f46c29fe41848737e157b65c16d11d2c2c9501722b88660420a7a21a642ab"
+  },
+  {
+    "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cudarc-0.13.9/src/driver/safe/alloc.rs",
+    "snapshot": "cudarc__src__driver__safe__alloc.rs",
+    "sha256": "47876a4ff5a5dc96395f5034e73131a03c49be8d7c3c9cd5878c76f51eb06bc6"
+  },
+  {
+    "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cudarc-0.13.9/Cargo.toml",
+    "snapshot": "cudarc__Cargo.toml",
+    "sha256": "566378d5e2009a2eb0e14f2b4913fe652f613860687cfa069db5c82e66901705"
+  },
+  {
+    "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cudarc-0.13.9/LICENSE-MIT",
+    "snapshot": "cudarc__LICENSE-MIT",
+    "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+  },
+  {
+    "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cudarc-0.13.9/LICENSE-APACHE",
+    "snapshot": "cudarc__LICENSE-APACHE",
+    "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+  },
+  {
+    "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cudarc-0.13.9/.cargo_vcs_info.json",
+    "snapshot": "cudarc__vcs-info.json",
+    "sha256": "8eb275fe6272dc1dafb9142bad3e4df3e7d1b6ea4e959a9a061ce9869d3068f1"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/Cargo.lock",
+    "snapshot": "gpu__Cargo.lock",
+    "sha256": "722437e6295d83d4478ac7d0f1758053516058098db7d64fb11448fb70c2b372"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/pcs.rs",
+    "snapshot": "gpu__core__pcs.rs",
+    "sha256": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495"
+  }
+]

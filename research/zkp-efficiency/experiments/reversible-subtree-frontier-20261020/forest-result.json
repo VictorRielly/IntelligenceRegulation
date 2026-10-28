@@ -1,0 +1,3368 @@
+{
+  "status": "PASS",
+  "checks": 240,
+  "profiles": [
+    {
+      "model": "TinyLlama",
+      "T": 32,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 50659328,
+      "fmax": 12,
+      "columns": 84,
+      "original_leaves": 5972224,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 39797248,
+            "cache_key_reads": 0,
+            "build_muls": 85599489,
+            "build_adds": 28533163,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 8665664,
+          "peak_plan": {
+            "n": 262144,
+            "f": 12,
+            "B": 64,
+            "peak_phase": "d18/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 39797248,
+            "cache_key_reads": 0,
+            "build_muls": 115791105,
+            "build_adds": 38597035,
+            "restore_muls": 51179520,
+            "restore_subs": 10063872,
+            "inversions": 3067904
+          },
+          "peak_bytes": 8665664,
+          "peak_plan": {
+            "n": 262144,
+            "f": 12,
+            "B": 64,
+            "peak_phase": "d18/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 30191616,
+            "build_adds": 10063872,
+            "restore_muls": 51179520,
+            "restore_subs": 10063872,
+            "inversions": 3067904
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 39797248,
+            "cache_key_reads": 2981888,
+            "build_muls": 115791105,
+            "build_adds": 38597035,
+            "restore_muls": 43229184,
+            "restore_subs": 10063872,
+            "inversions": 2736128
+          },
+          "peak_bytes": 8665664,
+          "peak_plan": {
+            "n": 262144,
+            "f": 12,
+            "B": 64,
+            "peak_phase": "d18/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 2981888,
+            "build_muls": 30191616,
+            "build_adds": 10063872,
+            "restore_muls": 43229184,
+            "restore_subs": 10063872,
+            "inversions": 2736128
+          }
+        }
+      }
+    },
+    {
+      "model": "TinyLlama",
+      "T": 32,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 50659328,
+      "fmax": 14,
+      "columns": 84,
+      "original_leaves": 5972224,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 27968000,
+            "cache_key_reads": 0,
+            "build_muls": 55493889,
+            "build_adds": 18497963,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 9452096,
+          "peak_plan": {
+            "n": 262144,
+            "f": 14,
+            "B": 16,
+            "peak_phase": "d18/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 27968000,
+            "cache_key_reads": 0,
+            "build_muls": 76875009,
+            "build_adds": 25625003,
+            "restore_muls": 30769152,
+            "restore_subs": 7127040,
+            "inversions": 3997696
+          },
+          "peak_bytes": 9452096,
+          "peak_plan": {
+            "n": 262144,
+            "f": 14,
+            "B": 16,
+            "peak_phase": "d18/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 21381120,
+            "build_adds": 7127040,
+            "restore_muls": 30769152,
+            "restore_subs": 7127040,
+            "inversions": 3997696
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 27968000,
+            "cache_key_reads": 2932736,
+            "build_muls": 76875009,
+            "build_adds": 25625003,
+            "restore_muls": 25362432,
+            "restore_subs": 7127040,
+            "inversions": 2867200
+          },
+          "peak_bytes": 9452096,
+          "peak_plan": {
+            "n": 262144,
+            "f": 14,
+            "B": 16,
+            "peak_phase": "d18/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 2932736,
+            "build_muls": 21381120,
+            "build_adds": 7127040,
+            "restore_muls": 25362432,
+            "restore_subs": 7127040,
+            "inversions": 2867200
+          }
+        }
+      }
+    },
+    {
+      "model": "TinyLlama",
+      "T": 32,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 50659328,
+      "fmax": 15,
+      "columns": 84,
+      "original_leaves": 5972224,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 22102528,
+            "cache_key_reads": 0,
+            "build_muls": 44680449,
+            "build_adds": 14893483,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 10500672,
+          "peak_plan": {
+            "n": 262144,
+            "f": 15,
+            "B": 8,
+            "peak_phase": "d18/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 22102528,
+            "cache_key_reads": 0,
+            "build_muls": 59032833,
+            "build_adds": 19677611,
+            "restore_muls": 18776064,
+            "restore_subs": 4784128,
+            "inversions": 3309568
+          },
+          "peak_bytes": 10500672,
+          "peak_plan": {
+            "n": 262144,
+            "f": 15,
+            "B": 8,
+            "peak_phase": "d18/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 14352384,
+            "build_adds": 4784128,
+            "restore_muls": 18776064,
+            "restore_subs": 4784128,
+            "inversions": 3309568
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 22102528,
+            "cache_key_reads": 2719744,
+            "build_muls": 59032833,
+            "build_adds": 19677611,
+            "restore_muls": 16121856,
+            "restore_subs": 4784128,
+            "inversions": 1474560
+          },
+          "peak_bytes": 10500672,
+          "peak_plan": {
+            "n": 262144,
+            "f": 15,
+            "B": 8,
+            "peak_phase": "d18/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 2719744,
+            "build_muls": 14352384,
+            "build_adds": 4784128,
+            "restore_muls": 16121856,
+            "restore_subs": 4784128,
+            "inversions": 1474560
+          }
+        }
+      }
+    },
+    {
+      "model": "TinyLlama",
+      "T": 32,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 50659328,
+      "fmax": 16,
+      "columns": 84,
+      "original_leaves": 5972224,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 16663040,
+            "cache_key_reads": 0,
+            "build_muls": 39372033,
+            "build_adds": 13124011,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 12597824,
+          "peak_plan": {
+            "n": 262144,
+            "f": 16,
+            "B": 4,
+            "peak_phase": "d18/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 16663040,
+            "cache_key_reads": 0,
+            "build_muls": 46449921,
+            "build_adds": 15483307,
+            "restore_muls": 8847360,
+            "restore_subs": 2359296,
+            "inversions": 1769472
+          },
+          "peak_bytes": 12597824,
+          "peak_plan": {
+            "n": 262144,
+            "f": 16,
+            "B": 4,
+            "peak_phase": "d18/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 7077888,
+            "build_adds": 2359296,
+            "restore_muls": 8847360,
+            "restore_subs": 2359296,
+            "inversions": 1769472
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 16663040,
+            "cache_key_reads": 1179648,
+            "build_muls": 46449921,
+            "build_adds": 15483307,
+            "restore_muls": 7077888,
+            "restore_subs": 2359296,
+            "inversions": 1179648
+          },
+          "peak_bytes": 12597824,
+          "peak_plan": {
+            "n": 262144,
+            "f": 16,
+            "B": 4,
+            "peak_phase": "d18/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 1179648,
+            "build_muls": 7077888,
+            "build_adds": 2359296,
+            "restore_muls": 7077888,
+            "restore_subs": 2359296,
+            "inversions": 1179648
+          }
+        }
+      }
+    },
+    {
+      "model": "TinyLlama",
+      "T": 64,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 108658688,
+      "fmax": 12,
+      "columns": 84,
+      "original_leaves": 12796160,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 98353664,
+            "cache_key_reads": 0,
+            "build_muls": 220325121,
+            "build_adds": 73441707,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 17058432,
+          "peak_plan": {
+            "n": 524288,
+            "f": 12,
+            "B": 128,
+            "peak_phase": "d19/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 98353664,
+            "cache_key_reads": 0,
+            "build_muls": 290280705,
+            "build_adds": 96760235,
+            "restore_muls": 125288448,
+            "restore_subs": 23318528,
+            "inversions": 4874240
+          },
+          "peak_bytes": 17058432,
+          "peak_plan": {
+            "n": 524288,
+            "f": 12,
+            "B": 128,
+            "peak_phase": "d19/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 69955584,
+            "build_adds": 23318528,
+            "restore_muls": 125288448,
+            "restore_subs": 23318528,
+            "inversions": 4874240
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 98353664,
+            "cache_key_reads": 6397952,
+            "build_muls": 290280705,
+            "build_adds": 96760235,
+            "restore_muls": 107114496,
+            "restore_subs": 23318528,
+            "inversions": 4534272
+          },
+          "peak_bytes": 17058432,
+          "peak_plan": {
+            "n": 524288,
+            "f": 12,
+            "B": 128,
+            "peak_phase": "d19/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 6397952,
+            "build_muls": 69955584,
+            "build_adds": 23318528,
+            "restore_muls": 107114496,
+            "restore_subs": 23318528,
+            "inversions": 4534272
+          }
+        }
+      }
+    },
+    {
+      "model": "TinyLlama",
+      "T": 64,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 108658688,
+      "fmax": 14,
+      "columns": 84,
+      "original_leaves": 12796160,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 72778240,
+            "cache_key_reads": 0,
+            "build_muls": 149619969,
+            "build_adds": 49873323,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 17844864,
+          "peak_plan": {
+            "n": 524288,
+            "f": 14,
+            "B": 32,
+            "peak_phase": "d19/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 72778240,
+            "cache_key_reads": 0,
+            "build_muls": 207275265,
+            "build_adds": 69091755,
+            "restore_muls": 90980352,
+            "restore_subs": 19218432,
+            "inversions": 8110080
+          },
+          "peak_bytes": 17844864,
+          "peak_plan": {
+            "n": 524288,
+            "f": 14,
+            "B": 32,
+            "peak_phase": "d19/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 57655296,
+            "build_adds": 19218432,
+            "restore_muls": 90980352,
+            "restore_subs": 19218432,
+            "inversions": 8110080
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 72778240,
+            "cache_key_reads": 6291456,
+            "build_muls": 207275265,
+            "build_adds": 69091755,
+            "restore_muls": 75497472,
+            "restore_subs": 19218432,
+            "inversions": 6979584
+          },
+          "peak_bytes": 17844864,
+          "peak_plan": {
+            "n": 524288,
+            "f": 14,
+            "B": 32,
+            "peak_phase": "d19/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 6291456,
+            "build_muls": 57655296,
+            "build_adds": 19218432,
+            "restore_muls": 75497472,
+            "restore_subs": 19218432,
+            "inversions": 6979584
+          }
+        }
+      }
+    },
+    {
+      "model": "TinyLlama",
+      "T": 64,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 108658688,
+      "fmax": 15,
+      "columns": 84,
+      "original_leaves": 12796160,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 60195328,
+            "cache_key_reads": 0,
+            "build_muls": 118654209,
+            "build_adds": 39551403,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 18893440,
+          "peak_plan": {
+            "n": 524288,
+            "f": 15,
+            "B": 16,
+            "peak_phase": "d19/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 60195328,
+            "cache_key_reads": 0,
+            "build_muls": 165250305,
+            "build_adds": 55083435,
+            "restore_muls": 66650112,
+            "restore_subs": 15532032,
+            "inversions": 8847360
+          },
+          "peak_bytes": 18893440,
+          "peak_plan": {
+            "n": 524288,
+            "f": 15,
+            "B": 16,
+            "peak_phase": "d19/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 46596096,
+            "build_adds": 15532032,
+            "restore_muls": 66650112,
+            "restore_subs": 15532032,
+            "inversions": 8847360
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 60195328,
+            "cache_key_reads": 6291456,
+            "build_muls": 165250305,
+            "build_adds": 55083435,
+            "restore_muls": 54558720,
+            "restore_subs": 15532032,
+            "inversions": 6586368
+          },
+          "peak_bytes": 18893440,
+          "peak_plan": {
+            "n": 524288,
+            "f": 15,
+            "B": 16,
+            "peak_phase": "d19/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 6291456,
+            "build_muls": 46596096,
+            "build_adds": 15532032,
+            "restore_muls": 54558720,
+            "restore_subs": 15532032,
+            "inversions": 6586368
+          }
+        }
+      }
+    },
+    {
+      "model": "TinyLlama",
+      "T": 64,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 108658688,
+      "fmax": 16,
+      "columns": 84,
+      "original_leaves": 12796160,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 47612416,
+            "cache_key_reads": 0,
+            "build_muls": 94471425,
+            "build_adds": 31490475,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 20990592,
+          "peak_plan": {
+            "n": 524288,
+            "f": 16,
+            "B": 8,
+            "peak_phase": "d19/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 47612416,
+            "cache_key_reads": 0,
+            "build_muls": 125732097,
+            "build_adds": 41910699,
+            "restore_muls": 40108032,
+            "restore_subs": 10420224,
+            "inversions": 7471104
+          },
+          "peak_bytes": 20990592,
+          "peak_plan": {
+            "n": 524288,
+            "f": 16,
+            "B": 8,
+            "peak_phase": "d19/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 31260672,
+            "build_adds": 10420224,
+            "restore_muls": 40108032,
+            "restore_subs": 10420224,
+            "inversions": 7471104
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 47612416,
+            "cache_key_reads": 6291456,
+            "build_muls": 125732097,
+            "build_adds": 41910699,
+            "restore_muls": 34799616,
+            "restore_subs": 10420224,
+            "inversions": 2949120
+          },
+          "peak_bytes": 20990592,
+          "peak_plan": {
+            "n": 524288,
+            "f": 16,
+            "B": 8,
+            "peak_phase": "d19/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 6291456,
+            "build_muls": 31260672,
+            "build_adds": 10420224,
+            "restore_muls": 34799616,
+            "restore_subs": 10420224,
+            "inversions": 2949120
+          }
+        }
+      }
+    },
+    {
+      "model": "TinyLlama",
+      "T": 128,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 246677504,
+      "fmax": 12,
+      "columns": 84,
+      "original_leaves": 28999936,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 256377344,
+            "cache_key_reads": 0,
+            "build_muls": 597173505,
+            "build_adds": 199057835,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 33839808,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 12,
+            "B": 256,
+            "peak_phase": "d20/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 256377344,
+            "cache_key_reads": 0,
+            "build_muls": 763172097,
+            "build_adds": 254390699,
+            "restore_muls": 310456320,
+            "restore_subs": 55332864,
+            "inversions": 7180288
+          },
+          "peak_bytes": 33839808,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 12,
+            "B": 256,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 165998592,
+            "build_adds": 55332864,
+            "restore_muls": 310456320,
+            "restore_subs": 55332864,
+            "inversions": 7180288
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 256377344,
+            "cache_key_reads": 14499840,
+            "build_muls": 763172097,
+            "build_adds": 254390699,
+            "restore_muls": 267976704,
+            "restore_subs": 55332864,
+            "inversions": 6840320
+          },
+          "peak_bytes": 33839808,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 12,
+            "B": 256,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 14499840,
+            "build_muls": 165998592,
+            "build_adds": 55332864,
+            "restore_muls": 267976704,
+            "restore_subs": 55332864,
+            "inversions": 6840320
+          }
+        }
+      }
+    },
+    {
+      "model": "TinyLlama",
+      "T": 128,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 246677504,
+      "fmax": 14,
+      "columns": 84,
+      "original_leaves": 28999936,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 198377984,
+            "cache_key_reads": 0,
+            "build_muls": 429294849,
+            "build_adds": 143098283,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 34626240,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 14,
+            "B": 64,
+            "peak_phase": "d20/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 198377984,
+            "cache_key_reads": 0,
+            "build_muls": 579454209,
+            "build_adds": 193151403,
+            "restore_muls": 257753088,
+            "restore_subs": 50053120,
+            "inversions": 14188544
+          },
+          "peak_bytes": 34626240,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 14,
+            "B": 64,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 150159360,
+            "build_adds": 50053120,
+            "restore_muls": 257753088,
+            "restore_subs": 50053120,
+            "inversions": 14188544
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 198377984,
+            "cache_key_reads": 14483456,
+            "build_muls": 579454209,
+            "build_adds": 193151403,
+            "restore_muls": 218284032,
+            "restore_subs": 50053120,
+            "inversions": 12861440
+          },
+          "peak_bytes": 34626240,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 14,
+            "B": 64,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 14483456,
+            "build_muls": 150159360,
+            "build_adds": 50053120,
+            "restore_muls": 218284032,
+            "restore_subs": 50053120,
+            "inversions": 12861440
+          }
+        }
+      }
+    },
+    {
+      "model": "TinyLlama",
+      "T": 128,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 246677504,
+      "fmax": 15,
+      "columns": 84,
+      "original_leaves": 28999936,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 169411072,
+            "cache_key_reads": 0,
+            "build_muls": 350356737,
+            "build_adds": 116785579,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 35674816,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 15,
+            "B": 32,
+            "peak_phase": "d20/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 169411072,
+            "cache_key_reads": 0,
+            "build_muls": 484836609,
+            "build_adds": 161612203,
+            "restore_muls": 215187456,
+            "restore_subs": 44826624,
+            "inversions": 17924096
+          },
+          "peak_bytes": 35674816,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 15,
+            "B": 32,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 134479872,
+            "build_adds": 44826624,
+            "restore_muls": 215187456,
+            "restore_subs": 44826624,
+            "inversions": 17924096
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 169411072,
+            "cache_key_reads": 14286848,
+            "build_muls": 484836609,
+            "build_adds": 161612203,
+            "restore_muls": 179109888,
+            "restore_subs": 44826624,
+            "inversions": 15663104
+          },
+          "peak_bytes": 35674816,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 15,
+            "B": 32,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 14286848,
+            "build_muls": 134479872,
+            "build_adds": 44826624,
+            "restore_muls": 179109888,
+            "restore_subs": 44826624,
+            "inversions": 15663104
+          }
+        }
+      }
+    },
+    {
+      "model": "TinyLlama",
+      "T": 128,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 246677504,
+      "fmax": 16,
+      "columns": 84,
+      "original_leaves": 28999936,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 140837376,
+            "cache_key_reads": 0,
+            "build_muls": 278201601,
+            "build_adds": 92733867,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 37771968,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 16,
+            "B": 16,
+            "peak_phase": "d20/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 140837376,
+            "cache_key_reads": 0,
+            "build_muls": 389285121,
+            "build_adds": 129761707,
+            "restore_muls": 161415168,
+            "restore_subs": 37027840,
+            "inversions": 20250624
+          },
+          "peak_bytes": 37771968,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 16,
+            "B": 16,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 111083520,
+            "build_adds": 37027840,
+            "restore_muls": 161415168,
+            "restore_subs": 37027840,
+            "inversions": 20250624
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 140837376,
+            "cache_key_reads": 14286848,
+            "build_muls": 389285121,
+            "build_adds": 129761707,
+            "restore_muls": 132120576,
+            "restore_subs": 37027840,
+            "inversions": 15728640
+          },
+          "peak_bytes": 37771968,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 16,
+            "B": 16,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 14286848,
+            "build_muls": 111083520,
+            "build_adds": 37027840,
+            "restore_muls": 132120576,
+            "restore_subs": 37027840,
+            "inversions": 15728640
+          }
+        }
+      }
+    },
+    {
+      "model": "TinyLlama",
+      "T": 128,
+      "dd": true,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 215220224,
+      "fmax": 12,
+      "columns": 84,
+      "original_leaves": 25460992,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 222167552,
+            "cache_key_reads": 0,
+            "build_muls": 515777793,
+            "build_adds": 171925931,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 33839808,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 12,
+            "B": 256,
+            "peak_phase": "d20/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 222167552,
+            "cache_key_reads": 0,
+            "build_muls": 660763905,
+            "build_adds": 220254635,
+            "restore_muls": 269869056,
+            "restore_subs": 48328704,
+            "inversions": 6701056
+          },
+          "peak_bytes": 33839808,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 12,
+            "B": 256,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 144986112,
+            "build_adds": 48328704,
+            "restore_muls": 269869056,
+            "restore_subs": 48328704,
+            "inversions": 6701056
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 222167552,
+            "cache_key_reads": 12730368,
+            "build_muls": 660763905,
+            "build_adds": 220254635,
+            "restore_muls": 232697856,
+            "restore_subs": 48328704,
+            "inversions": 6361088
+          },
+          "peak_bytes": 33839808,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 12,
+            "B": 256,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 12730368,
+            "build_muls": 144986112,
+            "build_adds": 48328704,
+            "restore_muls": 232697856,
+            "restore_subs": 48328704,
+            "inversions": 6361088
+          }
+        }
+      }
+    },
+    {
+      "model": "TinyLlama",
+      "T": 128,
+      "dd": true,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 215220224,
+      "fmax": 14,
+      "columns": 84,
+      "original_leaves": 25460992,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 171246080,
+            "cache_key_reads": 0,
+            "build_muls": 369132801,
+            "build_adds": 123044267,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 34626240,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 14,
+            "B": 64,
+            "peak_phase": "d20/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 171246080,
+            "cache_key_reads": 0,
+            "build_muls": 498943233,
+            "build_adds": 166314411,
+            "restore_muls": 221036544,
+            "restore_subs": 43270144,
+            "inversions": 12861440
+          },
+          "peak_bytes": 34626240,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 14,
+            "B": 64,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 129810432,
+            "build_adds": 43270144,
+            "restore_muls": 221036544,
+            "restore_subs": 43270144,
+            "inversions": 12861440
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 171246080,
+            "cache_key_reads": 12713984,
+            "build_muls": 498943233,
+            "build_adds": 166314411,
+            "restore_muls": 186875904,
+            "restore_subs": 43270144,
+            "inversions": 11534336
+          },
+          "peak_bytes": 34626240,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 14,
+            "B": 64,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 12713984,
+            "build_muls": 129810432,
+            "build_adds": 43270144,
+            "restore_muls": 186875904,
+            "restore_subs": 43270144,
+            "inversions": 11534336
+          }
+        }
+      }
+    },
+    {
+      "model": "TinyLlama",
+      "T": 128,
+      "dd": true,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 215220224,
+      "fmax": 15,
+      "columns": 84,
+      "original_leaves": 25460992,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 145818112,
+            "cache_key_reads": 0,
+            "build_muls": 300811521,
+            "build_adds": 100270507,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 35674816,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 15,
+            "B": 32,
+            "peak_phase": "d20/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 145818112,
+            "cache_key_reads": 0,
+            "build_muls": 415827201,
+            "build_adds": 138609067,
+            "restore_muls": 182452224,
+            "restore_subs": 38338560,
+            "inversions": 15859712
+          },
+          "peak_bytes": 35674816,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 15,
+            "B": 32,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 115015680,
+            "build_adds": 38338560,
+            "restore_muls": 182452224,
+            "restore_subs": 38338560,
+            "inversions": 15859712
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 145818112,
+            "cache_key_reads": 12517376,
+            "build_muls": 415827201,
+            "build_adds": 138609067,
+            "restore_muls": 151683072,
+            "restore_subs": 38338560,
+            "inversions": 13598720
+          },
+          "peak_bytes": 35674816,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 15,
+            "B": 32,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 12517376,
+            "build_muls": 115015680,
+            "build_adds": 38338560,
+            "restore_muls": 151683072,
+            "restore_subs": 38338560,
+            "inversions": 13598720
+          }
+        }
+      }
+    },
+    {
+      "model": "TinyLlama",
+      "T": 128,
+      "dd": true,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 215220224,
+      "fmax": 16,
+      "columns": 84,
+      "original_leaves": 25460992,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 120783360,
+            "cache_key_reads": 0,
+            "build_muls": 239273217,
+            "build_adds": 79757739,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 37771968,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 16,
+            "B": 16,
+            "peak_phase": "d20/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 120783360,
+            "cache_key_reads": 0,
+            "build_muls": 332662017,
+            "build_adds": 110887339,
+            "restore_muls": 134873088,
+            "restore_subs": 31129600,
+            "inversions": 17301504
+          },
+          "peak_bytes": 37771968,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 16,
+            "B": 16,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 93388800,
+            "build_adds": 31129600,
+            "restore_muls": 134873088,
+            "restore_subs": 31129600,
+            "inversions": 17301504
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 120783360,
+            "cache_key_reads": 12517376,
+            "build_muls": 332662017,
+            "build_adds": 110887339,
+            "restore_muls": 110886912,
+            "restore_subs": 31129600,
+            "inversions": 12779520
+          },
+          "peak_bytes": 37771968,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 16,
+            "B": 16,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 12517376,
+            "build_muls": 93388800,
+            "build_adds": 31129600,
+            "restore_muls": 110886912,
+            "restore_subs": 31129600,
+            "inversions": 12779520
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 32,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 99221504,
+      "fmax": 12,
+      "columns": 84,
+      "original_leaves": 11714816,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 89735680,
+            "cache_key_reads": 0,
+            "build_muls": 200959233,
+            "build_adds": 66986411,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 17058432,
+          "peak_plan": {
+            "n": 524288,
+            "f": 12,
+            "B": 128,
+            "peak_phase": "d19/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 89735680,
+            "cache_key_reads": 0,
+            "build_muls": 264598785,
+            "build_adds": 88199595,
+            "restore_muls": 113651712,
+            "restore_subs": 21213184,
+            "inversions": 4542464
+          },
+          "peak_bytes": 17058432,
+          "peak_plan": {
+            "n": 524288,
+            "f": 12,
+            "B": 128,
+            "peak_phase": "d19/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 63639552,
+            "build_adds": 21213184,
+            "restore_muls": 113651712,
+            "restore_subs": 21213184,
+            "inversions": 4542464
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 89735680,
+            "cache_key_reads": 5857280,
+            "build_muls": 264598785,
+            "build_adds": 88199595,
+            "restore_muls": 97099776,
+            "restore_subs": 21213184,
+            "inversions": 4202496
+          },
+          "peak_bytes": 17058432,
+          "peak_plan": {
+            "n": 524288,
+            "f": 12,
+            "B": 128,
+            "peak_phase": "d19/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 5857280,
+            "build_muls": 63639552,
+            "build_adds": 21213184,
+            "restore_muls": 97099776,
+            "restore_subs": 21213184,
+            "inversions": 4202496
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 32,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 99221504,
+      "fmax": 14,
+      "columns": 84,
+      "original_leaves": 11714816,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 66322944,
+            "cache_key_reads": 0,
+            "build_muls": 136742145,
+            "build_adds": 45580715,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 17844864,
+          "peak_plan": {
+            "n": 524288,
+            "f": 14,
+            "B": 32,
+            "peak_phase": "d19/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 66322944,
+            "cache_key_reads": 0,
+            "build_muls": 188597505,
+            "build_adds": 62865835,
+            "restore_muls": 81985536,
+            "restore_subs": 17285120,
+            "inversions": 7241728
+          },
+          "peak_bytes": 17844864,
+          "peak_plan": {
+            "n": 524288,
+            "f": 14,
+            "B": 32,
+            "peak_phase": "d19/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 51855360,
+            "build_adds": 17285120,
+            "restore_muls": 81985536,
+            "restore_subs": 17285120,
+            "inversions": 7241728
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 66322944,
+            "cache_key_reads": 5849088,
+            "build_muls": 188597505,
+            "build_adds": 62865835,
+            "restore_muls": 68419584,
+            "restore_subs": 17285120,
+            "inversions": 5914624
+          },
+          "peak_bytes": 17844864,
+          "peak_plan": {
+            "n": 524288,
+            "f": 14,
+            "B": 32,
+            "peak_phase": "d19/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 5849088,
+            "build_muls": 51855360,
+            "build_adds": 17285120,
+            "restore_muls": 68419584,
+            "restore_subs": 17285120,
+            "inversions": 5914624
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 32,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 99221504,
+      "fmax": 15,
+      "columns": 84,
+      "original_leaves": 11714816,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 54624768,
+            "cache_key_reads": 0,
+            "build_muls": 109610241,
+            "build_adds": 36536747,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 18893440,
+          "peak_plan": {
+            "n": 524288,
+            "f": 15,
+            "B": 16,
+            "peak_phase": "d19/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 54624768,
+            "cache_key_reads": 0,
+            "build_muls": 151094529,
+            "build_adds": 50364843,
+            "restore_muls": 60260352,
+            "restore_subs": 13828096,
+            "inversions": 7569408
+          },
+          "peak_bytes": 18893440,
+          "peak_plan": {
+            "n": 524288,
+            "f": 15,
+            "B": 16,
+            "peak_phase": "d19/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 41484288,
+            "build_adds": 13828096,
+            "restore_muls": 60260352,
+            "restore_subs": 13828096,
+            "inversions": 7569408
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 54624768,
+            "cache_key_reads": 5439488,
+            "build_muls": 151094529,
+            "build_adds": 50364843,
+            "restore_muls": 49446912,
+            "restore_subs": 13828096,
+            "inversions": 5734400
+          },
+          "peak_bytes": 18893440,
+          "peak_plan": {
+            "n": 524288,
+            "f": 15,
+            "B": 16,
+            "peak_phase": "d19/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 5439488,
+            "build_muls": 41484288,
+            "build_adds": 13828096,
+            "restore_muls": 49446912,
+            "restore_subs": 13828096,
+            "inversions": 5734400
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 32,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 99221504,
+      "fmax": 16,
+      "columns": 84,
+      "original_leaves": 11714816,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 43745792,
+            "cache_key_reads": 0,
+            "build_muls": 87983361,
+            "build_adds": 29327787,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 20990592,
+          "peak_plan": {
+            "n": 524288,
+            "f": 16,
+            "B": 8,
+            "peak_phase": "d19/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 43745792,
+            "cache_key_reads": 0,
+            "build_muls": 116688129,
+            "build_adds": 38896043,
+            "restore_muls": 37552128,
+            "restore_subs": 9568256,
+            "inversions": 6619136
+          },
+          "peak_bytes": 20990592,
+          "peak_plan": {
+            "n": 524288,
+            "f": 16,
+            "B": 8,
+            "peak_phase": "d19/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 28704768,
+            "build_adds": 9568256,
+            "restore_muls": 37552128,
+            "restore_subs": 9568256,
+            "inversions": 6619136
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 43745792,
+            "cache_key_reads": 5439488,
+            "build_muls": 116688129,
+            "build_adds": 38896043,
+            "restore_muls": 32243712,
+            "restore_subs": 9568256,
+            "inversions": 2949120
+          },
+          "peak_bytes": 20990592,
+          "peak_plan": {
+            "n": 524288,
+            "f": 16,
+            "B": 8,
+            "peak_phase": "d19/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 5439488,
+            "build_muls": 28704768,
+            "build_adds": 9568256,
+            "restore_muls": 32243712,
+            "restore_subs": 9568256,
+            "inversions": 2949120
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 64,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 205651968,
+      "fmax": 12,
+      "columns": 84,
+      "original_leaves": 24264960,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 209633792,
+            "cache_key_reads": 0,
+            "build_muls": 485352705,
+            "build_adds": 161784235,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 33839808,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 12,
+            "B": 256,
+            "peak_phase": "d20/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 209633792,
+            "cache_key_reads": 0,
+            "build_muls": 623138049,
+            "build_adds": 207712683,
+            "restore_muls": 255565824,
+            "restore_subs": 45928448,
+            "inversions": 6668288
+          },
+          "peak_bytes": 33839808,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 12,
+            "B": 256,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 137785344,
+            "build_adds": 45928448,
+            "restore_muls": 255565824,
+            "restore_subs": 45928448,
+            "inversions": 6668288
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 209633792,
+            "cache_key_reads": 12132352,
+            "build_muls": 623138049,
+            "build_adds": 207712683,
+            "restore_muls": 220188672,
+            "restore_subs": 45928448,
+            "inversions": 6328320
+          },
+          "peak_bytes": 33839808,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 12,
+            "B": 256,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 12132352,
+            "build_muls": 137785344,
+            "build_adds": 45928448,
+            "restore_muls": 220188672,
+            "restore_subs": 45928448,
+            "inversions": 6328320
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 64,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 205651968,
+      "fmax": 14,
+      "columns": 84,
+      "original_leaves": 24264960,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 161120768,
+            "cache_key_reads": 0,
+            "build_muls": 345834753,
+            "build_adds": 115278251,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 34626240,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 14,
+            "B": 64,
+            "peak_phase": "d20/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 161120768,
+            "cache_key_reads": 0,
+            "build_muls": 468370689,
+            "build_adds": 156123563,
+            "restore_muls": 207077376,
+            "restore_subs": 40845312,
+            "inversions": 12664832
+          },
+          "peak_bytes": 34626240,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 14,
+            "B": 64,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 122535936,
+            "build_adds": 40845312,
+            "restore_muls": 207077376,
+            "restore_subs": 40845312,
+            "inversions": 12664832
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 161120768,
+            "cache_key_reads": 12124160,
+            "build_muls": 468370689,
+            "build_adds": 156123563,
+            "restore_muls": 174686208,
+            "restore_subs": 40845312,
+            "inversions": 11337728
+          },
+          "peak_bytes": 34626240,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 14,
+            "B": 64,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 12124160,
+            "build_muls": 122535936,
+            "build_adds": 40845312,
+            "restore_muls": 174686208,
+            "restore_subs": 40845312,
+            "inversions": 11337728
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 64,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 205651968,
+      "fmax": 15,
+      "columns": 84,
+      "original_leaves": 24264960,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 136872448,
+            "cache_key_reads": 0,
+            "build_muls": 281052417,
+            "build_adds": 93684139,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 35674816,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 15,
+            "B": 32,
+            "peak_phase": "d20/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 136872448,
+            "cache_key_reads": 0,
+            "build_muls": 388596993,
+            "build_adds": 129532331,
+            "restore_muls": 169082880,
+            "restore_subs": 35848192,
+            "inversions": 15335424
+          },
+          "peak_bytes": 35674816,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 15,
+            "B": 32,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 107544576,
+            "build_adds": 35848192,
+            "restore_muls": 169082880,
+            "restore_subs": 35848192,
+            "inversions": 15335424
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 136872448,
+            "cache_key_reads": 12124160,
+            "build_muls": 388596993,
+            "build_adds": 129532331,
+            "restore_muls": 140673024,
+            "restore_subs": 35848192,
+            "inversions": 12681216
+          },
+          "peak_bytes": 35674816,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 15,
+            "B": 32,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 12124160,
+            "build_muls": 107544576,
+            "build_adds": 35848192,
+            "restore_muls": 140673024,
+            "restore_subs": 35848192,
+            "inversions": 12681216
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 64,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 205651968,
+      "fmax": 16,
+      "columns": 84,
+      "original_leaves": 24264960,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 112624128,
+            "cache_key_reads": 0,
+            "build_muls": 224232705,
+            "build_adds": 74744235,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 37771968,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 16,
+            "B": 16,
+            "peak_phase": "d20/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 112624128,
+            "cache_key_reads": 0,
+            "build_muls": 309757185,
+            "build_adds": 103252395,
+            "restore_muls": 123076608,
+            "restore_subs": 28508160,
+            "inversions": 15990784
+          },
+          "peak_bytes": 37771968,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 16,
+            "B": 16,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 85524480,
+            "build_adds": 28508160,
+            "restore_muls": 123076608,
+            "restore_subs": 28508160,
+            "inversions": 15990784
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 112624128,
+            "cache_key_reads": 11730944,
+            "build_muls": 309757185,
+            "build_adds": 103252395,
+            "restore_muls": 101449728,
+            "restore_subs": 28508160,
+            "inversions": 11468800
+          },
+          "peak_bytes": 37771968,
+          "peak_plan": {
+            "n": 1048576,
+            "f": 16,
+            "B": 16,
+            "peak_phase": "d20/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 11730944,
+            "build_muls": 85524480,
+            "build_adds": 28508160,
+            "restore_muls": 101449728,
+            "restore_subs": 28508160,
+            "inversions": 11468800
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 128,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 440664064,
+      "fmax": 12,
+      "columns": 84,
+      "original_leaves": 51937536,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 520749568,
+            "cache_key_reads": 0,
+            "build_muls": 1196041473,
+            "build_adds": 398680491,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 33839872,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 12,
+            "B": 512,
+            "peak_phase": "d21/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 520749568,
+            "cache_key_reads": 0,
+            "build_muls": 1555195137,
+            "build_adds": 518398379,
+            "restore_muls": 689405952,
+            "restore_subs": 119717888,
+            "inversions": 9633792
+          },
+          "peak_bytes": 33844096,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 12,
+            "B": 512,
+            "peak_phase": "d21/materialize"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 359153664,
+            "build_adds": 119717888,
+            "restore_muls": 689405952,
+            "restore_subs": 119717888,
+            "inversions": 9633792
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 520749568,
+            "cache_key_reads": 35405824,
+            "build_muls": 1555195137,
+            "build_adds": 518398379,
+            "restore_muls": 584318976,
+            "restore_subs": 119717888,
+            "inversions": 9256960
+          },
+          "peak_bytes": 33842048,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 12,
+            "B": 512,
+            "peak_phase": "d21/materialize"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 35405824,
+            "build_muls": 359153664,
+            "build_adds": 119717888,
+            "restore_muls": 584318976,
+            "restore_subs": 119717888,
+            "inversions": 9256960
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 128,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 440664064,
+      "fmax": 14,
+      "columns": 84,
+      "original_leaves": 51937536,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 416875008,
+            "cache_key_reads": 0,
+            "build_muls": 890537217,
+            "build_adds": 296845739,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 34626304,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 14,
+            "B": 128,
+            "peak_phase": "d21/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 416875008,
+            "cache_key_reads": 0,
+            "build_muls": 1230570753,
+            "build_adds": 410190251,
+            "restore_muls": 616808448,
+            "restore_subs": 113344512,
+            "inversions": 21086208
+          },
+          "peak_bytes": 34626304,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 14,
+            "B": 128,
+            "peak_phase": "d21/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 340033536,
+            "build_adds": 113344512,
+            "restore_muls": 616808448,
+            "restore_subs": 113344512,
+            "inversions": 21086208
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 416875008,
+            "cache_key_reads": 35389440,
+            "build_muls": 1230570753,
+            "build_adds": 410190251,
+            "restore_muls": 515063808,
+            "restore_subs": 113344512,
+            "inversions": 19611648
+          },
+          "peak_bytes": 34626304,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 14,
+            "B": 128,
+            "peak_phase": "d21/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 35389440,
+            "build_muls": 340033536,
+            "build_adds": 113344512,
+            "restore_muls": 515063808,
+            "restore_subs": 113344512,
+            "inversions": 19611648
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 128,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 440664064,
+      "fmax": 15,
+      "columns": 84,
+      "original_leaves": 51937536,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 364970496,
+            "cache_key_reads": 0,
+            "build_muls": 742786305,
+            "build_adds": 247595435,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 35674880,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 15,
+            "B": 64,
+            "peak_phase": "d21/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 364970496,
+            "cache_key_reads": 0,
+            "build_muls": 1062765825,
+            "build_adds": 354255275,
+            "restore_muls": 553549824,
+            "restore_subs": 106659840,
+            "inversions": 28803072
+          },
+          "peak_bytes": 35674880,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 15,
+            "B": 64,
+            "peak_phase": "d21/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 319979520,
+            "build_adds": 106659840,
+            "restore_muls": 553549824,
+            "restore_subs": 106659840,
+            "inversions": 28803072
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 364970496,
+            "cache_key_reads": 35389440,
+            "build_muls": 1062765825,
+            "build_adds": 354255275,
+            "restore_muls": 456228864,
+            "restore_subs": 106659840,
+            "inversions": 25853952
+          },
+          "peak_bytes": 35674880,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 15,
+            "B": 64,
+            "peak_phase": "d21/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 35389440,
+            "build_muls": 319979520,
+            "build_adds": 106659840,
+            "restore_muls": 456228864,
+            "restore_subs": 106659840,
+            "inversions": 25853952
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 128,
+      "dd": false,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 440664064,
+      "fmax": 16,
+      "columns": 84,
+      "original_leaves": 51937536,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 313065984,
+            "cache_key_reads": 0,
+            "build_muls": 602998017,
+            "build_adds": 200999339,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 37772032,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 16,
+            "B": 32,
+            "peak_phase": "d21/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 313065984,
+            "cache_key_reads": 0,
+            "build_muls": 890832129,
+            "build_adds": 296944043,
+            "restore_muls": 467140608,
+            "restore_subs": 95944704,
+            "inversions": 36175872
+          },
+          "peak_bytes": 37772032,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 16,
+            "B": 32,
+            "peak_phase": "d21/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 287834112,
+            "build_adds": 95944704,
+            "restore_muls": 467140608,
+            "restore_subs": 95944704,
+            "inversions": 36175872
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 313065984,
+            "cache_key_reads": 35389440,
+            "build_muls": 890832129,
+            "build_adds": 296944043,
+            "restore_muls": 378667008,
+            "restore_subs": 95944704,
+            "inversions": 30277632
+          },
+          "peak_bytes": 37772032,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 16,
+            "B": 32,
+            "peak_phase": "d21/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 35389440,
+            "build_muls": 287834112,
+            "build_adds": 95944704,
+            "restore_muls": 378667008,
+            "restore_subs": 95944704,
+            "inversions": 30277632
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 128,
+      "dd": true,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 409206784,
+      "fmax": 12,
+      "columns": 84,
+      "original_leaves": 48398592,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 486539776,
+            "cache_key_reads": 0,
+            "build_muls": 1114645761,
+            "build_adds": 371548587,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 33839872,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 12,
+            "B": 512,
+            "peak_phase": "d21/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 486539776,
+            "cache_key_reads": 0,
+            "build_muls": 1452786945,
+            "build_adds": 484262315,
+            "restore_muls": 648818688,
+            "restore_subs": 112713728,
+            "inversions": 9154560
+          },
+          "peak_bytes": 33844096,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 12,
+            "B": 512,
+            "peak_phase": "d21/materialize"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 338141184,
+            "build_adds": 112713728,
+            "restore_muls": 648818688,
+            "restore_subs": 112713728,
+            "inversions": 9154560
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 486539776,
+            "cache_key_reads": 33636352,
+            "build_muls": 1452786945,
+            "build_adds": 484262315,
+            "restore_muls": 549040128,
+            "restore_subs": 112713728,
+            "inversions": 8777728
+          },
+          "peak_bytes": 33842048,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 12,
+            "B": 512,
+            "peak_phase": "d21/materialize"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 33636352,
+            "build_muls": 338141184,
+            "build_adds": 112713728,
+            "restore_muls": 549040128,
+            "restore_subs": 112713728,
+            "inversions": 8777728
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 128,
+      "dd": true,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 409206784,
+      "fmax": 14,
+      "columns": 84,
+      "original_leaves": 48398592,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 389743104,
+            "cache_key_reads": 0,
+            "build_muls": 830375169,
+            "build_adds": 276791723,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 34626304,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 14,
+            "B": 128,
+            "peak_phase": "d21/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 389743104,
+            "cache_key_reads": 0,
+            "build_muls": 1150059777,
+            "build_adds": 383353259,
+            "restore_muls": 580091904,
+            "restore_subs": 106561536,
+            "inversions": 19759104
+          },
+          "peak_bytes": 34626304,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 14,
+            "B": 128,
+            "peak_phase": "d21/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 319684608,
+            "build_adds": 106561536,
+            "restore_muls": 580091904,
+            "restore_subs": 106561536,
+            "inversions": 19759104
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 389743104,
+            "cache_key_reads": 33619968,
+            "build_muls": 1150059777,
+            "build_adds": 383353259,
+            "restore_muls": 483655680,
+            "restore_subs": 106561536,
+            "inversions": 18284544
+          },
+          "peak_bytes": 34626304,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 14,
+            "B": 128,
+            "peak_phase": "d21/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 33619968,
+            "build_muls": 319684608,
+            "build_adds": 106561536,
+            "restore_muls": 483655680,
+            "restore_subs": 106561536,
+            "inversions": 18284544
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 128,
+      "dd": true,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 409206784,
+      "fmax": 15,
+      "columns": 84,
+      "original_leaves": 48398592,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 341377536,
+            "cache_key_reads": 0,
+            "build_muls": 693241089,
+            "build_adds": 231080363,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 35674880,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 15,
+            "B": 64,
+            "peak_phase": "d21/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 341377536,
+            "cache_key_reads": 0,
+            "build_muls": 993756417,
+            "build_adds": 331252139,
+            "restore_muls": 520814592,
+            "restore_subs": 100171776,
+            "inversions": 26738688
+          },
+          "peak_bytes": 35674880,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 15,
+            "B": 64,
+            "peak_phase": "d21/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 300515328,
+            "build_adds": 100171776,
+            "restore_muls": 520814592,
+            "restore_subs": 100171776,
+            "inversions": 26738688
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 341377536,
+            "cache_key_reads": 33619968,
+            "build_muls": 993756417,
+            "build_adds": 331252139,
+            "restore_muls": 428802048,
+            "restore_subs": 100171776,
+            "inversions": 23789568
+          },
+          "peak_bytes": 35674880,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 15,
+            "B": 64,
+            "peak_phase": "d21/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 33619968,
+            "build_muls": 300515328,
+            "build_adds": 100171776,
+            "restore_muls": 428802048,
+            "restore_subs": 100171776,
+            "inversions": 23789568
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 128,
+      "dd": true,
+      "scope": "owner-count fixture",
+      "old_U8_helper_bytes": 409206784,
+      "fmax": 16,
+      "columns": 84,
+      "original_leaves": 48398592,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 293011968,
+            "cache_key_reads": 0,
+            "build_muls": 564069633,
+            "build_adds": 188023211,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 37772032,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 16,
+            "B": 32,
+            "peak_phase": "d21/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 293011968,
+            "cache_key_reads": 0,
+            "build_muls": 834209025,
+            "build_adds": 278069675,
+            "restore_muls": 440598528,
+            "restore_subs": 90046464,
+            "inversions": 33226752
+          },
+          "peak_bytes": 37772032,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 16,
+            "B": 32,
+            "peak_phase": "d21/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 270139392,
+            "build_adds": 90046464,
+            "restore_muls": 440598528,
+            "restore_subs": 90046464,
+            "inversions": 33226752
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 293011968,
+            "cache_key_reads": 33619968,
+            "build_muls": 834209025,
+            "build_adds": 278069675,
+            "restore_muls": 357433344,
+            "restore_subs": 90046464,
+            "inversions": 27328512
+          },
+          "peak_bytes": 37772032,
+          "peak_plan": {
+            "n": 2097152,
+            "f": 16,
+            "B": 32,
+            "peak_phase": "d21/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 33619968,
+            "build_muls": 270139392,
+            "build_adds": 90046464,
+            "restore_muls": 357433344,
+            "restore_subs": 90046464,
+            "inversions": 27328512
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 512,
+      "dd": false,
+      "scope": "COUNTED ONLY, unregistered T512; no proof/profile admission",
+      "old_U8_helper_bytes": 2600992768,
+      "fmax": 12,
+      "columns": 86,
+      "original_leaves": 306249984,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 5064950272,
+            "cache_key_reads": 0,
+            "build_muls": 10496828667,
+            "build_adds": 3498942889,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 33840128,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 12,
+            "B": 2048,
+            "peak_phase": "d23/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 5064950272,
+            "cache_key_reads": 0,
+            "build_muls": 15182955771,
+            "build_adds": 5060985257,
+            "restore_muls": 9299042304,
+            "restore_subs": 1562042368,
+            "inversions": 24403968
+          },
+          "peak_bytes": 33906176,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 12,
+            "B": 2048,
+            "peak_phase": "d23/materialize"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 4686127104,
+            "build_adds": 1562042368,
+            "restore_muls": 9299042304,
+            "restore_subs": 1562042368,
+            "inversions": 24403968
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 5064950272,
+            "cache_key_reads": 504397824,
+            "build_muls": 15182955771,
+            "build_adds": 5060985257,
+            "restore_muls": 7788355584,
+            "restore_subs": 1562042368,
+            "inversions": 23568384
+          },
+          "peak_bytes": 33897984,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 12,
+            "B": 2048,
+            "peak_phase": "d23/materialize"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 504397824,
+            "build_muls": 4686127104,
+            "build_adds": 1562042368,
+            "restore_muls": 7788355584,
+            "restore_subs": 1562042368,
+            "inversions": 23568384
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 512,
+      "dd": false,
+      "scope": "COUNTED ONLY, unregistered T512; no proof/profile admission",
+      "old_U8_helper_bytes": 2600992768,
+      "fmax": 14,
+      "columns": 86,
+      "original_leaves": 306249984,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 4452450816,
+            "cache_key_reads": 0,
+            "build_muls": 8665597179,
+            "build_adds": 2888532393,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 34626560,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 14,
+            "B": 512,
+            "peak_phase": "d23/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 4452450816,
+            "cache_key_reads": 0,
+            "build_muls": 13318128891,
+            "build_adds": 4439376297,
+            "restore_muls": 9103196160,
+            "restore_subs": 1550843904,
+            "inversions": 67289088
+          },
+          "peak_bytes": 34631168,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 14,
+            "B": 512,
+            "peak_phase": "d23/materialize"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 4652531712,
+            "build_adds": 1550843904,
+            "restore_muls": 9103196160,
+            "restore_subs": 1550843904,
+            "inversions": 67289088
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 4452450816,
+            "cache_key_reads": 504397824,
+            "build_muls": 13318128891,
+            "build_adds": 4439376297,
+            "restore_muls": 7600029696,
+            "restore_subs": 1550843904,
+            "inversions": 63946752
+          },
+          "peak_bytes": 34629120,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 14,
+            "B": 512,
+            "peak_phase": "d23/materialize"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 504397824,
+            "build_muls": 4652531712,
+            "build_adds": 1550843904,
+            "restore_muls": 7600029696,
+            "restore_subs": 1550843904,
+            "inversions": 63946752
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 512,
+      "dd": false,
+      "scope": "COUNTED ONLY, unregistered T512; no proof/profile admission",
+      "old_U8_helper_bytes": 2600992768,
+      "fmax": 15,
+      "columns": 86,
+      "original_leaves": 306249984,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 4146201088,
+            "cache_key_reads": 0,
+            "build_muls": 7755203835,
+            "build_adds": 2585067945,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 35675136,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 15,
+            "B": 256,
+            "peak_phase": "d23/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 4146201088,
+            "cache_key_reads": 0,
+            "build_muls": 12368512251,
+            "build_adds": 4122837417,
+            "restore_muls": 8901328896,
+            "restore_subs": 1537769472,
+            "inversions": 108429312
+          },
+          "peak_bytes": 35675136,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 15,
+            "B": 256,
+            "peak_phase": "d23/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 4613308416,
+            "build_adds": 1537769472,
+            "restore_muls": 8901328896,
+            "restore_subs": 1537769472,
+            "inversions": 108429312
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 4146201088,
+            "cache_key_reads": 504365056,
+            "build_muls": 12368512251,
+            "build_adds": 4122837417,
+            "restore_muls": 7408091136,
+            "restore_subs": 1537769472,
+            "inversions": 101810176
+          },
+          "peak_bytes": 35675136,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 15,
+            "B": 256,
+            "peak_phase": "d23/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 504365056,
+            "build_muls": 4613308416,
+            "build_adds": 1537769472,
+            "restore_muls": 7408091136,
+            "restore_subs": 1537769472,
+            "inversions": 101810176
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 512,
+      "dd": false,
+      "scope": "COUNTED ONLY, unregistered T512; no proof/profile admission",
+      "old_U8_helper_bytes": 2600992768,
+      "fmax": 16,
+      "columns": 86,
+      "original_leaves": 306249984,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 3840016896,
+            "cache_key_reads": 0,
+            "build_muls": 6852969723,
+            "build_adds": 2284323241,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 37772288,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 16,
+            "B": 128,
+            "peak_phase": "d23/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 3840016896,
+            "cache_key_reads": 0,
+            "build_muls": 11396187387,
+            "build_adds": 3798729129,
+            "restore_muls": 8576040960,
+            "restore_subs": 1514405888,
+            "inversions": 170131456
+          },
+          "peak_bytes": 37772288,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 16,
+            "B": 128,
+            "peak_phase": "d23/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 4543217664,
+            "build_adds": 1514405888,
+            "restore_muls": 8576040960,
+            "restore_subs": 1514405888,
+            "inversions": 170131456
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 3840016896,
+            "cache_key_reads": 504365056,
+            "build_muls": 11396187387,
+            "build_adds": 3798729129,
+            "restore_muls": 7102660608,
+            "restore_subs": 1514405888,
+            "inversions": 156893184
+          },
+          "peak_bytes": 37772288,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 16,
+            "B": 128,
+            "peak_phase": "d23/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 504365056,
+            "build_muls": 4543217664,
+            "build_adds": 1514405888,
+            "restore_muls": 7102660608,
+            "restore_subs": 1514405888,
+            "inversions": 156893184
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 512,
+      "dd": true,
+      "scope": "COUNTED ONLY, unregistered T512; no proof/profile admission",
+      "old_U8_helper_bytes": 1846018048,
+      "fmax": 12,
+      "columns": 86,
+      "original_leaves": 219742464,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 3363635712,
+            "cache_key_reads": 0,
+            "build_muls": 7088432379,
+            "build_adds": 2362810793,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 33840128,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 12,
+            "B": 2048,
+            "peak_phase": "d23/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 3363635712,
+            "cache_key_reads": 0,
+            "build_muls": 10080363771,
+            "build_adds": 3360121257,
+            "restore_muls": 5924167680,
+            "restore_subs": 997310464,
+            "inversions": 19898368
+          },
+          "peak_bytes": 33906176,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 12,
+            "B": 2048,
+            "peak_phase": "d23/materialize"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 2991931392,
+            "build_adds": 997310464,
+            "restore_muls": 5924167680,
+            "restore_subs": 997310464,
+            "inversions": 19898368
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 3363635712,
+            "cache_key_reads": 322732032,
+            "build_muls": 10080363771,
+            "build_adds": 3360121257,
+            "restore_muls": 4958072832,
+            "restore_subs": 997310464,
+            "inversions": 19197952
+          },
+          "peak_bytes": 33897984,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 12,
+            "B": 2048,
+            "peak_phase": "d23/materialize"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 322732032,
+            "build_muls": 2991931392,
+            "build_adds": 997310464,
+            "restore_muls": 4958072832,
+            "restore_subs": 997310464,
+            "inversions": 19197952
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 512,
+      "dd": true,
+      "scope": "COUNTED ONLY, unregistered T512; no proof/profile admission",
+      "old_U8_helper_bytes": 1846018048,
+      "fmax": 14,
+      "columns": 86,
+      "original_leaves": 219742464,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 2924151296,
+            "cache_key_reads": 0,
+            "build_muls": 5776246011,
+            "build_adds": 1925415337,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 34626560,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 14,
+            "B": 512,
+            "peak_phase": "d23/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 2924151296,
+            "cache_key_reads": 0,
+            "build_muls": 8738637051,
+            "build_adds": 2912879017,
+            "restore_muls": 5766168576,
+            "restore_subs": 987463680,
+            "inversions": 52871168
+          },
+          "peak_bytes": 34631168,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 14,
+            "B": 512,
+            "peak_phase": "d23/materialize"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 2962391040,
+            "build_adds": 987463680,
+            "restore_muls": 5766168576,
+            "restore_subs": 987463680,
+            "inversions": 52871168
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 2924151296,
+            "cache_key_reads": 322732032,
+            "build_muls": 8738637051,
+            "build_adds": 2912879017,
+            "restore_muls": 4806377472,
+            "restore_subs": 987463680,
+            "inversions": 50069504
+          },
+          "peak_bytes": 34629120,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 14,
+            "B": 512,
+            "peak_phase": "d23/materialize"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 322732032,
+            "build_muls": 2962391040,
+            "build_adds": 987463680,
+            "restore_muls": 4806377472,
+            "restore_subs": 987463680,
+            "inversions": 50069504
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 512,
+      "dd": true,
+      "scope": "COUNTED ONLY, unregistered T512; no proof/profile admission",
+      "old_U8_helper_bytes": 1846018048,
+      "fmax": 15,
+      "columns": 86,
+      "original_leaves": 219742464,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 2704409088,
+            "cache_key_reads": 0,
+            "build_muls": 5125375227,
+            "build_adds": 1708458409,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 35675136,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 15,
+            "B": 256,
+            "peak_phase": "d23/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 2704409088,
+            "cache_key_reads": 0,
+            "build_muls": 8053949691,
+            "build_adds": 2684649897,
+            "restore_muls": 5607555072,
+            "restore_subs": 976191488,
+            "inversions": 83197952
+          },
+          "peak_bytes": 35675136,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 15,
+            "B": 256,
+            "peak_phase": "d23/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 2928574464,
+            "build_adds": 976191488,
+            "restore_muls": 5607555072,
+            "restore_subs": 976191488,
+            "inversions": 83197952
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 2704409088,
+            "cache_key_reads": 322699264,
+            "build_muls": 8053949691,
+            "build_adds": 2684649897,
+            "restore_muls": 4656070656,
+            "restore_subs": 976191488,
+            "inversions": 77660160
+          },
+          "peak_bytes": 35675136,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 15,
+            "B": 256,
+            "peak_phase": "d23/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 322699264,
+            "build_muls": 2928574464,
+            "build_adds": 976191488,
+            "restore_muls": 4656070656,
+            "restore_subs": 976191488,
+            "inversions": 77660160
+          }
+        }
+      }
+    },
+    {
+      "model": "8B",
+      "T": 512,
+      "dd": true,
+      "scope": "COUNTED ONLY, unregistered T512; no proof/profile admission",
+      "old_U8_helper_bytes": 1846018048,
+      "fmax": 16,
+      "columns": 86,
+      "original_leaves": 219742464,
+      "arms": {
+        "direct": {
+          "counts": {
+            "source_reads": 2484732416,
+            "cache_key_reads": 0,
+            "build_muls": 4482663675,
+            "build_adds": 1494221225,
+            "restore_muls": 0,
+            "restore_subs": 0,
+            "inversions": 0
+          },
+          "peak_bytes": 37772288,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 16,
+            "B": 128,
+            "peak_phase": "d23/resident"
+          }
+        },
+        "batch": {
+          "counts": {
+            "source_reads": 2484732416,
+            "cache_key_reads": 0,
+            "build_muls": 7351960827,
+            "build_adds": 2450653609,
+            "restore_muls": 5357961216,
+            "restore_subs": 956432384,
+            "inversions": 126877696
+          },
+          "peak_bytes": 37772288,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 16,
+            "B": 128,
+            "peak_phase": "d23/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 0,
+            "build_muls": 2869297152,
+            "build_adds": 956432384,
+            "restore_muls": 5357961216,
+            "restore_subs": 956432384,
+            "inversions": 126877696
+          }
+        },
+        "cached": {
+          "counts": {
+            "source_reads": 2484732416,
+            "cache_key_reads": 322699264,
+            "build_muls": 7351960827,
+            "build_adds": 2450653609,
+            "restore_muls": 4423090176,
+            "restore_subs": 956432384,
+            "inversions": 115802112
+          },
+          "peak_bytes": 37772288,
+          "peak_plan": {
+            "n": 8388608,
+            "f": 16,
+            "B": 128,
+            "peak_phase": "d23/resident"
+          },
+          "extra_vs_direct": {
+            "source_reads": 0,
+            "cache_key_reads": 322699264,
+            "build_muls": 2869297152,
+            "build_adds": 956432384,
+            "restore_muls": 4423090176,
+            "restore_subs": 956432384,
+            "inversions": 115802112
+          }
+        }
+      }
+    }
+  ],
+  "elapsed_s": 0.29419223198783584,
+  "maxrss_KiB": 16904
+}

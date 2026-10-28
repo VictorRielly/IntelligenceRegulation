@@ -1,0 +1,13 @@
+
+running 1 test
+test private_block::run_capture_tests::gr4_trained_tests::gr4_trained_t32_block_dense_ho00_commits_exactly_the_predicted_stream ... GR4 trained replay [TinyLlama-trained T32 layer 0, dense ho00 (generic witness)]: layout A 1729 rows (mask region 242 rows), H 1798 rows (mask region 100 rows), M 50 base rows, row width 2^12, rate 4; H zero-sum rows below the segment-8 region = true; parity words 65536
+GR4 trained replay [TinyLlama-trained T32 layer 0, dense ho00 (generic witness)]: single-block receipt refused at this profile = true; run header rebuilt from public words = binding: true; one-block bound run, seeded stage 0, segment 11627288 B, verified by the production run verifier = true
+GR4 trained replay [TinyLlama-trained T32 layer 0, dense ho00 (generic witness)]: A root rebuilt = true; M root rebuilt = true; H root rebuilt = true; replay stream ends where the prover's did (next-draw probe) = true; prover consumed exactly the predicted 38455872 bytes = true; probe non-vacuity (16 bytes further differs) = true; endpoint owners: 51712 drawn field values and 32768 salts, all distinct
+GR4 trained replay [TinyLlama-trained T32 layer 0, dense ho00 (generic witness)]: non-vacuity AProxZero moves the A root = true
+GR4 trained replay [TinyLlama-trained T32 layer 0, dense ho00 (generic witness)]: non-vacuity CopyAIntoH moves the H root = true
+GR4 trained replay [TinyLlama-trained T32 layer 0, dense ho00 (generic witness)]: non-vacuity AlphaCopy moves the M root = true
+GR4 trained replay [TinyLlama-trained T32 layer 0, dense ho00 (generic witness)]: PASS. seconds: seeded prove stage 2.86, production run verify 0.28, one rebuild 0.94, whole test 7.51; process high-water mark 0.84 GiB [MEASURED, shared box, n=1]. Not a privacy result.
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 650 filtered out; finished in 7.51s
+

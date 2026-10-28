@@ -1,0 +1,19 @@
+[19:09:39Z] queue start
+[19:35:25Z] r12-cli-build exit 0
+[19:35:45Z] r12-compat-tl-dd exit 0
+[19:36:46Z] r12-compat-8b-dd exit 0
+[19:37:06Z] r12-compat-tl exit 0
+[19:38:14Z] r12-compat-8b exit 0
+[19:38:27Z] r12-compat-tl-t32 exit 0
+[19:38:27Z] dd probe: exit 1 dir no
+[19:43:32Z] r12-test-build exit 0
+[19:43:32Z] lib test binary: target/release/deps/hashline-0df80732d12ffea7
+[19:43:39Z] r12-review exit 0
+[19:44:19Z] r12-author-subset exit 0
+[19:44:32Z] r12-saved-receipts exit 0
+[19:45:34Z] r12-golden exit 0
+[19:49:50Z] r12-dense exit 0
+[20:04:46Z] r9-golden-build exit 0
+[20:04:46Z] R9 golden test binary: target/release/deps/hashline-10d651f0ba954ab2
+[20:05:49Z] r9-golden-run exit 0
+[20:05:49Z] queue end

@@ -1,0 +1,22 @@
+{
+  "tlcalib.py": {
+    "source": "results/zk60_1b_calibration_20260929/tlcalib.py",
+    "source_sha256": "cb587ac669af50d78e36556bd0f18d9317318de666a072b2fd21a02c89c2466a",
+    "adapted_sha256": "2441cc4072c0d4b4cf3f07779a3323ad066ced9eaa6aa31eeb757e0362d94738"
+  },
+  "b3calib.py": {
+    "source": "results/zk60_1b_calibration_20260929/b3calib.py",
+    "source_sha256": "f000ba5140f628587b83f207a3b08ac562da85ef1e2582de7a06a9db0267313f",
+    "adapted_sha256": "656049c85d932133e2f6e70c6886af35f5f0d4c5d94000c11879b66001ddf511"
+  },
+  "b3_ladder.py": {
+    "source": "results/zk60_1b_calibration_20260929/b3_ladder.py",
+    "source_sha256": "13675c3b7797bd65b1954b2cee922381333c0ecc323dd3b1be9e8be8e8b16f0b",
+    "adapted_sha256": "d2e07ab43131298b2552d61ff215b2c7a0e11521d237d2c0721242870849eea7"
+  },
+  "fp_lib.py": {
+    "source": "results/zk60_fidelity_parity_20261019/fp_lib.py",
+    "source_sha256": "8bf186d6838580cc4710ac16e9633ded657cf595daa559a140d59bcb47ec2d8d",
+    "adapted_sha256": "e990f904d1696d69080d177aeb4c2deb5da6e50123923bf28ebeac6cc2f71cf6"
+  }
+}

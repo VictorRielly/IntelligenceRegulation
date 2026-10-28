@@ -1,0 +1,8 @@
+{
+  "status": "UNBUILT_UNAPPLIED_REVIEW_PROPOSAL",
+  "files": 2,
+  "source": "frozen native R8, source-pins.json",
+  "patch_sha256": "4ff40a04215b7439e097b3cdd3ff7769cffdf91e0c6dff1f124873267658c118",
+  "native_equivalence_validated": false,
+  "production_written": false
+}

@@ -1,0 +1,2771 @@
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/argument.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/argument.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/argument.rs	2026-10-19 09:43:52.719119676 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/argument.rs	2026-10-20 19:53:45.652479842 -0700
+@@ -1328,19 +1328,23 @@
+             // the output projection write the full width; the key and value
+             // projections write `kv_heads * head_dim`.
+             let kvw = sh.kv_heads * sh.head_dim;
+-            let (plane, w, outer): (usize, &[i8], usize) = match slot {
+-                SC_QMM => (ids.at(A_Y), ctx.public.wq.as_slice(), sh.d_pad),
+-                SC_KMM => (ids.at(A_Y), ctx.public.wk.as_slice(), kvw),
+-                SC_VMM => (ids.at(A_Y), ctx.public.wv.as_slice(), kvw),
+-                _ => (ids.at(A_O8), ctx.public.wo.as_slice(), sh.d_pad),
++            // NATIVE R12 (F2): `Wq` writes the QUERY axis (`q_pad`) and reads
++            // the model axis; `Wo` reads the query axis and writes the model
++            // axis. At every profile before R12 `q_pad == d_pad`, so no
++            // challenge length, coordinate or fold moves.
++            let (plane, w, outer, inner): (usize, &[i8], usize, usize) = match slot {
++                SC_QMM => (ids.at(A_Y), ctx.public.wq.as_slice(), sh.q_pad(), sh.d_pad),
++                SC_KMM => (ids.at(A_Y), ctx.public.wk.as_slice(), kvw, sh.d_pad),
++                SC_VMM => (ids.at(A_Y), ctx.public.wv.as_slice(), kvw, sh.d_pad),
++                _ => (ids.at(A_O8), ctx.public.wo.as_slice(), sh.d_pad, sh.q_pad()),
+             };
+             let r_j = tr.challenge_fp2_vec(lg(outer));
+             let point = cat(&[&pts.r_q, &r_j]);
+             let mut coords = fixed(&pts.r_q);
+-            coords.extend(rho(0..ld));
++            coords.extend(rho(0..lg(inner)));
+             b.a_at(plane, coords, 0)?;
+             // w is (output j, input i): sum_j eq(r_j, j) w[j, i]
+-            b.public(fold_rows_i8(w, outer, sh.d_pad, &eq_table_msb(&r_j)));
++            b.public(fold_rows_i8(w, outer, inner, &eq_table_msb(&r_j)));
+             match slot {
+                 SC_QMM => pts.pq = point,
+                 SC_KMM => pts.pk = point,
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/dense_tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/dense_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/dense_tests.rs	2026-10-17 04:24:41.552493725 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/dense_tests.rs	2026-10-20 19:58:41.406738396 -0700
+@@ -158,14 +158,16 @@
+ /// else".
+ pub(super) fn dense_public_words_with(s: &Shape, attn: i64, gate: i64, down: i64, gains: (i64, i64)) -> ([Vec<i8>; 9], u64) {
+     let (d, f, kvw) = (s.width, s.hidden, s.kv_heads * s.head_dim);
++    // NATIVE R12 (F2): `Wq` (query, model), `Wo` (model, query)
++    let qw = s.q_width();
+     let mut r = Rng(DENSE_SEED);
+     let mat = |r: &mut Rng, outer: usize, inner: usize, mag: i64| -> Vec<i8> { (0..outer * inner).map(|_| r.nonzero(mag) as i8).collect() };
+     let gain = |r: &mut Rng, n: usize| -> Vec<i8> { (0..n).map(|_| r.pick(gains.0, gains.1) as i8).collect() };
+     let words = [
+-        mat(&mut r, d, d, attn),
++        mat(&mut r, qw, d, attn),
+         mat(&mut r, kvw, d, attn),
+         mat(&mut r, kvw, d, attn),
+-        mat(&mut r, d, d, attn),
++        mat(&mut r, d, qw, attn),
+         gain(&mut r, d),
+         gain(&mut r, d),
+         mat(&mut r, d, f, gate),
+@@ -187,8 +189,8 @@
+ /// How many draws the nine public words take from [`DENSE_SEED`] — one per
+ /// entry, because `nonzero` and `pick` each call `next` exactly once.
+ pub(super) fn dense_public_word_draws(s: &Shape) -> u64 {
+-    let (d, f, kvw) = (s.width as u64, s.hidden as u64, (s.kv_heads * s.head_dim) as u64);
+-    d * d + kvw * d + kvw * d + d * d + d + d + d * f + d * f + f * d
++    let (d, f, kvw, qw) = (s.width as u64, s.hidden as u64, (s.kv_heads * s.head_dim) as u64, s.q_width() as u64);
++    qw * d + kvw * d + kvw * d + d * qw + d + d + d * f + d * f + f * d
+ }
+ 
+ /// `tame_case`'s own nine words, in the same order — the diagonal fixture the
+@@ -211,7 +213,8 @@
+ pub(super) fn statement_of_words(s: &Shape, w: &[Vec<i8>; 9]) -> (AttentionPublic, FeedForwardPublic) {
+     // ROUND 4: the RoPE base pinned for the shape's profile (500000 at the
+     // Llama-3-8B profile; 10000 everywhere else, as before)
+-    let (cos, sin) = crate::tables_attn::rope_tables_generate(s.tokens, s.head_dim, super::shape::trained_rope_theta(s.profile).unwrap_or(10000.0), F_RO);
++    // NATIVE R12 (F1): and the profile's pinned RoPE transform (none before R12)
++    let (cos, sin) = super::shape::rope_tables_for(s, super::shape::trained_rope_theta(s.profile).unwrap_or(10000.0)).expect("the profile's RoPE tables");
+     let (exp, _) = crate::tables_attn::exp_member(0, s.head_dim, s.f_e);
+     let (act, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, -3, -11).expect("frozen SiLU int16-out member");
+     let aw = super::grow_tests::pad_attention_weights(s, &w[0], &w[1], &w[2], &w[3], &w[4]);
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/grow_tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/grow_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/grow_tests.rs	2026-10-19 09:54:21.589838646 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/grow_tests.rs	2026-10-20 22:06:09.429351555 -0700
+@@ -657,9 +657,12 @@
+ #[test]
+ fn an_inexpressible_shape_is_refused_at_construction_by_name() {
+     let mk = |t, d, f, h, dh, kv| Shape::new("probe", "probe/1", t, d, f, h, dh, kv, 8, 8, 9, 7, None, None, None, None);
+-    // the Q/D coincidence: the padded head slots must tile the padded width
+-    let err = mk(32, 16, 16, 2, 4, 1).expect_err("d_pad != h_pad * head_dim must be refused");
+-    assert_eq!(err, "private block shape: d_pad differs from h_pad * head_dim");
++    // NATIVE R12 (F2): the Q/D coincidence is no longer a refusal (the query
++    // axis has its own padded width, `q_pad`); this probe (query axis 8,
++    // model axis 16) is still refused, by the bilinear slots' rule on a
++    // P-3-lifted Kv domain
++    let err = mk(32, 16, 16, 2, 4, 1).expect_err("this probe must still be refused");
++    assert_eq!(err, "private block shape: the bilinear attention slots cannot serve a shape whose Kv domain is lifted by P-3 (natural log 7, lifted to the row width 8)");
+     // T-8: the RoPE partner bit is addressed as `log - log2(head_dim)`
+     let err = mk(32, 48, 16, 2, 24, 1).expect_err("a non-power-of-two head dimension must be refused");
+     assert_eq!(err, "private block shape: the head dimension is not an even power of two");
+@@ -782,13 +785,15 @@
+ /// sizes `(d, d)`, `(kvw, d)`, `(kvw, d)`, `(d, d)`, `(d)`.
+ pub(super) fn pad_attention_weights(s: &Shape, wq: &[i8], wk: &[i8], wv: &[i8], wo: &[i8], gamma_a: &[i8]) -> [Vec<i8>; 5] {
+     let (d, dp, kvw) = (s.width, s.d_pad, s.kv_heads * s.head_dim);
++    // NATIVE R12 (F2): `Wq` (query, model), `Wo` (model, query)
++    let (qw, qp) = (s.q_width(), s.q_pad());
+     let id = |i: usize| i;
+     let q = |j: usize| q_axis_index(s, j);
+     [
+-        pad_matrix(wq, d, d, dp, dp, &q, &id),
++        pad_matrix(wq, qw, d, qp, dp, &q, &id),
+         pad_matrix(wk, kvw, d, kvw, dp, &id, &id),
+         pad_matrix(wv, kvw, d, kvw, dp, &id, &id),
+-        pad_matrix(wo, d, d, dp, dp, &id, &q),
++        pad_matrix(wo, d, qw, dp, qp, &id, &q),
+         pad_matrix(gamma_a, 1, d, 1, dp, &id, &id),
+     ]
+ }
+@@ -817,7 +822,9 @@
+     assert_eq!(cos.len(), s.tokens * half);
+     let (exp, _) = crate::tables_attn::exp_member(0, s.head_dim, s.f_e);
+     let (act, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, -3, -11).expect("frozen SiLU int16-out member");
+-    let aw = pad_attention_weights(s, &diag(d, d), &diag(kvw, d), &diag(kvw, d), &diag(d, d), &gamma);
++    // NATIVE R12 (F2): `Wq` (query, model), `Wo` (model, query)
++    let qw = s.q_width();
++    let aw = pad_attention_weights(s, &diag(qw, d), &diag(kvw, d), &diag(kvw, d), &diag(d, qw), &gamma);
+     let fw = pad_ff_weights(s, &gamma, &diag(d, f), &diag(d, f), &diag(f, d));
+     let public = AttentionPublic::new_shaped(s, &aw[0], &aw[1], &aw[2], &aw[3], &aw[4], &cos, &sin, &exp).expect("statement");
+     let ff = FeedForwardPublic::new_shaped(s, &fw[0], &fw[1], &fw[2], &fw[3], &act).expect("feed-forward statement");
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/mvp_driver.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/mvp_driver.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/mvp_driver.rs	2026-10-17 15:00:09.513613784 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/mvp_driver.rs	2026-10-20 19:58:41.401381428 -0700
+@@ -126,15 +126,17 @@
+ /// Wu, Wd]` from `seed`, in the recipe's fixed read order
+ fn public_words(sh: &Shape, seed: u64) -> Result<[Vec<i8>; 9], String> {
+     let (d, f, kvw) = (sh.width, sh.hidden, sh.kv_heads * sh.head_dim);
++    // NATIVE R12 (F2): `Wq` is (query, model), `Wo` (model, query)
++    let qw = sh.q_width();
+     let down = band_down_run(sh)?;
+     let mut r = SplitMix(seed);
+     let mat = |r: &mut SplitMix, outer: usize, inner: usize, mag: i64| -> Vec<i8> { (0..outer * inner).map(|_| r.nonzero(mag) as i8).collect() };
+     let gain = |r: &mut SplitMix, n: usize| -> Vec<i8> { (0..n).map(|_| r.pick(GAIN.0, GAIN.1) as i8).collect() };
+     Ok([
+-        mat(&mut r, d, d, BAND_ATTN),
++        mat(&mut r, qw, d, BAND_ATTN),
+         mat(&mut r, kvw, d, BAND_ATTN),
+         mat(&mut r, kvw, d, BAND_ATTN),
+-        mat(&mut r, d, d, BAND_ATTN),
++        mat(&mut r, d, qw, BAND_ATTN),
+         gain(&mut r, d),
+         gain(&mut r, d),
+         mat(&mut r, d, f, BAND_GATE),
+@@ -169,16 +171,17 @@
+ fn block_of(sh: &Shape, seed: u64) -> Result<BlockPublic, String> {
+     let w = public_words(sh, seed)?;
+     let (d, f, dp, fp, kvw) = (sh.width, sh.hidden, sh.d_pad, sh.f_pad, sh.kv_heads * sh.head_dim);
++    let (qw, qp) = (sh.q_width(), sh.q_pad());
+     let (cos, sin) = crate::tables_attn::rope_tables_generate(sh.tokens, sh.head_dim, 10000.0, F_RO);
+     let (exp, _) = crate::tables_attn::exp_member(0, sh.head_dim, sh.f_e);
+     let (act, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, -3, -11).ok_or("mvp driver: the frozen SiLU int16-out member is missing")?;
+     let id = |i: usize| i;
+     let q = |j: usize| q_axis_index(sh, j);
+     let aw = [
+-        pad_matrix(&w[0], d, d, dp, dp, &q, &id),
++        pad_matrix(&w[0], qw, d, qp, dp, &q, &id),
+         pad_matrix(&w[1], kvw, d, kvw, dp, &id, &id),
+         pad_matrix(&w[2], kvw, d, kvw, dp, &id, &id),
+-        pad_matrix(&w[3], d, d, dp, dp, &id, &q),
++        pad_matrix(&w[3], d, qw, dp, qp, &id, &q),
+         pad_matrix(&w[4], 1, d, 1, dp, &id, &id),
+     ];
+     let fw = [pad_matrix(&w[5], 1, d, 1, dp, &id, &id), pad_matrix(&w[6], d, f, dp, fp, &id, &id), pad_matrix(&w[7], d, f, dp, fp, &id, &id), pad_matrix(&w[8], f, d, fp, dp, &id, &id)];
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/pad.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/pad.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/pad.rs	2026-10-19 11:59:12.255273682 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/pad.rs	2026-10-20 19:55:26.439619429 -0700
+@@ -91,7 +91,7 @@
+                 Dom::Ht => v[h * t_pad + t] = 1,
+                 Dom::Q => {
+                     for i in 0..s.head_dim {
+-                        v[t * s.d_pad + h * s.head_dim + i] = 1;
++                        v[t * s.q_pad() + h * s.head_dim + i] = 1;
+                     }
+                 }
+                 Dom::S => {
+@@ -170,7 +170,8 @@
+         Dom::F => vec![(1, BitForm::of(s.hidden, f_pad)), (f_pad, BitForm::of(s.tokens, t_pad))],
+         Dom::Kv => vec![(s.kv_heads * dh, BitForm::of(s.tokens, t_pad))],
+         // `Dom::Q` is `(t, slot, i')`: the head factor sits above `log2(dh)`
+-        Dom::Q => vec![(dh, head()), (d_pad, BitForm::of(s.tokens, t_pad))],
++        // NATIVE R12 (F2): its row stride is the QUERY width `q_pad`
++        Dom::Q => vec![(dh, head()), (s.q_pad(), BitForm::of(s.tokens, t_pad))],
+         Dom::Ht => vec![(1, BitForm::of(s.tokens, t_pad)), (t_pad, head())],
+         Dom::S => vec![(1, BitForm::of(s.tokens, t_pad)), (t_pad, BitForm::of(s.tokens, t_pad)), (t_pad * t_pad, head())],
+         Dom::L => vec![(1, BitForm::of(s.tokens, t_pad)), (t_pad, BitForm::of(3 * LIMBS_ISQRT, s.size(dom) / t_pad))],
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/parity.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/parity.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/parity.rs	2026-10-17 04:24:41.553339087 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/parity.rs	2026-10-20 19:58:41.404863040 -0700
+@@ -384,6 +384,8 @@
+     // a lane constant well clear of the toy sweep's indices
+     let mut r = Rng::seeded(1_000_000 + idx);
+     let (d, f, kvw) = (s.width, s.hidden, s.kv_heads * s.head_dim);
++    // NATIVE R12 (F2): `Wq` (query, model), `Wo` (model, query)
++    let qw = s.q_width();
+     // the band is narrower than the toy's: at 96 inputs per accumulation a
+     // full band leaves the int8 class six times sooner than at 16
+     const BAND: [i64; 8] = [0, 1, 2, 4, 8, 16, 48, 127];
+@@ -392,10 +394,10 @@
+     let xmag = [1i64, 4, 32, 512, 32_767][(idx / 32) % 5];
+     let ffn_mag = BAND[(idx / 3) % 8];
+     let words = [
+-        matrix(&mut r, d, d, 64, mag),
++        matrix(&mut r, qw, d, 64, mag),
+         matrix(&mut r, kvw, d, 64, mag),
+         matrix(&mut r, kvw, d, 64, mag),
+-        matrix(&mut r, d, d, 64, mag),
++        matrix(&mut r, d, qw, 64, mag),
+         (0..d).map(|_| r.pick(gain - 8, gain).clamp(-127, 127) as i8).collect(),
+         (0..d).map(|_| r.pick(gain - 8, gain).clamp(-127, 127) as i8).collect(),
+         matrix(&mut r, d, f, 64, ffn_mag),
+@@ -413,7 +415,8 @@
+ pub(super) fn shaped_case_from_words(s: &Shape, words: [Vec<i8>; 9], input: Vec<i16>) -> ShapedCase {
+     // ROUND 4: the RoPE base pinned for the shape's profile (500000 at the
+     // Llama-3-8B profile; 10000 everywhere else, as before)
+-    let (cos, sin) = crate::tables_attn::rope_tables_generate(s.tokens, s.head_dim, super::shape::trained_rope_theta(s.profile).unwrap_or(10000.0), F_RO);
++    // NATIVE R12 (F1): and the profile's pinned RoPE transform (none before R12)
++    let (cos, sin) = super::shape::rope_tables_for(s, super::shape::trained_rope_theta(s.profile).unwrap_or(10000.0)).expect("the profile's RoPE tables");
+     let (exp, _) = crate::tables_attn::exp_member(0, s.head_dim, s.f_e);
+     let (act, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, -3, -11).expect("frozen SiLU int16-out member (-3, -11)");
+     // the module takes the PADDED, head-permuted statement (ruling P-2); the
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/r12_golden_tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/r12_golden_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/r12_golden_tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/r12_golden_tests.rs	2026-10-26 10:36:01.958063836 -0700
+@@ -0,0 +1,188 @@
++//! **NATIVE R12: byte identity of the EXISTING profiles across R9 -> R12**
++//! (the coordinator's check (a), as in R9). TEST CODE ONLY. Public synthetic
++//! data only.
++//!
++//! Proof bytes come from OS randomness, so two proofs never repeat. Each test
++//! proves ONE block with a SEEDED generator (`ZkRng::new`, test code only)
++//! through the shared `protocol::prove_core`, at a registered trained shape,
++//! on a generic dense witness, with a fixed transcript prefix and
++//! deterministic endpoint data, and digests EVERYTHING the core produces: the
++//! three roots, every slot proof, the three openings, the IO claims, the
++//! absorb order and the final transcript state. The non-DD bodies are R9's
++//! `r9_golden_tests` verbatim (so their digests are the R8 / R9 ones); the DD
++//! shapes use the same recipe with an exp table of score exponent 2 (a
++//! dictionary column well inside cap 32). The same file runs in a copy of the
++//! R9 freeze (`r12/r9-golden-tree/`) to record the DD digests, and in the R12
++//! tree against all four.
++//!
++//! Heavy (two width-2048 and two width-4096 T128 blocks): `#[ignore]`, run
++//! through the guard by name.
++
++use super::layout::*;
++use super::shape::{NormCalibration, Shape};
++use super::*;
++use crate::field::Fp;
++use crate::transcript::Transcript;
++
++/// the R8 / R9 digests of the non-DD shapes (R9's `r9_golden_tests`) and the
++/// R9 digests of the DD shapes, recorded in `r12/r9-golden-tree/`
++const GOLDEN: &[(&str, &str)] = &[
++    ("tinyllama-t128", "782b64c97a88cba4c6c34a2fecb73132f26d5f54adc9bd159f3d6cf9df4205c0"),
++    ("llama3-8b-t128", "05a22d72a892aff5fb2e35da4d0ab0c894d696f2e6afa542b6ecece5aeb9f4db"),
++    ("tinyllama-t128-dd", "e50e71f86ab64c6f4d69c6bee1ec7881feef75b1dc4c3972e20a6810c4428324"),
++    ("llama3-8b-t128-dd", "9c2572a3d5bc7b39374e39c3781d467f2c065279b23dd580bb0c9e02dd63c282"),
++];
++
++fn digest_of_seeded_block(sh: &Shape, blk: &BlockPublic, w: super::witness::Witness) -> String {
++    let lay = Layout::for_shape(sh).unwrap();
++    let rows = sh.endpoint_rows;
++    let n = 1usize << sh.endpoint_log_n;
++    let ids = Ids::new(sh).unwrap();
++    let io = |p: usize| -> Vec<Fp> {
++        let mut d = vec![Fp::ZERO; rows * n];
++        for (i, v) in w.planes[p].iter().enumerate().take(d.len()) {
++            d[i] = Fp::from_i64(*v);
++        }
++        d
++    };
++    let (ein, eout) = (io(ids.at(A_X)), io(ids.at(A_X2)));
++    let ntt = crate::ntt::NttTables::new(super::protocol::ntt_log_at(sh));
++    let mut rng = crate::zk::ZkRng::new(20261019, b"native r9 golden");
++    let mut tr = Transcript::new(b"native r9 golden");
++    tr.absorb(b"profile", sh.profile.as_bytes());
++    tr.absorb(b"schedule", &lay.schedule_digest());
++    let mut ph = super::timing::Phases::start();
++    let mut phases = Vec::new();
++    let mut tick = std::time::Instant::now();
++    let core = super::protocol::prove_core(sh, &lay, blk, w, [ein.as_slice(), eout.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick).expect("the seeded core proof");
++    let text = format!(
++        "{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}",
++        core.a_root,
++        core.h_root,
++        core.mask_root,
++        core.slots,
++        core.mask_open,
++        core.a_open,
++        core.h_open,
++        core.io_claims,
++        core.order,
++        core.lookups,
++        tr.state()
++    );
++    eprintln!("R12-GOLDEN {}: {} slots, {} absorbs, debug text {} B", sh.profile, core.slots.len(), core.order.len(), text.len());
++    blake3::hash(text.as_bytes()).to_hex().to_string()
++}
++
++fn check(name: &str, got: &str) {
++    eprintln!("R12-GOLDEN-DIGEST {name} {got}");
++    let (_, want) = GOLDEN.iter().find(|(n, _)| *n == name).expect("every R12 compatibility case needs an R9 recording");
++    assert_eq!(got, *want, "{name}: the seeded core proof's bytes moved between R9 and R12");
++}
++
++/// the 8B T128 dense case: the R4-2 / ladder bands, the FIRST admissible
++fn eight_b_dense(sh: &Shape) -> (BlockPublic, Vec<i16>, super::witness::Witness) {
++    use super::trained_calib_tests::{Bands, TRAINED_BANDS};
++    let cands = [TRAINED_BANDS, Bands { attn: 6, gate: 8, ..TRAINED_BANDS }, Bands { attn: 4, gate: 8, down: 1, ..TRAINED_BANDS }, Bands { attn: 4, gate: 6, down: 1, xmag: 4_000, ..TRAINED_BANDS }];
++    for b in cands {
++        let (blk, input) = super::trained_calib_tests::trained_dense_block_with(sh, b);
++        if let Ok(w) = super::witness::build_shaped(sh, blk.attention(), blk.feed_forward(), &input) {
++            eprintln!("R12-GOLDEN 8B bands {b:?}");
++            return (blk, input, w);
++        }
++    }
++    panic!("no candidate band is admissible at the 8B T128 geometry");
++}
++
++/// the same dense words with an exp table of score exponent 2 (DD shapes)
++fn dd_dense(sh: &Shape, b: super::trained_calib_tests::Bands) -> (BlockPublic, Vec<i16>) {
++    let (w, input) = super::trained_calib_tests::trained_dense_words(sh, b);
++    let (cos, sin) = crate::tables_attn::rope_tables_generate(sh.tokens, sh.head_dim, super::shape::trained_rope_theta(sh.profile).unwrap_or(10000.0), F_RO);
++    let (exp, _) = crate::tables_attn::exp_member(2, sh.head_dim, sh.f_e);
++    let (act, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, -3, -11).expect("a frozen SiLU member");
++    let aw = super::grow_tests::pad_attention_weights(sh, &w[0], &w[1], &w[2], &w[3], &w[4]);
++    let fw = super::grow_tests::pad_ff_weights(sh, &w[5], &w[6], &w[7], &w[8]);
++    let public = AttentionPublic::new_shaped(sh, &aw[0], &aw[1], &aw[2], &aw[3], &aw[4], &cos, &sin, &exp).expect("the attention statement");
++    let ff = FeedForwardPublic::new_shaped(sh, &fw[0], &fw[1], &fw[2], &fw[3], &act).expect("the feed-forward statement");
++    (BlockPublic::new(public, ff), input)
++}
++
++#[test]
++#[ignore = "native lane heavy: seeded TinyLlama T128 block proof (byte identity across R9 -> R12)"]
++fn r12_golden_seeded_tinyllama_t128_block_is_byte_identical() {
++    let cal = super::trained_calib_tests::t3_calibration();
++    let sh = Shape::tinyllama_trained(128, &cal, 9).unwrap();
++    let (blk, input) = super::trained_calib_tests::trained_dense_block(&sh);
++    let w = super::witness::build_shaped(&sh, blk.attention(), blk.feed_forward(), &input).expect("the generic dense witness");
++    check("tinyllama-t128", &digest_of_seeded_block(&sh, &blk, w));
++}
++
++#[test]
++#[ignore = "native lane heavy: seeded Llama-3-8B T128 block proof (byte identity across R9 -> R12)"]
++fn r12_golden_seeded_llama3_8b_t128_block_is_byte_identical() {
++    let cal = NormCalibration { cn_a: 6380, cn_m: 6672, ..super::trained_calib_tests::llama3_8b_calibration() };
++    let sh = Shape::llama3_8b_trained(128, &cal, 9).unwrap();
++    let (blk, _, w) = eight_b_dense(&sh);
++    check("llama3-8b-t128", &digest_of_seeded_block(&sh, &blk, w));
++}
++
++#[test]
++#[ignore = "native lane heavy: seeded TinyLlama T128 DD block proof (byte identity across R9 -> R12)"]
++fn r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical() {
++    let cal = super::trained_calib_tests::t3_calibration();
++    let sh = Shape::tinyllama_t128_trained_dd(&cal, 9).unwrap();
++    let (blk, input) = dd_dense(&sh, super::trained_calib_tests::TRAINED_BANDS);
++    let w = super::witness::build_shaped(&sh, blk.attention(), blk.feed_forward(), &input).expect("the generic dense DD witness");
++    check("tinyllama-t128-dd", &digest_of_seeded_block(&sh, &blk, w));
++}
++
++#[test]
++#[ignore = "native lane heavy: seeded Llama-3-8B T128 DD block proof (byte identity across R9 -> R12)"]
++fn r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical() {
++    let cal = NormCalibration { cn_a: 6380, cn_m: 6672, ..super::trained_calib_tests::llama3_8b_calibration() };
++    let sh = Shape::llama3_8b_t128_trained_dd(&cal, 9).unwrap();
++    use super::trained_calib_tests::{Bands, TRAINED_BANDS};
++    let cands = [TRAINED_BANDS, Bands { attn: 6, gate: 8, ..TRAINED_BANDS }, Bands { attn: 4, gate: 8, down: 1, ..TRAINED_BANDS }, Bands { attn: 4, gate: 6, down: 1, xmag: 4_000, ..TRAINED_BANDS }];
++    for b in cands {
++        let (blk, input) = dd_dense(&sh, b);
++        if let Ok(w) = super::witness::build_shaped(&sh, blk.attention(), blk.feed_forward(), &input) {
++            eprintln!("R12-GOLDEN 8B DD bands {b:?}");
++            check("llama3-8b-t128-dd", &digest_of_seeded_block(&sh, &blk, w));
++            return;
++        }
++    }
++    panic!("no candidate band is admissible at the 8B T128 DD geometry");
++}
++
++/// the R9 identities of the synthetic trained-model statements (cheap): a
++/// statement of an existing profile keeps its bytes across R9 -> R12
++const GOLDEN_IDENTITIES: &[(&str, &str)] = &[
++    ("llama3-8b-t128", "3a1a4533863de5ca158418d2e2eef29c067395c3881ab8cfd4fd55c0afeb0548"),
++    ("llama3-8b-t128-dd", "a0354c192baaf7243f07e023865f003a67d9ef8b1da605186f3f9aeb17b708b7"),
++    ("rung-dd", "35ea356f20f3c001c069273461fb807d3ad28503a81af76cc03e717f0ccc8bcd"),
++    ("tinyllama-t128", "f9b1e6c427637153ef7e40efd336952fb8d53b11e039f09031425d1e4cd8f22a"),
++    ("tinyllama-t128-dd", "0827ed029a86d3aa47679962dcb96ed752a79d59a2603dcc2a9374acd60f8505"),
++];
++
++#[test]
++#[ignore = "native lane: run with the goldens (cheap)"]
++fn r12_golden_statement_identities() {
++    let t3 = super::trained_calib_tests::t3_calibration();
++    let c8 = NormCalibration { cn_a: 6380, cn_m: 6672, ..super::trained_calib_tests::llama3_8b_calibration() };
++    let shapes = [
++        ("tinyllama-t128", Shape::tinyllama_trained(128, &t3, 9).unwrap()),
++        ("llama3-8b-t128", Shape::llama3_8b_trained(128, &c8, 9).unwrap()),
++        ("tinyllama-t128-dd", Shape::tinyllama_t128_trained_dd(&t3, 9).unwrap()),
++        ("llama3-8b-t128-dd", Shape::llama3_8b_t128_trained_dd(&c8, 9).unwrap()),
++        ("rung-dd", super::trained_calib_tests::rung_dd()),
++    ];
++    for (name, sh) in shapes {
++        let (public, ff, _) = super::grow_tests::tame_case(&sh);
++        let blk = BlockPublic::new(public, ff);
++        let st = super::trained_calib_tests::synthetic_statement(&sh, &[blk]);
++        let id: String = st.identity().iter().map(|b| format!("{b:02x}")).collect();
++        let enc = blake3::hash(&st.encode()).to_hex().to_string();
++        eprintln!("R12-GOLDEN-IDENTITY {name} {id} encode-blake3 {enc}");
++        let (_, want) = GOLDEN_IDENTITIES.iter().find(|(n, _)| *n == name).expect("every R12 statement needs an R9 identity recording");
++        assert_eq!(id, *want, "{name}: the synthetic statement's identity moved between R9 and R12");
++    }
++}
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/r12_tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/r12_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/r12_tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/r12_tests.rs	2026-10-26 10:37:20.042042492 -0700
+@@ -0,0 +1,616 @@
++//! **NATIVE R12 (D38): Shieldstral-1.0-3B's three prover features and its
++//! registered profiles.** TEST CODE ONLY. Public synthetic data only.
++//!
++//! * F1 — RoPE frequency transforms (YaRN, llama3) as public tables only,
++//!   checked against the transformers reference (`results/zk60_1b_native_
++//!   20261017/r12/rope_reference.py` / `.json`: the main-branch formulas
++//!   transcribed in binary64, agreeing with torch float32 and the installed
++//!   transformers 4.48 to float32 precision);
++//! * F2 — head_dim decoupled from d / heads: the decoupled-head rung (query
++//!   axis 512 against a padded model axis 256) proves and verifies and its
++//!   witness equals the independent kernel; the Shieldstral shapes (query
++//!   4096, model 3072) build, lay out and (heavy, ignored) prove;
++//! * F3 — tied embeddings: the statement binds both integer tables to the one
++//!   tensor digest; the loader reads a tied export's manifests;
++//! * the profiles: row widths, pins, n_col against the DD cap, counted
++//!   soundness floors and counts.
++
++use super::layout::*;
++use super::rope::{inv_freq, rope_tables, RopeScaling};
++use super::shape::*;
++use super::trained_statement::*;
++use super::*;
++
++// ------------------------------------------------------------------- helpers
++
++fn table_sha(c: &[i64], s: &[i64]) -> String {
++    use sha2::{Digest as _, Sha256};
++    let mut h = Sha256::new();
++    for v in c.iter().chain(s.iter()) {
++        h.update(v.to_le_bytes());
++    }
++    h.finalize().iter().map(|b| format!("{b:02x}")).collect()
++}
++
++/// a Shieldstral calibration for the generic witness (tn 10: the derived
++/// window at width 3072 is 32 bits, four limbs)
++pub(super) fn shieldstral_calibration(cn_a: i64, cn_m: i64) -> NormCalibration {
++    NormCalibration { tn: 10, cn_a, cn_m, ceps: 129_746, sh_ao: 6, sh_qkv: 8, sh_s: 7, sh_o: 9, sh_g: 8, sh_h: 16, sh_z: 5 }
++}
++
++pub(super) fn shieldstral(t: usize, dd: bool) -> Shape {
++    let cal = shieldstral_calibration(11_000, 11_500);
++    if dd { Shape::shieldstral_trained_dd(t, &cal, 9) } else { Shape::shieldstral_trained(t, &cal, 9) }.unwrap_or_else(|e| panic!("the Shieldstral T{t} shape (dd {dd}): {e}"))
++}
++
++pub(super) fn rung_hd() -> Shape {
++    Shape::rung_hd(&super::trained_calib_tests::rung_tc_calibration()).expect("the decoupled-head rung")
++}
++
++/// the public statement of nine TRUE-size words at `sh` (the profile's RoPE
++/// tables, an exp table of score exponent `e_s`, the frozen SiLU member)
++fn block_of(sh: &Shape, w: &[Vec<i8>; 9], e_s: i32) -> (BlockPublic, Vec<i64>, Vec<i16>, Vec<i64>, Vec<i64>) {
++    let (cos, sin) = rope_tables_for(sh, trained_rope_theta(sh.profile).unwrap_or(10000.0)).expect("the profile's RoPE tables");
++    let (exp, _) = crate::tables_attn::exp_member(e_s, sh.head_dim, sh.f_e);
++    let (act, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, -3, -11).expect("a frozen SiLU member");
++    let aw = super::grow_tests::pad_attention_weights(sh, &w[0], &w[1], &w[2], &w[3], &w[4]);
++    let fw = super::grow_tests::pad_ff_weights(sh, &w[5], &w[6], &w[7], &w[8]);
++    let public = AttentionPublic::new_shaped(sh, &aw[0], &aw[1], &aw[2], &aw[3], &aw[4], &cos, &sin, &exp).expect("the attention statement");
++    let ff = FeedForwardPublic::new_shaped(sh, &fw[0], &fw[1], &fw[2], &fw[3], &act).expect("the feed-forward statement");
++    (BlockPublic::new(public, ff), exp.to_vec(), act.to_vec(), cos, sin)
++}
++
++/// the INDEPENDENT shape-driven reference kernel's block output (true size)
++fn kernel_out(sh: &Shape, w: &[Vec<i8>; 9], x: &[i16], exp: &[i64], act: &[i16], cos: &[i64], sin: &[i64]) -> Vec<i16> {
++    use private_block_kernel_shaped as k;
++    let ksh = super::parity::kernel_shape(sh);
++    let mut scratch = vec![0i64; ksh.scratch_len()];
++    let mut out = vec![0i16; ksh.x_len()];
++    let wr = k::WeightsRef { wq: &w[0], wk: &w[1], wv: &w[2], wo: &w[3], gamma_a: &w[4], gamma_m: &w[5], wg_t: &w[6], wu_t: &w[7], wd_t: &w[8] };
++    let tr = k::TablesRef { rope_cos: cos, rope_sin: sin, exp, act };
++    k::run_shaped(&ksh, x, &wr, &tr, &mut scratch, None, &mut out).unwrap_or_else(|e| panic!("the reference kernel refuses: {e:?}"));
++    out
++}
++
++fn true_words(sh: &Shape, w: &super::witness::Witness, plane: usize) -> Vec<i16> {
++    (0..sh.tokens).flat_map(|t| (0..sh.width).map(move |i| (t, i))).map(|(t, i)| w.planes[plane][t * sh.d_pad + i] as i16).collect()
++}
++
++/// a generic dense block at `sh` that the honest witness admits: the first
++/// admissible of a few band candidates (dense weights, heads that differ)
++fn dense_bands() -> [super::trained_calib_tests::Bands; 5] {
++    use super::trained_calib_tests::{Bands, TRAINED_BANDS};
++    [TRAINED_BANDS, Bands { attn: 6, gate: 8, ..TRAINED_BANDS }, Bands { attn: 4, gate: 8, down: 1, ..TRAINED_BANDS }, Bands { attn: 4, gate: 6, down: 1, xmag: 4_000, ..TRAINED_BANDS }, Bands { attn: 3, gate: 4, down: 1, xmag: 3_000, ..TRAINED_BANDS }]
++}
++
++fn dense_admissible(sh: &Shape, e_s: i32) -> ([Vec<i8>; 9], Vec<i16>, BlockPublic, Vec<i64>, Vec<i16>, Vec<i64>, Vec<i64>, super::witness::Witness) {
++    for b in dense_bands() {
++        let (w, input) = super::trained_calib_tests::trained_dense_words(sh, b);
++        let (blk, exp, act, cos, sin) = block_of(sh, &w, e_s);
++        match super::witness::build_shaped(sh, blk.attention(), blk.feed_forward(), &input) {
++            Ok(wit) => {
++                eprintln!("R12 {}: bands {b:?} admissible", sh.profile);
++                return (w, input, blk, exp, act, cos, sin, wit);
++            }
++            Err(e) => eprintln!("R12 {}: bands {b:?} refused: {e}", sh.profile),
++        }
++    }
++    panic!("no candidate band is admissible at {}", sh.profile);
++}
++
++/// a generic dense block proves and verifies at `sh`, and its witness output
++/// equals the independent kernel's; returns the segment length
++fn proves_and_matches_the_kernel(sh: &Shape, e_s: i32) -> usize {
++    let (w, input, blk, exp, act, cos, sin, wit) = dense_admissible(sh, e_s);
++    let ids = Ids::new(sh).unwrap();
++    assert_eq!(true_words(sh, &wit, ids.at(A_X2)), kernel_out(sh, &w, &input, &exp, &act, &cos, &sin), "{}: the witness and the independent reference kernel disagree", sh.profile);
++    // heads that differ: the score plane is not one head repeated
++    let s8 = &wit.planes[ids.at(A_S8)];
++    let blk_len = sh.t_pad * sh.t_pad;
++    assert!((1..sh.q_heads).any(|h| s8[h * blk_len..(h + 1) * blk_len] != s8[..blk_len]), "{}: every head carries the same scores", sh.profile);
++    let one = super::trained_calib_tests::prove_one_bound(sh, &blk, wit).unwrap_or_else(|e| panic!("{}: the honest block does not prove: {e}", sh.profile));
++    if let Some(root) = std::env::var_os("ZK60_R12_EVIDENCE_DIR") {
++        let dir = std::path::PathBuf::from(root).join(format!("t{}-dd{}", sh.tokens, sh.dd_cap));
++        std::fs::create_dir_all(&dir).unwrap();
++        std::fs::write(dir.join("segment.bin"), &one.seg).unwrap();
++        std::fs::write(dir.join("expected.bin"), one.expected.to_bytes()).unwrap();
++        std::fs::write(dir.join("block-digest.bin"), blk.digest()).unwrap();
++        std::fs::write(dir.join("profile.txt"), sh.profile).unwrap();
++    }
++    super::trained_calib_tests::verify_one_bound(sh, &blk, &one.expected.to_bytes(), &one.seg).unwrap_or_else(|e| panic!("{}: the honest block does not verify: {e}", sh.profile));
++    // a one-byte flip of the segment is refused
++    let mut bad = one.seg.clone();
++    let at = bad.len() / 2;
++    bad[at] ^= 1;
++    assert!(super::trained_calib_tests::verify_one_bound(sh, &blk, &one.expected.to_bytes(), &bad).is_err(), "{}: a flipped segment verified", sh.profile);
++    one.seg.len()
++}
++
++// ------------------------------------------------------------- F1: RoPE
++
++/// `rope_reference.json` (r12/rope_reference.py, 2026-10-21): the SHA-256 of
++/// the T512 tables (little-endian int64 cos words, then sin words) built from
++/// the transformers main-branch formulas in binary64
++const REF_YARN_SHIELDSTRAL_HD128: &str = "261b32b8e461fa3866ee98455b3a4b39db51d846833115f525809c8375e12a5f";
++const REF_LLAMA3_1_HD128: &str = "9475db388fb1b6a3f4c918f09e71f6c9465a8d3e286eb80cc99d9618dfcfa307";
++const REF_LLAMA3_1_HD64: &str = "be90a500049a4ad9748d692324e8093a98083f322421830fd2fb9acff05912f4";
++const REF_UNSCALED_1E6_HD128: &str = "fd6f2e08b2ceec4bdb8d12cc680e9988cab99d57e0feb6ece116240c98f992bc";
++
++#[test]
++fn f1_yarn_tables_equal_the_transformers_reference() {
++    let s = RopeScaling::shieldstral();
++    assert_eq!(s.attention_factor(), 1.0, "Shieldstral's YaRN attention factor (mscale = mscale_all_dim) is exactly 1");
++    s.check().expect("Shieldstral's transform passes its class");
++    let (c, sn) = rope_tables(512, 128, SHIELDSTRAL_ROPE_THETA, &s, F_RO).expect("the YaRN tables");
++    assert_eq!(table_sha(&c, &sn), REF_YARN_SHIELDSTRAL_HD128, "the YaRN tables differ from the transformers reference");
++    // and they are NOT the unscaled tables (YaRN moves 22,650 of 65,536 entries at T512)
++    let (cu, su) = crate::tables_attn::rope_tables_generate(512, 128, SHIELDSTRAL_ROPE_THETA, F_RO);
++    let moved = c.iter().zip(&cu).chain(sn.iter().zip(&su)).filter(|(a, b)| a != b).count();
++    assert_eq!(moved, 22_650, "the YaRN transform moves the reference's count of entries");
++    // the transform interpolates the low frequencies by the factor and keeps the high ones
++    let inv = inv_freq(128, SHIELDSTRAL_ROPE_THETA, &s);
++    let un = inv_freq(128, SHIELDSTRAL_ROPE_THETA, &RopeScaling::None);
++    assert!((inv[0] / un[0] - 1.0).abs() < 1e-12 && (inv[63] * 16.0 / un[63] - 1.0).abs() < 1e-12, "YaRN keeps the fastest and divides the slowest frequency by 16");
++}
++
++/// **The prep lane's independent reference** (`results/zk60_shieldstral_
++/// prep_20261021/crosscheck/rope_tables_reference.npz`, sha256 ffcb1b29...:
++/// float64 cos / sin at positions 0..2047, the correct YaRN — correction
++/// range at original_max_position_embeddings 16384, attention factor 1 —
++/// equal to transformers 5.13.1, which has Ministral3, NOT 4.48.1's default
++/// path): rounded half up at 2^7 it is THE table, entry for entry. Its T512
++/// digest is [`REF_YARN_SHIELDSTRAL_HD128`] (computed independently), and at
++/// T2048 this. The frequency split is 21 original / 27 interpolated / 16 ramp,
++/// so 43 of the 64 pairs move.
++const REF_PREP_LANE_YARN_T2048: &str = "5e370a8c31a6b59c515171aa2293ed19c5115371daac7eda8e94faf44e94c255";
++
++#[test]
++fn f1_yarn_tables_equal_the_prep_lanes_reference_to_2048_positions() {
++    let s = RopeScaling::shieldstral();
++    let (c, sn) = rope_tables(2048, 128, SHIELDSTRAL_ROPE_THETA, &s, F_RO).expect("the YaRN tables");
++    assert_eq!(table_sha(&c, &sn), REF_PREP_LANE_YARN_T2048, "the YaRN tables differ from the prep lane's reference");
++    let inv = inv_freq(128, SHIELDSTRAL_ROPE_THETA, &s);
++    let un = inv_freq(128, SHIELDSTRAL_ROPE_THETA, &RopeScaling::None);
++    let original = inv.iter().zip(&un).filter(|(a, b)| (*a / *b - 1.0).abs() < 1e-12).count();
++    let interpolated = inv.iter().zip(&un).filter(|(a, b)| (*a * 16.0 / *b - 1.0).abs() < 1e-12).count();
++    assert_eq!((original, interpolated, 64 - original - interpolated), (21, 27, 16), "the YaRN frequency split");
++}
++
++#[test]
++fn f1_llama3_tables_equal_the_transformers_reference() {
++    let s = RopeScaling::llama3_1();
++    s.check().expect("llama3's transform passes its class");
++    for (hd, want) in [(128usize, REF_LLAMA3_1_HD128), (64, REF_LLAMA3_1_HD64)] {
++        let (c, sn) = rope_tables(512, hd, 500_000.0, &s, F_RO).expect("the llama3 tables");
++        assert_eq!(table_sha(&c, &sn), want, "head_dim {hd}: the llama3 tables differ from the transformers reference");
++    }
++}
++
++/// The unscaled case IS the frozen generator, entry for entry, at every
++/// registered base and head size; and the frozen generator agrees with the
++/// independent Python generator at Shieldstral's base.
++#[test]
++fn f1_the_unscaled_case_is_the_frozen_generator() {
++    for (t, hd, base) in [(32usize, 8usize, 10_000.0), (128, 64, 10_000.0), (128, 128, 500_000.0), (512, 128, 1_000_000.0)] {
++        assert_eq!(rope_tables(t, hd, base, &RopeScaling::None, F_RO).unwrap(), crate::tables_attn::rope_tables_generate(t, hd, base, F_RO), "T{t} hd{hd} base {base}");
++    }
++    let (c, s) = crate::tables_attn::rope_tables_generate(512, 128, 1_000_000.0, F_RO);
++    assert_eq!(table_sha(&c, &s), REF_UNSCALED_1E6_HD128, "the frozen generator and the reference script disagree on the unscaled table");
++}
++
++#[test]
++fn f1_an_attention_factor_other_than_one_is_refused_by_name() {
++    // mscale absent (0): transformers infers 0.1 ln(16) + 1 = 1.277
++    let s = RopeScaling::Yarn { factor: 16.0, original_max: 16384, beta_fast: 32.0, beta_slow: 1.0, mscale: 0.0, mscale_all_dim: 0.0, truncate: true };
++    let e = rope_tables(128, 128, 1e6, &s, F_RO).expect_err("an attention factor of 1.277 was accepted");
++    assert!(e.contains("attention factor") && e.contains("refused by name"), "{e}");
++    let e = RopeScaling::Yarn { factor: 16.0, original_max: 16384, beta_fast: 32.0, beta_slow: 1.0, mscale: 1.0, mscale_all_dim: 0.5, truncate: true }.check().expect_err("mscale / mscale_all_dim != 1 accepted");
++    assert!(e.contains("attention factor"), "{e}");
++}
++
++/// Each profile pins its transform, the encoding round-trips, and the
++/// tables a Shieldstral shape proves with are the YaRN ones.
++#[test]
++fn f1_the_profiles_pin_their_transforms() {
++    for p in SHIELDSTRAL_PROFILES {
++        assert_eq!(trained_rope_scaling(p), Some(RopeScaling::shieldstral()), "{p}");
++        assert_eq!(trained_rope_theta(p), Some(1_000_000.0), "{p}");
++    }
++    for p in [TINYLLAMA_T128_TRAINED_PROFILE, LLAMA3_8B_T128_TRAINED_PROFILE, TINYLLAMA_T128_DD_TRAINED_PROFILE, LLAMA3_8B_T128_DD_TRAINED_PROFILE, TRAINED_HD_RUNG_PROFILE] {
++        assert_eq!(trained_rope_scaling(p), Some(RopeScaling::None), "{p}");
++    }
++    assert_eq!(trained_rope_scaling(TOY_PROFILE), None);
++    for s in [RopeScaling::None, RopeScaling::shieldstral(), RopeScaling::llama3_1()] {
++        assert_eq!(RopeScaling::decode(&s.encode()), Ok(s), "{s:?}");
++    }
++    assert!(RopeScaling::decode(b"yarn-short").is_err());
++    let sh = shieldstral(128, false);
++    let (c, s) = rope_tables_for(&sh, SHIELDSTRAL_ROPE_THETA).unwrap();
++    assert_eq!((c, s), rope_tables(128, 128, SHIELDSTRAL_ROPE_THETA, &RopeScaling::shieldstral(), F_RO).unwrap());
++    // the loader's parser: transformers' own keys
++    let j = super::trained_block::parse_json(br#"{"rope_type": "yarn", "factor": 16.0, "original_max_position_embeddings": 16384, "beta_fast": 32.0, "beta_slow": 1.0, "mscale": 1.0, "mscale_all_dim": 1.0}"#).unwrap();
++    assert_eq!(super::trained_block::rope_scaling_of(Some(&j)), Ok(RopeScaling::shieldstral()));
++    let j = super::trained_block::parse_json(br#"{"rope_type": "default"}"#).unwrap();
++    assert_eq!(super::trained_block::rope_scaling_of(Some(&j)), Ok(RopeScaling::None));
++    assert_eq!(super::trained_block::rope_scaling_of(None), Ok(RopeScaling::None));
++    let j = super::trained_block::parse_json(br#"{"rope_type": "yarn", "factor": 16.0, "original_max_position_embeddings": 16384, "beta_fast": 32.0, "beta_slow": 1.0}"#).unwrap();
++    assert!(super::trained_block::rope_scaling_of(Some(&j)).is_err(), "a YaRN object without mscale was accepted");
++}
++
++/// A statement's calibration binds the transform: the profile's pin, and
++/// encoded only when it is not `none` (every statement before R12 keeps
++/// its bytes).
++#[test]
++fn f1_the_statement_binds_the_transform() {
++    let sh = shieldstral(128, false);
++    let mut prov = Provenance::recipe("native/synthetic", 1.0 / 512.0, [5; 32], [6; 32]);
++    prov.rope_theta = SHIELDSTRAL_ROPE_THETA;
++    prov.rope_scaling = RopeScaling::shieldstral();
++    let cal = IntegerCalibration::as_the_code_proves(&sh, &prov);
++    cal.check_honoured_by_code(&sh).expect("the pinned transform is honoured");
++    let mut wrong = prov.clone();
++    wrong.rope_scaling = RopeScaling::None;
++    let e = IntegerCalibration::as_the_code_proves(&sh, &wrong).check_honoured_by_code(&sh).expect_err("an unscaled RoPE at a YaRN profile");
++    assert!(e.contains("RoPE transform"), "{e}");
++    let ts = super::trained_calib_tests::tinyllama_at(128);
++    let mut p2 = Provenance::recipe("native/synthetic", 1.0 / 512.0, [5; 32], [6; 32]);
++    p2.rope_scaling = RopeScaling::shieldstral();
++    let e = IntegerCalibration::as_the_code_proves(&ts, &p2).check_honoured_by_code(&ts).expect_err("a YaRN transform at TinyLlama");
++    assert!(e.contains("RoPE transform"), "{e}");
++}
++
++// ------------------------------------------------------------- F2: head_dim
++
++/// **F2 at seconds' scale.** The decoupled-head rung's query axis (8 x 64 =
++/// 512, padded 512) is wider than its padded model axis (256): `Wq` writes
++/// it, `Wo` reads it, `Dom::Q` is laid out on it. A generic dense block
++/// proves and verifies, its witness equals the independent kernel, and a
++/// flipped segment is refused.
++#[test]
++fn f2_the_decoupled_rung_proves_and_matches_the_kernel() {
++    let sh = rung_hd();
++    assert_eq!((sh.width, sh.d_pad, sh.q_width(), sh.q_pad()), (192, 256, 512, 512), "the rung decouples the query axis");
++    assert_eq!(sh.size(Dom::Q), sh.t_pad * sh.q_pad(), "Dom::Q is laid out on the query axis");
++    assert_eq!(sh.slots()[SC_WO].0, 9, "Wo folds over the query axis (2^9)");
++    assert_eq!(sh.slots()[SC_QMM].0, 8, "Wq folds over the model axis (2^8)");
++    let n = proves_and_matches_the_kernel(&sh, 2);
++    eprintln!("R12 F2 rung-HD: one-block segment {n} B");
++}
++
++/// The Shieldstral shapes: the query axis 4096 against the model axis 3072
++/// (the padded widths coincide at 4096; the TRUE widths differ), the model
++/// axis pads, nothing on the head or token axis pads, so DD's geometry
++/// holds.
++#[test]
++fn f2_the_shieldstral_shapes_build_and_lay_out() {
++    for t in [128usize, 256] {
++        for dd in [false, true] {
++            let sh = shieldstral(t, dd);
++            assert_eq!((sh.width, sh.d_pad, sh.q_width(), sh.q_pad(), sh.hidden, sh.f_pad), (3072, 4096, 4096, 4096, 9216, 16384), "{}", sh.profile);
++            assert!(sh.pads(Dom::D) && !sh.pads(Dom::Q) && sh.pads(Dom::F), "{}: the model and hidden axes pad, the query axis does not", sh.profile);
++            assert_eq!(sh.dd_cap, if dd { DD_CAP } else { 0 }, "{}", sh.profile);
++            if dd {
++                sh.check_dd_geometry().unwrap_or_else(|e| panic!("{}: {e}", sh.profile));
++            }
++            let lay = Layout::for_shape(&sh).unwrap_or_else(|e| panic!("{}: {e}", sh.profile));
++            let tot = sh.totals();
++            eprintln!(
++                "R12 SHIELDSTRAL {} | log_cols {} | A rows {} H rows {} | committed {} | U8 {} | slots {} | receipt (counted, per block) {} B | norm window {} limbs {}",
++                sh.profile,
++                sh.log_cols,
++                tot.a_rows,
++                tot.h_rows,
++                (tot.a_rows + tot.h_rows) << sh.log_cols,
++                tot.u8_lookups,
++                sh.n_slots(),
++                tot.receipt_bytes.total,
++                sh.norm_wrho,
++                sh.limbs_norm()
++            );
++            assert_eq!(lay.slots().len(), sh.n_slots());
++            assert_eq!(sh.norm_wrho, 32, "{}: tn 10 at width 3072 is the four-limb window", sh.profile);
++        }
++    }
++    // only 128 and 256 are registered
++    assert!(Shape::shieldstral_trained(512, &shieldstral_calibration(11_000, 11_500), 9).unwrap_err().contains("no trained Shieldstral profile"));
++}
++
++/// **F2 at Shieldstral's shapes, the generic dense witness (heavy).**
++#[test]
++#[ignore = "native lane heavy: a Shieldstral T128 block (width 3072, query 4096) proves and verifies, witness == kernel"]
++fn f2_a_generic_dense_shieldstral_t128_block_proves_and_matches_the_kernel() {
++    let n = proves_and_matches_the_kernel(&shieldstral(128, false), 2);
++    eprintln!("R12 F2 Shieldstral T128: one-block segment {n} B");
++}
++
++#[test]
++#[ignore = "native lane heavy: a Shieldstral T128 DD block proves and verifies, witness == kernel"]
++fn f2_a_generic_dense_shieldstral_t128_dd_block_proves_and_matches_the_kernel() {
++    let n = proves_and_matches_the_kernel(&shieldstral(128, true), 2);
++    eprintln!("R12 F2 Shieldstral T128 DD: one-block segment {n} B");
++}
++
++/// Rebuild only the public fixture and verify retained bytes in a new process.
++/// This does not construct a witness or generate a proof.
++fn verify_saved_shieldstral(dd: bool) {
++    let sh = shieldstral(128, dd);
++    let root = std::env::var_os("ZK60_R12_EVIDENCE_DIR").expect("ZK60_R12_EVIDENCE_DIR is set");
++    let dir = std::path::PathBuf::from(root).join(format!("t{}-dd{}", sh.tokens, sh.dd_cap));
++    assert_eq!(std::fs::read_to_string(dir.join("profile.txt")).unwrap(), sh.profile);
++    let digest = std::fs::read(dir.join("block-digest.bin")).unwrap();
++    let mut public = None;
++    for bands in dense_bands() {
++        let (words, _) = super::trained_calib_tests::trained_dense_words(&sh, bands);
++        let (blk, _, _, _, _) = block_of(&sh, &words, 2);
++        if blk.digest().as_slice() == digest.as_slice() {
++            public = Some(blk);
++            break;
++        }
++    }
++    let blk = public.expect("the retained block digest matches a public dense fixture");
++    let expected = std::fs::read(dir.join("expected.bin")).unwrap();
++    let mut segment = std::fs::read(dir.join("segment.bin")).unwrap();
++    super::trained_calib_tests::verify_one_bound(&sh, &blk, &expected, &segment).expect("the saved Shieldstral segment verifies in a fresh process");
++    let at = segment.len() / 2;
++    segment[at] ^= 1;
++    assert!(super::trained_calib_tests::verify_one_bound(&sh, &blk, &expected, &segment).is_err(), "a modified saved segment must be rejected");
++    eprintln!("R12 fresh-process Shieldstral T128 DD={dd}: {} bytes verified; modified segment rejected", segment.len());
++}
++
++#[test]
++#[ignore = "native lane: fresh-process verification of the saved Shieldstral T128 dense receipt"]
++fn f2_saved_shieldstral_t128_receipt_verifies_in_a_fresh_process() {
++    verify_saved_shieldstral(false);
++}
++
++#[test]
++#[ignore = "native lane: fresh-process verification of the saved Shieldstral T128 DD dense receipt"]
++fn f2_saved_shieldstral_t128_dd_receipt_verifies_in_a_fresh_process() {
++    verify_saved_shieldstral(true);
++}
++
++/// The trained loader expects the TRUE decoupled shapes: `wq` is
++/// `[q_heads * head_dim, d]`, `wo` `[d, q_heads * head_dim]`; at every
++/// profile before R12 these are `[d, d]`.
++#[test]
++fn f2_the_true_weight_shapes() {
++    let sh = shieldstral(128, false);
++    assert_eq!((sh.q_width(), sh.width), (4096, 3072));
++    for p in [super::trained_calib_tests::tinyllama_at(128), super::trained_calib_tests::llama3_8b_at(128)] {
++        assert_eq!((p.q_width(), p.q_pad()), (p.width, p.d_pad), "{}: an existing profile's query axis is its model axis", p.profile);
++    }
++    // a statement whose Wq is (model x model) at the decoupled rung is refused
++    let r = rung_hd();
++    let (w, _) = super::trained_calib_tests::trained_dense_words(&r, super::trained_calib_tests::TRAINED_BANDS);
++    let aw = super::grow_tests::pad_attention_weights(&r, &w[0], &w[1], &w[2], &w[3], &w[4]);
++    let (cos, sin) = rope_tables_for(&r, 10_000.0).unwrap();
++    let (exp, _) = crate::tables_attn::exp_member(2, r.head_dim, r.f_e);
++    let short = vec![0i8; r.d_pad * r.d_pad];
++    let e = AttentionPublic::new_shaped(&r, &short, &aw[1], &aw[2], &aw[3], &aw[4], &cos, &sin, &exp).err().expect("a (d x d) Wq at a decoupled shape was accepted");
++    assert!(e.contains("public weight shape"), "{e}");
++}
++
++// ------------------------------------------------------------- F3: tied
++
++fn tied_record() -> TiedEmbedding {
++    let (name, digest) = tied_tensor_for_profile(SHIELDSTRAL_T128_TRAINED_PROFILE).expect("Shieldstral is tied");
++    TiedEmbedding { tensor: name.into(), tensor_sha256: digest, embedding_table_sha256: [0x11; 32], head_table_sha256: [0x22; 32], head_mult_sha256: [0x33; 32] }
++}
++
++/// the statement of one synthetic Shieldstral block under the PINNED source
++fn pinned_statement(tied: Option<TiedEmbedding>) -> Result<TrainedModelStatement, String> {
++    let sh = shieldstral(128, false);
++    let (public, ff, _) = super::grow_tests::tame_case(&sh);
++    let blk = BlockPublic::new(public, ff);
++    let mut prov = Provenance::recipe("export:shieldstral-synthetic", 1.0 / 512.0, [5; 32], [6; 32]);
++    prov.rope_theta = SHIELDSTRAL_ROPE_THETA;
++    prov.rope_scaling = RopeScaling::shieldstral();
++    let cal = IntegerCalibration::as_the_code_proves(&sh, &prov);
++    TrainedModelStatement::new_with_tied(&sh, super::run::RUN_PROFILE_SHIELDSTRAL_T128_TRAINED, ModelSource::shieldstral_1_0_3b(), cal, vec![LayerRecord::of_block(0, &blk, vec![])], tied)
++}
++
++#[test]
++fn f3_a_tied_statement_binds_both_tables_to_the_one_tensor() {
++    let st = pinned_statement(Some(tied_record())).expect("the tied statement");
++    let id = st.identity();
++    // every digest of the record is bound
++    for k in 0..4 {
++        let mut t = tied_record();
++        match k {
++            0 => t.embedding_table_sha256[0] ^= 1,
++            1 => t.head_table_sha256[0] ^= 1,
++            2 => t.head_mult_sha256[0] ^= 1,
++            _ => t.tensor_sha256[0] ^= 1,
++        }
++        match pinned_statement(Some(t)) {
++            Ok(s2) => assert_ne!(s2.identity(), id, "digest {k} of the tied record is not bound"),
++            Err(e) => {
++                assert_eq!(k, 3, "only the tensor digest is checked against the pin: {e}");
++                assert!(e.contains("not the pinned checkpoint's"), "{e}");
++            }
++        }
++    }
++    // the record is required, named, and nonzero
++    let e = pinned_statement(None).expect_err("a tied profile without its record");
++    assert!(e.contains("ties its embedding and head"), "{e}");
++    let e = pinned_statement(Some(TiedEmbedding { tensor: "lm_head.weight".into(), ..tied_record() })).expect_err("a record naming another tensor");
++    assert!(e.contains("names tensor"), "{e}");
++    let e = pinned_statement(Some(TiedEmbedding { head_mult_sha256: [0; 32], ..tied_record() })).expect_err("a zero digest");
++    assert!(e.contains("zero digest"), "{e}");
++    // an untied profile refuses a record
++    let ts = super::trained_calib_tests::tinyllama_at(128);
++    let (public, ff, _) = super::grow_tests::tame_case(&ts);
++    let blk = BlockPublic::new(public, ff);
++    let cal = IntegerCalibration::as_the_code_proves(&ts, &Provenance::recipe("x", 1.0 / 512.0, [5; 32], [6; 32]));
++    let e = TrainedModelStatement::new_with_tied(&ts, super::run::RUN_PROFILE_TINYLLAMA_T128_TRAINED, ModelSource::tinyllama_chat_v1_0(), cal, vec![LayerRecord::of_block(0, &blk, vec![])], Some(tied_record())).expect_err("a tied record at TinyLlama");
++    assert!(e.contains("untied model"), "{e}");
++}
++
++/// The loader's tied-record reader on a synthetic `token_io/` directory: the
++/// three declarations agree and the files hash to their manifests -> the
++/// record; any disagreement is refused by name.
++#[test]
++fn f3_the_loader_reads_a_tied_export() {
++    use super::trained_block::{hex, parse_json, sha256, tied_of, Geometry};
++    let (name, digest) = tied_tensor_for_profile(SHIELDSTRAL_T128_TRAINED_PROFILE).unwrap();
++    let root = std::env::temp_dir().join(format!("r12-tied-{}", std::process::id()));
++    let td = root.join("token_io");
++    std::fs::create_dir_all(&td).unwrap();
++    let files = [("embedding_int16.bin", vec![1u8; 4096]), ("head_int8_perrow.bin", vec![2u8; 2048]), ("head_mult12.bin", vec![3u8; 64])];
++    for (f, b) in &files {
++        std::fs::write(td.join(f), b).unwrap();
++    }
++    let h = |i: usize| hex(&sha256(&files[i].1));
++    let write = |tensor: &str, dg: &str, head_src: &str| {
++        std::fs::write(td.join("token_io.json"), format!(r#"{{"embedding_table": {{"file": "embedding_int16.bin", "sha256": "{}", "source_tensor": {{"name": "{tensor}", "sha256": "{dg}"}}}}}}"#, h(0))).unwrap();
++        std::fs::write(td.join("head_manifest.json"), format!(r#"{{"head_int8_perrow.bin": {{"sha256": "{}"}}, "head_mult12.bin": {{"sha256": "{}"}}, "source_tensor": {{"name": "{name}", "sha256": "{head_src}"}}}}"#, h(1), h(2))).unwrap();
++    };
++    let dg = hex(&digest);
++    let profile = parse_json(format!(r#"{{"tied_embeddings": {{"tensor": "{name}", "sha256": "{dg}"}}}}"#).as_bytes()).unwrap();
++    let src = ModelSource::shieldstral_1_0_3b();
++    write(name, &dg, &dg);
++    let t = tied_of(&root, &profile, Geometry::Shieldstral(128), &src).expect("a consistent tied export").expect("a record");
++    assert_eq!((t.tensor.as_str(), t.tensor_sha256), (name, digest));
++    assert_eq!((t.embedding_table_sha256, t.head_table_sha256, t.head_mult_sha256), (sha256(&files[0].1), sha256(&files[1].1), sha256(&files[2].1)));
++    // the head names another digest
++    write(name, &dg, &"ab".repeat(32));
++    let e = tied_of(&root, &profile, Geometry::Shieldstral(128), &src).expect_err("the head's source differs");
++    assert!(e.contains("is not the tied tensor"), "{e}");
++    // a table file that is not its manifest's
++    write(name, &dg, &dg);
++    std::fs::write(td.join("head_mult12.bin"), [9u8; 64]).unwrap();
++    let e = tied_of(&root, &profile, Geometry::Shieldstral(128), &src).expect_err("a modified multiplier file");
++    assert!(e.contains("is not its manifest's"), "{e}");
++    std::fs::write(td.join("head_mult12.bin"), &files[2].1).unwrap();
++    // a declared digest that is not the pinned checkpoint's
++    let p2 = parse_json(format!(r#"{{"tied_embeddings": {{"tensor": "{name}", "sha256": "{}"}}}}"#, "cd".repeat(32)).as_bytes()).unwrap();
++    let e = tied_of(&root, &p2, Geometry::Shieldstral(128), &src).expect_err("an unpinned tensor digest");
++    assert!(e.contains("not the pinned checkpoint's"), "{e}");
++    // no declaration at a tied geometry; a declaration at an untied one
++    let empty = parse_json(b"{}").unwrap();
++    assert!(tied_of(&root, &empty, Geometry::Shieldstral(128), &src).unwrap_err().contains("must name the tied tensor"));
++    assert!(tied_of(&root, &profile, Geometry::TinyLlama(128), &ModelSource::tinyllama_chat_v1_0()).unwrap_err().contains("untied"));
++    assert_eq!(tied_of(&root, &empty, Geometry::TinyLlama(128), &ModelSource::tinyllama_chat_v1_0()), Ok(None));
++    let _ = std::fs::remove_dir_all(&root);
++}
++
++// ------------------------------------------------------------- the profiles
++
++/// The registered row widths are the smallest counted receipts (task 3's
++/// rule), at T128 and T256, without and with DD.
++#[test]
++fn the_shieldstral_row_widths_are_the_smallest_counted_receipts() {
++    let cal = shieldstral_calibration(11_000, 11_500);
++    for t in [128usize, 256] {
++        for dd in [false, true] {
++            let mut rows = Vec::new();
++            for lc in [12usize, 13, 14, 15, 16] {
++                if let Ok(s) = Shape::shieldstral_at(t, lc, dd, &cal, 9) {
++                    rows.push((lc, s.receipt_bytes().total, (s.totals().a_rows + s.totals().h_rows) << lc));
++                }
++            }
++            let best = rows.iter().min_by_key(|r| r.1).unwrap().0;
++            eprintln!("R12 ROW WIDTH Shieldstral T{t} dd {dd}: {rows:?} -> 2^{best}");
++            assert_eq!(Some(best), shieldstral_log_cols(t), "T{t} dd {dd}: the registered row width is not the smallest counted receipt");
++        }
++    }
++}
++
++#[test]
++fn the_shieldstral_profiles_carry_their_pins() {
++    for p in SHIELDSTRAL_PROFILES {
++        assert_eq!(p.len(), TINYLLAMA_T128_TRAINED_PROFILE.len(), "{p}: a new block profile length");
++        assert_eq!(ModelSource::pinned_for_profile(p), Some(ModelSource::shieldstral_1_0_3b()), "{p}");
++        assert_eq!(tied_tensor_for_profile(p).map(|t| t.0), Some("language_model.model.embed_tokens.weight"), "{p}");
++    }
++    for rp in [super::run::RUN_PROFILE_SHIELDSTRAL_T128_TRAINED, super::run::RUN_PROFILE_SHIELDSTRAL_T256_TRAINED, super::run::RUN_PROFILE_SHIELDSTRAL_T128_DD, super::run::RUN_PROFILE_SHIELDSTRAL_T256_DD] {
++        assert_eq!(rp.len(), super::run::RUN_PROFILE_TINYLLAMA_T128_TRAINED.len(), "{rp}: a new run profile length");
++    }
++    assert_eq!(TRAINED_HD_RUNG_PROFILE.len(), TRAINED_DD_RUNG_PROFILE.len());
++    assert_eq!(super::run::RUN_PROFILE_RUNG_HD.len(), super::run::RUN_PROFILE_RUNG_DD.len());
++    assert_eq!(tied_tensor_for_profile(TINYLLAMA_T128_TRAINED_PROFILE), None);
++    assert_eq!(tied_tensor_for_profile(LLAMA3_8B_T128_TRAINED_PROFILE), None);
++    let src = ModelSource::shieldstral_1_0_3b();
++    assert_eq!((src.checkpoint_layers, src.revision.len()), (26, 40));
++}
++
++/// **n_col against the DD cap at head_dim 128** (the exp table depends on
++/// `e_s`, `head_dim` and `f_e` only, so Shieldstral's equal Llama-3-8B's):
++/// every `e_s` of the declared class at the f_e class's lower values.
++#[test]
++fn n_col_against_the_dd_cap_at_head_dim_128() {
++    let mut rows = Vec::new();
++    for f_e in [9u32, 10, 11, 12] {
++        let mut row = Vec::new();
++        for e_s in TRAINED_EXP_E_S_RANGE {
++            let (exp, _) = crate::tables_attn::exp_member(e_s, 128, f_e);
++            let mut col: Vec<i64> = std::iter::once(0).chain(exp.iter().copied()).collect();
++            col.sort_unstable();
++            col.dedup();
++            row.push((e_s, col.len()));
++            assert_eq!(dd_e_column_of(&exp, DD_CAP).is_ok(), col.len() <= DD_CAP, "f_e {f_e} e_s {e_s}");
++        }
++        rows.push((f_e, row));
++    }
++    for (f_e, row) in &rows {
++        eprintln!("R12 N_COL hd128 f_e {f_e}: {}", row.iter().map(|(e, n)| format!("e_s {e}: {n}{}", if *n > DD_CAP { " (over cap)" } else { "" })).collect::<Vec<_>>().join(", "));
++    }
++    // the current exports' e_s (1..4 at f_e 9) fit cap 32
++    for (e_s, n) in &rows[0].1 {
++        if (1..=4).contains(e_s) {
++            assert!(*n <= DD_CAP, "e_s {e_s}: {n}");
++        }
++    }
++}
++
++/// **The counted soundness floor of a blocks-only run** (the token lane's
++/// MEMO_G02 accounting, `token_io/run.rs::whole_run_of`, restricted to the
++/// `L` blocks and `L + 1` boundaries, plus D30 condition (5)'s dictionary
++/// term at a DD profile): column test per opening `(1 - delta/3)^Q`, the
++/// LogUp term `(N + 3 r - 1) / |F_p^2|` per block, and the explicit PCS-field
++/// and sumcheck bound. [COUNTED; the D24 review re-derives it.]
++fn blocks_whole_run_floor(sh: &Shape, l: usize) -> (f64, u32) {
++    let col = |msg: usize, enc: usize, q: usize| -> f64 { q as f64 * (1.0 - (1.0 - msg as f64 / enc as f64) / 3.0).log2() };
++    let hiding = |log_n: usize, rate: usize, q: usize| col((1usize << log_n) + q, (1usize << log_n) * rate, q);
++    let mask = col(1024, 4096, crate::zk::MASK_Q);
++    let mut opens: Vec<f64> = Vec::new();
++    for _ in 0..l {
++        opens.push(hiding(sh.log_cols, sh.inv_rate, sh.opened_cols));
++        opens.push(hiding(sh.log_cols, sh.inv_rate, sh.opened_cols));
++        opens.push(mask);
++    }
++    for _ in 0..=l {
++        opens.push(hiding(sh.endpoint_log_n, sh.endpoint_inv_rate, sh.opened_cols));
++    }
++    let u8: f64 = sh.lookup_doms().iter().map(|d| (sh.lookups_per_position(*d) * sh.size(*d)) as f64).sum();
++    let mut n = u8 + sh.size(Dom::S) as f64 + sh.size(Dom::F) as f64 + 3.0 * 768.0 - 1.0;
++    if sh.dd_cap > 0 {
++        // the tuple lookups of every score entry, and D30 (5)'s 4 rows cap
++        n += sh.size(Dom::S) as f64 + 4.0 * (sh.q_heads * sh.tokens * sh.dd_cap) as f64;
++    }
++    let field = 2.0 * ((u64::MAX - (1u64 << 32) + 2) as f64).log2();
++    let column: f64 = opens.iter().map(|x| x.exp2()).sum();
++    let logup = l as f64 * n * (-field).exp2();
++    let omitted = opens.len() as f64 * (-113.0f64).exp2() + l as f64 * (-117.2f64).exp2();
++    let total = (column + logup + omitted).log2();
++    (total, (-total).floor() as u32)
++}
++
++#[test]
++fn counted_soundness_floors() {
++    let mut out = Vec::new();
++    for (name, sh, l) in [
++        ("Shieldstral T128", shieldstral(128, false), 26usize),
++        ("Shieldstral T256", shieldstral(256, false), 26),
++        ("Shieldstral T128 DD", shieldstral(128, true), 26),
++        ("Shieldstral T256 DD", shieldstral(256, true), 26),
++        ("Llama-3-8B T128 (reference)", super::trained_calib_tests::llama3_8b_at(128), 32),
++    ] {
++        let (t, f) = blocks_whole_run_floor(&sh, l);
++        out.push(format!("{name} (L = {l}): whole run 2^{t:.2} -> floor {f} bits"));
++        assert!(f >= 95, "{name}: the blocks-only floor {f} is below D27's 95 bits");
++    }
++    for r in &out {
++        eprintln!("R12 FLOOR {r}");
++    }
++}
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/rope.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/rope.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/rope.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/rope.rs	2026-10-20 20:00:32.478477640 -0700
+@@ -0,0 +1,239 @@
++//! **NATIVE R12 (F1, D38): RoPE frequency transforms — YaRN and llama3 —
++//! as a change to the PUBLIC cos/sin tables only.**
++//!
++//! The rotation relation (`SC_QZC` / `SC_KVZC`: `cos x + sin x' - 2^7 r - rem
++//! + 2^6`) reads two public tables and nothing else about the positional
++//! encoding, so a scaled RoPE changes the TABLES and no relation, plane,
++//! lookup or slot. This module computes the inverse frequencies by the
++//! reference formulas of Hugging Face transformers (`modeling_rope_utils.py`,
++//! `_compute_yarn_parameters` and `_compute_llama3_parameters`, main branch
++//! of 2026-10-21; a copy is kept at `results/zk60_1b_native_20261017/r12/
++//! reference/transformers_main_modeling_rope_utils.py`), in IEEE-754
++//! binary64, and rounds `cos` / `sin` at `2^f_ro` exactly as the frozen
++//! generator does. The unscaled case IS the frozen generator
++//! (`tables_attn::rope_tables_generate`), byte for byte.
++//!
++//! The YaRN "attention factor" multiplies cos and sin in transformers. The
++//! rotation relation assumes `|cos|, |sin| <= 1` (the table class
++//! `[-2^7, 2^7]`, position 0 = `(2^7, 0)`), so a profile whose attention
++//! factor is not exactly 1 is REFUSED by name; Shieldstral's (mscale =
++//! mscale_all_dim = 1) is exactly 1. Shieldstral's Llama-4 query scale
++//! (`llama_4_scaling_beta`) is `1 + beta ln(1 + floor(pos / 16384))`, exactly
++//! 1 at every position below 16384, so at the registered T128 / T256 it is
++//! not a factor at all.
++
++use crate::tables_attn::round_half_up;
++
++/// A RoPE frequency transform, with the parameters its reference formula reads.
++#[derive(Clone, Copy, Debug, PartialEq)]
++pub(crate) enum RopeScaling {
++    /// the plain RoPE of every profile before R12
++    None,
++    /// Llama 3.1 / 3.2 (`rope_type: "llama3"`)
++    Llama3 { factor: f64, low_freq_factor: f64, high_freq_factor: f64, original_max: u64 },
++    /// YaRN (`rope_type: "yarn"`)
++    Yarn { factor: f64, original_max: u64, beta_fast: f64, beta_slow: f64, mscale: f64, mscale_all_dim: f64, truncate: bool },
++}
++
++impl RopeScaling {
++    /// Shieldstral-1.0-3B's (`config.json` at revision
++    /// 003ec7e2b0bab5f0e6307edbaf186fa5822b76f5, `text_config.rope_parameters`:
++    /// factor 16, original 16384, beta_fast 32, beta_slow 1, mscale 1,
++    /// mscale_all_dim 1; no `truncate` key, so true)
++    pub(crate) const fn shieldstral() -> RopeScaling {
++        RopeScaling::Yarn { factor: 16.0, original_max: 16384, beta_fast: 32.0, beta_slow: 1.0, mscale: 1.0, mscale_all_dim: 1.0, truncate: true }
++    }
++
++    /// Llama 3.1's (factor 8, low 1, high 4, original 8192) — the Llama
++    /// Guard 3 family's; registered by no profile yet, tested against the
++    /// reference
++    pub(crate) const fn llama3_1() -> RopeScaling {
++        RopeScaling::Llama3 { factor: 8.0, low_freq_factor: 1.0, high_freq_factor: 4.0, original_max: 8192 }
++    }
++
++    /// the post-processing factor transformers multiplies cos and sin by
++    pub(crate) fn attention_factor(&self) -> f64 {
++        match *self {
++            RopeScaling::None | RopeScaling::Llama3 { .. } => 1.0,
++            RopeScaling::Yarn { factor, mscale, mscale_all_dim, .. } => {
++                let get = |scale: f64, m: f64| if scale <= 1.0 { 1.0 } else { 0.1 * m * scale.ln() + 1.0 };
++                if mscale != 0.0 && mscale_all_dim != 0.0 {
++                    get(factor, mscale) / get(factor, mscale_all_dim)
++                } else {
++                    get(factor, 1.0)
++                }
++            }
++        }
++    }
++
++    /// every parameter finite and in its range, and an attention factor of
++    /// exactly 1 (the table class cannot carry another)
++    pub(crate) fn check(&self) -> Result<(), String> {
++        match *self {
++            RopeScaling::None => {}
++            RopeScaling::Llama3 { factor, low_freq_factor, high_freq_factor, original_max } => {
++                if ![factor, low_freq_factor, high_freq_factor].iter().all(|v| v.is_finite() && *v > 0.0) || factor < 1.0 || high_freq_factor <= low_freq_factor || original_max == 0 {
++                    return Err("rope scaling: a llama3 parameter is out of range".into());
++                }
++            }
++            RopeScaling::Yarn { factor, original_max, beta_fast, beta_slow, mscale, mscale_all_dim, .. } => {
++                if ![factor, beta_fast, beta_slow, mscale, mscale_all_dim].iter().all(|v| v.is_finite()) || factor < 1.0 || beta_fast <= 0.0 || beta_slow <= 0.0 || original_max == 0 {
++                    return Err("rope scaling: a YaRN parameter is out of range".into());
++                }
++            }
++        }
++        if self.attention_factor() != 1.0 {
++            return Err(format!(
++                "rope scaling: the YaRN attention factor is {} — the RoPE tables are bounded by 2^F_RO (position 0 is (2^F_RO, 0)), so a profile whose attention factor is not exactly 1 is refused by name",
++                self.attention_factor()
++            ));
++        }
++        Ok(())
++    }
++
++    /// the canonical bytes a statement binds (`kind || every parameter`, f64
++    /// as IEEE-754 bits, little-endian)
++    pub(crate) fn encode(&self) -> Vec<u8> {
++        let mut v = Vec::new();
++        let f = |v: &mut Vec<u8>, x: f64| v.extend_from_slice(&x.to_bits().to_le_bytes());
++        match *self {
++            RopeScaling::None => v.extend_from_slice(b"none"),
++            RopeScaling::Llama3 { factor, low_freq_factor, high_freq_factor, original_max } => {
++                v.extend_from_slice(b"llama3");
++                f(&mut v, factor);
++                f(&mut v, low_freq_factor);
++                f(&mut v, high_freq_factor);
++                v.extend_from_slice(&original_max.to_le_bytes());
++            }
++            RopeScaling::Yarn { factor, original_max, beta_fast, beta_slow, mscale, mscale_all_dim, truncate } => {
++                v.extend_from_slice(b"yarn");
++                f(&mut v, factor);
++                v.extend_from_slice(&original_max.to_le_bytes());
++                f(&mut v, beta_fast);
++                f(&mut v, beta_slow);
++                f(&mut v, mscale);
++                f(&mut v, mscale_all_dim);
++                v.push(u8::from(truncate));
++            }
++        }
++        v
++    }
++
++    /// the inverse of [`RopeScaling::encode`] (a statement record's bytes)
++    pub(crate) fn decode(b: &[u8]) -> Result<RopeScaling, String> {
++        let bad = || "rope scaling: an unreadable encoding".to_string();
++        let f = |b: &[u8], at: usize| -> Result<f64, String> { Ok(f64::from_bits(u64::from_le_bytes(b.get(at..at + 8).ok_or_else(bad)?.try_into().map_err(|_| bad())?))) };
++        let u = |b: &[u8], at: usize| -> Result<u64, String> { Ok(u64::from_le_bytes(b.get(at..at + 8).ok_or_else(bad)?.try_into().map_err(|_| bad())?)) };
++        let out = if b == b"none" {
++            RopeScaling::None
++        } else if let Some(r) = b.strip_prefix(b"llama3") {
++            if r.len() != 32 {
++                return Err(bad());
++            }
++            RopeScaling::Llama3 { factor: f(r, 0)?, low_freq_factor: f(r, 8)?, high_freq_factor: f(r, 16)?, original_max: u(r, 24)? }
++        } else if let Some(r) = b.strip_prefix(b"yarn") {
++            if r.len() != 49 || r[48] > 1 {
++                return Err(bad());
++            }
++            RopeScaling::Yarn { factor: f(r, 0)?, original_max: u(r, 8)?, beta_fast: f(r, 16)?, beta_slow: f(r, 24)?, mscale: f(r, 32)?, mscale_all_dim: f(r, 40)?, truncate: r[48] == 1 }
++        } else {
++            return Err(bad());
++        };
++        if out.encode() != b {
++            return Err(bad());
++        }
++        Ok(out)
++    }
++
++    /// plain words for a statement or a log line
++    pub(crate) fn describe(&self) -> String {
++        match *self {
++            RopeScaling::None => "none".into(),
++            RopeScaling::Llama3 { factor, low_freq_factor, high_freq_factor, original_max } => format!("llama3 (factor {factor}, low {low_freq_factor}, high {high_freq_factor}, original {original_max})"),
++            RopeScaling::Yarn { factor, original_max, beta_fast, beta_slow, mscale, mscale_all_dim, truncate } => {
++                format!("yarn (factor {factor}, original {original_max}, beta {beta_fast}/{beta_slow}, mscale {mscale}/{mscale_all_dim}, truncate {truncate})")
++            }
++        }
++    }
++}
++
++/// The inverse frequencies `inv_freq[i]`, `i < head_dim / 2`, at base
++/// `theta`, by the reference formula of the transform (binary64).
++pub(crate) fn inv_freq(head_dim: usize, theta: f64, s: &RopeScaling) -> Vec<f64> {
++    let dim = head_dim;
++    let half = dim / 2;
++    // transformers: `base ** (arange(0, dim, 2) / dim)`, then `1 / that`
++    let pos_freq: Vec<f64> = (0..half).map(|i| theta.powf((2 * i) as f64 / dim as f64)).collect();
++    match *s {
++        RopeScaling::None => (0..half).map(|i| theta.powf(-2.0 * i as f64 / dim as f64)).collect(),
++        RopeScaling::Llama3 { factor, low_freq_factor, high_freq_factor, original_max } => {
++            let old = original_max as f64;
++            let (low_wl, high_wl) = (old / low_freq_factor, old / high_freq_factor);
++            pos_freq
++                .iter()
++                .map(|p| {
++                    let inv = 1.0 / p;
++                    let wavelen = 2.0 * std::f64::consts::PI / inv;
++                    let inv_llama = if wavelen > low_wl { inv / factor } else { inv };
++                    let medium = !(wavelen < high_wl) && !(wavelen > low_wl);
++                    if medium {
++                        let smooth = (old / wavelen - low_freq_factor) / (high_freq_factor - low_freq_factor);
++                        (1.0 - smooth) * inv_llama / factor + smooth * inv_llama
++                    } else {
++                        inv_llama
++                    }
++                })
++                .collect()
++        }
++        RopeScaling::Yarn { factor, original_max, beta_fast, beta_slow, truncate, .. } => {
++            let omax = original_max as f64;
++            let corr = |rot: f64| (dim as f64 * (omax / (rot * 2.0 * std::f64::consts::PI)).ln()) / (2.0 * theta.ln());
++            let (mut low, mut high) = (corr(beta_fast), corr(beta_slow));
++            if truncate {
++                low = low.floor();
++                high = high.ceil();
++            }
++            let low = low.max(0.0);
++            let mut high = high.min((dim - 1) as f64);
++            if low == high {
++                high += 0.001;
++            }
++            pos_freq
++                .iter()
++                .enumerate()
++                .map(|(i, p)| {
++                    let ramp = ((i as f64 - low) / (high - low)).clamp(0.0, 1.0);
++                    let extra = 1.0 - ramp;
++                    let (inv_extra, inv_inter) = (1.0 / p, 1.0 / (factor * p));
++                    inv_inter * (1.0 - extra) + inv_extra * extra
++                })
++                .collect()
++        }
++    }
++}
++
++/// **The RoPE tables of a profile**: `cos` / `sin` at `t * inv_freq[i]`,
++/// rounded half up at `2^f_ro`, row-major `(t, i)`. The unscaled case is the
++/// frozen generator itself, so no existing table moves by one entry.
++pub(crate) fn rope_tables(t_max: usize, head_dim: usize, theta: f64, s: &RopeScaling, f_ro: u32) -> Result<(Vec<i64>, Vec<i64>), String> {
++    if *s == RopeScaling::None {
++        return Ok(crate::tables_attn::rope_tables_generate(t_max, head_dim, theta, f_ro));
++    }
++    s.check()?;
++    if !theta.is_finite() || theta <= 1.0 || head_dim < 2 || head_dim % 2 != 0 {
++        return Err("rope scaling: the base or the head dimension is out of range".into());
++    }
++    let half = head_dim / 2;
++    let scale = (f_ro as f64).exp2();
++    let inv = inv_freq(head_dim, theta, s);
++    let mut c = vec![0i64; t_max * half];
++    let mut sn = vec![0i64; t_max * half];
++    for (i, w) in inv.iter().enumerate() {
++        for t in 0..t_max {
++            let a = t as f64 * w;
++            c[t * half + i] = round_half_up(a.cos() * scale);
++            sn[t * half + i] = round_half_up(a.sin() * scale);
++        }
++    }
++    Ok((c, sn))
++}
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/run.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/run.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/run.rs	2026-10-19 09:39:31.608281729 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/run.rs	2026-10-20 19:59:13.120871762 -0700
+@@ -99,6 +99,14 @@
+ pub(crate) const RUN_PROFILE_TINYLLAMA_T128_DD: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-ddict32-statement/1";
+ pub(crate) const RUN_PROFILE_LLAMA3_8B_T128_DD: &str = "hashline-zk-mr1/private-run-llama-3-8b-t128-ddict32-statement/1";
+ pub(crate) const RUN_PROFILE_RUNG_DD: &str = "hashline-zk-mr1/private-run-rung-dd-t32-dev/1";
++/// **NATIVE R12 (D38): the run profiles of the Shieldstral block profiles**
++/// (one per shape, D17), each 67 bytes as the TinyLlama T128 run profiles,
++/// and the decoupled-head development rung's (45 bytes, as the other rungs')
++pub(crate) const RUN_PROFILE_SHIELDSTRAL_T128_TRAINED: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t128-trained-statement/1";
++pub(crate) const RUN_PROFILE_SHIELDSTRAL_T256_TRAINED: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t256-trained-statement/1";
++pub(crate) const RUN_PROFILE_SHIELDSTRAL_T128_DD: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t128-ddict32-statement/1";
++pub(crate) const RUN_PROFILE_SHIELDSTRAL_T256_DD: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t256-ddict32-statement/1";
++pub(crate) const RUN_PROFILE_RUNG_HD: &str = "hashline-zk-mr1/private-run-rung-hd-t32-dev/1";
+ 
+ /// One run's geometry: the per-block shape, how many blocks, and the run's own
+ /// profile id. A run is a NEW profile under D17 — its own transcript, its own
+@@ -141,6 +149,12 @@
+         RUN_PROFILE_TINYLLAMA_T128_DD => Shape::tinyllama_t128_trained_dd(&cal, sh.f_e),
+         RUN_PROFILE_LLAMA3_8B_T128_DD => Shape::llama3_8b_t128_trained_dd(&cal, sh.f_e),
+         RUN_PROFILE_RUNG_DD => Shape::rung_dd(&cal),
++        // NATIVE R12 (D38, F2)
++        RUN_PROFILE_SHIELDSTRAL_T128_TRAINED => Shape::shieldstral_trained(128, &cal, sh.f_e),
++        RUN_PROFILE_SHIELDSTRAL_T256_TRAINED => Shape::shieldstral_trained(256, &cal, sh.f_e),
++        RUN_PROFILE_SHIELDSTRAL_T128_DD => Shape::shieldstral_trained_dd(128, &cal, sh.f_e),
++        RUN_PROFILE_SHIELDSTRAL_T256_DD => Shape::shieldstral_trained_dd(256, &cal, sh.f_e),
++        RUN_PROFILE_RUNG_HD => Shape::rung_hd(&cal),
+         #[cfg(test)]
+         RUN_PROFILE_TINYLLAMA_T32_DEV => Ok(Shape::tinyllama_t32_dev()),
+         _ => return None,
+@@ -234,7 +248,12 @@
+             // NATIVE R9: the DD profiles (D30)
+             p if p == super::shape::TINYLLAMA_T128_DD_TRAINED_PROFILE => RUN_PROFILE_TINYLLAMA_T128_DD,
+             p if p == super::shape::LLAMA3_8B_T128_DD_TRAINED_PROFILE => RUN_PROFILE_LLAMA3_8B_T128_DD,
+-            _ => return Err("private run: a trained-model run profile needs a trained TinyLlama or Llama-3-8B shape".into()),
++            // NATIVE R12 (D38): the Shieldstral profiles
++            p if p == super::shape::SHIELDSTRAL_T128_TRAINED_PROFILE => RUN_PROFILE_SHIELDSTRAL_T128_TRAINED,
++            p if p == super::shape::SHIELDSTRAL_T256_TRAINED_PROFILE => RUN_PROFILE_SHIELDSTRAL_T256_TRAINED,
++            p if p == super::shape::SHIELDSTRAL_T128_DD_TRAINED_PROFILE => RUN_PROFILE_SHIELDSTRAL_T128_DD,
++            p if p == super::shape::SHIELDSTRAL_T256_DD_TRAINED_PROFILE => RUN_PROFILE_SHIELDSTRAL_T256_DD,
++            _ => return Err("private run: a trained-model run profile needs a trained TinyLlama, Llama-3-8B or Shieldstral shape".into()),
+         };
+         if !sh.trained_calibration {
+             return Err("private run: a trained TinyLlama run profile needs a trained TinyLlama shape".into());
+@@ -248,6 +267,13 @@
+         }
+         RunShape::new(sh, l, RUN_PROFILE_RUNG_DD)
+     }
++    /// NATIVE R12 (F2): a run at the decoupled-head development rung.
++    pub(crate) fn rung_hd(sh: Shape, l: usize) -> Result<RunShape, String> {
++        if sh.profile != super::shape::TRAINED_HD_RUNG_PROFILE || !sh.trained_calibration {
++            return Err("private run: the decoupled-head rung run profile needs its shape".into());
++        }
++        RunShape::new(sh, l, RUN_PROFILE_RUNG_HD)
++    }
+     /// NATIVE LANE: a run at the trained-calibration development rung.
+     pub(crate) fn rung_tc(sh: Shape, l: usize) -> Result<RunShape, String> {
+         if sh.profile != super::shape::TRAINED_CALIB_RUNG_PROFILE || !sh.trained_calibration {
+@@ -308,7 +334,10 @@
+         // the SHAPE's own flag (it was a substring test on the run profile,
+         // which let an unbound run at the trained-calibration rung absorb
+         // `calibration_identity()`), and on the trained run profile by name.
+-        if rs.sh.trained_calibration || [RUN_PROFILE_TINYLLAMA_T32_TRAINED, RUN_PROFILE_TINYLLAMA_T64_TRAINED, RUN_PROFILE_TINYLLAMA_T128_TRAINED, RUN_PROFILE_LLAMA3_8B_T32_TRAINED, RUN_PROFILE_LLAMA3_8B_T64_TRAINED, RUN_PROFILE_LLAMA3_8B_T128_TRAINED, RUN_PROFILE_RUNG_TC].contains(&rs.profile) {
++        if rs.sh.trained_calibration
++            || [RUN_PROFILE_TINYLLAMA_T32_TRAINED, RUN_PROFILE_TINYLLAMA_T64_TRAINED, RUN_PROFILE_TINYLLAMA_T128_TRAINED, RUN_PROFILE_LLAMA3_8B_T32_TRAINED, RUN_PROFILE_LLAMA3_8B_T64_TRAINED, RUN_PROFILE_LLAMA3_8B_T128_TRAINED, RUN_PROFILE_RUNG_TC].contains(&rs.profile)
++            || [RUN_PROFILE_SHIELDSTRAL_T128_TRAINED, RUN_PROFILE_SHIELDSTRAL_T256_TRAINED, RUN_PROFILE_SHIELDSTRAL_T128_DD, RUN_PROFILE_SHIELDSTRAL_T256_DD, RUN_PROFILE_RUNG_HD].contains(&rs.profile)
++        {
+             return Err(format!("private run: {} is a trained-calibration run; it needs its trained-model statement (RunStatement::new_bound)", rs.profile));
+         }
+         if blocks.len() != rs.l || block_scales.len() != rs.l {
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/run_capture.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/run_capture.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/run_capture.rs	2026-10-19 11:59:12.254808635 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/run_capture.rs	2026-10-20 22:06:56.735286981 -0700
+@@ -216,7 +216,7 @@
+     "../zkp-core/src/tables.rs",
+ ];
+ 
+-pub(super) const OWN_SOURCE_FILES: [&str; 17] = [
++pub(super) const OWN_SOURCE_FILES: [&str; 18] = [
+     "src/private_block/run_capture.rs",
+     "src/private_block/run.rs",
+     "src/private_block/boundary.rs",
+@@ -262,6 +262,9 @@
+     // context label and the statement files), so a trained capture pins it.
+     // It was excused in `NOT_ON_THE_RUNS_PATH` until R5b.
+     "src/private_block/trained_block.rs",
++    // NATIVE R12 (F1): the RoPE frequency transforms, which decide the public
++    // cos / sin tables a trained run binds (the loader's generator)
++    "src/private_block/rope.rs",
+ ];
+ 
+ /// **The production modules of `private_block` that are NOT source pins, with
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/s24_tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/s24_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/s24_tests.rs	2026-10-19 09:54:31.854898373 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/s24_tests.rs	2026-10-20 22:06:56.736266780 -0700
+@@ -448,6 +448,7 @@
+             "src/private_block/mvp_driver.rs",
+             "src/private_block/pad.rs",
+             "src/private_block/protocol.rs",
++            "src/private_block/rope.rs",
+             "src/private_block/run.rs",
+             "src/private_block/run_sink.rs",
+             "src/private_block/shape.rs",
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/s25_tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/s25_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/s25_tests.rs	2026-10-17 06:23:09.699961664 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/s25_tests.rs	2026-10-20 22:06:56.733718966 -0700
+@@ -1542,11 +1542,13 @@
+ /// — and the three `cfg(test)` modules that WRITE a retained bundle, because
+ /// a retained capture counts as publishing and its digests are call sites
+ /// like any other.
+-const CALL_SITES: [(&str, &str, usize, &str); 14] = [
++const CALL_SITES: [(&str, &str, usize, &str); 15] = [
+     // NATIVE LANE: the trained-block CLI's request context, an unkeyed hash of
+     // public words (variant, label, layer); its file digests are SHA-256 via
+     // `Sha256::digest`, not an entry point of this table
+     ("src/private_block/trained_block.rs", "blake3::hash(", 2, "driver-side, outside the protocol: the trained-block CLI's and the trained-stack CLI's request contexts, unkeyed hashes of public length-prefixed words (variant, label, layer indices)"),
++    // NATIVE R12 (F3): the loader's streamed file digest
++    ("src/private_block/trained_block.rs", "Sha256::new(", 1, "driver-side, outside the protocol: the trained loader's streamed SHA-256 of the three public token tables a tied model's export names (F3), checked against their manifests; public files, never a transcript input"),
+     // NATIVE LANE: the driver overlay's CLI bridge (pre-existing in the
+     // candidate; this table had not been told about it): D4 recomputed to
+     // check a policy's model root, the CLI's context derivation, and an
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/shape.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/shape.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/shape.rs	2026-10-19 09:39:31.610897884 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/shape.rs	2026-10-20 20:26:20.015578011 -0700
+@@ -107,8 +107,28 @@
+ /// over 2 KV heads — nothing on the head or token axis pads, which DD
+ /// requires (see [`Shape::check_dd_geometry`])
+ pub(crate) const TRAINED_DD_RUNG_PROFILE: &str = "hashline-zk-mr1/private-block-rung-dd-t32-dev/1";
++/// **NATIVE R12 (D38): the Shieldstral-1.0-3B text decoder** (Mistral's open
++/// safety classifier; Ministral-3-3B: 26 layers, d 3072, 32 query heads of
++/// 128 over 8 key-value heads — the query axis is 4096 wide, decoupled from
++/// d / heads (F2) — SwiGLU 9216, YaRN RoPE (F1), tied embedding / head (F3)),
++/// at T128 and T256, with and without the DD dictionary. Every string's
++/// length equals an existing profile's (65 bytes, as the TinyLlama T128
++/// profiles; the run profiles 67), so no new hash input length appears.
++pub(crate) const SHIELDSTRAL_T128_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t128-trained-block/1";
++pub(crate) const SHIELDSTRAL_T256_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t256-trained-block/1";
++pub(crate) const SHIELDSTRAL_T128_DD_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t128-trained-ddict/1";
++pub(crate) const SHIELDSTRAL_T256_DD_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t256-trained-ddict/1";
++/// the four Shieldstral profiles (they carry the pinned Shieldstral source)
++pub(crate) const SHIELDSTRAL_PROFILES: [&str; 4] = [SHIELDSTRAL_T128_TRAINED_PROFILE, SHIELDSTRAL_T256_TRAINED_PROFILE, SHIELDSTRAL_T128_DD_TRAINED_PROFILE, SHIELDSTRAL_T256_DD_TRAINED_PROFILE];
++/// **NATIVE R12 (F2): the decoupled-head development rung** — development
++/// grade, never a deliverable: T32 / d192 / f384, 8 query heads of 64 over 2
++/// key-value heads, so the query axis (512, padded 512) is WIDER than the
++/// model axis (192, padded 256): every relation that reads the query axis
++/// meets a padded width other than the model's in seconds. Its length equals
++/// the other rungs' (47 bytes).
++pub(crate) const TRAINED_HD_RUNG_PROFILE: &str = "hashline-zk-mr1/private-block-rung-hd-t32-dev/1";
+ /// the DD profiles
+-pub(crate) const DD_PROFILES: [&str; 3] = [TINYLLAMA_T128_DD_TRAINED_PROFILE, LLAMA3_8B_T128_DD_TRAINED_PROFILE, TRAINED_DD_RUNG_PROFILE];
++pub(crate) const DD_PROFILES: [&str; 5] = [TINYLLAMA_T128_DD_TRAINED_PROFILE, LLAMA3_8B_T128_DD_TRAINED_PROFILE, TRAINED_DD_RUNG_PROFILE, SHIELDSTRAL_T128_DD_TRAINED_PROFILE, SHIELDSTRAL_T256_DD_TRAINED_PROFILE];
+ /// **D30 / CHECK.md B-8: the dictionary's slots per attention row** — one
+ /// constant for every DD profile, bound in the schedule line; the trained
+ /// door refuses a layer whose exp table needs more (`n_col =
+@@ -120,7 +140,7 @@
+ pub(crate) const LLAMA3_8B_DD_PROFILES: [&str; 1] = [LLAMA3_8B_T128_DD_TRAINED_PROFILE];
+ /// the profiles [`Shape::with_trained_calibration`] may give a non-frozen
+ /// calibration to; every other profile's calibration is frozen
+-pub(crate) const TRAINED_CALIBRATION_PROFILES: [&str; 10] = [
++pub(crate) const TRAINED_CALIBRATION_PROFILES: [&str; 15] = [
+     TINYLLAMA_T32_TRAINED_PROFILE,
+     TRAINED_CALIB_RUNG_PROFILE,
+     TINYLLAMA_T64_TRAINED_PROFILE,
+@@ -131,6 +151,11 @@
+     TINYLLAMA_T128_DD_TRAINED_PROFILE,
+     LLAMA3_8B_T128_DD_TRAINED_PROFILE,
+     TRAINED_DD_RUNG_PROFILE,
++    SHIELDSTRAL_T128_TRAINED_PROFILE,
++    SHIELDSTRAL_T256_TRAINED_PROFILE,
++    SHIELDSTRAL_T128_DD_TRAINED_PROFILE,
++    SHIELDSTRAL_T256_DD_TRAINED_PROFILE,
++    TRAINED_HD_RUNG_PROFILE,
+ ];
+ const INT16_MAX: i128 = 32_767;
+ /// the absolute endpoint of signed int16 (`-32768`), used by the TRAINED
+@@ -215,6 +240,8 @@
+ pub(crate) fn trained_rope_theta(profile: &str) -> Option<f64> {
+     if LLAMA3_8B_TRAINED_PROFILES.contains(&profile) || LLAMA3_8B_DD_PROFILES.contains(&profile) {
+         Some(LLAMA3_8B_ROPE_THETA)
++    } else if SHIELDSTRAL_PROFILES.contains(&profile) {
++        Some(SHIELDSTRAL_ROPE_THETA)
+     } else if TRAINED_CALIBRATION_PROFILES.contains(&profile) {
+         Some(TRAINED_ROPE_THETA)
+     } else {
+@@ -222,6 +249,47 @@
+     }
+ }
+ 
++/// NATIVE R12 (D38): Shieldstral's `rope_theta` (config.json `text_config.
++/// rope_parameters.rope_theta`, revision 003ec7e2...)
++pub(crate) const SHIELDSTRAL_ROPE_THETA: f64 = 1_000_000.0;
++
++/// **NATIVE R12 (F1): the RoPE frequency transform PINNED PER PROFILE** — a
++/// model fact like the base: YaRN at the Shieldstral profiles (config.json:
++/// factor 16, original 16384, beta 32 / 1, mscale = mscale_all_dim = 1, so the
++/// attention factor is exactly 1, truncate absent = true), none elsewhere. It
++/// changes the PUBLIC cos/sin tables only.
++pub(crate) fn trained_rope_scaling(profile: &str) -> Option<super::rope::RopeScaling> {
++    if SHIELDSTRAL_PROFILES.contains(&profile) {
++        Some(super::rope::RopeScaling::shieldstral())
++    } else if TRAINED_CALIBRATION_PROFILES.contains(&profile) {
++        Some(super::rope::RopeScaling::None)
++    } else {
++        None
++    }
++}
++
++/// the RoPE tables of a shape's profile at base `theta` (the generator the
++/// trained loader compares an export's tables against): the frozen generator
++/// for an unscaled profile, the scaled one otherwise
++pub(crate) fn rope_tables_for(sh: &Shape, theta: f64) -> Result<(Vec<i64>, Vec<i64>), String> {
++    let scaling = trained_rope_scaling(sh.profile).unwrap_or(super::rope::RopeScaling::None);
++    super::rope::rope_tables(sh.tokens, sh.head_dim, theta, &scaling, super::layout::F_RO)
++}
++
++/// **NATIVE R12: the Shieldstral row width at each registered context
++/// length** — the smallest counted receipt, as for Llama-3-8B (task 3):
++/// T128 at 2^14 (29,301,816 B per block; the 8B T128 width), T256 at 2^15
++/// (45,011,240 B against 48,025,704 at 2^14, for 2.3% more committed
++/// elements), counted in
++/// `r12_tests::the_shieldstral_row_widths_are_the_smallest_counted_receipts`
++pub(crate) fn shieldstral_log_cols(tokens: usize) -> Option<usize> {
++    match tokens {
++        128 => Some(14),
++        256 => Some(15),
++        _ => None,
++    }
++}
++
+ /// **A trained calibration, as declared**: the norm constants (`tn`, the two
+ /// multipliers, `Ceps`) and the requantization shifts the relations read
+ /// (`sh_qkv` for Q, K and V; `sh_s` score; `sh_o` the PV output; `sh_ao` the
+@@ -410,6 +478,11 @@
+         let lc = llama3_8b_log_cols(tokens).expect("a registered 8B context length");
+         Shape::build(name, p, tokens, 4096, 14336, 32, 128, 8, lc, 4, f_e, ((tokens * 4096) >> lc) + mask, None, None, None, None)
+     };
++    // NATIVE R12: Shieldstral (d 3072 pads to 4096 on the model axis)
++    let ss = |name: &'static str, p: &'static str, tokens: usize| {
++        let lc = shieldstral_log_cols(tokens).expect("a registered Shieldstral context length");
++        Shape::build(name, p, tokens, 3072, 9216, 32, 128, 8, lc, 4, f_e, ((tokens.next_power_of_two() * 4096) >> lc) + mask, None, None, None, None)
++    };
+     Some(match profile {
+         TINYLLAMA_T32_TRAINED_PROFILE => tl("TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads)", TINYLLAMA_T32_TRAINED_PROFILE, 32, 12),
+         TINYLLAMA_T64_TRAINED_PROFILE => tl("TinyLlama-1.1B block geometry, trained calibration (T64 / d2048 / f5632, 32 heads of 64 over 4 KV heads)", TINYLLAMA_T64_TRAINED_PROFILE, 64, 13),
+@@ -441,6 +514,15 @@
+         TINYLLAMA_T128_DD_TRAINED_PROFILE => tl("TinyLlama-1.1B block geometry, trained calibration, DD (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads, 32-slot division dictionary)", TINYLLAMA_T128_DD_TRAINED_PROFILE, 128, 14),
+         LLAMA3_8B_T128_DD_TRAINED_PROFILE => l8("Llama-3-8B block geometry, trained calibration, DD (T128 / d4096 / f14336, 32 heads of 128 over 8 KV heads, 32-slot division dictionary)", LLAMA3_8B_T128_DD_TRAINED_PROFILE, 128),
+         TRAINED_DD_RUNG_PROFILE => Shape::build("development rung, trained norm calibration, DD (T32 / d256 / f512, 8 heads of 32 over 2 KV heads, 32-slot division dictionary)", TRAINED_DD_RUNG_PROFILE, 32, 256, 512, 8, 32, 2, 10, 4, 12, ((32 * 256) >> 10) + mask, None, None, None, None),
++        // NATIVE R12 (D38): Shieldstral-1.0-3B's text decoder. The endpoint
++        // plane is the model axis (d 3072, padded 4096), as every block's.
++        SHIELDSTRAL_T128_TRAINED_PROFILE => ss("Shieldstral-1.0-3B text block geometry, trained calibration (T128 / d3072 / q4096 / f9216, 32 heads of 128 over 8 KV heads, YaRN)", SHIELDSTRAL_T128_TRAINED_PROFILE, 128),
++        SHIELDSTRAL_T256_TRAINED_PROFILE => ss("Shieldstral-1.0-3B text block geometry, trained calibration (T256 / d3072 / q4096 / f9216, 32 heads of 128 over 8 KV heads, YaRN)", SHIELDSTRAL_T256_TRAINED_PROFILE, 256),
++        SHIELDSTRAL_T128_DD_TRAINED_PROFILE => ss("Shieldstral-1.0-3B text block geometry, trained calibration, DD (T128 / d3072 / q4096 / f9216, 32 heads of 128 over 8 KV heads, YaRN, 32-slot division dictionary)", SHIELDSTRAL_T128_DD_TRAINED_PROFILE, 128),
++        SHIELDSTRAL_T256_DD_TRAINED_PROFILE => ss("Shieldstral-1.0-3B text block geometry, trained calibration, DD (T256 / d3072 / q4096 / f9216, 32 heads of 128 over 8 KV heads, YaRN, 32-slot division dictionary)", SHIELDSTRAL_T256_DD_TRAINED_PROFILE, 256),
++        // NATIVE R12 (F2): the decoupled-head development rung (f_e 12, as the
++        // other rungs): the query axis 8 x 64 = 512 is wider than d_pad 256
++        TRAINED_HD_RUNG_PROFILE => Shape::build("development rung, trained norm calibration, decoupled head (T32 / d192 / q512 / f384, 8 heads of 64 over 2 KV heads)", TRAINED_HD_RUNG_PROFILE, 32, 192, 384, 8, 64, 2, 10, 4, 12, ((32 * 256) >> 10) + mask, None, None, None, None),
+         _ => return None,
+     })
+ }
+@@ -639,11 +721,12 @@
+         if !d_pad.is_power_of_two() || !f_pad.is_power_of_two() || !t_pad.is_power_of_two() {
+             return Err("private block shape: a matmul width is not a power of two".into());
+         }
+-        // The `Q` and `D` domains share one flat index, which is only correct
+-        // when the padded head slots tile the padded width exactly.
+-        if d_pad != h_pad * head_dim {
+-            return Err("private block shape: d_pad differs from h_pad * head_dim".into());
+-        }
++        // NATIVE R12 (F2): the query axis is `h_pad * head_dim` wide, its own
++        // padded width (`Shape::q_pad`), decoupled from the model axis
++        // `d_pad`: `Wq` writes it, `Wo` reads it, and `Dom::Q` is laid out on
++        // it. (Until R11 a refusal "d_pad differs from h_pad * head_dim" kept
++        // the two equal; every shape that passed it has `q_pad == d_pad`, so
++        // no index of an existing profile moves.) Both are powers of two.
+         if q_heads % kv_heads != 0 {
+             return Err("private block shape: the query heads do not divide into the key-value heads".into());
+         }
+@@ -1798,6 +1881,60 @@
+     pub(crate) fn rung_tc(cal: &NormCalibration) -> Result<Shape, String> {
+         trained_geometry(TRAINED_CALIB_RUNG_PROFILE, 12).ok_or("private block shape: an unregistered trained profile")??.with_trained_calibration(cal)
+     }
++    /// **NATIVE R12 (D38): the trained Shieldstral shape** at a registered
++    /// context length (128 or 256), through the trained door
++    pub(crate) fn shieldstral_trained(tokens: usize, cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
++        let profile = match tokens {
++            128 => SHIELDSTRAL_T128_TRAINED_PROFILE,
++            256 => SHIELDSTRAL_T256_TRAINED_PROFILE,
++            _ => return Err(format!("private block shape: no trained Shieldstral profile is registered at T = {tokens} (128 and 256 are)")),
++        };
++        Shape::check_f_e_class(tokens, f_e)?;
++        trained_geometry(profile, f_e).ok_or("private block shape: an unregistered trained profile")??.with_trained_calibration(cal)
++    }
++    /// the Shieldstral DD shapes (D30), the same geometries
++    pub(crate) fn shieldstral_trained_dd(tokens: usize, cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
++        let profile = match tokens {
++            128 => SHIELDSTRAL_T128_DD_TRAINED_PROFILE,
++            256 => SHIELDSTRAL_T256_DD_TRAINED_PROFILE,
++            _ => return Err(format!("private block shape: no Shieldstral DD profile is registered at T = {tokens} (128 and 256 are)")),
++        };
++        Shape::check_f_e_class(tokens, f_e)?;
++        trained_geometry(profile, f_e).ok_or("private block shape: an unregistered trained profile")??.with_trained_calibration(cal)
++    }
++    /// **TEST ONLY (R12): the Shieldstral geometry at another row width, for
++    /// the counted layouts** (builds past ruling CS-9: COUNTED, never proved)
++    #[cfg(test)]
++    pub(crate) fn shieldstral_at(tokens: usize, log_cols: usize, dd: bool, cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
++        let profile = match (tokens, dd) {
++            (128, false) => SHIELDSTRAL_T128_TRAINED_PROFILE,
++            // T512 is COUNTED only, under the T256 strings (no T512 profile
++            // is registered)
++            (256 | 512, false) => SHIELDSTRAL_T256_TRAINED_PROFILE,
++            (128, true) => SHIELDSTRAL_T128_DD_TRAINED_PROFILE,
++            (256 | 512, true) => SHIELDSTRAL_T256_DD_TRAINED_PROFILE,
++            _ => return Err(format!("no Shieldstral profile at T = {tokens}")),
++        };
++        let rows = ((tokens.next_power_of_two() * 4096) >> log_cols) + super::endpoint_g::MASK_ROWS;
++        Shape::build("Shieldstral-1.0-3B text block geometry, counted-layout ladder", profile, tokens, 3072, 9216, 32, 128, 8, log_cols, 4, f_e, rows, None, None, None, None)?.with_trained_calibration(cal)
++    }
++    /// the decoupled-head development rung (f_e 12)
++    pub(crate) fn rung_hd(cal: &NormCalibration) -> Result<Shape, String> {
++        trained_geometry(TRAINED_HD_RUNG_PROFILE, 12).ok_or("private block shape: an unregistered trained profile")??.with_trained_calibration(cal)
++    }
++
++    // ---- NATIVE R12 (F2): the query axis ------------------------------------
++    /// the TRUE query width `q_heads * head_dim` (4096 at Shieldstral, where
++    /// the model width is 3072; equal to `width` at every profile before R12)
++    pub(crate) fn q_width(&self) -> usize {
++        self.q_heads * self.head_dim
++    }
++    /// the PADDED query width `h_pad * head_dim`: the row stride of `Dom::Q`,
++    /// the output axis of `Wq` and the input axis of `Wo` (equal to `d_pad`
++    /// at every profile before R12)
++    pub(crate) fn q_pad(&self) -> usize {
++        self.h_pad * self.head_dim
++    }
+ 
+     // ---- the head permutation (correction C-1, ruling P-2) -----------------
+     /// how many slots of the PADDED head axis each key-value group owns
+@@ -2137,7 +2274,9 @@
+         let lkv = clog2(self.kv_heads);
+         let inner = |s: usize| -> usize {
+             match s {
+-                SC_QMM | SC_KMM | SC_VMM | SC_WO | SC_GMM | SC_UMM => clog2(self.d_pad),
++                SC_QMM | SC_KMM | SC_VMM | SC_GMM | SC_UMM => clog2(self.d_pad),
++                // NATIVE R12 (F2): `Wo` folds over the QUERY axis
++                SC_WO => clog2(self.q_pad()),
+                 SC_SCORE => lkv + clog2(self.head_dim),
+                 SC_PV => lkv + clog2(self.t_pad),
+                 SC_DMM => clog2(self.f_pad),
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/trained_block.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/trained_block.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/trained_block.rs	2026-10-19 09:41:06.376177590 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/trained_block.rs	2026-10-20 20:26:32.287659806 -0700
+@@ -39,10 +39,11 @@
+ //! (D22 covers only the toy), and the float fidelity of the integer model is
+ //! the calibration lane's measurement, not this proof's.
+ 
+-use super::layout::{Ids, A_X, A_X2, F_RO};
++use super::layout::{Ids, A_X, A_X2};
+ use super::run::{self, RunShape, RunStatement, RunWitnessSource, RUN_PROFILE_RUNG_TC, RUN_PROFILE_TINYLLAMA_T32_TRAINED};
++use super::rope::RopeScaling;
+ use super::shape::{NormCalibration, Shape};
+-use super::trained_statement::{apply_own, cal_field, has_own, own_of, IntegerCalibration, LayerRecord, ModelSource, Provenance, SourceKind, TrainedModelStatement, OWN_FIELDS};
++use super::trained_statement::{apply_own, cal_field, has_own, own_of, tied_tensor_for_profile, IntegerCalibration, LayerRecord, ModelSource, Provenance, SourceKind, TiedEmbedding, TrainedModelStatement, OWN_FIELDS};
+ use super::witness::{self, Witness};
+ use super::{prepare_endpoints, AttentionPublic, BlockPublic, ExpectedIo, FeedForwardPublic, IoSpec};
+ use crate::merkle::Digest;
+@@ -57,6 +58,10 @@
+ const SCOPE_8B: &str = "ONE trained Llama-3-8B block (of 32) at T=32, CPU unless the run line says gpu; the integer model the calibration export names; NOT a model pass; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
+ const SCOPE_8B_LONGER: &str = "ONE trained Llama-3-8B block (of 32) at the export's T (64 or 128; both profiles accepted by the independent review, round 5), CPU unless the run line says gpu; the integer model the calibration export names; NOT a model pass; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
+ const SCOPE_RUNG: &str = "SYNTHETIC development export at the trained-calibration rung (rung-TC, width 384): NOT a trained model, NOT TinyLlama; a test of the export reader and the driver only; no privacy acceptance";
++/// NATIVE R12 (D38): the single-block scope at a Shieldstral profile
++const SCOPE_SHIELDSTRAL: &str = "ONE trained Shieldstral-1.0-3B text block (of 26; d 3072, a 4096-wide query axis, YaRN RoPE) at the export's T (128 or 256), CPU unless the run line says gpu; the integer model the calibration export names; NOT a model pass; NOT a soundness or privacy acceptance (the D24 review of the R12 profiles follows); float fidelity is the calibration lane's measurement";
++/// NATIVE R12 (F2): the decoupled-head development rung's
++const SCOPE_RUNG_HD: &str = "SYNTHETIC development export at the decoupled-head rung (rung-HD, width 192, query axis 512): NOT a trained model; a test of the export reader and the driver only; no privacy acceptance";
+ /// NATIVE R9: the single-block scope at a DD profile (D30)
+ const SCOPE_DD: &str = "ONE trained block under DD, the per-row division dictionary (D30; TinyLlama-1.1B or Llama-3-8B at T128, or the synthetic DD rung): the integer model the calibration export names; NOT a model pass; NOT a soundness or privacy acceptance (D30 requires an independent soundness review and the gate first); float fidelity is the calibration lane's measurement";
+ 
+@@ -483,6 +488,119 @@
+     })
+ }
+ 
++/// **NATIVE R12 (F1): the export's declared RoPE transform** — `profile.
++/// json`'s `rope_scaling` object in transformers' own keys (`rope_type`
++/// `"yarn"`: `factor`, `original_max_position_embeddings`, `beta_fast`,
++/// `beta_slow`, `mscale`, `mscale_all_dim`, optional `truncate`; `"llama3"`:
++/// `factor`, `low_freq_factor`, `high_freq_factor`,
++/// `original_max_position_embeddings`). Absent, `null` or `rope_type
++/// "default"` is no transform.
++pub(super) fn rope_scaling_of(v: Option<&J>) -> Result<RopeScaling, String> {
++    let v = match v {
++        None | Some(J::Null) => return Ok(RopeScaling::None),
++        Some(v) => v,
++    };
++    let f = |k: &str| v.get(k).and_then(J::f64).map_err(|e| format!("rope_scaling.{k}: {e}"));
++    let u = |k: &str| v.get(k).and_then(J::i64).and_then(|x| u64::try_from(x).map_err(|_| "negative".to_string())).map_err(|e| format!("rope_scaling.{k}: {e}"));
++    let out = match v.get("rope_type").and_then(J::str).map_err(|e| format!("rope_scaling.rope_type: {e}"))? {
++        "default" => RopeScaling::None,
++        "yarn" => RopeScaling::Yarn {
++            factor: f("factor")?,
++            original_max: u("original_max_position_embeddings")?,
++            beta_fast: f("beta_fast")?,
++            beta_slow: f("beta_slow")?,
++            mscale: f("mscale")?,
++            mscale_all_dim: f("mscale_all_dim")?,
++            truncate: match v.opt("truncate") {
++                None | Some(J::Null) => true,
++                Some(J::Bool(b)) => *b,
++                Some(_) => return Err("rope_scaling.truncate is not a boolean".into()),
++            },
++        },
++        "llama3" => RopeScaling::Llama3 { factor: f("factor")?, low_freq_factor: f("low_freq_factor")?, high_freq_factor: f("high_freq_factor")?, original_max: u("original_max_position_embeddings")? },
++        t => return Err(format!("rope_scaling.rope_type {t:?} is not one of default / yarn / llama3")),
++    };
++    out.check()?;
++    Ok(out)
++}
++
++/// **NATIVE R12 (F3): a tied model's embedding / head record.** At a
++/// geometry whose model ties its embedding and head, `profile.json` names the
++/// tied tensor (`tied_embeddings: {tensor, sha256}`), and BOTH integer tables
++/// of `token_io/` name that same tensor as their source
++/// (`token_io.json` `embedding_table.source_tensor` and `head_manifest.json`
++/// `source_tensor`, each `{name, sha256}`); the name is the profile's pin and,
++/// for the pinned checkpoint, so is the digest. The three table files are
++/// streamed and their SHA-256 checked against the manifests. An untied
++/// geometry's export may not declare a tie.
++pub(super) fn tied_of(dir: &Path, p: &J, geometry: Geometry, source: &ModelSource) -> Result<Option<TiedEmbedding>, String> {
++    let profile = geometry.shape_profile();
++    let decl = p.opt("tied_embeddings").filter(|v| **v != J::Null);
++    let pin = tied_tensor_for_profile(profile);
++    let (name, digest) = match (pin, decl) {
++        (None, None) => return Ok(None),
++        (None, Some(_)) => return Err(format!("the export declares tied_embeddings, but its geometry's model ({profile}) is untied")),
++        (Some((n, _)), None) => return Err(format!("the geometry's model ties its embedding and head ({n}); profile.json must name the tied tensor (tied_embeddings)")),
++        (Some((pn, pd)), Some(d)) => {
++            let n = d.get("tensor").and_then(J::str).map_err(|e| format!("tied_embeddings.tensor: {e}"))?;
++            let h = unhex32(d.get("sha256").and_then(J::str).map_err(|e| format!("tied_embeddings.sha256: {e}"))?)?;
++            if n != pn {
++                return Err(format!("tied_embeddings names tensor {n:?}, not the profile's {pn:?}"));
++            }
++            if source.kind == SourceKind::HfCheckpoint && h != pd {
++                return Err(format!("tied_embeddings' SHA-256 {} is not the pinned checkpoint's {pn} ({})", hex(&h), hex(&pd)));
++            }
++            (pn, h)
++        }
++    };
++    let td = dir.join("token_io");
++    let read = |f: &str| -> Result<J, String> {
++        let path = td.join(f);
++        parse_json(&read_bounded(&path, MAX_JSON_BYTES)?).map_err(|e| format!("{}: {e}", path.display()))
++    };
++    let (tio, hm) = (read("token_io.json")?, read("head_manifest.json")?);
++    let same_source = |what: &str, st: Option<&J>| -> Result<(), String> {
++        let st = st.ok_or_else(|| format!("{what} names no source_tensor (a tied model's tables must name the tied tensor)"))?;
++        let n = st.get("name").and_then(J::str).map_err(|e| format!("{what}.source_tensor.name: {e}"))?;
++        let h = unhex32(st.get("sha256").and_then(J::str).map_err(|e| format!("{what}.source_tensor.sha256: {e}"))?)?;
++        if n != name || h != digest {
++            return Err(format!("{what}'s source tensor ({n}, {}) is not the tied tensor ({name}, {})", hex(&h), hex(&digest)));
++        }
++        Ok(())
++    };
++    let et = tio.get("embedding_table").map_err(|e| format!("token_io.json: {e}"))?;
++    same_source("token_io.json embedding_table", et.opt("source_tensor"))?;
++    same_source("head_manifest.json", hm.opt("source_tensor"))?;
++    let digest_of = |j: &J, what: &str| -> Result<[u8; 32], String> { unhex32(j.get("sha256").and_then(J::str).map_err(|e| format!("{what}.sha256: {e}"))?) };
++    let emb = digest_of(et, "token_io.json embedding_table")?;
++    let head = digest_of(hm.get("head_int8_perrow.bin").map_err(|e| format!("head_manifest.json: {e}"))?, "head_manifest.json head_int8_perrow.bin")?;
++    let mult = digest_of(hm.get("head_mult12.bin").map_err(|e| format!("head_manifest.json: {e}"))?, "head_manifest.json head_mult12.bin")?;
++    for (file, want) in [(et.get("file").and_then(J::str).unwrap_or("embedding_int16.bin"), emb), ("head_int8_perrow.bin", head), ("head_mult12.bin", mult)] {
++        plain_name(file)?;
++        let got = sha256_file(&td.join(file))?;
++        if got != want {
++            return Err(format!("token_io/{file}: SHA-256 {} is not its manifest's {}", hex(&got), hex(&want)));
++        }
++    }
++    Ok(Some(TiedEmbedding { tensor: name.into(), tensor_sha256: digest, embedding_table_sha256: emb, head_table_sha256: head, head_mult_sha256: mult }))
++}
++
++/// the SHA-256 of a file, streamed (the token tables run to a gigabyte)
++fn sha256_file(path: &Path) -> Result<[u8; 32], String> {
++    use std::io::Read;
++    let mut f = std::fs::File::open(path).map_err(|e| format!("{}: {e}", path.display()))?;
++    let mut h = Sha256::new();
++    let mut buf = vec![0u8; 1 << 22];
++    loop {
++        let n = f.read(&mut buf).map_err(|e| format!("{}: {e}", path.display()))?;
++        if n == 0 {
++            break;
++        }
++        h.update(&buf[..n]);
++    }
++    Ok(h.finalize().into())
++}
++
+ fn table_keys_of(c: &J, what: &str) -> Result<TableKeys, String> {
+     let ctx = |e: String| format!("{what}: {e}");
+     let silu = c.get("silu_member").and_then(J::arr).map_err(ctx)?;
+@@ -524,6 +642,12 @@
+     TinyLlamaDd,
+     Llama3_8BDd,
+     RungDdDev,
++    /// **NATIVE R12 (D38): Shieldstral-1.0-3B's text decoder** at T128 or
++    /// T256, without and with DD (`--dd`), and the decoupled-head development
++    /// rung (`rung-hd-t32-dev`, F2)
++    Shieldstral(usize),
++    ShieldstralDd(usize),
++    RungHdDev,
+ }
+ 
+ impl Geometry {
+@@ -537,7 +661,10 @@
+             "llama-3-8b-t128" => Ok(Geometry::Llama3_8B(128)),
+             "rung-tc-t32-dev" => Ok(Geometry::RungTcDev),
+             "rung-dd-t32-dev" => Ok(Geometry::RungDdDev),
+-            _ => Err(format!("geometry `{s}` is not one of tinyllama-1.1b-t32 / -t64 / -t128 / llama-3-8b-t32 / -t64 / -t128 / rung-tc-t32-dev / rung-dd-t32-dev")),
++            "shieldstral-3b-t128" => Ok(Geometry::Shieldstral(128)),
++            "shieldstral-3b-t256" => Ok(Geometry::Shieldstral(256)),
++            "rung-hd-t32-dev" => Ok(Geometry::RungHdDev),
++            _ => Err(format!("geometry `{s}` is not one of tinyllama-1.1b-t32 / -t64 / -t128 / llama-3-8b-t32 / -t64 / -t128 / shieldstral-3b-t128 / -t256 / rung-tc-t32-dev / rung-dd-t32-dev / rung-hd-t32-dev")),
+         }
+     }
+     /// **NATIVE R9: the same model and T under DD (D30)**, refused by name at
+@@ -547,18 +674,45 @@
+             Geometry::TinyLlama(128) | Geometry::TinyLlamaDd => Ok(Geometry::TinyLlamaDd),
+             Geometry::Llama3_8B(128) | Geometry::Llama3_8BDd => Ok(Geometry::Llama3_8BDd),
+             Geometry::RungDdDev => Ok(Geometry::RungDdDev),
+-            g => Err(format!("trained export: DD (D30) is registered only at TinyLlama T128, Llama-3-8B T128 and the DD development rung, not at {g:?}")),
++            Geometry::Shieldstral(t) | Geometry::ShieldstralDd(t) => Ok(Geometry::ShieldstralDd(t)),
++            g => Err(format!("trained export: DD (D30) is registered only at TinyLlama T128, Llama-3-8B T128, Shieldstral T128 / T256 and the DD development rung, not at {g:?}")),
++        }
++    }
++    /// NATIVE R12: the block profile string of the geometry (its registry
++    /// entry; the shape itself is built at the run's calibration)
++    pub(crate) fn shape_profile(self) -> &'static str {
++        use super::shape::*;
++        match self {
++            Geometry::TinyLlama(64) => TINYLLAMA_T64_TRAINED_PROFILE,
++            Geometry::TinyLlama(128) => TINYLLAMA_T128_TRAINED_PROFILE,
++            Geometry::TinyLlama(_) => TINYLLAMA_T32_TRAINED_PROFILE,
++            Geometry::Llama3_8B(64) => LLAMA3_8B_T64_TRAINED_PROFILE,
++            Geometry::Llama3_8B(128) => LLAMA3_8B_T128_TRAINED_PROFILE,
++            Geometry::Llama3_8B(_) => LLAMA3_8B_T32_TRAINED_PROFILE,
++            Geometry::RungTcDev => TRAINED_CALIB_RUNG_PROFILE,
++            Geometry::TinyLlamaDd => TINYLLAMA_T128_DD_TRAINED_PROFILE,
++            Geometry::Llama3_8BDd => LLAMA3_8B_T128_DD_TRAINED_PROFILE,
++            Geometry::RungDdDev => TRAINED_DD_RUNG_PROFILE,
++            Geometry::Shieldstral(256) => SHIELDSTRAL_T256_TRAINED_PROFILE,
++            Geometry::Shieldstral(_) => SHIELDSTRAL_T128_TRAINED_PROFILE,
++            Geometry::ShieldstralDd(256) => SHIELDSTRAL_T256_DD_TRAINED_PROFILE,
++            Geometry::ShieldstralDd(_) => SHIELDSTRAL_T128_DD_TRAINED_PROFILE,
++            Geometry::RungHdDev => TRAINED_HD_RUNG_PROFILE,
+         }
+     }
+     /// whether this geometry proves under DD
+     pub(crate) fn is_dd(self) -> bool {
+-        matches!(self, Geometry::TinyLlamaDd | Geometry::Llama3_8BDd | Geometry::RungDdDev)
++        matches!(self, Geometry::TinyLlamaDd | Geometry::Llama3_8BDd | Geometry::RungDdDev | Geometry::ShieldstralDd(_))
++    }
++    /// NATIVE R12: whether the geometry's model is Shieldstral
++    pub(crate) fn is_shieldstral(self) -> bool {
++        matches!(self, Geometry::Shieldstral(_) | Geometry::ShieldstralDd(_))
+     }
+     /// the context length the geometry fixes
+     pub(crate) fn tokens(self) -> usize {
+         match self {
+-            Geometry::TinyLlama(t) | Geometry::Llama3_8B(t) => t,
+-            Geometry::RungTcDev | Geometry::RungDdDev => 32,
++            Geometry::TinyLlama(t) | Geometry::Llama3_8B(t) | Geometry::Shieldstral(t) | Geometry::ShieldstralDd(t) => t,
++            Geometry::RungTcDev | Geometry::RungDdDev | Geometry::RungHdDev => 32,
+             Geometry::TinyLlamaDd | Geometry::Llama3_8BDd => 128,
+         }
+     }
+@@ -566,9 +720,18 @@
+     pub(crate) fn rope_theta(self) -> f64 {
+         match self {
+             Geometry::Llama3_8B(_) | Geometry::Llama3_8BDd => super::shape::LLAMA3_8B_ROPE_THETA,
++            Geometry::Shieldstral(_) | Geometry::ShieldstralDd(_) => super::shape::SHIELDSTRAL_ROPE_THETA,
+             _ => super::shape::TRAINED_ROPE_THETA,
+         }
+     }
++    /// NATIVE R12 (F1): the RoPE transform the geometry's model fixes
++    pub(crate) fn rope_scaling(self) -> RopeScaling {
++        if self.is_shieldstral() {
++            RopeScaling::shieldstral()
++        } else {
++            RopeScaling::None
++        }
++    }
+     pub(crate) fn run_profile(self) -> &'static str {
+         match self {
+             Geometry::TinyLlama(64) => super::run::RUN_PROFILE_TINYLLAMA_T64_TRAINED,
+@@ -581,13 +744,19 @@
+             Geometry::TinyLlamaDd => super::run::RUN_PROFILE_TINYLLAMA_T128_DD,
+             Geometry::Llama3_8BDd => super::run::RUN_PROFILE_LLAMA3_8B_T128_DD,
+             Geometry::RungDdDev => super::run::RUN_PROFILE_RUNG_DD,
++            Geometry::Shieldstral(256) => super::run::RUN_PROFILE_SHIELDSTRAL_T256_TRAINED,
++            Geometry::Shieldstral(_) => super::run::RUN_PROFILE_SHIELDSTRAL_T128_TRAINED,
++            Geometry::ShieldstralDd(256) => super::run::RUN_PROFILE_SHIELDSTRAL_T256_DD,
++            Geometry::ShieldstralDd(_) => super::run::RUN_PROFILE_SHIELDSTRAL_T128_DD,
++            Geometry::RungHdDev => super::run::RUN_PROFILE_RUNG_HD,
+         }
+     }
+     pub(crate) fn run_shape(self, sh: &Shape, l: usize) -> Result<RunShape, String> {
+         match self {
+-            Geometry::TinyLlama(_) | Geometry::Llama3_8B(_) | Geometry::TinyLlamaDd | Geometry::Llama3_8BDd => RunShape::tinyllama_trained(sh.clone(), l),
++            Geometry::TinyLlama(_) | Geometry::Llama3_8B(_) | Geometry::TinyLlamaDd | Geometry::Llama3_8BDd | Geometry::Shieldstral(_) | Geometry::ShieldstralDd(_) => RunShape::tinyllama_trained(sh.clone(), l),
+             Geometry::RungTcDev => RunShape::rung_tc(sh.clone(), l),
+             Geometry::RungDdDev => RunShape::rung_dd(sh.clone(), l),
++            Geometry::RungHdDev => RunShape::rung_hd(sh.clone(), l),
+         }
+     }
+     /// the shape at a calibration (the controls rebuild it at other ones)
+@@ -598,6 +767,8 @@
+             Geometry::Llama3_8B(_) => SCOPE_8B_LONGER,
+             Geometry::RungTcDev => SCOPE_RUNG,
+             Geometry::TinyLlamaDd | Geometry::Llama3_8BDd | Geometry::RungDdDev => SCOPE_DD,
++            Geometry::Shieldstral(_) | Geometry::ShieldstralDd(_) => SCOPE_SHIELDSTRAL,
++            Geometry::RungHdDev => SCOPE_RUNG_HD,
+         }
+     }
+     pub(crate) fn shape_at(self, cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
+@@ -618,6 +789,14 @@
+                 }
+                 Shape::rung_dd(cal)
+             }
++            Geometry::Shieldstral(t) => Shape::shieldstral_trained(t, cal, f_e),
++            Geometry::ShieldstralDd(t) => Shape::shieldstral_trained_dd(t, cal, f_e),
++            Geometry::RungHdDev => {
++                if f_e != 12 {
++                    return Err(format!("trained export: the decoupled-head rung geometry fixes f_e = 12, the export declares {f_e}"));
++                }
++                Shape::rung_hd(cal)
++            }
+         }
+     }
+ }
+@@ -644,6 +823,12 @@
+     pub layer_manifest_sha256: Vec<(u32, [u8; 32])>,
+     pub residual_unit: f64,
+     pub calibration_set_sha256: [u8; 32],
++    /// NATIVE R12 (F1): the RoPE transform the export declares (checked equal
++    /// to its geometry's pin)
++    pub rope_scaling: RopeScaling,
++    /// NATIVE R12 (F3): a tied model's embedding / head record, read from the
++    /// export's `token_io/` manifests and checked against the pinned tensor
++    pub tied: Option<TiedEmbedding>,
+ }
+ 
+ /// One loaded layer: the padded public statement and its record.
+@@ -678,7 +863,12 @@
+         let m = p.get("model").map_err(ctx)?;
+         let repo = m.get("repo").and_then(J::str).map_err(ctx)?;
+         let llama_pin = ModelSource::llama3_8b();
++        let shield_pin = ModelSource::shieldstral_1_0_3b();
+         let geometry = match p.opt("geometry") {
++            None if repo == shield_pin.repo => match tokens {
++                128 | 256 => Geometry::Shieldstral(tokens),
++                _ => return Err(ctx(format!("T = {tokens}: no trained Shieldstral profile is registered at this context length (128 and 256 are)"))),
++            },
+             None if repo == llama_pin.repo => match tokens {
+                 32 | 64 | 128 => Geometry::Llama3_8B(tokens),
+                 _ => return Err(ctx(format!("T = {tokens}: no trained Llama-3-8B profile is registered at this context length (32, 64 and 128 are)"))),
+@@ -726,7 +916,13 @@
+                 }
+                 pin
+             }
+-            Geometry::RungTcDev | Geometry::RungDdDev => {
++            Geometry::Shieldstral(_) | Geometry::ShieldstralDd(_) => {
++                if repo != shield_pin.repo || rev != shield_pin.revision || msha != shield_pin.weights_sha256 {
++                    return Err(ctx(format!("the model pin ({repo}, {rev}, {}) is not the pinned Shieldstral source ({}, {}, {})", hex(&msha), shield_pin.repo, shield_pin.revision, hex(&shield_pin.weights_sha256))));
++                }
++                shield_pin
++            }
++            Geometry::RungTcDev | Geometry::RungDdDev | Geometry::RungHdDev => {
+                 if !repo.starts_with("synthetic/") || rev.is_empty() {
+                     return Err(ctx("a rung-TC export must name a synthetic source (`synthetic/...`) and a revision".into()));
+                 }
+@@ -818,9 +1014,17 @@
+         let variant = p.get("variant").and_then(J::str).map_err(ctx)?.to_string();
+         plain_name(&variant).map_err(|e| ctx(format!("variant: {e}")))?;
+         let mut source = source;
+-        if geometry == Geometry::RungTcDev || geometry == Geometry::RungDdDev {
++        if geometry == Geometry::RungTcDev || geometry == Geometry::RungDdDev || geometry == Geometry::RungHdDev {
+             source.checkpoint_layers = layers.iter().max().map(|m| m + 1).unwrap_or(0);
+         }
++        // NATIVE R12 (F1): the declared RoPE transform is the geometry's pin
++        // (an export of an unscaled model declares none, or `default`)
++        let rope_scaling = rope_scaling_of(p.opt("rope_scaling")).map_err(ctx)?;
++        if rope_scaling != geometry.rope_scaling() {
++            return Err(ctx(format!("the export declares the RoPE transform {}, but its geometry's model fixes {} (a model fact, pinned per profile)", rope_scaling.describe(), geometry.rope_scaling().describe())));
++        }
++        // NATIVE R12 (F3): a tied model's embedding / head record
++        let tied = tied_of(dir, &p, geometry, &source).map_err(ctx)?;
+         Ok(TrainedExport {
+             dir: dir.to_path_buf(),
+             geometry,
+@@ -835,6 +1039,8 @@
+             layer_manifest_sha256,
+             residual_unit,
+             calibration_set_sha256,
++            rope_scaling,
++            tied,
+         })
+     }
+ 
+@@ -986,15 +1192,18 @@
+         // ROUND 5 (R5-2): the eleven arrays read and hashed IN PARALLEL (the
+         // same bytes, the same digests, the same checks)
+         let (d, f, kvw, half) = (sh.width, sh.hidden, sh.kv_heads * sh.head_dim, sh.head_dim / 2);
++        // NATIVE R12 (F2): the TRUE query width `q_heads * head_dim` (4096 at
++        // Shieldstral's d 3072; `d` at every profile before R12)
++        let qw = sh.q_width();
+         // R5b (review r4_A): each array's expected dtype and shape, checked
+         // from the manifest BEFORE its bytes are read (and the read bounded
+         // by that exact length)
+-        let (dd, kd, dv, df, fd, t256) = ([d, d], [kvw, d], [d], [d, f], [f, d], [256usize]);
++        let (qd, dq, kd, dv, df, fd, t256) = ([qw, d], [d, qw], [kvw, d], [d], [d, f], [f, d], [256usize]);
+         let expect: [(&str, Dtype, &[usize]); 11] = [
+-            ("wq", Dtype::I8, &dd),
++            ("wq", Dtype::I8, &qd),
+             ("wk", Dtype::I8, &kd),
+             ("wv", Dtype::I8, &kd),
+-            ("wo", Dtype::I8, &dd),
++            ("wo", Dtype::I8, &dq),
+             ("gamma_a", Dtype::I8, &dv),
+             ("gamma_m", Dtype::I8, &dv),
+             ("wg_t", Dtype::I8, &df),
+@@ -1011,13 +1220,13 @@
+         // `get` calls below
+         let mut get = |_name: &str| -> Result<Array, String> { loaded.pop_front().expect("one result per name") };
+         let wq = get("wq")?;
+-        wq.expect("wq", Dtype::I8, &[d, d])?;
++        wq.expect("wq", Dtype::I8, &[qw, d])?;
+         let wk = get("wk")?;
+         wk.expect("wk", Dtype::I8, &[kvw, d])?;
+         let wv = get("wv")?;
+         wv.expect("wv", Dtype::I8, &[kvw, d])?;
+         let wo = get("wo")?;
+-        wo.expect("wo", Dtype::I8, &[d, d])?;
++        wo.expect("wo", Dtype::I8, &[d, qw])?;
+         let ga = get("gamma_a")?;
+         ga.expect("gamma_a", Dtype::I8, &[d])?;
+         let gm = get("gamma_m")?;
+@@ -1041,7 +1250,9 @@
+         if act.i16s() != gact.to_vec() {
+             return Err(ctx(format!("the exported act table is not the frozen SiLU member {:?}", tk.silu)));
+         }
+-        let (gcos, gsin) = crate::tables_attn::rope_tables_generate(sh.tokens, sh.head_dim, c.rope_theta, F_RO);
++        // NATIVE R12 (F1): the generator at the profile's pinned transform
++        // (the frozen generator itself at every unscaled profile)
++        let (gcos, gsin) = super::shape::rope_tables_for(sh, c.rope_theta).map_err(ctx)?;
+         let exported = match (arrays.opt("rope_cos").or_else(|| arrays.opt("cos")), arrays.opt("rope_sin").or_else(|| arrays.opt("sin"))) {
+             (Some(cs), Some(ss)) => {
+                 let (r2, r1) = ([sh.tokens, half], [sh.tokens * half]);
+@@ -1069,14 +1280,14 @@
+         };
+         // pad per the shape (ruling P-2): Wq writes the head-permuted Q axis,
+         // Wo reads it; Wk / Wv do not pad on their width axis
+-        let (dp, fp) = (sh.d_pad, sh.f_pad);
++        let (dp, qp, fp) = (sh.d_pad, sh.q_pad(), sh.f_pad);
+         let id = |i: usize| i;
+         let q = |j: usize| sh.head_slot(j / sh.head_dim) * sh.head_dim + j % sh.head_dim;
+         let aw = [
+-            pad_matrix(&wq.i8s(), d, d, dp, dp, &q, &id),
++            pad_matrix(&wq.i8s(), qw, d, qp, dp, &q, &id),
+             pad_matrix(&wk.i8s(), kvw, d, kvw, dp, &id, &id),
+             pad_matrix(&wv.i8s(), kvw, d, kvw, dp, &id, &id),
+-            pad_matrix(&wo.i8s(), d, d, dp, dp, &id, &q),
++            pad_matrix(&wo.i8s(), d, qw, dp, qp, &id, &q),
+             pad_matrix(&ga.i8s(), 1, d, 1, dp, &id, &id),
+         ];
+         let fw = [pad_matrix(&gm.i8s(), 1, d, 1, dp, &id, &id), pad_matrix(&wg.i8s(), d, f, dp, fp, &id, &id), pad_matrix(&wu.i8s(), d, f, dp, fp, &id, &id), pad_matrix(&wd.i8s(), f, d, fp, dp, &id, &id)];
+@@ -1165,9 +1376,10 @@
+             export_profile_sha256: self.profile_sha256,
+             calibration_tool_sha256: self.tool_sha256,
+             rope_theta: c.rope_theta,
++            rope_scaling: self.rope_scaling,
+         };
+         let cal = IntegerCalibration::as_the_code_proves(sh, &prov);
+-        TrainedModelStatement::new(sh, self.geometry.run_profile(), self.source.clone(), cal, records)
++        TrainedModelStatement::new_with_tied(sh, self.geometry.run_profile(), self.source.clone(), cal, records, self.tied.clone())
+     }
+ }
+ 
+@@ -2484,7 +2696,7 @@
+     format!(
+         "{{\n \"schema\": \"{}\",\n \"scope\": {},\n \"statement_written_by\": {},\n \"prover_reported\": {{\"backend\": {}, \"gpu_declines\": {}, \"what\": {}}},\n \"block_profile\": {},\n \"run_profile\": {},\n \"blocks\": {},\n \"export_variant\": {},\n \"export_profile_sha256\": {},\n \"calibration_tool_sha256\": {},\n \"trained_statement_identity\": {},\n \"context_label\": {},\n \"context\": {},\n \"expected_io\": {},\n \"layers\": [\n  {}\n ],\n \"shape\": {{\"tokens\": {}, \"width\": {}, \"hidden\": {}, \"q_heads\": {}, \"kv_heads\": {}, \"head_dim\": {}, \"log_cols\": {}, \"inv_rate\": {}, \"opened_cols\": {}, \"f_e\": {}, \"wrho_s\": {}, \"norm_wrho\": {}, \"norm_tn\": {}, \"norm_cn_a\": {}, \"norm_cn_m\": {}, \"norm_ceps\": {}, \"sh_ao\": {}, \"sh_qkv\": {}, \"sh_s\": {}, \"sh_o\": {}, \"sh_g\": {}, \"sh_h\": {}, \"sh_z\": {}, \"d_max\": {}}}\n}}\n",
+         STACK_STATEMENT_SCHEMA,
+-        js(STACK_SCOPE),
++        js(stack_scope(ex.geometry)),
+         js(writer.text()),
+         js(&claims.backend),
+         claims.gpu_declines,
+@@ -2527,6 +2739,19 @@
+     )
+ }
+ 
++/// NATIVE R12 (D38): the stack scope of a Shieldstral run (every earlier
++/// model keeps [`STACK_SCOPE`] byte for byte)
++const STACK_SCOPE_SHIELDSTRAL: &str = "ALL the listed trained blocks of Shieldstral-1.0-3B's text decoder as ONE bound run at the export's T (one transcript, hidden internal boundaries); the image encoder, the embedding, final norm, LM head and the verdict are NOT covered (D13, D38: the token stages bind the tied embedding / head by the statement's digests); CPU unless the run line says gpu; NOT a soundness or privacy acceptance; float fidelity is the calibration lane's measurement";
++
++/// the stack scope of a geometry's run
++fn stack_scope(g: Geometry) -> &'static str {
++    if g.is_shieldstral() {
++        STACK_SCOPE_SHIELDSTRAL
++    } else {
++        STACK_SCOPE
++    }
++}
++
+ const STACK_SCOPE: &str = "ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
+ 
+ /// `stack-prove --export DIR (--seq ID | --seq-dir DIR) --out DIR
+@@ -2626,7 +2851,7 @@
+         js(&hex(&st.identity())),
+         seal.wall_s,
+         js(&std::env::var("HL_GPU").unwrap_or_else(|_| "unset".into())),
+-        js(STACK_SCOPE)
++        js(stack_scope(ex.geometry))
+     );
+     let (kept_n, kept_bytes) = (chain.kept.iter().filter(|w| w.is_some()).count(), chain.kept_bytes);
+     println!(
+@@ -2854,7 +3079,7 @@
+         "{{\"event\":\"verified\",\"blocks\":{l},\"receipt_bytes\":{total},\"load_seconds\":{load_s:.3},\"verify_seconds\":{verify_s:.3},\"of_which_block_load_seconds\":{block_load_s:.3},\"vmhwm_mib\":{:.0},\"statement_identity\":{},\"scope\":{}}}",
+         peak_rss_mib(),
+         js(&hex(&st.identity())),
+-        js(STACK_SCOPE)
++        js(stack_scope(ex.geometry))
+     );
+     if flag(f, "--controls").is_some() {
+         stack_controls(&ex, &c, &sh, &layers, &digests, rope, &loaded, &st, ctx, &expected, &art)?;
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/trained_calib_tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/trained_calib_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/trained_calib_tests.rs	2026-10-19 12:14:27.126077909 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/trained_calib_tests.rs	2026-10-20 22:06:09.424171572 -0700
+@@ -222,7 +222,7 @@
+         assert!(e.contains("is frozen"), "{}: {e}", sh.name);
+         assert!(!sh.trained_calibration && sh.norm_calibration() == NormCalibration::FROZEN, "{}: a registered shape carries a non-frozen calibration", sh.name);
+     }
+-    assert_eq!(TRAINED_CALIBRATION_PROFILES, [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE, super::shape::TINYLLAMA_T64_TRAINED_PROFILE, super::shape::TINYLLAMA_T128_TRAINED_PROFILE, super::shape::LLAMA3_8B_T32_TRAINED_PROFILE, super::shape::LLAMA3_8B_T64_TRAINED_PROFILE, super::shape::LLAMA3_8B_T128_TRAINED_PROFILE, super::shape::TINYLLAMA_T128_DD_TRAINED_PROFILE, super::shape::LLAMA3_8B_T128_DD_TRAINED_PROFILE, super::shape::TRAINED_DD_RUNG_PROFILE]);
++    assert_eq!(TRAINED_CALIBRATION_PROFILES, [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE, super::shape::TINYLLAMA_T64_TRAINED_PROFILE, super::shape::TINYLLAMA_T128_TRAINED_PROFILE, super::shape::LLAMA3_8B_T32_TRAINED_PROFILE, super::shape::LLAMA3_8B_T64_TRAINED_PROFILE, super::shape::LLAMA3_8B_T128_TRAINED_PROFILE, super::shape::TINYLLAMA_T128_DD_TRAINED_PROFILE, super::shape::LLAMA3_8B_T128_DD_TRAINED_PROFILE, super::shape::TRAINED_DD_RUNG_PROFILE, super::shape::SHIELDSTRAL_T128_TRAINED_PROFILE, super::shape::SHIELDSTRAL_T256_TRAINED_PROFILE, super::shape::SHIELDSTRAL_T128_DD_TRAINED_PROFILE, super::shape::SHIELDSTRAL_T256_DD_TRAINED_PROFILE, super::shape::TRAINED_HD_RUNG_PROFILE]);
+     // ROUND 3 (R3-2): one profile per context length; any other T is refused
+     for t in [16usize, 48, 256, 512] {
+         assert!(Shape::tinyllama_trained(t, &c, T3_F_E).unwrap_err().contains("no trained TinyLlama profile"), "T{t}");
+@@ -463,6 +463,9 @@
+     } else if sh.profile == super::shape::TRAINED_DD_RUNG_PROFILE {
+         // NATIVE R9: the DD development rung's own run profile
+         super::run::RunShape::rung_dd(sh.clone(), l)
++    } else if sh.profile == super::shape::TRAINED_HD_RUNG_PROFILE {
++        // NATIVE R12: the decoupled-head rung's own run profile
++        super::run::RunShape::rung_hd(sh.clone(), l)
+     } else {
+         super::run::RunShape::tinyllama_trained(sh.clone(), l)
+     }
+@@ -482,6 +485,8 @@
+     };
+     let mut prov = Provenance::recipe("native/synthetic", 1.0 / 512.0, [5; 32], [6; 32]);
+     prov.rope_theta = super::shape::trained_rope_theta(sh.profile).unwrap_or(prov.rope_theta);
++    // NATIVE R12 (F1): and the profile's pinned RoPE transform
++    prov.rope_scaling = super::shape::trained_rope_scaling(sh.profile).unwrap_or(super::rope::RopeScaling::None);
+     let cal = IntegerCalibration::as_the_code_proves(sh, &prov);
+     let recs = blocks.iter().enumerate().map(|(k, b)| LayerRecord::of_block(k as u32, b, vec![])).collect();
+     let rp = run_shape_for_checked(sh, 1).map(|r| r.profile()).unwrap_or(sh.profile);
+@@ -1001,7 +1006,10 @@
+ /// the calibration values; the calibration is bound through the schedule
+ /// digest and the statement), and each run profile with its block shape.
+ pub(super) fn registered_trained_shapes() -> Vec<Shape> {
+-    vec![tinyllama(), rung_tc(), tinyllama_at(64), tinyllama_at(128), llama3_8b(), llama3_8b_at(64), llama3_8b_at(128), tinyllama_dd(), llama3_8b_dd(), rung_dd()]
++    let mut v = vec![tinyllama(), rung_tc(), tinyllama_at(64), tinyllama_at(128), llama3_8b(), llama3_8b_at(64), llama3_8b_at(128), tinyllama_dd(), llama3_8b_dd(), rung_dd()];
++    // NATIVE R12 (D38, F2): the Shieldstral profiles and the decoupled-head rung
++    v.extend([super::r12_tests::shieldstral(128, false), super::r12_tests::shieldstral(256, false), super::r12_tests::shieldstral(128, true), super::r12_tests::shieldstral(256, true), super::r12_tests::rung_hd()]);
++    v
+ }
+ 
+ /// NATIVE R9: the three DD shapes (D30) at the same calibrations as their
+@@ -1044,6 +1052,12 @@
+         (super::run::RUN_PROFILE_TINYLLAMA_T128_DD, tinyllama_dd()),
+         (super::run::RUN_PROFILE_LLAMA3_8B_T128_DD, llama3_8b_dd()),
+         (super::run::RUN_PROFILE_RUNG_DD, rung_dd()),
++        // NATIVE R12 (D38, F2)
++        (super::run::RUN_PROFILE_SHIELDSTRAL_T128_TRAINED, super::r12_tests::shieldstral(128, false)),
++        (super::run::RUN_PROFILE_SHIELDSTRAL_T256_TRAINED, super::r12_tests::shieldstral(256, false)),
++        (super::run::RUN_PROFILE_SHIELDSTRAL_T128_DD, super::r12_tests::shieldstral(128, true)),
++        (super::run::RUN_PROFILE_SHIELDSTRAL_T256_DD, super::r12_tests::shieldstral(256, true)),
++        (super::run::RUN_PROFILE_RUNG_HD, super::r12_tests::rung_hd()),
+     ]
+ }
+ 
+@@ -1076,8 +1090,13 @@
+     let recs = (0..l).map(|k| LayerRecord { index: k as u32, ..rec0.clone() }).collect();
+     let mut prov = Provenance::recipe("registry", 1.0 / 1024.0, [1; 32], [2; 32]);
+     prov.rope_theta = super::shape::trained_rope_theta(sh.profile).unwrap_or(prov.rope_theta);
++    // NATIVE R12 (F1): and the profile's pinned RoPE transform
++    prov.rope_scaling = super::shape::trained_rope_scaling(sh.profile).unwrap_or(super::rope::RopeScaling::None);
+     let cal = IntegerCalibration::as_the_code_proves(sh, &prov);
+-    let model = TrainedModelStatement::new(sh, profile, source, cal, recs).expect("the registry's trained statement");
++    // NATIVE R12 (F3): a tied model's statement binds its tables to the
++    // pinned tensor (synthetic table digests in the registry)
++    let tied = tied_tensor_for_profile(sh.profile).map(|(name, digest)| TiedEmbedding { tensor: name.into(), tensor_sha256: digest, embedding_table_sha256: [3; 32], head_table_sha256: [4; 32], head_mult_sha256: [5; 32] });
++    let model = TrainedModelStatement::new_with_tied(sh, profile, source, cal, recs, tied).expect("the registry's trained statement");
+     let rs = run_shape_for_checked(sh, l).expect("the trained run shape");
+     let _ = RunShape::rung_tc;
+     RunStatement::new_bound_from_digests(rs, ctx, expected, vec![one.digest(); l], &vec![(0, 0); l], &model).expect("the trained run statement")
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/trained_statement.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/trained_statement.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/trained_statement.rs	2026-10-19 09:39:39.871808453 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/trained_statement.rs	2026-10-20 22:06:56.736487110 -0700
+@@ -146,12 +146,34 @@
+         }
+     }
+ 
++    /// **NATIVE R12 (D38): the pinned Shieldstral-1.0-3B source** (the HF API
++    /// and the files at revision 003ec7e2b0bab5f0e6307edbaf186fa5822b76f5,
++    /// read 2026-10-21; copies under `results/zk60_1b_native_20261017/r12/
++    /// reference/`): `model.safetensors` (the transformers-format single
++    /// file; LFS SHA-256 below), `config.json` (SHA-256 of its 1,654 bytes,
++    /// git blob 87bb9aef...), 3,849,090,048 parameters (the checkpoint's own
++    /// count, the Pixtral image tower included; only the 26 text layers are
++    /// proved, D38 (a))
++    pub(crate) fn shieldstral_1_0_3b() -> ModelSource {
++        ModelSource {
++            kind: SourceKind::HfCheckpoint,
++            repo: "mistralai/Shieldstral-1.0-3B".into(),
++            revision: "003ec7e2b0bab5f0e6307edbaf186fa5822b76f5".into(),
++            weights_sha256: hex32("87753e30c8c321da478b83bbabebcd813cc9b3d0cee5c5b3d64349a8ee4172f7"),
++            config_sha256: hex32("a0b1122916b629ab9c3b54a422476e3f4bf4f2b66353a82c43c349c4fe2257ad"),
++            checkpoint_parameters: 3_849_090_048,
++            checkpoint_layers: 26,
++        }
++    }
++
+     /// the pinned source a trained-model profile carries, if it has one
+     pub(crate) fn pinned_for_profile(profile: &str) -> Option<ModelSource> {
+         if super::shape::TINYLLAMA_TRAINED_PROFILES.contains(&profile) || super::shape::TINYLLAMA_DD_PROFILES.contains(&profile) {
+             Some(ModelSource::tinyllama_chat_v1_0())
+         } else if super::shape::LLAMA3_8B_TRAINED_PROFILES.contains(&profile) || super::shape::LLAMA3_8B_DD_PROFILES.contains(&profile) {
+             Some(ModelSource::llama3_8b())
++        } else if super::shape::SHIELDSTRAL_PROFILES.contains(&profile) {
++            Some(ModelSource::shieldstral_1_0_3b())
+         } else {
+             None
+         }
+@@ -222,6 +244,12 @@
+     /// SiLU member and the exp `e_s` moved to [`LayerRecord`], because an
+     /// export may choose them per layer (they are per-block public tables)
+     pub rope_theta_f64_bits: u64,
++    /// **NATIVE R12 (F1): the RoPE frequency transform**, as its canonical
++    /// bytes ([`super::rope::RopeScaling::encode`]; `b"none"` before R12). A
++    /// model fact pinned per profile, like the base; encoded in the statement
++    /// ONLY when it is not `none`, so every statement before R12 keeps its
++    /// bytes.
++    pub rope_scaling: Vec<u8>,
+ }
+ 
+ /// The out-of-relation provenance a calibration record carries (none of it is
+@@ -235,6 +263,8 @@
+     pub export_profile_sha256: [u8; 32],
+     pub calibration_tool_sha256: [u8; 32],
+     pub rope_theta: f64,
++    /// NATIVE R12 (F1)
++    pub rope_scaling: super::rope::RopeScaling,
+ }
+ 
+ impl Provenance {
+@@ -250,6 +280,7 @@
+             export_profile_sha256: [0; 32],
+             calibration_tool_sha256: [0; 32],
+             rope_theta: 10000.0,
++            rope_scaling: super::rope::RopeScaling::None,
+         }
+     }
+ }
+@@ -290,6 +321,7 @@
+             export_profile_sha256: prov.export_profile_sha256,
+             calibration_tool_sha256: prov.calibration_tool_sha256,
+             rope_theta_f64_bits: prov.rope_theta.to_bits(),
++            rope_scaling: prov.rope_scaling.encode(),
+         }
+     }
+ 
+@@ -303,6 +335,7 @@
+             export_profile_sha256: self.export_profile_sha256,
+             calibration_tool_sha256: self.calibration_tool_sha256,
+             rope_theta: f64::from_bits(self.rope_theta_f64_bits),
++            rope_scaling: super::rope::RopeScaling::decode(&self.rope_scaling).unwrap_or(super::rope::RopeScaling::None),
+         }
+     }
+ 
+@@ -332,6 +365,14 @@
+             if self.rope_theta_f64_bits != want.to_bits() {
+                 return Err(format!("trained statement: the RoPE base {} is not the profile's {want}", f64::from_bits(self.rope_theta_f64_bits)));
+             }
++            // NATIVE R12 (F1): so is the frequency transform
++            let pin = super::shape::trained_rope_scaling(sh.profile).ok_or("trained statement: a trained shape with no pinned RoPE transform")?;
++            if self.rope_scaling != pin.encode() {
++                let got = super::rope::RopeScaling::decode(&self.rope_scaling).map(|r| r.describe()).unwrap_or_else(|_| "an unreadable encoding".into());
++                return Err(format!("trained statement: the RoPE transform {got} is not the profile's {}", pin.describe()));
++            }
++        } else if super::rope::RopeScaling::decode(&self.rope_scaling) != Ok(super::rope::RopeScaling::None) {
++            return Err("trained statement: a RoPE transform at a profile that pins none".into());
+         }
+         Ok(())
+     }
+@@ -492,6 +533,44 @@
+     }
+ }
+ 
++/// **NATIVE R12 (F3, D38): a TIED embedding / output head.** The model's
++/// embedding table and its output head are ONE published tensor
++/// (`tie_word_embeddings`); the run's integer embedding table and integer head
++/// may be different quantisations of it (the embedding int16 rows, the head
++/// int8 rows with per-row multipliers), and BOTH are bound here to that one
++/// tensor's digest. The token stages (the token-I/O lane) read these two
++/// tables; this record is what ties them to the blocks' statement. Present
++/// exactly at a profile whose model is tied (Shieldstral), absent everywhere
++/// else, so no statement before R12 moves.
++#[derive(Clone, Debug, PartialEq, Eq)]
++pub(crate) struct TiedEmbedding {
++    /// the tensor's name in the pinned weights file
++    pub tensor: String,
++    /// SHA-256 of the tensor's raw bytes in the pinned weights file
++    pub tensor_sha256: [u8; 32],
++    /// SHA-256 of the integer embedding table the token stage reads
++    pub embedding_table_sha256: [u8; 32],
++    /// SHA-256 of the integer head rows and of their per-row multipliers
++    pub head_table_sha256: [u8; 32],
++    pub head_mult_sha256: [u8; 32],
++}
++
++/// **NATIVE R12 (F3): the pinned tied tensor of a profile** — its name and
++/// the SHA-256 of its raw bytes in the pinned weights file, a model fact
++/// (Shieldstral: `language_model.model.embed_tokens.weight`, BF16 [131072,
++/// 3072], bytes [61008, 805367376) of `model.safetensors` at the pinned
++/// revision, digested on 2026-10-21 by streaming exactly that range); `None`
++/// for an untied model.
++pub(crate) fn tied_tensor_for_profile(profile: &str) -> Option<(&'static str, [u8; 32])> {
++    if super::shape::SHIELDSTRAL_PROFILES.contains(&profile) {
++        Some((SHIELDSTRAL_TIED_TENSOR, hex32(SHIELDSTRAL_TIED_TENSOR_SHA256)))
++    } else {
++        None
++    }
++}
++pub(crate) const SHIELDSTRAL_TIED_TENSOR: &str = "language_model.model.embed_tokens.weight";
++pub(crate) const SHIELDSTRAL_TIED_TENSOR_SHA256: &str = "67a138c1c483b89874526ef523f5f0c30f161808076561730193d1de2093dd19";
++
+ /// THE STATEMENT. Built by the importer/calibrator, pinned by whoever
+ /// approves the model, handed to the verifier through its trusted policy —
+ /// never read from a receipt.
+@@ -505,6 +584,8 @@
+     pub calibration: IntegerCalibration,
+     pub layers: Vec<LayerRecord>,
+     pub coverage: String,
++    /// NATIVE R12 (F3): the tied embedding / head record (tied models only)
++    pub tied: Option<TiedEmbedding>,
+     /// re-review R2-b: set ONLY by the test-only constructor
+     /// [`TrainedModelStatement::new_synthetic_at_trained_profile_for_tests`];
+     /// every other statement, in test builds too, is checked by the strict
+@@ -537,6 +618,12 @@
+ 
+ impl TrainedModelStatement {
+     pub(crate) fn new(sh: &Shape, run_profile: &str, source: ModelSource, calibration: IntegerCalibration, layers: Vec<LayerRecord>) -> Result<TrainedModelStatement, String> {
++        Self::new_with_tied(sh, run_profile, source, calibration, layers, None)
++    }
++
++    /// NATIVE R12 (F3): the same with the tied embedding / head record a
++    /// tied model's profile requires (and an untied one refuses)
++    pub(crate) fn new_with_tied(sh: &Shape, run_profile: &str, source: ModelSource, calibration: IntegerCalibration, layers: Vec<LayerRecord>, tied: Option<TiedEmbedding>) -> Result<TrainedModelStatement, String> {
+         let st = TrainedModelStatement {
+             block_profile: sh.profile.into(),
+             run_profile: run_profile.into(),
+@@ -545,6 +632,7 @@
+             calibration,
+             layers,
+             coverage: COVERAGE_D13.into(),
++            tied,
+             #[cfg(test)]
+             test_synthetic_waiver: false,
+         };
+@@ -560,6 +648,15 @@
+     /// constructor waives exactly that one rule, in test builds only.
+     #[cfg(test)]
+     pub(crate) fn new_synthetic_at_trained_profile_for_tests(sh: &Shape, run_profile: &str, source: ModelSource, calibration: IntegerCalibration, layers: Vec<LayerRecord>) -> Result<TrainedModelStatement, String> {
++        // NATIVE R12 (F3): a tied profile's synthetic statement carries a
++        // synthetic tied record under the pinned tensor NAME
++        let tied = tied_tensor_for_profile(sh.profile).map(|(name, _)| TiedEmbedding { tensor: name.into(), tensor_sha256: [7; 32], embedding_table_sha256: [8; 32], head_table_sha256: [9; 32], head_mult_sha256: [10; 32] });
++        Self::new_synthetic_at_trained_profile_for_tests_tied(sh, run_profile, source, calibration, layers, tied)
++    }
++
++    /// **TEST ONLY (R12):** the same with a chosen tied record (or none)
++    #[cfg(test)]
++    pub(crate) fn new_synthetic_at_trained_profile_for_tests_tied(sh: &Shape, run_profile: &str, source: ModelSource, calibration: IntegerCalibration, layers: Vec<LayerRecord>, tied: Option<TiedEmbedding>) -> Result<TrainedModelStatement, String> {
+         if source.kind != SourceKind::PublicSyntheticRecipe {
+             return Err("trained statement: the test-only constructor takes a synthetic recipe only".into());
+         }
+@@ -571,6 +668,7 @@
+             calibration,
+             layers,
+             coverage: COVERAGE_D13.into(),
++            tied,
+             test_synthetic_waiver: true,
+         };
+         st.check_self_with(sh, true)?;
+@@ -656,6 +754,25 @@
+         if self.coverage != COVERAGE_D13 {
+             return Err("trained statement: the coverage sentence is not the D13 one".into());
+         }
++        // NATIVE R12 (F3): a tied model's record, by name; none elsewhere
++        match (tied_tensor_for_profile(&self.block_profile), &self.tied) {
++            (None, None) => {}
++            (None, Some(_)) => return Err(format!("trained statement: {} is an untied model's profile; a tied embedding record is refused", self.block_profile)),
++            (Some((name, _)), None) => return Err(format!("trained statement: {}'s model ties its embedding and head ({name}); the statement must bind both integer tables to that tensor", self.block_profile)),
++            (Some((name, digest)), Some(t)) => {
++                if t.tensor != name {
++                    return Err(format!("trained statement: the tied record names tensor {:?}, not the profile's {name:?}", t.tensor));
++                }
++                if [t.tensor_sha256, t.embedding_table_sha256, t.head_table_sha256, t.head_mult_sha256].contains(&[0u8; 32]) {
++                    return Err("trained statement: a tied record carries a zero digest".into());
++                }
++                // the pinned checkpoint's tensor is the ONE published digest
++                // both tables must name (a synthetic test recipe has no pin)
++                if self.source.kind == SourceKind::HfCheckpoint && t.tensor_sha256 != digest {
++                    return Err(format!("trained statement: the tied tensor's SHA-256 is not the pinned checkpoint's {name}"));
++                }
++            }
++        }
+         Ok(())
+     }
+ 
+@@ -678,6 +795,14 @@
+         e.field("source-config-sha256", &s.config_sha256);
+         e.u64("source-parameters", s.checkpoint_parameters);
+         e.u64("source-layers", u64::from(s.checkpoint_layers));
++        // NATIVE R12 (F3): present ONLY for a tied model
++        if let Some(t) = &self.tied {
++            e.field("tied-embedding-tensor", t.tensor.as_bytes());
++            e.field("tied-embedding-tensor-sha256", &t.tensor_sha256);
++            e.field("tied-embedding-table-sha256", &t.embedding_table_sha256);
++            e.field("tied-head-table-sha256", &t.head_table_sha256);
++            e.field("tied-head-mult-sha256", &t.head_mult_sha256);
++        }
+         let c = &self.calibration;
+         e.field("calibration-label", c.label.as_bytes());
+         for (name, v) in [
+@@ -714,6 +839,10 @@
+         e.field("export-profile-sha256", &c.export_profile_sha256);
+         e.field("calibration-tool-sha256", &c.calibration_tool_sha256);
+         e.u64("rope-theta-f64-bits", c.rope_theta_f64_bits);
++        // NATIVE R12 (F1): present ONLY for a scaled RoPE
++        if c.rope_scaling != super::rope::RopeScaling::None.encode() {
++            e.field("rope-scaling", &c.rope_scaling);
++        }
+         e.u64("layer-records", self.layers.len() as u64);
+         for r in &self.layers {
+             e.u64("layer-index", u64::from(r.index));
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/witness.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/witness.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/witness.rs	2026-10-19 09:43:27.322500052 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/witness.rs	2026-10-20 19:54:42.046641218 -0700
+@@ -220,6 +220,9 @@
+     /// padded strides
+     t_pad: usize,
+     d_pad: usize,
++    /// NATIVE R12 (F2): the padded QUERY width `h_pad * head_dim`, the row
++    /// stride of `Dom::Q` (equal to `d_pad` at every profile before R12)
++    q_pad: usize,
+     f_pad: usize,
+     h_pad: usize,
+     kvw: usize,
+@@ -243,6 +246,7 @@
+             half: s.head_dim / 2,
+             t_pad: s.t_pad,
+             d_pad: s.d_pad,
++            q_pad: s.q_pad(),
+             f_pad: s.f_pad,
+             h_pad: s.h_pad,
+             kvw: s.kv_heads * s.head_dim,
+@@ -256,8 +260,8 @@
+     pub(super) fn len(&self, dom: Dom) -> usize {
+         self.s.size(dom)
+     }
+-    /// `(t, i)` of `Dom::D`, and `(t, slot, i')` of `Dom::Q` (the same flat
+-    /// index, read with the head axis PERMUTED — see [`Geom::slot`])
++    /// `(t, i)` of `Dom::D` (NATIVE R12: `Dom::Q` has its own row stride,
++    /// `q_pad`, read with the head axis PERMUTED — see [`Geom::qix`])
+     fn dix(&self, t: usize, i: usize) -> usize {
+         t * self.d_pad + i
+     }
+@@ -271,7 +275,7 @@
+     }
+     /// `(t, slot, i')` of `Dom::Q`
+     fn qix(&self, t: usize, sl: usize, i: usize) -> usize {
+-        t * self.d_pad + sl * self.dh + i
++        t * self.q_pad + sl * self.dh + i
+     }
+     /// `(t, kv, i')` of `Dom::Kv`
+     fn kvix(&self, t: usize, kv: usize, i: usize) -> usize {
+@@ -307,8 +311,8 @@
+                     }
+                 }
+             }
+-            // `Dom::Q` shares `Dom::D`'s flat index and is NOT the same
+-            // support (§3.7a note 1): `D` pads the top of each token's row,
++            // `Dom::Q` (row stride `q_pad`; `== d_pad` before R12) is NOT
++            // `Dom::D`'s support (§3.7a note 1): `D` pads the top of each token's row,
+             // `Q` pads one head slot per key-value group. The order is
+             // `(t, h, i')` with `h` the LOGICAL head, which is the order the
+             // reference kernel lays its `q8` / `o8` buffers out in.
+@@ -679,16 +683,19 @@
+     // ---- QKV, RoPE ----
+     let y = pl[ap(A_Y)].clone();
+     let (dl, kvl, sl) = (g.len(Dom::D), g.len(Dom::Kv), g.len(Dom::S));
++    // NATIVE R12 (F2): the query planes live on `Dom::Q`, of row stride
++    // `q_pad` (`ql == dl` and `q_pad == d_pad` at every profile before R12)
++    let ql = g.len(Dom::Q);
+     // S9: the QKV weights are the PADDED, head-permuted matrices (ruling
+     // P-2), so every matmul folds over the padded inner index and `Wq` writes
+     // the `Dom::Q` axis in SLOT order. The padded rows and columns are zero
+     // by construction check, so the accumulation is unchanged on the support.
+-    let (q8, rql) = quantize(&matmul(&g, &y, g.d_pad, &public.wq, g.d_pad, g.d_pad, g.d_pad, dl), &sup_q, shape.sh_qkv, -127, 127, "Q")?;
++    let (q8, rql) = quantize(&matmul(&g, &y, g.d_pad, &public.wq, g.d_pad, g.q_pad, g.q_pad, ql), &sup_q, shape.sh_qkv, -127, 127, "Q")?;
+     let (k8, rkl) = quantize(&matmul(&g, &y, g.d_pad, &public.wk, g.d_pad, g.kvw, g.kvw, kvl), &sup_kv, shape.sh_qkv, -127, 127, "K")?;
+     let (v8, rvl) = quantize(&matmul(&g, &y, g.d_pad, &public.wv, g.d_pad, g.kvw, g.kvw, kvl), &sup_kv, shape.sh_qkv, -127, 127, "V")?;
+     // the rotation runs over every padded head SLOT; a padded slot holds
+     // zeros, so it rotates to zero and the pad stays zero
+-    let (qr8, rqrl) = quantize(&rotate(&g, &q8, g.h_pad, g.d_pad, dl, &public.rope_cos, &public.rope_sin), &sup_q, SH_ROPE, -127, 127, "QR")?;
++    let (qr8, rqrl) = quantize(&rotate(&g, &q8, g.h_pad, g.q_pad, ql, &public.rope_cos, &public.rope_sin), &sup_q, SH_ROPE, -127, 127, "QR")?;
+     // S7: the key rotation runs over the KEY-VALUE heads, not over one head
+     let (kr8, rkrl) = quantize(&rotate(&g, &k8, g.hkv, g.kvw, kvl, &public.rope_cos, &public.rope_sin), &sup_kv, SH_ROPE, -127, 127, "KR")?;
+ 
+@@ -718,7 +725,7 @@
+     let (s8, rsl) = quantize(&sacc, &sup_s, shape.sh_s, -127, 127, "score")?;
+ 
+     // ---- causal softmax, PV ----
+-    let mut oacc = vec![0i64; dl];
++    let mut oacc = vec![0i64; ql];
+     for h in 0..g.hq {
+         // S7: the value mixing reads the same key-value head as the scores
+         let hs = g.slot(h);
+@@ -853,10 +860,10 @@
+     // The pass itself is BELOW, after `A_S8`'s plane is written: it reads the
+     // committed plane, exactly as `protocol::exp_deltas` does.
+     let (o8, ro) = quantize(&oacc, &sup_q, shape.sh_o, -127, 127, "O")?;
+-    // `Wo` reads the head-permuted `Dom::Q` axis and writes `Dom::D`: both
+-    // are the PADDED width, with the padded head columns and the padded
++    // `Wo` reads the head-permuted `Dom::Q` axis (`q_pad`) and writes
++    // `Dom::D` (`d_pad`): both PADDED, with the padded head columns and the padded
+     // output rows zero (ruling P-2, checked at construction)
+-    let (ao, ral) = quantize(&matmul(&g, &o8, g.d_pad, &public.wo, g.d_pad, g.d_pad, g.d_pad, dl), &sup_d, shape.sh_ao, -32768, 32767, "AO")?;
++    let (ao, ral) = quantize(&matmul(&g, &o8, g.q_pad, &public.wo, g.q_pad, g.d_pad, g.d_pad, dl), &sup_d, shape.sh_ao, -32768, 32767, "AO")?;
+ 
+     // ---- residual 1 (all three shifts are 0: xres1 = x + ao exactly) ----
+     for &idx in &sup_d {
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block.rs	2026-10-19 09:44:41.022052784 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block.rs	2026-10-20 20:07:44.049304759 -0700
+@@ -99,6 +99,8 @@
+ // file per segment) and the `L` file names a streaming verifier reads back
+ // one at a time. The wire format of a segment does not move here.
+ mod run_sink;
++// NATIVE R12 (F1): RoPE frequency transforms, public tables only
++mod rope;
+ mod shape;
+ // STAGE 11: the phase clock. A write-only recorder, inert unless
+ // `HL_PB_TIMING=1`, that answers WHERE the seconds of one block go (the P5
+@@ -176,6 +178,13 @@
+ // NATIVE R9: DD, the per-row division dictionary (D30) (test only)
+ #[cfg(test)]
+ mod r9_tests;
++// NATIVE R12 (D38): Shieldstral — F1 RoPE transforms, F2 decoupled head_dim,
++// F3 tied embeddings, the profiles (test only)
++#[cfg(test)]
++mod r12_tests;
++// NATIVE R12: byte identity of the existing profiles across R9 -> R12 (test only)
++#[cfg(test)]
++mod r12_golden_tests;
+ // STAGE 19 (test-only): DENSE public weights and a numerically non-trivial
+ // witness at the shaped geometries, where the diagonal fixture leaves every
+ // hidden unit above `d` with no input and no output weight.
+@@ -407,7 +416,9 @@
+ impl Axis {
+     fn len(self, sh: &shape::Shape) -> usize {
+         match self {
+-            Axis::D | Axis::Q => sh.d_pad,
++            Axis::D => sh.d_pad,
++            // NATIVE R12 (F2): the query axis has its own padded width
++            Axis::Q => sh.q_pad(),
+             Axis::F => sh.f_pad,
+             Axis::Full(n) => n,
+         }
+@@ -558,8 +569,10 @@
+     /// shape it is proved at, before anything is absorbed, committed or drawn.
+     #[allow(clippy::too_many_arguments)]
+     fn check_words(sh: &shape::Shape, wq: &[i8], wk: &[i8], wv: &[i8], wo: &[i8], gamma_a: &[i8], rope_cos: &[i64], rope_sin: &[i64], exp: &[i64]) -> Result<(), String> {
+-        let (d, kv, half) = (sh.d_pad, sh.kv_heads * sh.head_dim, sh.head_dim / 2);
+-        if [wq.len(), wo.len()] != [d * d; 2] || [wk.len(), wv.len()] != [kv * d; 2] || gamma_a.len() != d {
++        // NATIVE R12 (F2): `Wq` is (query axis, model axis), `Wo` (model
++        // axis, query axis); `q == d` at every profile before R12
++        let (d, q, kv, half) = (sh.d_pad, sh.q_pad(), sh.kv_heads * sh.head_dim, sh.head_dim / 2);
++        if [wq.len(), wo.len()] != [q * d; 2] || [wk.len(), wv.len()] != [kv * d; 2] || gamma_a.len() != d {
+             return Err("private block: public weight shape".into());
+         }
+         // P-2: the destination axis's support, axis by axis. `Wq` writes the
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/private-block-kernel-shaped/src/lib.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/private-block-kernel-shaped/src/lib.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/private-block-kernel-shaped/src/lib.rs	2026-10-17 01:14:36.663906679 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/private-block-kernel-shaped/src/lib.rs	2026-10-20 19:57:58.904291543 -0700
+@@ -316,9 +316,9 @@
+         if self.head_dim % 2 != 0 {
+             return Err(KernelError::Shape("shape: the head dimension is odd"));
+         }
+-        if self.width != self.q_heads * self.head_dim {
+-            return Err(KernelError::Shape("shape: width differs from q_heads * head_dim"));
+-        }
++        // NATIVE R12 (F2): the query axis `q_heads * head_dim` is its own
++        // width (`q_width`), decoupled from the model width (Shieldstral:
++        // 4096 against 3072); every shape before R12 has the two equal
+         if self.q_heads % self.kv_heads != 0 {
+             return Err(KernelError::Shape("shape: the query heads do not divide into the key-value heads"));
+         }
+@@ -344,6 +344,11 @@
+     pub const fn half_dim(&self) -> usize {
+         self.head_dim / 2
+     }
++    /// NATIVE R12 (F2): the query axis width `q_heads * head_dim` (`width`
++    /// at every shape before R12)
++    pub const fn q_width(&self) -> usize {
++        self.q_heads * self.head_dim
++    }
+     /// the key/value axis width: `kv_heads * head_dim`
+     pub const fn kv_width(&self) -> usize {
+         self.kv_heads * self.head_dim
+@@ -358,6 +363,10 @@
+     pub const fn kv_len(&self) -> usize {
+         self.tokens * self.kv_width()
+     }
++    /// NATIVE R12: the query-axis planes (`x_len` before R12)
++    pub const fn q_len(&self) -> usize {
++        self.tokens * self.q_width()
++    }
+     pub const fn ff_len(&self) -> usize {
+         self.tokens * self.hidden
+     }
+@@ -372,11 +381,12 @@
+         self.tokens * self.half_dim()
+     }
+ 
+-    /// `i64` words of scratch [`run_shaped`] needs. Eleven `x`-sized planes,
++    /// `i64` words of scratch [`run_shaped`] needs. Seven `x`-sized planes,
++    /// four query-axis planes (NATIVE R12: `x`-sized before R12, so eleven),
+     /// three key/value planes, one score cube, four feed-forward planes and
+     /// four token-sized rows.
+     pub const fn scratch_len(&self) -> usize {
+-        11 * self.x_len() + 3 * self.kv_len() + self.score_len() + 4 * self.ff_len() + 4 * self.tokens
++        7 * self.x_len() + 4 * self.q_len() + 3 * self.kv_len() + self.score_len() + 4 * self.ff_len() + 4 * self.tokens
+     }
+ 
+     /// `i64` words of the (parity-test only) trace buffer. Nine `x`-sized
+@@ -384,13 +394,15 @@
+     /// four feed-forward parts and the two isqrt columns; a unit test checks
+     /// this closed form against the sum over [`PARTS`].
+     pub const fn trace_len(&self) -> usize {
+-        9 * self.x_len() + 3 * self.kv_len() + 2 * self.score_len() + 3 * self.rows() + 4 * self.ff_len() + 2 * self.tokens
++        6 * self.x_len() + 3 * self.q_len() + 3 * self.kv_len() + 2 * self.score_len() + 3 * self.rows() + 4 * self.ff_len() + 2 * self.tokens
+     }
+ 
+     pub fn part_len(&self, p: Part) -> usize {
+         match p {
+             Part::NaDd | Part::NmDd => self.tokens,
+-            Part::NaY | Part::Q8 | Part::Qr8 | Part::O8 | Part::Ao8 | Part::Xres1 | Part::NmY | Part::Z16 | Part::Xres2 => self.x_len(),
++            Part::NaY | Part::Ao8 | Part::Xres1 | Part::NmY | Part::Z16 | Part::Xres2 => self.x_len(),
++            // NATIVE R12 (F2): the query-axis parts
++            Part::Q8 | Part::Qr8 | Part::O8 => self.q_len(),
+             Part::K8 | Part::V8 | Part::Kr8 => self.kv_len(),
+             Part::S8 | Part::P => self.score_len(),
+             Part::MRow | Part::Arg | Part::Sum => self.rows(),
+@@ -490,12 +502,12 @@
+ 
+ impl WeightsRef<'_> {
+     pub fn check(&self, sh: &Shape) -> Res<()> {
+-        let (d, f, kv) = (sh.width, sh.hidden, sh.kv_width());
++        let (d, q, f, kv) = (sh.width, sh.q_width(), sh.hidden, sh.kv_width());
+         for (got, want, site) in [
+-            (self.wq.len(), d * d, "wq"),
++            (self.wq.len(), q * d, "wq"),
+             (self.wk.len(), kv * d, "wk"),
+             (self.wv.len(), kv * d, "wv"),
+-            (self.wo.len(), d * d, "wo"),
++            (self.wo.len(), d * q, "wo"),
+             (self.gamma_a.len(), d, "gamma_a"),
+             (self.gamma_m.len(), d, "gamma_m"),
+             (self.wg_t.len(), d * f, "wg_t"),
+@@ -776,14 +788,16 @@
+     zero(scratch);
+ 
+     let (tokens, d_w, f_w, dh) = (sh.tokens, sh.width, sh.hidden, sh.head_dim);
++    // NATIVE R12 (F2): the query axis width (`d_w` before R12)
++    let q_w = sh.q_width();
+     let (kvw, group) = (sh.kv_width(), sh.group());
+     let mut rest: &mut [i64] = scratch;
+     let x = take(&mut rest, sh.x_len());
+     let na = take(&mut rest, sh.x_len());
+-    let q = take(&mut rest, sh.x_len());
+-    let qr = take(&mut rest, sh.x_len());
+-    let o = take(&mut rest, sh.x_len());
+-    let o8 = take(&mut rest, sh.x_len());
++    let q = take(&mut rest, sh.q_len());
++    let qr = take(&mut rest, sh.q_len());
++    let o = take(&mut rest, sh.q_len());
++    let o8 = take(&mut rest, sh.q_len());
+     let ao = take(&mut rest, sh.x_len());
+     let x1 = take(&mut rest, sh.x_len());
+     let nm = take(&mut rest, sh.x_len());
+@@ -809,7 +823,7 @@
+ 
+     rms_norm(sh, x, w.gamma_a, sh.norm_cn_a, na, na_dd)?;
+ 
+-    matmul_out_in(tokens, na, w.wq, d_w, d_w, q)?;
++    matmul_out_in(tokens, na, w.wq, d_w, q_w, q)?;
+     matmul_out_in(tokens, na, w.wk, d_w, kvw, k)?;
+     matmul_out_in(tokens, na, w.wv, d_w, kvw, v)?;
+     requant_all(q, sh.sh_qkv, I8N, "Q")?;
+@@ -829,7 +843,7 @@
+             for j in 0..tokens {
+                 let mut acc = 0i64;
+                 for i in 0..dh {
+-                    acc = add(acc, mul(qr[t * d_w + h * dh + i], kr[j * kvw + kvo + i], "score")?, "score")?;
++                    acc = add(acc, mul(qr[t * q_w + h * dh + i], kr[j * kvw + kvo + i], "score")?, "score")?;
+                 }
+                 s[(h * tokens + t) * tokens + j] = acc;
+             }
+@@ -873,12 +887,12 @@
+     for h in 0..sh.q_heads {
+         for t in 0..tokens {
+             for i in 0..dh {
+-                o8[t * d_w + h * dh + i] = o[(h * tokens + t) * dh + i];
++                o8[t * q_w + h * dh + i] = o[(h * tokens + t) * dh + i];
+             }
+         }
+     }
+ 
+-    matmul_out_in(tokens, o8, w.wo, d_w, d_w, ao)?;
++    matmul_out_in(tokens, o8, w.wo, q_w, d_w, ao)?;
+     requant_all(ao, sh.sh_ao, I16, "AO")?;
+ 
+     for idx in 0..sh.x_len() {
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/private-block-kernel-shaped/src/tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/private-block-kernel-shaped/src/tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/private-block-kernel-shaped/src/tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/private-block-kernel-shaped/src/tests.rs	2026-10-26 10:36:01.818063865 -0700
+@@ -16,14 +16,15 @@
+ use std::vec;
+ use std::vec::Vec;
+ 
+-/// toy, the development rung's geometry, and the 125M-class geometry
+-fn named() -> [Shape; 3] {
++/// toy, the development rung, the 125M geometry, and a decoupled query axis
++fn named() -> [Shape; 4] {
+     [
+         Shape::toy(),
+         // the rung of ruling P-7, at the toy's softmax calibration (the
+         // `F_E = 12` variant is step S8's, and changes no geometry here)
+         Shape::new(24, 96, 192, 6, 2, 16, 9, 9, 14, 31),
+         Shape::new(512, 768, 2048, 12, 4, 64, 9, 9, 18, 32),
++        Shape::new(4, 12, 16, 4, 2, 4, 9, 9, 14, 31),
+     ]
+ }
+ 
+@@ -70,7 +71,6 @@
+     assert_eq!(bad(&|s| s.tokens = 0), KernelError::Shape("shape: an axis is zero"));
+     assert_eq!(bad(&|s| s.kv_heads = 0), KernelError::Shape("shape: an axis is zero"));
+     assert_eq!(bad(&|s| s.head_dim = 7), KernelError::Shape("shape: the head dimension is odd"));
+-    assert_eq!(bad(&|s| s.width = 24), KernelError::Shape("shape: width differs from q_heads * head_dim"));
+     assert_eq!(
+         bad(&|s| {
+             s.q_heads = 3;
+@@ -82,6 +82,18 @@
+     assert_eq!(bad(&|s| s.norm_wrho = 63), KernelError::Shape("shape: a calibration window is out of range"));
+ }
+ 
++#[test]
++fn the_query_axis_can_differ_from_the_model_width() {
++    let mut sh = Shape::toy();
++    sh.width = 24;
++    sh.check().expect("R12 permits model width != query heads * head dimension");
++    assert_eq!((sh.x_len(), sh.q_len()), (32 * 24, 32 * 16));
++    assert_eq!(sh.part_len(Part::NaY), sh.x_len());
++    for part in [Part::Q8, Part::Qr8, Part::O8] {
++        assert_eq!(sh.part_len(part), sh.q_len());
++    }
++}
++
+ // ------------------------------------------------------------- a tiny GQA shape
+ 
+ /// `T4 / d8 / f8, 4 query heads of 2 over 2 KV heads` — group 2, the smallest

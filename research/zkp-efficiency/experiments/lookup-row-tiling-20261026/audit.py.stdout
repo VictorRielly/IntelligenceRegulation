@@ -1,0 +1,48 @@
+{
+  "status": "PASS_SOURCE_AND_COST_AUDIT_ONLY",
+  "checks": 158,
+  "native_pins": 9,
+  "native_incidence": [
+    {
+      "context": 32,
+      "log_cols": 13,
+      "tab_rows": 8192,
+      "layers": 32,
+      "per_block_pair_mul_removed": 15872,
+      "per_32_block_argument_mul_removed": 507904,
+      "per_block_pair_copy_reads_bytes": 253952,
+      "per_32_block_argument_copy_reads_bytes": 8126464,
+      "per_block_pair_net_extra_logical_reads_bytes": 174592,
+      "scope": "R12 one SC_TAB definition pair per block per argument invocation. Prove and each verify counted separately; no pass or elapsed measurement. R13 LOW+h24 excluded."
+    },
+    {
+      "context": 64,
+      "log_cols": 13,
+      "tab_rows": 8192,
+      "layers": 32,
+      "per_block_pair_mul_removed": 15872,
+      "per_32_block_argument_mul_removed": 507904,
+      "per_block_pair_copy_reads_bytes": 253952,
+      "per_32_block_argument_copy_reads_bytes": 8126464,
+      "per_block_pair_net_extra_logical_reads_bytes": 174592,
+      "scope": "R12 one SC_TAB definition pair per block per argument invocation. Prove and each verify counted separately; no pass or elapsed measurement. R13 LOW+h24 excluded."
+    },
+    {
+      "context": 128,
+      "log_cols": 14,
+      "tab_rows": 16384,
+      "layers": 32,
+      "per_block_pair_mul_removed": 32256,
+      "per_32_block_argument_mul_removed": 1032192,
+      "per_block_pair_copy_reads_bytes": 516096,
+      "per_32_block_argument_copy_reads_bytes": 16515072,
+      "per_block_pair_net_extra_logical_reads_bytes": 354816,
+      "scope": "R12 one SC_TAB definition pair per block per argument invocation. Prove and each verify counted separately; no pass or elapsed measurement. R13 LOW+h24 excluded."
+    }
+  ],
+  "zero_gain_scope": "H helper wrappers build 256 rows; no arithmetic removed there. Existing public move already avoids downstream clone. No private helper/scan/fold/inversion/PCS/mask/receipt work removed.",
+  "negative": "More logical reads, not fewer: copying 16-byte Fp2 replaces hot 8-byte exp or 2-byte act loads. No peak memory/output size reduction. Machine code and full critical-path share unknown.",
+  "memory": "Candidate Rust reserves one unchanged destination Vec, no zero fill and no second prefix. Vec allocation capacity/allocator metadata/compiler temporaries unmeasured. Python slice allocation is model-only.",
+  "elapsed_seconds": 0.010462517995620146,
+  "max_rss_kib": 16976
+}

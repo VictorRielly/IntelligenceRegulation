@@ -1,0 +1,9 @@
+{
+  "pid": 3,
+  "written_utc": "2026-10-26T17:38:58.661264+00:00",
+  "command": [
+    "python3",
+    "-u",
+    "/home/victor/IntelligenceRegulation/results/zk60_sol_20261026/accept_r12.py"
+  ]
+}

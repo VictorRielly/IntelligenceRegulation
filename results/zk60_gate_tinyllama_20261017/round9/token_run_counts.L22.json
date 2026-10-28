@@ -1,0 +1,1622 @@
+{
+ "D33_reference_blocks_only": {
+  "1": {
+   "draws": 2381476,
+   "total_log2": -74.82
+  },
+  "2": {
+   "draws": 4741448,
+   "total_log2": -73.82
+  },
+  "22": {
+   "draws": 51940888,
+   "total_log2": -70.37
+  }
+ },
+ "privacy_acceptance": false,
+ "runs": {
+  "tinyllama-t32-L22-dense-pt1": {
+   "controls": {
+    "K-1 block stage draws == D33's 2,329,764": true,
+    "K-2 boundary draws == D33's 30,208": true
+   },
+   "geometry": {
+    "L": 22,
+    "T": 32,
+    "V": 32000,
+    "V_pad": 32768,
+    "boundaries": [
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_in",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_1",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_2",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_3",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_4",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_5",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_6",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_7",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_8",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_9",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_10",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_11",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_12",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_13",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_14",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_15",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_16",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_17",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_18",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_19",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_20",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_21",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_out",
+      "rows": 22,
+      "salts": 16384
+     }
+    ],
+    "endpoints": [
+     {
+      "data": 1,
+      "draws": 2816,
+      "n": 256,
+      "name": "input_endpoint",
+      "q": 256,
+      "rows": 6,
+      "salts": 2048
+     },
+     {
+      "data": 1,
+      "draws": 2816,
+      "n": 256,
+      "name": "output_endpoint",
+      "q": 256,
+      "rows": 6,
+      "salts": 2048
+     }
+    ],
+    "stages": [
+     {
+      "A": {
+       "data": 9,
+       "draws": 37120,
+       "rows": 17
+      },
+      "H": {
+       "data": 20,
+       "draws": 48126,
+       "rows": 28
+      },
+      "M": {
+       "draws": 6498,
+       "slots": 4,
+       "sum_L": 177
+      },
+      "draws": 91744,
+      "inv_rate": 4,
+      "kind": "IN",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 0
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 1
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 2
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 3
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 4
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 5
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 6
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 7
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 8
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 9
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 10
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 11
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 12
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 13
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 14
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 15
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 16
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 17
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 18
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 19
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 20
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 21
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 22
+     },
+     {
+      "A": {
+       "data": 82,
+       "draws": 456192,
+       "rows": 182
+      },
+      "H": {
+       "data": 82,
+       "draws": 151038,
+       "rows": 110
+      },
+      "M": {
+       "draws": 10690,
+       "slots": 11,
+       "sum_L": 481
+      },
+      "draws": 617920,
+      "inv_rate": 4,
+      "kind": "OUT",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 23
+     }
+    ]
+   },
+   "residuals": {
+    "draws": 52664888,
+    "liveness_degenerate_challenges_log2": -57.81,
+    "refusal_arguments_C": 17184,
+    "runs_10^6_linear_log2": -50.42,
+    "runs_2^20_linear_log2": -50.35,
+    "salts": 1265664,
+    "terms_log2": {
+     "constructor vs absorb (B10): (A + q) x 2^-256": -128.0,
+     "generator, in-model alternative: 6q x 2^-256 (ASSUMED)": -125.42,
+     "generator-key row: 3 x 4 x 2^-256": -252.42,
+     "input-dependent refusal, two-world: 2 (768 L + T + 256) / |Fp2|": -112.93,
+     "leaf-input collision: C(N_leaf,2) x 2^-256": -216.46,
+     "salt guessing: q x N_leaf x 2^-256": -107.73,
+     "sampler bias (D9): draws x 2^-96": -70.35,
+     "transcript pre-query: q x A x 2^-256": -111.14,
+     "transcript-input collision: C(A,2) x 2^-256": -223.28
+    },
+    "total_distance_log2": -70.35,
+    "transcript_queries_A": 119082
+   },
+   "transcript": {
+    "absorbs_counted": 10201,
+    "challenges_checked": 99658,
+    "final_counter": 105866,
+    "replay_ok": true,
+    "squeezes_counted_all_instances": 108785,
+    "stages": 24
+   }
+  },
+  "tinyllama-t32-L22-fixed-pt1": {
+   "controls": {
+    "K-1 block stage draws == D33's 2,329,764": true,
+    "K-2 boundary draws == D33's 30,208": true
+   },
+   "geometry": {
+    "L": 22,
+    "T": 32,
+    "V": 32000,
+    "V_pad": 32768,
+    "boundaries": [
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_in",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_1",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_2",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_3",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_4",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_5",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_6",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_7",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_8",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_9",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_10",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_11",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_12",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_13",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_14",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_15",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_16",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_17",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_18",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_19",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_20",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_21",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_out",
+      "rows": 22,
+      "salts": 16384
+     }
+    ],
+    "endpoints": [
+     {
+      "data": 1,
+      "draws": 2816,
+      "n": 256,
+      "name": "input_endpoint",
+      "q": 256,
+      "rows": 6,
+      "salts": 2048
+     },
+     {
+      "data": 1,
+      "draws": 2816,
+      "n": 256,
+      "name": "output_endpoint",
+      "q": 256,
+      "rows": 6,
+      "salts": 2048
+     }
+    ],
+    "stages": [
+     {
+      "A": {
+       "data": 9,
+       "draws": 37120,
+       "rows": 17
+      },
+      "H": {
+       "data": 20,
+       "draws": 48126,
+       "rows": 28
+      },
+      "M": {
+       "draws": 6498,
+       "slots": 4,
+       "sum_L": 177
+      },
+      "draws": 91744,
+      "inv_rate": 4,
+      "kind": "IN",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 0
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 1
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 2
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 3
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 4
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 5
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 6
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 7
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 8
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 9
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 10
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 11
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 12
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 13
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 14
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 15
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 16
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 17
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 18
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 19
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 20
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 21
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 22
+     },
+     {
+      "A": {
+       "data": 82,
+       "draws": 456192,
+       "rows": 182
+      },
+      "H": {
+       "data": 82,
+       "draws": 151038,
+       "rows": 110
+      },
+      "M": {
+       "draws": 10690,
+       "slots": 11,
+       "sum_L": 481
+      },
+      "draws": 617920,
+      "inv_rate": 4,
+      "kind": "OUT",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 23
+     }
+    ]
+   },
+   "residuals": {
+    "draws": 52664888,
+    "liveness_degenerate_challenges_log2": -57.81,
+    "refusal_arguments_C": 17184,
+    "runs_10^6_linear_log2": -50.42,
+    "runs_2^20_linear_log2": -50.35,
+    "salts": 1265664,
+    "terms_log2": {
+     "constructor vs absorb (B10): (A + q) x 2^-256": -128.0,
+     "generator, in-model alternative: 6q x 2^-256 (ASSUMED)": -125.42,
+     "generator-key row: 3 x 4 x 2^-256": -252.42,
+     "input-dependent refusal, two-world: 2 (768 L + T + 256) / |Fp2|": -112.93,
+     "leaf-input collision: C(N_leaf,2) x 2^-256": -216.46,
+     "salt guessing: q x N_leaf x 2^-256": -107.73,
+     "sampler bias (D9): draws x 2^-96": -70.35,
+     "transcript pre-query: q x A x 2^-256": -111.14,
+     "transcript-input collision: C(A,2) x 2^-256": -223.28
+    },
+    "total_distance_log2": -70.35,
+    "transcript_queries_A": 119082
+   },
+   "transcript": {
+    "absorbs_counted": 10201,
+    "challenges_checked": 99658,
+    "final_counter": 105866,
+    "replay_ok": true,
+    "squeezes_counted_all_instances": 108785,
+    "stages": 24
+   }
+  }
+ },
+ "what": "Gate round 9: the residual terms of a TOKEN-I/O run (public-row variant,"
+}

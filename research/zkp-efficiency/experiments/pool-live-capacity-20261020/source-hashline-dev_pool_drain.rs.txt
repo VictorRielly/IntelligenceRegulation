@@ -1,0 +1,22 @@
+pub fn dev_pool_drain() -> usize {
+    let n = {
+        let mut pool = POOL.lock().unwrap();
+        let n = pool.len();
+        pool.clear();
+        n
+    };
+    // THE DRIVER FREES ASYNCHRONOUSLY on this box, and that is the whole trick: measured with
+    // `dev_mem_info` at Mistral width, dropping 2.5 GB of pooled buffers left `cuMemGetInfo`
+    // reporting the SAME 494 MiB free, and the memory only appeared several allocations later.
+    // Without this synchronize the next big allocation (the H commit's rows x nn buffers) sees
+    // a full card and either fails outright or is served by WSL's host-memory paging, which is
+    // what made layer 1 of the 32-layer pass 2.7x slower than layer 0 (and, in another run,
+    // panic). Syncing is value-neutral: it only waits for work already enqueued.
+    if n > 0 {
+        if let Some(g) = gpu() {
+            let g = g.lock().unwrap();
+            let _ = g.dev.synchronize();
+        }
+    }
+    n
+}

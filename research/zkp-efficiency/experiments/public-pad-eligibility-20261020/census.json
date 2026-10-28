@@ -1,0 +1,132 @@
+[
+  {
+    "name": "frozen toy",
+    "context_tokens": 32,
+    "hidden": 16,
+    "log_cols": 8,
+    "cube_entries": 512,
+    "support": false,
+    "reachable_nonzero_pad_counts": [
+      0
+    ],
+    "accepted_challenges": 64,
+    "source_scope": "gpu+r9"
+  },
+  {
+    "name": "125M",
+    "context_tokens": 512,
+    "hidden": 2048,
+    "log_cols": 14,
+    "cube_entries": 1048576,
+    "support": false,
+    "reachable_nonzero_pad_counts": [
+      0
+    ],
+    "accepted_challenges": 64,
+    "source_scope": "gpu+r9"
+  },
+  {
+    "name": "development rung",
+    "context_tokens": 24,
+    "hidden": 192,
+    "log_cols": 10,
+    "cube_entries": 8192,
+    "support": true,
+    "reachable_nonzero_pad_counts": [
+      11
+    ],
+    "accepted_challenges": 63,
+    "source_scope": "gpu+r9"
+  },
+  {
+    "name": "TinyLlama T32",
+    "context_tokens": 32,
+    "hidden": 5632,
+    "log_cols": 12,
+    "cube_entries": 262144,
+    "support": true,
+    "reachable_nonzero_pad_counts": [
+      11
+    ],
+    "accepted_challenges": 63,
+    "source_scope": "gpu+r9"
+  },
+  {
+    "name": "TinyLlama T64",
+    "context_tokens": 64,
+    "hidden": 5632,
+    "log_cols": 13,
+    "cube_entries": 524288,
+    "support": true,
+    "reachable_nonzero_pad_counts": [
+      11
+    ],
+    "accepted_challenges": 63,
+    "source_scope": "gpu+r9"
+  },
+  {
+    "name": "TinyLlama T128",
+    "context_tokens": 128,
+    "hidden": 5632,
+    "log_cols": 14,
+    "cube_entries": 1048576,
+    "support": true,
+    "reachable_nonzero_pad_counts": [
+      11
+    ],
+    "accepted_challenges": 63,
+    "source_scope": "gpu+r9"
+  },
+  {
+    "name": "8B T32",
+    "context_tokens": 32,
+    "hidden": 14336,
+    "log_cols": 13,
+    "cube_entries": 524288,
+    "support": true,
+    "reachable_nonzero_pad_counts": [
+      11
+    ],
+    "accepted_challenges": 63,
+    "source_scope": "gpu+r9"
+  },
+  {
+    "name": "8B T64",
+    "context_tokens": 64,
+    "hidden": 14336,
+    "log_cols": 13,
+    "cube_entries": 1048576,
+    "support": true,
+    "reachable_nonzero_pad_counts": [
+      11
+    ],
+    "accepted_challenges": 63,
+    "source_scope": "r9 only"
+  },
+  {
+    "name": "8B T128",
+    "context_tokens": 128,
+    "hidden": 14336,
+    "log_cols": 14,
+    "cube_entries": 2097152,
+    "support": true,
+    "reachable_nonzero_pad_counts": [
+      11
+    ],
+    "accepted_challenges": 63,
+    "source_scope": "r9 only"
+  },
+  {
+    "name": "synthetic P3 lift",
+    "context_tokens": 1,
+    "hidden": 1,
+    "log_cols": 8,
+    "cube_entries": 256,
+    "support": true,
+    "reachable_nonzero_pad_counts": [
+      11
+    ],
+    "accepted_challenges": 63,
+    "source_scope": "synthetic geometry only"
+  }
+]

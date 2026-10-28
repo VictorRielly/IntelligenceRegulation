@@ -1809,3 +1809,421 @@ Start tree = the R7 freeze (36a8aed1..., working copy unchanged).
     (the norm quotient's x g Cn term), p/2 ~ 2^63, margin ~2^19.
 - 13:37 UTC `r8_chain.sh` launched (check -> CLIs -> compat re-verifies of
   b7 (97c4acda...), 8B T32 and TinyLlama T32 under R8 -> suite -> freeze).
+- 13:42 UTC first R8 check: 74 passed, 1 failed — my own door test expected
+  tn 11 (and ceps 2^40) to be admissible at the rung; the door REFUSED them:
+  a norm window of exactly 32 bits needs no scaled top-limb pin, so the H
+  plane list moves (52 -> 50 at the rung). That is the plane-list guard in
+  `with_layer_calibration` working; the test now lists them as refusals
+  ("moves the plane list"). Consequence for exports, sent to the
+  coordinator: at the trained profiles the norm window is exactly 32 bits
+  (TinyLlama tn 10 at width 2048, 8B tn 9 at width 4096), so per-layer
+  norm_tn must stay the run's (lower moves the plane list, higher leaves the
+  class), while norm_ceps is free over its class (bits(D_max) stays). The
+  fully per-layer 4-layer stack test PASSED on this first run. Outputs kept in
+  `r8/attempt1-tn-test/`; chain relaunched 13:43 UTC (check tree 7f64276a...).
+- 13:44 UTC export format sent to the coordinator (eleven keys; null in
+  profile_constants + listed; manifest values; classes; the 32-bit-window
+  rule for tn; base = most common combination; parity unchanged).
+- 13:43-13:51 UTC R8 targeted check: 75 passed, 0 failed, 7 ignored (heavy)
+  — all six new R8 tests plus the R6/R7 ones. CPU + GPU CLIs
+  (`r8/binaries.sha256`: CPU e95fc03c..., GPU 3eba4de0...).
+- 13:52-13:54 UTC **compat GREEN under R8** [MEASURED, shared box]: the R8
+  CLI re-verified, read-only (`statement-checked`, byte check against the R6
+  published statement/), the R6 **b7 T128 per-layer-sh_s run, pin
+  97c4acda...** (verify 44.4 s) — so an sh_s-only per-layer identity AND its
+  stage schedule lines are unchanged under R8 — and the run-wide 8B T32
+  (259dad7c..., 36.0 s) and TinyLlama T32 (9b71dfb0..., 8.6 s) runs.
+- 14:25-14:38 UTC **r8-suite GREEN**: 29 targets, 707 passed, 0 failed, 31
+  ignored [MEASURED 809 s wall, peak RSS 4.40 GiB, shared box].
+- **R8 tree frozen for review at 2026-10-19T14:38:35Z, sha256 manifest
+  `results/zk60_1b_native_20261017/r8/manifest_frozen.json`** (tree
+  7f64276abeceff666ff1269754bec83e0b0867b5d2812ae469bf76324d92ffb9, 220
+  files; copy `r8/frozen-tree/`, note `r8/FROZEN.txt`, patch
+  `r8/r8-vs-r7.patch` 1,042 lines over 10 files; CLIs built from this tree;
+  R7 stays frozen).
+- Owed after R8 (not blocking the freeze): the Python-reference parity at
+  per-layer constants on a real export — the first per-layer export the
+  fidelity lane writes in this format, run through `stack-prove` (parity is
+  bit-exact against the export's x_out at every layer or refused).
+- 14:45 UTC (coordinator) the fidelity lane's two per-layer exports in the
+  R8 format (`results/zk60_fidelity_parity_20261019/exports/`):
+  `tinyllama_dg_rot1_T128` (profile sha256 b01a6db1...; per-layer exp_e_s,
+  norm_cn_a, norm_cn_m, sh_ao, sh_h, sh_s, sh_z, silu_member; run-wide tn 10,
+  ceps 74429, qkv 8, gate 8, o 9, f_e 9) and `llama3_8b_pg_rot1_b7voc0_T128`
+  (26fc103b...; per-layer exp_e_s, sh_s, silu_member). Queued
+  `r8_fid_runs.sh` (detached): `r8_stack.sh` (the R6 stack script with the
+  R8 CLI and r8/ paths) on each, seq ho00: prove (parity bit-exact at every
+  layer against the Python reference's x_out, or refused) -> fresh verify
+  --controls from a real seq-free verifier copy (the verifier publishes) ->
+  byte re-check; then `r6/r6_b7_report.py` (now also lists every layer's own
+  constants and the run calibration) and the box label.
+- 15:59-16:04 UTC **(1) TinyLlama dg T128, per-layer, R8 CLI**
+  (`r8/stack-tinyllama_dg_rot1_T128-ho00-cpu/report.json`) [MEASURED, n=1,
+  **shared box**: the fidelity lane's light `fp-L_vocab0_8b_voc0_T32`
+  overlapped 88 s of the prove]. Admitted after a 48 min budget wait.
+  * identity **caf6ced22fbb87a94c1f571a96faf278815668996863146805c9d2eea76c9165**;
+    **parity bit-exact at every layer (22 of 22, seq ho00) against the
+    export's x_out — the Python integer reference (tlcalib.i_block) at each
+    layer's own constants: R8's owed parity check, PASSED**; receipt
+    497,665,904 B (= the run-wide pg_rot1_b4 T128 receipt: per-layer
+    constants move no plane).
+  * prove total 183.2 s = sealing 22.8 s + prove_run 160.3 s (witness
+    rebuilds 3.2 s: 18 of 22 witnesses kept, 4.11 GB); VmHWM 7,700 MiB,
+    guard peak RSS **7.52 GiB against a declared need of 5.5 (cap 8)**: the
+    4 GiB witness cache dominates at TinyLlama T128; the R5 T128 run peaked
+    at 3.63 GiB. No harm (min available 3.84 GiB) but the need was
+    under-declared: future TinyLlama T128 stacks declare need 8 with cache 4,
+    or use cache 0-1.
+  * fresh verify with controls: verified (13.9 s), **11/11 controls refused**,
+    statement published by the verifier; byte re-check: verified (12.5 s),
+    statement-checked.
+  * the run's calibration (base) = the most common combination of the six
+    per-layer fields; every layer's combination is distinct, so the tie goes
+    to the smallest in canonical order (sh_s first): layer 7's (sh_s 5,
+    cn_a 2361, cn_m 598, sh_ao 4, sh_h 16, sh_z 4; run-wide tn 10, ceps 74429,
+    qkv 8, o 9, gate 8). The other 21 layers record their own differing
+    fields in statement.json (e.g. layer 0: sh_s 6, cn_a 1253, cn_m 1444,
+    sh_ao 7, sh_h 14, sh_z 8); the table keys exp_e_s / silu_member per layer
+    as before.
+- 16:04-16:16 UTC **(2) 8B b7voc0 T128 (b7 with layer 0 recalibrated over
+  the whole vocabulary), R8 CLI**
+  (`r8/stack-llama3_8b_pg_rot1_b7voc0_T128-ho00-cpu/report.json`)
+  [MEASURED, n=1, **quiet box** by the guard history (guarded jobs only)]:
+  * identity **5585f5eed7a24a559ce76ddbd0413ddffd877637efb07d29bbd9408b4fc5a3b4**;
+    **parity bit-exact at every layer (32 of 32, seq ho00)** against the
+    export's x_out (the Python integer reference at each layer's constants);
+    receipt 922,711,264 B (= b6 / b7).
+  * prove total 478.7 s = sealing 84.8 s + prove_run 393.8 s (witness
+    rebuilds 98.3 s, cache 0); load 27.2 s; VmHWM 6,849 MiB, guard peak RSS
+    6.69 GiB / cgroup 9.76 GiB (cap 10.5).
+  * fresh verify with controls: verified (42.7 s), **11/11 controls
+    refused**, published by the verifier; byte re-check verified (34.4 s).
+  * per-layer statement: run calibration tn 9, cn_a 2092, cn_m 1424, ceps
+    78617, ao 3, qkv 8, score 6, o 9, gate 8, product 14, down 4, f_e 9; ONE
+    layer with own constants: layer 1 `sh_s` 7 (as b7); layer 0's
+    recalibration is in its words and table keys (exp_e_s 2, SiLU [-4, -12]),
+    not in a calibration constant.
+  * against the quiet R5b b6 T128 run (432.5 s total, prove_run 358.3 s) this
+    is x1.10 on prove_run, and every phase is ~8-10% slower alike (commit
+    121.3 vs 111.7 s, residual 49.9 vs 43.3 s, ...). R8 changes no kernel and
+    31 of 32 stages use the run shape unchanged, so a uniform slowdown at n=1
+    points to machine state (clocks, unguarded load), not R8; not a
+    measured regression.
+  * phase tables: `r8/fid_runs_phases.txt`.
+
+## Round 9 (coordinator, 2026-10-19 ~16:2x UTC): build DD (per-row division dictionary) exactly as D30
+
+Spec: `docs/zkmatrix-poc/ZK60_DECISIONS.md` D30 (conditions 1-6) +
+`results/zk60_gpt_nonlinear_review_20261018/dd_check/CHECK.md` B-1..B-8,
+E-1..E-4, P-4 + REVIEW.md §R2.4. Requirements: profile-gated (off by
+default, existing receipts byte-identical), cap refusal at the door, every
+slot constrained, tuples + multiplicities in A before beta/gamma/alpha,
+distinct tag with beta^2 for P, table helper in the single value-0 sum claim
+(sign -1), each plane opened at its own site, prover inverts every slot;
+tests first (completeness on a generic honest witness; mutations D-3, D-4,
+D-8, helper out of the sum claim, cap exceeded); counts and measurements DD
+on/off; freeze R9 (r8/frozen-tree untouched); write set = tree + r9/ +
+ledger. Not a soundness or privacy acceptance.
+
+- 16:2x UTC n_col per layer for every current export (`r9/r9_ncol.py` ->
+  `r9_ncol.json`) [COUNTED]: TinyLlama worst 24 (8/14/24 at e_s 3/2/1),
+  8B b6/b7/b7voc0 worst 19 (6/11/19), the older 8B pg_rot1_T32 (e_s 1)
+  exactly 32 (no slack). All within cap 32.
+- Plan sent to the coordinator: Sum key (D30 allows row id or Sum; CHECK
+  S-4's option), cap 32, Standalone dictionary slot appended last (slot 23,
+  present only on DD profiles so non-DD transcripts do not move), DD profile
+  strings for TinyLlama T128 / 8B T128 (+ a small dev rung for tests); DD
+  profiles must have an unpadded dictionary domain (refused by name
+  otherwise; B-3 vacuous there); byte-identity of existing receipts shown by
+  seeded proofs (golden digests from an R8 copy built under r9/) plus R8
+  receipts verifying under R9 — receipts use OS randomness, so re-proving
+  never repeats bytes.
+- 16:5x UTC **R8 golden digests recorded** (check (a)), `r9/r8-golden-tree/`
+  = a copy of `r8/frozen-tree/` plus the test file `r9/r9_golden_tests.rs`
+  (seeded `ZkRng::new` in test code only; one block through
+  `protocol::prove_core` with a fixed transcript prefix and deterministic
+  endpoint data; digest of the three roots, every slot proof, the three
+  openings, the IO claims, the absorb order and the final transcript state):
+  TinyLlama T128 `782b64c97a88cba4c6c34a2fecb73132f26d5f54adc9bd159f3d6cf9df4205c0`
+  (23 slots, 69 absorbs), Llama-3-8B T128 (bands attn 6 / gate 8)
+  `05a22d72a892aff5fb2e35da4d0ab0c894d696f2e6afa542b6ecece5aeb9f4db`.
+- 17:0x-17:3x UTC R9 build, first pass (live tree; uncompiled until the
+  guard admits the check):
+  * shape.rs: three DD profiles (TinyLlama T128 `...-t128-trained-ddict/1`,
+    8B T128 `...-llama-3-8b-t128-ddict32/1`, dev rung `...-rung-dd-t32-dev/1`
+    T32/d256/f512/8 heads of 32/2 KV; lengths equal existing ones), `DD_CAP`
+    32, field `dd_cap` derived from the profile in `Shape::build`,
+    `check_dd_geometry` (unpadded dictionary: refused by name), `Dom::Dd`
+    sizes, DD plane lists (S keeps 5 planes; Dd = P_dict, P limbs, rho/sigma
+    limbs, M_dd, below the histograms), lookups (S 4; Dd = the division
+    limbs + pins), claim sites (SZC + the tuple helper; SC_DD = Dd planes +
+    A_SUM, Dd helpers + the table helper), `n_slots` 23/24, `m_rows`,
+    `n_functionals` 34/36, `lookup_doms`, A/H groups +2/+1, receipt bytes;
+    BASE_DEGREE[SC_DD] = 4; trained registries / rope theta / pinned sources
+    extended; DD constructors.
+  * layout.rs: `Dom::Dd`, `SC_DD` = 23, `MAX_SLOTS` 24, `TAG_DD` = 141,
+    SLOT_NAMES/KINDS (Standalone), Ids/HIds DD segment tables (`pdict`,
+    `mdd`, `stuple`, `first_dd`, `gdd`; `is_table` includes `gdd`), DD
+    lookups, per-profile slot prefix, `describe` adds the dictionary line
+    (cap, e-column rule, key Sum, tuple with TAG_DD, every slot constrained,
+    multiplicities in A, table helper in the sum claim, cap refusal) and the
+    24th slot line only on a DD profile.
+  * argument.rs: `Ctx.g_dd`; `SC_SZC` DD arm (c0, c1, byte helpers, exp
+    pair, the tuple helper `h (alpha - (gTAG + Sum + beta mask E + beta^2
+    P)) - 1`; no division clauses); `SC_DD` (c2/c3/c4 at every slot with the
+    public e column, the byte helpers, the table helper `g (alpha - tau) -
+    M_dd`); the argument loops over `n_slots`; test-only lapse switches
+    (D-3 gate, D-4 key, sum-claim exclusion).
+  * protocol.rs: dictionary tuple builders, the tuple and table helper
+    columns (every slot inverted, `inverses` refuses a zero), DD miss count
+    + named refusal in prove_core AND the sealing-pass check, the D-8 hook,
+    `g_dd` in both Ctx, the lapse in `logup_sum_claim`.
+  * witness.rs: no per-entry limbs at DD; per row the dictionary (sorted
+    {0} U outputs padded with 0; floor quotient, remainders, limbs at every
+    slot; M_dd on the first slot holding the value); test-only mutation
+    witnesses (D-3, D-4, wrong P) recomputing the PV accumulator.
+  * private_block.rs: `dd_e_column` / `dd_e_column_of` (cap refusal by
+    name) and the DD check in `BlockPublic::check_for_shape`.
+  * run.rs (DD run profiles, `rung_dd`), trained_block.rs (`--dd` on all four
+    commands, DD geometries, SCOPE_DD, cap refusal at the loader),
+    trained_statement.rs (pinned sources), pad.rs / hash_domain.rs /
+    timing.rs / wire.rs (24th slot, m_rows), test literals.
+  * tests: r9_golden_tests.rs (goldens above), r9_tests.rs (gate / check
+    (c), DD door, cap 32 passes / 33 refuses, over-cap refused before any
+    header, completeness on a generic dense witness vs the independent
+    kernel + one-block bound run, mutations D-3 / D-4 / sum claim (pass the
+    lapse, rejected as built), D-8 (rejected), T128 DD counts).
+- 18:2x UTC **r9 type check clean** (lib + tests, after porting the test
+  literals: Ctx.g_dd, lookup_doms() now a Vec, the 24-slot arrays, the
+  registry list) and **r9_tests 10/10 GREEN on the first run**, then
+  tightened (the prover must produce a receipt; the verdict is the
+  verifier's) and re-run with output, 10/10 [MEASURED 197 s incl. build]:
+  * completeness: generic dense block at the DD rung (exp e_s 2, heads that
+    differ): witness == the independent reference kernel bit for bit, every
+    slot the floor quotient, multiplicities count every entry once, zero
+    dictionary misses; one-block bound run proves and verifies (segment
+    5,619,992 B).
+  * D-3 (unconstrained slot): passes the lapse; as built rejected by the
+    verifier at slot 23 (the dictionary zero-check). D-4 (row key dropped):
+    passes the lapse; as built rejected at H's value-0 sum claim group. The
+    dictionary helpers out of the sum claim: passes the lapse; as built
+    rejected at the sum claim group. D-8 (counts chosen after alpha):
+    rejected at slot 23 (`g (alpha - tau) - M_dd` against the committed
+    M_dd). Over-cap block (e_s 0: 44 slots): refused at the run statement
+    by name, before any header; the witness builder and the block check
+    refuse too. Cap: 8B T32 e_s 1 table (n_col exactly 32) passes; 33
+    refused by name. Padded DD shape refused by name.
+  * counted at T128 [COUNTED, layout]: TinyLlama committed 68,403,200 ->
+    63,848,448 elements (-6.66%), U8 lookups 28,999,680 -> 25,460,736
+    (-12.20%), A rows 1993 -> 1871, H rows 2182 -> 2026; Llama-3-8B committed
+    117,882,880 -> 113,328,128 (-3.86%), U8 51,937,280 -> 48,398,336
+    (-6.81%); the counted receipt grows slightly (23,049,192 -> 23,284,200 B
+    and 29,300,856 -> 29,535,864 B: one more slot, its sites and two groups).
+- 19:0x UTC first full R9 suite (r9-suite0): 712 passed, 5 failed — all
+  registry / census coverage (the s24 / s25 / s33 profile registries did not
+  list the six new DD profile strings; the pad degree-range test iterated the
+  24-entry slot array of a non-DD shape) and the capture writer's slot list
+  (bounded to `n_slots`). Fixed by registering the DD shapes / runs in
+  `trained_calib_tests::registered_trained_{shapes,runs}` (+ the run-shape
+  helper for the DD rung); 22:28 UTC census rerun 46/46 green (s24, s25 —
+  the hash-input census now measures every DD profile's kinds — s33, pad).
+- 22:31 UTC `r9_chain.sh` launched (check -> seeded golden on the live tree
+  -> CPU + GPU CLIs -> R8 receipts under the R9 CLI -> `--dd` refusal probe
+  -> DD runs on the two exports -> full suite -> freeze; check tree
+  af90c703..., 222 files).
+- 22:3x UTC **counts vs the review's model** (`r9/r9_counts.py`, which is
+  dd_check.py part B's counts() parameterised by geometry) [COUNTED]: the
+  model reproduces the review's anchor (8B T512: 663,257,088 -> 525,172,736
+  committed, -20.82%; U8 -28.25%; element-terms -20.11%), and at T128 it
+  equals the BUILT layout exactly (A rows, H rows, U8 totals) for both
+  profiles: Llama-3-8B T128 committed -3.86%, U8 -6.81%, element-terms
+  -3.88%; TinyLlama T128 committed -6.66%, U8 -12.20%, element-terms -6.92%.
+  T128 is where the dictionary is 1/4 of the score domain (T512: 1/16), so
+  the saving scales down as the proposal said (its pre-correction T128
+  figure was -4.3% at 8B).
+- `r9_chain.sh` results (chain.done = 0; guard lines in `r9/chain.out`; the
+  chain waited for admission behind other lanes' jobs between steps):
+  - 23:57:03 UTC targeted check (r9_tests, trained_stack/block, r6, r8,
+    s24/s25/s33, pad, trained_statement, review_e_, cs_port) green, 47 s.
+  - 02:57:49 UTC **check (a)** seeded golden on the live tree: the R9 digests
+    EQUAL the R8 goldens recorded from `r9/r8-golden-tree/` (a copy of
+    r8/frozen-tree + the golden test): TinyLlama T128 782b64c9...4205c0,
+    Llama-3-8B T128 05a22d72...f4db; 23 slots, 69 absorbs each (no 24th slot).
+  - 02:58:59 / 03:00:16 UTC CPU and GPU CLIs (`r9/binaries.sha256`: CPU
+    53c2ccac941a7dae..., GPU fc19b342da3ea0b7...).
+  - 03:00:32 / 03:01:23 UTC **check (b)**: the R9 CLI (no `--dd`) verifies
+    both R8 T128 receipts read-only against their published statements
+    (TinyLlama 497,665,904 B, caf6ced2..., 16 s; 8B 922,711,264 B,
+    5585f5ee..., 51 s); its statement rendering is byte for byte the R8
+    statement, segments.json included, so the counted segment lengths are
+    equal.
+  - `--dd` refusal probe at the 8B T32 export: exit 1, no run directory,
+    "DD (D30) is registered only at TinyLlama T128, Llama-3-8B T128 and the
+    DD development rung, not at Llama3_8B(32)".
+  - DD runs (R9 CLI `--dd`, CPU, HL_PB_TIMING on), fidelity-lane exports,
+    parity bit-exact at every layer, verify `--controls` 11/11 refused,
+    statement published by the verifier, byte re-check passed:
+    TinyLlama dg T128 prove 04:23:36-04:25:54Z, identity d5721276...2e4b,
+    prove total 137.7 s / prove_run 123.0 s (R8 off: 183.2 / 160.3 s),
+    peak RSS 7.28 GiB, verify 10.7 s, receipt 502,836,080 B (off
+    497,665,904); Llama-3-8B b7voc0 T128 prove 04:29:24-04:37:19Z, identity
+    4da580bd...2520, prove total 474.9 s / prove_run 391.8 s (off 478.7 /
+    393.8 s), peak RSS 6.56 GiB, verify 37.5 s, receipt 930,231,520 B (off
+    922,711,264). [MEASURED] shared box, n=1: TinyLlama overlapped
+    fp-L_export_l8_dg_w16u (light, 73 s) and gate-tk7-cli-l2-dense-everything
+    (light, 138 s); 8B overlapped gate-tk7-cli-tl-controls (light, 13 s).
+    The TinyLlama -23% is NOT a DD effect: every phase fell ~25%, feed-forward
+    (21.5 -> 16.4 s) and residual (29.1 -> 22.3 s) included, which DD does not
+    touch, so it is box state between the R8 and R9 runs; at 8B the phases
+    are flat (attention 46.6 -> 47.6 s, commit 121.3 -> 118.4 s). Tables:
+    `r9/stack-*-dd/dd_vs_off.json` (`r9/r9_measure.py`).
+  - DD on/off counts per run [COUNTED from HL_PB_TIMING]: committed words
+    TinyLlama 68,403,200 -> 63,848,448 (-6.66%), 8B 117,882,880 ->
+    113,328,128 (-3.86%); byte lookups 28,999,680 -> 25,460,736 (-12.2%),
+    51,937,280 -> 48,398,336 (-6.81%); zero-check element-terms (runtime
+    convention) 122,977,536 -> 116,948,224 (-4.9%), 217,315,584 ->
+    211,286,272 (-2.77%), slot 23 adds 4,456,448 per run.
+  - 04:52:07 UTC full suite: 29 targets, 717 passed, 0 failed, 33 ignored
+    (681 s); manifest unchanged since the check (af90c703...).
+- **R9 tree frozen for review at 2026-10-20T04:52:07Z, sha256 manifest
+  results/zk60_1b_native_20261017/r9/manifest_frozen.json** (tree
+  af90c703ed7b2791d1771dd6e443edf4339bf5fa84a32e0d4a57ed38c3b0a41a, 222
+  files; copy `r9/frozen-tree/`; `r9/FROZEN.txt`; `r9/r9-vs-r8.patch`, 2911
+  lines, 28 files). r8/frozen-tree re-hashed after the freeze: 220 files,
+  tree 7f64276a... unchanged. NOT a soundness or privacy acceptance; D30's
+  next steps are the independent soundness review, then rank lemma / NL-1 /
+  gate passes on DD captures.
+
+## Round 10 (coordinator, 2026-10-20 ~05:00 UTC): weight-range levers, paper and counting only
+
+Coordinator: R9 accepted as built and frozen (D24 review r9 running on it).
+R10 = cost, from R9's layout, (a) two-byte requant remainders at the matmul
+output sites, (b) per-output-channel public 12-bit multipliers, (c) cheaper
+variants, at TinyLlama T128 / 8B T128 / 8B T512, against R9 non-DD and DD;
+name the planes, ranges, slots and the D24 / D30 re-reads. No prover code.
+
+- 05:0x-05:21 UTC `r10/r10_weight_range_cost.py`: a replica of R9's counting
+  (shape.rs plane lists / lookups / helpers / claim sites / slots / totals /
+  receipt rows; argument.rs per-slot tables) with each weight-matmul site's
+  remainder as a parameter. ANCHOR (asserted): it equals every size the
+  prover printed in HL_PB_TIMING for the four R9-tree T128 runs (A/H words,
+  U8, mask rows, all 23/24 slots' element-terms), the review's 8B T512
+  anchor (663,257,088 / 525,172,736) and the fidelity lane's earlier (a)
+  count to the element (TinyLlama 70,860,800 committed, receipt +307,312 B).
+- 05:15 UTC `r10/r10_word_use.py` (guarded, light, 29 s, 0.44 GiB) on the
+  8B dg, TinyLlama dg and 8B b7voc0 exports [COUNTED]: unused bits k_t
+  q/k 1-3, v 0-1, ao 0 (dg) / 0-3 (b7voc0), g 0-2, up 0-4, z 0-3; so (a)
+  needs two bytes at q/k/v/g, z two bytes with a union pin (sh 4-10), a NEW
+  one-byte up remainder (sh_u 0-4), ao unchanged; (b) needs s 12-23: three
+  bytes at q/k/v/g/z, ao three with union (s 15), up two.
+- Results [COUNTED, committed / U8 / element-terms vs R9 non-DD, TinyLlama
+  T128 | 8B T128 | 8B T512]: (a) exact need +8.29/+13.79/+6.55 | +9.59/
+  +15.65/+7.60 | +6.73/+10.61/+5.15; (a) without up +3.59 | +4.20 | +2.91
+  committed; (c2) narrow per-channel multipliers in (a)'s windows (+ ao two
+  bytes) +8.72 | +10.06 | +7.05; (c3) int12 words +9.53 | +10.98 | +7.70;
+  (b) exact need +19.07 | +21.96 | +15.39; (b) three bytes everywhere +22.95
+  | +26.44 | +18.57. Prove time [MODEL, phase-scaled]: 8B T128 (a) need
+  +6.0% total (+8.3% argument), (b) need +13.6% (+18.6%). Per-group
+  multipliers cost the same as per-channel at equal width; the fused up
+  (int24 u + three-byte product remainder) is dominated. D24 must be re-read
+  (new windows, no-wrap up to 2^48 for (b), the new up host clause, the
+  multiplier fold and binding, D31 pairs); D30's construction is untouched
+  (recount its N-dependent lookup term and D27's bound).
+- 05:21 UTC written: `r10/WEIGHT_RANGE_COST.md` (+ `r10_weight_range_cost.json`
+  / `.out`, `r10_word_use.json`). Not a soundness or privacy acceptance.
+
+## Round 11 (coordinator, 2026-10-20): activation-side levers, paper and counting only
+
+Coordinator: the fidelity lane measured that (c2) captures the whole weight
+lever at 8B (dg 1.28 -> 1.17 / 1.15); every activation site float gives
+1.13 / 1.11; D32's 1.01 needs both. Count (1) norm outputs int12/int16,
+(2) attention core (F_P 10-12, score window, PV), (3) gate/SiLU output and the
+product remainder, (4) residual (only if cheap), alone and on top of (c2), at
+TinyLlama T128 / 8B T128 / 8B T512, against R9 non-DD and DD; give the
+stacked full-parity total.
+
+- ~06:00-07:00 UTC `r11/r11_activation_cost.py`: R10's replica (anchor
+  re-asserted) + S-domain extras, isqrt limbs, public tables per slot, and a
+  window calculator (L = ceil(max shift / 8), one pin if min >= 8(L-1));
+  self-checks: the empty configuration == R9, c2 == R10 a3_1.
+- Findings [COUNTED]: F_P 10-12 costs nothing (p stays two limbs to F_P 15;
+  sh_o = F_P stays in 9..=16; DD's P_dict limbs unchanged, cap independent of
+  F_P); norm outputs int16 via tn - 8 cost the norms nothing net (window 32 ->
+  24, one remainder limb fewer per norm offsets the y/nm limbs) and are
+  cheaper than int12 (cn x 16); their cost is the downstream windows (on c2:
+  q/k/v/g three bytes, up two). Per-group SiLU: 0 planes / 0 lookups as
+  claimed, but one public group column (+1.3-2.0% element-terms). SiLU input
+  int12: free (4096-row table inside Dom::Tab). Finer SiLU output -> product
+  remainder three bytes: +4.3/+4.9/+3.6% committed on c2 (F domain). Score
+  int12 makes DD infeasible (cap). Residual int24: +4.9-7.1% alone, needs a
+  fifth norm limb (D16) unless combined with the tn route; not in LOW/MID.
+- Stacks vs R9 non-DD (committed; time [MODEL]): (c2) +10.06% 8B T128 / +7.05%
+  T512; LOW (c2 + norm int16 + F_P 12 + attention words + per-group SiLU +
+  SiLU input int12) +22.35% (time +15.1%) / +17.88%; MID (+ product three
+  bytes) +27.74% (+17.8%) / +21.70%; HIGH +29.16% (+18.9%) / +26.10%; + residual
+  +35.36% / +28.46%. TinyLlama T128: LOW +20.98, MID +25.68, HIGH +27.74.
+- 07:01 UTC written: `r11/ACTIVATION_COST.md` (+ `r11_activation_cost.json` /
+  `.out`). Not a soundness or privacy acceptance.
+
+## Round 12 (coordinator, 2026-10-21 ~02:25 UTC): Shieldstral-1.0-3B (D38) — F1 / F2 / F3 and its profiles
+
+Coordinator: build, test-first, on top of R9 (DD kept): F2 head_dim decoupled
+from d / heads in every block relation, the loader and the door (existing
+profiles byte-identical, checks a-c as in R9); F1 YaRN / llama3 RoPE as public
+tables only, verified against transformers; F3 tied embeddings in the loader
+and statement (both quantisations bound to one tensor digest; token lane on
+the head side); registered Shieldstral T128 / T256 profiles (non-DD and DD)
+with counted floors and n_col vs cap, a generic dense witness at Shieldstral's
+shapes; the cost per proof at T 128 / 256 / 512 with and without DD; freeze
+R12. Later input (multimodal lane): confirm the padding facts and memory at
+T128 / T256, cost a split-width layout as a paper R12b.
+
+- 02:30 UTC working tree == R9 freeze (af90c703...). Pins fetched from the HF
+  API and files at revision 003ec7e2...: config.json sha256 a0b11229...,
+  model.safetensors LFS 87753e30..., the safetensors header (tied: no
+  lm_head; `language_model.model.embed_tokens.weight` BF16 [131072, 3072] at
+  bytes [61008, 805367376)); its raw-byte SHA-256 67a138c1... (streamed from
+  the HF range AND read from the prep lane's local copy: equal). Copies in
+  `r12/reference/`, with transformers main's `modeling_rope_utils.py`.
+- 02:4x UTC `r12/r9-golden-tree/` = r9/frozen-tree + `r12_golden_tests.rs`
+  (the four T128 shapes incl. DD, seeded, + statement identities) +
+  `r12_prefix_tests.rs` (the failing-first record on R9); recording job queued.
+- 03:0x UTC built (live tree): `rope.rs` (YaRN / llama3 inv_freq by the
+  transformers formulas in binary64; the unscaled case IS the frozen
+  generator; an attention factor != 1 refused by name); Shape::q_width /
+  q_pad, the d_pad == h_pad*head_dim refusal removed, Wo's fold over the query
+  axis (argument, witness, pad indicators, attention statement, kernel crate,
+  loader, test helpers); profiles SHIELDSTRAL_T128/T256 (+ DD) at 65 bytes,
+  run profiles at 67, the decoupled-head dev rung (T32 / d192 / q512) at 47 /
+  45; pins (source, RoPE base and transform, tied tensor); the statement's
+  rope-scaling and tied-embedding fields (encoded only when present); loader
+  geometries shieldstral-3b-t128 / -t256 / rung-hd-t32-dev, rope_scaling and
+  tied_embeddings reading, token_io manifests streamed and checked.
+- 03:1x UTC `r12/rope_reference.py` [COUNTED]: transcription == torch f32 ==
+  installed transformers 4.48 to ~1e-7 relative; T512 table SHA-256 YaRN
+  261b32b8..., llama3 hd128 9475db38..., hd64 be90a500...; YaRN moves 22,650 of
+  65,536 entries vs unscaled at theta 1e6; f32 frequencies would move 2.
+- 03:25 UTC first r12 test run: 14 passed, 1 failed — the T256 row width: the
+  smallest counted receipt is 2^15 (45,011,240 B vs 48,025,704 at 2^14, for
+  +2.3% committed). Registered T256 at 2^15 (task 3's rule).
+- [COUNTED, R10 replica] the Shieldstral block = the 8B block at the same T and
+  row width (committed and U8 identical; element-terms +0.5%: d 3072 pads to
+  4096, one support table); padding facts and memory sent to the coordinator.
+- 03:3x UTC coordinator (urgent, F1): do not validate YaRN against 4.48.1's
+  default path. Checked: the prover implements transformers MAIN's formula
+  (original_max 16384, attention factor from mscale = 1.0, truncate); my 4.48
+  comparison used the known-good workaround config. Against the prep lane's
+  `crosscheck/rope_tables_reference.npz` (sha256 ffcb1b29...): inverse
+  frequencies BITWISE equal; split 21 / 27 / 16 (43 of 64 pairs move); the
+  2^7 integer tables differ in 0 of 65,536 (T512) and 0 of 262,144 (T2048)
+  entries; float cos / sin bitwise equal. New test pins the prep lane's T2048
+  digest 5e370a8c... (T512 digest equal to mine, 261b32b8..., independently).
+- 04:0x UTC `r12/r12_cost.py` [COUNTED replica + MODEL time / memory] and
+  `r12/SHIELDSTRAL_COST.md`: Shieldstral block == 8B block (committed, U8) at
+  every T; 26-block prove [M] T128 279 s / 277 s DD, T256 623 / 582 s, T512
+  1,473 / 1,260 s; peak [M] T128 6.7 GiB, T256 15.5 / 14.0 GiB (does not fit
+  the laptop path); split width (R12b, paper) -17..-25% committed, T256 peak
+  12.3 / 10.8 GiB; relations touched and re-reads listed.
+- 04:1x UTC the box is saturated by other lanes (budget 10.6 / 11.9 GiB, three
+  cpu jobs queued on the heavy lock): r12-t2-run (2.5 GiB) and the R9-copy
+  golden run (7.5 GiB) wait for admission.

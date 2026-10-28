@@ -1,0 +1,74 @@
+[
+  {
+    "anchor": "let resident = if chunked_now",
+    "key": "resident",
+    "lines": [
+      2880,
+      3703
+    ]
+  },
+  {
+    "anchor": "drop(d_coef);",
+    "key": "coef release",
+    "lines": [
+      2071,
+      2906,
+      3746
+    ]
+  },
+  {
+    "anchor": "let mut d_enc = match Pooled::take(&dev, rows * nn)",
+    "key": "encoded allocation",
+    "lines": [
+      2063,
+      3758
+    ]
+  },
+  {
+    "anchor": "drop(d_coef2);",
+    "key": "coef2 release",
+    "lines": [
+      3768,
+      3790
+    ]
+  },
+  {
+    "anchor": "let mut d_coef = Pooled::take_min(&dev, rmax * n)?;",
+    "key": "chunk scratch",
+    "lines": [
+      1839,
+      1923,
+      2288,
+      2341,
+      2488
+    ]
+  },
+  {
+    "anchor": "let mut tabs = Pooled::take_min(&dev, kd * l * 2)?;",
+    "key": "tables",
+    "lines": [
+      4326
+    ]
+  },
+  {
+    "anchor": "let mut keep: Vec<CudaSlice<u64>>",
+    "key": "raw kept",
+    "lines": [
+      4330
+    ]
+  },
+  {
+    "anchor": "dev.synchronize().map_err(|e| format!(\"fzc build: {e}\"))?;",
+    "key": "sync",
+    "lines": [
+      4493
+    ]
+  },
+  {
+    "anchor": "drop(keep);",
+    "key": "drop keep",
+    "lines": [
+      4494
+    ]
+  }
+]

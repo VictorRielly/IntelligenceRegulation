@@ -1,0 +1,287 @@
+{
+ "sample_user_content": "Just saw the new trailer and honestly I can't wait for the release next month. Anyone else planning to go opening night? Drop your favorite scene from the first movie below and let's talk about it.",
+ "rows": [
+  {
+   "model": "Llama-Guard-3-1B",
+   "tokenizer_source": "alpindale/Llama-Guard-3-1B",
+   "total_tokens": 234,
+   "user_content_tokens": 41,
+   "fixed_template_tokens": 193,
+   "template_tokens_before_content": 139,
+   "template_tokens_after_content": 56,
+   "verdict_tokenization": {
+    "'safe'": [
+     "safe"
+    ],
+    "'unsafe'": [
+     "unsafe"
+    ],
+    "'\\n\\nsafe'": [
+     "ĊĊ",
+     "safe"
+    ],
+    "'\\n\\nunsafe'": [
+     "ĊĊ",
+     "unsafe"
+    ],
+    "'\\n\\n'": [
+     "ĊĊ"
+    ]
+   },
+   "note": "S1-S13 default categories",
+   "prompt_tail": "line must include a comma-separated list of violated categories. <|eot_id|><|start_header_id|>assistant<|end_header_id|>"
+  },
+  {
+   "model": "Llama-Guard-3-8B",
+   "tokenizer_source": "VincentGOURBIN/Llama-Guard-3-8B",
+   "total_tokens": 241,
+   "user_content_tokens": 41,
+   "fixed_template_tokens": 200,
+   "template_tokens_before_content": 147,
+   "template_tokens_after_content": 55,
+   "verdict_tokenization": {
+    "'safe'": [
+     "safe"
+    ],
+    "'unsafe'": [
+     "unsafe"
+    ],
+    "'\\n\\nsafe'": [
+     "ĊĊ",
+     "safe"
+    ],
+    "'\\n\\nunsafe'": [
+     "ĊĊ",
+     "unsafe"
+    ]
+   },
+   "note": "S1-S14 categories",
+   "prompt_tail": " line must include a comma-separated list of violated categories.<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
+  },
+  {
+   "model": "Llama-Guard-4-12B",
+   "tokenizer_source": "unsloth/Llama-Guard-4-12B",
+   "total_tokens": 243,
+   "user_content_tokens": 39,
+   "fixed_template_tokens": 204,
+   "template_tokens_before_content": 147,
+   "template_tokens_after_content": 58,
+   "verdict_tokenization": {
+    "'safe'": [
+     "safe"
+    ],
+    "'unsafe'": [
+     "unsafe"
+    ],
+    "'\\n\\nsafe'": [
+     "ĊĊ",
+     "safe"
+    ],
+    "'\\n\\nunsafe'": [
+     "ĊĊ",
+     "unsafe"
+    ]
+   },
+   "note": "S1-S14 categories, text only",
+   "prompt_tail": "a second line must include a comma-separated list of violated categories. <|eot|><|header_start|>assistant<|header_end|>"
+  },
+  {
+   "model": "Qwen3Guard-Gen (0.6B/4B/8B)",
+   "tokenizer_source": "Qwen/Qwen3Guard-Gen-0.6B",
+   "total_tokens": 337,
+   "user_content_tokens": 41,
+   "fixed_template_tokens": 296,
+   "template_tokens_before_content": 202,
+   "template_tokens_after_content": 96,
+   "verdict_tokenization": {
+    "'Safety: Safe'": [
+     "Safety",
+     ":",
+     "ĠSafe"
+    ],
+    "'Safety: Unsafe'": [
+     "Safety",
+     ":",
+     "ĠUnsafe"
+    ],
+    "'Safety: Controversial'": [
+     "Safety",
+     ":",
+     "ĠCont",
+     "rovers",
+     "ial"
+    ],
+    "' Safe'": [
+     "ĠSafe"
+    ],
+    "' Unsafe'": [
+     "ĠUnsafe"
+    ],
+    "' Controversial'": [
+     "ĠCont",
+     "rovers",
+     "ial"
+    ]
+   },
+   "note": "prompt moderation; template ends with empty <think></think>",
+   "prompt_tail": "separated by commas. If the content is safe, use 'Categories: None'.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
+  },
+  {
+   "model": "Shieldstral-1.0-3B (card example, one policy)",
+   "tokenizer_source": "mistralai/Shieldstral-1.0-3B",
+   "total_tokens": 112,
+   "user_content_tokens": 41,
+   "fixed_template_tokens": 71,
+   "template_tokens_before_content": 71,
+   "template_tokens_after_content": 1,
+   "verdict_tokenization": {
+    "'yes'": [
+     "yes"
+    ],
+    "'no'": [
+     "no"
+    ],
+    "' yes'": [
+     "Ġyes"
+    ],
+    "' no'": [
+     "Ġno"
+    ]
+   },
+   "note": "",
+   "prompt_tail": "e else planning to go opening night? Drop your favorite scene from the first movie below and let's talk about it.[/INST]"
+  },
+  {
+   "model": "Shieldstral-1.0-3B (broad 7-category Instruct)",
+   "tokenizer_source": "mistralai/Shieldstral-1.0-3B",
+   "total_tokens": 132,
+   "user_content_tokens": 41,
+   "fixed_template_tokens": 91,
+   "template_tokens_before_content": 91,
+   "template_tokens_after_content": 1,
+   "verdict_tokenization": {
+    "'yes'": [
+     "yes"
+    ],
+    "'no'": [
+     "no"
+    ],
+    "' yes'": [
+     "Ġyes"
+    ],
+    "' no'": [
+     "Ġno"
+    ]
+   },
+   "note": "",
+   "prompt_tail": "e else planning to go opening night? Drop your favorite scene from the first movie below and let's talk about it.[/INST]"
+  },
+  {
+   "model": "ShieldGemma (2B/9B/27B), one policy",
+   "tokenizer_source": "unsloth/gemma-2-2b",
+   "total_tokens": 173,
+   "user_content_tokens": 43,
+   "fixed_template_tokens": 130,
+   "template_tokens_before_content": 31,
+   "template_tokens_after_content": 100,
+   "verdict_tokenization": {
+    "'Yes'": [
+     "Yes"
+    ],
+    "'No'": [
+     "No"
+    ]
+   },
+   "note": "one call per policy; 4 policies = 4 calls",
+   "prompt_tail": "rinciple? Your answer must start\nwith 'Yes' or 'No'. And then walk through step by step to be sure we answer\ncorrectly.\n"
+  },
+  {
+   "model": "Granite-Guardian-3.1-2B (harm)",
+   "tokenizer_source": "ibm-granite/granite-guardian-3.1-2b",
+   "total_tokens": 219,
+   "user_content_tokens": 44,
+   "fixed_template_tokens": 175,
+   "template_tokens_before_content": 92,
+   "template_tokens_after_content": 84,
+   "verdict_tokenization": {
+    "'Yes'": [
+     "Yes"
+    ],
+    "'No'": [
+     "No"
+    ]
+   },
+   "note": "includes default Granite system message",
+   "prompt_tail": " the risk definition? Your answer must be either 'Yes' or 'No'.<|end_of_text|>\n<|start_of_role|>assistant<|end_of_role|>"
+  },
+  {
+   "model": "Granite-Guardian-4.1-8B (harm, no-think)",
+   "tokenizer_source": "ibm-granite/granite-guardian-4.1-8b",
+   "total_tokens": 157,
+   "user_content_tokens": 41,
+   "fixed_template_tokens": 116,
+   "template_tokens_before_content": 3,
+   "template_tokens_after_content": 113,
+   "verdict_tokenization": {
+    "'<think>\\n</think>\\n<score> yes </score>'": [
+     "<think>",
+     "Ċ",
+     "</think>",
+     "Ċ",
+     "<",
+     "score",
+     ">",
+     "Ġyes",
+     "Ġ</",
+     "score",
+     ">"
+    ],
+    "'yes'": [
+     "yes"
+    ],
+    "'no'": [
+     "no"
+    ],
+    "' yes'": [
+     "Ġyes"
+    ],
+    "' no'": [
+     "Ġno"
+    ]
+   },
+   "note": "",
+   "prompt_tail": " text meets the criteria, return 'yes'; otherwise, return 'no'.<|end_of_text|>\n<|start_of_role|>assistant<|end_of_role|>"
+  },
+  {
+   "model": "Nemotron-3.5-Content-Safety (4B)",
+   "tokenizer_source": "nvidia/Nemotron-3.5-Content-Safety",
+   "total_tokens": 509,
+   "user_content_tokens": 43,
+   "fixed_template_tokens": 466,
+   "template_tokens_before_content": 338,
+   "template_tokens_after_content": 129,
+   "verdict_tokenization": {
+    "'User Safety: safe'": [
+     "User",
+     "▁Safety",
+     ":",
+     "▁safe"
+    ],
+    "'User Safety: unsafe'": [
+     "User",
+     "▁Safety",
+     ":",
+     "▁unsafe"
+    ],
+    "' safe'": [
+     "▁safe"
+    ],
+    "' unsafe'": [
+     "▁unsafe"
+    ]
+   },
+   "note": "",
+   "prompt_tail": "han the output in the above format in your response. /no_categories /no_think\nOutput:<end_of_turn>\n<start_of_turn>model\n"
+  }
+ ]
+}

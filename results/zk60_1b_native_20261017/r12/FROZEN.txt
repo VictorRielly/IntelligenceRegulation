@@ -1,0 +1,4 @@
+2026-10-26T18:12:33Z
+R12 tree 1e406781f734e9f35f066516a35bf6b9ef97dee164ece4f43bbe7b3e00735fc7
+Acceptance logs: results/zk60_sol_20261026/
+Independent D24 review and privacy gate not claimed.

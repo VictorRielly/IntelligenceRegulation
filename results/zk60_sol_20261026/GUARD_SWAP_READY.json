@@ -1,0 +1,17 @@
+{
+ "written_utc": "2026-10-26T18:51:21Z",
+ "written_by": "Claude (coordinator)",
+ "ruling": "D42 (Victor, console, 2026-10-26 18:22 UTC: swap yes)",
+ "boot_id": "9d3a66e4-7664-4344-a046-38a0c53a53f3",
+ "hold_files": [
+  "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/HOLD",
+  "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/HOLD",
+  "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/HOLD"
+ ],
+ "sandbox_views_checked": true,
+ "views": {
+  "astra": "ASTRA VIEW CLEAR 2026-10-26T18:38:33Z (todo-file Astra log): host queue PID 868177 parked at prep/HOLD, no guard/leaf/compiler; sandbox view empty",
+  "claude_namespace": "2026-10-26T18:51:08Z: the only zk60_resource_guard.py run process is Sol's own r13-binding-red-build (PID 890306); token chain done 18:32 (logs/r12_chain2.done = 0); gate lane idle; D24 reviewer stopped its own queue before any guard and launches nothing until S3 WINDOW CLOSED",
+  "sol": "Sol checks its own view and holds its own launches before applying (swap_guard.py refuses any live or waiting guard or consumer)"
+ }
+}

@@ -1,0 +1,30 @@
+
+running 5 tests
+test low_tests::exports_choose_an_explicit_stack_without_a_global_flag ... FAILED
+test low_tests::low_keeps_h16_and_its_downstream_scale ... FAILED
+test tests::invalid_base_or_derived_windows_are_refused ... ok
+test tests::legacy_shifts_and_widths_remain_unchanged ... ok
+test tests::low_h24_matches_the_received_build_spec ... ok
+
+failures:
+
+---- low_tests::exports_choose_an_explicit_stack_without_a_global_flag stdout ----
+
+thread 'low_tests::exports_choose_an_explicit_stack_without_a_global_flag' (108) panicked at /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/precision-next/accuracy_precision.rs:143:54:
+called `Result::unwrap()` on an `Err` value: "R13 stack export tag not implemented"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- low_tests::low_keeps_h16_and_its_downstream_scale stdout ----
+
+thread 'low_tests::low_keeps_h16_and_its_downstream_scale' (109) panicked at /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/precision-next/accuracy_precision.rs:136:9:
+assertion `left == right` failed
+  left: (6, 20, 24)
+ right: (14, 12, 16)
+
+
+failures:
+    low_tests::exports_choose_an_explicit_stack_without_a_global_flag
+    low_tests::low_keeps_h16_and_its_downstream_scale
+
+test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

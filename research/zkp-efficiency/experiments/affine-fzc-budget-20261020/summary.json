@@ -1,0 +1,64 @@
+{
+  "run_id": "20261020T051854Z-d5b6bbb8",
+  "cycle": "0097",
+  "checkpoint_at": "2026-10-20T05:33:04.234618+00:00",
+  "algebra": {
+    "status": "PASS_PYTHON_ALGEBRA_ONLY",
+    "fixtures": 36,
+    "rounds": 144,
+    "checks": 1599,
+    "negative_controls": 7,
+    "seed": 2026102097,
+    "wall_seconds": 1.938880216999678,
+    "rss_kib": 16820,
+    "threads": 1,
+    "affinity": [
+      0
+    ],
+    "scope": "Synthetic field tables; independent original-slot polynomial/direct-original-MLE; no CUDA/Rust, native masks/transcript/receipt or verifier",
+    "full_stack": {
+      "proofs": 0,
+      "passes": 0,
+      "positions": 0,
+      "context_length": null,
+      "device": null,
+      "witness_s": null,
+      "proof_s": null,
+      "serialization_s": null,
+      "verification_s": null,
+      "startup_fraction": null,
+      "steady_rate": null,
+      "total_rate": null
+    }
+  },
+  "cost": {
+    "status": "PASS_PARTIAL_SOURCE_ACCOUNTING_ONLY",
+    "cases": 720,
+    "checks": 2180,
+    "negative_controls": 7,
+    "wall_seconds": 0.3492783010005951,
+    "rss_kib": 13016,
+    "threads": 1,
+    "affinity": [
+      0
+    ],
+    "scope": "Native source-call counts before compilation; logical shared reads assuming unused-load DCE; not physical traffic, cache, occupancy, timings, peak or complete proof",
+    "new_verified_full_stack_proofs": 0
+  },
+  "validation": {
+    "status": "PASS_RESEARCH_ARTIFACTS_ONLY",
+    "checks": 508,
+    "source_files_unchanged": 8,
+    "native_execution": false,
+    "wall_seconds": 0.008906887989724055,
+    "rss_kib": 16588
+  },
+  "source_records_before": 557,
+  "source_records_after": 565,
+  "new_verified_full_stack_proofs": 0,
+  "proving_speed_improvement_measured": false,
+  "native_candidate_status": "uncompiled adapter sketch,not patch",
+  "integration_seam": "fzs_impl raw round0 phase1b and DevFzcRounds::new public coefficient preparation",
+  "next_action": "Owner locked native gates/clocks;local BASE-specialized paired derivation reference/counts",
+  "final_checkpoint_at": "2026-10-20T05:36:14.267125+00:00"
+}

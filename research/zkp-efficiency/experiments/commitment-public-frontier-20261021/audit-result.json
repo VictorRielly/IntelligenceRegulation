@@ -1,0 +1,18 @@
+{
+  "status": "PASS_INDEPENDENT_FOREST_SOURCE_AND_COST_AUDIT",
+  "checks": 1835886,
+  "source_pins": 9,
+  "host_sites": [
+    "commit_zk_chunked",
+    "commit_chunked",
+    "commit_chunked_upload"
+  ],
+  "symbolic_prefixes": 262144,
+  "large_boundaries": 64,
+  "peak_symbolic_stack": 19,
+  "cost_rows": 24,
+  "wall_seconds": 2.3927677379979286,
+  "rss_kib": 16592,
+  "threads": 1,
+  "native_executed": false
+}

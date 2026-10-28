@@ -1,0 +1,2 @@
+[19:17:54Z] integer 11 ',' (margin C 18135586, ~0.550 logits) | float 11 ',' (margin 12.307) -> /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/runs/llama3-8b/nexttoken_ho00_b7voc0_T128.json
+[19:19:16Z] integer 11 ',' (margin C 18135586, ~0.550 logits) | float 11 ',' (margin 12.307) -> /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/runs/llama3-8b/nexttoken_ho00_b7voc0_T128.json

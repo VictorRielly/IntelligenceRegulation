@@ -114,9 +114,33 @@ pub(crate) const RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32: &str = "hashline-zk-mr1/pri
 /// its transcript-constructor input (94 bytes) equals the length of no other
 /// hash-input kind and is one byte from none (stage 25's W-2 census).
 pub(crate) const RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32: &str = "hashline-zk-mr1/private-token-io-run-llama-3-8b-t32-trained-statement-public-row/1";
+/// TOKEN I/O ROUND 8 (2026-10-19): the token-I/O run over the trained
+/// TinyLlama-1.1B T128 blocks (DESIGN v3's first geometry: T <= 128, the
+/// input endpoint ONE 256-word row; public-row variant, mode (i)). A NEW
+/// profile string under D17; built by `token_io::run` only. (Not
+/// "...-tinyllama-1.1b-t128-...": that 87-character string gives a 99-byte
+/// transcript constructor, the length of another hash-input kind of the
+/// TinyLlama run (stage 25's W-2 census); this one's is 94 bytes.)
+pub(crate) const RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128: &str = "hashline-zk-mr1/private-token-io-run-tinyllama-t128-trained-statement-public-row/1";
+/// TOKEN I/O ROUND 8 (2026-10-19): the token-I/O run over the trained
+/// Llama-3-8B T128 blocks (DESIGN v3's first geometry, as above; V =
+/// 128,256 padded to 2^17, d = 4,096, BOS 128,000). A NEW profile string under
+/// D17; its transcript constructor is 95 bytes (stage 25's W-2 census).
+pub(crate) const RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T128: &str = "hashline-zk-mr1/private-token-io-run-llama-3-8b-t128-trained-statement-public-row/1";
 /// every token-I/O run profile this build registers (a blocks-only run may
 /// carry none of them)
-pub(crate) const TOKEN_IO_RUN_PROFILES: [&str; 3] = [RUN_PROFILE_TOKEN_IO_RUNG_TC, RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32, RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32];
+pub(crate) const TOKEN_IO_RUN_PROFILES: [&str; 5] = [RUN_PROFILE_TOKEN_IO_RUNG_TC, RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32, RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32, RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128, RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T128];
+/// TOKEN I/O ROUND 12 (2026-10-21): the CLASSIFIER run over the trained-
+/// calibration development rung (DESIGN_CLASSIFIER v2, rung R-C1: stage IN-C
+/// with the public template and the control-id column, the L blocks, stage
+/// OUT-C with the margin slot and the PUBLIC verdict bit; one external
+/// endpoint). A NEW profile string under D17 — its own transcript; a run
+/// under it is built by `token_io::classify_run` only. Same length as the
+/// token rung's string (65 characters), whose transcript constructor the W-2
+/// census already admits.
+pub(crate) const RUN_PROFILE_CLASSIFY_RUNG_TC: &str = "hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1";
+/// every classifier run profile this build registers
+pub(crate) const CLASSIFY_RUN_PROFILES: [&str; 1] = [RUN_PROFILE_CLASSIFY_RUNG_TC];
 
 /// One run's geometry: the per-block shape, how many blocks, and the run's own
 /// profile id. A run is a NEW profile under D17 — its own transcript, its own
@@ -151,8 +175,11 @@ fn registered_block_shape(profile: &str, sh: &Shape) -> Option<Result<Shape, Str
         RUN_PROFILE_M125 => Ok(Shape::m125()),
         RUN_PROFILE_RUNG_TC => Shape::rung_tc(&cal),
         RUN_PROFILE_TOKEN_IO_RUNG_TC => Shape::rung_tc(&cal),
+        RUN_PROFILE_CLASSIFY_RUNG_TC => Shape::rung_tc(&cal),
         RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32 => Shape::tinyllama_trained(32, &cal, sh.f_e),
         RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32 => Shape::llama3_8b_t32_trained(&cal, sh.f_e),
+        RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128 => Shape::tinyllama_trained(128, &cal, sh.f_e),
+        RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T128 => Shape::llama3_8b_trained(128, &cal, sh.f_e),
         RUN_PROFILE_TINYLLAMA_T32_TRAINED => Shape::tinyllama_trained(32, &cal, sh.f_e),
         RUN_PROFILE_TINYLLAMA_T64_TRAINED => Shape::tinyllama_trained(64, &cal, sh.f_e),
         RUN_PROFILE_TINYLLAMA_T128_TRAINED => Shape::tinyllama_trained(128, &cal, sh.f_e),
@@ -291,12 +318,13 @@ pub(crate) struct RunStatement {
     /// `k + 1`'s declared input scale. There is no second place to declare it.
     boundary_scales: Vec<i32>,
     calibration: Digest,
-    /// **NATIVE R6: each stage's softmax score shift** — the run shape's
-    /// `sh_s` for every stage of a run-wide calibration, and a trained
-    /// layer's own value where its record carries one (`LayerRecord::sh_s`,
-    /// bound by the trained identity the header absorbs). Stage `k` is
-    /// proved and verified at [`RunStatement::stage_shape`]`(k)`.
-    stage_sh_s: Vec<u32>,
+    /// **NATIVE R8 (R6 for `sh_s`): each stage's calibration** — the run
+    /// shape's for every stage of a run-wide calibration, and a trained
+    /// layer's own constants applied where its record carries any
+    /// (`LayerRecord::own`, bound by the trained identity the header
+    /// absorbs). Stage `k` is proved and verified at
+    /// [`RunStatement::stage_shape`]`(k)`.
+    stage_cal: Vec<super::shape::NormCalibration>,
 }
 
 impl RunStatement {
@@ -370,13 +398,16 @@ impl RunStatement {
         let approved = model.calibration.block_scales;
         let n = digests.len();
         let mut st = Self::new_with_calibration(rs, context, expected, digests, n, block_scales, model.identity(), approved)?;
-        // NATIVE R6: a layer's own score shift, each validated at the trained
-        // door (`Shape::with_score_shift`: the one-limb window, CS-8's
-        // rebuild, the trained class)
+        // NATIVE R8 (R6 for sh_s): a layer's own constants, its whole
+        // calibration validated at the trained door
+        // (`Shape::with_layer_calibration`: every class, the plane list
+        // unmoved, CS-8's rebuild, the trained class)
+        let base = st.rs.sh.norm_calibration();
         for (k, r) in model.layers.iter().enumerate() {
-            if let Some(v) = r.sh_s {
-                st.rs.sh.with_score_shift(v).map_err(|e| format!("private run: layer {}'s own score shift: {e}", r.index))?;
-                st.stage_sh_s[k] = v;
+            if super::trained_statement::has_own(&r.own) {
+                let cal = super::trained_statement::apply_own(&base, &r.own).map_err(|e| format!("private run: layer {}: {e}", r.index))?;
+                st.rs.sh.with_layer_calibration(&cal).map_err(|e| format!("private run: layer {}'s own calibration: {e}", r.index))?;
+                st.stage_cal[k] = cal;
             }
         }
         Ok(st)
@@ -432,8 +463,8 @@ impl RunStatement {
             }
         }
         let boundary_scales: Vec<i32> = (0..rs.l - 1).map(|k| block_scales[k].1).collect();
-        let stage_sh_s = vec![rs.sh.sh_s; rs.l];
-        let st = RunStatement { rs, expected, block_digests, context, boundary_scales, calibration, stage_sh_s };
+        let stage_cal = vec![rs.sh.norm_calibration(); rs.l];
+        let st = RunStatement { rs, expected, block_digests, context, boundary_scales, calibration, stage_cal };
         // **STAGE 16, ruling T-3.** `Layout::for_shape` has already checked
         // `A`, `H`, `M` and the external endpoint against the BLOCK's set of
         // hash-input lengths. A run absorbs one word no block does — its own
@@ -531,21 +562,33 @@ impl RunStatement {
             if k + 1 == l { ", then the external output endpoint" } else { "" },
         ))
         .map(|s: String| format!("{s}; data rows {d}"))
-        // NATIVE R6: a stage whose layer has its own score shift says so in
-        // its schedule line (and so in the schedule digest the header
-        // absorbs); a run-wide run's lines are what they were
-        .map(|s| if self.stage_sh_s[k] != self.rs.sh.sh_s { format!("{s}; score shift {} (the layer's own; the run's is {})", self.stage_sh_s[k], self.rs.sh.sh_s) } else { s })
+        // NATIVE R8 (R6 for sh_s): a stage whose layer has its own constants
+        // says so in its schedule line, one clause per constant in the
+        // canonical order (and so in the schedule digest the header absorbs);
+        // a run-wide run's lines are what they were, and an sh_s-only clause
+        // is R6's text
+        .map(|s| {
+            let base = self.rs.sh.norm_calibration();
+            let mut s = s;
+            for (i, (_, _, label)) in super::trained_statement::OWN_FIELDS.iter().enumerate() {
+                let (v, b) = (super::trained_statement::cal_field(&self.stage_cal[k], i), super::trained_statement::cal_field(&base, i));
+                if v != b {
+                    s.push_str(&format!("; {label} {v} (the layer's own; the run's is {b})"));
+                }
+            }
+            s
+        })
     }
 
-    /// **NATIVE R6: the shape stage `k` is proved and verified at** — the run
-    /// shape, or (a layer with its own score shift) the same shape with that
-    /// `sh_s`, rebuilt through the trained door
+    /// **NATIVE R8 (R6 for sh_s): the shape stage `k` is proved and verified
+    /// at** — the run shape, or (a layer with its own constants) the same
+    /// shape with that layer's calibration, rebuilt through the trained door
     pub(crate) fn stage_shape(&self, k: usize) -> Result<Shape, String> {
-        let v = *self.stage_sh_s.get(k).ok_or_else(|| format!("private run: no stage {k}"))?;
-        if v == self.rs.sh.sh_s {
+        let cal = *self.stage_cal.get(k).ok_or_else(|| format!("private run: no stage {k}"))?;
+        if cal == self.rs.sh.norm_calibration() {
             Ok(self.rs.sh.clone())
         } else {
-            self.rs.sh.with_score_shift(v)
+            self.rs.sh.with_layer_calibration(&cal)
         }
     }
 
@@ -662,6 +705,10 @@ impl RunStatement {
             layout_description: Layout::for_shape(sh)?.describe(),
             boundaries,
             external_scales: (self.expected.spec.input_scale(), self.expected.spec.output_scale()),
+            // TOKEN I/O (round 7): a block run carries no token facts
+            token: None,
+            // ROUND 12 (gate round 16): nor classifier facts
+            classify: None,
         })
     }
 

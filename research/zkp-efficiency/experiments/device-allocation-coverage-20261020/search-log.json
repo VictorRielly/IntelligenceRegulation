@@ -1,0 +1,24 @@
+{
+  "run_id": "20261020T011854Z-224b9b69",
+  "access_date": "2026-10-20",
+  "engine": "native LIVE web search",
+  "queries": [
+    "zero knowledge quantized LLM inference exact arithmetic 2026 GPU proof composition GitHub",
+    "GPU sumcheck memory allocation cache 2026 proving Chimera GitHub",
+    "site.arxiv.org zero knowledge LLM quantization 2026 lookup proof",
+    "2026 GPU prover memory pool cache allocation sumcheck release October 2026 GitHub",
+    "site.arxiv.org 2610 Chimera GPU proving memory",
+    "site.developer.nvidia.com blog gpu pro tip cuda 7 streams simplify concurrency 2015"
+  ],
+  "screened": [
+    "BitsUnderZK-LLM",
+    "DeepProve repository/license/history (custom Lagrange license; no implementation imported)",
+    "EfficientSumcheck design/history",
+    "SumCATS PDF",
+    "gnark0.16.4 release and PR1828",
+    "cudarc0.13.9 code/release/local registry",
+    "NVIDIA2015 streams"
+  ],
+  "discarded": "Unrelated Chimera retrieval/training papers, inference-only projects and secondary/reddit results did not supply technical evidence.",
+  "notes": "Exact selected URLs/dates/commit scope/license and fetch failures in source-records.json. Remote code not executed, dependency not installed. Native LIVE tool records retained by conversation; no copyrighted source text copied into search log."
+}

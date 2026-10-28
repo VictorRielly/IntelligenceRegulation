@@ -1,0 +1,7 @@
+{
+  "status": "PASS_FINAL_CHECKPOINT",
+  "hash_checks": 76,
+  "full_stack_positions": 0,
+  "utc": "2026-10-21T08:35:51.689932+00:00",
+  "finalizer_note": "Earlier overbroad assertion disallowed the legitimate phrase pending exposed native costs. All report writes completed before that assertion; precise completion/status and hash checks now pass."
+}

@@ -1,0 +1,8 @@
+
+running 3 tests
+test tests::every_int12_silu_word_matches_the_independent_reference ... ok
+test tests::unsupported_members_and_precisions_are_refused ... ok
+test tests::zero_and_signed_index_are_unambiguous ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

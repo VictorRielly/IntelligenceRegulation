@@ -1,0 +1,52 @@
+[zk60-guard 06:47:17] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 06:48:17] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 06:49:17] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 06:50:17] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 06:51:17] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 06:52:17] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 06:53:17] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 06:54:01] START trv5-b1-build-tests class=build need=3G cap=5G enforce=cgroup+watchdog waited=404s run=fc7adb2d377c
+[zk60-guard 06:58:38] END trv5-b1-build-tests exit=0 child_wall=277s peak_rss=1.95G min_avail=8.25G
+[zk60-guard 06:58:38] START trv5-b2-build-cli class=build need=3G cap=5G enforce=cgroup+watchdog waited=0s run=aadca731d3b9
+[zk60-guard 07:00:13] END trv5-b2-build-cli exit=0 child_wall=94s peak_rss=1.06G min_avail=9.25G
+[zk60-guard 07:00:13] START trv5-t1-tests class=cpu need=5G cap=8G enforce=cgroup+watchdog waited=0s run=058cf58dcb65
+[zk60-guard 07:03:20] END trv5-t1-tests exit=0 child_wall=188s peak_rss=2.50G min_avail=7.52G
+[zk60-guard 07:03:20] START trv5-p1-profile-prover-export class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=79b9290ab06e
+[zk60-guard 07:04:04] END trv5-p1-profile-prover-export exit=0 child_wall=43s peak_rss=1.80G min_avail=9.05G
+[zk60-guard 07:04:04] START trv5-p2-profile-verifier-export class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=8431f8f2298d
+[zk60-guard 07:04:45] END trv5-p2-profile-verifier-export exit=0 child_wall=41s peak_rss=1.80G min_avail=8.99G
+[zk60-guard 07:04:45] START trv5-p3-profile-tables-mult class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=e73cb688c457
+[zk60-guard 07:05:22] END trv5-p3-profile-tables-mult exit=0 child_wall=38s peak_rss=1.86G min_avail=7.72G
+[zk60-guard 07:05:23] START trv5-p4-profile-tables-link class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=1ba201e2fa67
+[zk60-guard 07:05:46] END trv5-p4-profile-tables-link exit=1 child_wall=24s peak_rss=1.05G min_avail=8.85G
+[zk60-guard 07:05:46] START trv5-c1-owner-tamper class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=1dc4e8c0fb4e
+[zk60-guard 07:07:09] END trv5-c1-owner-tamper exit=1 child_wall=82s peak_rss=2.80G min_avail=7.76G
+[zk60-guard 07:07:09] START trv5-c2-input-owner-tamper class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=3ed45ea70d08
+[zk60-guard 07:08:32] END trv5-c2-input-owner-tamper exit=1 child_wall=83s peak_rss=2.82G min_avail=7.99G
+[zk60-guard 07:08:32] START trv5-c3-owner-unverified class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=1275e1cbcaa3
+[zk60-guard 07:08:59] END trv5-c3-owner-unverified exit=1 child_wall=27s peak_rss=1.76G min_avail=9.41G
+[zk60-guard 07:08:59] START trv5-c4-owner-forged class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=da174624d53b
+[zk60-guard 07:10:37] END trv5-c4-owner-forged exit=1 child_wall=98s peak_rss=2.86G min_avail=7.54G
+[zk60-guard 07:10:37] START trv5-c5-verify-wrong-tp class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=0c6880d4da9b
+[zk60-guard 07:11:16] END trv5-c5-verify-wrong-tp exit=1 child_wall=39s peak_rss=1.84G min_avail=8.30G
+[zk60-guard 07:11:16] START trv5-c6-verify-no-tp class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=ead381f512f2
+[zk60-guard 07:11:56] END trv5-c6-verify-no-tp exit=1 child_wall=40s peak_rss=1.79G min_avail=7.83G
+[zk60-guard 07:11:56] START trv5-c7-verify-mult-approved-tp class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=004497fa7ab4
+[zk60-guard 07:12:35] END trv5-c7-verify-mult-approved-tp exit=1 child_wall=39s peak_rss=1.80G min_avail=8.94G
+[zk60-guard 07:12:35] START trv5-c8-verify-mult-own-tp class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=05c4caf12c01
+[zk60-guard 07:13:14] END trv5-c8-verify-mult-own-tp exit=1 child_wall=38s peak_rss=1.84G min_avail=9.00G
+[zk60-guard 07:13:14] START trv5-c9-owner-recheck class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=b7ccd161ee61
+[zk60-guard 07:14:52] END trv5-c9-owner-recheck exit=0 child_wall=98s peak_rss=2.82G min_avail=7.20G
+[zk60-guard 07:14:52] START trv5-c10-input-owner-recheck class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=bf077184599b
+[zk60-guard 07:16:30] END trv5-c10-input-owner-recheck exit=0 child_wall=98s peak_rss=2.83G min_avail=6.68G
+[zk60-guard 07:16:30] START trv5-c11-input-owner-wrong-prompt class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=559e58f349a8
+[zk60-guard 07:18:10] END trv5-c11-input-owner-wrong-prompt exit=1 child_wall=100s peak_rss=2.81G min_avail=7.05G
+[zk60-guard 07:18:10] START trv5-c12-verify-r5-recheck class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=21243a7e54fe
+[zk60-guard 07:19:49] END trv5-c12-verify-r5-recheck exit=0 child_wall=98s peak_rss=2.85G min_avail=8.09G
+[zk60-guard 07:19:49] START trv5-c13-owner-r5 class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=0494f128950e
+[zk60-guard 07:21:27] END trv5-c13-owner-r5 exit=0 child_wall=99s peak_rss=2.81G min_avail=7.56G
+[zk60-guard 07:21:28] START trv5-c14-input-owner-r5 class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=3dfc7b84342f
+[zk60-guard 07:23:08] END trv5-c14-input-owner-r5 exit=0 child_wall=100s peak_rss=2.84G min_avail=6.71G
+[zk60-guard 07:23:08] START trv5-c15-owner-r5-with-r4-dec class=cpu need=3.5G cap=6G enforce=cgroup+watchdog waited=0s run=e0aa2468d406
+[zk60-guard 07:24:48] END trv5-c15-owner-r5-with-r4-dec exit=1 child_wall=100s peak_rss=2.86G min_avail=6.58G
+tests=0

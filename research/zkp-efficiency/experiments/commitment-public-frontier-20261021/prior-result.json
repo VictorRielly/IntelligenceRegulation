@@ -1,0 +1,305 @@
+{
+  "status": "PASS_CPU_HASH_AND_STATE_MODEL_ONLY",
+  "seed": 202610210123,
+  "checks": 328043,
+  "fixtures": [
+    {
+      "rows": 1,
+      "columns": 3,
+      "depth": 0,
+      "peak": 0,
+      "compressions": 3,
+      "state_reads_u32": 0,
+      "state_writes_u32": 0,
+      "leaves_sha256": "623a578cb160a11fb3cd75398bb09428d75183b0da12fa3737bca87f0d0962b2"
+    },
+    {
+      "rows": 7,
+      "columns": 3,
+      "depth": 0,
+      "peak": 0,
+      "compressions": 3,
+      "state_reads_u32": 0,
+      "state_writes_u32": 0,
+      "leaves_sha256": "2cfb686aa6858ff1d25dc84bb3b8ca2340d788e7221fa7a14e43b91cd4612375"
+    },
+    {
+      "rows": 8,
+      "columns": 3,
+      "depth": 0,
+      "peak": 0,
+      "compressions": 3,
+      "state_reads_u32": 0,
+      "state_writes_u32": 0,
+      "leaves_sha256": "1cff3774df5e6e6bf1fd4c1d92d9436899994e90cb92930932db22bb870f105f"
+    },
+    {
+      "rows": 9,
+      "columns": 3,
+      "depth": 0,
+      "peak": 0,
+      "compressions": 6,
+      "state_reads_u32": 0,
+      "state_writes_u32": 0,
+      "leaves_sha256": "270b788c8f9739f01a7018ce486f1e36b33d66079bbdefa94efdb86fb445b1ec"
+    },
+    {
+      "rows": 127,
+      "columns": 3,
+      "depth": 0,
+      "peak": 0,
+      "compressions": 48,
+      "state_reads_u32": 0,
+      "state_writes_u32": 0,
+      "leaves_sha256": "5c35d3c704395323f8e9adb378058d26772e3166e5795b5768876a2e2987732d"
+    },
+    {
+      "rows": 128,
+      "columns": 3,
+      "depth": 0,
+      "peak": 0,
+      "compressions": 48,
+      "state_reads_u32": 0,
+      "state_writes_u32": 0,
+      "leaves_sha256": "2d5ecf002923a04bd0c50caf1ba9f63b7ce256a2167207422813e674685a1ad1"
+    },
+    {
+      "rows": 129,
+      "columns": 3,
+      "depth": 1,
+      "peak": 1,
+      "compressions": 54,
+      "state_reads_u32": 24,
+      "state_writes_u32": 24,
+      "leaves_sha256": "cac9ba0d41adaa5199f0707533adffbf8803f4ecd863fce1a558dd1ef0cb2b6d"
+    },
+    {
+      "rows": 255,
+      "columns": 3,
+      "depth": 1,
+      "peak": 1,
+      "compressions": 99,
+      "state_reads_u32": 24,
+      "state_writes_u32": 24,
+      "leaves_sha256": "5b9fbb962b4680d22a345292f89f8e6506500b1e3de0b4560997eab2a0f61dd0"
+    },
+    {
+      "rows": 256,
+      "columns": 3,
+      "depth": 1,
+      "peak": 1,
+      "compressions": 99,
+      "state_reads_u32": 24,
+      "state_writes_u32": 24,
+      "leaves_sha256": "45373489ddfb9323fca227d2b6ef13de8ea76608bf39fd6365b0cb0f0fa62211"
+    },
+    {
+      "rows": 257,
+      "columns": 3,
+      "depth": 2,
+      "peak": 2,
+      "compressions": 105,
+      "state_reads_u32": 72,
+      "state_writes_u32": 72,
+      "leaves_sha256": "3669b8c4f4b35c9b8afb28c6290cfd91d7e7af84449882c0ffcaf6b65a08297f"
+    },
+    {
+      "rows": 383,
+      "columns": 3,
+      "depth": 2,
+      "peak": 2,
+      "compressions": 150,
+      "state_reads_u32": 72,
+      "state_writes_u32": 72,
+      "leaves_sha256": "c1e8147d1a3a4e1e86d2c6ded233e92dc39da8d69c5fc7d91e5afa78972510e2"
+    },
+    {
+      "rows": 384,
+      "columns": 3,
+      "depth": 2,
+      "peak": 2,
+      "compressions": 150,
+      "state_reads_u32": 72,
+      "state_writes_u32": 72,
+      "leaves_sha256": "8be981203126f35768eb2b0cb058cef5984f6d6d7e7ff98ef4d5b14f5067ee00"
+    },
+    {
+      "rows": 385,
+      "columns": 3,
+      "depth": 2,
+      "peak": 2,
+      "compressions": 156,
+      "state_reads_u32": 96,
+      "state_writes_u32": 96,
+      "leaves_sha256": "fa38306c4e7e5936033b48139303f05df42715ba6a30aaf81ac9bb3c4a619ce6"
+    },
+    {
+      "rows": 511,
+      "columns": 3,
+      "depth": 2,
+      "peak": 2,
+      "compressions": 201,
+      "state_reads_u32": 96,
+      "state_writes_u32": 96,
+      "leaves_sha256": "138f3413c6dbef8f536b43c92622d10e0a2fc29e8e1abb7b1a4c73540f0b8ab9"
+    },
+    {
+      "rows": 512,
+      "columns": 3,
+      "depth": 2,
+      "peak": 2,
+      "compressions": 201,
+      "state_reads_u32": 96,
+      "state_writes_u32": 96,
+      "leaves_sha256": "9acb4f574ec0763bda0a984065658cbefa13cd28ba9e4153524e689ceeebb461"
+    },
+    {
+      "rows": 513,
+      "columns": 3,
+      "depth": 3,
+      "peak": 3,
+      "compressions": 207,
+      "state_reads_u32": 168,
+      "state_writes_u32": 168,
+      "leaves_sha256": "5c90474f149347e891b1a4508733816afa889f3bccd5c0fd1e1d9b39cdfb563b"
+    },
+    {
+      "rows": 1023,
+      "columns": 3,
+      "depth": 3,
+      "peak": 3,
+      "compressions": 405,
+      "state_reads_u32": 264,
+      "state_writes_u32": 264,
+      "leaves_sha256": "73d4be313406fa25460d1ff5173b0e505b9ea39ee8fe0e6794dee85e880f2975"
+    },
+    {
+      "rows": 1024,
+      "columns": 3,
+      "depth": 3,
+      "peak": 3,
+      "compressions": 405,
+      "state_reads_u32": 264,
+      "state_writes_u32": 264,
+      "leaves_sha256": "bc3481b71a4b2ce20abfba32d7a6f586fb758c291ccc2d97a38e1dd358fbcfd0"
+    },
+    {
+      "rows": 1025,
+      "columns": 3,
+      "depth": 4,
+      "peak": 4,
+      "compressions": 411,
+      "state_reads_u32": 360,
+      "state_writes_u32": 360,
+      "leaves_sha256": "1ef58c47caee7d6c46fc37e28425d8fe97af2755ad1569758e49348eaeab3c41"
+    },
+    {
+      "rows": 3283,
+      "columns": 1,
+      "depth": 5,
+      "peak": 5,
+      "compressions": 436,
+      "state_reads_u32": 376,
+      "state_writes_u32": 376,
+      "leaves_sha256": "ea713e0d674c4867f2c07528c430b3ba92745cacc30d44bb29bcf95a4dcb3838"
+    },
+    {
+      "rows": 3405,
+      "columns": 1,
+      "depth": 5,
+      "peak": 5,
+      "compressions": 452,
+      "state_reads_u32": 392,
+      "state_writes_u32": 392,
+      "leaves_sha256": "76ba3386733c78735c5e8f720ab99038e37789d888253e36e7cab991428b7702"
+    },
+    {
+      "rows": 3634,
+      "columns": 1,
+      "depth": 5,
+      "peak": 5,
+      "compressions": 483,
+      "state_reads_u32": 424,
+      "state_writes_u32": 424,
+      "leaves_sha256": "4159515eb511a0bc0ee1029d090b05354e794ce6335d010379565065ea90216b"
+    },
+    {
+      "rows": 3790,
+      "columns": 1,
+      "depth": 5,
+      "peak": 5,
+      "compressions": 503,
+      "state_reads_u32": 432,
+      "state_writes_u32": 432,
+      "leaves_sha256": "6edacdd9609867e01cd8c3aa5d77dc6ab37f7142aa32f12d01e0050f2c8e705a"
+    },
+    {
+      "rows": 7303,
+      "columns": 1,
+      "depth": 6,
+      "peak": 6,
+      "compressions": 970,
+      "state_reads_u32": 880,
+      "state_writes_u32": 880,
+      "leaves_sha256": "13569f9d043314f7dc48911a5a57cf4c4b4a12991a2f46a354d663cb436b1a27"
+    },
+    {
+      "rows": 8724,
+      "columns": 1,
+      "depth": 7,
+      "peak": 7,
+      "compressions": 1159,
+      "state_reads_u32": 1072,
+      "state_writes_u32": 1072,
+      "leaves_sha256": "25d4ff5d0d784c0bbc4ce5fbeef936428d3121bb9868f6cd18d320ee445b6959"
+    },
+    {
+      "rows": 9185,
+      "columns": 1,
+      "depth": 7,
+      "peak": 7,
+      "compressions": 1220,
+      "state_reads_u32": 1104,
+      "state_writes_u32": 1104,
+      "leaves_sha256": "4dcb60f42a25c8fcb0557eda49786a04f9e15ebd17a5908561c89213c0ad0da7"
+    },
+    {
+      "rows": 11056,
+      "columns": 1,
+      "depth": 7,
+      "peak": 7,
+      "compressions": 1468,
+      "state_reads_u32": 1344,
+      "state_writes_u32": 1344,
+      "leaves_sha256": "7f0b31e7d63edf7d799107f505ec6e7b7b36cb4e24ff3b76f38cecc826f0fbed"
+    }
+  ],
+  "control_types": 11,
+  "controls": [
+    "endian",
+    "no_root",
+    "counter_zero",
+    "too_short_public_depth",
+    "stale_nonzero_length",
+    "shape_growth_without_resize",
+    "zero_rows_not_modelled",
+    "u32_length_overflow_not_modelled",
+    "short_input",
+    "unaligned_chunk_request_rounded_like_native",
+    "all_poison_including_length_safe_only_with_first_launch_init"
+  ],
+  "wall_seconds": 4.605481023987522,
+  "rss_kib": 29724,
+  "threads": 1,
+  "blake3_package_version": "1.0.9",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "new_verified_full_stack_proofs": 0,
+  "native_cuda_executed": false,
+  "native_proof_executed": false,
+  "limits": [
+    "Independent installed library hash oracle; state model authored by same researcher",
+    "No GPU allocator/compiler/driver/receipt/privacy gate evidence",
+    "Compression graph unchanged; only reserved CV state and initialization differ",
+    "No claim about physical pooled capacity or critical-path time"
+  ]
+}

@@ -56,7 +56,10 @@ if HERE not in sys.path:
 
 # the nine domains of `private_block::shape::Dom`, in the order `ALL_DOMS`
 # declares them (`pad.rs`); a name outside this set is a refusal
-DOMAINS = ("T", "Ht", "L", "D", "Q", "Kv", "S", "F", "Tab")
+# [v17, gate round 14] plus `Dom::Dd`, the per-row division dictionary of a DD
+# profile (native R9 / D30, `layout.rs`): present only when the shape carries
+# `dd_cap > 0`, which `PlaneIndex` checks below
+DOMAINS = ("T", "Ht", "L", "D", "Q", "Kv", "S", "F", "Tab", "Dd")
 
 IO_NAMES = {"Input": "IO_IN", "Output": "IO_OUT"}
 
@@ -190,6 +193,19 @@ class PlaneIndex:
                     f"domain {p.domain}: plane {p.name} has log_size {p.log_size}, "
                     f"another plane of the same domain has {prev}"
                 )
+
+        # [v17, gate round 14] the dictionary's domain is present EXACTLY when
+        # the shape declares a dictionary, and then unpadded at
+        # |Dom::Dd| = q_heads * tokens * dd_cap (`Shape::check_dd_geometry`, R9)
+        shp = bundle.run["shape"]
+        dd_cap = int(shp.get("dd_cap", 0))
+        has_dd = "Dd" in self.domain_log
+        if has_dd != (dd_cap > 0):
+            f.append(f"the plane index {'has' if has_dd else 'has no'} Dom::Dd plane and the shape declares dd_cap {dd_cap}")
+        if has_dd and dd_cap > 0:
+            want_dd = shp["q_heads"] * shp["tokens"] * dd_cap
+            if want_dd & (want_dd - 1) or self.domain_log["Dd"] != want_dd.bit_length() - 1:
+                f.append(f"Dom::Dd has log_size {self.domain_log['Dd']}, and an unpadded dictionary of {want_dd} slots does not")
 
         # ------------------------------- the totals against the shape section
         for st in bundle.stages:

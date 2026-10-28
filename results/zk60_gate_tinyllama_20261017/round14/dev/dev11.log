@@ -1,0 +1,15 @@
+[load          ]      0.4 s   peak RSS     186 MB   ok
+[replay        ]      0.8 s   peak RSS     186 MB   ok
+[hash          ]      0.1 s   peak RSS     186 MB   ok
+[terminals     ]    254.4 s   peak RSS     554 MB   ok
+[commitments   ]     63.9 s   peak RSS     554 MB   ok
+[boundary      ]      0.5 s   peak RSS     554 MB   ok
+[preimage      ]      0.5 s   peak RSS     554 MB   ok
+[fullpreimage  ]   2793.9 s   peak RSS    1886 MB   ok
+[mask          ]     57.3 s   peak RSS    1886 MB   ok
+[joint         ]      0.0 s   peak RSS    1886 MB   ok
+[runcontrols   ]    151.9 s   peak RSS    1930 MB   ok
+[export        ]      0.0 s   peak RSS    1930 MB   ok
+[channels      ]      0.0 s   peak RSS    1930 MB   ok
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round14/dev/dev11-tl128dd-l1-dense-everything.json   total 3323.7 s   peak RSS 1930 MB   ok=True
+status: PASS   unexplained false leaves 0   -> /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round14/dev/dev11-tl128dd-l1-dense-everything.status.json

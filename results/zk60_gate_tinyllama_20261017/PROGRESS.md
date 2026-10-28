@@ -1606,3 +1606,1763 @@ running. The (B) work that does not wait on them was started in parallel.
   - Digests: `PRIVACY_STATEMENT_TRAINED_T32_DRAFT.final.sha256`.
   - The round-5 text is kept (16e7335a...).
   - Not a privacy acceptance.
+
+## Gate round 7: the token-I/O stages (coordinator, 2026-10-19 ~16:19 UTC)
+
+The trained T32 statement (f971424f...) is frozen and waits on Victor; it is
+left unchanged. The scope is the token stages' gate items G-1..G-7
+(`results/zk60_token_io_design_20261017/DESIGN.md` §4.2), public-row variant
+and the D26 two-site endpoint. Mode (ii) and variant F are not built, so they
+are out of scope. Write set: `gate-tinyllama/` + `EV/token_io/` + this
+ledger. Tools are built on token round 6; figures are quoted from round 7 once
+its manifest lands.
+
+- 16:20-16:22 UTC: **capture support READ** in `ops/zkp-mvp/token-io/hashline/`
+  (round 6; round 7's `wip-r7*` dirs have no capture change). **No token run
+  can be captured**:
+  - `verify_token_run_with` (`token_io/run.rs:725-808`) calls no
+    `stage_begin` / `stage_end` / `run_accepted`, and `TokenRunStatement` has
+    no `capture_header`;
+  - stages IN / OUT run slots via `token_io::run_stage_slot`
+    (`token_io.rs:898`) with no slot hook, and verify M and every opening
+    with bare `mask_verify_tagged` / `pcs::verify_zk_tagged`
+    (`stage_out.rs:802-815`; stage IN alike);
+  - the token run's boundary openings (`token_io/run.rs:783`) are unwrapped.
+
+  The exact request (functions, files, format, a minimal subset) is in
+  `EV/token_io/CAPTURE_HOOK_REQUEST.md`, sent to the coordinator.
+- ~16:24 UTC: coordinator. The request is routed to the token lane as round 7
+  item 4, step A first (header, stage begin / end / accepted, pcs and mask
+  wrappers, R2 capture test at L = 1, 2), then the slot hook. Capture paths
+  will follow when step A is green.
+- **CORRECTION for the coordinator (READ):** the D26 two-site input endpoint
+  is NOT built.
+  - `token_io/run.rs` `variant_is_built` refuses every variant but
+    PublicRow ("D26's two-site endpoint is the next rung"), in round 6 and
+    in round 7's `wip-r7b`.
+  - DESIGN §6.5 says the same: "Not built: the hidden-length variant (D26),
+    mode (ii), the G-1..G-7 rank / CFS gate tooling".
+  - In the public-row variant the input token endpoint has ONE site
+    (`stage_in.rs` header). So G-7 (two-site endpoint, SHIFT / IO-s) is out of
+    scope with mode (ii), not just the hidden-length mode.
+- 16:23-16:27 UTC: **tool work, own write set.**
+  - New `scripts/zk60_native_rg_tokenio.py` re-derives the token stages'
+    geometry from public parameters (a port of `StageLayout::new`, the stage
+    IN / OUT `layout`, the `TokenProfile` domain helpers and `Tier::R1_MVP`,
+    each line cited).
+  - It reproduces the token lane's counted layouts EXACTLY
+    [COUNTED; `EV/token_io/token_geometry_static.json`]:
+    - R2: stage IN A 17 / H 28 (184,320 elements), stage OUT A 182 / H 110
+      (1,196,032);
+    - R3: stage IN A 41 / H 76 (479,232), stage OUT A 374 / H 302 (2,768,896);
+    - 7 byte limbs at both (windows 53 / 56 bits).
+  - Static G-items:
+    - **G-5** holds at both: stage OUT's Tab is lifted to the 2^12 row
+      width; stage IN has no byte table.
+    - **G-4 static**: the vocabulary pads are 768 (R2) and 2,816 (R3). The
+      P-3 lifts: Ti 32 -> 4,096, Lo 18 -> 4,096, Do 2,048 -> 4,096 (R2; R3
+      none), Tab 256 -> 4,096. Endpoint pad words: 224 in the input plane
+      (T = 32 of 256) and 255 in the output plane.
+    - **G-2 static**: B_out's fixed row T - 1 = 31 is 5 bits, of which 1 is
+      a COLUMN bit and 4 are row bits, at both geometries (two token rows per
+      commitment row). Whether the reserved pair still masks the claim is a
+      capture check.
+  - `cross_check_plane_index` compares a captured stage's plane index with
+    the re-derived one (refuses a moved row count or a missing field).
+  - 3 new unit tests (TokenIoGeometry); 57 tests OK.
+  - The working copy is v8 + this module + tests, NOT frozen; v9 follows
+    with the bundle readers.
+- **Plan for the bundle readers once step A's bundle exists** (owner: this
+  lane):
+  - integrity: schema 6, stage kinds IN / BLOCK / OUT with their opening
+    orders, the token header facts and the token-endpoint roots (the G-10
+    analogue);
+  - replay of the TOKEN header transcript (`TokenRunStatement::transcript`);
+  - per-commitment rank for the new roles (A-in, H-in, A-out, H-out, B-in,
+    B-out, E-token-in, E-token-out) on the stage-3 machinery (G-1, per
+    commitment);
+  - the joint view over the shared planes (tok on A_in + input endpoint;
+    B_in on stage IN + block 0; B_out on block L-1 + stage OUT): G-1 joint
+    and G-6;
+  - G-2 on the captured claim points;
+  - the mask arm on M_in / M_out (G-3: 8 and 20 functionals by the
+    re-derived schedule);
+  - then, with the slot hook, G-4's pad-zero terms and the terminal identity
+    on the new slots;
+  - new controls on the new stages (shared pair, zeroed reserved row, a
+    moved endpoint row count, M functional order, a fixed coordinate
+    declared free, a tampered plane index), each predicted to fire.
+
+### Gate round 7 unblocked (coordinator, ~17:20 UTC)
+
+Step A of the token lane is green. Captures (read in place, 0700, outside the
+repo): `/home/victor/zk60-artifacts/token-io/captures/tinyllama-t32-L{1,2}-{dense,fixed}-pt1`.
+- Schema `hashline-native-capture/6-token-run`; tree "uncommitted-token-io-r7c".
+- Export `pg_rot1_b4_T32_cal128` (R2's).
+- dense = seq_ho00; fixed = 32 x BOS (id 1).
+
+Queued after: gate round 8. **D33** (Victor, 16:56 UTC) ACCEPTED the trained
+TinyLlama T32 statement on R7
+(`docs/zkmatrix-poc/ZK60_PRIVACY_STATEMENT_TRAINED_TINYLLAMA_T32.md`; not to be
+edited). Round 8 re-pins it onto the token lane's round-7 final tree (R8 +
+token files) once its final manifest lands.
+
+- 17:25-17:41 UTC: **token gate built** (`scripts/zk60_native_rg_tokengate.py`,
+  own write set; it reuses the frozen machinery):
+  - the loader (schema 6, L + 2 stages, token numbering of boundaries);
+  - `TokenRunReplay`: RunReplay with stage IN's 3 + clog2(d_pad) = 11 r_emb
+    draws before H, stage OUT's 2 LogUp challenges, and each stage's own
+    slot sites. It re-derives every challenge on all four captures:
+    - L1: 5,347 challenges, 220 positions;
+    - L2: 9,838 challenges, 344 positions;
+    - run binding reproduced, all tags ok;
+  - token integrity against the re-derived geometry;
+  - the per-commitment ranks via a role adapter (each opening ranked at its
+    OWN params, with the token code's group counts);
+  - G-2 claim-point classes, G-4 support tables by digest, G-5;
+  - G-3 by the frozen mask / CFS port against each new stage's own schedule;
+  - G-6 endpoint figures;
+  - 30 controls on the new stages.
+- **Probe on L1 dense** (`EV/token_io/probe/probe2-l1-dense.json`, 64 s): **PASS**.
+  - Every new commitment as expected: A-in 0, H-in 2 (the LogUp identity),
+    E-token-in 0, B_in 0, A-out 0, H-out 2, B_out 0, E-token-out 0; M_in /
+    M_out 0. Exclusivity holds on each.
+  - B_in / B_out reserved block rank 6 of 6, det != 0.
+  - **G-2**:
+    - B_in's IN-01 claim has 11 r_emb column coordinates + 1 random;
+    - B_out's OUT-00 claim has 5 public bits (4 row + 1 column: t's low bit
+      falls in the column tail at TinyLlama too, not only at 8B);
+    - each claim on its own pair.
+  - **G-3**: IN 8 functionals, 5,352 entries, 0 differing; OUT 20
+    functionals, 9,326 entries, 0 differing; CFS solved; functional counts
+    = re-derived.
+  - **G-4**: all 8 required support tables identified by digest, among them
+    supp(V = 32,000) over 2^15 (IN-02, OUT-06, OUT-07) and LZC's live limb
+    positions {2k : k < 9} (`stage_out.rs:400`).
+  - **G-5**: A_MU8 and H_GU8 at 2^12.
+  - **G-6**: both endpoints disclosed 0, pad block rank 242 / 242.
+  - Hash layer: 3,328 columns authenticated.
+  - Controls: 28 live, all fire (TC-1/2 the 16-clause exclusivity family on
+    IN and OUT, 24 sub-controls each; TC-3/4 shared pair and single
+    proximity row on B_in / B_out, disclosing 2 / 1; TC-5 replay; TC-6
+    integrity; TC-7 G-2; TC-8 G-4; TC-9 M1/M2/M3/M5/M6 on M_in / M_out).
+    M4 is NOT APPLICABLE by name: no bilinear slot in a new stage.
+- **Pins: OPEN.** The token bundles pin 52 files: 40 byte-identical to the
+  R7 gate copy, 6 changed (run_capture.rs, run.rs, shape.rs,
+  private_block.rs, trained_statement.rs, trained_block.rs) and 6 new
+  token_io files. The frozen mask port refuses shape.rs 8c62519c (P-2 working
+  as designed). A reading helper was spawned at ~17:30 UTC
+  (`EV/token_io/readings/`). v9 waits for its readings: a token pins module
+  plus pin enforcement in the token gate.
+- 17:47 UTC: the reading helper delivered
+  `EV/token_io/readings/token_r7c_pin_readings.json` (12 files, read
+  17:46:55 UTC). Spot-checked by me:
+  - shape.rs and trained_statement.rs are byte-identical to native R8;
+  - run.rs is R8 plus 33 token lines;
+  - run_capture.rs descends from the native writer 1d43d68c;
+  - the token header has six absorbs.
+
+  **Helper corrections:**
+  - (1) The token tree's run_capture.rs lacks the GATE's 2026-10-17
+    trained-calibration capture patch. Token bundles' `shape` has no
+    trained-calibration keys, and **round 8's re-pin must re-apply that
+    patch in a gate copy**.
+  - (2) `source_pins` positions shift (the six token files are inserted at
+    16-21), so pins are matched BY NAME.
+  - (3) Definition draws happen in the stage `define`, before
+    `run_stage_slot`. The verify order inside it is the block slot's.
+  - (4) Run-shape word 8 is the true V.
+  - (5) The token header's `calibration` word is blake3(tag, trained
+    identity, token-profile digest), not the R7 identity.
+  - (6) Stage lines count boundaries from 1.
+
+  No block-stage byte moves at the TinyLlama T32 exports: R8's per-layer
+  calibration is inert when `per_layer_constants_differ` names none of the
+  11 calibration keys.
+- 17:50-17:57 UTC: **token pins** (`scripts/zk60_native_rg_tokenio_r7c_pins.py`):
+  - the 46 R7 pins read in v8 (40 of the token bundle's 52 equal them);
+  - the 12 token r7c readings, verbatim from the helper's file;
+  - `token_pins` matches by name; a refusal fails the token gate;
+  - controls TC-10a (moved pin refused), TC-10b (dropped pin refused) and
+    TC-10c (positive: a read R7 digest accepted).
+- G-3 now runs the frozen mask / CFS port on every stage of a token run.
+  The L1 dense probe 3 is PASS: IN 5,352 / OUT 9,326 / block 16,155
+  entries, 0 differing; pins 52 = 40 R7 + 12 token, 0 refused.
+- 17:58:03 UTC **TOOLS v9 FROZEN** (v8 + `zk60_native_rg_tokenio.py`, the
+  token gate and the token pins):
+  - manifest `gate-tinyllama.tools.frozen.v9.sha256` (57 files, e22425d3...);
+  - `gate-tinyllama-vs-original.v9.patch` (39d5dee4...);
+  - `gate-tinyllama-v8-to-v9.{scripts,tests}.patch` (9cb61a4a..., 1cbe971b...);
+  - snapshot `frozen_v9/`.
+
+  Unit tests OK (62). Verdicts of the 56 staged block records are unchanged
+  under v9 (`v9/verdicts-unchanged-v9.json`).
+- 17:58 UTC: `token_io/token_queue.sh` launched detached (marker
+  `token_io/token_queue.done`): the toolcheck (57 of 57), the unit tests,
+  then the token gate on L1 / L2 x dense / fixed (light, 1.5 / 3 GiB).
+- 17:58-18:04 UTC **token gate on the four step-A captures: all PASS**
+  (`EV/token_io/r7c/`; `.done` = 0; 76-93 s, 0.29-0.36 GiB each
+  [MEASURED, shared box, n=1]).
+  - **Replay:** 5,347 / 9,838 challenges (L1 / L2); hash layer 3,328 /
+    4,352 columns.
+  - **Pins:** 52 = 40 R7 + 12 token, 0 refused.
+  - **G-1:** A-in 0, H-in 2 (the exact public LogUp identity), E-token-in 0,
+    B_in 0, A-out 0, H-out 2, B_out 0, E-token-out 0; M 0. The B_in / B_out
+    reserved blocks are 6 / 6, det != 0.
+  - **G-2:** B_in IN-01 has 11 r_emb column coordinates; B_out OUT-00 has 5
+    public bits (4 row + 1 column).
+  - **G-3:** IN 8 functionals / 5,352 entries, OUT 20 / 9,326, all with 0
+    differing.
+  - **G-4:** 8 of 8 support factors.
+  - **G-5:** Tab at 2^12.
+  - **G-6:** both endpoints disclosed 0, pad ranks full.
+  - **Controls:** 31 live, all fire; 2 M4 not applicable (no bilinear slot).
+- 18:04-18:06 UTC: **gate report** `EV/token_io/TOKEN_GATE_REPORT_R2_T32.md`,
+  the round-7 deliverable for L = 1 and 2. L22 and 8B wait for step B;
+  round 8 waits for the token lane's final round-7 manifest.
+
+### Gate round 7, L = 22 and v10 (coordinator, ~18:06 UTC)
+
+Round 7 at L = 1, 2 is accepted as gate evidence. Order of work: (1) L22 with
+v9; (2) close the coverage gaps (the new slots' terminal identity and NL-1;
+the preimage and joint arms on the new commitments, with a COMPUTED joint
+over tok / B_in / B_out, extending the joint system in v10 if needed; the
+block-stage terminal identity in a token run), freeze v10 and re-run L1, L2,
+L22; (3) the 8B T32 captures at L = 1, paths to follow; (4) round 8 once the
+token lane's final round-7 manifest lands.
+
+- 18:07-18:21 UTC **L22 with v9: both PASS** (`EV/token_io/r7c/token-r7c-L22-{dense,fixed}.json`;
+  428 s / 365 s, peak 1.74 / 1.75 GiB [MEASURED, shared box, n=1]).
+  - Replay: 99,658 challenges, 2,824 positions.
+  - Hash layer: 24,832 columns.
+  - Pins: 0 refused.
+  - New commitments as at L1 / L2. The 66 block commitments are at most 2
+    (each H's public identity).
+  - B_in / B_out reserved 6 / 6.
+  - G-3: 24 stages, 370,088 entries, 0 differing.
+  - G-2, G-4, G-5 ok. G-6: endpoints 0, pad ranks 231-243 full.
+  - Controls: 31 of 31.
+- 18:09 UTC: two helpers spawned for step 2, each writing ONE new module:
+  - `zk60_native_rg_tokenterminals.py`: the new slots' terminal identity and
+    NL-1;
+  - `zk60_native_rg_tokenblocks.py`: the block-stage terminal identity in a
+    token run, with the calibration taken from the export because the token
+    bundles lack the shape keys.
+- 18:10-18:20 UTC (this lane):
+  - **`token_joint_figure`, the joint COMPUTED at word level.** The frozen
+    row-combination model counts each generator as revealing its combined
+    row at every word position, so it decomposes by word position. A
+    2^12 / 2^8 identification is exact at word level.
+    - Word graph: tok (A-in row 0 ~ E-token-in row 0, words 0..31); B_in
+      (block 0 A input rows ~ B0 rows, from slot 21's claims); B_out (block
+      L-1 A output rows ~ B_L rows, slot 22); A-out's x row ~ B_L row 15
+      words 2048..4095 (OUT-00); A-out tok ~ E-token-out word 0 (OUT-10).
+    - Each distinct connected component is ranked once with `RunJointSystem`
+      at width 1.
+    - L1: 133,153 identified word pairs, 4 component types, **joint 0 =
+      sum of parts 0**, no identification reaching a non-data row.
+  - Controls J-1 / J-2 (an identification reaching a reserved row: fires by
+    name) and J-3 (a shared proximity row: fires by the structural
+    shared-non-data-class check; the rank figure does not move, as ruling
+    R-3 says).
+  - **The full preimage on every commitment** (frozen `full_preimages`; the
+    new commitments at L1: 279,872 entries, 0 differing, 136 s) and
+    **`token_joint_preimage`**: mjoint's C1-C4 for a token run.
+  - **TC-11 / TC-12**: round 7's P family on stage IN's and stage OUT's A / H.
+    Both ok at L1 (114 s / 147 s).
+- 18:24 UTC: the coordinator reports the 8B T32 token captures at L = 1:
+  `~/zk60-artifacts/token-io/captures/llama3-8b-t32-L1-{dense,fixed}-pt1`
+  (57 MB each; export `llama3_8b_pg_rot1_b7voc0_T32`).
+  - `token_io/token_queue_8b_v9.sh` was launched detached (marker
+    `token_queue_8b_v9.done`). It runs from the FROZEN v9 snapshot
+    `frozen_v9/` (toolcheck 57 of 57), because the working copy already
+    holds v10 work.
+  - Both 8B captures were added to the v10 queue, and both helpers were
+    told to cover 8B shapes (the block helper must take the export from the
+    bundle).
+- 18:25-18:26 UTC **8B T32 L1 with v9 (frozen snapshot): both PASS**
+  (`EV/token_io/r7c/token-r7c-8b-L1-{dense,fixed}.json`; 67 / 75 s, 0.30 /
+  0.33 GiB [MEASURED, shared box, n=1]). Replay 5,788 challenges; G-2 and
+  G-4 (8B geometry: V_pad 2^17, no Do lift) ok; controls all fire.
+- 18:41 UTC **the new slots' terminal identity and NL-1 delivered**
+  (helper; `scripts/zk60_native_rg_tokenterminals.py`, sha256 62e1dcc2...;
+  dev outputs in `EV/token_io/terminals_dev/`).
+  - **Terminal identity: 15 of 15 new slots** (IN 4 + OUT 11) on all 7
+    captures tested (TinyLlama L1 / L2 / L22-dense; 8B L1 pair).
+    - Each `define` is transcribed with line citations
+      (`stage_in.rs:149-221`, `stage_out.rs:336-542`).
+    - For each slot: poly = terminal_polynomial; fin = c·mask_eval + poly;
+      claimed_sum and fin recomputed; the structure is checked entry by entry
+      (eq points derived, fixed coordinates, hosted nu).
+  - **NL-1 S1 premises: 15 of 15**, under formal and numeric challenges.
+    - Every monomial has a public factor.
+    - Degree <= declared, and the terminal counts match.
+  - **Observations** (not S1 failures; for the reviewer / owner):
+    - the ZS slots' only public factor is the all-ones table, as for the
+      block's SC_ZS;
+    - at 8B, OUT-01 SS's only public factor, supp(d) over Do, is all ones
+      (d = 4096 fills 2^12). The block's SS at TinyLlama, where D does not
+      pad, has the same form and passed the trained export's S1;
+    - OUT-02 / OUT-07 (and OUT-01 at TinyLlama) carry only indicator tables.
+  - **Controls: 15 of 15 fire** (TT-1..TT-7, NL-C1..C5).
+  - Runtime 13-65 s, at most 0.64 GiB (L22).
+  - **Not established:** that tau and the head fold fold the statement's
+    embedding and head (no bundle carries those weights; a soundness-side
+    reading); S3 / S4 (the terminal map onto) for the new slots.
+- 19:08 UTC **block-stage terminal identity inside token runs delivered**
+  (helper; `scripts/zk60_native_rg_tokenblocks.py`, sha256 2cbe4f54...;
+  dev records `EV/token_io/blockterm_dev/blockterm2-*.json`). Every block
+  slot is equal on 7 captures:
+  - TinyLlama L1 23/23, L2 46/46, L22-dense 506/506;
+  - 8B L1 23/23.
+
+  How it works:
+  - The frozen `check_terminals` runs on a per-stage shim. Its stage index
+    is a key only, and no boundary numbering is read.
+  - The calibration comes from the export the bundle's README names
+    (`profile_constants`, with per-layer keys from layer manifests). Each
+    stage's layer is identified by its gains.
+  - Cross-checks X1-X10 hold: the schedule digest is recomputed and bound
+    by the replay, and the per-layer tables match the export's
+    exp.bin / act.bin.
+  - The port's PINNED_IF_PRESENT lacks the token tree's shape.rs (8c62519c).
+    The adapter adds that one digest IN MEMORY during its own calls, from
+    the token reading, and removes it afterwards (NC-0 shows the port
+    refuses without it).
+
+  Controls NC-0..NC-4 fire:
+  - one constant moved breaks exactly slot 14;
+  - the frozen fallback breaks exactly {2, 14, 15, 16, 18};
+  - a cross-stage table swap breaks exactly (stage 2, slot 19).
+
+  Not exercised: a layer with its own calibration (no capture has one).
+  The helper SIGTERMed three of its own guards that were still waiting for
+  admission and had no child; the guard handles SIGTERM.
+- ~19:10 UTC: **token round 7 is FINAL** (coordinator):
+  `manifest_final_r7.sha256`, 233 files. **My diff**:
+  - all 52 pinned files equal the step-A capture's r7c pins, so NO pinned
+    file moved;
+  - against `manifest_r7B` (pre step A), the changes are the step-A hooks
+    (run.rs, run_capture.rs and the four token_io production files), plus
+    s25_tests.rs and the new `token_io/capture_tests.rs` (test).
+
+  The full r7c file list is not on record beyond the 52 pins, so the claim
+  "only test-side changed since r7c" rests on the lane's word for unpinned
+  files. The pinned set, which is what the gate reads, is unchanged.
+- 8B T32 L2 captures (`llama3-8b-t32-L2-{dense,fixed}-pt1`, source label
+  r7d, 52 pins identical to r7c) were added: a v9 run from the frozen
+  snapshot was launched detached (`token_queue_8b2_v9`), and both were added
+  to the v10 queue.
+- TOOLS gains tokenterminals and tokenblocks; v10 unit test TokenGateV10
+  added; 63 tests OK. A v10 probe on L1 dense (the full driver, full
+  preimage on every commitment) was launched detached
+  (`EV/token_io/probe/v10-probe-l1.*`) before the v10 freeze.
+- 19:12 UTC: the first v10 probe failed with NameError: `token_joint_figure`
+  was appended after the module's `__main__` guard, so it was undefined when
+  run as a script. The guard was moved to the end of the module and the
+  probe relaunched; the failed attempt is kept in
+  `EV/token_io/probe/attempts/`.
+- ~19:12 UTC: the coordinator reports token round 7 FROZEN at
+  `results/zk60_token_io_r1_20261017/frozen-r7/` (233 files =
+  manifest_final_r7, eb912dd5...); round 8 uses this copy.
+- 19:13 UTC (round 8 prep, no heavy work):
+  `ops/zkp-mvp/trained-1b-gate-tk7/` = rsync of frozen-r7, verified 233 of
+  233 against `manifest_final_r7.sha256` (eb912dd5...), no extra file
+  (`EV/tk7/verify_copy.before_patch.json`).
+  - The gate's capture patch (`r5b/trained-1b-gate-r5b-vs-frozen-r5b.v1.patch`)
+    applied with offsets of 590 / 824 / 885 lines, no reject (the .orig
+    backup was removed).
+  - The R7 copy's gr4 module was installed (Q-6 L = 2, `stage_shape(k)`).
+  - The trained-calibration shape keys are back in the block writer
+    (run_capture.rs f47e28bf...). Not built yet.
+- 19:25 UTC **v10 probe PASS** (L1 dense, the full driver;
+  `EV/token_io/probe/v10-probe-l1-dense.json`; 654 s, 0.56 GiB).
+  - **Joint (computed):** 0 = sum 0 over 133,153 identified word pairs.
+  - **Terminals:** new slots 15 / 15, NL-1 15 / 15, block stage 23 / 23.
+  - **Full preimage on EVERY commitment** (10, the block's A / H
+    included): 1,376,986 entries, 0 differing, 2,560 salted leaves.
+  - **Joint assignment C1-C4:** all respected.
+  - **Controls:** J-1..J-3, TC-11, TC-12 fire; nothing not fired.
+- 19:26:09 UTC **TOOLS v10 FROZEN** (v9 + the computed word-level joint,
+  the joint controls, the full preimage and joint assignment, TC-11/12, and
+  the two helper modules):
+  - manifest `gate-tinyllama.tools.frozen.v10.sha256` (59 files, 167391ec...);
+  - `gate-tinyllama-vs-original.v10.patch` (4097e38a...);
+  - `gate-tinyllama-v9-to-v10.{scripts,tests}.patch` (343d6471..., 6d09c626...);
+  - snapshot `frozen_v10/`.
+
+  63 unit tests OK; the 56 staged block records are unchanged. The
+  `token_queue_v10.sh` queue was launched detached (marker
+  `token_queue_v10.done`): TinyLlama L1 / L2 / L22 and 8B L1 / L2, dense
+  and fixed, 10 runs.
+- 19:15-19:17 UTC: **8B T32 L2 with v9 (frozen snapshot): both PASS**
+  (`EV/token_io/r7c/token-r7c-8b-L2-{dense,fixed}.json`).
+- 19:27 UTC (round 8, running alongside the v10 queue):
+  - `tk7/record_sources.py v1`: patch 84,466 B (94ed30a7...), 3 files;
+    sources 234 files (d356e7aa...).
+  - Pins: 52. The copy differs from frozen-r7 only in run_capture.rs.
+    frozen-r7 differs from the gate R7 copy in run_capture.rs plus the 11
+    token-r7c-read files.
+  - `tk7/heavy_queue.sh` launched detached (marker `tk7/heavy_queue.done`):
+    build (build class, queued on the heavy lock), the five gr4 tests, and
+    six captures `tinyllama-trained-tk7-capture-{dense,zero}-{l1,l2,l22}` of
+    `pg_rot1_export_T32`.
+- 19:33-19:35 UTC (round 8): the tk7 build exited 0 (4 min 53 s); the five
+  gr4 tests passed, 1 / 1 each (`tk7/gr4-*.log`). The six captures follow
+  on the heavy lock.
+- 19:30-19:35 UTC **tools v11 staged** in `staging_v11/` (a copy of
+  frozen_v10; the working copy is untouched while the v10 queue runs from it):
+  - new `zk60_native_rg_tinyllama_tk7_pins.py`: run.rs 2c158dc9 (the token
+    r7c reading verbatim), run_capture.rs f47e28bf (= token writer aaff4e6e
+    + the gate's 47-line R5b capture patch), shape.rs 8c62519c for the
+    terminal and mask layers;
+  - merged at the R7 sites in runpins / terminals / mask, one marked line
+    each; tools list +1;
+  - tokenblocks: NC-0 now removes the (now permanent) shape.rs reading for
+    its own call and restores it, so it still shows the port refusing an
+    unread shape.rs;
+  - tests: `TK7Pins` (every tk7 digest = the tk7 copy's file; the 52 pins
+    split 40 R7 / 11 token r7c / 1 tk7 writer; a tk7 pin set passes the
+    run-layer, terminal and mask pin checks, and a moved run.rs, run_capture.rs
+    or shape.rs pin is refused) and `TokenBlocksV11` (block terminals PASS on
+    the L1 token capture with the permanent reading, NC-0 fires, and the
+    reading is back afterwards). Both pass in staging.
+  - The staged full suite: 4 errors, all path-only (`staging_v11/original/`
+    does not exist). The suite is re-run after installation.
+- 19:37 UTC **TOOLS v11 FROZEN** (v10 + the tk7 readings and the NC-0
+  adjustment; nothing else moved):
+  - snapshot `frozen_v11/` (made from `staging_v11/` with v10's counts file);
+  - manifest `gate-tinyllama.tools.frozen.v11.sha256` (60 files, 7459dfdc...).
+    Against v10: one file added (`zk60_native_rg_tinyllama_tk7_pins.py`) and
+    six changed (mask, runpins, terminals, tokenblocks, run_gate TOOLS list,
+    the tests file);
+  - `gate-tinyllama-v10-to-v11.{scripts,tests}.patch` (f28be367..., e035095d...),
+    taken frozen_v10 -> frozen_v11 because the working copy is still v10;
+  - `gate-tinyllama-vs-original.v11.patch` (3f88970a...).
+
+  The working copy is installed and the full suite run there once the v10
+  queue has finished.
+- 19:39 UTC `tk7/gate_queue.sh` launched detached (marker
+  `tk7/gate_queue.done`). It runs from `frozen_v11/scripts`; its tool check
+  passed: 60 listed, 0 moved. It waits for each bundle's manifest. Plan, as
+  round 6 (B) on R7:
+  - FAILING-FIRST: the frozen v10 driver on tk7 L2 dense must refuse;
+  - L2 and L1: predictions, pass A on both inputs, TL controls, witcmp,
+    G-10, pin controls, and everything on both inputs;
+  - L22: predictions, the schema check over the six bundles, G-10, and pass
+    A on both inputs (export check against the native r2 statement
+    68ad19c8...).
+- [READ] my own re-reading of the five R8 files on the profile's path (R7
+  copy against frozen-r7), checked against the token r7c readings:
+  - run.rs ad92be08 -> 2c158dc9: the token profile constants and their
+    `run_shape` arms; a new refusal (a blocks-only run may not carry a token
+    profile); `stage_sh_s` -> `stage_cal`. The schedule clause and
+    `stage_shape` differ from R7 only where a stage's calibration differs
+    from the run's. Capture header `token: None`.
+  - shape.rs 7b0c9742 -> 8c62519c: one hunk. `with_score_shift` now calls
+    the new `with_layer_calibration` (classes, CS-8, trained class, plane
+    list unmoved). `Shape::slots` and C-4 are outside the hunk.
+  - trained_statement.rs 6f18efcd -> e623c227: `sh_s: Option<u32>` ->
+    `own: [Option<i64>; 11]` (`OWN_FIELDS`, sh_s first with R6's labels).
+    The encoder writes an own field only when it is Some. The u64 fallback
+    for a negative value cannot be reached after `check`, because the norm
+    classes are >= 1.
+  - trained_block.rs 30cb9a31 -> 0943bade: `per_layer_cal_fields`, `masked`,
+    `run_constants` and `load_layer` generalised; plus visibility changes for
+    the token CLI.
+  - private_block.rs 386194fe -> 45286ae8: `mod token_io`, its CLI
+    re-exports, and the cfg(test) `r8_tests`.
+
+  With `pg_rot1_export_T32/profile.json` `per_layer_constants_differ =
+  [exp_e_s, silu_member]` [READ], `per_layer_cal_fields()` is empty:
+  - `masked` is the identity and `own` is all None;
+  - the identity bytes, schedule lines and stage shapes are R7's.
+
+  None of the three block-path files (run.rs, trained_block.rs, shape.rs)
+  calls into `token_io`.
+- 19:41 UTC `tk7/cli_build.sh` launched detached (marker `tk7/cli_build.done`).
+  It builds the CPU CLI binary a re-pinned statement would name: the
+  statement in force names R7's `e51cc6a4...`, and the token lane built no
+  trained CLI from frozen-r7. The script waits for the heavy queue, re-checks
+  the sources manifest, and then builds with the native lane's own command
+  (`r7_chain.sh`), class build, from the tk7 copy. The copy's only
+  differences from frozen-r7 are `#[cfg(test)]` (run_capture.rs and the
+  stage-47 module; `private_block.rs:222-225`), so the production build
+  compiles frozen-r7's non-test sources. The binary goes to
+  `~/zk60-artifacts/tinyllama-gate-bins/zk60_trained_block.tk7.release.bin`
+  and its sha256 to `tk7/`.
+- 20:15-20:20 UTC **COORDINATOR MEMORY HOLD.** Until
+  `results/zk60_token_io_r1_20261017/logs/r8_round.done` exists (the
+  coordinator corrected the marker from r8_chain.done): one guarded job at a
+  time, need 0.8 / cap 1.5 GiB.
+  - **Not applied to the four running queues.** Their declarations are
+    written into the scripts. Rewriting the unread tails in place was denied
+    by the auto-mode classifier ("Modify Shared Resources"), and stopping
+    the shells needs a signal, which my session refuses. I did not try
+    another route.
+  - What happened: the v10 queue's TinyLlama L22 dense guard entered
+    admission at 20:19:59 with 6.5 / 8. The tk7 L2-dense capture guard
+    (2 / 3.5) has waited on the heavy lock since 19:34.
+  - Reported to the coordinator at 20:20 UTC with the full queue list,
+    declarations and measured peaks. Its decision is pending.
+  - Nothing new is launched under any other rule until the marker exists.
+- v10 so far: TinyLlama L1 dense / fixed and L2 dense / fixed, exit 0 each
+  (19:40, 19:51, 20:06, 20:19 UTC); L1 dense PASS (714 s, peak 0.55 GiB).
+- 20:21 UTC coordinator's ruling on the hold: leave the running queues as
+  they are, and do not try another route ("the over-declarations cost time,
+  not safety"). Anything new follows the hold rule until r8_round.done.
+  **Rule for every queue I write from now on:**
+  - declarations come from measured peaks plus a margin;
+  - before each job, a hold-file check: `while [ -e $EV/HOLD ]; do sleep 60; done`,
+    where `EV/HOLD` is the lane's own hold file, which anyone may create;
+  - so a hold can be applied with no signals and no edits.
+- 23:19 UTC **v10 queue done** (`token_queue_v10.done` = 0): all 10 records
+  PASS, and every record's tool hashes equal the v10 manifest (54 files
+  each). Summary: `EV/token_io/v10/token-v10-summary.json` (31e7b40e...,
+  from `summarize_v10.py`).
+
+  | Run | Wall | Peak | Joint (computed) | Full preimage |
+  |---|---|---|---|---|
+  | TinyLlama L1 dense / fixed | 714 / 653 s | 0.55 GiB | 0 over 133,153 word pairs | 10 commitments, 1,376,986 / 1,384,340 entries, 0 differing |
+  | TinyLlama L2 | 862 / 832 s | 0.6 GiB | 0 | 13 commitments, 2.50M / 2.49M entries, 0 differing |
+  | TinyLlama L22 | 3,756 / 3,429 s | 1.75 GiB | 0 over 133,153 | 73 commitments, 24,883,666 / 24,834,113 entries, 0 differing, 18,688 leaves |
+  | 8B L1 | 798 / 689 s | 0.9 GiB | 0 over 266,273 | 10 commitments, 1.70M entries, 0 differing |
+  | 8B L2 | 942 / 916 s | 0.96 GiB | 0 over 266,273 | 13 commitments, 3.01M / 3.00M entries, 0 differing |
+
+  On every run:
+  - new-slot terminals 15 / 15 and NL-1 S1 15 / 15;
+  - block-stage terminals 23 per block (L22: 506 / 506);
+  - couplings C1-C4 respected;
+  - controls 36 / 36 live fire, 2 not applicable (M4 on IN / OUT);
+  - block-terminal controls NC-0..NC-3 fire (NC-4 also from L2; not
+    applicable at L1).
+- [MEASURED] **8B L2's stage 2 (layer 1) is proved at its OWN score shift**
+  (the b7voc0 export has per-layer sh_s; run value 6, layer 1 value 7). The
+  block terminal identity holds there 23 / 23 at the layer's shape. So one
+  layer-own calibration (sh_s only) is now exercised inside a token run.
+- 23:21 UTC: tools v11 installed into the working copy (7 files from
+  frozen_v11). Check: 60 listed, 0 moved, 0 unlisted. The full suite runs
+  once the tk7 gate queue frees the one-job slot (hold).
+- 23:25 UTC **STEP-2 REPORT** written:
+  `EV/token_io/TOKEN_GATE_REPORT_T32_v10.md` (bcd01bb4...). Sent to the
+  coordinator; the v9 report is kept unchanged. Round 8 continues.
+- 23:26 UTC: coordinator: gate round 7 is accepted as gate evidence. Two
+  items for round 8 and one for round 9:
+  - **(1) The L22 prediction exits.** The tk7 L22 predictions (21:34, exit
+    1, `ok: false`, empty `validated_on`) are, [READ], **neither a mismatch
+    nor a tool-order artefact.** The queue ran `zk60_native_rg_predict.py`
+    without `--validate`. In that case `validation` is empty, and
+    `ok = validation_ok and bool(validation)` is false by construction
+    (`predict.py:690-692`; exit 1 at :707). The same holds for every R7
+    prediction and for the tk7 L1 / L2 ones (all `validated_on: []`).
+    Re-run as real validations against the tk7 pass-A records:
+    `tk7/post_queue.sh`, launched detached at 23:26 (marker
+    `tk7/post_queue.done`). It waits for the gate queue, re-checks both tool
+    trees, and then runs:
+    - the six predictions with `--validate <bundle>:<pass-A record>`;
+    - then the full v11 unit suite in the working copy.
+
+    Rules: one job at a time, a hold-file check (`EV/HOLD`), and 0.8 / 1.5
+    while r8_round.done is absent.
+  - **(2) ROUND 9, after the re-pin note:** draft the next-token privacy
+    statement in D33's form, as a separate draft. Scope it exactly to what
+    the evidence covers, say which calibration each claim covers, recount
+    the residuals with the token stages' draws, and freeze it with a sha256.
+- 23:41 UTC **tk7 gate queue done** (`tk7/gate_queue.done` = 0). Summary:
+  `tk7/tk7-summary.json` (`summarize_tk7.py` = `r7/summarize_r7.py` plus
+  the E3 identity fields).
+  - **All 10 tk7 records PASS with 0 unexplained**: pass A at L1 / L2 / L22
+    and everything at L1 / L2, on both inputs.
+  - **Every deterministic figure equals R7's record for the same bundle**:
+    replay challenges / positions, columns and bytes hashed, every
+    commitment's (role, disclosed, rows, claims, groups), the terminals, the
+    channel counts, the mask entries, and the whole-run joint (2 = 2,
+    4 = 4, 44 = 44).
+  - L22: 98,822 challenges / 2,731 positions, 506 / 506. **E3: the
+    recomputed identity equals the native r2 statement's 68ad19c8...**
+    (statement sha256 5b7acd4d...), on both inputs.
+  - Also: pin controls 12 / 12 exact; TL controls 15 / 15 (L1), 18 / 18
+    (L2, both inputs); G-10 8 / 8 at L1, L2 and L22; schema ok over six
+    bundles (222 allowed keys).
+  - witcmp L2: 114 of 128 figures are identical across inputs (R7: 112).
+    In both, only distinct opened columns, pad block and pad margin
+    differ: the randomness-dependent figures.
+  - Failing-first: frozen v10 refuses tk7's run.rs 2c158dc9 and
+    run_capture.rs f47e28bf, and suspends every stage (as v7 on R7).
+- 23:42 UTC **post queue done** (`tk7/post_queue.done` = 0):
+  - the six predictions are VALIDATED against the tk7 pass-A records, ok
+    on all six with 0 mismatches;
+  - the v11 suite in the working copy: 63 tests OK (`tk7/suite/`).
+  - Correction: v10's suite was 60 tests (`token_io/v10-unittests.log`),
+    not 63 as written at 19:26. The three v11 tests make 63.
+  - The CLI build (an existing queue) started at 23:42:29 and overlapped
+    the 24-s suite job during the hold.
+- 23:44 UTC: the tk7 CPU CLI binary is built (`tk7/cli_build.done` = 0, 1 min
+  16 s): `~/zk60-artifacts/tinyllama-gate-bins/zk60_trained_block.tk7.release.bin`,
+  sha256 dac7fc73.... `tk7/cli_run.sh` was launched detached (marker
+  `tk7/cli_run.done`): stack-prove plus a fresh stack-verify on P-18's own
+  inputs (layers 7..9; inputs re-checked: 45 + 312 files, 0 moved),
+  `--expect-statement ef061000...`. Class cpu, at 0.8 / 1.5 under the hold
+  (R7: prove 1.02 GiB / 5.7 s). It is waiting for the heavy lock (the token
+  lane's s12 suite).
+- 23:46 UTC: re-pin note drafted at
+  `tk7/ZK60_PRIVACY_STATEMENT_REPIN_TK7_20261019.md`. Its CLI section is
+  pending.
+- 23:50-23:53 UTC **ROUND 9 groundwork: token-run residuals counted**
+  (`round9/token_run_counts.py`, outputs `round9/token_run_counts.{L1L2,L22}.json`).
+  - Method: D33's formulas, re-read for the token stages, applied to each
+    capture's own geometry. Controls: K-1, the block stage = 2,329,764, and
+    K-2, a boundary = 30,208, both equal D33's.
+  - Transcript queries are measured by an instrumented replay: every
+    absorb and squeeze on every instance, an over-count.
+
+  Draws per run:
+
+  | Run | Draws | Total distance | D33 (blocks only) |
+  |---|---|---|---|
+  | TinyLlama L1 | 3,105,476 | 2^-74.43 | 2^-74.82 |
+  | TinyLlama L2 | 5,465,448 | 2^-73.62 | 2^-73.82 |
+  | TinyLlama L22 | 52,664,888 | 2^-70.35 | 2^-70.37 |
+  | 8B L1 | 4,662,142 | 2^-73.85 | — |
+  | 8B L2 | 8,437,408 | 2^-72.99 | — |
+
+  - Stage IN 91,744 / 110,192 and stage OUT 617,920 / 716,268 draws
+    (TinyLlama / 8B); 2,816 per token endpoint; L + 1 boundaries.
+  - [READ] **a new input-dependent refusal channel.** Stage IN inverts only
+    the prompt's positions and the table rows of non-zero multiplicity
+    (`stage_in.rs:336-346`); stage OUT only the occurring byte limbs and
+    the histogram's non-zero rows (`stage_out.rs:566-577, 700-711`). The
+    blocks, by contrast, invert whole tables. All of these sit after
+    commitments, with "discard attempt". Counted at D33's convention:
+    two-world 2 (768 L + T + 256) / p^2, i.e. 2^-116.96 / -116.17 / -112.93.
+- 23:57 UTC: the hold lifted (`r8_round.done` written 23:57:00).
+- 23:57 UTC **the tk7 CLI run** (`tk7/cli_run.done` = 0):
+  - stack-prove exit 0, 6.5 s, 1.04 GiB; parity bit-exact before the
+    header; 2 segments, 23,019,088 B (= R7 P-18's length);
+  - stack-verify, fresh process, exit 0, 1.3 s: **statement-published**,
+    identity **ef061000...** (= R7's);
+  - the published statement.json equals R7 P-18's in 51 of 52 fields (only
+    `expected_io`, the fresh endpoint roots, differs);
+  - the run directory is not captured or gated.
+- 23:59 UTC **RE-PIN NOTE FINAL**:
+  `tk7/ZK60_PRIVACY_STATEMENT_REPIN_TK7_20261019.md`, sha256
+  9958e548f3c4ac7d38063fcfc0d46c7ba150500ea482fb4635c16c5b50863a74 (also in
+  `tk7/....sha256`).
+- 23:59 UTC **ROUND 9 DRAFT FROZEN**:
+  `round9/PRIVACY_STATEMENT_NEXT_TOKEN_T32_DRAFT.md`, sha256
+  abccfc64e36ede02fe3db9d34ae676557bd1d81ead745ff4e7825c82a353e522 (573
+  lines; `round9/....sha256`). Status: draft for independent review, not
+  accepted.
+  - Scope: the public-row variant, mode (i), TinyLlama T32 at
+    `pg_rot1_b4_T32_cal128` only, L = 1 / 2 / 22, CPU, frozen-r7 pins;
+    8B is measured, not claimed; it does not extend D33.
+  - Residuals: 2^-74.43 / 2^-73.62 / 2^-70.35; refusal 2^-116.96 /
+    2^-116.17 / 2^-112.93.
+  - New findings: F-T1 (CS-3 is not in the token sealing pass), F-T2 (the
+    token LogUp refusals are input-dependent, counted), F-T3..F-T7 owed.
+  - Counts: `round9/token_run_counts.py` (0ee65824...), outputs L1L2
+    (5a0a0cf8...) and L22 (ce94673b...).
+- 00:05 UTC (2026-10-20) **GATE ROUND 10** (coordinator): rounds 7-9 are
+  accepted as evidence and a draft. The re-pin note and the next-token draft
+  went to the independent privacy reviewer (REVIEW4). F-T1 goes to the
+  token lane as a code fix (CS-3 before the header); F-T2 goes to the
+  reviewer, then the security owner.
+  - Owed items in my write set, as tools v12 (frozen, with failing-first
+    checks where a new check could pass vacuously), re-run on the existing
+    captures:
+    1. NL-1 S3 / S4 / S5 on the new IN / OUT slots;
+    2. the stage-47 root-rebuild replay for the token stages at L = 1, 2;
+    3. the block control families at `pg_rot1_b4_T32_cal128` inside the
+       token captures.
+  - Not mine: the CLI-path token capture and the named token binary.
+  - New queue rules apply.
+  - Deliverables: a report, plus a dated addendum on the draft's owed-list
+    status as a separate file. Then stop.
+  - `staging_v12/` = a copy of frozen_v11 (scripts, tests, counts).
+- 00:23 UTC **REVIEW4** (`results/zk60_privacy_review_trained_t32_20261017/REVIEW4.md`):
+  - (A) the re-pin onto frozen-r7 is YES. The lift waits on Victor and will
+    name the 52 pins, binary dac7fc73..., and pass F and P-18 as carried
+    (PR4-1).
+  - (B) the next-token draft is NOT YET, with a closed list (PR4-12).
+  - Added to round 10:
+    - PR4-7: NL-1 S3-S5 **and the terminal surjection** on the 15 new
+      slots;
+    - PR4-8: the token root-rebuild replay (= item 2);
+    - PR4-9, narrowed: recompute the absorbed calibration word from the b4
+      export and the named tables. The calibration-independent block
+      controls carry with an owner's note, which the coordinator writes;
+    - PR4-2 (optional): capture and gate the tk7 CLI run directory.
+  - **F-T2 is priced as D34** (2 (768L + 32 + 256) / p^2 per run); cite it.
+  - Token lane: PR4-4, PR4-10, PR4-15/16/17.
+- 00:06-00:20 UTC, v12 staging (probes in the scratchpad):
+  - `zk60_native_rg_tokennl.py` (NL-1 S1-S5 through the frozen nl_check,
+    with a slot IR built from the transcription). Probe on TinyLlama L1
+    dense: PASS.
+    - The run's challenges plus 3 random seeds: F-0 fidelity 15/15;
+      S1 15/15 on premise, public factor, degree and budget.
+    - S3: 45/45 tight over 9 (N, d) pairs x 5 regimes.
+    - S4: miniatures 15/15; terminal map onto Fp2^m 15/15.
+    - S5: N5-1 15/15, N5-2 8/8 (7 not applicable at slack > 0), N5-3 and
+      N5-4 fire, F-1 15/15.
+    - T-0: the Rust terminal identity, 15/15.
+  - `zk60_native_rg_tokents.py` (the G-7 terminal surjection via EV/g7's
+    ts_trained.py, width set per role). Probe on L1 dense:
+    - A-in 3/3 surjective, disclosed 0;
+    - H-in 3/4, the LogUp sum group disclosing exactly 2 (joint {2, 3} = 2);
+    - E-token-in 1/1, disclosed 0;
+    - A-out 18/18, disclosed 0;
+    - H-out 5/6, sum group 2 (joint {4, 5} = 2);
+    - B-out 2/2 and E-token-out 1/1, disclosed 0;
+    - census: no identical claims, no equal published values;
+    - every token group is a singleton, so the review's two-member controls
+      cannot run on token roles. A token control TS-1 was added (a
+      singleton's reserved pair removed must disclose).
+- 00:25-00:50 UTC, round-10 work (staging and the tk7 copy):
+  - `zk60_native_rg_tokents.py`: TS-1 (a singleton group's reserved pair
+    removed) fires on all 7 token roles of the L1 probe (disclosed 4,096 /
+    8,192 / 256; honest 0).
+  - `zk60_native_rg_tokencal.py` (PR4-9): A1-A5 plus controls K1-K4.
+    It re-composes BLAKE3("hashline/token-io-calibration/v1" || I || D) from
+    the attribution printed by the tk7 Rust test, and compares the result
+    with the absorbed word, the replayed binding and the block digests.
+  - TOOLS list +3; unit tests `TokenRound10` (3), passing in staging.
+  - tk7 copy, test-only and unpinned:
+    - new `gr4_token_tests.rs`, a child of `gr4_trained_tests.rs`, mounted
+      by one `#[path]` line. It holds:
+      - PR4-8: `prove_token_run_with`'s body replicated on a seeded stream;
+        verified by `verify_token_run`; every root (B_in, A_in, M_in, H_in;
+        B_k+1, A, M, H per block; A_out, M_out, H_out) rebuilt from one
+        replay stream; probe and counted bytes; six non-vacuity
+        perturbations; token endpoints checked in situ; L = 1 and 2, dense
+        and fixed;
+      - PR4-9: `pr4_9_calibration_words_{tinyllama_b4,llama3_8b_b7voc0}`.
+    - The P-18 test `capture_a_cli_run_directory`, ported verbatim from the
+      r7cli copy into tk7's `run_capture_tests.rs` (PR4-2), with the note
+      text naming tk7.
+  - `cargo check --tests` (class build) has been queued on the heavy lock
+    since 00:34.
+- 00:47 UTC: `cargo check --tests` on tk7 exited 0 (after a 12-min wait for
+  the heavy lock): no errors, and no warnings in the new code.
+- 00:57 UTC: tk7 sources v2 recorded (`round10/record_sources.py v2`):
+  - 235 files (7b585940...); patch 145,395 B (4ef38943...), 4 files;
+  - pinned files unchanged (only run_capture.rs differs from frozen-r7, at
+    f47e28bf as before).
+- 00:58 UTC: `round10/r10_heavy.sh` launched detached (marker
+  `round10/r10_heavy.done`): build, then PR4-9 TinyLlama and 8B, then PR4-8
+  x4, then the PR4-2 CLI capture. Waiting for the heavy lock.
+- 00:58 UTC **TOOLS v12 FROZEN**: `frozen_v12/`, manifest
+  `gate-tinyllama.tools.frozen.v12.sha256` (63 files, 38a68f60...).
+  - +3 tools (tokennl, tokents, tokencal); run_gate TOOLS and the tests
+    file changed.
+  - Patches: v11->v12 scripts / tests (3a1a8764..., 9e5dbfaa...);
+    vs-original v12 (b3153de6...).
+  - Installed in the working copy; both trees check 63 / 0 / 0.
+- 00:59 UTC: `round10/r10_light.sh` launched detached (marker
+  `round10/r10_light.done`), in order:
+  - the v12 suite;
+  - NL-1 on all ten captures;
+  - the surjection on all ten (IN / OUT), plus the b4 block stage of
+    TinyLlama L1 dense / fixed;
+  - after the Rust attribution, tokencal on all ten;
+  - after the PR4-2 capture, the gate on it.
+- 01:34 UTC **round-10 Rust queue done** (`round10/r10_heavy.done` = 0):
+  - build 01:16 UTC (test binary in `round10/hashline-lib-test-release.r10.sha256`).
+  - **PR4-8, all four PASS** (L1 dense / fixed, L2 dense / fixed):
+    - header = binding; segment lengths = the counted ones;
+    - verified by the production `verify_token_run`;
+    - every root rebuilt: B_in / A_in / M_in / H_in, each block's
+      B_k+1 / A / M / H, A_out / M_out / H_out;
+    - the probe ends where the prover's did, with exactly the predicted
+      bytes;
+    - 6/6 non-vacuity perturbations move their roots;
+    - token endpoints in situ: all drawn values distinct;
+    - 16-26 s per test, 1.04-1.22 GiB.
+  - [MEASURED] **the consumed bytes confirm the round-9 draw count by
+    value.**
+    - L1 consumed 54,185,024 B = (3,105,476 - 5,632 endpoint draws) x 16 +
+      (147,456 - 4,096 endpoint salts) x 32.
+    - L2 consumed 93,648,512 B = (5,465,448 - 5,632) x 16 +
+      (200,704 - 4,096) x 32.
+    - Both equal `round9/token_run_counts.py` exactly.
+  - **PR4-9 attribution, printed from the export and the named tables**;
+    the composed word equals the statement's header word on all 5:
+    - TinyLlama b4 L1 / L2 / L22: words 45537596... / 3287884a... /
+      5a89f1d3..., profile digest 5857be9d...;
+    - 8B b7voc0 L1 / L2: words c47635ce... / c7e85519..., profile digest
+      e8238cf1....
+  - **PR4-2: the tk7 CLI run directory captured** at
+    `~/zk60-artifacts/tinyllama-cli-tk7-capture-dense-l2` (42.0 MB):
+    - identity ef061000... = the CLI's published statement;
+    - the verified bytes equal `segments.json` entry for entry;
+    - 1.8 s.
+- 01:00-01:31 UTC, light queue so far:
+  - the v12 suite: 66 tests OK;
+  - **NL-1 on all ten captures PASS**. In every challenge mode (run + 3
+    random): F-0 15/15, S1 15/15, S4 15/15 with the terminal map onto
+    15/15; S3 45/45 (TinyLlama) or 40/40 (8B); S5 every control fires;
+    T-0 15/15;
+  - the surjection on TinyLlama L1 dense / fixed and L2 dense matches the
+    probe on every role. TS-1 7/7.
+- 01:40 UTC, coordinator (PR4-10): the token lane has delivered the named
+  round-9 CPU token binary `cli/zk60_token_io.r9.release.bin` (b56f1b71...)
+  and the CLI-path capture `tinyllama-t32-L2-dense-pt1-cli-r9`. Gate it
+  with the current tools; if round 9 moves a pinned token file relative to
+  frozen-r7, say so, and pin the round-9 tree once it is frozen.
+  - [READ] **round 9 moves 6 of the capture's 52 pins relative to
+    frozen-r7:** private_block/run.rs (2c158dc9 -> cc2c4204), token_io.rs,
+    token_io/stage_in.rs, token_io/run.rs, token_io/load.rs,
+    token_io/cli.rs. The other 46 are frozen-r7's bytes. The token lane's
+    working copy (manifest_r9C) has exactly the capture's six digests.
+  - Read 01:45-01:50 UTC with `diff -u` against frozen-r7. **No change
+    moves a receipt byte at T32:**
+    - run.rs: T128 token profiles (additive) and the registry 3 -> 5;
+    - token_io.rs: test-only modules and registry entries;
+    - stage_in.rs: the new `lookup_misses`;
+    - token_io/run.rs: the SEALING PASS (F-T1). Before the generator and
+      the header, it runs stage IN `lookup_misses`, each block's CS-3
+      `seal_check`, stage OUT's byte check, and both endpoint planes
+      checked against the witness. No draw or absorb is added or moved;
+    - load.rs: T128 mapping;
+    - cli.rs: the PR4-4 CLI sealing chain (CS-6, builder chain, int16,
+      parity, CS-3, next token from the builder) and PR4-15/16/17.
+  - **Tools v13 FROZEN** at 01:51 UTC (`frozen_v13/`, manifest
+    gate-tinyllama.tools.frozen.v13.sha256, 64 files, 9931389d...):
+    - new `zk60_native_rg_tokenio_r9_pins.py` (6 readings, PRE-FREEZE);
+    - `token_pins` accepts them;
+    - `tokenterminals.check_source_pins` accepts a round-9 digest only
+      when its reading's base is the port's digest and no receipt byte
+      moves;
+    - test `TokenR9Pins`;
+    - patches v12 -> v13 (d0e7e846..., a1374326...), vs-original v13
+      (f09badb2...);
+    - installed in the working copy (64 / 0 / 0).
+  - Queues launched detached:
+    - `round10/r10_cli9.sh` (01:49, v12: the token gate is expected to
+      refuse the six pins by name, then NL-1 and the surjection);
+    - `round10/r10_cli9_v13.sh` (01:51, v13: the full token gate, NL-1,
+      the v13 suite).
+  - [MEASURED] **the CLI capture's absorbed calibration word 45ce7431... =
+    BLAKE3(tag || 0f4cef3e... || 5857be9d...)**, recorded in
+    `round10/cal/cli9-attribution.json`:
+    - 0f4cef3e... is the identity the NAMED binary printed when it loaded
+      its export view (token lane log c9);
+    - 5857be9d... is the gate's recomputed b4 token-profile digest;
+    - its block digests equal the b4 export's layers 0, 1;
+    - the identity differs from the full-b4 L2 identity because the
+      capture used a VIEW of the export (profile.json's layer list cut to
+      two). That view sits in the owner-private tree, which the gate does
+      not read.
+- 02:00-02:09 UTC, the CLI capture under the current tools:
+  - **v12 refuses as predicted.** Integrity names the six round-9 pins;
+    the new-slot terminals refuse before any slot ("source pins moved");
+    the block terminals refuse ("a token pin has no reading"); the joint
+    assignment's C4 follows; TC-10c (the positive R7 control) is not
+    accepted under a writer with other moved pins. NOT-OK, by name.
+  - v12 NL-1 also NOT-OK (T-0 refuses on the pins). v12 surjection exit 0.
+  - **v13:** integrity ok (the six read); new slots 15/15; every control
+    fires; full preimage 0 differing; joint 0; replay and hash ok.
+    It remains NOT-OK only because the block terminals were REFUSED:
+    "no export: the README names none". The CLI capture's README names
+    the prover's export VIEW, not an export directory, and C4 depends on
+    those terminals.
+  - v13 NL-1 PASS; the v13 suite 67 OK.
+- 02:11 UTC **TOOLS v14 FROZEN** (`frozen_v14/`, manifest a61eecef..., 64
+  files):
+  - the token gate takes `--export` and passes it to the block-stage
+    terminals (an override already supported and checked by that adapter;
+    the record carries `export_override`);
+  - test `TokenGateExportOverride`;
+  - patches v13 -> v14 (031edced..., edbc7912...), vs-original v14
+    (36e44c5a...);
+  - installed in the working copy.
+  - `round10/r10_cli9_v14.sh` launched: the token gate on the CLI capture
+    with `--export pg_rot1_b4_T32_cal128` (the view's source, files
+    hard-linked), then the v14 suite.
+
+- 02:22 UTC **v14 on the CLI capture: PASS** (`round10/cli9/v14-tokengate-cli9.json`,
+  653 s, 613 MB). False parts none.
+  - Integrity: 52 pins (40 R7, 6 token r7c, 6 token r9 readings); no
+    refusal.
+  - Block-stage terminals: every block slot equal on both blocks;
+    calibration cross-checks X0-X10 equal (layers 0 and 1 by gamma);
+    NC-0..NC-4 fire as predicted.
+  - Full preimage: 2,503,403 entries compared, 0 differing. Joint 0.
+  - 38 token controls fire (2 not applicable, as on the harness captures).
+  - v14 suite: 68 OK.
+  - 8B surjection L1 dense done at 02:22 (as on TinyLlama: H 2 Fp, the
+    rest 0). Waiting on the rest of `r10_light.sh`.
+- 02:24 UTC addendum drafted at
+  `round9/PRIVACY_STATEMENT_NEXT_TOKEN_T32_DRAFT.ADDENDUM-20261020.md`;
+  placeholders remain for the 8B and block-stage surjection, cal-all and
+  the PR4-2 gate.
+- 03:05-03:12 UTC **Coordinator: re-pin onto frozen-r9** (token round 9 frozen at
+  `results/zk60_token_io_r1_20261017/frozen-r9/`, 236 files =
+  `manifest_final_r9`, list sha256 b666a991... = manifest_r9C). Added to
+  round 10 as a separate short addendum in the form of the tk7 note.
+  - [MEASURED] frozen-r9 re-hashed: 236 / 236 equal, nothing extra. Against
+    frozen-r7: 12 changed, 3 added, 0 removed. Of a block bundle's 52 pins,
+    six move: `run.rs` (2c158dc9 -> cc2c4204, the one block/run file) and
+    five token files. **All six equal the v13 readings' digests** (read
+    pre-freeze on manifest_r9C, which is this tree).
+  - The gate copy `ops/zkp-mvp/trained-1b-gate-tk9/` = rsync of frozen-r9
+    (236 / 236 equal, `tk9/verify_copy.before_patch.json`) + the four
+    test-only files of the tk7 copy, byte for byte (frozen-r9's bases are
+    frozen-r7's). Sources `tk9/trained-1b-gate-tk9.sources.v1.sha256`
+    (238 files, 597b2204...), patch c8e94a0b... (4 files), pin list
+    `tk9/tk9-source-pins.v1.json` (52; differs from tk7 in exactly the six).
+  - run.rs re-read with both hashes (+16 / -1, 2 hunks): two T128 token
+    profile strings, the registry 3 -> 5, two `registered_block_shape` arms.
+    The D33 profile's arm and everything the ports transcribe are outside.
+  - **TOOLS v15 FROZEN** (`frozen_v15/`, manifest c3d9db18..., 65 files): new
+    `zk60_native_rg_tinyllama_tk9_pins.py` (run.rs cc2c4204 into
+    RUN_LAYER_PINS with the reading; merge refuses a held digest), one
+    marked merge line in runpins, TOOLS +1, test `TK9Pins` (incl. the v14
+    state refusing run.rs by name). Patches v14 -> v15 (0afcc25a...,
+    a8c15661...), vs-original v15 (49a6d401...). Installed in the working
+    copy.
+  - Launched detached: `tk9/heavy_queue.sh` (build, 5 block + 4 token
+    stage-47 tests, six captures, the trained-block CLI build and P-18
+    prove/verify), `tk9/gate_queue.sh` (failing-first v14 probe, L = 1 / 2
+    in full, predictions validated, controls, the v15 suite) and
+    `tk9/gate_queue_l22.sh` (schema, G-10, pass A at L = 22).
+- 03:21 UTC **tk9 heavy queue done** (`tk9/heavy_queue.done` = 0):
+  - test build 3 min 39 s, test binary e79029e6...;
+  - the five block stage-47 tests pass (two-block run dense / zero, block
+    dense / zero, boundary);
+  - the four token stage-47 replays pass on the r9 code: consumed exactly
+    54,185,024 (L = 1) and 93,648,512 (L = 2) bytes, the same as on tk7;
+    1.04-1.24 GiB, 15-24 s;
+  - six captures `tinyllama-trained-tk9-capture-{dense,zero}-{l1,l2,l22}`,
+    source label `trained-1b-gate-tk9-sources-v1-597b2204`, all exit 0;
+  - trained-block CPU CLI from the tk9 copy:
+    `~/zk60-artifacts/tinyllama-gate-bins/zk60_trained_block.tk9.release.bin`,
+    sha256 911e82f0...; on P-18's inputs (45 + 312 files, 0 moved):
+    stack-prove exit 0 (6.1 s, 1.02 GiB, sealed before the header, parity
+    bit-exact, 2 segments, 23,019,088 B); stack-verify in a fresh process
+    with `--expect-statement ef061000...` exit 0, **statement-published,
+    identity ef061000...**; of the statement's 16 top-level fields only
+    `expected_io` (fresh endpoint roots) differs from the tk7 run's.
+- 03:15 UTC **failing-first on tk9:** frozen v14 on the tk9 L2 dense bundle
+  refuses `run.rs` cc2c420498b1 by name ("not one of the 15 digests this
+  gate has read"), the only moved pin, suspends all 13 stages, NOT-OK
+  (`tk9/probe_before_repin/`).
+- 04:24 UTC **tk9 gate queues done** (`tk9/gate_queue.done` = 0,
+  `tk9/gate_queue_l22.done` = 0):
+  - 10 / 10 records PASS, 0 unexplained (pass A L1 / L2 / L22, everything
+    L1 / L2, both inputs); L22 98,822 / 2,731, 506 / 506, E3 identity equal
+    (statement 5b7acd4d...);
+  - **every deterministic figure equals tk7's record for the same bundle**
+    (`tk9/compare_figures_tk9_tk7.json`, 956cf20c...); the leaf diff
+    (`tk9/compare_tk9_tk7.json`) differs only in run.rs's pin entry and in
+    randomness-dependent figures;
+  - PC 12 / 12 exact; TL 15 / 15, 18 / 18, 18 / 18; G-10 8 / 8 at L1, L2,
+    L22; schema ok (222 keys); witcmp L2 118 / 128 identical; 6 / 6
+    predictions validated, 0 mismatches; the v15 suite 70 OK.
+- 04:11-04:29 UTC **r10_light done** (`round10/r10_light.done` = 0):
+  - 8B surjection, 4 captures: the same structure as TinyLlama (H 2 Fp,
+    rest 0), TS-1 7 / 7 each;
+  - b4 block stage inside TinyLlama L1 dense / fixed: A 36 / 36 (0), H 8 / 9
+    (2, joint {7, 8}), Input 2 / 2 (0); the review's controls as of record;
+  - **cal-all (v12) exit 1**: the four L = 1 captures refused by A1 "0
+    attribution lines". Cause: libtest's `test <name> ... ` prefix (no
+    newline under `--nocapture`) precedes each test's first printed object,
+    and v12 read only lines starting with `{`. A parse limitation, not a
+    mismatch;
+  - PR4-2 on the tk7 CLI capture: pass A / everything PASS (0
+    unexplained), prediction validated, schema ok, G-10 8 / 8, TL 18 / 18;
+    deterministic figures equal R7's P-18 capture
+    (`round10/cli/compare_figures_tk7cli_r7cli.json`).
+- 04:27 UTC **TOOLS v16 FROZEN** (`frozen_v16/`, manifest 8e33c998..., 65
+  files): `read_attributions` finds the object anywhere in a line; test
+  `TokenCalAttributionParse` (the prefixed line is read; A1 still refuses a
+  bundle without its line; frozen v15 shown reading only L2 / L22 of the
+  log). Patches v15 -> v16 (7c3306a9..., a7b02344...), vs-original v16
+  (745a11ba...). Installed.
+- 04:29 UTC **v16 cal-all: 10 / 10 PASS** (A1-A5, K1-K4 fire;
+  `round10/cal/v16-cal-all.json`); the v16 suite 72 OK.
+- 04:32 UTC **Addenda written, not a privacy acceptance:**
+  - round 10, on the next-token draft's owed list:
+    `round9/PRIVACY_STATEMENT_NEXT_TOKEN_T32_DRAFT.ADDENDUM-20261020.md`,
+    sha256 f2b6ac8d... (the frozen draft is unchanged, abccfc64...);
+  - the frozen-r9 re-pin:
+    `tk9/ZK60_PRIVACY_STATEMENT_REPIN_TK9_20261020.md`, sha256 c4d88df1....
+  - No job of this lane is pending. Round 10 is closed; stopping.
+- Coordinator (after the round-10 report): round 10 and the tk9 re-pin are
+  ACCEPTED AS GATE EVIDENCE. D35 written (the PR4-9 owner's note); D34's
+  figure corrected to 2^-116.96. PR4-11: token review round 7 on frozen-r9
+  (REVIEW6) started, covering the sealing pass's soundness.
+  **GATE ROUND 11 is queued for after REVIEW6 lands** (the coordinator will
+  forward it):
+  - revise the next-token draft into a NEW frozen version, with scope moved
+    to frozen-r9 and the named binary b56f1b71...;
+  - fold in the round-10 addendum, D34, D35 and the closed
+    PR4-7/8/9/10/15/16/17;
+  - make the wording edits PR4-6, 13, 14 and 17;
+  - record REVIEW6's verdict;
+  - keep the abccfc64 draft as history; freeze the new draft with a sha256;
+    stop.
+  Until REVIEW6 lands, nothing is to be done. No job pending; lane idle.
+- 05:14-05:20 UTC **GATE ROUND 11** (coordinator: REVIEW6 landed, verdict
+  frozen-r9 demo-fit; findings LOW / INFO only). Wrote and FROZE the revised
+  next-token draft:
+  `round11/PRIVACY_STATEMENT_NEXT_TOKEN_T32_DRAFT_v2.md`, sha256
+  **34562422...** (`.sha256` beside it). Draft v1 (abccfc64...) is kept
+  unchanged as history.
+  - Scope moved to frozen-r9 (52 pins: 40 R7 + 6 token r7c + 6 round-9) and
+    the named binary b56f1b71....
+  - The ten harness captures (frozen-r7 pins) carry to frozen-r9 by the
+    round-9 readings, REVIEW6 §2.1 (line for line from the header on) and
+    the equal draw counts on tk9. The CLI capture is frozen-r9-pinned.
+  - Folded in: the round-10 addendum (PR4-7/8/9/10 measured), D34 (the
+    refusal term in the sentence and in §4), D35 (block evidence at b4),
+    PR4-4/15/16/17 as built (frozen-r9 sealing passes at both callers;
+    "Admissible" now describes the generic prover and the CLI path).
+  - REVIEW5 + REVIEW6 recorded as PR4-11's answer.
+  - Wording: PR4-6 (τ / head fold not a gap; attribution closed), PR4-13
+    (nothing claimed about the output owner learning the prompt), PR4-14
+    (the H pair drawn once; C-R1 / C-R2 cite R4 §2.1), PR4-17 (§6), and
+    TR7-4 ("is never given ... within the distance"; "the integer model's
+    next token").
+  - Still owed: privacy review round 5; the security owner's decision
+    (pins, binary, D34 / D35, the D29 extension). Optional: re-capture the
+    ten on frozen-r9; re-fold τ.
+  - Not a privacy acceptance. Round 11 closed; stopping.
+- 05:21-05:24 UTC **GATE ROUND 12** (coordinator: v2 accepted as the frozen
+  draft for review and sent with the tk9 note to the privacy reviewer;
+  re-capture the ten harness token captures on frozen-r9 and re-gate them
+  with the current tools; short dated addendum; do not edit v2).
+  - Tree: `ops/zkp-mvp/token-gate-r9/`, an UNMODIFIED rsync of frozen-r9
+    (236 / 236, `round12/verify_copy.json`), so the captures pin exactly
+    frozen-r9's files, the token writer included.
+  - Launched detached:
+    - `round12/r12_heavy.sh`: build, then ten captures with the token lane's
+      own tests into `~/zk60-artifacts/token-io-r9-gate/captures/`;
+    - `r12_gate_a.sh`: token gate v16 on L22;
+    - `r12_gate_b.sh`: token gate on TinyLlama L1/L2 and 8B;
+    - `r12_gate_c.sh`: NL-1, calibration, surjection plus the b4 block
+      stage.
+  - Declarations come from the measured peaks; each queue checks EV/HOLD.
+- 05:28-05:30 UTC **GATE ROUND 13** (coordinator: privacy review round 5
+  landed; (A) tk9 re-pin YES; (B) v2 READY for the security owner and
+  Victor; the harness carry accepted without the re-capture (PR5-4), but
+  round 12 to finish; any randomness-free disagreement lapses the carry).
+  - Wrote and FROZE `round11/PRIVACY_STATEMENT_NEXT_TOKEN_T32_DRAFT_v3.md`,
+    sha256 **97853f25...** (`.sha256` beside it). v2 (34562422...) and v1
+    (abccfc64...) are unchanged.
+  - v3 makes only round 5's wording items:
+    - PR5-5: the identities admitted for L < 22, i.e. the export at a layer
+      range (4ee1fd18 / a4604eed / 78ccaba5) or a layer-cut view with equal
+      block files and constants (CLI 0f4cef3e), with P-4 covering the view;
+    - PR5-6: §9 now lists a witness source that skips `seal_check`, and T-5
+      is scoped to the five in-tree sources;
+    - PR5-7: the decode helper reads the 0600 token file (token round 11
+      fix, not frozen at 05:30, so it is a slot); no demo on a non-public
+      prompt until then; delivery to separate owners is not implemented;
+    - PR5-8: the 40 + 6 + 6 and 46 + 6 splits are reconciled.
+  - Also: status / §10 record the round-5 verdict and PR5-3's decision
+    content, and a dated slot for round 12 (not landed: its capture queue
+    is waiting on the shared heavy lock).
+  - Round 12 continues.
+- 06:00-06:12 UTC **Coordinator: GATE ROUND 14 queued after round 12's
+  addendum** (D24 review r9 accepts native R9, DD / D30, on soundness at the
+  three DD profiles; D30 needs the privacy gate on DD captures). Step 1, read
+  only:
+  - **R9 cannot capture a DD run** [READ].
+    - `run_capture.rs:999` refuses any stage whose argument count is not
+      N_SLOTS = 23, so a DD stage fails.
+    - `plane_index.rs` (unchanged since R8) lacks the DD planes and slot 23,
+      so it refuses at stage open.
+    - `run.json` prints n_slots 23 and has no DD keys.
+    - There is no DD capture test.
+    - Both modules are `#[cfg(test)]`.
+  - Hook request H-1..H-6 written to `round14/DD_CAPTURE_HOOK_REQUEST.md`
+    and sent to the coordinator, with the choice of (a) the native lane
+    builds it, or (b) the gate carries a test-only patch.
+- Coordinator: **option (b)**. Carry H-1..H-5 as a test-only gate patch in a
+  gate copy of R9.
+  - Everything `#[cfg(test)]`; every production file byte-equal to
+    `r9/frozen-tree`, checked by manifest.
+  - The recorder replays its own transcript and is validated by the
+    production verifier's acceptance.
+  - Record the patch as a diff against frozen R9 with its sha256; the native
+    lane reviews and adopts it.
+  - Order: round 12's addendum first, then the patch and the v17 port.
+  - Preparing code while round 12's light jobs run; nothing is claimed
+    before the addendum.
+- 06:30 UTC **Coordinator created EV/HOLD**: hold until
+  `results/zk60_token_io_r1_20261017/logs/r11_chain.done` exists. Running
+  jobs continue; my queues start no new job. The coordinator asked the
+  fidelity lane to hold too. When the marker appears I remove HOLD and
+  resume rounds 12 / 14 (a background waiter does it). Contention cause: the
+  token lane's tio-s14-suite (cpu, 7.5 GiB) held the heavy lock while light
+  jobs (mine 4.2 GiB, fidelity 5 GiB) kept the budget full. Coding round 14
+  meanwhile.
+- 06:15-06:53 UTC **round 14 code** (round 12's queues keep running):
+  - Gate copy `ops/zkp-mvp/trained-1b-gate-r9/`: R9 222 / 222 equal, plus
+    the test-only patch H-1..H-5 in run_capture.rs, plane_index.rs and
+    run_capture_tests.rs (DD rung and TinyLlama T128 DD capture tests, and
+    a non-ignored plane-index check at both DD layouts).
+  - Failing-first copy `trained-1b-gate-r9-ff/`: R9 plus the new tests
+    only.
+  - `round14/r14_heavy.sh` launched: both builds, the failing-first
+    plane-index test and DD rung capture on the unpatched path, the
+    patched copy's checks and capture suite, then eight DD captures. It
+    is waiting for the heavy lock, which the token lane's s14 suite
+    holds.
+  - **staging_v17** (from frozen_v16):
+    - `zk60_native_rg_tinyllama_r9_pins.py`: readings of the 14 moved
+      pins, merged into runpins, terminals, mask and gqa;
+    - terminals: TAG_DD, lookups_at for Dom::S at DD and for Dom::Dd,
+      g_dd, n_helpers extras, `sc_szc_dd`, `sc_dd`, PUBLIC_SPEC[23] with an
+      e-column structure check, and `ports_for` / `covered_at` per bundle
+      so a DD bundle's slot 23 is never silently uncovered;
+    - planes: the Dd domain, and a Dd-present-iff-dd_cap check;
+    - schema: the 6 DD keys;
+    - predict: DD draw counts and functionals;
+    - tcontrols: CT-2 / CT-3 at slot 23 for DD;
+    - new `zk60_native_rg_ddnl.py`: NL-1 S1-S5 on slots 17-DD and 23 from
+      a symbolic transcription, with T-0 / X-0 / F-0 and controls F-1 and
+      X-1;
+    - new `zk60_native_rg_ddcontrols.py`: DT-1..DT-7, predicted;
+    - new `zk60_native_rg_ddts.py`: the surjection on every role, the
+      review's controls, and DS-1 / DS-2 on the DD groups.
+    - All untested until the captures exist.
+- 06:53 UTC: the token lane's `logs/r11_chain.done` appeared (0). **HOLD
+  removed** by the waiter; rounds 12 / 14 resume. The round-14 gate-copy
+  build started at 06:53.
+- 07:58 UTC **round 14 builds and DD rung captures** (`round14/r14_heavy.progress`):
+  - Both copies build: the gate copy at 06:57, the failing-first copy at
+    07:01.
+  - **Failing first [MEASURED]:** on frozen R9's own capture path (only the
+    new tests added), the plane-index check fails, and the DD rung capture
+    refuses with "replay: the plane index does not build at stage 0: the A
+    plane name table has 83 names for 85 planes". No bundle is written.
+  - The patched copy's plane-index check passes. The existing capture
+    suite passes: 16 passed, 0 failed.
+  - **DD rung captures** at `~/zk60-artifacts/dd-gate-r9/dd-rung-l{1,2}-{dense,zero}`:
+    24 slots, dd_cap 32, 1-2 s each, 0.10-0.12 GiB, 9.6 / 17.8 MB. Each
+    verified with the recorder attached; self-consistent; every key on the
+    allow-list.
+  - The coordinator's new HOLD (the token lane's 8B demo dry run) stops the
+    TinyLlama T128 DD captures until it is removed.
+- 07:58-08:10 UTC **staging_v17 on the DD rung captures** (development
+  runs, unguarded, each under 0.6 GiB and single-core, during the HOLD;
+  records in `round14/dev/`):
+  - **pass A, rung L1 dense: PASS.**
+    - Terminal identity **24 / 24** (slot 17's DD arm and slot 23 equal to
+      the Rust polynomial); the R9 pins all read.
+    - A: disclosed 0, 907 rows, 125 claims, 38 groups.
+    - H: disclosed 2, 928 rows, 55 claims, 10 groups.
+    - Both endpoints: disclosed 0.
+  - **DT-1..DT-7 (`zk60_native_rg_ddcontrols.py`), rung L2 dense: 7 / 7
+    fire.**
+    - DT-4 now perturbs slot 1 of every period, so the column stays
+      well-formed. Then the arithmetic fails at exactly (1, 23) and the new
+      e-column attribution to the stage's slot-19 exp table refuses
+      (n_col 8).
+    - DT-4's first version (one entry) tripped the structure check as well.
+  - **DD NL-1 (`zk60_native_rg_ddnl.py`), rung L1 dense: PASS.** T-0 2 / 2;
+    in all 4 challenge modes X-0, F-0, S1 and S4 each 2 / 2; S3 5 / 5;
+    N5-1..4, F-1 and X-1 fire.
+  - **everything + controls, rung L1 dense, first run: NOT-OK.** It showed
+    three things v17 lacked:
+    - M9-3 / CT-9 on domain S at DD: the DD arm had no pad check, while
+      argument.rs R9 refuses `pad_on` by name. Fixed: `sc_szc_dd` /
+      `sc_dd` refuse with R9's text; M9-3 and CT-9 accept that mechanism
+      for slots 17 / 23 at DD; Dd is added as a host.
+    - GQ-7 at lkv = 1 reported `fires: False` with a skip, an unexplained
+      false leaf. It is now a named not-applicable null.
+    - The rerun is in progress.
+- 08:10-08:20 UTC **staging_v17, continued:**
+  - **everything + controls, rung L1 dense (rerun): PASS, 0 unexplained.**
+    - Terminal identity 24 / 24 with CT controls ok.
+    - Full preimage: 0 of 534,573 entries differing.
+    - Mask / CFS: 0 of 16,499.
+    - Joint: 0 of 551,072, couplings respected.
+    - M9-3: Dd and S refused by R9's DD pad refusal, the other domains by
+      draw count; every arm ok.
+    - CT-9: 8 / 8. Hash: 1,280 columns.
+  - **DD surjection (`zk60_native_rg_ddts.py`), rung L1 dense:**
+    - A 38 / 38 (0); H 9 / 10 (2, joint {7, 9} = 2); Input and Output 1 / 1
+      (0).
+    - The review's controls behave as of record.
+    - DS-1 (slot 23's 10-claim A group, pair removed): 0 -> 2 Fp, fires.
+    - DS-2 (the tuple helper's 4-claim H group): 0 -> 2. It is now
+      applicable to any group size outside the zero-sum rows.
+  - DT-4 now perturbs the last nonzero entry (the rung L1 table has
+    consecutive values). DT-1..DT-7: 7 / 7 on all four rung captures.
+  - Tests R9Pins (2) and DDPorts (3) added. Staging installed in the
+    working copy; the full suite runs **77 tests OK**.
+  - Not frozen yet: waiting for the TinyLlama T128 DD captures (HOLD)
+    before freezing v17.
+- 2026-10-20 08:14-09:02 UTC (recorded late, from file times) **TinyLlama
+  T128 DD captures** (`round14/r14_heavy.progress`):
+  - L1 dense 08:14 and L1 zero 09:00: exit 0. 74 MB each; dense parity
+    262,144 words bit for bit with the export; peak 3.25 GiB [MEASURED].
+  - **L2 dense / zero: FAILED (exit 101)** with a CS-3 byte-table miss in the
+    harness, before any bundle was written (no dirs exist).
+  - **Root cause [READ]:** my test harness's DdChain built every block's
+    witness at the RUN shape. The export `tinyllama_dg_rot1_T128` has
+    per-layer `norm_cn_a, norm_cn_m, sh_ao, sh_h, sh_s, sh_z`; layers 0 and 1
+    differ in sh_s (6 / 8), cn_a, cn_m and sh_ao. The run base is layer 0's
+    (a tie, broken by the smallest tuple, sh_s first), so layer 1 carries its
+    own constants. The stack CLI builds such a block at
+    `sh.with_layer_calibration(apply_own(..))` (trained_block.rs:2121).
+    Reported to main.
+  - **Fix (09:02, test-only):** DdChain takes one shape per block; the T128
+    test computes them from `has_own` / `apply_own`, as the CLI does.
+  - dev8 (T128 L1 dense, pass A, v17 staging, 0.38 GiB, 78 s): terminals
+    24 / 24; A 0 (1871 rows / 123 claims / 38 groups); H 2 (2026 / 52 / 10);
+    endpoints 0. NOT-OK only on export cross-check E1: the export's
+    profile_constants are None for the per-layer fields, and E1 compared the
+    bundle's shape with None. Needs a v17 fix (below).
+- 2026-10-20 ~10:15 UTC to 2026-10-21 00:00 UTC: **run stopped (login
+  expired).** The coordinator renewed it and asked me to resume from this
+  ledger without relaunching from a stale status.
+- 2026-10-21 00:00 UTC **resume check [MEASURED]:** no HOLD. Guard: heavy
+  lock free, 0 GiB committed. Round 12: `r12_heavy`, `r12_gate_{a,b,c}.done`
+  all 0 (queue C's last step `ts/r9-ts-block-tinyllama-t32-L1-fixed-pt1`
+  at 10:11 UTC); 33 / 33 records exit 0. Round 14: nothing of mine running.
+- 00:01 UTC **round 14, harness fix recorded as v2:**
+  - Patch `round14/trained-1b-gate-r9-vs-frozen-r9.v2.patch` (3 files,
+    sha256 052a82cf77f259782b8592357ff7e4d03ef4beb1daa8ec737673dc866079aa12).
+  - Sources `round14/trained-1b-gate-r9.sources.v2.sha256` (222 files,
+    d9b80c92c5e96d8c0927de94656bc7072191fcc1470fa58c8f48a40f19b65a2e).
+  - Against v1, only run_capture_tests.rs moved (c8e9618f -> 3dc6abaa).
+    Against R9, the same three test-only files as before. Every production
+    file still equals R9's manifest. run_capture_tests.rs is not pinned, so
+    the r9 pins module needs no change.
+  - The L = 1 and DD rung captures stand. At L = 1, and at the rung's single
+    calibration, every block's shape is the run shape, so the fix changes
+    nothing there.
+  - The failed L2 records were kept as `cap-tl128dd-l2-*.v1-failed.*`.
+  - `round14/r14_heavy2.sh` was launched detached at 00:02. It checks the
+    production files and sources v2, rebuilds (build), runs the plane-index
+    check and capture suite, then recaptures tl128dd-l2-{dense,zero}
+    (cpu 4.5 / cap 7 GiB, label `trained-1b-gate-r9-sources-v2-d9b80c92`).
+    The build started at 00:02.
+- 00:05 UTC **ROUND 12 DONE: every randomness-free figure equal.**
+  - `round12/compare_r12.py` (e71b6962...) over all ten captures: token
+    gate, NL-1, surjection (+2 block surjections) and calibration words
+    equal frozen-r7's. Output `round12/compare_r12.json` (220ff5dd...).
+  - Randomness-dependent figures differ, as they should for fresh captures
+    (e.g. view entries compared 2,494,851 vs 2,500,124).
+  - Addendum `round12/PRIVACY_STATEMENT_NEXT_TOKEN_T32.ADDENDUM-R12-20261021.md`
+    (sha256 44956506a09ab07ec44ba255aeccb8d0716bb287d4c38b36eafda5a99f46adb4).
+    v2 and v3 are not edited. Not a privacy acceptance.
+- 00:06 UTC **round 14: T128 DD L2 recaptured [MEASURED]** (`round14/r14_heavy2.progress`, all exit 0):
+  - The rebuild exited 0; test binary `hashline-907502d0885d022a` 1b3e4bfb...
+  - Plane-index check 1 / 1; capture suite 16 passed, 0 failed.
+  - `tl128dd-l2-dense`: parity 524,288 words bit for bit with the export.
+    Layer 1 is at its own calibration. 107.8 MB, 17.6 s, peak 3.38 GiB.
+  - `tl128dd-l2-zero`: 107.8 MB, 16.9 s, peak 3.35 GiB.
+  - Stage 01's schedule line carries four own clauses: score shift 8 (run 6),
+    cn_a 2198 (1253), cn_m 1764 (1444), ao shift 6 (7).
+  - Consequence for v17: the terminals port reads `run.json["shape"]` for
+    every stage, so stage 01 would be checked at the wrong calibration.
+    v17 needs a per-stage calibration (the next item), bound by recomputing
+    the run's schedule digest from run.json's lines.
+- 00:07-00:20 UTC **staging_v17: per-stage calibration and the export check's per-layer fields** (installed in the working copy; NOT frozen yet):
+  - New `zk60_native_rg_stagecal.py`.
+    - It reads each stage's own clauses from run.json's `stage_lines`
+      (R9 run.rs:525-541).
+    - It binds them by recomputing the run's schedule digest:
+      blake3("hashline/private-run-schedule/1", framed parameter line,
+      layout description and stage lines; run.rs:572-587). The digest
+      recomputes equal on all eight DD captures [MEASURED].
+    - It re-derives d_max / norm_wrho as `derive_at_width` does.
+    - Refusals by code: SC-1 (run value not the shape's), SC-2 (own equal
+      to the run's), SC-3 (order / repeat), SC-4 (unparsed text), SC-5
+      (digest), SC-6 (no trained calibration), SC-7 (limbs).
+    - Token-I/O runs are exempt: their blocks reach the port through
+      tokenblocks' per-block shim.
+  - terminals: `TerminalGate.set_stage(k)` evaluates each stage at its
+    shape. `check_terminals` refuses before any slot if the reader refuses.
+    It also takes a `stage_shapes` override, for the controls. ddnl and
+    gcontrols call `set_stage` too.
+  - The record now carries `stage_calibration` (only where a stage is at its
+    own calibration) and the DD e-column attribution (DD only).
+  - exportcheck:
+    - E0: the export's integrity (tokenblocks.load_export X8).
+    - E1: per-layer fields are compared with the RUN calibration of the run's
+      layers (modal tuple, ties smallest, OWN_FIELDS order), no longer with
+      null.
+    - E3b: each stage's layer is identified from its slot-14 gains when no
+      statement is given, and cross-checked with the README's list. It is a
+      refusal only where a check needs the map.
+    - E5: each stage's calibration equals its export layer's eleven
+      constants.
+  - tlcontrols:
+    - TL-1 / TL-2 perturb every stage's shape and predict per
+      (stage, slot).
+    - New TL-5 (failing-first for the per-stage calibration): a stage with
+      own constants evaluated at the run shape, as v16 did. Predicted:
+      exactly that stage's slots that read one of its own constants.
+    - New TL-6: the reader's refusals SC-1..SC-5 on edited run.json copies.
+  - `zk60_native_rg_stagecal.py` added to the run gate's TOOLS list. Test
+    `StageCal` (2) added. Suite: 79 tests OK.
+  - **dev9 (pass A, guarded light, records in `round14/dev/`) [MEASURED]:**
+    - **T128 DD L2 dense: PASS**, 0 unexplained.
+      - Terminals 48 / 48: stage 1 checked at layer 1's own calibration.
+      - Per commitment: A@0, A@1 0 (1871 rows / 123 claims / 38 groups);
+        H@0, H@1 2 (2026 / 52 / 10); E-Input, E-Output and B0 0.
+      - Export: ok. E3b identifies layers [0, 1] from the gains (= README).
+      - E1: run calibration = layer 0's (tie, smallest).
+      - E5: stage 0 = layer 0, and stage 1 = layer 1 at its own constants.
+      - E4: exp / act tables equal at both stages.
+      - 93 s, 0.46 GiB.
+    - **T128 DD L1 dense: PASS**: terminals 24 / 24, export ok (E1 fixed),
+      E4 checked. 72 s, 0.42 GiB.
+  - Running: dev10 (TL / ddnl / ddcontrols / ddts on T128 L2 dense) and
+    dev11 (everything + controls on T128 L1 dense, a first measurement for
+    the official queue's declarations).
+- 00:15-00:17 UTC **round 15 started in parallel** (light / CPU, the heavy
+  lock was free):
+  - Gate copy `ops/zkp-mvp/token-gate-r11/`, an unmodified copy of
+    frozen-r11: 237 / 237 = manifest_final_r11 (d8075d76...), none moved
+    (`round15/verify_copy.json`).
+  - [READ] r9 -> r11 diff: `token_io.rs` 602597ad -> 7730c8d0 (one
+    `#[cfg(test)] mod r11_tests;` line); `cli.rs` b9079130 -> 3eaaacdb.
+  - `round15/r15_heavy.sh` launched detached at 00:17:
+    - build (build class);
+    - then the token lane's `capture_the_cli_verify_path_at_tinyllama_t32_l2`
+      with HL_PB_CLI_BIN = r11 binary 0c9f247c... (checked first);
+    - work files go to a NEW dir `~/zk60-owner-private/gate-r15-cli-work`,
+      never read by this lane;
+    - the bundle goes to
+      `~/zk60-artifacts/token-io-r11-gate/captures/tinyllama-t32-L2-dense-pt1-cli-r11`.
+- 00:20-00:44 UTC **dev10 on T128 DD L2 dense [MEASURED]:**
+  - **TL controls 24 / 24**:
+    - TL-1 is exact per (stage, slot): stage 1 also fails slot 17, because
+      its own sh_s 8 differs from the frozen value.
+    - TL-2: 11 / 11 exact, each at both stages.
+    - TL-3: 3 / 3. TL-4: 3 / 3 (stage 1's SC_TAB).
+    - **TL-5/stage-1: exactly (1, 14) and (1, 17) fail** when stage 1 is
+      evaluated at the run shape, as v16 did. This is the failing-first of
+      the per-stage calibration.
+    - TL-6: SC-1..SC-5, 5 / 5.
+  - DD NL-1: PASS. DD controls: exit 0. ddts: still running (slow at T128
+    L2, ~20+ min).
+- 00:44 UTC **TOOLS v17 FROZEN**:
+  - snapshot `frozen_v17/`; manifest
+    `gate-tinyllama.tools.frozen.v17.sha256`, 70 files,
+    ff68af54fe16af6fb1c8f577cdbf5939315a48088f27293a342efbd4d6aab371;
+  - patches v16 -> v17 scripts c00e1ca1..., tests bf4628e1...;
+    vs-original v17 5bc598d4...;
+  - the working copy equals it (70 / 0 / 0); the suite runs 79 OK.
+- 00:45 UTC **official round-14 queues launched** (detached; frozen v17;
+  shared `round14/r14_common.sh`):
+  - `r14_gate_a.sh`:
+    - failing-first v16 on rung L1 dense and T128 L2 dense;
+    - pass A and the validated prediction on all 8 captures;
+    - ddnl, ddcontrols and ddts on all 8;
+    - TL controls on rung L2 dense, T128 L1 dense, T128 L2 dense / zero;
+    - export controls on T128 L1 / L2 dense;
+    - schema over the 8; G-10 on 3 pairs; pin controls on T128 L1 dense;
+    - witcmp at T128 L2; the v17 suite.
+  - `r14_gate_b.sh`: everything + controls on rung L1 dense / zero, rung L2
+    dense, T128 L2 dense and T128 L1 dense.
+  - **Failing-first [MEASURED]:** v16 on `dd-rung-l1-dense` refuses the R9
+    pins by name (argument.rs 112352bc "neither definition", layout.rs,
+    protocol.rs, plane_index.rs, shape.rs, ...). "NO slot of any stage was
+    checked". NOT-OK.
+- 00:46-00:50 UTC **round 15 tools staged** (`staging_v18/` from
+  frozen_v17; not frozen, not installed):
+  - new `zk60_native_rg_tokenio_r11_pins.py`: readings of token_io.rs
+    7730c8d0 (base 602597ad, test-only mod line) and cli.rs 3eaaacdb (base
+    b9079130, CLI only: TR7-5 / TR7-6 / TR7-7; +75 / -10 in 7 hunks);
+  - `token_pins` accepts them;
+  - `tokenterminals.check_source_pins` walks the readings back to the
+    port's digest (r11 -> r9 -> frozen-r7), each step moving no receipt
+    byte;
+  - TOOLS +1;
+  - test `TokenR11Pins` (2): the readings equal frozen-r11 / frozen-r9;
+    failing-first without the readings refuses both files by name; a broken
+    chain is refused; and, when the capture exists, the r11 capture's pins
+    pass.
+  - `round15/r15_heavy2.sh` queued: the trained-block CPU CLI from the
+    r11 copy, then P-18's stack-prove / stack-verify (for D33's part).
+  - The r15 build is waiting for budget: the fidelity job (5 GiB) plus my
+    dev11 (3 GiB) plus the queues fill it.
+- 01:11 UTC **dev11: T128 DD L1 dense, everything + controls: PASS, 0
+  unexplained [MEASURED]** (`round14/dev/dev11-tl128dd-l1-dense-everything.json`).
+  - Its 62 tool hashes all equal the frozen v17 manifest: it started at
+    00:16, after the last tool edit. So it is a v17 record.
+  - Replay 5,002 / 132; terminals 24 / 24; the e column is attributed to
+    the stage's exp table.
+  - Full preimage: 4 commitments, 1,905,229 entries, 0 differing, all
+    solved and exhibited.
+  - Mask / CFS: 16,906 entries, 0 differing.
+  - Joint: 1,922,135 entries, 0 differing, couplings respected.
+  - Export ok (E3b layer [0], E4 checked); negative controls ok.
+  - **Cost:** 3,324 s (full preimage 2,794 s), peak 1.93 GiB. Queue B's
+    T128 declarations (2.0 / 2.5 GiB need, caps 4 / 5) cover it.
+- Official queue A so far (all exit 0): pass A on all 8 captures; ddnl /
+  ddcontrols / ddts on the four rung captures; T128 L1 dense ddnl /
+  ddcontrols. Queue B: rung L1 dense, rung L1 zero and rung L2 dense
+  everything all exit 0 (rung L1 dense PASS 280 s; full preimage 534,573 /
+  0; mask 16,499 / 0; joint 551,072 / 0).
+- 01:17 UTC **round 15: CLI-path capture through the r11 binary [MEASURED]** (`round15/r15_heavy.progress`, `.done` = 0):
+  - Build exit 0 at 01:16 (test binary `hashline-861b58dae9ff7a69`,
+    04582a89...).
+  - The token lane's `capture_the_cli_verify_path_at_tinyllama_t32_l2`
+    passed, with HL_PB_CLI_BIN = `zk60_token_io.r11.release.bin`
+    (0c9f247c..., checked before the run):
+    - the binary's own `prove`: sealed (2 parity layers), 4 segments,
+      27,422,816 B, 10.6 s;
+    - its own `verify`: published the statement, 95 / 100 bits;
+    - the recorded verification: 7.8 s, peak 1.10 GiB rss / 1.26 GiB
+      cgroup, 34 s in all.
+  - Identity printed by the binary for its export view: 0f4cef3e... (the
+    same as the r9 CLI run). The capture's absorbed calibration word is
+    45ce7431..., also the same.
+  - Bundle `~/zk60-artifacts/token-io-r11-gate/captures/tinyllama-t32-L2-dense-pt1-cli-r11`,
+    label `frozen-r11-d8075d76-gate-copy`.
+  - Work files (view, run directory, owners' decommitments) are in
+    `~/zk60-owner-private/gate-r15-cli-work/`, never read by this lane.
+- 01:21 UTC **TOOLS v18 FROZEN** from `staging_v18/`, without touching the
+  working copy (queue A still checks it equals v17):
+  - `frozen_v18/`, manifest `gate-tinyllama.tools.frozen.v18.sha256`,
+    71 files, ebdca44acc31e96604e48d5eea840576e030c6214ce7533792574fa2b9af2038;
+  - patches v17 -> v18 scripts 9d3a7f85..., tests 0de785a3...; vs-original
+    v18 1671c49d...;
+  - the staging suite runs 81 tests OK, with `original` linked beside it,
+    including `TokenR11Pins` on the r11 capture.
+- 01:22 UTC `round15/r15_gate.sh` launched:
+  - failing-first: v17 token gate on the r11 capture;
+  - v18: token gate (b4 export override), NL-1, surjection;
+  - the v18 suite in `frozen_v18/tests`.
+  `r15_heavy2.sh` (trained-block CLI from r11 plus P-18) is waiting for the
+  build lock.
+- 01:26-01:43 UTC **round 15, D33's part: the trained-block CPU CLI from frozen-r11 [MEASURED]** (`round15/r15_heavy2.progress`):
+  - Built in the unmodified r11 copy with the native lane's own command
+    (exit 0 at 01:26):
+    `~/zk60-artifacts/tinyllama-gate-bins/zk60_trained_block.r11.release.bin`,
+    sha256 631e2a1506c566d40915a492aa2adb899f0b66b2a0cd52b3d2451eeb5da41364.
+    It was built in a different path from tk9's 911e82f0..., so its bytes
+    need not match.
+  - Run on P-18's inputs (45 + 312 files, 0 moved):
+    - stack-prove: exit 0, 7.7 s, 1.02 GiB; sealed before the header,
+      parity bit-exact; 2 segments, 23,019,088 B (= tk9's);
+    - stack-verify in a fresh process with `--expect-statement ef061000...`:
+      exit 0, 1.2 s; **statement-published, identity ef061000...** (=
+      tk7 / tk9).
+- 01:35 UTC **queue C launched** (`round14/r14_gate_c.sh`):
+  - the dev DD surjection on T128 L2 hit `--max-secs 3600` (guard exit 75,
+    child 143, peak 1.07 GiB). Per stage, A took ~400 s and H ~1,260 s.
+    Queue A's two T128 L2 surjections (max 3600) will therefore time out.
+    Queue A is running and is not edited.
+  - Queue C runs queue A's control tail into `controls_c/` (queue A's later
+    copies are duplicates), then the T128 L2 surjections with max 14400
+    into `dd_long/`.
+  - TL controls on rung L2 dense and T128 L1 dense: exit 0.
+- 01:45-02:15 UTC **round 15 gate [MEASURED]** (`round15/r15_gate.sh`, `.done` = 0):
+  - **Failing-first:** frozen v17 on the r11 CLI capture refuses
+    token_io.rs 7730c8d01bd8 and cli.rs 3eaaacdbafdc by name ("has no
+    reading"). The new-slot terminals refuse token_io.rs; no block stage is
+    read. NOT-OK.
+  - **v18 token gate: PASS**, 974 s.
+    - Pins: 52 (40 R7, 6 r7c, 4 r9, 2 r11).
+    - New slots 15 / 15; block slots equal.
+    - Full preimage 2,502,073 / 0. Joint 0 over 133,153 pairs.
+    - 36 / 36 live controls fire, 2 not applicable.
+  - NL-1: PASS. Surjection: exit 0, controls ok. Suite (frozen_v18):
+    81 OK.
+  - **Every randomness-free figure equals the r9 CLI capture's** (token
+    gate v14, NL-1 v13, surjection v12; `round15/compare_r15.json`
+    a088108e...). The run facts differ only in the fresh endpoint roots and
+    the expected policy that contains them.
+  - **D33 part:** `round15/d33_report_only_check.json` (26fb07da...).
+    - The block gate enforces 44 files, none of them a token file.
+    - The tk9 L1 bundle with the r11 token digests passes the terminal,
+      run-layer and mask pin checks.
+    - 49 / 49 other pins equal frozen-r11; the capture writer's patch base
+      aaff4e6e = frozen-r11's.
+  - **Coordinator's diligence item answered:** D33's export (b25ba5f5) and
+    D36's (826f7641) both mark only `[exp_e_s, silu_member]` (table keys)
+    as per layer. So every stage of their captures is at the run
+    calibration. The 8B (sh_s per layer) is outside both statements, and
+    its token block stages went through the per-block shim. TL-5 shows
+    that wrong constants fail rather than pass.
+  - Also found: the round-12 addendum's "38 / 38 fire" counts control
+    entries. 36 are live and fire, 2 are not applicable. This is a wording
+    correction only, stated in the round-15 note; the addendum is not
+    edited (D36 cites its sha).
+- 02:16 UTC **ROUND 15 NOTE WRITTEN:**
+  `round15/ZK60_PRIVACY_STATEMENT_REPIN_R11_20261021.md`, sha256
+  a0c28c578718a75ca17583fb28e3627458461723eff1ff74e073b3d1fadc5779. Not a
+  privacy acceptance; D33 / D36 not edited.
+- Still running (round 14):
+  - queue A: T128 L1 zero ddts, then the T128 L2 tools; its L2 ddts will
+    hit the 1 h cap;
+  - queue B: T128 L2 dense everything, then T128 L1 dense everything;
+  - queue C: pin controls, witcmp, then the T128 L2 ddts with a 4 h cap.
+  - The working copy stays v17 until queue A's suite step. Then v18 is
+    installed.
+- 02:07-02:50 UTC **round 14, more records [MEASURED]:**
+  - Pin controls on T128 L1 dense: PC-0..PC-11, 12 / 12 exact.
+  - witcmp at T128 L2: 118 / 128 figures identical. Only distinct opened
+    columns, pad margins and the pad block differ.
+  - Queue A: T128 L1 zero ddts (~02:27) and T128 L2 dense ddnl /
+    ddcontrols, exit 0.
+  - **T128 L2 dense, everything + controls: PASS, 0 unexplained**, tools =
+    v17 (`round14/v17/tl128dd-l2-dense-everything.json`):
+    - terminals 48 / 48, with stage 1 at layer 1's own constants;
+    - full preimage of 7 commitments: 3,786,805 entries, **0 differing**,
+      all solved and exhibited;
+    - mask / CFS 33,812 / 0;
+    - joint 3,820,617 / **0**, couplings respected;
+    - export ok, E5 stage 1 = layer 1 at its own constants;
+    - negative controls ok;
+    - 5,522 s (full preimage 4,099 s), peak 1.96 GiB.
+  - Queue B now runs the official T128 L1 dense everything.
+- 03:31-03:41 UTC **round 14 [MEASURED]:**
+  - Queue A's T128 L2 dense ddts timed out at its 1 h cap (exit 75), as
+    predicted.
+  - **Queue C's T128 L2 dense ddts finished** (`round14/dd_long/`, 5,636 s,
+    1.10 GiB, tools = v17):
+    - A 0 at both stages (38 / 38 onto);
+    - H 2 at both stages (9 / 10 onto, joint {7, 9} = 2);
+    - Input / Output 0;
+    - DS-1 (8-claim slot-23 A group) and DS-2 fire at both stages; review
+      controls ok.
+  - T128 L2 dense / zero ddnl PASS; ddcontrols 7 / 7. T128 L1 zero ddts:
+    controls ok.
+  - Remaining: queue C's T128 L2 zero ddts; queue A's L2 zero ddts
+    (will time out), its tail duplicates and the v17 suite; queue B's
+    official T128 L1 dense everything.
+- 04:35-04:41 UTC **round 14 [MEASURED]:**
+  - **Official T128 L1 dense everything: PASS**, 0 unexplained, tools =
+    v17: 6,375 s (slower under load), 1.83 GiB. Every summarized
+    randomness-free figure equals dev11's: replay, terminals, per
+    commitment, full preimage 1,905,229 / 0, mask 16,906 / 0, joint
+    1,922,135 / 0, export, controls.
+  - Queue B: `.done` = 0.
+  - Queue A's T128 L2 zero ddts timed out at 1 h (exit 75), as predicted.
+    Queue A now runs its duplicate control tail and the v17 suite. Queue C
+    runs the T128 L2 zero ddts (4 h cap).
+- 04:35:43 UTC: the coordinator placed `EV/HOLD` ("native R12 freeze +
+  token classifier tests need memory"). Queue A paused before its control
+  tail (duplicates of queue C) and its v17 suite.
+- 05:21 UTC **queue C done** (`.done` = 0). **T128 L2 zero ddts** (6,014 s,
+  1.10 GiB, tools = v17): A 0 at both stages (38 / 38); H 2 (joint
+  {7, 9}); DS-1 / DS-2 fire at both stages; review controls ok.
+- 05:30 UTC **DD report update written:**
+  `round14/DD_GATE_REPORT_R9_20261021.UPDATE-0530.md` (the report itself is
+  not edited). All 13 staged records PASS, 0 unexplained. DD NL-1,
+  controls and surjection 8 / 8. Summary `round14/r14-summary.json`
+  (880f194b...).
+- 05:40 UTC **Coordinator:** round 14 complete and accepted as gate
+  evidence. Queue A stays paused under the HOLD and finishes on its own;
+  install v18 in the working copy when the hold lifts.
+  **GATE ROUND 16 queued (code and tools only, no heavy runs under the
+  hold):** prepare the gate for the classifier profile (D38, D40, D41):
+  plane-index entries for the new slot and clause; terminal identities for
+  the margin slot; G-1 / G-3 expectations (only the public bit is
+  disclosed); the D34 recount at L = 26, T <= 512; per-chunk linking (D41);
+  and a capture-hook request to the token lane through the coordinator.
+- 05:45 UTC **round 16 started.**
+  - [READ] DESIGN_CLASSIFIER v2 (§§1-13) and the R-C1 code in the token
+    lane's working copy (= manifest_r12B, list edbffc75...; green at 05:05,
+    freeze chain running): classify.rs dd319552, stage_in_c.rs 7bc3c30b,
+    stage_out_c.rs 46cb6951, classify_run.rs 56fcccef.
+  - R-C1 places the margin limbs in the isqrt-limb plane at entries
+    32..32+L, hosted by LZC, with the margin as a private slot PD. So stage
+    OUT-C has 8 slots, A 16 / H 5 groups, and no new domain.
+  - **The classifier verify path calls no capture hook** (no
+    stage_begin_stage / start_slot / pcs / mask / run_accepted), so a
+    request is needed.
+  - `staging_v19/` created from frozen_v18.
+- 05:45-05:52 UTC **round 16: tools v19 written and frozen** (code only; no heavy run, the HOLD stands):
+  - **New `zk60_native_rg_classify.py`:**
+    - [COUNTED] the classifier geometry equals R-C1's own count at the
+      rung (OUT-C A 76 / H 38, 466,944 elements, margin window 34 bits,
+      5 limbs). Shieldstral d 3072 gives 35 bits / 5 limbs at T 128 / 256 /
+      512.
+    - The expected disclosures: A 0, H 2, endpoint and boundaries 0, no
+      output endpoint, the verdict the only data-dependent public value.
+    - **The D34 recount** 2 (768 L + T + 256) / p^2: 2^-112.7 at L 26,
+      T 512; the next-token L1 T32 check gives 2^-116.96.
+    - D41's `chunk_ranges` (classify.rs:183-193) and the fail-closed label
+      rule.
+  - **New `zk60_native_rg_classterminals.py`:** the 12 classifier slots
+    (stage_in_c.rs:168-233, stage_out_c.rs:284-418) on the token port's
+    builder, plus witnesses built from R-C1's integer semantics.
+    - On those witnesses the margin hosting identity, the SS hosting,
+      every zero-check clause and both LogUp balances hold at verdict 0,
+      verdict 1 and the tie.
+    - **12 / 12 failing-first controls fire as predicted**: MC-1..7,
+      IC-1..4, PI-1.
+    - The one-public-bit check: every OUT-C public table is rebuilt from
+      public data plus b; flipping b moves only g.
+    - NL-1 S1: 12 / 12.
+    - `check_classify_terminals` refuses any non-classifier bundle by name
+      until the hook lands.
+  - **New `zk60_native_rg_classpins.py`:** readings of round 12's three
+    additive pinned-file changes (private_block.rs a9727239 / run.rs
+    10cfc2b1 / token_io.rs 057137a2, each against its frozen-r11 base) and
+    the four ported files' digests (manifest_r12B, pre-freeze).
+  - TOOLS +3; test `ClassifierV19` (6); suite 87 OK
+    (`round16/unittests-v19.log`).
+  - **Frozen** from staging: `frozen_v19/`, manifest
+    `gate-tinyllama.tools.frozen.v19.sha256`, 74 files,
+    8081e952db99bca3256a4cc4cdae9ddca7adba865c3c67d3454438ea8c89486f.
+    Patches v18 -> v19 c6e9172c... / ffc5d8cf...; vs-original 07941ecf....
+    The working copy is still v17 (queue A held).
+  - Records: `round16/classify_geometry_v19.json` (2d057024...),
+    `round16/classify_synthetic_v19.json` (dc6b55eb...).
+  - **Hook request:** `round16/CLASSIFY_CAPTURE_HOOK_REQUEST.md`
+    (4fb3cb12...), in the form of round 7's. Real captures wait for the
+    hooks, R12's freeze and R-C1's freeze.
+- 06:03 UTC **Coordinator:**
+  - v19 is accepted.
+  - The hook request has gone to the token lane as its next item, after
+    the R-C1 freeze, minimal subset first.
+  - Install v19 (the superset) when the hold lifts and queue A finishes.
+  - Stand by for the capture paths.
+  - Waiting: HOLD still up at 06:03; queue A paused.
+- 06:15 UTC **Lane rule addendum (binding):** before every cpu, build or
+  gpu `run`, poll `zk60_resource_guard.py check --class <c> --need-gib <n>`
+  until it prints "OK to start now". Applies to new queues only; running
+  scripts are not edited.
+  - Queue A (still paused by the HOLD) runs only light jobs, which take no
+    heavy lock.
+  - New queues will use a `pre()` loop:
+    `until python3 $G check --class $c --need-gib $n | grep -q "OK to start now"; do sleep 30; done`
+    before each `run`.
+- 2026-10-26 17:53 UTC **resume check [MEASURED]:**
+  - The 10-21 HOLD lifted at some point. Queue A resumed at 17:32 and ran
+    its duplicate control tail (TL x4, export x2, schema, G-10 x3, all
+    exit 0).
+  - The coordinator placed a new HOLD at 17:50:50Z (native R12 golden /
+    dense window, 8-8.5 GiB): "let gate-pincontrols-tl128dd-l1-dense finish;
+    start no new guarded job until the HOLD file is gone".
+  - Queue A's pin-control job (light, 0.8 GiB) is running. Queue A's next
+    steps (witcmp, the v17 suite) wait on the HOLD by construction. I start
+    nothing new.
+  - Token lane: R-C1 is still freezing (the registry gates fixed, r12-t6
+    re-run). Its working-copy classify.rs has moved since the v19 reading
+    (dd319552 -> fe1d9bd7; per its PROGRESS, cfg(test) registry functions).
+    The other six read files are unchanged.
+  - When R-C1 freezes, v20 re-reads classify.rs against the frozen
+    manifest. Until then v19's pin check refuses the new digest by name, as
+    designed.
+- 2026-10-26 18:14 UTC: the HOLD was removed (native window released).
+  **Queue A finished** (`round14/r14_gate_a.done` = 0):
+  - witcmp at T128 L2: 118 / 128 identical;
+  - the working copy checked equal to v17 (70 / 0 / 0) and the v17 suite
+    ran 79 OK.
+  - Every queue-A control record equals queue C's copy (TL, EX, G-10,
+    schema, PC-0..PC-11, witcmp).
+- 18:16 UTC **v19 installed in the working copy** (74 / 0 / 0 against the
+  v19 manifest); the suite there runs 87 OK
+  (`round16/unittests-v19-working-copy.log`).
+- **State at hand-back:**
+  - Rounds 12, 14 and 15 are done and reported.
+  - Round 16 tools (v19) are frozen, accepted and installed.
+  - The gate is blocked on the classifier capture hooks: the token lane's
+    next item after its R-C1 freeze.
+  - No job of this lane is pending. Standing by for the capture paths;
+    when they land, v20 re-reads classify.rs (moved since manifest_r12B)
+    against the frozen manifest and adds the capture reader.
+- 2026-10-26 19:12 UTC **Coordinator: GATE ROUND 17 (tools v20).**
+  - The guard was swapped (D42, 87138bda...: admission before the heavy
+    lock; the pre-check is optional).
+  - R-C1 is frozen as frozen-r12 (manifest_final_r12, 245 files, f2436b15...;
+    binary zk60_classify.r12 04036e26...).
+  - The working tree = frozen-r12 + the §4 capture hooks.
+  - Seven rung captures (schema 7-classify-run) are in
+    ~/zk60-artifacts/token-io/captures/classify-rung-*:
+    L1 / L2 x v0 / v1 / vtie, plus L2-v1-chunk1o27.
+  - Ask: v20 re-reads classify.rs at the hooked digest, adds the capture
+    reader, and runs terminal identity, rank, CFS, preimage, NL-1, B-3, D41
+    and one-public-bit on all 7. It must re-run unchanged on the R12-based
+    re-captures to come.
+- 19:15 UTC round 17 started. `staging_v20/` from frozen_v19.
+  - [MEASURED] the hooked tree against frozen-r12:
+    - run_capture.rs aaff4e6e -> d1e25882 (564 lines changed);
+    - run.rs 10cfc2b1 -> ebc64fd1 (2);
+    - token_io.rs 057137a2 -> f6e56c81 (3);
+    - token_io/run.rs 4671d03e -> 477cfc8c (2);
+    - classify.rs fe1d9bd7 -> 5d2c642a (108);
+    - classify_run.rs 56fcccef -> be2ccd1c (46);
+    - stage_in_c.rs 7bc3c30b -> 05c1aae2 (38);
+    - stage_out_c.rs 46cb6951 -> ee1cd237 (70);
+    - plus the new classify_capture_tests.rs.
+    The captures pin the hooked digests (56 pins). Reading the diffs comes
+    next.
+- 19:20-19:45 UTC **round 17: tools v20 written, tested and frozen:**
+  - **The hook diffs, read [READ]:**
+    - stage_in_c.rs +38, stage_out_c.rs +70, classify_run.rs +46,
+      classify.rs +108 and token_io.rs +3 are ALL `#[cfg(test)]`
+      additions;
+    - run.rs and token_io/run.rs +2 each are capture-only (`classify:
+      None`);
+    - run_capture.rs +564 is insert-only (0 lines removed);
+    - frozen-r12 classify.rs (fe1d9bd7) differs from the r12B reading
+      only by +32 cfg(test) registry lines; every item the port reads is
+      unchanged.
+  - **classpins v20:** HOOKED_READINGS (8 files, each against its
+    frozen-r12 digest) and `classify_capture_pins`. On the captures' 56
+    pins: 47 read by the token gate, 5 by a reading chain, 4 are the ported
+    classifier files at the hooked digests.
+  - **New `zk60_native_rg_classgate.py`:**
+    - the reader (schema 7) and the replay: the classifier header absorbs
+      classify-verdict and classify-chunk from the capture's own facts, and
+      IN-C / OUT-C use their prefixes and opening orders;
+    - integrity (door constants, profile text, template digest, plane
+      tables, ONE endpoint, boundaries, D41 chunk re-derived);
+    - per commitment, CFS, G-2 / G-5 / G-6, the joint figure without an
+      output endpoint;
+    - the classifier terminals, NL-1, the block stages through the token
+      shim (at the rung fixture's calibration, or per stage from an export
+      for the R12 re-captures), the full and joint preimage;
+    - controls CC-1..CC-6 on the real capture, plus J-1..J-3 and the
+      preimage controls.
+  - classterminals: `check_classify_terminals` on captures (every public
+    table rebuilt and digest-compared, tau structure-checked, w_Delta B-3)
+    and `nl1_classify_slots`.
+  - stagecal: classifier runs are exempt, like token runs (the block
+    calibration rides on the per-block shim). Found on the first dev run,
+    which refused the blocks with SC-4.
+  - **Dev run** on classify-rung-L1-v1 (staging, 582 s, 0.28 GiB):
+    integrity, replay, terminals 12 / 12, NL-1, per commitment (A 0 / H 2 /
+    E 0 / B 0), CFS, joint, full preimage, B-3, one-bit and D41 all ok;
+    every control fires. The only failure was the block stages (the
+    stagecal exemption), fixed. Block stages at L2 are then 23 / 23 each,
+    and NC-1 (sh_s moved) fires at (1, 17) and (2, 17) as predicted.
+  - Test `ClassifierV20` (2). Suite 89 OK.
+  - **Frozen** `frozen_v20/`, manifest 75 files, f3cb140b...;
+    patches v19 -> v20 5b9c6d64... / 988c5c06...; vs-original bcd1f4c6....
+    Installed in the working copy (75 / 0 / 0).
+- 19:47 UTC official queues launched:
+  - `round17/r17_gate_a.sh`: L1 v0 / v1 / vtie and the L2 chunk; then
+    failing-first (v19's reader and pins on a classifier capture), D41 over
+    the chunk's item, and the v20 suite.
+  - `r17_gate_b.sh`: L2 v0 / v1 / vtie.
+- 2026-10-28 21:10 UTC (coordinator, resuming after the 10-26 20:33 UTC stop —
+  a clean systemd power-off, not a freeze; the gate agent ad74ff3 died with the
+  session): **round 17 integrated.** Both official queues had finished before
+  the stop (r17_gate_a.done = 0, r17_gate_b.done = 0).
+  - `summarize_r17.py` had never run: its glob also matched the guard's
+    `*.guard.json` records (KeyError). Fixed (skip `.guard.json`); output
+    `round17/R17_SUMMARY.json`.
+  - **All 7 classifier rung captures PASS** on frozen tools v20 (f3cb140b…):
+    L1 v0 / v1 / vtie, L2 v0 / v1 / vtie, L2 v1 chunk 1 of 2 (27-token item).
+    Replay, classifier terminals 12 / 12, block stages 23 / 23 per block,
+    NL-1 12 / 12, B-3, one public bit, D41, full preimage (0 of 0.95–1.72 M
+    view entries differing), joint preimage, 11 controls fire on each, none
+    unfired. Disclosed dimension per commitment: 0 on every A / E / B, 2 on
+    each H (= expected). 505–678 s each, peak 0.28–0.32 GiB [MEASURED, n=1,
+    shared box].
+  - **Cross-verdict:** at L1 and at L2, the randomness-free figures (replay
+    counts, slot checks, per-commitment table, joint, NL-1, CFS entries) of
+    the v0 / v1 / vtie captures are equal — the verdict moves nothing but its
+    public bit.
+  - Failing-first: frozen v19's reader refuses a classifier capture
+    (NotImplementedError, exit 1) as intended; D41 over the chunked item ok;
+    v20 suite OK.
+  - NOT a privacy acceptance. These are dev-rung captures of R-C1 frozen-r12
+    (token round 12, native R8). Next for the gate: re-capture + re-gate on the
+    R-C1 tree rebased onto native R12b (after Sol's S1b), then the classifier
+    privacy statement draft for the security owner.

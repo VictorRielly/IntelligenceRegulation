@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "checks": 82,
+  "prior_sources_preserved": 744,
+  "new_sources": 7,
+  "hypotheses_preserved": 34,
+  "changed_ranks": [
+    34
+  ],
+  "native_source_pins": 4,
+  "wall_seconds": 0.047783312998944893,
+  "rss_kib": 20564
+}

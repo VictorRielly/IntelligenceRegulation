@@ -1,0 +1,46 @@
+{
+  "finalized_utc": "2026-10-26T17:43:38.593767+00:00",
+  "audit": {
+    "status": "PASS_FINAL_ARTIFACT_AUDIT",
+    "checks": 1477,
+    "immutable_artifacts": 77,
+    "source_pins": 12,
+    "prior_source_records_preserved": 799,
+    "total_source_records": 807,
+    "prior_hypotheses_preserved": 37,
+    "total_hypotheses": 38,
+    "patch_applies_in_memory_only": true,
+    "production_patch_applied": false,
+    "native_build": false,
+    "gpu": false,
+    "diagnostic_wall_seconds": 0.03680890999385156,
+    "rss_kib": 24868,
+    "utc": "2026-10-26T17:43:38.447752+00:00"
+  },
+  "reports": [
+    {
+      "path": "STATE.md",
+      "sha256": "ff3dbe12a3c32708374d5a5b4f165a0f3c63fd07c8e2dd7c56f25a44e5909908"
+    },
+    {
+      "path": "PROGRESS.md",
+      "sha256": "f23883d70617c767d125a207803363a66f9176d9ac89d09de58073fdbe01fcf2"
+    },
+    {
+      "path": "FINDINGS.md",
+      "sha256": "34fc8885a0366c7d906e7911ffc1ad07ab03289237fc5e6fd0c55d3e31ec9c15"
+    },
+    {
+      "path": "sources.jsonl",
+      "sha256": "1cd24e50def043deca27c9d1a91d860886f6420c960f4117414d63ad5769562a"
+    },
+    {
+      "path": "progress/20261026T172925Z-dd337876.md",
+      "sha256": "cd13bad03b9afa7db7a678d2403b6c052ad1bc4bc30908476c4a6dc0725bb8fe"
+    },
+    {
+      "path": "handoffs/20261026-salted-merkle-fusion.md",
+      "sha256": "5fa576becb776b9f99a434a6ea208be6d1ed5505cdc04da21c96a4238884e9c1"
+    }
+  ]
+}

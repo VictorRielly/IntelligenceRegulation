@@ -1,0 +1,32 @@
+[
+  {
+    "path": "STATE.md",
+    "sha256": "5eaf40c7fc0cb271c155118ce68a5b77a08c901d67d5afa6877e8b6d4a630b70",
+    "bytes": 4889
+  },
+  {
+    "path": "PROGRESS.md",
+    "sha256": "e4e3c4c7fde36750960592c567725398a17338c455f467096186b654aa546566",
+    "bytes": 2266
+  },
+  {
+    "path": "FINDINGS.md",
+    "sha256": "54374ca6efe11f8df98fbe4cec7e5dee77ecf048c6fd3f3a054cf9df96a9f91a",
+    "bytes": 878776
+  },
+  {
+    "path": "progress/20261021T041854Z-cfd5ba2e.md",
+    "sha256": "7062db5f8fb3d38e492e622f42fd05a1c09927c3ccd1f127474e3160d0eb44f1",
+    "bytes": 7775
+  },
+  {
+    "path": "sources.jsonl",
+    "sha256": "3fe863a00caef711fceb315c5bfe3dc22667bce6012468e8b88b7aed5a7df819",
+    "bytes": 938955
+  },
+  {
+    "path": "handoffs/20261021-fzc-phase-accounting.md",
+    "sha256": "91cb29e148cc6fd9fcdac8f918d101fc9fcc570d1f8d7f1a0e210e000d1f0111",
+    "bytes": 2825
+  }
+]

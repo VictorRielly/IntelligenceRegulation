@@ -287,6 +287,7 @@ fn measured_draws(sh: &Shape) -> [usize; N_SLOTS] {
         g_u8: Fp2::from_u64(13),
         g_exp: Fp2::from_u64(17),
         g_act: Fp2::from_u64(19),
+        g_dd: Fp2::from_u64(23),
     };
     let mut tr = Transcript::new(sh.profile.as_bytes());
     let mut pts = Points::default();

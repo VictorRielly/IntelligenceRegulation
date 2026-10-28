@@ -1,0 +1,26 @@
+[
+  {
+    "path": "STATE.md",
+    "sha256": "0d58c093700f8f9ebd2a5925edca9cf3f816171cec9a14222c6330f2ab09d775"
+  },
+  {
+    "path": "PROGRESS.md",
+    "sha256": "288532b38b3d282734fba24f06388e3b9fad12dad0ec60e6a182e2e97e8399b5"
+  },
+  {
+    "path": "FINDINGS.md",
+    "sha256": "1b61574d5205313ff0505d481afc15bc255e7816c203c0fe9d2e1f817f1ab8df"
+  },
+  {
+    "path": "sources.jsonl",
+    "sha256": "dbfc55ccc45d48652ea7f91b313a49b7b1e71a7abd83c92cc4c125ddb0cd6896"
+  },
+  {
+    "path": "progress/20261026T182925Z-b116a67c.md",
+    "sha256": "8567011818a06da9f6828a99766706528baabc0a0e2b78c09ee7789ddfac7f17"
+  },
+  {
+    "path": "handoffs/20261026-finite-difference-interpolation.md",
+    "sha256": "8c075d9112663f5b7ef63fcda0e804d71313b93eaa2b2c05469b340bcb024be3"
+  }
+]

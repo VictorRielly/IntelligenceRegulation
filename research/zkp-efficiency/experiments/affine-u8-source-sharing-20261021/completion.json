@@ -1,0 +1,13 @@
+{
+  "run_id": "20261021T061854Z-553803c5",
+  "cycle": "0122",
+  "status": "COMPLETE",
+  "finalized_utc": "2026-10-21T06:34:54.132760+00:00",
+  "new_verified_full_stack_proofs": 0,
+  "new_verified_positions": 0,
+  "experiment": "PASS synthetic semantics/cost; dense source-bit storage negative; exact aliases conditional small lead",
+  "source_records_appended": 9,
+  "hypotheses": 35,
+  "artifact_audit_checks": 1453,
+  "next_cycle_not_before": "2026-10-21T07:18:54Z"
+}

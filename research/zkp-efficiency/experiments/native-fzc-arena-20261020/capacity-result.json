@@ -1,0 +1,17 @@
+{
+  "status": "PASS_PARTIAL_ALLOCATION_MODEL_ONLY",
+  "cases": 72,
+  "checks": 144,
+  "interval_oracle_checks": 234426,
+  "negative_controls": 72,
+  "zero_resident_additional_backing_cases": 24,
+  "resident_cases": 24,
+  "max_additional_backing_saving": 67108864,
+  "wall_seconds": 0.6834759799967287,
+  "rss_kib": 48784,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "scope": "Same prior partial pinned-R8-geometry / different-GPU-allocator hypothetical model; opening scratch/other slots/cache history/driver/actual peak omitted"
+}

@@ -1,0 +1,10 @@
+{
+  "scope": "Focused code checks, no model fidelity or proof claim",
+  "command": "env OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 python3 -m unittest discover -s results/zk60_shieldstral_export_20261026 -p test_*.py",
+  "tests": 17,
+  "passed": true,
+  "seconds": 0.376,
+  "source_manifest": "results/zk60_astra_20261026/review/export_source_before_domain_amendment.json",
+  "warning": "The SiLU extreme-input test emits the expected NumPy exp overflow warning.",
+  "source_manifest_sha256": "b4d6ed11a66a226a29db723b9b1858107b2ef78e7973c89cfedb9a031b96634e"
+}

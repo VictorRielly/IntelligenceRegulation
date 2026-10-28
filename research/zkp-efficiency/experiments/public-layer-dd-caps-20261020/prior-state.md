@@ -1,0 +1,31 @@
+# ZKP efficiency explorer — durable state
+
+Cycle 0112 COMPLETE: `20261020T201854Z-91cdb36a`. Checkpoint UTC 2026-10-20T20:30:39.619045+00:00.
+Started 20:18:54 UTC; deadline 20:38:54 UTC. Next cycle no earlier than 21:18:54 UTC.
+Evidence: `experiments/public-exp-dd-cardinality-20261020/`.
+Agenda, state/findings, all 682 starting source records, latest cycle 0111 results and required project instructions/status/decisions/coordination/target read; startup/source hashes retained. Source ledger now 692 records. Prior findings and negatives preserved.
+Final artifact audit: 93 checks PASS; all 682 original source records and the prior findings prefix are byte-preserved, current agenda unchanged.
+
+No proving improvement measured. Exact public table census confirms S12 exceeds the current DD cap 32. At head_dim 128, f_e 9, base e_s 2/3/4, S12 (actual e_s = base - 4) needs 156/94/55 entries including zero, requiring power-of-two caps 256/128/64. F_P 9->12/15 leaves table/cardinality and counted widths unchanged; F_P16 adds a quotient limb. f_e is distinct and can enlarge cardinality/remainders.
+
+For the owner's full R11 HIGH block layout, T512 direct 836,337,664 committed words becomes 803,176,448/752,844,800/727,678,976 with proposed caps 256/128/64 (-3.965%/-9.983%/-12.992%). T128 cap256/128 regress +9.771%/+2.884%; cap64 saves only0.560%. These are hypothetical new-profile per-block counts, not timings, full32-layer runs, proof bytes or fidelity results. Current native cap32 is unchanged. HIGH cap256 T512 still exceeds old R9 non-DD's663,257,088 words; do not inherit R9's20.8% saving.
+
+At T512 f_e9/F_P12, each dictionary slot carries10 A planes,7 H pairs,11 byte lookups. Cap256 data payloads320MiB A and448MiB H;6net extra claim sites require393,216 fresh base-field mask words (3MiB). Delta -16*S +24*Dd +12*row_width includes removed S helper pairs. Actual transient backing, all owners/PCS/histograms/driver/transfers and enclosing clocks remain unmeasured; no GPU fit or numeric throughput forecast.
+
+Probe486,630 checks/1,080synthetic rows/7controls PASS. Independent audit1,927checks,265,728entries by90-digit recurrence/130-digit key repeats,410 actual public exp arrays from15exports and16source pins PASS. Count612checks (4retained native phase-size anchors, R9 and R11 HIGH rows) PASS. Probe0.308050s/15,928KiB, audit0.444542s/16,004KiB, count0.043956s/14,688KiB. Seed20261020112; one CPU worker/nice19/first allowed core;59sCPU+alarm/60sparent,512MiBAS,64MiBestimate. Intel Core Ultra9 185H/WSL2; no native proof.
+
+Retained failures: initial startup snapshot referenced nonexistent prior audit-result.json; corrected to existing validation-result.json. First cost formula omitted removed S U8 helper pairs and understated sites; second omitted S12's extra score lookup/helper-ceiling effect. Both failed code/logs retained and corrected, without changing owner sources or suppressing checks.
+
+Nine LIVE queries/10records; current precision/softmax, October16 Chimera, DeepProve GitHub/license/changelog/releases and older nonlinear/zkLLM/FLI/Locq refreshed. Newly assessed older SIMD Spielman (2025-12-22 received/2026-01-08 revised) and MIT artifact: cache slicing methodology, different CPU encoder/PCS, no author gain reproduced. PDF403, two algorithm-file/release cache misses, DeepProve docs robots denial recorded; no bypass. No inspected full commit ID.
+
+24 ranked hypotheses retained. Top3 remain owner whole-GPU plus independently verified resident1/2/4/8; DD context/fidelity scaling; complete phase/capacity clocks. Owner all-eleven FZC A/B rank4. Exact precision/public-cap lead refined to rank5; SIMD low priority. Prior reversible tiles and masking/capacity negatives preserved.
+
+Next local experiment: aggregate a public32-layer schedule with uniform cap versus per-layer power-of-two public caps, including fresh mask rows, slot-round/PCS receipt changes and actual payload lifetimes. Use synthetic tables and existing public exponent schedules as labeled sensitivity fixtures only. Actual HIGH/S12 fidelity calibration can change e_s; freeze owner candidate tables before promoting any count. Reject private-trace cardinality/caps. Do not duplicate owner quality/calibration/native implementation work.
+
+Owner next: actual high-end GPU phase/capacity clocks; independently verified fixed-context resident1/2/4/8 complete workloads; DD context scaling/fidelity; all-eleven FZC compiler A/B under shared locks. No such job launched here. Handoff `handoffs/20261020-public-exp-dd-cardinality.md`; research-only interfaces in probe.py/audit.py/cost.py; no native patch or merge.
+
+New completed independently verified full-stack proofs / passes / positions: **0 / 0 / 0**. Actual model context and accelerator: **none**. Research device: **Intel Core Ultra 9 185H CPU, no GPU**. Witness, proof, serialization and verification clocks: **unmeasured**. Startup duration/fraction, steady-state and total-workload proved rates: **unmeasured**. No long-context prefill, repeated resident-model pass or decode was run. Synthetic row lengths 32/128/512 and counted T128/T512 geometries are diagnostics, not proved positions. Larger workloads remain permitted; dense attention can grow quadratically with context. The complete private 8B >=50 proved positions/s target on an RTX 5090 or another named high-end GPU remains unachieved.
+
+Historical CPU diagnostic, carried without rerun/reverification: non-DD8B T128,32layers,one16-thread CPU pass,GPUoff; total478.737s =0.267370positions/s. prove_run393.785s includes witness98.348s/load17.595s; seal84.824s includes overlapping subwork. Receipt922,711,264B; freshverify42.709s +publicload13.681s; recheck34.395s +load10.739s. Isolated serialization,startup fraction and steady slope unknown. This is a historical CPU result, not a high-endGPU result.
+
+Only research excluding runtime written. No production/reviewer/instruction/calibration/Git/receipt/safety edits; no GPU/build/install/external writes/messages/purchases/escalation. D30 N-r9-a Sum/slot17/Ht and N-r9-b M_dd-in-A remain; DD privacy gate owed; D32 and narrow D33/D34/D35 scopes unchanged. Fresh masks/openings and all original checks mandatory. Reports do not establish delivery or supervisor liveness.

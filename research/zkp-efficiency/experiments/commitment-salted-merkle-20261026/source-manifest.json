@@ -1,0 +1,74 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/pcs.rs",
+    "snapshot": "source/active-core-pcs.rs",
+    "sha256": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495",
+    "bytes": 77003
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/merkle.rs",
+    "snapshot": "source/active-merkle.rs",
+    "sha256": "6e7817bd767a883985bfcd62b7a387d0c5f4c361010c4c5db37f5087d965744a",
+    "bytes": 6487
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/pcs.rs",
+    "snapshot": "source/active-adapter-pcs.rs",
+    "sha256": "8b14096b66f6597e3cdfe239a7359457dd17dfd475c2a5d0f4e112a41342127f",
+    "bytes": 6900
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/hashtag.rs",
+    "snapshot": "source/active-hashtag.rs",
+    "sha256": "71bf33150a296c2ce4da49d189c6d84a9f741b9ada1ef2488711938cffd6b651",
+    "bytes": 11868
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/cuda.rs",
+    "snapshot": "source/active-cuda.rs",
+    "sha256": "dcc0e4bcd76c009827d30d8b1547e043118619948f59e63e75b132c5e6a38629",
+    "bytes": 258588
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/r9_counts.json",
+    "snapshot": "source/r9-counts.json",
+    "sha256": "ae24df761b94390667605d888394aca03f653d81f2ac07f9c135718e85e3b388",
+    "bytes": 1386
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/Cargo.lock",
+    "snapshot": "source/active-core-Cargo.lock",
+    "sha256": "24fb1de3953c017d54113014882b05c4c52b941f900ef50f3c2554f06523fc7b",
+    "bytes": 5318
+  },
+  {
+    "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rayon-1.12.0/src/iter/collect/mod.rs",
+    "snapshot": "source/rayon-collect.rs",
+    "sha256": "c0338cdcd3a7e45dc4476a208d8bd26fed9049e33e3995591059914b46971393",
+    "bytes": 4255
+  },
+  {
+    "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/rayon-1.12.0/src/iter/collect/consumer.rs",
+    "snapshot": "source/rayon-consumer.rs",
+    "sha256": "8c47eb678385a245897b6bf24329a41cfc9d12c6db1875a25f1a0bbf19e868e1",
+    "bytes": 6129
+  },
+  {
+    "path": "/home/victor/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/share/doc/rust/html/src/alloc/vec/mod.rs.html",
+    "snapshot": "source/vec-mod.rs.html",
+    "sha256": "cc3bccc97168b928094868f78210338fa8f89178dcc4cf95d62abbfa98065546",
+    "bytes": 427094
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_SPEED_PLAN_20261017.md",
+    "snapshot": "source/speed-plan.md",
+    "sha256": "6673a29c9960d16c85a3d031d950d4c8cbe7aa7e0f42137adf158547236683e5",
+    "bytes": 35545
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/kernels.cu",
+    "snapshot": "source/active-kernels.cu",
+    "sha256": "4b27e23f2a880a7d67597d7cd2de59799b1c0068a52b2ce9abdbfa8108b0dc2a",
+    "bytes": 79413
+  }
+]

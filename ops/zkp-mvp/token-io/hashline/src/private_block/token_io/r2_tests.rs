@@ -387,6 +387,10 @@ impl TokenRunSource for StreamSource<'_> {
     fn stage_out(&mut self) -> Result<StageOutWitness, String> {
         Ok(self.pipe.stage_out.clone())
     }
+    fn seal_check(&mut self, k: usize, blk: &BlockPublic, ssh: &Shape, check: &mut dyn FnMut(&super::super::witness::Witness) -> Result<(), String>) -> Result<(), String> {
+        let x = unpad(self.sh, if k == 0 { &self.pipe.b_in } else { &self.pipe.planes[k - 1] });
+        check(&super::super::witness::build_shaped(ssh, blk.attention(), blk.feed_forward(), &x)?)
+    }
 }
 
 /// the reference next token, computed independently of the stage code (R0's

@@ -1,0 +1,10 @@
+# local virtualenv and caches (never committed)
+.venv/
+__pycache__/
+*.pyc
+# local runtime data, in case PM_DATA_DIR is ever pointed here (the default is outside the repo)
+data/
+*.sqlite3
+*.sqlite3-journal
+.testnet-private/
+*.sepolia-key.json

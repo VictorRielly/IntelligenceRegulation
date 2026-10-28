@@ -1,0 +1,715 @@
+warning: due to multiple output types requested, the explicitly specified output file name will be adapted for each output type
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1439:24
+     |
+1439 |  let s0 = *scratch.add((*map.add(0) as usize));
+     |                        ^                    ^
+     |
+     = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+     |
+1439 -  let s0 = *scratch.add((*map.add(0) as usize));
+1439 +  let s0 = *scratch.add(*map.add(0) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1440:24
+     |
+1440 |  let s1 = *scratch.add((*map.add(1) as usize));
+     |                        ^                    ^
+     |
+help: remove these parentheses
+     |
+1440 -  let s1 = *scratch.add((*map.add(1) as usize));
+1440 +  let s1 = *scratch.add(*map.add(1) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1441:24
+     |
+1441 |  let s2 = *scratch.add((*map.add(2) as usize));
+     |                        ^                    ^
+     |
+help: remove these parentheses
+     |
+1441 -  let s2 = *scratch.add((*map.add(2) as usize));
+1441 +  let s2 = *scratch.add(*map.add(2) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1442:24
+     |
+1442 |  let s3 = *scratch.add((*map.add(3) as usize));
+     |                        ^                    ^
+     |
+help: remove these parentheses
+     |
+1442 -  let s3 = *scratch.add((*map.add(3) as usize));
+1442 +  let s3 = *scratch.add(*map.add(3) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1443:24
+     |
+1443 |  let s4 = *scratch.add((*map.add(4) as usize));
+     |                        ^                    ^
+     |
+help: remove these parentheses
+     |
+1443 -  let s4 = *scratch.add((*map.add(4) as usize));
+1443 +  let s4 = *scratch.add(*map.add(4) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1444:24
+     |
+1444 |  let s5 = *scratch.add((*map.add(5) as usize));
+     |                        ^                    ^
+     |
+help: remove these parentheses
+     |
+1444 -  let s5 = *scratch.add((*map.add(5) as usize));
+1444 +  let s5 = *scratch.add(*map.add(5) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1445:23
+     |
+1445 |  let s6 = *params.add((*map.add(6) as usize));
+     |                       ^                    ^
+     |
+help: remove these parentheses
+     |
+1445 -  let s6 = *params.add((*map.add(6) as usize));
+1445 +  let s6 = *params.add(*map.add(6) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1446:20
+     |
+1446 |  let s7 = *raw.add((*map.add(7) as usize));
+     |                    ^                    ^
+     |
+help: remove these parentheses
+     |
+1446 -  let s7 = *raw.add((*map.add(7) as usize));
+1446 +  let s7 = *raw.add(*map.add(7) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1447:20
+     |
+1447 |  let s8 = *raw.add((*map.add(8) as usize));
+     |                    ^                    ^
+     |
+help: remove these parentheses
+     |
+1447 -  let s8 = *raw.add((*map.add(8) as usize));
+1447 +  let s8 = *raw.add(*map.add(8) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1449:24
+     |
+1449 |  let s10 = *params.add((*map.add(9) as usize));
+     |                        ^                    ^
+     |
+help: remove these parentheses
+     |
+1449 -  let s10 = *params.add((*map.add(9) as usize));
+1449 +  let s10 = *params.add(*map.add(9) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1454:23
+     |
+1454 |  let s15 = *bases.add((*map.add(10) as usize));
+     |                       ^                     ^
+     |
+help: remove these parentheses
+     |
+1454 -  let s15 = *bases.add((*map.add(10) as usize));
+1454 +  let s15 = *bases.add(*map.add(10) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1458:24
+     |
+1458 |  let s19 = *params.add((*map.add(11) as usize));
+     |                        ^                     ^
+     |
+help: remove these parentheses
+     |
+1458 -  let s19 = *params.add((*map.add(11) as usize));
+1458 +  let s19 = *params.add(*map.add(11) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1460:24
+     |
+1460 |  let s21 = *params.add((*map.add(12) as usize));
+     |                        ^                     ^
+     |
+help: remove these parentheses
+     |
+1460 -  let s21 = *params.add((*map.add(12) as usize));
+1460 +  let s21 = *params.add(*map.add(12) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1461:21
+     |
+1461 |  let s22 = *raw.add((*map.add(13) as usize));
+     |                     ^                     ^
+     |
+help: remove these parentheses
+     |
+1461 -  let s22 = *raw.add((*map.add(13) as usize));
+1461 +  let s22 = *raw.add(*map.add(13) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1462:21
+     |
+1462 |  let s23 = *raw.add((*map.add(14) as usize));
+     |                     ^                     ^
+     |
+help: remove these parentheses
+     |
+1462 -  let s23 = *raw.add((*map.add(14) as usize));
+1462 +  let s23 = *raw.add(*map.add(14) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1464:24
+     |
+1464 |  let s25 = *params.add((*map.add(15) as usize));
+     |                        ^                     ^
+     |
+help: remove these parentheses
+     |
+1464 -  let s25 = *params.add((*map.add(15) as usize));
+1464 +  let s25 = *params.add(*map.add(15) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1469:23
+     |
+1469 |  let s30 = *bases.add((*map.add(16) as usize));
+     |                       ^                     ^
+     |
+help: remove these parentheses
+     |
+1469 -  let s30 = *bases.add((*map.add(16) as usize));
+1469 +  let s30 = *bases.add(*map.add(16) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1473:24
+     |
+1473 |  let s34 = *params.add((*map.add(17) as usize));
+     |                        ^                     ^
+     |
+help: remove these parentheses
+     |
+1473 -  let s34 = *params.add((*map.add(17) as usize));
+1473 +  let s34 = *params.add(*map.add(17) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1475:21
+     |
+1475 |  let s36 = *raw.add((*map.add(18) as usize));
+     |                     ^                     ^
+     |
+help: remove these parentheses
+     |
+1475 -  let s36 = *raw.add((*map.add(18) as usize));
+1475 +  let s36 = *raw.add(*map.add(18) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1476:21
+     |
+1476 |  let s37 = *raw.add((*map.add(19) as usize));
+     |                     ^                     ^
+     |
+help: remove these parentheses
+     |
+1476 -  let s37 = *raw.add((*map.add(19) as usize));
+1476 +  let s37 = *raw.add(*map.add(19) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1497:24
+     |
+1497 |  let s58 = *params.add((*map.add(20) as usize));
+     |                        ^                     ^
+     |
+help: remove these parentheses
+     |
+1497 -  let s58 = *params.add((*map.add(20) as usize));
+1497 +  let s58 = *params.add(*map.add(20) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1506:15
+     |
+1506 |  *scratch.add((*map.add(21) as usize)) = s28;
+     |               ^                     ^
+     |
+help: remove these parentheses
+     |
+1506 -  *scratch.add((*map.add(21) as usize)) = s28;
+1506 +  *scratch.add(*map.add(21) as usize) = s28;
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1507:15
+     |
+1507 |  *scratch.add((*map.add(22) as usize)) = s29;
+     |               ^                     ^
+     |
+help: remove these parentheses
+     |
+1507 -  *scratch.add((*map.add(22) as usize)) = s29;
+1507 +  *scratch.add(*map.add(22) as usize) = s29;
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1508:15
+     |
+1508 |  *scratch.add((*map.add(23) as usize)) = s63;
+     |               ^                     ^
+     |
+help: remove these parentheses
+     |
+1508 -  *scratch.add((*map.add(23) as usize)) = s63;
+1508 +  *scratch.add(*map.add(23) as usize) = s63;
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1509:15
+     |
+1509 |  *scratch.add((*map.add(24) as usize)) = s64;
+     |               ^                     ^
+     |
+help: remove these parentheses
+     |
+1509 -  *scratch.add((*map.add(24) as usize)) = s64;
+1509 +  *scratch.add(*map.add(24) as usize) = s64;
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1510:15
+     |
+1510 |  *scratch.add((*map.add(25) as usize)) = s65;
+     |               ^                     ^
+     |
+help: remove these parentheses
+     |
+1510 -  *scratch.add((*map.add(25) as usize)) = s65;
+1510 +  *scratch.add(*map.add(25) as usize) = s65;
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1511:15
+     |
+1511 |  *scratch.add((*map.add(26) as usize)) = s66;
+     |               ^                     ^
+     |
+help: remove these parentheses
+     |
+1511 -  *scratch.add((*map.add(26) as usize)) = s66;
+1511 +  *scratch.add(*map.add(26) as usize) = s66;
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1652:24
+     |
+1652 |  let s0 = *scratch.add((*map.add(0) as usize));
+     |                        ^                    ^
+     |
+help: remove these parentheses
+     |
+1652 -  let s0 = *scratch.add((*map.add(0) as usize));
+1652 +  let s0 = *scratch.add(*map.add(0) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1653:24
+     |
+1653 |  let s1 = *scratch.add((*map.add(1) as usize));
+     |                        ^                    ^
+     |
+help: remove these parentheses
+     |
+1653 -  let s1 = *scratch.add((*map.add(1) as usize));
+1653 +  let s1 = *scratch.add(*map.add(1) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1654:24
+     |
+1654 |  let s2 = *scratch.add((*map.add(2) as usize));
+     |                        ^                    ^
+     |
+help: remove these parentheses
+     |
+1654 -  let s2 = *scratch.add((*map.add(2) as usize));
+1654 +  let s2 = *scratch.add(*map.add(2) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1655:24
+     |
+1655 |  let s3 = *scratch.add((*map.add(3) as usize));
+     |                        ^                    ^
+     |
+help: remove these parentheses
+     |
+1655 -  let s3 = *scratch.add((*map.add(3) as usize));
+1655 +  let s3 = *scratch.add(*map.add(3) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1656:24
+     |
+1656 |  let s4 = *scratch.add((*map.add(4) as usize));
+     |                        ^                    ^
+     |
+help: remove these parentheses
+     |
+1656 -  let s4 = *scratch.add((*map.add(4) as usize));
+1656 +  let s4 = *scratch.add(*map.add(4) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1657:24
+     |
+1657 |  let s5 = *scratch.add((*map.add(5) as usize));
+     |                        ^                    ^
+     |
+help: remove these parentheses
+     |
+1657 -  let s5 = *scratch.add((*map.add(5) as usize));
+1657 +  let s5 = *scratch.add(*map.add(5) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1658:24
+     |
+1658 |  let s6 = *scratch.add((*map.add(6) as usize));
+     |                        ^                    ^
+     |
+help: remove these parentheses
+     |
+1658 -  let s6 = *scratch.add((*map.add(6) as usize));
+1658 +  let s6 = *scratch.add(*map.add(6) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1659:24
+     |
+1659 |  let s7 = *scratch.add((*map.add(7) as usize));
+     |                        ^                    ^
+     |
+help: remove these parentheses
+     |
+1659 -  let s7 = *scratch.add((*map.add(7) as usize));
+1659 +  let s7 = *scratch.add(*map.add(7) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1660:23
+     |
+1660 |  let s8 = *params.add((*map.add(8) as usize));
+     |                       ^                    ^
+     |
+help: remove these parentheses
+     |
+1660 -  let s8 = *params.add((*map.add(8) as usize));
+1660 +  let s8 = *params.add(*map.add(8) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1661:20
+     |
+1661 |  let s9 = *raw.add((*map.add(9) as usize));
+     |                    ^                    ^
+     |
+help: remove these parentheses
+     |
+1661 -  let s9 = *raw.add((*map.add(9) as usize));
+1661 +  let s9 = *raw.add(*map.add(9) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1662:21
+     |
+1662 |  let s10 = *raw.add((*map.add(10) as usize));
+     |                     ^                     ^
+     |
+help: remove these parentheses
+     |
+1662 -  let s10 = *raw.add((*map.add(10) as usize));
+1662 +  let s10 = *raw.add(*map.add(10) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1664:24
+     |
+1664 |  let s12 = *params.add((*map.add(11) as usize));
+     |                        ^                     ^
+     |
+help: remove these parentheses
+     |
+1664 -  let s12 = *params.add((*map.add(11) as usize));
+1664 +  let s12 = *params.add(*map.add(11) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1669:23
+     |
+1669 |  let s17 = *bases.add((*map.add(12) as usize));
+     |                       ^                     ^
+     |
+help: remove these parentheses
+     |
+1669 -  let s17 = *bases.add((*map.add(12) as usize));
+1669 +  let s17 = *bases.add(*map.add(12) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1673:24
+     |
+1673 |  let s21 = *params.add((*map.add(13) as usize));
+     |                        ^                     ^
+     |
+help: remove these parentheses
+     |
+1673 -  let s21 = *params.add((*map.add(13) as usize));
+1673 +  let s21 = *params.add(*map.add(13) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1675:21
+     |
+1675 |  let s23 = *raw.add((*map.add(14) as usize));
+     |                     ^                     ^
+     |
+help: remove these parentheses
+     |
+1675 -  let s23 = *raw.add((*map.add(14) as usize));
+1675 +  let s23 = *raw.add(*map.add(14) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1676:21
+     |
+1676 |  let s24 = *raw.add((*map.add(15) as usize));
+     |                     ^                     ^
+     |
+help: remove these parentheses
+     |
+1676 -  let s24 = *raw.add((*map.add(15) as usize));
+1676 +  let s24 = *raw.add(*map.add(15) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1697:24
+     |
+1697 |  let s45 = *params.add((*map.add(16) as usize));
+     |                        ^                     ^
+     |
+help: remove these parentheses
+     |
+1697 -  let s45 = *params.add((*map.add(16) as usize));
+1697 +  let s45 = *params.add(*map.add(16) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1706:24
+     |
+1706 |  let s54 = *params.add((*map.add(17) as usize));
+     |                        ^                     ^
+     |
+help: remove these parentheses
+     |
+1706 -  let s54 = *params.add((*map.add(17) as usize));
+1706 +  let s54 = *params.add(*map.add(17) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1707:21
+     |
+1707 |  let s55 = *raw.add((*map.add(18) as usize));
+     |                     ^                     ^
+     |
+help: remove these parentheses
+     |
+1707 -  let s55 = *raw.add((*map.add(18) as usize));
+1707 +  let s55 = *raw.add(*map.add(18) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1708:21
+     |
+1708 |  let s56 = *raw.add((*map.add(19) as usize));
+     |                     ^                     ^
+     |
+help: remove these parentheses
+     |
+1708 -  let s56 = *raw.add((*map.add(19) as usize));
+1708 +  let s56 = *raw.add(*map.add(19) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1710:24
+     |
+1710 |  let s58 = *params.add((*map.add(20) as usize));
+     |                        ^                     ^
+     |
+help: remove these parentheses
+     |
+1710 -  let s58 = *params.add((*map.add(20) as usize));
+1710 +  let s58 = *params.add(*map.add(20) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1715:23
+     |
+1715 |  let s63 = *bases.add((*map.add(21) as usize));
+     |                       ^                     ^
+     |
+help: remove these parentheses
+     |
+1715 -  let s63 = *bases.add((*map.add(21) as usize));
+1715 +  let s63 = *bases.add(*map.add(21) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1719:24
+     |
+1719 |  let s67 = *params.add((*map.add(22) as usize));
+     |                        ^                     ^
+     |
+help: remove these parentheses
+     |
+1719 -  let s67 = *params.add((*map.add(22) as usize));
+1719 +  let s67 = *params.add(*map.add(22) as usize);
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1721:15
+     |
+1721 |  *scratch.add((*map.add(23) as usize)) = s50;
+     |               ^                     ^
+     |
+help: remove these parentheses
+     |
+1721 -  *scratch.add((*map.add(23) as usize)) = s50;
+1721 +  *scratch.add(*map.add(23) as usize) = s50;
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1722:15
+     |
+1722 |  *scratch.add((*map.add(24) as usize)) = s51;
+     |               ^                     ^
+     |
+help: remove these parentheses
+     |
+1722 -  *scratch.add((*map.add(24) as usize)) = s51;
+1722 +  *scratch.add(*map.add(24) as usize) = s51;
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1723:15
+     |
+1723 |  *scratch.add((*map.add(25) as usize)) = s52;
+     |               ^                     ^
+     |
+help: remove these parentheses
+     |
+1723 -  *scratch.add((*map.add(25) as usize)) = s52;
+1723 +  *scratch.add(*map.add(25) as usize) = s52;
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1724:15
+     |
+1724 |  *scratch.add((*map.add(26) as usize)) = s53;
+     |               ^                     ^
+     |
+help: remove these parentheses
+     |
+1724 -  *scratch.add((*map.add(26) as usize)) = s53;
+1724 +  *scratch.add(*map.add(26) as usize) = s53;
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1725:15
+     |
+1725 |  *scratch.add((*map.add(27) as usize)) = s61;
+     |               ^                     ^
+     |
+help: remove these parentheses
+     |
+1725 -  *scratch.add((*map.add(27) as usize)) = s61;
+1725 +  *scratch.add(*map.add(27) as usize) = s61;
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1726:15
+     |
+1726 |  *scratch.add((*map.add(28) as usize)) = s62;
+     |               ^                     ^
+     |
+help: remove these parentheses
+     |
+1726 -  *scratch.add((*map.add(28) as usize)) = s62;
+1726 +  *scratch.add(*map.add(28) as usize) = s62;
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1727:15
+     |
+1727 |  *scratch.add((*map.add(29) as usize)) = s66;
+     |               ^                     ^
+     |
+help: remove these parentheses
+     |
+1727 -  *scratch.add((*map.add(29) as usize)) = s66;
+1727 +  *scratch.add(*map.add(29) as usize) = s66;
+     |
+
+warning: unnecessary parentheses around method argument
+    --> kernels.rs:1728:15
+     |
+1728 |  *scratch.add((*map.add(30) as usize)) = s68;
+     |               ^                     ^
+     |
+help: remove these parentheses
+     |
+1728 -  *scratch.add((*map.add(30) as usize)) = s68;
+1728 +  *scratch.add(*map.add(30) as usize) = s68;
+     |
+
+warning: unused variable: `bases`
+    --> kernels.rs:1198:74
+     |
+1198 | #[inline(never)] unsafe fn template_0(raw:*const Gp2, params:*const Gp2, bases:*const u64, scratch:*mut Gp2) {
+     |                                                                          ^^^^^ help: if this is intentional, prefix it with an underscore: `_bases`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `bases`
+    --> kernels.rs:2038:72
+     |
+2038 | #[inline(never)] unsafe fn helper_0(raw:*const Gp2, params:*const Gp2, bases:*const u64, scratch:*mut Gp2) {
+     |                                                                        ^^^^^ help: if this is intentional, prefix it with an underscore: `_bases`
+
+warning: 61 warnings emitted
+

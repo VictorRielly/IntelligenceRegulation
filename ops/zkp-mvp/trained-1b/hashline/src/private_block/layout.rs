@@ -102,6 +102,11 @@ pub(crate) enum Dom {
     F,
     /// one 256-entry table row (8 vars)
     Tab,
+    /// **NATIVE R9 (D30): the per-row division dictionary**, `(h, t | k)` with
+    /// `dd_cap` slots per attention row, its `(h, t)` variables in `A_SUM`'s
+    /// own order (CHECK.md B-4). Present only on a DD profile; no other
+    /// profile lays out, claims or describes it.
+    Dd,
 }
 
 /// THE P-3 LIFT (memo section 4.1, blocking item B-3), named here so it can be
@@ -184,6 +189,8 @@ impl Dom {
             Dom::L | Dom::D | Dom::Q | Dom::F => 9,
             Dom::Kv | Dom::Tab => 8,
             Dom::S => 11,
+            // the toy carries no dictionary; never laid out at the toy
+            Dom::Dd => 0,
         }
     }
     /// `Dom::T` and `Dom::Ht` carry `A` planes only; every other domain owns
@@ -343,6 +350,10 @@ pub(crate) struct Ids {
     pub ln: usize,
     pub ls: usize,
     pub lp: usize,
+    /// NATIVE R9: the dictionary's quotient `P_dict` and multiplicity `M_dd`
+    /// (`usize::MAX` off a DD profile)
+    pdict: usize,
+    mdd: usize,
 }
 
 impl Ids {
@@ -354,6 +365,56 @@ impl Ids {
         // (first toy id, toy length, this shape's length, domain), in plane
         // order. Only the four norm limb groups, the `p` limbs and the two
         // `sigma_s` limb groups have a length that is not a literal.
+        //
+        // NATIVE R9 (D30): on a DD profile the `p`, `rho_s` and `sigma_s`
+        // limb groups are the DICTIONARY's (one per slot, not per score
+        // entry), so their toy ids map into the `Dom::Dd` block, between the
+        // quotient `P_dict` and the multiplicity `M_dd` (two planes the toy
+        // has no name for) — below the histograms (CHECK.md E-1).
+        if sh.dd_cap > 0 {
+            let segs: [(usize, usize, usize, Dom); 20] = [
+                (A_D, 4, 4, Dom::T),
+                (A_MX, 2, 2, Dom::Ht),
+                (A_LIMB, 2, 2, Dom::L),
+                (A_X, 4, 4, Dom::D),
+                (A_NR0, LN_TOY, ln, Dom::D),
+                (A_NS0, LN_TOY, ln, Dom::D),
+                (A_AO, 8, 8, Dom::D),
+                (A_MR0, LN_TOY, ln, Dom::D),
+                (A_MS0, LN_TOY, ln, Dom::D),
+                (A_Z16, 7, 7, Dom::D),
+                (A_Q8, 7, 7, Dom::Q),
+                (A_K8, 6, 6, Dom::Kv),
+                (A_S8, 5, 5, Dom::S),
+                (A_G8, 11, 11, Dom::F),
+                (usize::MAX, 0, 1, Dom::Dd),
+                (A_PL0, LP_TOY, lp, Dom::Dd),
+                (A_SR0, LS_TOY, ls, Dom::Dd),
+                (A_SG0, LS_TOY, ls, Dom::Dd),
+                (usize::MAX, 0, 1, Dom::Dd),
+                (A_MU8, 3, 3, Dom::Tab),
+            ];
+            let mut map = vec![usize::MAX; N_A];
+            let mut doms: Vec<Dom> = Vec::new();
+            let mut firsts = Vec::new();
+            for (start, toy_len, len, dom) in segs {
+                let base = doms.len();
+                firsts.push(base);
+                for k in 0..toy_len {
+                    map[start + k] = base + k;
+                }
+                for _ in 0..len {
+                    doms.push(dom);
+                }
+            }
+            if map.iter().any(|v| *v == usize::MAX) {
+                return Err("private block: the A plane segment table does not cover every plane".into());
+            }
+            if doms != sh.a_plane_doms() {
+                return Err("private block: this shape's A plane list differs from the pinned one".into());
+            }
+            return Ok(Ids { map, doms, ln, ls, lp, pdict: firsts[14], mdd: firsts[18] });
+        }
         let segs: [(usize, usize, usize, Dom); 18] = [
             (A_D, 4, 4, Dom::T),
             (A_MX, 2, 2, Dom::Ht),
@@ -391,7 +452,7 @@ impl Ids {
         if doms != sh.a_plane_doms() {
             return Err("private block: this shape's A plane list differs from the pinned one".into());
         }
-        Ok(Ids { map, doms, ln, ls, lp })
+        Ok(Ids { map, doms, ln, ls, lp, pdict: usize::MAX, mdd: usize::MAX })
     }
 
     /// the toy's own map, which is the identity (asserted by `Layout::new`)
@@ -432,6 +493,17 @@ impl Ids {
     }
     pub(crate) fn is_multiplicity(&self, plane: usize) -> bool {
         plane >= self.map[A_MU8]
+    }
+    /// NATIVE R9: the dictionary quotient `P_dict` (a DD profile only)
+    pub(crate) fn pdict(&self) -> usize {
+        assert!(self.pdict != usize::MAX, "private block: P_dict asked of a shape without a dictionary");
+        self.pdict
+    }
+    /// NATIVE R9: the dictionary multiplicity `M_dd` (a DD profile only; a
+    /// committed `A` plane BELOW the histograms, written by the witness)
+    pub(crate) fn mdd(&self) -> usize {
+        assert!(self.mdd != usize::MAX, "private block: M_dd asked of a shape without a dictionary");
+        self.mdd
     }
 }
 
@@ -508,6 +580,11 @@ pub(crate) struct HIds {
     fact: usize,
     gu8: usize,
     u: usize,
+    /// NATIVE R9 (D30): the score entry's tuple helper, the dictionary's
+    /// first byte helper and its TABLE helper (`usize::MAX` off a DD profile)
+    stuple: usize,
+    first_dd: usize,
+    gdd: usize,
 }
 
 impl HIds {
@@ -530,14 +607,17 @@ impl HIds {
         let first_kv = seg(&mut doms, Dom::Kv, sh.helpers(Dom::Kv));
         let first_s = seg(&mut doms, Dom::S, sh.helpers(Dom::S));
         let sexp = seg(&mut doms, Dom::S, 1);
+        let dd = sh.dd_cap > 0;
+        let stuple = if dd { seg(&mut doms, Dom::S, 1) } else { usize::MAX };
         let first_f = seg(&mut doms, Dom::F, sh.helpers(Dom::F));
         let fact = seg(&mut doms, Dom::F, 1);
+        let (first_dd, gdd) = if dd { (seg(&mut doms, Dom::Dd, sh.helpers(Dom::Dd)), seg(&mut doms, Dom::Dd, 1)) } else { (usize::MAX, usize::MAX) };
         let gu8 = seg(&mut doms, Dom::Tab, 3);
         let u = seg(&mut doms, Dom::Tab, 1);
         if doms != sh.h_plane_doms() {
             return Err("private block: this shape's H plane list differs from the pinned one".into());
         }
-        Ok(HIds { doms, first_l, first_d, first_q, first_kv, first_s, first_f, sexp, fact, gu8, u })
+        Ok(HIds { doms, first_l, first_d, first_q, first_kv, first_s, first_f, sexp, fact, gu8, u, stuple, first_dd, gdd })
     }
 
     /// the `k`-th LogUp helper of a lookup domain
@@ -554,6 +634,7 @@ impl HIds {
             Dom::Kv => self.first_kv,
             Dom::S => self.first_s,
             Dom::F => self.first_f,
+            Dom::Dd => self.first_dd,
             _ => 0,
         }
     }
@@ -580,8 +661,20 @@ impl HIds {
         self.doms[plane]
     }
     /// the table helpers enter the value-0 LogUp identity with a negative sign
+    /// — NATIVE R9 (D30 condition 3, CHECK.md P-2 / E-2): the dictionary's
+    /// table helper too, in the SINGLE value-0 sum claim
     pub(crate) fn is_table(&self, plane: usize) -> bool {
-        (self.gu8..self.gu8 + 3).contains(&plane)
+        (self.gu8..self.gu8 + 3).contains(&plane) || (self.gdd != usize::MAX && plane == self.gdd)
+    }
+    /// NATIVE R9: the score entry's single tuple helper (a DD profile only)
+    pub(crate) fn stuple(&self) -> usize {
+        assert!(self.stuple != usize::MAX, "private block: the tuple helper asked of a shape without a dictionary");
+        self.stuple
+    }
+    /// NATIVE R9: the dictionary's table helper `g` (a DD profile only)
+    pub(crate) fn gdd(&self) -> usize {
+        assert!(self.gdd != usize::MAX, "private block: the dictionary table helper asked of a shape without a dictionary");
+        self.gdd
     }
 }
 
@@ -771,6 +864,22 @@ pub(crate) fn lookups_at(sh: &super::shape::Shape, ids: &Ids, dom: Dom) -> Vec<L
         Dom::S => {
             v.extend(sym(ids.at(A_S8)));
             v.extend([byte(ids.at(A_RSL)), scaled(ids.at(A_RSL), one(sh.sh_s))]);
+            // NATIVE R9: on a DD profile the division limbs are the
+            // dictionary's (D30), never a score entry's
+            if sh.dd_cap == 0 {
+                v.extend((0..lp).map(|k| byte(ids.pl(k))));
+                v.push(scaled(ids.pl(lp - 1), p_scale));
+                v.extend((0..ls).map(|k| byte(ids.sr(k))));
+                v.push(scaled(ids.sr(ls - 1), sigma_scale));
+                v.extend((0..ls).map(|k| byte(ids.sg(k))));
+                v.push(scaled(ids.sg(ls - 1), sigma_scale));
+            }
+        }
+        // NATIVE R9 (D30, B-1): the division limbs at EVERY dictionary slot —
+        // the quotient's with its top pin (`p < 2^(F_P + 1)`), then rho_s's
+        // and sigma_s's, each with its top pin (`< 2^wrho_s`) — today's
+        // relation's lookups, verbatim, on the dictionary's own planes
+        Dom::Dd if sh.dd_cap > 0 => {
             v.extend((0..lp).map(|k| byte(ids.pl(k))));
             v.push(scaled(ids.pl(lp - 1), p_scale));
             v.extend((0..ls).map(|k| byte(ids.sr(k))));
@@ -778,7 +887,7 @@ pub(crate) fn lookups_at(sh: &super::shape::Shape, ids: &Ids, dom: Dom) -> Vec<L
             v.extend((0..ls).map(|k| byte(ids.sg(k))));
             v.push(scaled(ids.sg(ls - 1), sigma_scale));
         }
-        Dom::T | Dom::Ht | Dom::Tab => {}
+        Dom::T | Dom::Ht | Dom::Tab | Dom::Dd => {}
     }
     v
 }
@@ -825,8 +934,20 @@ pub(crate) const SC_TAB: usize = 19;
 pub(crate) const SC_ZS: usize = 20;
 pub(crate) const SC_IO_IN: usize = 21;
 pub(crate) const SC_IO_OUT: usize = 22;
+/// **NATIVE R9 (D30): the dictionary zero-check**, APPENDED as the 24th slot
+/// and present only on a DD profile (`Shape::n_slots`), so no other
+/// profile's transcript, mask rows or functionals move. A Standalone slot.
+pub(crate) const SC_DD: usize = 23;
+/// the most slots any profile runs (the arrays below are sized by it; a
+/// non-DD profile's 24th entry is never read)
+pub(crate) const MAX_SLOTS: usize = 24;
+/// **NATIVE R9 (D30 condition 2, CHECK.md B-5 / S-8): the dictionary's
+/// LogUp tag**, distinct mod p from `TAG_U8` / `TAG_EXP` / `TAG_ACT` (129 /
+/// 133 / 134); the tuple is compressed as `gamma TAG_DD + key + beta e +
+/// beta^2 P`, all three components fixed in `A` before beta and gamma.
+pub(crate) const TAG_DD: u64 = 141;
 
-pub(crate) const SLOT_NAMES: [&str; N_SLOTS] = [
+pub(crate) const SLOT_NAMES: [&str; MAX_SLOTS] = [
     "01 SS row sums norm_a (private)",
     "01m SS row sums norm_m (private)",
     "02 norm squares zero-check (hosts 01, 01m)",
@@ -850,6 +971,7 @@ pub(crate) const SLOT_NAMES: [&str; N_SLOTS] = [
     "ZS zero-sum row",
     "IO-in endpoint equality",
     "IO-out endpoint equality",
+    "DD dictionary zero-check (division at every slot, byte helpers, table helper)",
 ];
 
 /// (main rounds, extension rounds, degree)
@@ -889,7 +1011,7 @@ pub(crate) enum SlotKind {
     Host,
 }
 
-pub(crate) const SLOT_KINDS: [SlotKind; N_SLOTS] = [
+pub(crate) const SLOT_KINDS: [SlotKind; MAX_SLOTS] = [
     SlotKind::Private,
     SlotKind::Private,
     SlotKind::Host,
@@ -912,6 +1034,9 @@ pub(crate) const SLOT_KINDS: [SlotKind; N_SLOTS] = [
     SlotKind::Standalone,
     SlotKind::Standalone,
     SlotKind::Standalone,
+    SlotKind::Standalone,
+    // NATIVE R9: the dictionary zero-check (D30; CHECK.md P-1 "+2
+    // functionals (a Standalone slot)")
     SlotKind::Standalone,
 ];
 
@@ -945,7 +1070,7 @@ pub(crate) const H_DATA_ROWS: usize = 280;
 
 /// private terminals a slot publishes (A sites, H sites, one endpoint terminal for IO)
 pub(crate) fn slot_terms(slot: usize) -> usize {
-    A_SITES[slot] + H_SITES[slot] + usize::from(slot >= SC_IO_IN)
+    A_SITES[slot] + H_SITES[slot] + usize::from(slot == SC_IO_IN || slot == SC_IO_OUT)
 }
 
 pub(crate) fn mask_specs() -> Vec<(usize, usize)> {
@@ -1018,9 +1143,9 @@ pub(crate) struct Layout {
     hids: HIds,
     /// the row width `1 << sh.log_cols`
     n: usize,
-    a_sites: [usize; N_SLOTS],
-    h_sites: [usize; N_SLOTS],
-    slots: [(usize, usize, usize); N_SLOTS],
+    a_sites: [usize; MAX_SLOTS],
+    h_sites: [usize; MAX_SLOTS],
+    slots: [(usize, usize, usize); MAX_SLOTS],
     /// **STAGE 12.** `[incoming, outgoing]`: the first row of the reserved
     /// pair each IO tab claims. See [`Layout::with_io_mask_rows`].
     io_mask_row: [usize; 2],
@@ -1048,9 +1173,10 @@ impl Layout {
         assert!((0..N_A).all(|p| lay.ids.dom(p) == a_dom(p)), "a shape-driven A plane sits on another domain");
         assert!((0..N_H).all(|p| lay.hids.dom(p) == h_dom(p)), "a shape-driven H plane sits on another domain");
         assert!((0..N_A).all(|p| lay.ids.at(p) == p), "the toy's A plane id map is not the identity");
-        assert_eq!(lay.a_sites, A_SITES, "the shape-driven A claim sites are not the declared ones");
-        assert_eq!(lay.h_sites, H_SITES, "the shape-driven H claim sites are not the declared ones");
-        assert_eq!(lay.slots, SLOTS, "the shape-driven slot table is not the declared one");
+        assert_eq!(lay.a_sites[..N_SLOTS], A_SITES[..], "the shape-driven A claim sites are not the declared ones");
+        assert_eq!(lay.h_sites[..N_SLOTS], H_SITES[..], "the shape-driven H claim sites are not the declared ones");
+        assert_eq!(lay.slots[..N_SLOTS], SLOTS[..], "the shape-driven slot table is not the declared one");
+        assert_eq!(sh.n_slots(), N_SLOTS, "the toy runs a dictionary slot");
         assert_eq!((sh.a_groups(), sh.h_groups()), (A_GROUPS, H_GROUPS), "the shape-driven opening groups are not the declared ones");
         assert_eq!(lay.n, N, "the shape's row width is not this profile's");
         // the derived counts of the disposition section 1.2
@@ -1137,14 +1263,18 @@ impl Layout {
             row += sh.rows_of(*d);
         }
         let a_data_rows = row;
-        let mut a_prefix = vec![0usize; N_SLOTS + 1];
-        let mut h_prefix = vec![0usize; N_SLOTS + 1];
-        for s in 0..N_SLOTS {
+        // NATIVE R9: the prefix runs over THIS profile's slots (a DD
+        // profile's dictionary slot appended last), so no other profile's
+        // site rows move
+        let ns = sh.n_slots();
+        let mut a_prefix = vec![0usize; ns + 1];
+        let mut h_prefix = vec![0usize; ns + 1];
+        for s in 0..ns {
             a_prefix[s + 1] = a_prefix[s] + a_sites[s];
             h_prefix[s + 1] = h_prefix[s] + h_sites[s];
         }
         let a_mask_base = a_data_rows;
-        let a_prox = a_mask_base + 2 * a_prefix[N_SLOTS];
+        let a_prox = a_mask_base + 2 * a_prefix[ns];
         let a_rows = a_prox + 2;
         let mut row = 0usize;
         let mut h_off = Vec::with_capacity(h_doms.len());
@@ -1155,7 +1285,7 @@ impl Layout {
         }
         let h_data_rows = row;
         let h_mask_base = h_data_rows;
-        let h_prox = h_mask_base + 2 * h_prefix[N_SLOTS];
+        let h_prox = h_mask_base + 2 * h_prefix[ns];
         let h_rows = h_prox + 2;
         // **C-H4 / T-3, at the FULL shape-driven set.** The shape-free set
         // above is what a bare statement constructor can check; here the
@@ -1170,7 +1300,7 @@ impl Layout {
         // lengths between them means nothing — see
         // `hash_domain::imposed_at_shape_with` for why that is not a
         // weakening.
-        super::hash_domain::imposed_at_shape(sh).refuse(&[("A", a_rows), ("H", h_rows), ("M", M_ROWS), ("endpoint", sh.endpoint_rows)])?;
+        super::hash_domain::imposed_at_shape(sh).refuse(&[("A", a_rows), ("H", h_rows), ("M", sh.m_rows()), ("endpoint", sh.endpoint_rows)])?;
         Ok(Layout {
             a_off,
             a_data_rows,
@@ -1235,31 +1365,41 @@ impl Layout {
     pub(crate) fn n(&self) -> usize {
         self.n
     }
-    pub(crate) fn slots(&self) -> &[(usize, usize, usize); N_SLOTS] {
-        &self.slots
+    pub(crate) fn slots(&self) -> &[(usize, usize, usize)] {
+        &self.slots[..self.sh.n_slots()]
+    }
+    /// NATIVE R9: how many slots this layout's profile runs
+    pub(crate) fn n_slots(&self) -> usize {
+        self.sh.n_slots()
+    }
+    /// NATIVE R9: the masking commitment's rows at this profile
+    pub(crate) fn m_rows(&self) -> usize {
+        self.sh.m_rows()
     }
     /// **STEP C part 2.** The CFS mask specification of THIS layout's slot
     /// table — `(rounds, degree)` per slot — the shaped form of the free
     /// [`mask_specs`], which reads the toy's `SLOTS` literal. At the toy the
     /// two are equal (asserted in `grow_tests`), so no toy byte moves.
     pub(crate) fn mask_specs(&self) -> Vec<(usize, usize)> {
-        self.slots.iter().map(|&(n, e, d)| (n + e, d)).collect()
+        self.slots().iter().map(|&(n, e, d)| (n + e, d)).collect()
     }
     /// private terminals slot `s` publishes at THIS shape (the shaped form of
     /// the free [`slot_terms`], which reads `A_SITES` / `H_SITES`)
     pub(crate) fn slot_terms(&self, slot: usize) -> usize {
-        self.a_sites[slot] + self.h_sites[slot] + usize::from(slot >= SC_IO_IN)
+        self.a_sites[slot] + self.h_sites[slot] + usize::from(slot == SC_IO_IN || slot == SC_IO_OUT)
     }
 
     // ---- the slot schedule ----
     pub(crate) fn a_sites(&self) -> &[usize] {
-        &self.a_sites
+        &self.a_sites[..self.sh.n_slots()]
     }
     pub(crate) fn h_sites(&self) -> &[usize] {
-        &self.h_sites
+        &self.h_sites[..self.sh.n_slots()]
     }
-    pub(crate) fn lookup_doms(&self) -> &'static [Dom] {
-        &LOOKUP_DOMS
+    /// the lookup domains in helper order (NATIVE R9: plus `Dom::Dd` on a DD
+    /// profile, whose byte lookups enter the U8 histogram — CHECK.md E-3)
+    pub(crate) fn lookup_doms(&self) -> Vec<Dom> {
+        self.sh.lookup_doms()
     }
     pub(crate) fn lookups(&self, dom: Dom) -> Vec<Lk> {
         lookups_at(&self.sh, &self.ids, dom)
@@ -1322,9 +1462,9 @@ impl Layout {
                 "{tag}: T{} d{} H{} KV{} dh{} F{}; n={} inv_rate={} Q={}; P1 (weights public, no W commitment); whole block (attention, norm_m, feed-forward, residual 2)",
                 sh.tokens, sh.width, sh.q_heads, sh.kv_heads, sh.head_dim, sh.hidden, self.n, sh.inv_rate, sh.opened_cols
             ),
-            format!("A rows={} data={} site-pairs={} prox-pair=({},{})", self.a_rows, self.a_data_rows, self.a_prefix[N_SLOTS], self.a_prox, self.a_prox + 1),
-            format!("H rows={} data={} site-pairs={} zero-sum-pair={:?} prox-pair=({},{})", self.h_rows, self.h_data_rows, self.h_prefix[N_SLOTS], self.h_u_rows(), self.h_prox, self.h_prox + 1),
-            format!("M rows={M_ROWS} functionals={N_FUNCTIONALS} A-groups={} H-groups={} collapse=0", sh.a_groups(), sh.h_groups()),
+            format!("A rows={} data={} site-pairs={} prox-pair=({},{})", self.a_rows, self.a_data_rows, self.a_prefix[sh.n_slots()], self.a_prox, self.a_prox + 1),
+            format!("H rows={} data={} site-pairs={} zero-sum-pair={:?} prox-pair=({},{})", self.h_rows, self.h_data_rows, self.h_prefix[sh.n_slots()], self.h_u_rows(), self.h_prox, self.h_prox + 1),
+            format!("M rows={} functionals={} A-groups={} H-groups={} collapse=0", sh.m_rows(), sh.n_functionals(), sh.a_groups(), sh.h_groups()),
             // NATIVE LANE: a frozen profile prints the frozen constants in
             // the frozen format, byte for byte (`for_shape` refused any frozen
             // profile whose fields differ from them); a TRAINED-calibration
@@ -1356,7 +1496,17 @@ impl Layout {
                 sh.hidden, sh.sh_g, sh.sh_h, sh.sh_z
             ),
         ];
-        for s in 0..N_SLOTS {
+        // **NATIVE R9 (D30; CHECK.md B-5, B-7, B-8): the dictionary's rule,
+        // bound in the schedule.** Only a DD profile carries this line (and
+        // the 24th slot below), so no other profile's schedule digest moves.
+        if sh.dd_cap > 0 {
+            out.push(format!(
+                "dictionary (D30): cap={} slots per (h,t) row on Dom::Dd (h,t|k) of {} entries; e column = sorted({{0}} U exp-table outputs) padded with 0, public per block; key = the row Sum (A_SUM on the leading (h,t) variables); tuple gamma*TAG_DD + key + beta*e + beta^2*P with TAG_DD={TAG_DD}; division clauses e*2^{F_P} - P*Sum - rho_s = 0, rho_s + sigma_s + 1 - Sum = 0, P = limbs at EVERY slot, no usage gate; P_dict, its limbs and the multiplicities committed in A; the table helper in the single value-0 sum claim with sign -1; a layer whose n_col exceeds cap is refused",
+                sh.dd_cap,
+                sh.size(Dom::Dd)
+            ));
+        }
+        for s in 0..sh.n_slots() {
             let (n, e, d) = self.slots[s];
             out.push(format!(
                 "slot {s:02} [{}] main={n} ext={e} degree={d} kind={:?} A-sites={} H-sites={}",
@@ -1402,7 +1552,9 @@ mod tests {
         assert_eq!(M_ROWS, 50);
         assert_eq!((lay.a_planes().len(), lay.h_planes().len()), (N_A, N_H));
         // 23 slots: 12 private, 5 standalone, 6 hosts; 34 functionals
-        let kinds = |k: SlotKind| SLOT_KINDS.iter().filter(|x| **x == k).count();
+        // (the toy's twenty-three; NATIVE R9's 24th, `SC_DD`, is a DD
+        // profile's only)
+        let kinds = |k: SlotKind| SLOT_KINDS[..N_SLOTS].iter().filter(|x| **x == k).count();
         assert_eq!((kinds(SlotKind::Private), kinds(SlotKind::Standalone), kinds(SlotKind::Host)), (12, 5, 6));
         // one eval per slot, one Gamma per standalone slot, one batched Gamma per host
         assert_eq!(N_SLOTS + kinds(SlotKind::Standalone) + HOSTS.len(), N_FUNCTIONALS);

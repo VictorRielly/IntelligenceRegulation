@@ -1,0 +1,1 @@
+{"bos": 1, "embedding_table": {"dtype": "int16", "file": "embedding_int16.bin", "shape": [300, 384], "sha256": "fbfc775b6a0cf6e6103b0676fd1286886d2ac860b155b433feafd636ccd9e380"}}

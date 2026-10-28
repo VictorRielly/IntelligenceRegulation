@@ -1,0 +1,11 @@
+[load          ]      0.5 s   peak RSS     128 MB   ok
+[replay        ]      0.3 s   peak RSS     128 MB   ok
+[hash          ]      0.2 s   peak RSS     128 MB   ok
+[terminals     ]      3.8 s   peak RSS     171 MB   ok
+[commitments   ]     18.4 s   peak RSS     171 MB   ok
+[boundary      ]      3.2 s   peak RSS     181 MB   ok
+[preimage      ]      0.2 s   peak RSS     181 MB   ok
+[export        ]      0.0 s   peak RSS     181 MB   ok
+[channels      ]      0.0 s   peak RSS     181 MB   ok
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round10/cli/tk7-cli-l2-dense-a.json   total 26.6 s   peak RSS 181 MB   ok=True
+status: PASS   unexplained false leaves 0   -> /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round10/cli/tk7-cli-l2-dense-a.status.json

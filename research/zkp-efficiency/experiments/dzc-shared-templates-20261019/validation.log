@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "checks": 150,
+  "artifacts": 52,
+  "finished_utc": "2026-10-19T14:34:12.546429+00:00",
+  "wall_seconds": 0.07094462699751602,
+  "rss_kib": 21564,
+  "threads": 1,
+  "cpu_affinity": [
+    0
+  ],
+  "limits": "59s CPU/wall;512MiBAS;one nice19 CPU",
+  "caveat": "Artifact/source/accounting validation only; not receipt verification or native/GPU integration."
+}

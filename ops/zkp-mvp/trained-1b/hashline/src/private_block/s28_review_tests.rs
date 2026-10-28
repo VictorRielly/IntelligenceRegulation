@@ -338,7 +338,7 @@ fn the_looked_columns_are_the_serial_maps_under_every_thread_count() {
         let blk = BlockPublic::new(public, ff);
         let w = super::witness::build_shaped(&sh, blk.attention(), blk.feed_forward(), &x).expect("an honest witness");
         let lay = Layout::for_shape(&sh).expect("a layout");
-        for dom in lay.lookup_doms() {
+        for dom in lay.lookup_doms().iter() {
             let len = lay.shape().size(*dom);
             let want: Vec<Vec<i64>> = lay
                 .lookups(*dom)
@@ -439,7 +439,7 @@ fn the_census_of_which_shape_crosses_which_stage_28_parallel_threshold() {
         let mut lookup_words = 0u64;
         let mut lookup_par = false; // lookup_values: cols * len >= 2^17
         let mut helper_par = false; // helper_inverses_u8: col.len() >= 2^14
-        for dom in lay.lookup_doms() {
+        for dom in lay.lookup_doms().iter() {
             let len = lay.shape().size(*dom);
             let cols = lay.lookups(*dom).len();
             lookup_words += (cols * len) as u64;

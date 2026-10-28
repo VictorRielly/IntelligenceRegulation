@@ -1,0 +1,5816 @@
+{
+ "what": "[gate round 10, the frozen-r9 re-pin] Leaf-by-leaf comparison of two gate",
+ "privacy_acceptance": false,
+ "pairs": [
+  {
+   "new": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l1/tk9-l1-dense-a.json",
+   "old": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk7/l1/tk7-l1-dense-a.json",
+   "leaves_equal": 3076,
+   "skipped_timing": 5,
+   "skipped_identity": 67,
+   "differing_random_class": 9,
+   "differing": [
+    {
+     "path": "run_layer_source_pins/per_file/1/bytes",
+     "new": "81468",
+     "old": "80119"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/git_blob",
+     "new": "09647b5657441d82a0d0945650177d7fe4b5bda1",
+     "old": "23e2efa5a7af731840790c7fc79718405d4ea0a1"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/lane_commits/0",
+     "new": "uncommitted:ops/zkp-mvp/trained-1b-gate-tk9 (the token lane's frozen round-9 tree b666a991 = frozen-r7 + round 8/9 token-run code, + the privacy-gate lane's capture patch and stage-47 module; sources manifest 597b2204)",
+     "old": "uncommitted:ops/zkp-mvp/trained-1b-gate-tk7 (the token lane's frozen round-7 tree eb912dd5 = native R8 + token files, + the privacy-gate lane's capture patch and stage-47 module; sources manifest d356e7aa)"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/reading",
+     "new": "[TINYLLAMA PORT v15, gate round 10: the frozen-r9 re-pin] read against 2c158dc9 (frozen-r7 = tk7), `diff -u` +16 / -1 in two hunks (round 8).  Hunk 1 (after `RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32`): two new `pub(crate) const` token-I/O run profile strings, `RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128` and `RUN",
+     "old": "[TINYLLAMA PORT v11, round 8] the token r7c reading, verbatim from `zk60_native_rg_tokenio_r7c_pins.TOKEN_R7C_READINGS` (frozen-r7's run.rs = r7c's): [TOKEN-IO R7c] [READ] read against `ad92be08` (R7, read in round 6): `diff -u` is +73 / -24, seven hunks; against the native R8 freeze `d913a081` only"
+    },
+    {
+     "path": "run_layer_source_pins/pins_at_a_read_digest/1",
+     "new": "src/private_block/run.rs: cc2c420498b1 -- read at uncommi",
+     "old": "src/private_block/run.rs: 2c158dc9c22c -- read at uncommi"
+    },
+    {
+     "path": "stage1_integrity/array_store/bytes",
+     "new": "20661736",
+     "old": "20660632"
+    },
+    {
+     "path": "stage1_integrity/array_store/bytes_verified_by_sha256",
+     "new": "20661736",
+     "old": "20660632"
+    },
+    {
+     "path": "stage1_integrity/manifest_total_bytes",
+     "new": "25004001",
+     "old": "25002211"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/0/certifying_minor/determinant",
+     "new": "8901870943407913029",
+     "old": "5130319576784367980"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/1/certifying_minor/determinant",
+     "new": "17281191662281151384",
+     "old": "15581631676941481658"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/2/certifying_minor/determinant",
+     "new": "4869700297761693621",
+     "old": "138048321104142295"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/3/certifying_minor/determinant",
+     "new": "743252643084112053",
+     "old": "8659779465580176969"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/0/sha256",
+     "new": "36727da3af5ce702",
+     "old": "6b5c85df431b8249"
+    },
+    {
+     "path": "stage9_hash_layer/cross_rule_probe/column/index",
+     "new": "6256",
+     "old": "4790"
+    },
+    {
+     "path": "stage9_hash_layer/distinct_salted_leaves",
+     "new": "1263",
+     "old": "1266"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/0/root",
+     "new": "755d9cd4b1416a96",
+     "old": "cbccf590587cb3ef"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/1/root",
+     "new": "e000a35a61b8931d",
+     "old": "fb4b30a0fa7d46a5"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/2/root",
+     "new": "c40c32831f19ca5b",
+     "old": "8d58dbb7da319d90"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/3/root",
+     "new": "909680860ed6f944",
+     "old": "86107e761693eca1"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/4/root",
+     "new": "c67aa6d3d54854a3",
+     "old": "edee9901add67c29"
+    }
+   ],
+   "differing_count": 20
+  },
+  {
+   "new": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l1/tk9-l1-zero-a.json",
+   "old": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk7/l1/tk7-l1-zero-a.json",
+   "leaves_equal": 3074,
+   "skipped_timing": 5,
+   "skipped_identity": 67,
+   "differing_random_class": 13,
+   "differing": [
+    {
+     "path": "run_layer_source_pins/per_file/1/bytes",
+     "new": "81468",
+     "old": "80119"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/git_blob",
+     "new": "09647b5657441d82a0d0945650177d7fe4b5bda1",
+     "old": "23e2efa5a7af731840790c7fc79718405d4ea0a1"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/lane_commits/0",
+     "new": "uncommitted:ops/zkp-mvp/trained-1b-gate-tk9 (the token lane's frozen round-9 tree b666a991 = frozen-r7 + round 8/9 token-run code, + the privacy-gate lane's capture patch and stage-47 module; sources manifest 597b2204)",
+     "old": "uncommitted:ops/zkp-mvp/trained-1b-gate-tk7 (the token lane's frozen round-7 tree eb912dd5 = native R8 + token files, + the privacy-gate lane's capture patch and stage-47 module; sources manifest d356e7aa)"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/reading",
+     "new": "[TINYLLAMA PORT v15, gate round 10: the frozen-r9 re-pin] read against 2c158dc9 (frozen-r7 = tk7), `diff -u` +16 / -1 in two hunks (round 8).  Hunk 1 (after `RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32`): two new `pub(crate) const` token-I/O run profile strings, `RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128` and `RUN",
+     "old": "[TINYLLAMA PORT v11, round 8] the token r7c reading, verbatim from `zk60_native_rg_tokenio_r7c_pins.TOKEN_R7C_READINGS` (frozen-r7's run.rs = r7c's): [TOKEN-IO R7c] [READ] read against `ad92be08` (R7, read in round 6): `diff -u` is +73 / -24, seven hunks; against the native R8 freeze `d913a081` only"
+    },
+    {
+     "path": "run_layer_source_pins/pins_at_a_read_digest/1",
+     "new": "src/private_block/run.rs: cc2c420498b1 -- read at uncommi",
+     "old": "src/private_block/run.rs: 2c158dc9c22c -- read at uncommi"
+    },
+    {
+     "path": "stage1_integrity/array_store/bytes",
+     "new": "20661736",
+     "old": "20716512"
+    },
+    {
+     "path": "stage1_integrity/array_store/bytes_verified_by_sha256",
+     "new": "20661736",
+     "old": "20716512"
+    },
+    {
+     "path": "stage1_integrity/array_store/distinct_arrays_verified_by_sha256",
+     "new": "581",
+     "old": "585"
+    },
+    {
+     "path": "stage1_integrity/manifest_total_bytes",
+     "new": "24998582",
+     "old": "25057918"
+    },
+    {
+     "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/exact_rank_of_the_pad_block",
+     "new": "252",
+     "old": "255"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/0/certifying_minor/determinant",
+     "new": "8690855670947957753",
+     "old": "5641071929774857824"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/1/certifying_minor/determinant",
+     "new": "13003284522132684923",
+     "old": "15740794590516715584"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/2/certifying_minor/determinant",
+     "new": "17749586556295088507",
+     "old": "9340030822813429127"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/3/certifying_minor/determinant",
+     "new": "4741326141158910203",
+     "old": "5814237338749478870"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/0/sha256",
+     "new": "842471ac10002170",
+     "old": "455a329d6c9608ed"
+    },
+    {
+     "path": "stage9_hash_layer/cross_rule_probe/column/index",
+     "new": "15198",
+     "old": "1375"
+    },
+    {
+     "path": "stage9_hash_layer/distinct_salted_leaves",
+     "new": "1259",
+     "old": "1262"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/0/root",
+     "new": "10477df9865f3aaa",
+     "old": "db33c56555d84ae7"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/1/root",
+     "new": "57935e2fd4178aee",
+     "old": "9747df036e57da51"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/2/root",
+     "new": "b85cc11fee8fbb76",
+     "old": "672a14fda4fb8c82"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/3/root",
+     "new": "c107ded1dfcafdf9",
+     "old": "c2516df0278c2dd3"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/4/root",
+     "new": "e4ed9a1d7da27ab4",
+     "old": "507c0ee4d2a41f0a"
+    }
+   ],
+   "differing_count": 22
+  },
+  {
+   "new": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l1/tk9-l1-dense-everything.json",
+   "old": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk7/l1/tk7-l1-dense-everything.json",
+   "leaves_equal": 5461,
+   "skipped_timing": 12,
+   "skipped_identity": 101,
+   "differing_random_class": 17,
+   "differing": [
+    {
+     "path": "run_layer_source_pins/per_file/1/bytes",
+     "new": "81468",
+     "old": "80119"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/git_blob",
+     "new": "09647b5657441d82a0d0945650177d7fe4b5bda1",
+     "old": "23e2efa5a7af731840790c7fc79718405d4ea0a1"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/lane_commits/0",
+     "new": "uncommitted:ops/zkp-mvp/trained-1b-gate-tk9 (the token lane's frozen round-9 tree b666a991 = frozen-r7 + round 8/9 token-run code, + the privacy-gate lane's capture patch and stage-47 module; sources manifest 597b2204)",
+     "old": "uncommitted:ops/zkp-mvp/trained-1b-gate-tk7 (the token lane's frozen round-7 tree eb912dd5 = native R8 + token files, + the privacy-gate lane's capture patch and stage-47 module; sources manifest d356e7aa)"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/reading",
+     "new": "[TINYLLAMA PORT v15, gate round 10: the frozen-r9 re-pin] read against 2c158dc9 (frozen-r7 = tk7), `diff -u` +16 / -1 in two hunks (round 8).  Hunk 1 (after `RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32`): two new `pub(crate) const` token-I/O run profile strings, `RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128` and `RUN",
+     "old": "[TINYLLAMA PORT v11, round 8] the token r7c reading, verbatim from `zk60_native_rg_tokenio_r7c_pins.TOKEN_R7C_READINGS` (frozen-r7's run.rs = r7c's): [TOKEN-IO R7c] [READ] read against `ad92be08` (R7, read in round 6): `diff -u` is +73 / -24, seven hunks; against the native R8 freeze `d913a081` only"
+    },
+    {
+     "path": "run_layer_source_pins/pins_at_a_read_digest/1",
+     "new": "src/private_block/run.rs: cc2c420498b1 -- read at uncommi",
+     "old": "src/private_block/run.rs: 2c158dc9c22c -- read at uncommi"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/0/entry/column_index",
+     "new": "38",
+     "old": "21"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/0/honest_entries_compared",
+     "new": "500262",
+     "old": "496666"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/3/pads_modelled",
+     "new": "253",
+     "old": "251"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/3/refusal",
+     "new": "H@0: row 0 -- NO PREIMAGE: 253 pad symbols cannot meet 254 distinct opened columns (the interpolant of the required values has degree 253)",
+     "old": "H@0: row 0 -- NO PREIMAGE: 251 pad symbols cannot meet 252 distinct opened columns (the interpolant of the required values has degree 251)"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/3/what",
+     "new": "the commitment modelled with 253 pad symbols against 254 distinct opened columns",
+     "old": "the commitment modelled with 251 pad symbols against 252 distinct opened columns"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/5/after_projection/entries_compared",
+     "new": "500262",
+     "old": "496666"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/5/projection/identities/0/residual_before/0",
+     "new": "3226322683679289470",
+     "old": "12894474020346121168"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/5/projection/identities/0/residual_before/1",
+     "new": "9695185196254248504",
+     "old": "2692802969522745477"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/fibre/fibre_dimension_fp",
+     "new": "696235",
+     "old": "692925"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/fibre/pad_block_fp",
+     "new": "8275",
+     "old": "4965"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/layout_seconds",
+     "new": "13.0",
+     "old": "13.18"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/msg_groups_seconds",
+     "new": "4.23",
+     "old": "3.57"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/msg_proximity_seconds",
+     "new": "0.21",
+     "old": "0.2"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/pads_seconds",
+     "new": "15.71",
+     "old": "15.23"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/solve_seconds",
+     "new": "20.15",
+     "old": "19.0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/39/free_fp",
+     "new": "50",
+     "old": "30"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/40/free_fp",
+     "new": "10",
+     "old": "6"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/41/free_fp",
+     "new": "10",
+     "old": "6"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/42/free_fp",
+     "new": "10",
+     "old": "6"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/43/free_fp",
+     "new": "10",
+     "old": "6"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/44/free_fp",
+     "new": "10",
+     "old": "6"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/45/free_fp",
+     "new": "10",
+     "old": "6"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/46/free_fp",
+     "new": "10",
+     "old": "6"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/47/free_fp",
+     "new": "10",
+     "old": "6"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/48/free_fp",
+     "new": "10",
+     "old": "6"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/49/free_fp",
+     "new": "10",
+     "old": "6"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/61/free_fp",
+     "new": "340",
+     "old": "204"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/62/free_fp",
+     "new": "10",
+     "old": "6"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/63/free_fp",
+     "new": "60",
+     "old": "36"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/65/free_fp",
+     "new": "50",
+     "old": "30"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/67/free_fp",
+     "new": "100",
+     "old": "60"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/68/free_fp",
+     "new": "10",
+     "old": "6"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/69/free_fp",
+     "new": "100",
+     "old": "60"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/70/free_fp",
+     "new": "20",
+     "old": "12"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/system/distinct_opened_columns_d",
+     "new": "251",
+     "old": "253"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/system/equations_opened_columns_fp",
+     "new": "433979",
+     "old": "437437"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/system/equations_total_fp",
+     "new": "756267",
+     "old": "759725"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/verification/column_entries",
+     "new": "433979",
+     "old": "437437"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/verification/columns_verified",
+     "new": "251",
+     "old": "253"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/verification/entries_compared",
+     "new": "595123",
+     "old": "598581"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/verification/seconds_opened_columns",
+     "new": "24.55",
+     "old": "22.03"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/verification/seconds_vectors_and_claims",
+     "new": "8.77",
+     "old": "9.65"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/fibre/fibre_dimension_fp",
+     "new": "339346",
+     "old": "342902"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/fibre/pad_block_fp",
+     "new": "3556",
+     "old": "7112"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/layout_seconds",
+     "new": "12.53",
+     "old": "12.51"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/msg_groups_seconds",
+     "new": "0.78",
+     "old": "0.85"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/pads_seconds",
+     "new": "9.64",
+     "old": "11.52"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/solve_seconds",
+     "new": "10.54",
+     "old": "12.48"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/11/free_fp",
+     "new": "64",
+     "old": "128"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/12/free_fp",
+     "new": "24",
+     "old": "48"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/13/free_fp",
+     "new": "20",
+     "old": "40"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/14/free_fp",
+     "new": "28",
+     "old": "56"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/15/free_fp",
+     "new": "20",
+     "old": "40"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/16/free_fp",
+     "new": "8",
+     "old": "16"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/system/distinct_opened_columns_d",
+     "new": "254",
+     "old": "252"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/system/equations_opened_columns_fp",
+     "new": "456692",
+     "old": "453096"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/system/equations_total_fp",
+     "new": "543834",
+     "old": "540238"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/verification/column_entries",
+     "new": "456692",
+     "old": "453096"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/verification/columns_verified",
+     "new": "254",
+     "old": "252"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/verification/entries_compared",
+     "new": "500262",
+     "old": "496666"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/verification/seconds_opened_columns",
+     "new": "20.42",
+     "old": "18.61"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/verification/seconds_vectors_and_claims",
+     "new": "3.79",
+     "old": "2.98"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/layout_seconds",
+     "new": "11.54",
+     "old": "13.08"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/msg_proximity_seconds",
+     "new": "0.04",
+     "old": "0.05"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/pads_seconds",
+     "new": "0.28",
+     "old": "0.3"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/solve_seconds",
+     "new": "0.36",
+     "old": "0.39"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/verification/seconds_opened_columns",
+     "new": "0.33",
+     "old": "0.42"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/verification/seconds_vectors_and_claims",
+     "new": "0.01",
+     "old": "0.02"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/fibre/fibre_dimension_fp",
+     "new": "17",
+     "old": "34"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/fibre/pad_block_fp",
+     "new": "17",
+     "old": "34"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/layout_seconds",
+     "new": "12.21",
+     "old": "12.58"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/msg_groups_seconds",
+     "new": "0.06",
+     "old": "0.04"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/pads_seconds",
+     "new": "0.4",
+     "old": "0.32"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/solve_seconds",
+     "new": "0.51",
+     "old": "0.41"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/system/distinct_opened_columns_d",
+     "new": "255",
+     "old": "254"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/system/equations_opened_columns_fp",
+     "new": "5355",
+     "old": "5334"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/system/equations_total_fp",
+     "new": "22765",
+     "old": "22744"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/verification/column_entries",
+     "new": "5355",
+     "old": "5334"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/verification/columns_verified",
+     "new": "255",
+     "old": "254"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/verification/entries_compared",
+     "new": "14060",
+     "old": "14039"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/verification/seconds_opened_columns",
+     "new": "0.4",
+     "old": "0.37"
+    },
+    {
+     "path": "stage11_full_preimage/view_entries_compared",
+     "new": "1123484",
+     "old": "1123325"
+    },
+    {
+     "path": "stage12_mask_and_cfs/controls/M2_one_opened_column_entry_moved/at_a_b_row/first_mismatch/column",
+     "new": "3401",
+     "old": "3104"
+    },
+    {
+     "path": "stage12_mask_and_cfs/controls/M2_one_opened_column_entry_moved/at_an_a_row/first_mismatch/column",
+     "new": "3401",
+     "old": "3104"
+    },
+    {
+     "path": "stage12_mask_and_cfs/controls/M2_one_opened_column_entry_moved/at_an_a_row/where_it_fires",
+     "new": "NOT on the a-row itself: the a-rows carry Q = 256 pads against 249 distinct sampled nodes, so their Cauchy block is square and nonsingular and the pads absorb the moved target exactly.  It fires on the FOUR rows below -- b_re, b_im, u_re, u_im, at that one column and at no other -- because b is the ",
+     "old": "NOT on the a-row itself: the a-rows carry Q = 256 pads against 253 distinct sampled nodes, so their Cauchy block is square and nonsingular and the pads absorb the moved target exactly.  It fires on the FOUR rows below -- b_re, b_im, u_re, u_im, at that one column and at no other -- because b is the "
+    },
+    {
+     "path": "stage12_mask_and_cfs/controls/M3_declared_functional_order_permuted/forced_first_mismatch/column",
+     "new": "3401",
+     "old": "3104"
+    },
+    {
+     "path": "stage12_mask_and_cfs/controls/M6_one_pad_fewer_than_the_distinct_opened_columns/what",
+     "new": "every a-row of M modelled with 248 pads against 249 distinct opened columns (the real budget is 256, margin 7)",
+     "old": "every a-row of M modelled with 252 pads against 253 distinct opened columns (the real budget is 256, margin 3)"
+    },
+    {
+     "path": "stage12_mask_and_cfs/per_stage/0/pad_budget/margin",
+     "new": "7",
+     "old": "3"
+    },
+    {
+     "path": "stage13_joint_run_preimage/entries_compared",
+     "new": "1139639",
+     "old": "1139480"
+    },
+    {
+     "path": "stage13_joint_run_preimage/parts/pcs_entries_compared",
+     "new": "1123484",
+     "old": "1123325"
+    },
+    {
+     "path": "stage1_integrity/array_store/bytes",
+     "new": "20661736",
+     "old": "20660632"
+    },
+    {
+     "path": "stage1_integrity/array_store/bytes_verified_by_sha256",
+     "new": "20661736",
+     "old": "20660632"
+    },
+    {
+     "path": "stage1_integrity/manifest_total_bytes",
+     "new": "25004001",
+     "old": "25002211"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/0/certifying_minor/determinant",
+     "new": "8901870943407913029",
+     "old": "5130319576784367980"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/1/certifying_minor/determinant",
+     "new": "17281191662281151384",
+     "old": "15581631676941481658"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/2/certifying_minor/determinant",
+     "new": "4869700297761693621",
+     "old": "138048321104142295"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/3/certifying_minor/determinant",
+     "new": "743252643084112053",
+     "old": "8659779465580176969"
+    },
+    {
+     "path": "stage6_negative_controls/round_9_controls/controls/0/refusal",
+     "new": "stage-00.json.roles[0].groups[0].vector: the sha256 of bytes 9928712..9998344 of arrays.bin is 4ef8697108015a80..., the reference says 193e359991340fac...",
+     "old": "stage-00.json.roles[0].groups[0].vector: the sha256 of bytes 9928712..9998344 of arrays.bin is 4f2513d5ef0fee87..., the reference says a83eb32ff5be9e50..."
+    },
+    {
+     "path": "stage6_negative_controls/round_9_controls/controls/1/moved/from",
+     "new": "18226956717954325895",
+     "old": "10576890941600438018"
+    },
+    {
+     "path": "stage6_negative_controls/round_9_controls/controls/1/moved/to",
+     "new": "18226956717954325896",
+     "old": "10576890941600438019"
+    },
+    {
+     "path": "stage6_negative_controls/round_9_controls/controls/1/perturbed/findings/0",
+     "new": "stage 0 A: the Merkle path of column 6256 does not fold to the committed root",
+     "old": "stage 0 A: the Merkle path of column 4790 does not fold to the committed root"
+    },
+    {
+     "path": "stage6_negative_controls/run_controls/C6_one_pad_fewer_than_the_distinct_opened_columns/perturbed/findings/0",
+     "new": "H@0: pad budget: 254 distinct opened columns, 253 pads, 0 vanishing Z_n nodes",
+     "old": "H@0: pad budget: 252 distinct opened columns, 251 pads, 0 vanishing Z_n nodes"
+    },
+    {
+     "path": "stage6_negative_controls/run_controls/C6_one_pad_fewer_than_the_distinct_opened_columns/what",
+     "new": "H@0's pad budget set to 253 against 254 distinct opened columns",
+     "old": "H@0's pad budget set to 251 against 252 distinct opened columns"
+    },
+    {
+     "path": "stage7_channels/channels/4/entries_recomputed_and_compared",
+     "new": "1123484",
+     "old": "1123325"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/0/sha256",
+     "new": "36727da3af5ce702",
+     "old": "6b5c85df431b8249"
+    },
+    {
+     "path": "stage7_channels/channels/19/joint/entries_compared",
+     "new": "1139639",
+     "old": "1139480"
+    },
+    {
+     "path": "stage9_hash_layer/cross_rule_probe/column/index",
+     "new": "6256",
+     "old": "4790"
+    },
+    {
+     "path": "stage9_hash_layer/distinct_salted_leaves",
+     "new": "1263",
+     "old": "1266"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/0/root",
+     "new": "755d9cd4b1416a96",
+     "old": "cbccf590587cb3ef"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/1/root",
+     "new": "e000a35a61b8931d",
+     "old": "fb4b30a0fa7d46a5"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/2/root",
+     "new": "c40c32831f19ca5b",
+     "old": "8d58dbb7da319d90"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/3/root",
+     "new": "909680860ed6f944",
+     "old": "86107e761693eca1"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/4/root",
+     "new": "c67aa6d3d54854a3",
+     "old": "edee9901add67c29"
+    }
+   ],
+   "differing_count": 118
+  },
+  {
+   "new": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l1/tk9-l1-zero-everything.json",
+   "old": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk7/l1/tk7-l1-zero-everything.json",
+   "leaves_equal": 5451,
+   "skipped_timing": 12,
+   "skipped_identity": 101,
+   "differing_random_class": 22,
+   "differing": [
+    {
+     "path": "run_layer_source_pins/per_file/1/bytes",
+     "new": "81468",
+     "old": "80119"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/git_blob",
+     "new": "09647b5657441d82a0d0945650177d7fe4b5bda1",
+     "old": "23e2efa5a7af731840790c7fc79718405d4ea0a1"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/lane_commits/0",
+     "new": "uncommitted:ops/zkp-mvp/trained-1b-gate-tk9 (the token lane's frozen round-9 tree b666a991 = frozen-r7 + round 8/9 token-run code, + the privacy-gate lane's capture patch and stage-47 module; sources manifest 597b2204)",
+     "old": "uncommitted:ops/zkp-mvp/trained-1b-gate-tk7 (the token lane's frozen round-7 tree eb912dd5 = native R8 + token files, + the privacy-gate lane's capture patch and stage-47 module; sources manifest d356e7aa)"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/reading",
+     "new": "[TINYLLAMA PORT v15, gate round 10: the frozen-r9 re-pin] read against 2c158dc9 (frozen-r7 = tk7), `diff -u` +16 / -1 in two hunks (round 8).  Hunk 1 (after `RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32`): two new `pub(crate) const` token-I/O run profile strings, `RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128` and `RUN",
+     "old": "[TINYLLAMA PORT v11, round 8] the token r7c reading, verbatim from `zk60_native_rg_tokenio_r7c_pins.TOKEN_R7C_READINGS` (frozen-r7's run.rs = r7c's): [TOKEN-IO R7c] [READ] read against `ad92be08` (R7, read in round 6): `diff -u` is +73 / -24, seven hunks; against the native R8 freeze `d913a081` only"
+    },
+    {
+     "path": "run_layer_source_pins/pins_at_a_read_digest/1",
+     "new": "src/private_block/run.rs: cc2c420498b1 -- read at uncommi",
+     "old": "src/private_block/run.rs: 2c158dc9c22c -- read at uncommi"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/0/entry/column_index",
+     "new": "13",
+     "old": "67"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/0/honest_entries_compared",
+     "new": "500262",
+     "old": "498464"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/3/pads_modelled",
+     "new": "253",
+     "old": "252"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/3/refusal",
+     "new": "H@0: row 0 -- NO PREIMAGE: 253 pad symbols cannot meet 254 distinct opened columns (the interpolant of the required values has degree 253)",
+     "old": "H@0: row 0 -- NO PREIMAGE: 252 pad symbols cannot meet 253 distinct opened columns (the interpolant of the required values has degree 252)"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/3/what",
+     "new": "the commitment modelled with 253 pad symbols against 254 distinct opened columns",
+     "old": "the commitment modelled with 252 pad symbols against 253 distinct opened columns"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/5/after_projection/entries_compared",
+     "new": "500262",
+     "old": "498464"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/5/projection/identities/0/residual_before/0",
+     "new": "18445431283533666439",
+     "old": "4153818563762676929"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/5/projection/identities/0/residual_before/1",
+     "new": "3897614389037635440",
+     "old": "13212564108924858573"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/fibre/fibre_dimension_fp",
+     "new": "696235",
+     "old": "687960"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/fibre/pad_block_fp",
+     "new": "8275",
+     "old": "0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/layout_seconds",
+     "new": "12.39",
+     "old": "13.49"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/msg_groups_seconds",
+     "new": "3.56",
+     "old": "4.53"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/msg_proximity_seconds",
+     "new": "0.24",
+     "old": "0.3"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/pads_seconds",
+     "new": "15.89",
+     "old": "16.33"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/solve_seconds",
+     "new": "19.69",
+     "old": "21.16"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/39/free_fp",
+     "new": "50",
+     "old": "0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/40/free_fp",
+     "new": "10",
+     "old": "0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/41/free_fp",
+     "new": "10",
+     "old": "0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/42/free_fp",
+     "new": "10",
+     "old": "0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/43/free_fp",
+     "new": "10",
+     "old": "0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/44/free_fp",
+     "new": "10",
+     "old": "0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/45/free_fp",
+     "new": "10",
+     "old": "0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/46/free_fp",
+     "new": "10",
+     "old": "0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/47/free_fp",
+     "new": "10",
+     "old": "0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/48/free_fp",
+     "new": "10",
+     "old": "0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/49/free_fp",
+     "new": "10",
+     "old": "0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/61/free_fp",
+     "new": "340",
+     "old": "0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/62/free_fp",
+     "new": "10",
+     "old": "0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/63/free_fp",
+     "new": "60",
+     "old": "0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/65/free_fp",
+     "new": "50",
+     "old": "0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/67/free_fp",
+     "new": "100",
+     "old": "0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/68/free_fp",
+     "new": "10",
+     "old": "0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/69/free_fp",
+     "new": "100",
+     "old": "0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/70/free_fp",
+     "new": "20",
+     "old": "0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/system/distinct_opened_columns_d",
+     "new": "251",
+     "old": "256"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/system/equations_opened_columns_fp",
+     "new": "433979",
+     "old": "442624"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/system/equations_total_fp",
+     "new": "756267",
+     "old": "764912"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/verification/column_entries",
+     "new": "433979",
+     "old": "442624"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/verification/columns_verified",
+     "new": "251",
+     "old": "256"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/verification/entries_compared",
+     "new": "595123",
+     "old": "603768"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/verification/seconds_opened_columns",
+     "new": "22.15",
+     "old": "24.52"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/verification/seconds_vectors_and_claims",
+     "new": "10.02",
+     "old": "11.13"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/fibre/fibre_dimension_fp",
+     "new": "339346",
+     "old": "341124"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/fibre/pad_block_fp",
+     "new": "3556",
+     "old": "5334"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/layout_seconds",
+     "new": "11.32",
+     "old": "13.85"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/msg_groups_seconds",
+     "new": "0.78",
+     "old": "0.71"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/msg_proximity_seconds",
+     "new": "0.13",
+     "old": "0.16"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/pads_seconds",
+     "new": "12.63",
+     "old": "10.87"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/solve_seconds",
+     "new": "13.54",
+     "old": "11.74"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/11/free_fp",
+     "new": "64",
+     "old": "96"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/12/free_fp",
+     "new": "24",
+     "old": "36"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/13/free_fp",
+     "new": "20",
+     "old": "30"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/14/free_fp",
+     "new": "28",
+     "old": "42"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/15/free_fp",
+     "new": "20",
+     "old": "30"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/16/free_fp",
+     "new": "8",
+     "old": "12"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/system/distinct_opened_columns_d",
+     "new": "254",
+     "old": "253"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/system/equations_opened_columns_fp",
+     "new": "456692",
+     "old": "454894"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/system/equations_total_fp",
+     "new": "543834",
+     "old": "542036"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/verification/column_entries",
+     "new": "456692",
+     "old": "454894"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/verification/columns_verified",
+     "new": "254",
+     "old": "253"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/verification/entries_compared",
+     "new": "500262",
+     "old": "498464"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/verification/seconds_opened_columns",
+     "new": "19.18",
+     "old": "20.66"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/verification/seconds_vectors_and_claims",
+     "new": "3.03",
+     "old": "3.39"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/fibre/fibre_dimension_fp",
+     "new": "68",
+     "old": "17"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/fibre/pad_block_fp",
+     "new": "68",
+     "old": "17"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/layout_seconds",
+     "new": "11.87",
+     "old": "14.11"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/msg_groups_seconds",
+     "new": "0.04",
+     "old": "0.05"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/msg_proximity_seconds",
+     "new": "0.04",
+     "old": "0.05"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/pads_seconds",
+     "new": "0.28",
+     "old": "0.32"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/solve_seconds",
+     "new": "0.36",
+     "old": "0.43"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/system/distinct_opened_columns_d",
+     "new": "252",
+     "old": "255"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/system/equations_opened_columns_fp",
+     "new": "5292",
+     "old": "5355"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/system/equations_total_fp",
+     "new": "22702",
+     "old": "22765"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/verification/column_entries",
+     "new": "5292",
+     "old": "5355"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/verification/columns_verified",
+     "new": "252",
+     "old": "255"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/verification/entries_compared",
+     "new": "13997",
+     "old": "14060"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/verification/seconds_opened_columns",
+     "new": "0.32",
+     "old": "0.45"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/fibre/fibre_dimension_fp",
+     "new": "17",
+     "old": "51"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/fibre/pad_block_fp",
+     "new": "17",
+     "old": "51"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/layout_seconds",
+     "new": "11.13",
+     "old": "13.75"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/pads_seconds",
+     "new": "0.3",
+     "old": "0.33"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/solve_seconds",
+     "new": "0.4",
+     "old": "0.43"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/system/distinct_opened_columns_d",
+     "new": "255",
+     "old": "253"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/system/equations_opened_columns_fp",
+     "new": "5355",
+     "old": "5313"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/system/equations_total_fp",
+     "new": "22765",
+     "old": "22723"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/verification/column_entries",
+     "new": "5355",
+     "old": "5313"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/verification/columns_verified",
+     "new": "255",
+     "old": "253"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/verification/entries_compared",
+     "new": "14060",
+     "old": "14018"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/verification/seconds_opened_columns",
+     "new": "0.41",
+     "old": "0.42"
+    },
+    {
+     "path": "stage11_full_preimage/view_entries_compared",
+     "new": "1123442",
+     "old": "1130310"
+    },
+    {
+     "path": "stage12_mask_and_cfs/controls/M2_one_opened_column_entry_moved/at_a_b_row/first_mismatch/column",
+     "new": "1241",
+     "old": "3502"
+    },
+    {
+     "path": "stage12_mask_and_cfs/controls/M2_one_opened_column_entry_moved/at_an_a_row/first_mismatch/column",
+     "new": "1241",
+     "old": "3502"
+    },
+    {
+     "path": "stage12_mask_and_cfs/controls/M2_one_opened_column_entry_moved/at_an_a_row/where_it_fires",
+     "new": "NOT on the a-row itself: the a-rows carry Q = 256 pads against 247 distinct sampled nodes, so their Cauchy block is square and nonsingular and the pads absorb the moved target exactly.  It fires on the FOUR rows below -- b_re, b_im, u_re, u_im, at that one column and at no other -- because b is the ",
+     "old": "NOT on the a-row itself: the a-rows carry Q = 256 pads against 245 distinct sampled nodes, so their Cauchy block is square and nonsingular and the pads absorb the moved target exactly.  It fires on the FOUR rows below -- b_re, b_im, u_re, u_im, at that one column and at no other -- because b is the "
+    },
+    {
+     "path": "stage12_mask_and_cfs/controls/M3_declared_functional_order_permuted/forced_first_mismatch/column",
+     "new": "1241",
+     "old": "3502"
+    },
+    {
+     "path": "stage12_mask_and_cfs/controls/M6_one_pad_fewer_than_the_distinct_opened_columns/what",
+     "new": "every a-row of M modelled with 246 pads against 247 distinct opened columns (the real budget is 256, margin 9)",
+     "old": "every a-row of M modelled with 244 pads against 245 distinct opened columns (the real budget is 256, margin 11)"
+    },
+    {
+     "path": "stage12_mask_and_cfs/per_stage/0/pad_budget/margin",
+     "new": "9",
+     "old": "11"
+    },
+    {
+     "path": "stage13_joint_run_preimage/entries_compared",
+     "new": "1139597",
+     "old": "1146465"
+    },
+    {
+     "path": "stage13_joint_run_preimage/parts/pcs_entries_compared",
+     "new": "1123442",
+     "old": "1130310"
+    },
+    {
+     "path": "stage1_integrity/array_store/bytes",
+     "new": "20661736",
+     "old": "20716512"
+    },
+    {
+     "path": "stage1_integrity/array_store/bytes_verified_by_sha256",
+     "new": "20661736",
+     "old": "20716512"
+    },
+    {
+     "path": "stage1_integrity/array_store/distinct_arrays_verified_by_sha256",
+     "new": "581",
+     "old": "585"
+    },
+    {
+     "path": "stage1_integrity/manifest_total_bytes",
+     "new": "24998582",
+     "old": "25057918"
+    },
+    {
+     "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/exact_rank_of_the_pad_block",
+     "new": "252",
+     "old": "255"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/0/certifying_minor/determinant",
+     "new": "8690855670947957753",
+     "old": "5641071929774857824"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/1/certifying_minor/determinant",
+     "new": "13003284522132684923",
+     "old": "15740794590516715584"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/2/certifying_minor/determinant",
+     "new": "17749586556295088507",
+     "old": "9340030822813429127"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/3/certifying_minor/determinant",
+     "new": "4741326141158910203",
+     "old": "5814237338749478870"
+    },
+    {
+     "path": "stage6_negative_controls/round_9_controls/controls/0/refusal",
+     "new": "stage-00.json.roles[0].groups[0].vector: the sha256 of bytes 9928712..9998344 of arrays.bin is 1ef98e94c80c739d..., the reference says 998e7e6d399e990e...",
+     "old": "stage-00.json.roles[0].groups[0].vector: the sha256 of bytes 9928712..9998344 of arrays.bin is cc3ae604bd203297..., the reference says fb4a155dc433765a..."
+    },
+    {
+     "path": "stage6_negative_controls/round_9_controls/controls/1/moved/from",
+     "new": "8463227027857656072",
+     "old": "1105504647967820275"
+    },
+    {
+     "path": "stage6_negative_controls/round_9_controls/controls/1/moved/to",
+     "new": "8463227027857656073",
+     "old": "1105504647967820276"
+    },
+    {
+     "path": "stage6_negative_controls/round_9_controls/controls/1/perturbed/findings/0",
+     "new": "stage 0 A: the Merkle path of column 15198 does not fold to the committed root",
+     "old": "stage 0 A: the Merkle path of column 1375 does not fold to the committed root"
+    },
+    {
+     "path": "stage6_negative_controls/run_controls/C6_one_pad_fewer_than_the_distinct_opened_columns/perturbed/findings/0",
+     "new": "H@0: pad budget: 254 distinct opened columns, 253 pads, 0 vanishing Z_n nodes",
+     "old": "H@0: pad budget: 253 distinct opened columns, 252 pads, 0 vanishing Z_n nodes"
+    },
+    {
+     "path": "stage6_negative_controls/run_controls/C6_one_pad_fewer_than_the_distinct_opened_columns/what",
+     "new": "H@0's pad budget set to 253 against 254 distinct opened columns",
+     "old": "H@0's pad budget set to 252 against 253 distinct opened columns"
+    },
+    {
+     "path": "stage7_channels/channels/4/entries_recomputed_and_compared",
+     "new": "1123442",
+     "old": "1130310"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/0/sha256",
+     "new": "842471ac10002170",
+     "old": "455a329d6c9608ed"
+    },
+    {
+     "path": "stage7_channels/channels/19/joint/entries_compared",
+     "new": "1139597",
+     "old": "1146465"
+    },
+    {
+     "path": "stage9_hash_layer/cross_rule_probe/column/index",
+     "new": "15198",
+     "old": "1375"
+    },
+    {
+     "path": "stage9_hash_layer/distinct_salted_leaves",
+     "new": "1259",
+     "old": "1262"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/0/root",
+     "new": "10477df9865f3aaa",
+     "old": "db33c56555d84ae7"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/1/root",
+     "new": "57935e2fd4178aee",
+     "old": "9747df036e57da51"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/2/root",
+     "new": "b85cc11fee8fbb76",
+     "old": "672a14fda4fb8c82"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/3/root",
+     "new": "c107ded1dfcafdf9",
+     "old": "c2516df0278c2dd3"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/4/root",
+     "new": "e4ed9a1d7da27ab4",
+     "old": "507c0ee4d2a41f0a"
+    }
+   ],
+   "differing_count": 128
+  },
+  {
+   "new": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l2/tk9-l2-dense-a.json",
+   "old": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk7/l2/tk7-l2-dense-a.json",
+   "leaves_equal": 4291,
+   "skipped_timing": 5,
+   "skipped_identity": 74,
+   "differing_random_class": 12,
+   "differing": [
+    {
+     "path": "run_layer_source_pins/per_file/1/bytes",
+     "new": "81468",
+     "old": "80119"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/git_blob",
+     "new": "09647b5657441d82a0d0945650177d7fe4b5bda1",
+     "old": "23e2efa5a7af731840790c7fc79718405d4ea0a1"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/lane_commits/0",
+     "new": "uncommitted:ops/zkp-mvp/trained-1b-gate-tk9 (the token lane's frozen round-9 tree b666a991 = frozen-r7 + round 8/9 token-run code, + the privacy-gate lane's capture patch and stage-47 module; sources manifest 597b2204)",
+     "old": "uncommitted:ops/zkp-mvp/trained-1b-gate-tk7 (the token lane's frozen round-7 tree eb912dd5 = native R8 + token files, + the privacy-gate lane's capture patch and stage-47 module; sources manifest d356e7aa)"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/reading",
+     "new": "[TINYLLAMA PORT v15, gate round 10: the frozen-r9 re-pin] read against 2c158dc9 (frozen-r7 = tk7), `diff -u` +16 / -1 in two hunks (round 8).  Hunk 1 (after `RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32`): two new `pub(crate) const` token-I/O run profile strings, `RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128` and `RUN",
+     "old": "[TINYLLAMA PORT v11, round 8] the token r7c reading, verbatim from `zk60_native_rg_tokenio_r7c_pins.TOKEN_R7C_READINGS` (frozen-r7's run.rs = r7c's): [TOKEN-IO R7c] [READ] read against `ad92be08` (R7, read in round 6): `diff -u` is +73 / -24, seven hunks; against the native R8 freeze `d913a081` only"
+    },
+    {
+     "path": "run_layer_source_pins/pins_at_a_read_digest/1",
+     "new": "src/private_block/run.rs: cc2c420498b1 -- read at uncommi",
+     "old": "src/private_block/run.rs: 2c158dc9c22c -- read at uncommi"
+    },
+    {
+     "path": "stage1_integrity/array_store/bytes",
+     "new": "34033568",
+     "old": "34019736"
+    },
+    {
+     "path": "stage1_integrity/array_store/bytes_verified_by_sha256",
+     "new": "34033568",
+     "old": "34019736"
+    },
+    {
+     "path": "stage1_integrity/array_store/distinct_arrays_verified_by_sha256",
+     "new": "1156",
+     "old": "1155"
+    },
+    {
+     "path": "stage1_integrity/manifest_total_bytes",
+     "new": "41986696",
+     "old": "41968427"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/0/certifying_minor/determinant",
+     "new": "4995313656494441881",
+     "old": "6281080130068789294"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/1/certifying_minor/determinant",
+     "new": "8759046918060961805",
+     "old": "14542743378819055149"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/2/certifying_minor/determinant",
+     "new": "1526089234227663610",
+     "old": "6150180064112297082"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/3/certifying_minor/determinant",
+     "new": "288533616380481821",
+     "old": "11767272243171991940"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/4/certifying_minor/determinant",
+     "new": "14640582830877990285",
+     "old": "1749415924282773329"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/5/certifying_minor/determinant",
+     "new": "4558881158404948080",
+     "old": "17069967772135012710"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/6/certifying_minor/determinant",
+     "new": "14481491268283344799",
+     "old": "10278485978084904418"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/0/restricted_to_the_reserved_rows/determinant",
+     "new": "4558881158404948080",
+     "old": "17069967772135012710"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/0/sha256",
+     "new": "13b0ca1cd6999a92",
+     "old": "40787f766de454a1"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/1/sha256",
+     "new": "05be8d328e0dad82",
+     "old": "1e36a44a08aaae10"
+    },
+    {
+     "path": "stage9_hash_layer/cross_rule_probe/column/index",
+     "new": "7624",
+     "old": "10290"
+    },
+    {
+     "path": "stage9_hash_layer/distinct_salted_leaves",
+     "new": "2276",
+     "old": "2269"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/0/root",
+     "new": "6137b62ca6cd1b2f",
+     "old": "6b8fd6c0329bd0a6"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/1/root",
+     "new": "45f75636ccdd09e9",
+     "old": "bcfa9b705cf85dd9"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/2/root",
+     "new": "34c76eae2a471b5c",
+     "old": "bface12b889b7796"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/3/root",
+     "new": "ee89e6d4652d4cb2",
+     "old": "45e5545d27716efe"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/0/root",
+     "new": "ee0b6389b609558c",
+     "old": "c1202d15eb5ee856"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/1/root",
+     "new": "39fdef976f399465",
+     "old": "e34739db76697752"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/2/root",
+     "new": "2db4adce8d48441f",
+     "old": "4a8180aa48e39780"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/3/root",
+     "new": "916883dbb2447976",
+     "old": "81c8c52a3873642e"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/4/root",
+     "new": "7f75e6e501bc73be",
+     "old": "da333447ecdd1855"
+    }
+   ],
+   "differing_count": 30
+  },
+  {
+   "new": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l2/tk9-l2-zero-a.json",
+   "old": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk7/l2/tk7-l2-zero-a.json",
+   "leaves_equal": 4290,
+   "skipped_timing": 5,
+   "skipped_identity": 74,
+   "differing_random_class": 22,
+   "differing": [
+    {
+     "path": "run_layer_source_pins/per_file/1/bytes",
+     "new": "81468",
+     "old": "80119"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/git_blob",
+     "new": "09647b5657441d82a0d0945650177d7fe4b5bda1",
+     "old": "23e2efa5a7af731840790c7fc79718405d4ea0a1"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/lane_commits/0",
+     "new": "uncommitted:ops/zkp-mvp/trained-1b-gate-tk9 (the token lane's frozen round-9 tree b666a991 = frozen-r7 + round 8/9 token-run code, + the privacy-gate lane's capture patch and stage-47 module; sources manifest 597b2204)",
+     "old": "uncommitted:ops/zkp-mvp/trained-1b-gate-tk7 (the token lane's frozen round-7 tree eb912dd5 = native R8 + token files, + the privacy-gate lane's capture patch and stage-47 module; sources manifest d356e7aa)"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/reading",
+     "new": "[TINYLLAMA PORT v15, gate round 10: the frozen-r9 re-pin] read against 2c158dc9 (frozen-r7 = tk7), `diff -u` +16 / -1 in two hunks (round 8).  Hunk 1 (after `RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32`): two new `pub(crate) const` token-I/O run profile strings, `RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128` and `RUN",
+     "old": "[TINYLLAMA PORT v11, round 8] the token r7c reading, verbatim from `zk60_native_rg_tokenio_r7c_pins.TOKEN_R7C_READINGS` (frozen-r7's run.rs = r7c's): [TOKEN-IO R7c] [READ] read against `ad92be08` (R7, read in round 6): `diff -u` is +73 / -24, seven hunks; against the native R8 freeze `d913a081` only"
+    },
+    {
+     "path": "run_layer_source_pins/pins_at_a_read_digest/1",
+     "new": "src/private_block/run.rs: cc2c420498b1 -- read at uncommi",
+     "old": "src/private_block/run.rs: 2c158dc9c22c -- read at uncommi"
+    },
+    {
+     "path": "stage1_integrity/array_store/bytes",
+     "new": "34090000",
+     "old": "34104936"
+    },
+    {
+     "path": "stage1_integrity/array_store/bytes_verified_by_sha256",
+     "new": "34090000",
+     "old": "34104936"
+    },
+    {
+     "path": "stage1_integrity/array_store/distinct_arrays_verified_by_sha256",
+     "new": "1160",
+     "old": "1161"
+    },
+    {
+     "path": "stage1_integrity/manifest_total_bytes",
+     "new": "42040009",
+     "old": "42056810"
+    },
+    {
+     "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/exact_rank_of_the_pad_block",
+     "new": "254",
+     "old": "256"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/0/certifying_minor/determinant",
+     "new": "2509150824207086218",
+     "old": "2075746882646189294"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/1/certifying_minor/determinant",
+     "new": "12857633322887392185",
+     "old": "2227405570701696359"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/2/certifying_minor/determinant",
+     "new": "6739161289484487906",
+     "old": "1334106744592826364"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/3/certifying_minor/determinant",
+     "new": "10778984648155100926",
+     "old": "16228284770309200389"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/4/certifying_minor/determinant",
+     "new": "4276095129003123085",
+     "old": "12247177277956059818"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/5/certifying_minor/determinant",
+     "new": "8655935315346287105",
+     "old": "7967919004156445934"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/6/certifying_minor/determinant",
+     "new": "8389982977208350091",
+     "old": "7565372727438358592"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/0/restricted_to_the_reserved_rows/determinant",
+     "new": "8655935315346287105",
+     "old": "7967919004156445934"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/0/sha256",
+     "new": "11d9eac8f304044b",
+     "old": "5cc2f7295bb4b77a"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/1/sha256",
+     "new": "49bafa0567ea99c4",
+     "old": "dac3abacdcbc134d"
+    },
+    {
+     "path": "stage9_hash_layer/cross_rule_probe/column/index",
+     "new": "2790",
+     "old": "10576"
+    },
+    {
+     "path": "stage9_hash_layer/distinct_salted_leaves",
+     "new": "2279",
+     "old": "2285"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/0/root",
+     "new": "2d9e1455dbddf2cc",
+     "old": "b0d27ef8022b208c"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/1/root",
+     "new": "255bd4b4e019e338",
+     "old": "38232fff5791681b"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/2/root",
+     "new": "1e3df50361e65ee6",
+     "old": "f38af7d1144856d4"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/3/root",
+     "new": "e3fd56601124ca7a",
+     "old": "1b935286396f070e"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/0/root",
+     "new": "f3d298967b4ef831",
+     "old": "f178a96233791a39"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/1/root",
+     "new": "a318f8aaf8580100",
+     "old": "e699230fc3881262"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/2/root",
+     "new": "2e263796f9d5e9e6",
+     "old": "501323380e6ebbb4"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/3/root",
+     "new": "5e3cb45adde9bdf4",
+     "old": "07c242b68d9cd6a0"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/4/root",
+     "new": "da274d087e1dc891",
+     "old": "4e4758052fd6c2c7"
+    }
+   ],
+   "differing_count": 31
+  },
+  {
+   "new": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l2/tk9-l2-dense-everything.json",
+   "old": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk7/l2/tk7-l2-dense-everything.json",
+   "leaves_equal": 8136,
+   "skipped_timing": 16,
+   "skipped_identity": 118,
+   "differing_random_class": 24,
+   "differing": [
+    {
+     "path": "run_layer_source_pins/per_file/1/bytes",
+     "new": "81468",
+     "old": "80119"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/git_blob",
+     "new": "09647b5657441d82a0d0945650177d7fe4b5bda1",
+     "old": "23e2efa5a7af731840790c7fc79718405d4ea0a1"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/lane_commits/0",
+     "new": "uncommitted:ops/zkp-mvp/trained-1b-gate-tk9 (the token lane's frozen round-9 tree b666a991 = frozen-r7 + round 8/9 token-run code, + the privacy-gate lane's capture patch and stage-47 module; sources manifest 597b2204)",
+     "old": "uncommitted:ops/zkp-mvp/trained-1b-gate-tk7 (the token lane's frozen round-7 tree eb912dd5 = native R8 + token files, + the privacy-gate lane's capture patch and stage-47 module; sources manifest d356e7aa)"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/reading",
+     "new": "[TINYLLAMA PORT v15, gate round 10: the frozen-r9 re-pin] read against 2c158dc9 (frozen-r7 = tk7), `diff -u` +16 / -1 in two hunks (round 8).  Hunk 1 (after `RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32`): two new `pub(crate) const` token-I/O run profile strings, `RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128` and `RUN",
+     "old": "[TINYLLAMA PORT v11, round 8] the token r7c reading, verbatim from `zk60_native_rg_tokenio_r7c_pins.TOKEN_R7C_READINGS` (frozen-r7's run.rs = r7c's): [TOKEN-IO R7c] [READ] read against `ad92be08` (R7, read in round 6): `diff -u` is +73 / -24, seven hunks; against the native R8 freeze `d913a081` only"
+    },
+    {
+     "path": "run_layer_source_pins/pins_at_a_read_digest/1",
+     "new": "src/private_block/run.rs: cc2c420498b1 -- read at uncommi",
+     "old": "src/private_block/run.rs: 2c158dc9c22c -- read at uncommi"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/0/entry/column_index",
+     "new": "138",
+     "old": "84"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/0/honest_entries_compared",
+     "new": "496666",
+     "old": "498464"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/3/pads_modelled",
+     "new": "251",
+     "old": "252"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/3/refusal",
+     "new": "H@0: row 0 -- NO PREIMAGE: 251 pad symbols cannot meet 252 distinct opened columns (the interpolant of the required values has degree 251)",
+     "old": "H@0: row 0 -- NO PREIMAGE: 252 pad symbols cannot meet 253 distinct opened columns (the interpolant of the required values has degree 252)"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/3/what",
+     "new": "the commitment modelled with 251 pad symbols against 252 distinct opened columns",
+     "old": "the commitment modelled with 252 pad symbols against 253 distinct opened columns"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/5/after_projection/entries_compared",
+     "new": "496666",
+     "old": "498464"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/5/projection/identities/0/residual_before/0",
+     "new": "2310223216761161369",
+     "old": "17349603906937972053"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/5/projection/identities/0/residual_before/1",
+     "new": "17970608385130004232",
+     "old": "12808144575036433358"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/layout_seconds",
+     "new": "13.27",
+     "old": "13.0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/msg_groups_seconds",
+     "new": "3.88",
+     "old": "3.7"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/msg_proximity_seconds",
+     "new": "0.19",
+     "old": "0.2"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/pads_seconds",
+     "new": "14.41",
+     "old": "16.19"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/solve_seconds",
+     "new": "18.49",
+     "old": "20.09"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/verification/seconds_opened_columns",
+     "new": "21.74",
+     "old": "23.16"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/verification/seconds_vectors_and_claims",
+     "new": "8.29",
+     "old": "10.7"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/fibre/fibre_dimension_fp",
+     "new": "342902",
+     "old": "341124"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/fibre/pad_block_fp",
+     "new": "7112",
+     "old": "5334"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/msg_groups_seconds",
+     "new": "0.9",
+     "old": "0.87"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/msg_proximity_seconds",
+     "new": "0.17",
+     "old": "0.11"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/pads_seconds",
+     "new": "9.93",
+     "old": "10.38"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/solve_seconds",
+     "new": "11.0",
+     "old": "11.36"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/11/free_fp",
+     "new": "128",
+     "old": "96"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/12/free_fp",
+     "new": "48",
+     "old": "36"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/13/free_fp",
+     "new": "40",
+     "old": "30"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/14/free_fp",
+     "new": "56",
+     "old": "42"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/15/free_fp",
+     "new": "40",
+     "old": "30"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/16/free_fp",
+     "new": "16",
+     "old": "12"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/system/distinct_opened_columns_d",
+     "new": "252",
+     "old": "253"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/system/equations_opened_columns_fp",
+     "new": "453096",
+     "old": "454894"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/system/equations_total_fp",
+     "new": "540238",
+     "old": "542036"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/verification/column_entries",
+     "new": "453096",
+     "old": "454894"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/verification/columns_verified",
+     "new": "252",
+     "old": "253"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/verification/entries_compared",
+     "new": "496666",
+     "old": "498464"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/verification/seconds_opened_columns",
+     "new": "17.98",
+     "old": "19.48"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/verification/seconds_vectors_and_claims",
+     "new": "2.89",
+     "old": "2.97"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/layout_seconds",
+     "new": "12.49",
+     "old": "12.86"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/pads_seconds",
+     "new": "0.31",
+     "old": "0.35"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/solve_seconds",
+     "new": "0.42",
+     "old": "0.45"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/verification/seconds_vectors_and_claims",
+     "new": "0.02",
+     "old": "0.01"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/fibre/fibre_dimension_fp",
+     "new": "694580",
+     "old": "696235"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/fibre/pad_block_fp",
+     "new": "6620",
+     "old": "8275"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/layout_seconds",
+     "new": "12.21",
+     "old": "13.25"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/msg_groups_seconds",
+     "new": "3.16",
+     "old": "3.84"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/msg_proximity_seconds",
+     "new": "0.19",
+     "old": "0.3"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/pads_seconds",
+     "new": "13.71",
+     "old": "14.93"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/solve_seconds",
+     "new": "17.06",
+     "old": "19.07"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/39/free_fp",
+     "new": "40",
+     "old": "50"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/40/free_fp",
+     "new": "8",
+     "old": "10"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/41/free_fp",
+     "new": "8",
+     "old": "10"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/42/free_fp",
+     "new": "8",
+     "old": "10"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/43/free_fp",
+     "new": "8",
+     "old": "10"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/44/free_fp",
+     "new": "8",
+     "old": "10"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/45/free_fp",
+     "new": "8",
+     "old": "10"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/46/free_fp",
+     "new": "8",
+     "old": "10"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/47/free_fp",
+     "new": "8",
+     "old": "10"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/48/free_fp",
+     "new": "8",
+     "old": "10"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/49/free_fp",
+     "new": "8",
+     "old": "10"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/61/free_fp",
+     "new": "272",
+     "old": "340"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/62/free_fp",
+     "new": "8",
+     "old": "10"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/63/free_fp",
+     "new": "48",
+     "old": "60"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/65/free_fp",
+     "new": "40",
+     "old": "50"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/67/free_fp",
+     "new": "80",
+     "old": "100"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/68/free_fp",
+     "new": "8",
+     "old": "10"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/69/free_fp",
+     "new": "80",
+     "old": "100"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/70/free_fp",
+     "new": "16",
+     "old": "20"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/system/distinct_opened_columns_d",
+     "new": "252",
+     "old": "251"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/system/equations_opened_columns_fp",
+     "new": "435708",
+     "old": "433979"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/system/equations_total_fp",
+     "new": "757996",
+     "old": "756267"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/verification/column_entries",
+     "new": "435708",
+     "old": "433979"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/verification/columns_verified",
+     "new": "252",
+     "old": "251"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/verification/entries_compared",
+     "new": "596852",
+     "old": "595123"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/verification/seconds_opened_columns",
+     "new": "22.02",
+     "old": "21.88"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/verification/seconds_vectors_and_claims",
+     "new": "9.08",
+     "old": "10.08"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/fibre/fibre_dimension_fp",
+     "new": "339346",
+     "old": "341124"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/fibre/pad_block_fp",
+     "new": "3556",
+     "old": "5334"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/layout_seconds",
+     "new": "11.49",
+     "old": "12.73"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/msg_groups_seconds",
+     "new": "0.86",
+     "old": "0.99"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/msg_proximity_seconds",
+     "new": "0.11",
+     "old": "0.13"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/pads_seconds",
+     "new": "10.03",
+     "old": "10.99"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/solve_seconds",
+     "new": "11.0",
+     "old": "12.11"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/steps/11/free_fp",
+     "new": "64",
+     "old": "96"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/steps/12/free_fp",
+     "new": "24",
+     "old": "36"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/steps/13/free_fp",
+     "new": "20",
+     "old": "30"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/steps/14/free_fp",
+     "new": "28",
+     "old": "42"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/steps/15/free_fp",
+     "new": "20",
+     "old": "30"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/steps/16/free_fp",
+     "new": "8",
+     "old": "12"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/system/distinct_opened_columns_d",
+     "new": "254",
+     "old": "253"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/system/equations_opened_columns_fp",
+     "new": "456692",
+     "old": "454894"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/system/equations_total_fp",
+     "new": "543834",
+     "old": "542036"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/verification/column_entries",
+     "new": "456692",
+     "old": "454894"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/verification/columns_verified",
+     "new": "254",
+     "old": "253"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/verification/entries_compared",
+     "new": "500262",
+     "old": "498464"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/verification/seconds_opened_columns",
+     "new": "18.79",
+     "old": "19.01"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/verification/seconds_vectors_and_claims",
+     "new": "2.41",
+     "old": "2.97"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/5/layout_seconds",
+     "new": "12.68",
+     "old": "12.77"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/5/msg_proximity_seconds",
+     "new": "0.04",
+     "old": "0.05"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/5/pads_seconds",
+     "new": "0.45",
+     "old": "0.51"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/5/solve_seconds",
+     "new": "0.58",
+     "old": "0.65"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/5/verification/seconds_opened_columns",
+     "new": "0.52",
+     "old": "0.54"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/fibre/fibre_dimension_fp",
+     "new": "17",
+     "old": "34"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/fibre/pad_block_fp",
+     "new": "17",
+     "old": "34"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/layout_seconds",
+     "new": "11.53",
+     "old": "12.92"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/pads_seconds",
+     "new": "0.32",
+     "old": "0.35"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/solve_seconds",
+     "new": "0.4",
+     "old": "0.43"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/system/distinct_opened_columns_d",
+     "new": "255",
+     "old": "254"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/system/equations_opened_columns_fp",
+     "new": "5355",
+     "old": "5334"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/system/equations_total_fp",
+     "new": "22765",
+     "old": "22744"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/verification/column_entries",
+     "new": "5355",
+     "old": "5334"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/verification/columns_verified",
+     "new": "255",
+     "old": "254"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/verification/entries_compared",
+     "new": "14060",
+     "old": "14039"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/verification/seconds_opened_columns",
+     "new": "0.32",
+     "old": "0.4"
+    },
+    {
+     "path": "stage11_full_preimage/view_entries_compared",
+     "new": "2244314",
+     "old": "2242564"
+    },
+    {
+     "path": "stage12_mask_and_cfs/controls/M2_one_opened_column_entry_moved/at_a_b_row/first_mismatch/column",
+     "new": "1743",
+     "old": "558"
+    },
+    {
+     "path": "stage12_mask_and_cfs/controls/M2_one_opened_column_entry_moved/at_an_a_row/first_mismatch/column",
+     "new": "1743",
+     "old": "558"
+    },
+    {
+     "path": "stage12_mask_and_cfs/controls/M2_one_opened_column_entry_moved/at_an_a_row/where_it_fires",
+     "new": "NOT on the a-row itself: the a-rows carry Q = 256 pads against 248 distinct sampled nodes, so their Cauchy block is square and nonsingular and the pads absorb the moved target exactly.  It fires on the FOUR rows below -- b_re, b_im, u_re, u_im, at that one column and at no other -- because b is the ",
+     "old": "NOT on the a-row itself: the a-rows carry Q = 256 pads against 249 distinct sampled nodes, so their Cauchy block is square and nonsingular and the pads absorb the moved target exactly.  It fires on the FOUR rows below -- b_re, b_im, u_re, u_im, at that one column and at no other -- because b is the "
+    },
+    {
+     "path": "stage12_mask_and_cfs/controls/M3_declared_functional_order_permuted/forced_first_mismatch/column",
+     "new": "1743",
+     "old": "558"
+    },
+    {
+     "path": "stage12_mask_and_cfs/controls/M6_one_pad_fewer_than_the_distinct_opened_columns/column_mismatches",
+     "new": "100",
+     "old": "50"
+    },
+    {
+     "path": "stage12_mask_and_cfs/controls/M6_one_pad_fewer_than_the_distinct_opened_columns/what",
+     "new": "every a-row of M modelled with 247 pads against 248 distinct opened columns (the real budget is 256, margin 8)",
+     "old": "every a-row of M modelled with 248 pads against 249 distinct opened columns (the real budget is 256, margin 7)"
+    },
+    {
+     "path": "stage12_mask_and_cfs/per_stage/0/pad_budget/margin",
+     "new": "8",
+     "old": "7"
+    },
+    {
+     "path": "stage12_mask_and_cfs/per_stage/1/pad_budget/margin",
+     "new": "6",
+     "old": "12"
+    },
+    {
+     "path": "stage13_joint_run_preimage/entries_compared",
+     "new": "2276624",
+     "old": "2274874"
+    },
+    {
+     "path": "stage13_joint_run_preimage/parts/pcs_entries_compared",
+     "new": "2244314",
+     "old": "2242564"
+    },
+    {
+     "path": "stage1_integrity/array_store/bytes",
+     "new": "34033568",
+     "old": "34019736"
+    },
+    {
+     "path": "stage1_integrity/array_store/bytes_verified_by_sha256",
+     "new": "34033568",
+     "old": "34019736"
+    },
+    {
+     "path": "stage1_integrity/array_store/distinct_arrays_verified_by_sha256",
+     "new": "1156",
+     "old": "1155"
+    },
+    {
+     "path": "stage1_integrity/manifest_total_bytes",
+     "new": "41986696",
+     "old": "41968427"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/0/certifying_minor/determinant",
+     "new": "4995313656494441881",
+     "old": "6281080130068789294"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/1/certifying_minor/determinant",
+     "new": "8759046918060961805",
+     "old": "14542743378819055149"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/2/certifying_minor/determinant",
+     "new": "1526089234227663610",
+     "old": "6150180064112297082"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/3/certifying_minor/determinant",
+     "new": "288533616380481821",
+     "old": "11767272243171991940"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/4/certifying_minor/determinant",
+     "new": "14640582830877990285",
+     "old": "1749415924282773329"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/5/certifying_minor/determinant",
+     "new": "4558881158404948080",
+     "old": "17069967772135012710"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/6/certifying_minor/determinant",
+     "new": "14481491268283344799",
+     "old": "10278485978084904418"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/0/restricted_to_the_reserved_rows/determinant",
+     "new": "4558881158404948080",
+     "old": "17069967772135012710"
+    },
+    {
+     "path": "stage6_negative_controls/round_9_controls/controls/0/refusal",
+     "new": "stage-00.json.roles[0].groups[0].vector: the sha256 of bytes 9928712..9998344 of arrays.bin is b9d803e7aa2df972..., the reference says ace2001a494fa2d2...",
+     "old": "stage-00.json.roles[0].groups[0].vector: the sha256 of bytes 9928712..9998344 of arrays.bin is 125d53ea3342bb0e..., the reference says c339b934bc71271d..."
+    },
+    {
+     "path": "stage6_negative_controls/round_9_controls/controls/1/moved/from",
+     "new": "7296352039251199192",
+     "old": "13607904948117555996"
+    },
+    {
+     "path": "stage6_negative_controls/round_9_controls/controls/1/moved/to",
+     "new": "7296352039251199193",
+     "old": "13607904948117555997"
+    },
+    {
+     "path": "stage6_negative_controls/round_9_controls/controls/1/perturbed/findings/0",
+     "new": "stage 0 A: the Merkle path of column 7624 does not fold to the committed root",
+     "old": "stage 0 A: the Merkle path of column 10290 does not fold to the committed root"
+    },
+    {
+     "path": "stage6_negative_controls/run_controls/C6_one_pad_fewer_than_the_distinct_opened_columns/perturbed/findings/0",
+     "new": "H@0: pad budget: 252 distinct opened columns, 251 pads, 0 vanishing Z_n nodes",
+     "old": "H@0: pad budget: 253 distinct opened columns, 252 pads, 0 vanishing Z_n nodes"
+    },
+    {
+     "path": "stage6_negative_controls/run_controls/C6_one_pad_fewer_than_the_distinct_opened_columns/what",
+     "new": "H@0's pad budget set to 251 against 252 distinct opened columns",
+     "old": "H@0's pad budget set to 252 against 253 distinct opened columns"
+    },
+    {
+     "path": "stage7_channels/channels/4/entries_recomputed_and_compared",
+     "new": "2244314",
+     "old": "2242564"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/0/sha256",
+     "new": "13b0ca1cd6999a92",
+     "old": "40787f766de454a1"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/1/sha256",
+     "new": "05be8d328e0dad82",
+     "old": "1e36a44a08aaae10"
+    },
+    {
+     "path": "stage7_channels/channels/19/joint/entries_compared",
+     "new": "2276624",
+     "old": "2274874"
+    },
+    {
+     "path": "stage9_hash_layer/cross_rule_probe/column/index",
+     "new": "7624",
+     "old": "10290"
+    },
+    {
+     "path": "stage9_hash_layer/distinct_salted_leaves",
+     "new": "2276",
+     "old": "2269"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/0/root",
+     "new": "6137b62ca6cd1b2f",
+     "old": "6b8fd6c0329bd0a6"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/1/root",
+     "new": "45f75636ccdd09e9",
+     "old": "bcfa9b705cf85dd9"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/2/root",
+     "new": "34c76eae2a471b5c",
+     "old": "bface12b889b7796"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/3/root",
+     "new": "ee89e6d4652d4cb2",
+     "old": "45e5545d27716efe"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/0/root",
+     "new": "ee0b6389b609558c",
+     "old": "c1202d15eb5ee856"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/1/root",
+     "new": "39fdef976f399465",
+     "old": "e34739db76697752"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/2/root",
+     "new": "2db4adce8d48441f",
+     "old": "4a8180aa48e39780"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/3/root",
+     "new": "916883dbb2447976",
+     "old": "81c8c52a3873642e"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/4/root",
+     "new": "7f75e6e501bc73be",
+     "old": "da333447ecdd1855"
+    }
+   ],
+   "differing_count": 160
+  },
+  {
+   "new": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l2/tk9-l2-zero-everything.json",
+   "old": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk7/l2/tk7-l2-zero-everything.json",
+   "leaves_equal": 8087,
+   "skipped_timing": 16,
+   "skipped_identity": 118,
+   "differing_random_class": 37,
+   "differing": [
+    {
+     "path": "run_layer_source_pins/per_file/1/bytes",
+     "new": "81468",
+     "old": "80119"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/git_blob",
+     "new": "09647b5657441d82a0d0945650177d7fe4b5bda1",
+     "old": "23e2efa5a7af731840790c7fc79718405d4ea0a1"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/lane_commits/0",
+     "new": "uncommitted:ops/zkp-mvp/trained-1b-gate-tk9 (the token lane's frozen round-9 tree b666a991 = frozen-r7 + round 8/9 token-run code, + the privacy-gate lane's capture patch and stage-47 module; sources manifest 597b2204)",
+     "old": "uncommitted:ops/zkp-mvp/trained-1b-gate-tk7 (the token lane's frozen round-7 tree eb912dd5 = native R8 + token files, + the privacy-gate lane's capture patch and stage-47 module; sources manifest d356e7aa)"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/reading",
+     "new": "[TINYLLAMA PORT v15, gate round 10: the frozen-r9 re-pin] read against 2c158dc9 (frozen-r7 = tk7), `diff -u` +16 / -1 in two hunks (round 8).  Hunk 1 (after `RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32`): two new `pub(crate) const` token-I/O run profile strings, `RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128` and `RUN",
+     "old": "[TINYLLAMA PORT v11, round 8] the token r7c reading, verbatim from `zk60_native_rg_tokenio_r7c_pins.TOKEN_R7C_READINGS` (frozen-r7's run.rs = r7c's): [TOKEN-IO R7c] [READ] read against `ad92be08` (R7, read in round 6): `diff -u` is +73 / -24, seven hunks; against the native R8 freeze `d913a081` only"
+    },
+    {
+     "path": "run_layer_source_pins/pins_at_a_read_digest/1",
+     "new": "src/private_block/run.rs: cc2c420498b1 -- read at uncommi",
+     "old": "src/private_block/run.rs: 2c158dc9c22c -- read at uncommi"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/0/entry/column_index",
+     "new": "81",
+     "old": "33"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/0/honest_entries_compared",
+     "new": "503858",
+     "old": "502060"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/3/pads_modelled",
+     "new": "255",
+     "old": "254"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/3/refusal",
+     "new": "H@0: row 0 -- NO PREIMAGE: 255 pad symbols cannot meet 256 distinct opened columns (the interpolant of the required values has degree 255)",
+     "old": "H@0: row 0 -- NO PREIMAGE: 254 pad symbols cannot meet 255 distinct opened columns (the interpolant of the required values has degree 254)"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/3/what",
+     "new": "the commitment modelled with 255 pad symbols against 256 distinct opened columns",
+     "old": "the commitment modelled with 254 pad symbols against 255 distinct opened columns"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/5/after_projection/entries_compared",
+     "new": "503858",
+     "old": "502060"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/5/projection/identities/0/residual_before/0",
+     "new": "3957058418538282058",
+     "old": "8258856032600312374"
+    },
+    {
+     "path": "stage11_full_preimage/controls/controls/5/projection/identities/0/residual_before/1",
+     "new": "10788531102878199481",
+     "old": "5187131252510683019"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/fibre/fibre_dimension_fp",
+     "new": "687960",
+     "old": "691270"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/fibre/pad_block_fp",
+     "new": "0",
+     "old": "3310"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/layout_seconds",
+     "new": "12.76",
+     "old": "13.87"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/msg_groups_seconds",
+     "new": "3.71",
+     "old": "3.72"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/msg_proximity_seconds",
+     "new": "0.17",
+     "old": "0.22"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/pads_seconds",
+     "new": "15.88",
+     "old": "15.91"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/solve_seconds",
+     "new": "19.76",
+     "old": "19.85"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/39/free_fp",
+     "new": "0",
+     "old": "20"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/40/free_fp",
+     "new": "0",
+     "old": "4"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/41/free_fp",
+     "new": "0",
+     "old": "4"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/42/free_fp",
+     "new": "0",
+     "old": "4"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/43/free_fp",
+     "new": "0",
+     "old": "4"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/44/free_fp",
+     "new": "0",
+     "old": "4"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/45/free_fp",
+     "new": "0",
+     "old": "4"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/46/free_fp",
+     "new": "0",
+     "old": "4"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/47/free_fp",
+     "new": "0",
+     "old": "4"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/48/free_fp",
+     "new": "0",
+     "old": "4"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/49/free_fp",
+     "new": "0",
+     "old": "4"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/61/free_fp",
+     "new": "0",
+     "old": "136"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/62/free_fp",
+     "new": "0",
+     "old": "4"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/63/free_fp",
+     "new": "0",
+     "old": "24"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/65/free_fp",
+     "new": "0",
+     "old": "20"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/67/free_fp",
+     "new": "0",
+     "old": "40"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/68/free_fp",
+     "new": "0",
+     "old": "4"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/69/free_fp",
+     "new": "0",
+     "old": "40"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/steps/70/free_fp",
+     "new": "0",
+     "old": "8"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/system/distinct_opened_columns_d",
+     "new": "256",
+     "old": "254"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/system/equations_opened_columns_fp",
+     "new": "442624",
+     "old": "439166"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/system/equations_total_fp",
+     "new": "764912",
+     "old": "761454"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/verification/column_entries",
+     "new": "442624",
+     "old": "439166"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/verification/columns_verified",
+     "new": "256",
+     "old": "254"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/verification/entries_compared",
+     "new": "603768",
+     "old": "600310"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/verification/seconds_opened_columns",
+     "new": "22.5",
+     "old": "23.23"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/0/verification/seconds_vectors_and_claims",
+     "new": "9.73",
+     "old": "9.95"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/fibre/fibre_dimension_fp",
+     "new": "335790",
+     "old": "337568"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/fibre/pad_block_fp",
+     "new": "0",
+     "old": "1778"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/layout_seconds",
+     "new": "12.33",
+     "old": "13.56"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/msg_groups_seconds",
+     "new": "0.83",
+     "old": "1.05"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/pads_seconds",
+     "new": "12.43",
+     "old": "12.55"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/solve_seconds",
+     "new": "13.39",
+     "old": "13.73"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/11/free_fp",
+     "new": "0",
+     "old": "32"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/12/free_fp",
+     "new": "0",
+     "old": "12"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/13/free_fp",
+     "new": "0",
+     "old": "10"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/14/free_fp",
+     "new": "0",
+     "old": "14"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/15/free_fp",
+     "new": "0",
+     "old": "10"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/steps/16/free_fp",
+     "new": "0",
+     "old": "4"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/system/distinct_opened_columns_d",
+     "new": "256",
+     "old": "255"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/system/equations_opened_columns_fp",
+     "new": "460288",
+     "old": "458490"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/system/equations_total_fp",
+     "new": "547430",
+     "old": "545632"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/verification/column_entries",
+     "new": "460288",
+     "old": "458490"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/verification/columns_verified",
+     "new": "256",
+     "old": "255"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/verification/entries_compared",
+     "new": "503858",
+     "old": "502060"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/verification/seconds_opened_columns",
+     "new": "17.55",
+     "old": "19.29"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/1/verification/seconds_vectors_and_claims",
+     "new": "2.95",
+     "old": "2.99"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/fibre/fibre_dimension_fp",
+     "new": "51",
+     "old": "34"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/fibre/pad_block_fp",
+     "new": "51",
+     "old": "34"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/layout_seconds",
+     "new": "11.48",
+     "old": "12.8"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/msg_groups_seconds",
+     "new": "0.05",
+     "old": "0.06"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/msg_proximity_seconds",
+     "new": "0.05",
+     "old": "0.07"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/pads_seconds",
+     "new": "0.28",
+     "old": "0.51"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/solve_seconds",
+     "new": "0.37",
+     "old": "0.64"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/system/distinct_opened_columns_d",
+     "new": "253",
+     "old": "254"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/system/equations_opened_columns_fp",
+     "new": "5313",
+     "old": "5334"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/system/equations_total_fp",
+     "new": "22723",
+     "old": "22744"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/verification/column_entries",
+     "new": "5313",
+     "old": "5334"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/verification/columns_verified",
+     "new": "253",
+     "old": "254"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/verification/entries_compared",
+     "new": "14018",
+     "old": "14039"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/verification/seconds_opened_columns",
+     "new": "0.34",
+     "old": "0.5"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/2/verification/seconds_vectors_and_claims",
+     "new": "0.01",
+     "old": "0.02"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/fibre/fibre_dimension_fp",
+     "new": "691270",
+     "old": "689615"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/fibre/pad_block_fp",
+     "new": "3310",
+     "old": "1655"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/layout_seconds",
+     "new": "12.6",
+     "old": "13.23"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/msg_groups_seconds",
+     "new": "3.4",
+     "old": "4.29"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/msg_proximity_seconds",
+     "new": "0.28",
+     "old": "0.25"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/pads_seconds",
+     "new": "15.15",
+     "old": "17.15"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/solve_seconds",
+     "new": "18.83",
+     "old": "21.69"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/39/free_fp",
+     "new": "20",
+     "old": "10"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/40/free_fp",
+     "new": "4",
+     "old": "2"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/41/free_fp",
+     "new": "4",
+     "old": "2"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/42/free_fp",
+     "new": "4",
+     "old": "2"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/43/free_fp",
+     "new": "4",
+     "old": "2"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/44/free_fp",
+     "new": "4",
+     "old": "2"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/45/free_fp",
+     "new": "4",
+     "old": "2"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/46/free_fp",
+     "new": "4",
+     "old": "2"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/47/free_fp",
+     "new": "4",
+     "old": "2"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/48/free_fp",
+     "new": "4",
+     "old": "2"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/49/free_fp",
+     "new": "4",
+     "old": "2"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/61/free_fp",
+     "new": "136",
+     "old": "68"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/62/free_fp",
+     "new": "4",
+     "old": "2"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/63/free_fp",
+     "new": "24",
+     "old": "12"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/65/free_fp",
+     "new": "20",
+     "old": "10"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/67/free_fp",
+     "new": "40",
+     "old": "20"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/68/free_fp",
+     "new": "4",
+     "old": "2"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/69/free_fp",
+     "new": "40",
+     "old": "20"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/steps/70/free_fp",
+     "new": "8",
+     "old": "4"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/system/distinct_opened_columns_d",
+     "new": "254",
+     "old": "255"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/system/equations_opened_columns_fp",
+     "new": "439166",
+     "old": "440895"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/system/equations_total_fp",
+     "new": "761454",
+     "old": "763183"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/verification/column_entries",
+     "new": "439166",
+     "old": "440895"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/verification/columns_verified",
+     "new": "254",
+     "old": "255"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/verification/entries_compared",
+     "new": "600310",
+     "old": "602039"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/verification/seconds_opened_columns",
+     "new": "20.87",
+     "old": "24.76"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/3/verification/seconds_vectors_and_claims",
+     "new": "9.16",
+     "old": "10.6"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/fibre/fibre_dimension_fp",
+     "new": "342902",
+     "old": "337568"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/fibre/pad_block_fp",
+     "new": "7112",
+     "old": "1778"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/layout_seconds",
+     "new": "11.87",
+     "old": "13.32"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/msg_groups_seconds",
+     "new": "0.92",
+     "old": "1.0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/msg_proximity_seconds",
+     "new": "0.13",
+     "old": "0.15"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/pads_seconds",
+     "new": "10.99",
+     "old": "11.53"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/solve_seconds",
+     "new": "12.03",
+     "old": "12.68"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/steps/11/free_fp",
+     "new": "128",
+     "old": "32"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/steps/12/free_fp",
+     "new": "48",
+     "old": "12"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/steps/13/free_fp",
+     "new": "40",
+     "old": "10"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/steps/14/free_fp",
+     "new": "56",
+     "old": "14"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/steps/15/free_fp",
+     "new": "40",
+     "old": "10"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/steps/16/free_fp",
+     "new": "16",
+     "old": "4"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/system/distinct_opened_columns_d",
+     "new": "252",
+     "old": "255"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/system/equations_opened_columns_fp",
+     "new": "453096",
+     "old": "458490"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/system/equations_total_fp",
+     "new": "540238",
+     "old": "545632"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/verification/column_entries",
+     "new": "453096",
+     "old": "458490"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/verification/columns_verified",
+     "new": "252",
+     "old": "255"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/verification/entries_compared",
+     "new": "496666",
+     "old": "502060"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/verification/seconds_opened_columns",
+     "new": "17.38",
+     "old": "19.66"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/4/verification/seconds_vectors_and_claims",
+     "new": "2.87",
+     "old": "2.9"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/5/fibre/fibre_dimension_fp",
+     "new": "32",
+     "old": "0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/5/fibre/pad_block_fp",
+     "new": "32",
+     "old": "0"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/5/layout_seconds",
+     "new": "10.6",
+     "old": "13.25"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/5/msg_groups_seconds",
+     "new": "0.07",
+     "old": "0.09"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/5/msg_proximity_seconds",
+     "new": "0.04",
+     "old": "0.05"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/5/pads_seconds",
+     "new": "0.39",
+     "old": "0.59"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/5/solve_seconds",
+     "new": "0.5",
+     "old": "0.72"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/5/system/distinct_opened_columns_d",
+     "new": "254",
+     "old": "256"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/5/system/equations_opened_columns_fp",
+     "new": "5588",
+     "old": "5632"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/5/system/equations_total_fp",
+     "new": "31704",
+     "old": "31748"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/5/verification/column_entries",
+     "new": "5588",
+     "old": "5632"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/5/verification/columns_verified",
+     "new": "254",
+     "old": "256"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/5/verification/entries_compared",
+     "new": "18646",
+     "old": "18690"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/5/verification/seconds_opened_columns",
+     "new": "0.49",
+     "old": "0.68"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/5/verification/seconds_vectors_and_claims",
+     "new": "0.02",
+     "old": "0.04"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/fibre/fibre_dimension_fp",
+     "new": "0",
+     "old": "34"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/fibre/pad_block_fp",
+     "new": "0",
+     "old": "34"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/layout_seconds",
+     "new": "10.91",
+     "old": "12.49"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/pads_seconds",
+     "new": "0.35",
+     "old": "0.3"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/solve_seconds",
+     "new": "0.43",
+     "old": "0.39"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/system/distinct_opened_columns_d",
+     "new": "256",
+     "old": "254"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/system/equations_opened_columns_fp",
+     "new": "5376",
+     "old": "5334"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/system/equations_total_fp",
+     "new": "22786",
+     "old": "22744"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/verification/column_entries",
+     "new": "5376",
+     "old": "5334"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/verification/columns_verified",
+     "new": "256",
+     "old": "254"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/verification/entries_compared",
+     "new": "14081",
+     "old": "14039"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/verification/seconds_opened_columns",
+     "new": "0.39",
+     "old": "0.36"
+    },
+    {
+     "path": "stage11_full_preimage/per_commitment/6/verification/seconds_vectors_and_claims",
+     "new": "0.02",
+     "old": "0.01"
+    },
+    {
+     "path": "stage11_full_preimage/view_entries_compared",
+     "new": "2251347",
+     "old": "2253237"
+    },
+    {
+     "path": "stage12_mask_and_cfs/controls/M2_one_opened_column_entry_moved/at_a_b_row/first_mismatch/column",
+     "new": "1540",
+     "old": "3565"
+    },
+    {
+     "path": "stage12_mask_and_cfs/controls/M2_one_opened_column_entry_moved/at_an_a_row/first_mismatch/column",
+     "new": "1540",
+     "old": "3565"
+    },
+    {
+     "path": "stage12_mask_and_cfs/controls/M2_one_opened_column_entry_moved/at_an_a_row/where_it_fires",
+     "new": "NOT on the a-row itself: the a-rows carry Q = 256 pads against 247 distinct sampled nodes, so their Cauchy block is square and nonsingular and the pads absorb the moved target exactly.  It fires on the FOUR rows below -- b_re, b_im, u_re, u_im, at that one column and at no other -- because b is the ",
+     "old": "NOT on the a-row itself: the a-rows carry Q = 256 pads against 254 distinct sampled nodes, so their Cauchy block is square and nonsingular and the pads absorb the moved target exactly.  It fires on the FOUR rows below -- b_re, b_im, u_re, u_im, at that one column and at no other -- because b is the "
+    },
+    {
+     "path": "stage12_mask_and_cfs/controls/M3_declared_functional_order_permuted/forced_first_mismatch/column",
+     "new": "1540",
+     "old": "3565"
+    },
+    {
+     "path": "stage12_mask_and_cfs/controls/M6_one_pad_fewer_than_the_distinct_opened_columns/what",
+     "new": "every a-row of M modelled with 246 pads against 247 distinct opened columns (the real budget is 256, margin 9)",
+     "old": "every a-row of M modelled with 253 pads against 254 distinct opened columns (the real budget is 256, margin 2)"
+    },
+    {
+     "path": "stage12_mask_and_cfs/per_stage/0/pad_budget/margin",
+     "new": "9",
+     "old": "2"
+    },
+    {
+     "path": "stage12_mask_and_cfs/per_stage/1/pad_budget/margin",
+     "new": "5",
+     "old": "8"
+    },
+    {
+     "path": "stage13_joint_run_preimage/entries_compared",
+     "new": "2283657",
+     "old": "2285547"
+    },
+    {
+     "path": "stage13_joint_run_preimage/parts/pcs_entries_compared",
+     "new": "2251347",
+     "old": "2253237"
+    },
+    {
+     "path": "stage1_integrity/array_store/bytes",
+     "new": "34090000",
+     "old": "34104936"
+    },
+    {
+     "path": "stage1_integrity/array_store/bytes_verified_by_sha256",
+     "new": "34090000",
+     "old": "34104936"
+    },
+    {
+     "path": "stage1_integrity/array_store/distinct_arrays_verified_by_sha256",
+     "new": "1160",
+     "old": "1161"
+    },
+    {
+     "path": "stage1_integrity/manifest_total_bytes",
+     "new": "42040009",
+     "old": "42056810"
+    },
+    {
+     "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/exact_rank_of_the_pad_block",
+     "new": "254",
+     "old": "256"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/0/certifying_minor/determinant",
+     "new": "2509150824207086218",
+     "old": "2075746882646189294"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/1/certifying_minor/determinant",
+     "new": "12857633322887392185",
+     "old": "2227405570701696359"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/2/certifying_minor/determinant",
+     "new": "6739161289484487906",
+     "old": "1334106744592826364"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/3/certifying_minor/determinant",
+     "new": "10778984648155100926",
+     "old": "16228284770309200389"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/4/certifying_minor/determinant",
+     "new": "4276095129003123085",
+     "old": "12247177277956059818"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/5/certifying_minor/determinant",
+     "new": "8655935315346287105",
+     "old": "7967919004156445934"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/6/certifying_minor/determinant",
+     "new": "8389982977208350091",
+     "old": "7565372727438358592"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/0/restricted_to_the_reserved_rows/determinant",
+     "new": "8655935315346287105",
+     "old": "7967919004156445934"
+    },
+    {
+     "path": "stage6_negative_controls/round_9_controls/controls/0/refusal",
+     "new": "stage-00.json.roles[0].groups[0].vector: the sha256 of bytes 9928712..9998344 of arrays.bin is 842e1111bfe326e9..., the reference says abf16c38b90c467c...",
+     "old": "stage-00.json.roles[0].groups[0].vector: the sha256 of bytes 9928712..9998344 of arrays.bin is 65399ab921a2d30a..., the reference says f1d2234d162c052c..."
+    },
+    {
+     "path": "stage6_negative_controls/round_9_controls/controls/1/moved/from",
+     "new": "12905980306813349440",
+     "old": "11846926606763236189"
+    },
+    {
+     "path": "stage6_negative_controls/round_9_controls/controls/1/moved/to",
+     "new": "12905980306813349441",
+     "old": "11846926606763236190"
+    },
+    {
+     "path": "stage6_negative_controls/round_9_controls/controls/1/perturbed/findings/0",
+     "new": "stage 0 A: the Merkle path of column 2790 does not fold to the committed root",
+     "old": "stage 0 A: the Merkle path of column 10576 does not fold to the committed root"
+    },
+    {
+     "path": "stage6_negative_controls/run_controls/C6_one_pad_fewer_than_the_distinct_opened_columns/perturbed/findings/0",
+     "new": "H@0: pad budget: 256 distinct opened columns, 255 pads, 0 vanishing Z_n nodes",
+     "old": "H@0: pad budget: 255 distinct opened columns, 254 pads, 0 vanishing Z_n nodes"
+    },
+    {
+     "path": "stage6_negative_controls/run_controls/C6_one_pad_fewer_than_the_distinct_opened_columns/what",
+     "new": "H@0's pad budget set to 255 against 256 distinct opened columns",
+     "old": "H@0's pad budget set to 254 against 255 distinct opened columns"
+    },
+    {
+     "path": "stage7_channels/channels/4/entries_recomputed_and_compared",
+     "new": "2251347",
+     "old": "2253237"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/0/sha256",
+     "new": "11d9eac8f304044b",
+     "old": "5cc2f7295bb4b77a"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/1/sha256",
+     "new": "49bafa0567ea99c4",
+     "old": "dac3abacdcbc134d"
+    },
+    {
+     "path": "stage7_channels/channels/19/joint/entries_compared",
+     "new": "2283657",
+     "old": "2285547"
+    },
+    {
+     "path": "stage9_hash_layer/cross_rule_probe/column/index",
+     "new": "2790",
+     "old": "10576"
+    },
+    {
+     "path": "stage9_hash_layer/distinct_salted_leaves",
+     "new": "2279",
+     "old": "2285"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/0/root",
+     "new": "2d9e1455dbddf2cc",
+     "old": "b0d27ef8022b208c"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/1/root",
+     "new": "255bd4b4e019e338",
+     "old": "38232fff5791681b"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/2/root",
+     "new": "1e3df50361e65ee6",
+     "old": "f38af7d1144856d4"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/3/root",
+     "new": "e3fd56601124ca7a",
+     "old": "1b935286396f070e"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/0/root",
+     "new": "f3d298967b4ef831",
+     "old": "f178a96233791a39"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/1/root",
+     "new": "a318f8aaf8580100",
+     "old": "e699230fc3881262"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/2/root",
+     "new": "2e263796f9d5e9e6",
+     "old": "501323380e6ebbb4"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/3/root",
+     "new": "5e3cb45adde9bdf4",
+     "old": "07c242b68d9cd6a0"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/4/root",
+     "new": "da274d087e1dc891",
+     "old": "4e4758052fd6c2c7"
+    }
+   ],
+   "differing_count": 209
+  },
+  {
+   "new": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l22/tk9-l22-dense-a.json",
+   "old": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk7/l22/tk7-l22-dense-a.json",
+   "leaves_equal": 28190,
+   "skipped_timing": 5,
+   "skipped_identity": 214,
+   "differing_random_class": 160,
+   "differing": [
+    {
+     "path": "run_layer_source_pins/per_file/1/bytes",
+     "new": "81468",
+     "old": "80119"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/git_blob",
+     "new": "09647b5657441d82a0d0945650177d7fe4b5bda1",
+     "old": "23e2efa5a7af731840790c7fc79718405d4ea0a1"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/lane_commits/0",
+     "new": "uncommitted:ops/zkp-mvp/trained-1b-gate-tk9 (the token lane's frozen round-9 tree b666a991 = frozen-r7 + round 8/9 token-run code, + the privacy-gate lane's capture patch and stage-47 module; sources manifest 597b2204)",
+     "old": "uncommitted:ops/zkp-mvp/trained-1b-gate-tk7 (the token lane's frozen round-7 tree eb912dd5 = native R8 + token files, + the privacy-gate lane's capture patch and stage-47 module; sources manifest d356e7aa)"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/reading",
+     "new": "[TINYLLAMA PORT v15, gate round 10: the frozen-r9 re-pin] read against 2c158dc9 (frozen-r7 = tk7), `diff -u` +16 / -1 in two hunks (round 8).  Hunk 1 (after `RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32`): two new `pub(crate) const` token-I/O run profile strings, `RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128` and `RUN",
+     "old": "[TINYLLAMA PORT v11, round 8] the token r7c reading, verbatim from `zk60_native_rg_tokenio_r7c_pins.TOKEN_R7C_READINGS` (frozen-r7's run.rs = r7c's): [TOKEN-IO R7c] [READ] read against `ad92be08` (R7, read in round 6): `diff -u` is +73 / -24, seven hunks; against the native R8 freeze `d913a081` only"
+    },
+    {
+     "path": "run_layer_source_pins/pins_at_a_read_digest/1",
+     "new": "src/private_block/run.rs: cc2c420498b1 -- read at uncommi",
+     "old": "src/private_block/run.rs: 2c158dc9c22c -- read at uncommi"
+    },
+    {
+     "path": "stage1_integrity/array_store/bytes",
+     "new": "290900840",
+     "old": "290805120"
+    },
+    {
+     "path": "stage1_integrity/array_store/bytes_verified_by_sha256",
+     "new": "290900840",
+     "old": "290805120"
+    },
+    {
+     "path": "stage1_integrity/array_store/distinct_arrays_verified_by_sha256",
+     "new": "12638",
+     "old": "12631"
+    },
+    {
+     "path": "stage1_integrity/manifest_total_bytes",
+     "new": "371052083",
+     "old": "370975475"
+    },
+    {
+     "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/exact_rank_of_the_pad_block",
+     "new": "251",
+     "old": "253"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/0/certifying_minor/determinant",
+     "new": "15778781532551448874",
+     "old": "1848587913392355521"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/1/certifying_minor/determinant",
+     "new": "5664261672147364498",
+     "old": "12216359830611348899"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/2/certifying_minor/determinant",
+     "new": "2309741547194262551",
+     "old": "2497416103347144775"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/3/certifying_minor/determinant",
+     "new": "3417672548112138872",
+     "old": "3556239140765462249"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/4/certifying_minor/determinant",
+     "new": "8149054778901602200",
+     "old": "8680930470530202184"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/5/certifying_minor/determinant",
+     "new": "2976387551079291021",
+     "old": "13280648024836860622"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/6/certifying_minor/determinant",
+     "new": "7969705663058420996",
+     "old": "680290834835199771"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/7/certifying_minor/determinant",
+     "new": "2909880843094085594",
+     "old": "15245658232668465906"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/8/certifying_minor/determinant",
+     "new": "8790140777771889051",
+     "old": "15123864479982704104"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/9/certifying_minor/determinant",
+     "new": "2350090398593444812",
+     "old": "14237175548980994590"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/10/certifying_minor/determinant",
+     "new": "13392612766301575670",
+     "old": "3411993003975904988"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/11/certifying_minor/determinant",
+     "new": "11249838149569914805",
+     "old": "8466179822743112471"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/12/certifying_minor/determinant",
+     "new": "13368140979152727056",
+     "old": "11345865256354088291"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/13/certifying_minor/determinant",
+     "new": "1174443490698189945",
+     "old": "8079316049132508139"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/14/certifying_minor/determinant",
+     "new": "7410109266669747760",
+     "old": "18167508845192230800"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/15/certifying_minor/determinant",
+     "new": "12540346861867187636",
+     "old": "14323861559359677193"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/16/certifying_minor/determinant",
+     "new": "8918038599325180718",
+     "old": "6600029468476402260"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/17/certifying_minor/determinant",
+     "new": "8219064846288848338",
+     "old": "6490054939487139173"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/18/certifying_minor/determinant",
+     "new": "8780985190985090034",
+     "old": "16911515983532981963"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/19/certifying_minor/determinant",
+     "new": "6263431709981385477",
+     "old": "13811126784951254404"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/20/certifying_minor/determinant",
+     "new": "17866186212955204515",
+     "old": "15885583834278378136"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/21/certifying_minor/determinant",
+     "new": "7684198128725538511",
+     "old": "18125218278294222125"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/22/certifying_minor/determinant",
+     "new": "4792538355900663960",
+     "old": "3110731646413207958"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/23/certifying_minor/determinant",
+     "new": "9758165433197035587",
+     "old": "1684078081961145364"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/24/certifying_minor/determinant",
+     "new": "8095508213304769813",
+     "old": "7559790466881425836"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/25/certifying_minor/determinant",
+     "new": "5381602268971720129",
+     "old": "3265916826418331691"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/26/certifying_minor/determinant",
+     "new": "7439854074686671847",
+     "old": "4579062820083135592"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/27/certifying_minor/determinant",
+     "new": "17087311725033346759",
+     "old": "10180110864230679652"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/28/certifying_minor/determinant",
+     "new": "932886048569724584",
+     "old": "283162957030474299"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/29/certifying_minor/determinant",
+     "new": "5603230988352471112",
+     "old": "14853547057539347089"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/30/certifying_minor/determinant",
+     "new": "3708407501443655067",
+     "old": "3742347496440282776"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/31/certifying_minor/determinant",
+     "new": "17623057063245749902",
+     "old": "14011243354072785860"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/32/certifying_minor/determinant",
+     "new": "13708411101726106019",
+     "old": "10423873664777020927"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/33/certifying_minor/determinant",
+     "new": "1135744369822229453",
+     "old": "3279742740223125304"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/34/certifying_minor/determinant",
+     "new": "7553713825624524469",
+     "old": "4990157548373504144"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/35/certifying_minor/determinant",
+     "new": "15358704521757354837",
+     "old": "11071509496095995187"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/36/certifying_minor/determinant",
+     "new": "4741829396133456695",
+     "old": "17548518271824927991"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/37/certifying_minor/determinant",
+     "new": "17871666605000290716",
+     "old": "3521599747153373051"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/38/certifying_minor/determinant",
+     "new": "9947611350088271448",
+     "old": "11442427081643083243"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/39/certifying_minor/determinant",
+     "new": "1802737132048789889",
+     "old": "14245360392680346225"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/40/certifying_minor/determinant",
+     "new": "15542902797486804449",
+     "old": "3907113030248421648"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/41/certifying_minor/determinant",
+     "new": "14754403070637507534",
+     "old": "12955285372755413836"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/42/certifying_minor/determinant",
+     "new": "16496852196691837230",
+     "old": "3656963376756812369"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/43/certifying_minor/determinant",
+     "new": "14420382264195797396",
+     "old": "10163528996962708444"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/44/certifying_minor/determinant",
+     "new": "16933904883175738760",
+     "old": "17011009171369628725"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/45/certifying_minor/determinant",
+     "new": "14964362751465477895",
+     "old": "677885739301603160"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/46/certifying_minor/determinant",
+     "new": "6188667500686610980",
+     "old": "12880761393678437895"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/47/certifying_minor/determinant",
+     "new": "8828255221395400552",
+     "old": "3829121053944676634"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/48/certifying_minor/determinant",
+     "new": "15426650238312384493",
+     "old": "11176998483694523874"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/49/certifying_minor/determinant",
+     "new": "8733159722413356832",
+     "old": "7180698038939789074"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/50/certifying_minor/determinant",
+     "new": "12074814184516175816",
+     "old": "9106336308623947657"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/51/certifying_minor/determinant",
+     "new": "17598524791333090955",
+     "old": "5555176354752878153"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/52/certifying_minor/determinant",
+     "new": "8595743074876684069",
+     "old": "4610136905051619100"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/53/certifying_minor/determinant",
+     "new": "8026192361781302831",
+     "old": "9796670141485886881"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/54/certifying_minor/determinant",
+     "new": "1494877512746748444",
+     "old": "906036584715218055"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/55/certifying_minor/determinant",
+     "new": "2105037752872339595",
+     "old": "15240215301558030058"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/56/certifying_minor/determinant",
+     "new": "605710222937927581",
+     "old": "15843428307757530144"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/57/certifying_minor/determinant",
+     "new": "11324653671063316475",
+     "old": "9595606277894855560"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/58/certifying_minor/determinant",
+     "new": "9582163242386851230",
+     "old": "12977553486359754575"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/59/certifying_minor/determinant",
+     "new": "14604141125424066155",
+     "old": "2843963117873868967"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/60/certifying_minor/determinant",
+     "new": "3711515334928478188",
+     "old": "14371785108524497850"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/61/certifying_minor/determinant",
+     "new": "8135534665792010494",
+     "old": "13157429413967002974"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/62/certifying_minor/determinant",
+     "new": "8998656364865489083",
+     "old": "6024159264038165441"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/63/certifying_minor/determinant",
+     "new": "1091323017126565563",
+     "old": "17333856584565296810"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/64/certifying_minor/determinant",
+     "new": "2153894432759628932",
+     "old": "11729337566313402707"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/65/certifying_minor/determinant",
+     "new": "16607079509185884606",
+     "old": "4291444476499702381"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/66/certifying_minor/determinant",
+     "new": "2807014407127563467",
+     "old": "5188851563784035359"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/0/restricted_to_the_reserved_rows/determinant",
+     "new": "2976387551079291021",
+     "old": "13280648024836860622"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/1/restricted_to_the_reserved_rows/determinant",
+     "new": "8790140777771889051",
+     "old": "15123864479982704104"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/2/restricted_to_the_reserved_rows/determinant",
+     "new": "11249838149569914805",
+     "old": "8466179822743112471"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/3/restricted_to_the_reserved_rows/determinant",
+     "new": "7410109266669747760",
+     "old": "18167508845192230800"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/4/restricted_to_the_reserved_rows/determinant",
+     "new": "8219064846288848338",
+     "old": "6490054939487139173"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/5/restricted_to_the_reserved_rows/determinant",
+     "new": "17866186212955204515",
+     "old": "15885583834278378136"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/6/restricted_to_the_reserved_rows/determinant",
+     "new": "9758165433197035587",
+     "old": "1684078081961145364"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/7/restricted_to_the_reserved_rows/determinant",
+     "new": "7439854074686671847",
+     "old": "4579062820083135592"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/8/restricted_to_the_reserved_rows/determinant",
+     "new": "5603230988352471112",
+     "old": "14853547057539347089"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/9/restricted_to_the_reserved_rows/determinant",
+     "new": "13708411101726106019",
+     "old": "10423873664777020927"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/10/restricted_to_the_reserved_rows/determinant",
+     "new": "15358704521757354837",
+     "old": "11071509496095995187"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/11/restricted_to_the_reserved_rows/determinant",
+     "new": "9947611350088271448",
+     "old": "11442427081643083243"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/12/restricted_to_the_reserved_rows/determinant",
+     "new": "14754403070637507534",
+     "old": "12955285372755413836"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/13/restricted_to_the_reserved_rows/determinant",
+     "new": "16933904883175738760",
+     "old": "17011009171369628725"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/14/restricted_to_the_reserved_rows/determinant",
+     "new": "8828255221395400552",
+     "old": "3829121053944676634"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/15/restricted_to_the_reserved_rows/determinant",
+     "new": "12074814184516175816",
+     "old": "9106336308623947657"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/16/restricted_to_the_reserved_rows/determinant",
+     "new": "8026192361781302831",
+     "old": "9796670141485886881"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/17/restricted_to_the_reserved_rows/determinant",
+     "new": "605710222937927581",
+     "old": "15843428307757530144"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/18/restricted_to_the_reserved_rows/determinant",
+     "new": "14604141125424066155",
+     "old": "2843963117873868967"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/19/restricted_to_the_reserved_rows/determinant",
+     "new": "8998656364865489083",
+     "old": "6024159264038165441"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/20/restricted_to_the_reserved_rows/determinant",
+     "new": "16607079509185884606",
+     "old": "4291444476499702381"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/0/sha256",
+     "new": "866275a815f19248",
+     "old": "7000a20f50127f99"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/1/sha256",
+     "new": "a5d56078dbef3e08",
+     "old": "173f100d4f77cdcb"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/2/sha256",
+     "new": "87fa2d65a3ea41e7",
+     "old": "7107c0c9994bbb38"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/3/sha256",
+     "new": "c305dc7f1aa008db",
+     "old": "f0de85eba3a7719b"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/4/sha256",
+     "new": "08bd1f7256e739a8",
+     "old": "9cce91abc8c59766"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/5/sha256",
+     "new": "c1699798e6c62dfd",
+     "old": "dae6a1c63e8236cb"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/6/sha256",
+     "new": "e6c85748b1bab3aa",
+     "old": "0abd6d35a69cf7b9"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/7/sha256",
+     "new": "e962480b016d0f56",
+     "old": "17b589837fd2564f"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/8/sha256",
+     "new": "b477848246533369",
+     "old": "370bda81f41cc6df"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/9/sha256",
+     "new": "a05073066b02fc1e",
+     "old": "45928c6214ca4a4c"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/10/sha256",
+     "new": "d787ff077fb600d5",
+     "old": "0f106b34fef74557"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/11/sha256",
+     "new": "9362ecdffd1de701",
+     "old": "3c6205715d852542"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/12/sha256",
+     "new": "1a0bcc73d32321d0",
+     "old": "7d4b26c0938e4dba"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/13/sha256",
+     "new": "bf824412dde087c0",
+     "old": "6cb2068419ad9016"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/14/sha256",
+     "new": "13ddbbe57518cf57",
+     "old": "1e6e2713cf6e4b4e"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/15/sha256",
+     "new": "f0f61fd22abe4e97",
+     "old": "b5d9330d7725c30b"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/16/sha256",
+     "new": "70cb51e8c0fc6ed5",
+     "old": "fd0adfd633518540"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/17/sha256",
+     "new": "9d86eae01120ace4",
+     "old": "8a2227b677e35621"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/18/sha256",
+     "new": "dc0d5c70854b5630",
+     "old": "a310ea09d0846df8"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/19/sha256",
+     "new": "8445ca6f8b4164c5",
+     "old": "dba7fac68d04eaab"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/20/sha256",
+     "new": "21cac10349cc9657",
+     "old": "3cb2d24ea30f3f69"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/21/sha256",
+     "new": "f2510d73367f1b6a",
+     "old": "23add79d0ce39c15"
+    },
+    {
+     "path": "stage9_hash_layer/cross_rule_probe/column/index",
+     "new": "1410",
+     "old": "8664"
+    },
+    {
+     "path": "stage9_hash_layer/distinct_salted_leaves",
+     "new": "22462",
+     "old": "22490"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/0/root",
+     "new": "4d1d2110165d7991",
+     "old": "3a95d0cb02f19f30"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/1/root",
+     "new": "839120d56133ee87",
+     "old": "fb242784e87d1aa4"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/2/root",
+     "new": "2c60f509e00b2a63",
+     "old": "ff5c39fda2019473"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/3/root",
+     "new": "a8db7fdd6a31b679",
+     "old": "f0eaf75ef49c070c"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/0/root",
+     "new": "be8fe05a393964f0",
+     "old": "be13756321682a1d"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/1/root",
+     "new": "8139069a24bef3c7",
+     "old": "e291579db410423c"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/2/root",
+     "new": "1ceb77798f29b51c",
+     "old": "f2b77e99da41a6ae"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/3/root",
+     "new": "ca3659fbb4f32532",
+     "old": "2c3a0d83a9af6ecb"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/2/openings/0/root",
+     "new": "0c3054f570af4cb6",
+     "old": "02fb321f2df825f9"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/2/openings/1/root",
+     "new": "08de76261634d1d9",
+     "old": "dc5e8c8fa3f68b95"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/2/openings/2/root",
+     "new": "70ac13b96ce5e994",
+     "old": "160654ceba76992d"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/2/openings/3/root",
+     "new": "f4b6545765d34c14",
+     "old": "6cd65a5bbe766b7d"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/3/openings/0/root",
+     "new": "e8c10a97dcba66a9",
+     "old": "79ae81e0b0e2d333"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/3/openings/1/root",
+     "new": "b01334c42e541da8",
+     "old": "07ca508b0747838c"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/3/openings/2/root",
+     "new": "c1acdba778240f45",
+     "old": "87cae12d0b556fee"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/3/openings/3/root",
+     "new": "219f83f3396873f7",
+     "old": "aac212fca872f14f"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/4/openings/0/root",
+     "new": "2e2a9dac3e9cb768",
+     "old": "3cbf7928e258e090"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/4/openings/1/root",
+     "new": "cfcf7265064022a4",
+     "old": "baf08fa62a2c59fa"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/4/openings/2/root",
+     "new": "f1601f90ba2aff7c",
+     "old": "a4b3db3aa25cf380"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/4/openings/3/root",
+     "new": "628c3896aa14cf72",
+     "old": "24ee93e14d04eed2"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/5/openings/0/root",
+     "new": "c15fcc9fdce2541e",
+     "old": "05480f2d328219ab"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/5/openings/1/root",
+     "new": "faaddea2d59a0fc7",
+     "old": "eb0e85bd2b616cc0"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/5/openings/2/root",
+     "new": "d4d09d232224f0c6",
+     "old": "ff0772df027442a7"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/5/openings/3/root",
+     "new": "af64a5536a729934",
+     "old": "86aadc34ad117315"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/6/openings/0/root",
+     "new": "bb7970d45147d994",
+     "old": "f889285979f2f7df"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/6/openings/1/root",
+     "new": "32353c8b23148135",
+     "old": "0fd59f6d8d501036"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/6/openings/2/root",
+     "new": "e71af47caf828430",
+     "old": "74c52cf40259f7d4"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/6/openings/3/root",
+     "new": "bb761a3597310c47",
+     "old": "00ee8020d90e1482"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/7/openings/0/root",
+     "new": "2b3c296d7bea164d",
+     "old": "14670f454fe4ab0a"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/7/openings/1/root",
+     "new": "1b0e31ac875fb498",
+     "old": "3ddc0ea70f4ca67e"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/7/openings/2/root",
+     "new": "d8d40cda5a9d8230",
+     "old": "85751d2dfcc858bd"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/7/openings/3/root",
+     "new": "ae5f1c1ec5ef6b6f",
+     "old": "9fcb0e62ffcb05f7"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/8/openings/0/root",
+     "new": "abe88371b290389d",
+     "old": "bb07e2639bf2497b"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/8/openings/1/root",
+     "new": "2523bc830a0c38e3",
+     "old": "395311f62bfae94a"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/8/openings/2/root",
+     "new": "cdbb41c889569b87",
+     "old": "bf35c7ea1e839f99"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/8/openings/3/root",
+     "new": "a2c30de79bc9f721",
+     "old": "e6d68d7e6b4f1265"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/9/openings/0/root",
+     "new": "e9664a016a394265",
+     "old": "c0372280c12203c5"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/9/openings/1/root",
+     "new": "fe61bf58155eaea6",
+     "old": "cebaffd4dd812262"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/9/openings/2/root",
+     "new": "d999056bd4d22b78",
+     "old": "fc5b8a1b1cc0b5d8"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/9/openings/3/root",
+     "new": "9440bba8c358df2a",
+     "old": "07dfca6cdeb2fda5"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/10/openings/0/root",
+     "new": "fab9537bc7eb7f4f",
+     "old": "61190ea5edf2dcca"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/10/openings/1/root",
+     "new": "b911823e589a64dd",
+     "old": "837c1d2856bf456d"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/10/openings/2/root",
+     "new": "46c204530ba7ec22",
+     "old": "d37497ef06900a6f"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/10/openings/3/root",
+     "new": "4fc39b1a53ffef8e",
+     "old": "254a6102f9fea199"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/11/openings/0/root",
+     "new": "24620277d4a46b38",
+     "old": "dc00c6a26ff1dd59"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/11/openings/1/root",
+     "new": "a31cdd905ff74ed5",
+     "old": "8549aa3ed5c3c1b8"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/11/openings/2/root",
+     "new": "6bc51203fb0a3ff1",
+     "old": "8451457aee95134b"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/11/openings/3/root",
+     "new": "99249ed80abd3dc9",
+     "old": "ec7a4b1454482ef9"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/12/openings/0/root",
+     "new": "7866da8ebd71fbbd",
+     "old": "dfb56a085b916dda"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/12/openings/1/root",
+     "new": "2832c0a9d33f2b1e",
+     "old": "f42942222dd6b042"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/12/openings/2/root",
+     "new": "5865e2021f319c6b",
+     "old": "b33411be635e9df9"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/12/openings/3/root",
+     "new": "fbe62d4b5cd3c247",
+     "old": "57960aa0025cd1cd"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/13/openings/0/root",
+     "new": "ac70ff2ee127e457",
+     "old": "b1d050d3392aa276"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/13/openings/1/root",
+     "new": "a39b16cebdd73da6",
+     "old": "3d7d8cd4eab2e9f0"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/13/openings/2/root",
+     "new": "5f5b0715e9de40dd",
+     "old": "83d3ac2c2fb5e3c6"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/13/openings/3/root",
+     "new": "bd292d57db171a41",
+     "old": "bf4279a569867e02"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/14/openings/0/root",
+     "new": "383266fca403c9ff",
+     "old": "11f1d3350373a7a2"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/14/openings/1/root",
+     "new": "0665767a80b0e708",
+     "old": "cae2e8ca0d9444b3"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/14/openings/2/root",
+     "new": "b8768e4186340581",
+     "old": "479140e989a5bd75"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/14/openings/3/root",
+     "new": "12032f78c98a2685",
+     "old": "165d090b75e387d3"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/15/openings/0/root",
+     "new": "68eb7245501a8776",
+     "old": "1515be6e9bfdba64"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/15/openings/1/root",
+     "new": "76359933db115f29",
+     "old": "502ed60c4c61d997"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/15/openings/2/root",
+     "new": "c1cf79a1c168dd63",
+     "old": "b7d9fe7d63c2ab50"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/15/openings/3/root",
+     "new": "d8486a4ee2715c92",
+     "old": "0d4d0f8a851aeb59"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/16/openings/0/root",
+     "new": "589e648c535f7f90",
+     "old": "e85295f4707f23ba"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/16/openings/1/root",
+     "new": "b7e962ae6fbdb6e3",
+     "old": "719c5b7f450ac23b"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/16/openings/2/root",
+     "new": "8b169288b8c8e9bb",
+     "old": "ff848f862fe4257f"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/16/openings/3/root",
+     "new": "a6611f3b358f03cb",
+     "old": "fa747736fe6cce39"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/17/openings/0/root",
+     "new": "16ee5336eff77b36",
+     "old": "f33984c70bc0ce1a"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/17/openings/1/root",
+     "new": "8590ec54370e1150",
+     "old": "4f50fe8f009d912f"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/17/openings/2/root",
+     "new": "04f4f851cad01e46",
+     "old": "4d6cb11a11cab139"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/17/openings/3/root",
+     "new": "b76b0226789512d4",
+     "old": "9a63dceeb1d8ee3c"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/18/openings/0/root",
+     "new": "3413569f4ac5228e",
+     "old": "94530173dcfaf93e"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/18/openings/1/root",
+     "new": "aeaf19c8bc698fdd",
+     "old": "69cb6ccd4715adbd"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/18/openings/2/root",
+     "new": "b420b16d102892d4",
+     "old": "1eefb88182a89a28"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/18/openings/3/root",
+     "new": "17f6846629c7d045",
+     "old": "20a0b9eca3326df7"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/19/openings/0/root",
+     "new": "8bfd93a189ba5934",
+     "old": "290b0896e808ef1b"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/19/openings/1/root",
+     "new": "3e9a6b0563dfecfc",
+     "old": "72552f440f9a10bc"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/19/openings/2/root",
+     "new": "fec69b03ead3f873",
+     "old": "4c2468cb138f5eb8"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/19/openings/3/root",
+     "new": "fd1ce350bfc50869",
+     "old": "ec19384ecafc1712"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/20/openings/0/root",
+     "new": "19fb82afe2d5d8a4",
+     "old": "078c8ccabd060774"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/20/openings/1/root",
+     "new": "1444c4f2380a0c0d",
+     "old": "e03e6fdc18822720"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/20/openings/2/root",
+     "new": "c8c3fd0d8319f0a5",
+     "old": "3d864098f146a8d1"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/20/openings/3/root",
+     "new": "8d2a149860fbb0c0",
+     "old": "96b65e1b1acdd72b"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/21/openings/0/root",
+     "new": "300c867451e6a3ae",
+     "old": "a8371e4d4cbbf454"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/21/openings/1/root",
+     "new": "04bf7012a499dae6",
+     "old": "5146a4db600624e9"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/21/openings/2/root",
+     "new": "193a28e5389b8315",
+     "old": "96ad218af465dc86"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/21/openings/3/root",
+     "new": "4558d1cb025d7490",
+     "old": "9be5ec878fb9d115"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/21/openings/4/root",
+     "new": "e23b338251538ea5",
+     "old": "f535a9e872e73803"
+    }
+   ],
+   "differing_count": 211
+  },
+  {
+   "new": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l22/tk9-l22-zero-a.json",
+   "old": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk7/l22/tk7-l22-zero-a.json",
+   "leaves_equal": 28190,
+   "skipped_timing": 5,
+   "skipped_identity": 214,
+   "differing_random_class": 175,
+   "differing": [
+    {
+     "path": "run_layer_source_pins/per_file/1/bytes",
+     "new": "81468",
+     "old": "80119"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/git_blob",
+     "new": "09647b5657441d82a0d0945650177d7fe4b5bda1",
+     "old": "23e2efa5a7af731840790c7fc79718405d4ea0a1"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/lane_commits/0",
+     "new": "uncommitted:ops/zkp-mvp/trained-1b-gate-tk9 (the token lane's frozen round-9 tree b666a991 = frozen-r7 + round 8/9 token-run code, + the privacy-gate lane's capture patch and stage-47 module; sources manifest 597b2204)",
+     "old": "uncommitted:ops/zkp-mvp/trained-1b-gate-tk7 (the token lane's frozen round-7 tree eb912dd5 = native R8 + token files, + the privacy-gate lane's capture patch and stage-47 module; sources manifest d356e7aa)"
+    },
+    {
+     "path": "run_layer_source_pins/per_file/1/reading",
+     "new": "[TINYLLAMA PORT v15, gate round 10: the frozen-r9 re-pin] read against 2c158dc9 (frozen-r7 = tk7), `diff -u` +16 / -1 in two hunks (round 8).  Hunk 1 (after `RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32`): two new `pub(crate) const` token-I/O run profile strings, `RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128` and `RUN",
+     "old": "[TINYLLAMA PORT v11, round 8] the token r7c reading, verbatim from `zk60_native_rg_tokenio_r7c_pins.TOKEN_R7C_READINGS` (frozen-r7's run.rs = r7c's): [TOKEN-IO R7c] [READ] read against `ad92be08` (R7, read in round 6): `diff -u` is +73 / -24, seven hunks; against the native R8 freeze `d913a081` only"
+    },
+    {
+     "path": "run_layer_source_pins/pins_at_a_read_digest/1",
+     "new": "src/private_block/run.rs: cc2c420498b1 -- read at uncommi",
+     "old": "src/private_block/run.rs: 2c158dc9c22c -- read at uncommi"
+    },
+    {
+     "path": "stage1_integrity/array_store/bytes",
+     "new": "290831128",
+     "old": "290446072"
+    },
+    {
+     "path": "stage1_integrity/array_store/bytes_verified_by_sha256",
+     "new": "290831128",
+     "old": "290446072"
+    },
+    {
+     "path": "stage1_integrity/array_store/distinct_arrays_verified_by_sha256",
+     "new": "12633",
+     "old": "12606"
+    },
+    {
+     "path": "stage1_integrity/manifest_total_bytes",
+     "new": "370983009",
+     "old": "370600728"
+    },
+    {
+     "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/exact_rank_of_the_pad_block",
+     "new": "254",
+     "old": "253"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/0/certifying_minor/determinant",
+     "new": "2196804456023210166",
+     "old": "15580864711659870280"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/1/certifying_minor/determinant",
+     "new": "9107722297931898198",
+     "old": "4805733444452263863"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/2/certifying_minor/determinant",
+     "new": "4102214406463866433",
+     "old": "6078770912078390821"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/3/certifying_minor/determinant",
+     "new": "6588777809498145756",
+     "old": "7763377324326226743"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/4/certifying_minor/determinant",
+     "new": "10377337277083924900",
+     "old": "6649429714479412567"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/5/certifying_minor/determinant",
+     "new": "11177128330801416039",
+     "old": "12710174631919419378"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/6/certifying_minor/determinant",
+     "new": "10390640193463223821",
+     "old": "14020833213337623003"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/7/certifying_minor/determinant",
+     "new": "1335799727319675125",
+     "old": "11269850300248872311"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/8/certifying_minor/determinant",
+     "new": "12223944779725910405",
+     "old": "4434774341421621640"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/9/certifying_minor/determinant",
+     "new": "3434029842653725120",
+     "old": "7290094801859912669"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/10/certifying_minor/determinant",
+     "new": "182768792154783572",
+     "old": "3567180993284106247"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/11/certifying_minor/determinant",
+     "new": "16970055454906324829",
+     "old": "12829402299039948503"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/12/certifying_minor/determinant",
+     "new": "615639160825758195",
+     "old": "6903861890854790045"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/13/certifying_minor/determinant",
+     "new": "17045533467155955852",
+     "old": "11470384509777933234"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/14/certifying_minor/determinant",
+     "new": "15942852772023999365",
+     "old": "15588382221972374722"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/15/certifying_minor/determinant",
+     "new": "16786051343241222154",
+     "old": "14112097996390389454"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/16/certifying_minor/determinant",
+     "new": "7338601476608902831",
+     "old": "5422206065356440320"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/17/certifying_minor/determinant",
+     "new": "12308419951070623088",
+     "old": "5510982020444971716"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/18/certifying_minor/determinant",
+     "new": "1968128723513361680",
+     "old": "9882339776269751911"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/19/certifying_minor/determinant",
+     "new": "15655228472683498670",
+     "old": "16795762721109651891"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/20/certifying_minor/determinant",
+     "new": "15244601269367897252",
+     "old": "10207119974485273917"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/21/certifying_minor/determinant",
+     "new": "9097542790429253939",
+     "old": "17114200736424233415"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/22/certifying_minor/determinant",
+     "new": "7694215145109531896",
+     "old": "10463564972249676639"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/23/certifying_minor/determinant",
+     "new": "3449377899506952855",
+     "old": "13199272401988534932"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/24/certifying_minor/determinant",
+     "new": "8622226479564708532",
+     "old": "12955838655399033678"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/25/certifying_minor/determinant",
+     "new": "7304262394043850933",
+     "old": "16856749737626664262"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/26/certifying_minor/determinant",
+     "new": "891528867454552592",
+     "old": "3015240997275294316"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/27/certifying_minor/determinant",
+     "new": "14621821848122895567",
+     "old": "2709287928846034715"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/28/certifying_minor/determinant",
+     "new": "2604820472468452348",
+     "old": "4620657508172162909"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/29/certifying_minor/determinant",
+     "new": "15427101895271651460",
+     "old": "9044824640398529383"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/30/certifying_minor/determinant",
+     "new": "10088747810400028237",
+     "old": "1757481339093514786"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/31/certifying_minor/determinant",
+     "new": "11980755298572380791",
+     "old": "18412907472022265027"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/32/certifying_minor/determinant",
+     "new": "843955057311431327",
+     "old": "8577655216861407151"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/33/certifying_minor/determinant",
+     "new": "17768544919038216089",
+     "old": "4177114576474569839"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/34/certifying_minor/determinant",
+     "new": "10299454192231024280",
+     "old": "15543839016773564684"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/35/certifying_minor/determinant",
+     "new": "12212012117330818437",
+     "old": "6216861823443846148"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/36/certifying_minor/determinant",
+     "new": "17745265351824420834",
+     "old": "12855634516638433877"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/37/certifying_minor/determinant",
+     "new": "15349239186386741570",
+     "old": "17989297452239814551"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/38/certifying_minor/determinant",
+     "new": "12259680313583468235",
+     "old": "12064678165911350086"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/39/certifying_minor/determinant",
+     "new": "9469470709293697465",
+     "old": "11659445518745758033"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/40/certifying_minor/determinant",
+     "new": "10554999398285750399",
+     "old": "10403126772515050359"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/41/certifying_minor/determinant",
+     "new": "2913867206023112386",
+     "old": "16727565770681950791"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/42/certifying_minor/determinant",
+     "new": "654364460792973198",
+     "old": "18179383908431103689"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/43/certifying_minor/determinant",
+     "new": "14661530807546478687",
+     "old": "14677379306013560870"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/44/certifying_minor/determinant",
+     "new": "15206621063829280850",
+     "old": "6963328640647245144"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/45/certifying_minor/determinant",
+     "new": "17713075727176405394",
+     "old": "2012140841414911118"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/46/certifying_minor/determinant",
+     "new": "16261951697332289974",
+     "old": "6493617140162064292"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/47/certifying_minor/determinant",
+     "new": "10210331293645176597",
+     "old": "14811942790166873716"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/48/certifying_minor/determinant",
+     "new": "4881758735689680587",
+     "old": "17739475769887608871"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/49/certifying_minor/determinant",
+     "new": "1191404362851412527",
+     "old": "3114149911036612027"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/50/certifying_minor/determinant",
+     "new": "13658839371827156369",
+     "old": "5544384958553380984"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/51/certifying_minor/determinant",
+     "new": "7836710322684990956",
+     "old": "7467553065724998063"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/52/certifying_minor/determinant",
+     "new": "14327419007427275981",
+     "old": "6854953057413420626"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/53/certifying_minor/determinant",
+     "new": "10410112346913305958",
+     "old": "11775443806828289778"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/54/certifying_minor/determinant",
+     "new": "10012111974365075429",
+     "old": "9813088893407985702"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/55/certifying_minor/determinant",
+     "new": "6432528104548550725",
+     "old": "175828586091457357"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/56/certifying_minor/determinant",
+     "new": "483541879492967559",
+     "old": "14645880943008526769"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/57/certifying_minor/determinant",
+     "new": "939609081836099729",
+     "old": "13074380384094605030"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/58/certifying_minor/determinant",
+     "new": "3078249450261130936",
+     "old": "1850608885355053484"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/59/certifying_minor/determinant",
+     "new": "9382172033139087032",
+     "old": "6454557822821602220"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/60/certifying_minor/determinant",
+     "new": "13442337475902722553",
+     "old": "10811287890068953311"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/61/certifying_minor/determinant",
+     "new": "1206505014084650651",
+     "old": "14414938513755580541"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/62/certifying_minor/determinant",
+     "new": "5359288249139034094",
+     "old": "2216879036598313782"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/63/certifying_minor/determinant",
+     "new": "2477365691743494279",
+     "old": "11999000823145857899"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/64/certifying_minor/determinant",
+     "new": "4837196525304654596",
+     "old": "12633145419788634504"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/65/certifying_minor/determinant",
+     "new": "7376139330297901789",
+     "old": "360372830736570390"
+    },
+    {
+     "path": "stage3_per_commitment/per_commitment/66/certifying_minor/determinant",
+     "new": "3826626325174348608",
+     "old": "11119257277982874945"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/0/restricted_to_the_reserved_rows/determinant",
+     "new": "11177128330801416039",
+     "old": "12710174631919419378"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/1/restricted_to_the_reserved_rows/determinant",
+     "new": "12223944779725910405",
+     "old": "4434774341421621640"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/2/restricted_to_the_reserved_rows/determinant",
+     "new": "16970055454906324829",
+     "old": "12829402299039948503"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/3/restricted_to_the_reserved_rows/determinant",
+     "new": "15942852772023999365",
+     "old": "15588382221972374722"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/4/restricted_to_the_reserved_rows/determinant",
+     "new": "12308419951070623088",
+     "old": "5510982020444971716"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/5/restricted_to_the_reserved_rows/determinant",
+     "new": "15244601269367897252",
+     "old": "10207119974485273917"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/6/restricted_to_the_reserved_rows/determinant",
+     "new": "3449377899506952855",
+     "old": "13199272401988534932"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/7/restricted_to_the_reserved_rows/determinant",
+     "new": "891528867454552592",
+     "old": "3015240997275294316"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/8/restricted_to_the_reserved_rows/determinant",
+     "new": "15427101895271651460",
+     "old": "9044824640398529383"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/9/restricted_to_the_reserved_rows/determinant",
+     "new": "843955057311431327",
+     "old": "8577655216861407151"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/10/restricted_to_the_reserved_rows/determinant",
+     "new": "12212012117330818437",
+     "old": "6216861823443846148"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/11/restricted_to_the_reserved_rows/determinant",
+     "new": "12259680313583468235",
+     "old": "12064678165911350086"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/12/restricted_to_the_reserved_rows/determinant",
+     "new": "2913867206023112386",
+     "old": "16727565770681950791"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/13/restricted_to_the_reserved_rows/determinant",
+     "new": "15206621063829280850",
+     "old": "6963328640647245144"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/14/restricted_to_the_reserved_rows/determinant",
+     "new": "10210331293645176597",
+     "old": "14811942790166873716"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/15/restricted_to_the_reserved_rows/determinant",
+     "new": "13658839371827156369",
+     "old": "5544384958553380984"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/16/restricted_to_the_reserved_rows/determinant",
+     "new": "10410112346913305958",
+     "old": "11775443806828289778"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/17/restricted_to_the_reserved_rows/determinant",
+     "new": "483541879492967559",
+     "old": "14645880943008526769"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/18/restricted_to_the_reserved_rows/determinant",
+     "new": "9382172033139087032",
+     "old": "6454557822821602220"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/19/restricted_to_the_reserved_rows/determinant",
+     "new": "5359288249139034094",
+     "old": "2216879036598313782"
+    },
+    {
+     "path": "stage4_the_boundary/per_boundary/20/restricted_to_the_reserved_rows/determinant",
+     "new": "7376139330297901789",
+     "old": "360372830736570390"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/0/sha256",
+     "new": "fdb72be59a4023d2",
+     "old": "8c4173d8b7950d39"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/1/sha256",
+     "new": "4cbcbb3e4f109b9d",
+     "old": "14cd0c13958fcc28"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/2/sha256",
+     "new": "33fa4862875d603c",
+     "old": "dd8fac5d44f260cd"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/3/sha256",
+     "new": "bdf038a9934cce85",
+     "old": "abdd48e697b64e29"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/4/sha256",
+     "new": "e0da831561b7e7d8",
+     "old": "2707a79cb1a71073"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/5/sha256",
+     "new": "d1de8fb40f2d17da",
+     "old": "2d1bf3e37f6d0a65"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/6/sha256",
+     "new": "2447cbd19adeda46",
+     "old": "07ab0b32b77b8ad3"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/7/sha256",
+     "new": "f87252252133b911",
+     "old": "de40457da9d52732"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/8/sha256",
+     "new": "9c4e66bce44c561b",
+     "old": "6d2d10efb95e0e57"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/9/sha256",
+     "new": "8f59b222ec9aec5f",
+     "old": "37be361dc866e91a"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/10/sha256",
+     "new": "887e4af54af3f3c0",
+     "old": "b58970746726e06c"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/11/sha256",
+     "new": "b8252e88c4ce7380",
+     "old": "6528dac270f108d4"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/12/sha256",
+     "new": "6a98390472f953ab",
+     "old": "b87c9c9e74cc886b"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/13/sha256",
+     "new": "c0eae72cbf49ca97",
+     "old": "7c8b7fde313acf51"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/14/sha256",
+     "new": "5a2e39e69b86a0e5",
+     "old": "59a7f940eb9b10a5"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/15/sha256",
+     "new": "fc32b6df203fdd46",
+     "old": "cea3d89af476fac7"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/16/sha256",
+     "new": "be4c4b9d37a776f9",
+     "old": "5a8855a291446879"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/17/sha256",
+     "new": "cf0697374160b12c",
+     "old": "111bc61920520546"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/18/sha256",
+     "new": "ed75f82ac55cdd93",
+     "old": "4618e7ad29a6e0b1"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/19/sha256",
+     "new": "0f32b1cc7e70c43a",
+     "old": "42d2d3906a3bb0a3"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/20/sha256",
+     "new": "6cb7b3ae500d6a3d",
+     "old": "1e3a82e888116f35"
+    },
+    {
+     "path": "stage7_channels/channels/17/segments/21/sha256",
+     "new": "cf7f0d607293096a",
+     "old": "c69897e7f31fe8e2"
+    },
+    {
+     "path": "stage9_hash_layer/cross_rule_probe/column/index",
+     "new": "9453",
+     "old": "11734"
+    },
+    {
+     "path": "stage9_hash_layer/distinct_salted_leaves",
+     "new": "22498",
+     "old": "22437"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/0/root",
+     "new": "3765f94595a5eb67",
+     "old": "2a9d5cd35c5adf9a"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/1/root",
+     "new": "95f650aee11f53d5",
+     "old": "f2bff86bd062c5c5"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/2/root",
+     "new": "8821587ba2a3c654",
+     "old": "bc71104adafd81cf"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/0/openings/3/root",
+     "new": "033315f32661ba2b",
+     "old": "8eaca2145178e0a9"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/0/root",
+     "new": "b578a11c91885a0b",
+     "old": "f138bf02de035594"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/1/root",
+     "new": "8f218f03276fc601",
+     "old": "58000f8d851f57f1"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/2/root",
+     "new": "46692b2857d8bee5",
+     "old": "e89d782fdc84a9e3"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/1/openings/3/root",
+     "new": "696d1e07bb0884fb",
+     "old": "163ecd78b71e5027"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/2/openings/0/root",
+     "new": "e17542a29a195e07",
+     "old": "6f50f4e9b6a39a0f"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/2/openings/1/root",
+     "new": "d75bfc402e3bbb13",
+     "old": "62801ed0736c562a"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/2/openings/2/root",
+     "new": "79f35ffadee6de26",
+     "old": "a54d0fa39991b713"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/2/openings/3/root",
+     "new": "a28feda0df53b420",
+     "old": "bda4914bc4057036"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/3/openings/0/root",
+     "new": "e72e23efb327bd56",
+     "old": "4fa2659c6db0564d"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/3/openings/1/root",
+     "new": "36ffddc62b857512",
+     "old": "5e50dca4f2dbd7c9"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/3/openings/2/root",
+     "new": "e3f636b3ecf1e3ec",
+     "old": "b665824da5bcbf90"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/3/openings/3/root",
+     "new": "abb9959ffbff05d1",
+     "old": "7d6b214c0ae0fe61"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/4/openings/0/root",
+     "new": "a9f3c83cd2922e99",
+     "old": "df8691607650b5a1"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/4/openings/1/root",
+     "new": "d39ec5a3fd187a05",
+     "old": "3c46ecc1039c07b3"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/4/openings/2/root",
+     "new": "db67dd8533404bba",
+     "old": "f063d14e0331ae21"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/4/openings/3/root",
+     "new": "445e4efbfa667893",
+     "old": "090a749d39de4f65"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/5/openings/0/root",
+     "new": "5c90507b322e1f41",
+     "old": "5ab867fd10da6ec4"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/5/openings/1/root",
+     "new": "b4d7470045327460",
+     "old": "9d5169824f05550d"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/5/openings/2/root",
+     "new": "4eb09d5250c82b74",
+     "old": "7b44ef066f985c57"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/5/openings/3/root",
+     "new": "aa3a975ca648f023",
+     "old": "129609660ca1e4c0"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/6/openings/0/root",
+     "new": "9496bdf78688e40e",
+     "old": "5d16ed477905e64d"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/6/openings/1/root",
+     "new": "f5f5d02cc86500bf",
+     "old": "6613b88fc52a55da"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/6/openings/2/root",
+     "new": "9b1f0eda9d993ce8",
+     "old": "9c4d16d8af5211fd"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/6/openings/3/root",
+     "new": "db1e11a126c89a72",
+     "old": "5f5a1db405a5412a"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/7/openings/0/root",
+     "new": "d42d1e3e830bcb77",
+     "old": "980db1d67cdc1fee"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/7/openings/1/root",
+     "new": "7e35191326dd43b9",
+     "old": "41a4a38bac244aa3"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/7/openings/2/root",
+     "new": "aded2eebf2fcf73c",
+     "old": "7c7d2aa7321121ae"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/7/openings/3/root",
+     "new": "b0be6f8beba6bed1",
+     "old": "ccccd82177a5b0e6"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/8/openings/0/root",
+     "new": "9f349f7394138c97",
+     "old": "280653f361cc2799"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/8/openings/1/root",
+     "new": "e7f3a9e2f063efa5",
+     "old": "cda5b81efdf167e3"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/8/openings/2/root",
+     "new": "74e9da9e550a0506",
+     "old": "4af19e720583b120"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/8/openings/3/root",
+     "new": "e9881b360f824b2b",
+     "old": "e2661c22bbd73a2f"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/9/openings/0/root",
+     "new": "d6b2bb92ba256652",
+     "old": "86c3d3e45fec79c2"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/9/openings/1/root",
+     "new": "80d51a391d242236",
+     "old": "ab2724868724b16c"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/9/openings/2/root",
+     "new": "ac90fb7ad4d4bbd8",
+     "old": "e985bcb7639d2a81"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/9/openings/3/root",
+     "new": "0004b3b458c241ea",
+     "old": "cb69395a8d0954c0"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/10/openings/0/root",
+     "new": "100bf1ebe5440a4b",
+     "old": "b11271c8b89ed6fe"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/10/openings/1/root",
+     "new": "86fe30527c804c80",
+     "old": "4c401aa1edf953c1"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/10/openings/2/root",
+     "new": "2e049676745c4bee",
+     "old": "b265a91639c7b60a"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/10/openings/3/root",
+     "new": "cd2ea4ec4fb848cf",
+     "old": "5257d26583aee05b"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/11/openings/0/root",
+     "new": "e15df87773cb10ba",
+     "old": "f94133d1024f842a"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/11/openings/1/root",
+     "new": "d6f166bd8ad331fa",
+     "old": "7c71fcee73b9050f"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/11/openings/2/root",
+     "new": "1fe8e8493b5df0d1",
+     "old": "96b9ce73bf44fe0e"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/11/openings/3/root",
+     "new": "a2d3dc013ead0ba2",
+     "old": "a3d64720130a2354"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/12/openings/0/root",
+     "new": "040d783244604b3a",
+     "old": "3e636bcb2fdbfc71"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/12/openings/1/root",
+     "new": "264aa5a132c9eb4d",
+     "old": "a8e0eb4777c2ccfa"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/12/openings/2/root",
+     "new": "86eea31289aec94f",
+     "old": "82e66b2d991b5e50"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/12/openings/3/root",
+     "new": "fbb6a81f5f7b2a72",
+     "old": "14a6dbf4b87d04a0"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/13/openings/0/root",
+     "new": "a9c4c54cc77d9340",
+     "old": "62f020367a4a67f4"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/13/openings/1/root",
+     "new": "54fc030ababe2517",
+     "old": "b379d23d2be11ba6"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/13/openings/2/root",
+     "new": "139c90811cb7a604",
+     "old": "cd52c1cc9b08ba01"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/13/openings/3/root",
+     "new": "3689ad1da92bc5c4",
+     "old": "45170b2c4c9982d3"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/14/openings/0/root",
+     "new": "8236ae55078c1c32",
+     "old": "433e5906c2531543"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/14/openings/1/root",
+     "new": "64f9401c99a75d3f",
+     "old": "ca7ae3678cd1a439"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/14/openings/2/root",
+     "new": "9a7c126ef5edadef",
+     "old": "3b94ff18d2e12812"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/14/openings/3/root",
+     "new": "bcf6277e92e5303f",
+     "old": "6427fa21c3227f84"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/15/openings/0/root",
+     "new": "b4b6494048e0a00b",
+     "old": "80d22a7cbc553a1d"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/15/openings/1/root",
+     "new": "12e4a80fc6a8d414",
+     "old": "44c2b5957921dbf1"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/15/openings/2/root",
+     "new": "084fa1738da2092a",
+     "old": "d478f9976acc27da"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/15/openings/3/root",
+     "new": "1e6707d9e39e0edc",
+     "old": "4f2abb8a5be3cdec"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/16/openings/0/root",
+     "new": "1b513308b807c594",
+     "old": "f764883c59d54003"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/16/openings/1/root",
+     "new": "dea2eec94e864ec4",
+     "old": "0c5e2395c034871b"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/16/openings/2/root",
+     "new": "c916be339ed19e7d",
+     "old": "8e092e4a6d289703"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/16/openings/3/root",
+     "new": "b6a5599becb8770c",
+     "old": "1f6d0e7e05b443de"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/17/openings/0/root",
+     "new": "a95fcacd41e454a5",
+     "old": "d2d86581dc29729a"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/17/openings/1/root",
+     "new": "ff33c47bcc743415",
+     "old": "4a38b0296b2c7cef"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/17/openings/2/root",
+     "new": "83ce3309de86687f",
+     "old": "5962dac810beb540"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/17/openings/3/root",
+     "new": "343c28ad44a0e75a",
+     "old": "4fa05c9c47c8014e"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/18/openings/0/root",
+     "new": "dc90c3a4d0e110fc",
+     "old": "86082fe4ac7b1a11"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/18/openings/1/root",
+     "new": "e2a37ff73e923be1",
+     "old": "4e2d0aa4b617ee1d"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/18/openings/2/root",
+     "new": "32c0948a264c23c9",
+     "old": "e0614341822fdf09"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/18/openings/3/root",
+     "new": "9012f52b78d523d7",
+     "old": "0f0d4fa7b7db5ba4"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/19/openings/0/root",
+     "new": "c7e6407610310486",
+     "old": "464bce0b26ecf6c3"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/19/openings/1/root",
+     "new": "94c97f4531cf7cda",
+     "old": "6df0bd67b56b677e"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/19/openings/2/root",
+     "new": "03de53e10a366623",
+     "old": "6f4a8b4de3c86ffb"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/19/openings/3/root",
+     "new": "38723620a5d5d467",
+     "old": "59cd4b4f4b03fd62"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/20/openings/0/root",
+     "new": "85ae62133e322275",
+     "old": "8726b614a1c1372f"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/20/openings/1/root",
+     "new": "6981459d4cb254cf",
+     "old": "f26507ac54e501cb"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/20/openings/2/root",
+     "new": "303891efc4bdd4d1",
+     "old": "2d08d88b53780fb9"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/20/openings/3/root",
+     "new": "3412fa66a8f0b34f",
+     "old": "555df73f4ef6a1d7"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/21/openings/0/root",
+     "new": "13fa9eb23f8437ba",
+     "old": "5c4d78303687b922"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/21/openings/1/root",
+     "new": "240c4451bdb71c4e",
+     "old": "7a95d559b54650b1"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/21/openings/2/root",
+     "new": "5601f3df0c13a2f2",
+     "old": "163116098428d938"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/21/openings/3/root",
+     "new": "dbfbed5c5262cc49",
+     "old": "40b312641c97bfe2"
+    },
+    {
+     "path": "stage9_hash_layer/per_stage/21/openings/4/root",
+     "new": "ff6f60f69cb5098f",
+     "old": "0e3a442c9e61fc3d"
+    }
+   ],
+   "differing_count": 211
+  }
+ ]
+}

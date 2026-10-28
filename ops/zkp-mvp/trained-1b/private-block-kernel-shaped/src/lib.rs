@@ -316,9 +316,9 @@ impl Shape {
         if self.head_dim % 2 != 0 {
             return Err(KernelError::Shape("shape: the head dimension is odd"));
         }
-        if self.width != self.q_heads * self.head_dim {
-            return Err(KernelError::Shape("shape: width differs from q_heads * head_dim"));
-        }
+        // NATIVE R12 (F2): the query axis `q_heads * head_dim` is its own
+        // width (`q_width`), decoupled from the model width (Shieldstral:
+        // 4096 against 3072); every shape before R12 has the two equal
         if self.q_heads % self.kv_heads != 0 {
             return Err(KernelError::Shape("shape: the query heads do not divide into the key-value heads"));
         }
@@ -344,6 +344,11 @@ impl Shape {
     pub const fn half_dim(&self) -> usize {
         self.head_dim / 2
     }
+    /// NATIVE R12 (F2): the query axis width `q_heads * head_dim` (`width`
+    /// at every shape before R12)
+    pub const fn q_width(&self) -> usize {
+        self.q_heads * self.head_dim
+    }
     /// the key/value axis width: `kv_heads * head_dim`
     pub const fn kv_width(&self) -> usize {
         self.kv_heads * self.head_dim
@@ -357,6 +362,10 @@ impl Shape {
     }
     pub const fn kv_len(&self) -> usize {
         self.tokens * self.kv_width()
+    }
+    /// NATIVE R12: the query-axis planes (`x_len` before R12)
+    pub const fn q_len(&self) -> usize {
+        self.tokens * self.q_width()
     }
     pub const fn ff_len(&self) -> usize {
         self.tokens * self.hidden
@@ -372,11 +381,12 @@ impl Shape {
         self.tokens * self.half_dim()
     }
 
-    /// `i64` words of scratch [`run_shaped`] needs. Eleven `x`-sized planes,
+    /// `i64` words of scratch [`run_shaped`] needs. Seven `x`-sized planes,
+    /// four query-axis planes (NATIVE R12: `x`-sized before R12, so eleven),
     /// three key/value planes, one score cube, four feed-forward planes and
     /// four token-sized rows.
     pub const fn scratch_len(&self) -> usize {
-        11 * self.x_len() + 3 * self.kv_len() + self.score_len() + 4 * self.ff_len() + 4 * self.tokens
+        7 * self.x_len() + 4 * self.q_len() + 3 * self.kv_len() + self.score_len() + 4 * self.ff_len() + 4 * self.tokens
     }
 
     /// `i64` words of the (parity-test only) trace buffer. Nine `x`-sized
@@ -384,13 +394,15 @@ impl Shape {
     /// four feed-forward parts and the two isqrt columns; a unit test checks
     /// this closed form against the sum over [`PARTS`].
     pub const fn trace_len(&self) -> usize {
-        9 * self.x_len() + 3 * self.kv_len() + 2 * self.score_len() + 3 * self.rows() + 4 * self.ff_len() + 2 * self.tokens
+        6 * self.x_len() + 3 * self.q_len() + 3 * self.kv_len() + 2 * self.score_len() + 3 * self.rows() + 4 * self.ff_len() + 2 * self.tokens
     }
 
     pub fn part_len(&self, p: Part) -> usize {
         match p {
             Part::NaDd | Part::NmDd => self.tokens,
-            Part::NaY | Part::Q8 | Part::Qr8 | Part::O8 | Part::Ao8 | Part::Xres1 | Part::NmY | Part::Z16 | Part::Xres2 => self.x_len(),
+            Part::NaY | Part::Ao8 | Part::Xres1 | Part::NmY | Part::Z16 | Part::Xres2 => self.x_len(),
+            // NATIVE R12 (F2): the query-axis parts
+            Part::Q8 | Part::Qr8 | Part::O8 => self.q_len(),
             Part::K8 | Part::V8 | Part::Kr8 => self.kv_len(),
             Part::S8 | Part::P => self.score_len(),
             Part::MRow | Part::Arg | Part::Sum => self.rows(),
@@ -490,12 +502,12 @@ pub struct WeightsRef<'a> {
 
 impl WeightsRef<'_> {
     pub fn check(&self, sh: &Shape) -> Res<()> {
-        let (d, f, kv) = (sh.width, sh.hidden, sh.kv_width());
+        let (d, q, f, kv) = (sh.width, sh.q_width(), sh.hidden, sh.kv_width());
         for (got, want, site) in [
-            (self.wq.len(), d * d, "wq"),
+            (self.wq.len(), q * d, "wq"),
             (self.wk.len(), kv * d, "wk"),
             (self.wv.len(), kv * d, "wv"),
-            (self.wo.len(), d * d, "wo"),
+            (self.wo.len(), d * q, "wo"),
             (self.gamma_a.len(), d, "gamma_a"),
             (self.gamma_m.len(), d, "gamma_m"),
             (self.wg_t.len(), d * f, "wg_t"),
@@ -776,14 +788,16 @@ pub fn run_shaped(sh: &Shape, input: &[i16], w: &WeightsRef, tab: &TablesRef, sc
     zero(scratch);
 
     let (tokens, d_w, f_w, dh) = (sh.tokens, sh.width, sh.hidden, sh.head_dim);
+    // NATIVE R12 (F2): the query axis width (`d_w` before R12)
+    let q_w = sh.q_width();
     let (kvw, group) = (sh.kv_width(), sh.group());
     let mut rest: &mut [i64] = scratch;
     let x = take(&mut rest, sh.x_len());
     let na = take(&mut rest, sh.x_len());
-    let q = take(&mut rest, sh.x_len());
-    let qr = take(&mut rest, sh.x_len());
-    let o = take(&mut rest, sh.x_len());
-    let o8 = take(&mut rest, sh.x_len());
+    let q = take(&mut rest, sh.q_len());
+    let qr = take(&mut rest, sh.q_len());
+    let o = take(&mut rest, sh.q_len());
+    let o8 = take(&mut rest, sh.q_len());
     let ao = take(&mut rest, sh.x_len());
     let x1 = take(&mut rest, sh.x_len());
     let nm = take(&mut rest, sh.x_len());
@@ -809,7 +823,7 @@ pub fn run_shaped(sh: &Shape, input: &[i16], w: &WeightsRef, tab: &TablesRef, sc
 
     rms_norm(sh, x, w.gamma_a, sh.norm_cn_a, na, na_dd)?;
 
-    matmul_out_in(tokens, na, w.wq, d_w, d_w, q)?;
+    matmul_out_in(tokens, na, w.wq, d_w, q_w, q)?;
     matmul_out_in(tokens, na, w.wk, d_w, kvw, k)?;
     matmul_out_in(tokens, na, w.wv, d_w, kvw, v)?;
     requant_all(q, sh.sh_qkv, I8N, "Q")?;
@@ -829,7 +843,7 @@ pub fn run_shaped(sh: &Shape, input: &[i16], w: &WeightsRef, tab: &TablesRef, sc
             for j in 0..tokens {
                 let mut acc = 0i64;
                 for i in 0..dh {
-                    acc = add(acc, mul(qr[t * d_w + h * dh + i], kr[j * kvw + kvo + i], "score")?, "score")?;
+                    acc = add(acc, mul(qr[t * q_w + h * dh + i], kr[j * kvw + kvo + i], "score")?, "score")?;
                 }
                 s[(h * tokens + t) * tokens + j] = acc;
             }
@@ -873,12 +887,12 @@ pub fn run_shaped(sh: &Shape, input: &[i16], w: &WeightsRef, tab: &TablesRef, sc
     for h in 0..sh.q_heads {
         for t in 0..tokens {
             for i in 0..dh {
-                o8[t * d_w + h * dh + i] = o[(h * tokens + t) * dh + i];
+                o8[t * q_w + h * dh + i] = o[(h * tokens + t) * dh + i];
             }
         }
     }
 
-    matmul_out_in(tokens, o8, w.wo, d_w, d_w, ao)?;
+    matmul_out_in(tokens, o8, w.wo, q_w, d_w, ao)?;
     requant_all(ao, sh.sh_ao, I16, "AO")?;
 
     for idx in 0..sh.x_len() {

@@ -1,0 +1,2162 @@
+[
+  {
+    "mode": "literal",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 34,
+      "base_add": 72,
+      "base_sub": 48
+    },
+    "raw_round0_primitives": {
+      "base_mul": 136,
+      "base_add": 288,
+      "base_sub": 192
+    },
+    "logical_shared_operand_read_bytes": 1536,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 34,
+      "base_add": 72,
+      "base_sub": 48
+    },
+    "raw_round0_primitives": {
+      "base_mul": 1088,
+      "base_add": 2304,
+      "base_sub": 1536
+    },
+    "logical_shared_operand_read_bytes": 12288,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 34,
+      "base_add": 72,
+      "base_sub": 48
+    },
+    "raw_round0_primitives": {
+      "base_mul": 69632,
+      "base_add": 147456,
+      "base_sub": 98304
+    },
+    "logical_shared_operand_read_bytes": 786432,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 34,
+      "base_add": 72,
+      "base_sub": 48
+    },
+    "raw_round0_primitives": {
+      "base_mul": 35651584,
+      "base_add": 75497472,
+      "base_sub": 50331648
+    },
+    "logical_shared_operand_read_bytes": 402653184,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 34,
+      "base_add": 72,
+      "base_sub": 48
+    },
+    "raw_round0_primitives": {
+      "base_mul": 285212672,
+      "base_add": 603979776,
+      "base_sub": 402653184
+    },
+    "logical_shared_operand_read_bytes": 3221225472,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 13,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 80,
+      "base_add": 52,
+      "base_sub": 56
+    },
+    "logical_shared_operand_read_bytes": 512,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 13,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 640,
+      "base_add": 416,
+      "base_sub": 448
+    },
+    "logical_shared_operand_read_bytes": 4096,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 13,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 40960,
+      "base_add": 26624,
+      "base_sub": 28672
+    },
+    "logical_shared_operand_read_bytes": 262144,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 13,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 20971520,
+      "base_add": 13631488,
+      "base_sub": 14680064
+    },
+    "logical_shared_operand_read_bytes": 134217728,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 13,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 167772160,
+      "base_add": 109051904,
+      "base_sub": 117440512
+    },
+    "logical_shared_operand_read_bytes": 1073741824,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 13,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 80,
+      "base_add": 52,
+      "base_sub": 56
+    },
+    "logical_shared_operand_read_bytes": 512,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 13,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 640,
+      "base_add": 416,
+      "base_sub": 448
+    },
+    "logical_shared_operand_read_bytes": 4096,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 13,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 40960,
+      "base_add": 26624,
+      "base_sub": 28672
+    },
+    "logical_shared_operand_read_bytes": 262144,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 13,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 20971520,
+      "base_add": 13631488,
+      "base_sub": 14680064
+    },
+    "logical_shared_operand_read_bytes": 134217728,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": false,
+    "pad_nonzero": 0,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 13,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 167772160,
+      "base_add": 109051904,
+      "base_sub": 117440512
+    },
+    "logical_shared_operand_read_bytes": 1073741824,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 40,
+      "base_add": 84,
+      "base_sub": 56
+    },
+    "raw_round0_primitives": {
+      "base_mul": 160,
+      "base_add": 336,
+      "base_sub": 224
+    },
+    "logical_shared_operand_read_bytes": 1536,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 40,
+      "base_add": 84,
+      "base_sub": 56
+    },
+    "raw_round0_primitives": {
+      "base_mul": 1280,
+      "base_add": 2688,
+      "base_sub": 1792
+    },
+    "logical_shared_operand_read_bytes": 12288,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 40,
+      "base_add": 84,
+      "base_sub": 56
+    },
+    "raw_round0_primitives": {
+      "base_mul": 81920,
+      "base_add": 172032,
+      "base_sub": 114688
+    },
+    "logical_shared_operand_read_bytes": 786432,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 40,
+      "base_add": 84,
+      "base_sub": 56
+    },
+    "raw_round0_primitives": {
+      "base_mul": 41943040,
+      "base_add": 88080384,
+      "base_sub": 58720256
+    },
+    "logical_shared_operand_read_bytes": 402653184,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 40,
+      "base_add": 84,
+      "base_sub": 56
+    },
+    "raw_round0_primitives": {
+      "base_mul": 335544320,
+      "base_add": 704643072,
+      "base_sub": 469762048
+    },
+    "logical_shared_operand_read_bytes": 3221225472,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 26,
+      "base_add": 25,
+      "base_sub": 22
+    },
+    "raw_round0_primitives": {
+      "base_mul": 104,
+      "base_add": 100,
+      "base_sub": 88
+    },
+    "logical_shared_operand_read_bytes": 512,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 26,
+      "base_add": 25,
+      "base_sub": 22
+    },
+    "raw_round0_primitives": {
+      "base_mul": 832,
+      "base_add": 800,
+      "base_sub": 704
+    },
+    "logical_shared_operand_read_bytes": 4096,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 26,
+      "base_add": 25,
+      "base_sub": 22
+    },
+    "raw_round0_primitives": {
+      "base_mul": 53248,
+      "base_add": 51200,
+      "base_sub": 45056
+    },
+    "logical_shared_operand_read_bytes": 262144,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 26,
+      "base_add": 25,
+      "base_sub": 22
+    },
+    "raw_round0_primitives": {
+      "base_mul": 27262976,
+      "base_add": 26214400,
+      "base_sub": 23068672
+    },
+    "logical_shared_operand_read_bytes": 134217728,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 26,
+      "base_add": 25,
+      "base_sub": 22
+    },
+    "raw_round0_primitives": {
+      "base_mul": 218103808,
+      "base_add": 209715200,
+      "base_sub": 184549376
+    },
+    "logical_shared_operand_read_bytes": 1073741824,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 15,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 80,
+      "base_add": 60,
+      "base_sub": 56
+    },
+    "logical_shared_operand_read_bytes": 512,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 15,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 640,
+      "base_add": 480,
+      "base_sub": 448
+    },
+    "logical_shared_operand_read_bytes": 4096,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 15,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 40960,
+      "base_add": 30720,
+      "base_sub": 28672
+    },
+    "logical_shared_operand_read_bytes": 262144,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 15,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 20971520,
+      "base_add": 15728640,
+      "base_sub": 14680064
+    },
+    "logical_shared_operand_read_bytes": 134217728,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 0,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 20,
+      "base_add": 15,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 167772160,
+      "base_add": 125829120,
+      "base_sub": 117440512
+    },
+    "logical_shared_operand_read_bytes": 1073741824,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 46,
+      "base_add": 102,
+      "base_sub": 62
+    },
+    "raw_round0_primitives": {
+      "base_mul": 184,
+      "base_add": 408,
+      "base_sub": 248
+    },
+    "logical_shared_operand_read_bytes": 1728,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 46,
+      "base_add": 102,
+      "base_sub": 62
+    },
+    "raw_round0_primitives": {
+      "base_mul": 1472,
+      "base_add": 3264,
+      "base_sub": 1984
+    },
+    "logical_shared_operand_read_bytes": 13824,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 46,
+      "base_add": 102,
+      "base_sub": 62
+    },
+    "raw_round0_primitives": {
+      "base_mul": 94208,
+      "base_add": 208896,
+      "base_sub": 126976
+    },
+    "logical_shared_operand_read_bytes": 884736,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 46,
+      "base_add": 102,
+      "base_sub": 62
+    },
+    "raw_round0_primitives": {
+      "base_mul": 48234496,
+      "base_add": 106954752,
+      "base_sub": 65011712
+    },
+    "logical_shared_operand_read_bytes": 452984832,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 46,
+      "base_add": 102,
+      "base_sub": 62
+    },
+    "raw_round0_primitives": {
+      "base_mul": 385875968,
+      "base_add": 855638016,
+      "base_sub": 520093696
+    },
+    "logical_shared_operand_read_bytes": 3623878656,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 32,
+      "base_add": 43,
+      "base_sub": 28
+    },
+    "raw_round0_primitives": {
+      "base_mul": 128,
+      "base_add": 172,
+      "base_sub": 112
+    },
+    "logical_shared_operand_read_bytes": 704,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 32,
+      "base_add": 43,
+      "base_sub": 28
+    },
+    "raw_round0_primitives": {
+      "base_mul": 1024,
+      "base_add": 1376,
+      "base_sub": 896
+    },
+    "logical_shared_operand_read_bytes": 5632,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 32,
+      "base_add": 43,
+      "base_sub": 28
+    },
+    "raw_round0_primitives": {
+      "base_mul": 65536,
+      "base_add": 88064,
+      "base_sub": 57344
+    },
+    "logical_shared_operand_read_bytes": 360448,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 32,
+      "base_add": 43,
+      "base_sub": 28
+    },
+    "raw_round0_primitives": {
+      "base_mul": 33554432,
+      "base_add": 45088768,
+      "base_sub": 29360128
+    },
+    "logical_shared_operand_read_bytes": 184549376,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 32,
+      "base_add": 43,
+      "base_sub": 28
+    },
+    "raw_round0_primitives": {
+      "base_mul": 268435456,
+      "base_add": 360710144,
+      "base_sub": 234881024
+    },
+    "logical_shared_operand_read_bytes": 1476395008,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 24,
+      "base_add": 19,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 96,
+      "base_add": 76,
+      "base_sub": 56
+    },
+    "logical_shared_operand_read_bytes": 576,
+    "host_preweight_fp2_products": 1,
+    "added_parameter_bytes": 16,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 24,
+      "base_add": 19,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 768,
+      "base_add": 608,
+      "base_sub": 448
+    },
+    "logical_shared_operand_read_bytes": 4608,
+    "host_preweight_fp2_products": 1,
+    "added_parameter_bytes": 16,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 24,
+      "base_add": 19,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 49152,
+      "base_add": 38912,
+      "base_sub": 28672
+    },
+    "logical_shared_operand_read_bytes": 294912,
+    "host_preweight_fp2_products": 1,
+    "added_parameter_bytes": 16,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 24,
+      "base_add": 19,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 25165824,
+      "base_add": 19922944,
+      "base_sub": 14680064
+    },
+    "logical_shared_operand_read_bytes": 150994944,
+    "host_preweight_fp2_products": 1,
+    "added_parameter_bytes": 16,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 1,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 24,
+      "base_add": 19,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 201326592,
+      "base_add": 159383552,
+      "base_sub": 117440512
+    },
+    "logical_shared_operand_read_bytes": 1207959552,
+    "host_preweight_fp2_products": 1,
+    "added_parameter_bytes": 16,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 58,
+      "base_add": 138,
+      "base_sub": 74
+    },
+    "raw_round0_primitives": {
+      "base_mul": 232,
+      "base_add": 552,
+      "base_sub": 296
+    },
+    "logical_shared_operand_read_bytes": 2112,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 58,
+      "base_add": 138,
+      "base_sub": 74
+    },
+    "raw_round0_primitives": {
+      "base_mul": 1856,
+      "base_add": 4416,
+      "base_sub": 2368
+    },
+    "logical_shared_operand_read_bytes": 16896,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 58,
+      "base_add": 138,
+      "base_sub": 74
+    },
+    "raw_round0_primitives": {
+      "base_mul": 118784,
+      "base_add": 282624,
+      "base_sub": 151552
+    },
+    "logical_shared_operand_read_bytes": 1081344,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 58,
+      "base_add": 138,
+      "base_sub": 74
+    },
+    "raw_round0_primitives": {
+      "base_mul": 60817408,
+      "base_add": 144703488,
+      "base_sub": 77594624
+    },
+    "logical_shared_operand_read_bytes": 553648128,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 58,
+      "base_add": 138,
+      "base_sub": 74
+    },
+    "raw_round0_primitives": {
+      "base_mul": 486539264,
+      "base_add": 1157627904,
+      "base_sub": 620756992
+    },
+    "logical_shared_operand_read_bytes": 4429185024,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 44,
+      "base_add": 79,
+      "base_sub": 40
+    },
+    "raw_round0_primitives": {
+      "base_mul": 176,
+      "base_add": 316,
+      "base_sub": 160
+    },
+    "logical_shared_operand_read_bytes": 1088,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 44,
+      "base_add": 79,
+      "base_sub": 40
+    },
+    "raw_round0_primitives": {
+      "base_mul": 1408,
+      "base_add": 2528,
+      "base_sub": 1280
+    },
+    "logical_shared_operand_read_bytes": 8704,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 44,
+      "base_add": 79,
+      "base_sub": 40
+    },
+    "raw_round0_primitives": {
+      "base_mul": 90112,
+      "base_add": 161792,
+      "base_sub": 81920
+    },
+    "logical_shared_operand_read_bytes": 557056,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 44,
+      "base_add": 79,
+      "base_sub": 40
+    },
+    "raw_round0_primitives": {
+      "base_mul": 46137344,
+      "base_add": 82837504,
+      "base_sub": 41943040
+    },
+    "logical_shared_operand_read_bytes": 285212672,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 44,
+      "base_add": 79,
+      "base_sub": 40
+    },
+    "raw_round0_primitives": {
+      "base_mul": 369098752,
+      "base_add": 662700032,
+      "base_sub": 335544320
+    },
+    "logical_shared_operand_read_bytes": 2281701376,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 32,
+      "base_add": 27,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 128,
+      "base_add": 108,
+      "base_sub": 56
+    },
+    "logical_shared_operand_read_bytes": 704,
+    "host_preweight_fp2_products": 3,
+    "added_parameter_bytes": 48,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 32,
+      "base_add": 27,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 1024,
+      "base_add": 864,
+      "base_sub": 448
+    },
+    "logical_shared_operand_read_bytes": 5632,
+    "host_preweight_fp2_products": 3,
+    "added_parameter_bytes": 48,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 32,
+      "base_add": 27,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 65536,
+      "base_add": 55296,
+      "base_sub": 28672
+    },
+    "logical_shared_operand_read_bytes": 360448,
+    "host_preweight_fp2_products": 3,
+    "added_parameter_bytes": 48,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 32,
+      "base_add": 27,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 33554432,
+      "base_add": 28311552,
+      "base_sub": 14680064
+    },
+    "logical_shared_operand_read_bytes": 184549376,
+    "host_preweight_fp2_products": 3,
+    "added_parameter_bytes": 48,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 3,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 32,
+      "base_add": 27,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 268435456,
+      "base_add": 226492416,
+      "base_sub": 117440512
+    },
+    "logical_shared_operand_read_bytes": 1476395008,
+    "host_preweight_fp2_products": 3,
+    "added_parameter_bytes": 48,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 88,
+      "base_add": 228,
+      "base_sub": 104
+    },
+    "raw_round0_primitives": {
+      "base_mul": 352,
+      "base_add": 912,
+      "base_sub": 416
+    },
+    "logical_shared_operand_read_bytes": 3072,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 88,
+      "base_add": 228,
+      "base_sub": 104
+    },
+    "raw_round0_primitives": {
+      "base_mul": 2816,
+      "base_add": 7296,
+      "base_sub": 3328
+    },
+    "logical_shared_operand_read_bytes": 24576,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 88,
+      "base_add": 228,
+      "base_sub": 104
+    },
+    "raw_round0_primitives": {
+      "base_mul": 180224,
+      "base_add": 466944,
+      "base_sub": 212992
+    },
+    "logical_shared_operand_read_bytes": 1572864,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 88,
+      "base_add": 228,
+      "base_sub": 104
+    },
+    "raw_round0_primitives": {
+      "base_mul": 92274688,
+      "base_add": 239075328,
+      "base_sub": 109051904
+    },
+    "logical_shared_operand_read_bytes": 805306368,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 88,
+      "base_add": 228,
+      "base_sub": 104
+    },
+    "raw_round0_primitives": {
+      "base_mul": 738197504,
+      "base_add": 1912602624,
+      "base_sub": 872415232
+    },
+    "logical_shared_operand_read_bytes": 6442450944,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 74,
+      "base_add": 169,
+      "base_sub": 70
+    },
+    "raw_round0_primitives": {
+      "base_mul": 296,
+      "base_add": 676,
+      "base_sub": 280
+    },
+    "logical_shared_operand_read_bytes": 2048,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 74,
+      "base_add": 169,
+      "base_sub": 70
+    },
+    "raw_round0_primitives": {
+      "base_mul": 2368,
+      "base_add": 5408,
+      "base_sub": 2240
+    },
+    "logical_shared_operand_read_bytes": 16384,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 74,
+      "base_add": 169,
+      "base_sub": 70
+    },
+    "raw_round0_primitives": {
+      "base_mul": 151552,
+      "base_add": 346112,
+      "base_sub": 143360
+    },
+    "logical_shared_operand_read_bytes": 1048576,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 74,
+      "base_add": 169,
+      "base_sub": 70
+    },
+    "raw_round0_primitives": {
+      "base_mul": 77594624,
+      "base_add": 177209344,
+      "base_sub": 73400320
+    },
+    "logical_shared_operand_read_bytes": 536870912,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 74,
+      "base_add": 169,
+      "base_sub": 70
+    },
+    "raw_round0_primitives": {
+      "base_mul": 620756992,
+      "base_add": 1417674752,
+      "base_sub": 587202560
+    },
+    "logical_shared_operand_read_bytes": 4294967296,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 52,
+      "base_add": 47,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 208,
+      "base_add": 188,
+      "base_sub": 56
+    },
+    "logical_shared_operand_read_bytes": 1024,
+    "host_preweight_fp2_products": 8,
+    "added_parameter_bytes": 128,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 52,
+      "base_add": 47,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 1664,
+      "base_add": 1504,
+      "base_sub": 448
+    },
+    "logical_shared_operand_read_bytes": 8192,
+    "host_preweight_fp2_products": 8,
+    "added_parameter_bytes": 128,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 52,
+      "base_add": 47,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 106496,
+      "base_add": 96256,
+      "base_sub": 28672
+    },
+    "logical_shared_operand_read_bytes": 524288,
+    "host_preweight_fp2_products": 8,
+    "added_parameter_bytes": 128,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 52,
+      "base_add": 47,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 54525952,
+      "base_add": 49283072,
+      "base_sub": 14680064
+    },
+    "logical_shared_operand_read_bytes": 268435456,
+    "host_preweight_fp2_products": 8,
+    "added_parameter_bytes": 128,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 8,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 52,
+      "base_add": 47,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 436207616,
+      "base_add": 394264576,
+      "base_sub": 117440512
+    },
+    "logical_shared_operand_read_bytes": 2147483648,
+    "host_preweight_fp2_products": 8,
+    "added_parameter_bytes": 128,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 106,
+      "base_add": 282,
+      "base_sub": 122
+    },
+    "raw_round0_primitives": {
+      "base_mul": 424,
+      "base_add": 1128,
+      "base_sub": 488
+    },
+    "logical_shared_operand_read_bytes": 3648,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 106,
+      "base_add": 282,
+      "base_sub": 122
+    },
+    "raw_round0_primitives": {
+      "base_mul": 3392,
+      "base_add": 9024,
+      "base_sub": 3904
+    },
+    "logical_shared_operand_read_bytes": 29184,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 106,
+      "base_add": 282,
+      "base_sub": 122
+    },
+    "raw_round0_primitives": {
+      "base_mul": 217088,
+      "base_add": 577536,
+      "base_sub": 249856
+    },
+    "logical_shared_operand_read_bytes": 1867776,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 106,
+      "base_add": 282,
+      "base_sub": 122
+    },
+    "raw_round0_primitives": {
+      "base_mul": 111149056,
+      "base_add": 295698432,
+      "base_sub": 127926272
+    },
+    "logical_shared_operand_read_bytes": 956301312,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "literal",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 106,
+      "base_add": 282,
+      "base_sub": 122
+    },
+    "raw_round0_primitives": {
+      "base_mul": 889192448,
+      "base_add": 2365587456,
+      "base_sub": 1023410176
+    },
+    "logical_shared_operand_read_bytes": 7650410496,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 92,
+      "base_add": 223,
+      "base_sub": 88
+    },
+    "raw_round0_primitives": {
+      "base_mul": 368,
+      "base_add": 892,
+      "base_sub": 352
+    },
+    "logical_shared_operand_read_bytes": 2624,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 92,
+      "base_add": 223,
+      "base_sub": 88
+    },
+    "raw_round0_primitives": {
+      "base_mul": 2944,
+      "base_add": 7136,
+      "base_sub": 2816
+    },
+    "logical_shared_operand_read_bytes": 20992,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 92,
+      "base_add": 223,
+      "base_sub": 88
+    },
+    "raw_round0_primitives": {
+      "base_mul": 188416,
+      "base_add": 456704,
+      "base_sub": 180224
+    },
+    "logical_shared_operand_read_bytes": 1343488,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 92,
+      "base_add": 223,
+      "base_sub": 88
+    },
+    "raw_round0_primitives": {
+      "base_mul": 96468992,
+      "base_add": 233832448,
+      "base_sub": 92274688
+    },
+    "logical_shared_operand_read_bytes": 687865856,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "gl_only",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 92,
+      "base_add": 223,
+      "base_sub": 88
+    },
+    "raw_round0_primitives": {
+      "base_mul": 771751936,
+      "base_add": 1870659584,
+      "base_sub": 738197504
+    },
+    "logical_shared_operand_read_bytes": 5502926848,
+    "host_preweight_fp2_products": 0,
+    "added_parameter_bytes": 0,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 3,
+    "entries": 8,
+    "per_pair": {
+      "base_mul": 64,
+      "base_add": 59,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 256,
+      "base_add": 236,
+      "base_sub": 56
+    },
+    "logical_shared_operand_read_bytes": 1216,
+    "host_preweight_fp2_products": 11,
+    "added_parameter_bytes": 176,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 6,
+    "entries": 64,
+    "per_pair": {
+      "base_mul": 64,
+      "base_add": 59,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 2048,
+      "base_add": 1888,
+      "base_sub": 448
+    },
+    "logical_shared_operand_read_bytes": 9728,
+    "host_preweight_fp2_products": 11,
+    "added_parameter_bytes": 176,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 12,
+    "entries": 4096,
+    "per_pair": {
+      "base_mul": 64,
+      "base_add": 59,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 131072,
+      "base_add": 120832,
+      "base_sub": 28672
+    },
+    "logical_shared_operand_read_bytes": 622592,
+    "host_preweight_fp2_products": 11,
+    "added_parameter_bytes": 176,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 21,
+    "entries": 2097152,
+    "per_pair": {
+      "base_mul": 64,
+      "base_add": 59,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 67108864,
+      "base_add": 61865984,
+      "base_sub": 14680064
+    },
+    "logical_shared_operand_read_bytes": 318767104,
+    "host_preweight_fp2_products": 11,
+    "added_parameter_bytes": 176,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  },
+  {
+    "mode": "full_base",
+    "support": true,
+    "pad_nonzero": 11,
+    "n": 24,
+    "entries": 16777216,
+    "per_pair": {
+      "base_mul": 64,
+      "base_add": 59,
+      "base_sub": 14
+    },
+    "raw_round0_primitives": {
+      "base_mul": 536870912,
+      "base_add": 494927872,
+      "base_sub": 117440512
+    },
+    "logical_shared_operand_read_bytes": 2550136832,
+    "host_preweight_fp2_products": 11,
+    "added_parameter_bytes": 176,
+    "global_bytes_saved": 0,
+    "capacity_bytes_saved": 0,
+    "extra_barriers": 0,
+    "scope": "derived phase1b only; includes high stores; source calls not compiled instructions"
+  }
+]

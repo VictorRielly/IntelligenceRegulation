@@ -1,0 +1,272 @@
+[
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/README.md",
+    "sha256": "b0b0c594c32006a7999859a45fb5fea8eee6b867df2c1237f92a3582e166eb4b",
+    "bytes": 6597
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/artifact_audit.py",
+    "sha256": "826d1ff883dd565384382b42741b55bab496dcc91d733685112116fc415e4bd6",
+    "bytes": 4337
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/audit.py",
+    "sha256": "bd5b4e21f18441210c15460406eec44da540de4f4fc8c10ec3da0f67f48ce2f1",
+    "bytes": 4464
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/audit.py.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/audit.py.stdout",
+    "sha256": "1865aa679675fd1dac298eb1c28616420ed7ff512b7d42e9c6c4e2b12c190542",
+    "bytes": 525
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/boundary-cases.json",
+    "sha256": "b893fac88c5f651ba6fadad01f1171687e9a62f640ab390d7fd143725a6da11b",
+    "bytes": 14731
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/candidate_fold_pack.cuh",
+    "sha256": "451e5ef211f549493a04dc6a7bd46bc7c136342b2360f4abf14dea27da3aef87",
+    "bytes": 868
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/cases.json",
+    "sha256": "ce8f2f5531b9f842c35b45f3e9c5335e6f6dfa6ad4f829b0458e6b1a6113b66c",
+    "bytes": 21215
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/census-result.json",
+    "sha256": "c93044aaac744697b541a672733a6f08c6d1f0edf015028b24fcb89ef51cbee1",
+    "bytes": 296
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/census.py",
+    "sha256": "4ca29cbdce6300108b9cf41e69fdc7d9c6ef11610a7ecf36ba6e4200c414eff7",
+    "bytes": 2623
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/census.py.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/census.py.stdout",
+    "sha256": "3fcc3b3f329c38611d65fff615162eefc0b84cf810ddca1816cc05e9a52d3552",
+    "bytes": 6845
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/finalize_reports.py",
+    "sha256": "0cf96b530ba95b11c3f9e1aa1bea74632828c8874dffa84edff28dc5c375daf7",
+    "bytes": 14756
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/fixtures.json",
+    "sha256": "38684ea00fa18e9235bf209246b4ffcf993dc6c9031a29c5a49adf6845b0b11a",
+    "bytes": 269596
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/hardware.json",
+    "sha256": "5460a76eceab85c4b436f2ce825ba4ae56909f5ddf2fd83ccf08f830fc5b2276",
+    "bytes": 385
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/hypotheses.json",
+    "sha256": "d9de9f01f524533999018778a16b774deeeab6d4cba08f85378dc0ffc31666b2",
+    "bytes": 56215
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/illustrative-f21.json",
+    "sha256": "29d87028f068b8ddc3098c254c6e5a19c58111453fd53bccf29b59507d4341e6",
+    "bytes": 6563
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/prior_fzc_model.py",
+    "sha256": "e72661099c934b4cadb82a9db989d746e0022a372f30993db00142d9df9b3678",
+    "bytes": 12013
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/probe.py",
+    "sha256": "74e00c20f4de9ce5f6b2dfb7108f51d249392fb150cab614565f18278f440b56",
+    "bytes": 5923
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/probe.py.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/probe.py.stdout",
+    "sha256": "94debca4bc802fcbd12cd9d1b74a88a3449d1d13d29119c81f08b1248c0d8778",
+    "bytes": 596
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/reference.py",
+    "sha256": "11e8cbbe360aa762f4f331c7727d49727a46fed04f0818b41afdda0a88ce1223",
+    "bytes": 2739
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/result.json",
+    "sha256": "f35b80ca781515104802dd1c11c4310f31508166db222ab6eda0538a8b567686",
+    "bytes": 658
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/rotation.json",
+    "sha256": "3ff8dc6c2a35c6c9a3d8b14be27e7ee3fbde7ba91891f6e959582ce41c881470",
+    "bytes": 398
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/run_bounded.py",
+    "sha256": "299ef17f91aa2f80a86f1dbd975d65fafa67be6fe9668c27e94409c8ee615f21",
+    "bytes": 1360
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/schedules.json",
+    "sha256": "6d72deee2e909887290c1e5a5851ca4bb14dac1dd437faaed78fe93690bcb900",
+    "bytes": 3875939
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/search-log.json",
+    "sha256": "1042fd3b2716c05c89540d90039b747335b8e04ab844cd08b5e4c64ef03fd78a",
+    "bytes": 1518
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/source/hashline__src__gpu__cuda.rs",
+    "sha256": "a0ed0b3af7e38bd9a842cc0c024f9c12cc988c81fa586d2e4a67d5c7c5c11e9d",
+    "bytes": 202179
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/source/hashline__src__gpu__kernels.cu",
+    "sha256": "bd00229fd61e86ae2bc0e037d5fa9cd90acc8a8a0f0fbf5583d501d2caf7b6aa",
+    "bytes": 74107
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/source/ops__zkp-mvp__gpu-zerocheck__hashline__src__gpu__cuda.rs",
+    "sha256": "dcc0e4bcd76c009827d30d8b1547e043118619948f59e63e75b132c5e6a38629",
+    "bytes": 258588
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/source/ops__zkp-mvp__gpu-zerocheck__hashline__src__gpu__fzc.rs",
+    "sha256": "af3cd6ac97f85347ed95ebac732c920a18ab921013be3ec31657e28cfb35ecc1",
+    "bytes": 15913
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/source/ops__zkp-mvp__gpu-zerocheck__hashline__src__gpu__fzc_kernels.cu",
+    "sha256": "7109e9cbba958876db03f538715258d07d2976c12b3959a293d2371c64bf356e",
+    "bytes": 50114
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/source/ops__zkp-mvp__gpu-zerocheck__hashline__src__gpu__kernels.cu",
+    "sha256": "4b27e23f2a880a7d67597d7cd2de59799b1c0068a52b2ce9abdbfa8108b0dc2a",
+    "bytes": 79413
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/source/ops__zkp-mvp__gpu-zerocheck__zkp-core__src__field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/source/ops__zkp-mvp__gpu-zerocheck__zkp-core__src__sumcheck__rounds.rs",
+    "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df",
+    "bytes": 7092
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/source/zkp-core__src__field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/source-pins.json",
+    "sha256": "724a8ac64c0c64a2d4aa567a9df02a2c10e277b97d190807599371bd2c54a54b",
+    "bytes": 3112
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/source-records.json",
+    "sha256": "5640b026ce1de6484f3f4f7dc44effb3945030f369a57b663757ceb0dd3c5823",
+    "bytes": 10855
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/startup/AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/startup/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/startup/FINDINGS.md",
+    "sha256": "5b7f48e20575c67ac9dea2e9fe7eb8788b58fe163ea1c707c074478660670eb4",
+    "bytes": 847375
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/startup/MVP_STATUS.md",
+    "sha256": "a194e1ece91f8d99a8fe25e6c3cac11f288c0882e783a07bacf1506b3eb240fd",
+    "bytes": 85866
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/startup/PROGRESS.md",
+    "sha256": "906dfc1daa651cc1dc9c4c0633f2d53dd2f2cedc6578d5ef95dd3f58436978f2",
+    "bytes": 2188
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/startup/STATE.md",
+    "sha256": "75b1c8f6d24d11bb2f2fe9496e51fc6d34b8d9e37a9d375a6a3ee678391b831d",
+    "bytes": 4626
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/startup/ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/startup/ZK60_DECISIONS.md",
+    "sha256": "71520b4461591e2622f22ca95a39baffbd707bc6b9a9d332c2a5d9d27941afa3",
+    "bytes": 107528
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/startup/ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/startup/sources.jsonl",
+    "sha256": "0c6aac2ec2978e54aaa03868f067f76ccd083c83c54b8841270f4f9af2f263df",
+    "bytes": 903587
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/startup-pins.json",
+    "sha256": "5c08860b4ccdb95073c66d9ccb1724bb8fdb224494c376f51b4f2346f5af8c77",
+    "bytes": 1962
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/tail.py",
+    "sha256": "9484413d6db7501ffd18bed655e5898afb4b987889aa17afa520c2444d42fb58",
+    "bytes": 4096
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/target-accounting.json",
+    "sha256": "dc28f49317976fbeb55aee65b1216f80a6af4d79e3f5af63d204f137b102c842",
+    "bytes": 451
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/validation-result.json",
+    "sha256": "dcd957c6d4fbc6b0ead9faea8249b0d059fdc654934871d403d82ff8e814648c",
+    "bytes": 573
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/web-access-log.json",
+    "sha256": "ddaaddf9d0d89d40628e86e0bb8616fa8a736aee4363654a2a8ee12b68bdfd1c",
+    "bytes": 10537
+  },
+  {
+    "path": "experiments/fzc-tail-boundary-20261021/write_reports.py",
+    "sha256": "4e46f8673f733fc4c1a81db9e38b64ad962ff2e9ed94dd4850b4bb978177ccef",
+    "bytes": 25402
+  }
+]

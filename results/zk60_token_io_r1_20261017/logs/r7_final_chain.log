@@ -1,0 +1,9 @@
+[zk60-guard 11:23:04] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 11:24:04] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 11:25:04] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 11:25:43] START tio-cap-llama3-8b-t32-L2-dense-pt1 class=cpu need=4.5G cap=6.5G enforce=cgroup+watchdog waited=159s run=093176476b01
+[zk60-guard 11:26:42] END tio-cap-llama3-8b-t32-L2-dense-pt1 exit=0 child_wall=59s peak_rss=3.53G min_avail=8.90G
+[zk60-guard 11:26:42] START tio-cap-llama3-8b-t32-L2-fixed-pt1 class=cpu need=4.5G cap=6.5G enforce=cgroup+watchdog waited=0s run=7b5652a5d58a
+[zk60-guard 11:27:39] END tio-cap-llama3-8b-t32-L2-fixed-pt1 exit=0 child_wall=57s peak_rss=3.52G min_avail=9.05G
+[zk60-guard 11:27:40] START tio-s10-suite class=cpu need=6.5G cap=8G enforce=cgroup+watchdog waited=0s run=457e78e2b9bf
+[zk60-guard 11:43:00] END tio-s10-suite exit=101 child_wall=921s peak_rss=6.24G min_avail=5.55G

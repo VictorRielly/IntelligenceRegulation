@@ -1,0 +1,2 @@
+build_tl_aex|2|1|tinyllama|fp_variant.py --variant dg --window qkv:16,g:16,z:16 --sh-u --up-margin 3 --name tl_dg_aex
+var_aex|2.5|1|tinyllama|fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/tl_dg_aex --corpora fineweb:48,wikitext:48 --tag var_aex

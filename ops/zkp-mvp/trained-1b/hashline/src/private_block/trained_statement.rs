@@ -146,12 +146,34 @@ impl ModelSource {
         }
     }
 
+    /// **NATIVE R12 (D38): the pinned Shieldstral-1.0-3B source** (the HF API
+    /// and the files at revision 003ec7e2b0bab5f0e6307edbaf186fa5822b76f5,
+    /// read 2026-10-21; copies under `results/zk60_1b_native_20261017/r12/
+    /// reference/`): `model.safetensors` (the transformers-format single
+    /// file; LFS SHA-256 below), `config.json` (SHA-256 of its 1,654 bytes,
+    /// git blob 87bb9aef...), 3,849,090,048 parameters (the checkpoint's own
+    /// count, the Pixtral image tower included; only the 26 text layers are
+    /// proved, D38 (a))
+    pub(crate) fn shieldstral_1_0_3b() -> ModelSource {
+        ModelSource {
+            kind: SourceKind::HfCheckpoint,
+            repo: "mistralai/Shieldstral-1.0-3B".into(),
+            revision: "003ec7e2b0bab5f0e6307edbaf186fa5822b76f5".into(),
+            weights_sha256: hex32("87753e30c8c321da478b83bbabebcd813cc9b3d0cee5c5b3d64349a8ee4172f7"),
+            config_sha256: hex32("a0b1122916b629ab9c3b54a422476e3f4bf4f2b66353a82c43c349c4fe2257ad"),
+            checkpoint_parameters: 3_849_090_048,
+            checkpoint_layers: 26,
+        }
+    }
+
     /// the pinned source a trained-model profile carries, if it has one
     pub(crate) fn pinned_for_profile(profile: &str) -> Option<ModelSource> {
-        if super::shape::TINYLLAMA_TRAINED_PROFILES.contains(&profile) {
+        if super::shape::TINYLLAMA_TRAINED_PROFILES.contains(&profile) || super::shape::TINYLLAMA_DD_PROFILES.contains(&profile) {
             Some(ModelSource::tinyllama_chat_v1_0())
-        } else if super::shape::LLAMA3_8B_TRAINED_PROFILES.contains(&profile) {
+        } else if super::shape::LLAMA3_8B_TRAINED_PROFILES.contains(&profile) || super::shape::LLAMA3_8B_DD_PROFILES.contains(&profile) {
             Some(ModelSource::llama3_8b())
+        } else if super::shape::SHIELDSTRAL_PROFILES.contains(&profile) {
+            Some(ModelSource::shieldstral_1_0_3b())
         } else {
             None
         }
@@ -222,6 +244,12 @@ pub(crate) struct IntegerCalibration {
     /// SiLU member and the exp `e_s` moved to [`LayerRecord`], because an
     /// export may choose them per layer (they are per-block public tables)
     pub rope_theta_f64_bits: u64,
+    /// **NATIVE R12 (F1): the RoPE frequency transform**, as its canonical
+    /// bytes ([`super::rope::RopeScaling::encode`]; `b"none"` before R12). A
+    /// model fact pinned per profile, like the base; encoded in the statement
+    /// ONLY when it is not `none`, so every statement before R12 keeps its
+    /// bytes.
+    pub rope_scaling: Vec<u8>,
 }
 
 /// The out-of-relation provenance a calibration record carries (none of it is
@@ -235,6 +263,8 @@ pub(crate) struct Provenance {
     pub export_profile_sha256: [u8; 32],
     pub calibration_tool_sha256: [u8; 32],
     pub rope_theta: f64,
+    /// NATIVE R12 (F1)
+    pub rope_scaling: super::rope::RopeScaling,
 }
 
 impl Provenance {
@@ -250,6 +280,7 @@ impl Provenance {
             export_profile_sha256: [0; 32],
             calibration_tool_sha256: [0; 32],
             rope_theta: 10000.0,
+            rope_scaling: super::rope::RopeScaling::None,
         }
     }
 }
@@ -290,6 +321,7 @@ impl IntegerCalibration {
             export_profile_sha256: prov.export_profile_sha256,
             calibration_tool_sha256: prov.calibration_tool_sha256,
             rope_theta_f64_bits: prov.rope_theta.to_bits(),
+            rope_scaling: prov.rope_scaling.encode(),
         }
     }
 
@@ -303,6 +335,7 @@ impl IntegerCalibration {
             export_profile_sha256: self.export_profile_sha256,
             calibration_tool_sha256: self.calibration_tool_sha256,
             rope_theta: f64::from_bits(self.rope_theta_f64_bits),
+            rope_scaling: super::rope::RopeScaling::decode(&self.rope_scaling).unwrap_or(super::rope::RopeScaling::None),
         }
     }
 
@@ -332,6 +365,14 @@ impl IntegerCalibration {
             if self.rope_theta_f64_bits != want.to_bits() {
                 return Err(format!("trained statement: the RoPE base {} is not the profile's {want}", f64::from_bits(self.rope_theta_f64_bits)));
             }
+            // NATIVE R12 (F1): so is the frequency transform
+            let pin = super::shape::trained_rope_scaling(sh.profile).ok_or("trained statement: a trained shape with no pinned RoPE transform")?;
+            if self.rope_scaling != pin.encode() {
+                let got = super::rope::RopeScaling::decode(&self.rope_scaling).map(|r| r.describe()).unwrap_or_else(|_| "an unreadable encoding".into());
+                return Err(format!("trained statement: the RoPE transform {got} is not the profile's {}", pin.describe()));
+            }
+        } else if super::rope::RopeScaling::decode(&self.rope_scaling) != Ok(super::rope::RopeScaling::None) {
+            return Err("trained statement: a RoPE transform at a profile that pins none".into());
         }
         Ok(())
     }
@@ -492,6 +533,46 @@ impl LayerRecord {
     }
 }
 
+/// **NATIVE R12 (F3, D38): a TIED embedding / output head.** The model's
+/// embedding table and its output head are ONE published tensor
+/// (`tie_word_embeddings`); the run's integer embedding table and integer head
+/// may be different quantisations of it (the embedding int16 rows, the head
+/// int8 rows with per-row multipliers), and BOTH are bound here to that one
+/// tensor's digest. R12b's export loader recomputes their bytes from the
+/// authenticated checkpoint before constructing this record. The token
+/// stages require their own relations and checks; a declaration alone does
+/// not establish a tie. Present
+/// exactly at a profile whose model is tied (Shieldstral), absent everywhere
+/// else, so no statement before R12 moves.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct TiedEmbedding {
+    /// the tensor's name in the pinned weights file
+    pub tensor: String,
+    /// SHA-256 of the tensor's raw bytes in the pinned weights file
+    pub tensor_sha256: [u8; 32],
+    /// SHA-256 of the integer embedding table the token stage reads
+    pub embedding_table_sha256: [u8; 32],
+    /// SHA-256 of the integer head rows and of their per-row multipliers
+    pub head_table_sha256: [u8; 32],
+    pub head_mult_sha256: [u8; 32],
+}
+
+/// **NATIVE R12 (F3): the pinned tied tensor of a profile** — its name and
+/// the SHA-256 of its raw bytes in the pinned weights file, a model fact
+/// (Shieldstral: `language_model.model.embed_tokens.weight`, BF16 [131072,
+/// 3072], bytes [61008, 805367376) of `model.safetensors` at the pinned
+/// revision, digested on 2026-10-21 by streaming exactly that range); `None`
+/// for an untied model.
+pub(crate) fn tied_tensor_for_profile(profile: &str) -> Option<(&'static str, [u8; 32])> {
+    if super::shape::SHIELDSTRAL_PROFILES.contains(&profile) {
+        Some((SHIELDSTRAL_TIED_TENSOR, hex32(SHIELDSTRAL_TIED_TENSOR_SHA256)))
+    } else {
+        None
+    }
+}
+pub(crate) const SHIELDSTRAL_TIED_TENSOR: &str = "language_model.model.embed_tokens.weight";
+pub(crate) const SHIELDSTRAL_TIED_TENSOR_SHA256: &str = "67a138c1c483b89874526ef523f5f0c30f161808076561730193d1de2093dd19";
+
 /// THE STATEMENT. Built by the importer/calibrator, pinned by whoever
 /// approves the model, handed to the verifier through its trusted policy —
 /// never read from a receipt.
@@ -505,6 +586,8 @@ pub(crate) struct TrainedModelStatement {
     pub calibration: IntegerCalibration,
     pub layers: Vec<LayerRecord>,
     pub coverage: String,
+    /// NATIVE R12 (F3): the tied embedding / head record (tied models only)
+    pub tied: Option<TiedEmbedding>,
     /// re-review R2-b: set ONLY by the test-only constructor
     /// [`TrainedModelStatement::new_synthetic_at_trained_profile_for_tests`];
     /// every other statement, in test builds too, is checked by the strict
@@ -537,6 +620,12 @@ impl Enc {
 
 impl TrainedModelStatement {
     pub(crate) fn new(sh: &Shape, run_profile: &str, source: ModelSource, calibration: IntegerCalibration, layers: Vec<LayerRecord>) -> Result<TrainedModelStatement, String> {
+        Self::new_with_tied(sh, run_profile, source, calibration, layers, None)
+    }
+
+    /// NATIVE R12 (F3): the same with the tied embedding / head record a
+    /// tied model's profile requires (and an untied one refuses)
+    pub(crate) fn new_with_tied(sh: &Shape, run_profile: &str, source: ModelSource, calibration: IntegerCalibration, layers: Vec<LayerRecord>, tied: Option<TiedEmbedding>) -> Result<TrainedModelStatement, String> {
         let st = TrainedModelStatement {
             block_profile: sh.profile.into(),
             run_profile: run_profile.into(),
@@ -545,6 +634,7 @@ impl TrainedModelStatement {
             calibration,
             layers,
             coverage: COVERAGE_D13.into(),
+            tied,
             #[cfg(test)]
             test_synthetic_waiver: false,
         };
@@ -560,6 +650,15 @@ impl TrainedModelStatement {
     /// constructor waives exactly that one rule, in test builds only.
     #[cfg(test)]
     pub(crate) fn new_synthetic_at_trained_profile_for_tests(sh: &Shape, run_profile: &str, source: ModelSource, calibration: IntegerCalibration, layers: Vec<LayerRecord>) -> Result<TrainedModelStatement, String> {
+        // NATIVE R12 (F3): a tied profile's synthetic statement carries a
+        // synthetic tied record under the pinned tensor NAME
+        let tied = tied_tensor_for_profile(sh.profile).map(|(name, _)| TiedEmbedding { tensor: name.into(), tensor_sha256: [7; 32], embedding_table_sha256: [8; 32], head_table_sha256: [9; 32], head_mult_sha256: [10; 32] });
+        Self::new_synthetic_at_trained_profile_for_tests_tied(sh, run_profile, source, calibration, layers, tied)
+    }
+
+    /// **TEST ONLY (R12):** the same with a chosen tied record (or none)
+    #[cfg(test)]
+    pub(crate) fn new_synthetic_at_trained_profile_for_tests_tied(sh: &Shape, run_profile: &str, source: ModelSource, calibration: IntegerCalibration, layers: Vec<LayerRecord>, tied: Option<TiedEmbedding>) -> Result<TrainedModelStatement, String> {
         if source.kind != SourceKind::PublicSyntheticRecipe {
             return Err("trained statement: the test-only constructor takes a synthetic recipe only".into());
         }
@@ -571,6 +670,7 @@ impl TrainedModelStatement {
             calibration,
             layers,
             coverage: COVERAGE_D13.into(),
+            tied,
             test_synthetic_waiver: true,
         };
         st.check_self_with(sh, true)?;
@@ -656,6 +756,25 @@ impl TrainedModelStatement {
         if self.coverage != COVERAGE_D13 {
             return Err("trained statement: the coverage sentence is not the D13 one".into());
         }
+        // NATIVE R12 (F3): a tied model's record, by name; none elsewhere
+        match (tied_tensor_for_profile(&self.block_profile), &self.tied) {
+            (None, None) => {}
+            (None, Some(_)) => return Err(format!("trained statement: {} is an untied model's profile; a tied embedding record is refused", self.block_profile)),
+            (Some((name, _)), None) => return Err(format!("trained statement: {}'s model ties its embedding and head ({name}); the statement must bind both integer tables to that tensor", self.block_profile)),
+            (Some((name, digest)), Some(t)) => {
+                if t.tensor != name {
+                    return Err(format!("trained statement: the tied record names tensor {:?}, not the profile's {name:?}", t.tensor));
+                }
+                if [t.tensor_sha256, t.embedding_table_sha256, t.head_table_sha256, t.head_mult_sha256].contains(&[0u8; 32]) {
+                    return Err("trained statement: a tied record carries a zero digest".into());
+                }
+                // the pinned checkpoint's tensor is the ONE published digest
+                // both tables must name (a synthetic test recipe has no pin)
+                if self.source.kind == SourceKind::HfCheckpoint && t.tensor_sha256 != digest {
+                    return Err(format!("trained statement: the tied tensor's SHA-256 is not the pinned checkpoint's {name}"));
+                }
+            }
+        }
         Ok(())
     }
 
@@ -678,6 +797,14 @@ impl TrainedModelStatement {
         e.field("source-config-sha256", &s.config_sha256);
         e.u64("source-parameters", s.checkpoint_parameters);
         e.u64("source-layers", u64::from(s.checkpoint_layers));
+        // NATIVE R12 (F3): present ONLY for a tied model
+        if let Some(t) = &self.tied {
+            e.field("tied-embedding-tensor", t.tensor.as_bytes());
+            e.field("tied-embedding-tensor-sha256", &t.tensor_sha256);
+            e.field("tied-embedding-table-sha256", &t.embedding_table_sha256);
+            e.field("tied-head-table-sha256", &t.head_table_sha256);
+            e.field("tied-head-mult-sha256", &t.head_mult_sha256);
+        }
         let c = &self.calibration;
         e.field("calibration-label", c.label.as_bytes());
         for (name, v) in [
@@ -714,6 +841,10 @@ impl TrainedModelStatement {
         e.field("export-profile-sha256", &c.export_profile_sha256);
         e.field("calibration-tool-sha256", &c.calibration_tool_sha256);
         e.u64("rope-theta-f64-bits", c.rope_theta_f64_bits);
+        // NATIVE R12 (F1): present ONLY for a scaled RoPE
+        if c.rope_scaling != super::rope::RopeScaling::None.encode() {
+            e.field("rope-scaling", &c.rope_scaling);
+        }
         e.u64("layer-records", self.layers.len() as u64);
         for r in &self.layers {
             e.u64("layer-index", u64::from(r.index));

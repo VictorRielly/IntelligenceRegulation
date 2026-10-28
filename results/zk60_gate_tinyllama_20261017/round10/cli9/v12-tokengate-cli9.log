@@ -1,0 +1,1 @@
+v12-tokengate-cli9: status NOT-OK; false parts ['integrity', 'terminals_new_slots', 'terminals_block_stages', 'joint_preimage']; controls not fired ['TC-10c_R7_run_rs_under_a_token_writer']; 678.1 s; record /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round10/cli9/v12-tokengate-cli9.json

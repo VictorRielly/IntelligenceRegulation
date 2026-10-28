@@ -1,0 +1,67 @@
+{
+  "run_id": "20261026T192925Z-2a61ec3c",
+  "cycle": 127,
+  "status": "complete",
+  "final_checkpoint_utc": "2026-10-26T19:44:02.280925+00:00",
+  "integrity_audit": {
+    "status": "PASS_EVIDENCE_INTEGRITY_ONLY",
+    "checks": 731,
+    "immutable_artifacts": 50,
+    "tested_current_native_pins": 9,
+    "patch_hunks": 2,
+    "prior_sources": 814,
+    "total_sources": 821,
+    "prior_hypotheses": 39,
+    "total_hypotheses": 41,
+    "utc": "2026-10-26T19:43:47.291705+00:00",
+    "elapsed_seconds": 0.03640401901793666,
+    "max_rss_kib": 19380,
+    "native_proofs": 0,
+    "scope": "Artifact preservation and source-pinned in-memory patch only; no native integration or privacy acceptance"
+  },
+  "report_pins": [
+    {
+      "path": "STATE.md",
+      "sha256": "e5ac914bee6dcc51870500bcb199f26bd0b5d6d700ae328ef652dfd7e996e949"
+    },
+    {
+      "path": "PROGRESS.md",
+      "sha256": "3e0ec6b8df4c90a6ff1263e42fbe70f4877b0921f35de2262434bef6d84f6acd"
+    },
+    {
+      "path": "FINDINGS.md",
+      "sha256": "d4230933c37d6ba42b1f37f16ab040b26ff5126d5859da4ed34da2dcdcc68090"
+    },
+    {
+      "path": "sources.jsonl",
+      "sha256": "7791ed8bd812eba328d679db71a38cdaf8979cabca26544ae7b4aa7e5c54ec53"
+    },
+    {
+      "path": "progress/20261026T192925Z-2a61ec3c.md",
+      "sha256": "7f278fa9cdf8cd115f3ec16fbfa01ab90e1acc36408c6792f8d3aff73efc9111"
+    },
+    {
+      "path": "handoffs/20261026-fresh-lookup-row-tiling.md",
+      "sha256": "3d47f92303b305330185aef86f27750dff1838c119458031d87970093ed775c1"
+    }
+  ],
+  "new_independently_verified_full_stack_proofs": 0,
+  "new_complete_model_passes": 0,
+  "new_proved_positions": 0,
+  "actual_model_context": null,
+  "accelerator": null,
+  "cpu": "Intel Core Ultra 9 185H; one bounded worker",
+  "witness_seconds": null,
+  "proof_seconds": null,
+  "serialization_seconds": null,
+  "verification_seconds": null,
+  "startup_seconds": null,
+  "prefill_seconds": null,
+  "startup_fraction": null,
+  "steady_state_positions_per_second": null,
+  "total_workload_positions_per_second": null,
+  "proof_bytes": null,
+  "proof_latency_seconds": null,
+  "elapsed_cycle_seconds": 876.651732,
+  "next_cycle_not_before_utc": "2026-10-26T20:29:25Z"
+}

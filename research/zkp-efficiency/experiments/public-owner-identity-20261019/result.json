@@ -1,0 +1,80 @@
+{
+  "status": "PASS",
+  "run_id": "20261019T171854Z-d589849d",
+  "seed": 2026101985,
+  "checks": 67404,
+  "negative_controls": {
+    "all_descriptor_fields_refuse_cross_identity": true,
+    "complete_key_does_not_detect_mutated_backing_bytes": true,
+    "raw_guard_detects_every_tested_array_mutation": true,
+    "length_manifest_table_rope_mutations_refused": true,
+    "owned_payload_is_immutable_bytes": true,
+    "each_omitted_identity_component_aliases": true,
+    "eviction_does_not_free_borrowed_generation": true,
+    "admission_charges_live_objects_and_stream_reserve": true
+  },
+  "identity_fields": 19,
+  "stale_array_counterexamples": [
+    "wq",
+    "wk",
+    "wv",
+    "wo",
+    "wg",
+    "wu",
+    "wd",
+    "gamma_a",
+    "gamma_m",
+    "exp",
+    "act",
+    "rope_cos",
+    "rope_sin"
+  ],
+  "source_pins": 15,
+  "synthetic_requests": 4800,
+  "pinned4_R8": {
+    "passes": 8,
+    "pins": 4,
+    "requests": 512,
+    "hits": 60,
+    "constructs": 452,
+    "revalidated_raw_bytes": 7380,
+    "raw_read_requests": 512,
+    "pinned_payload_bytes": 973645824,
+    "peak_public_envelope_bytes": 1460468736
+  },
+  "safe_generation_overlap": {
+    "pins": 4,
+    "stream_slots": 2,
+    "borrowed_old_blocks": 2,
+    "budget_blocks": 6,
+    "admitted": 2,
+    "denied": 2,
+    "peak_blocks": 6,
+    "peak_bytes": 1460468736,
+    "within_budget": true
+  },
+  "unsafe_generation_overlap": {
+    "pins": 4,
+    "stream_slots": 2,
+    "borrowed_old_blocks": 2,
+    "budget_blocks": 6,
+    "admitted": 4,
+    "denied": 0,
+    "peak_blocks": 8,
+    "peak_bytes": 1947291648,
+    "within_budget": false
+  },
+  "scope": "Synthetic public-array padding/identity/freshness/lease accounting only. No native CS/H-1/proof/privacy equivalence or cache performance.",
+  "conclusion": "Key-only owner fails streaming source-change refusal semantics. Guarded owner preserves synthetic outcomes but eliminates zero raw reads; only construction is avoided. Lease-aware admission required.",
+  "limits": "59s CPU/wall,512MiB address space;estimated64MiB;one nice19 CPU;no GPU/build/install/foreign code",
+  "wall_seconds": 0.4505384489893913,
+  "rss_kib": 19420,
+  "affinity": [
+    0
+  ],
+  "threads": 1,
+  "nice": 19,
+  "python": "3.10.12",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H"
+}

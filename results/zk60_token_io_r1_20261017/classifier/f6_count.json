@@ -1,0 +1,146 @@
+{
+ "32": {
+  "T": 123,
+  "T_pad": 128,
+  "proved_rows_F6": 33,
+  "proved_pad_F6": 64,
+  "full": {
+   "A_elems": 59932672,
+   "H_elems": 63897600,
+   "u8": 51970048,
+   "exp_pairs": 524288,
+   "receipt_B": 35627480
+  },
+  "F6_lower": {
+   "A_elems": 28524544,
+   "H_elems": 29851648,
+   "u8": 24281088,
+   "exp_pairs": 131072,
+   "receipt_B": 21781688
+  },
+  "F6_S_rect_entries": 262144,
+  "F6_S_lower_entries": 131072,
+  "S_ratio": 2.0,
+  "per_run_blocks": 26
+ },
+ "48": {
+  "T": 139,
+  "T_pad": 256,
+  "proved_rows_F6": 49,
+  "proved_pad_F6": 64,
+  "full": {
+   "A_elems": 135856128,
+   "H_elems": 148897792,
+   "u8": 121765888,
+   "exp_pairs": 2097152,
+   "receipt_B": 63559464
+  },
+  "F6_lower": {
+   "A_elems": 28524544,
+   "H_elems": 29851648,
+   "u8": 24281088,
+   "exp_pairs": 131072,
+   "receipt_B": 21781688
+  },
+  "F6_S_rect_entries": 524288,
+  "F6_S_lower_entries": 131072,
+  "S_ratio": 4.0,
+  "per_run_blocks": 26
+ },
+ "64": {
+  "T": 155,
+  "T_pad": 256,
+  "proved_rows_F6": 65,
+  "proved_pad_F6": 128,
+  "full": {
+   "A_elems": 135856128,
+   "H_elems": 148897792,
+   "u8": 121765888,
+   "exp_pairs": 2097152,
+   "receipt_B": 63559464
+  },
+  "F6_lower": {
+   "A_elems": 59932672,
+   "H_elems": 63897600,
+   "u8": 51970048,
+   "exp_pairs": 524288,
+   "receipt_B": 35627480
+  },
+  "F6_S_rect_entries": 1048576,
+  "F6_S_lower_entries": 524288,
+  "S_ratio": 2.0,
+  "per_run_blocks": 26
+ },
+ "128": {
+  "T": 219,
+  "T_pad": 256,
+  "proved_rows_F6": 129,
+  "proved_pad_F6": 256,
+  "full": {
+   "A_elems": 135856128,
+   "H_elems": 148897792,
+   "u8": 121765888,
+   "exp_pairs": 2097152,
+   "receipt_B": 63559464
+  },
+  "F6_lower": {
+   "A_elems": 135856128,
+   "H_elems": 148897792,
+   "u8": 121765888,
+   "exp_pairs": 2097152,
+   "receipt_B": 63559464
+  },
+  "F6_S_rect_entries": 2097152,
+  "F6_S_lower_entries": 2097152,
+  "S_ratio": 1.0,
+  "per_run_blocks": 26
+ },
+ "200": {
+  "T": 291,
+  "T_pad": 512,
+  "proved_rows_F6": 201,
+  "proved_pad_F6": 256,
+  "full": {
+   "A_elems": 309395456,
+   "H_elems": 365953024,
+   "u8": 306315264,
+   "exp_pairs": 8388608,
+   "receipt_B": 75815816
+  },
+  "F6_lower": {
+   "A_elems": 135856128,
+   "H_elems": 148897792,
+   "u8": 121765888,
+   "exp_pairs": 2097152,
+   "receipt_B": 63559464
+  },
+  "F6_S_rect_entries": 4194304,
+  "F6_S_lower_entries": 2097152,
+  "S_ratio": 2.0,
+  "per_run_blocks": 26
+ },
+ "256": {
+  "T": 347,
+  "T_pad": 512,
+  "proved_rows_F6": 257,
+  "proved_pad_F6": 512,
+  "full": {
+   "A_elems": 309395456,
+   "H_elems": 365953024,
+   "u8": 306315264,
+   "exp_pairs": 8388608,
+   "receipt_B": 75815816
+  },
+  "F6_lower": {
+   "A_elems": 309395456,
+   "H_elems": 365953024,
+   "u8": 306315264,
+   "exp_pairs": 8388608,
+   "receipt_B": 75815816
+  },
+  "F6_S_rect_entries": 8388608,
+  "F6_S_lower_entries": 8388608,
+  "S_ratio": 1.0,
+  "per_run_blocks": 26
+ }
+}

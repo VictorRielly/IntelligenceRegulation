@@ -1,0 +1,24 @@
+{
+  "native_live_result_batches": 13,
+  "external_code_executed": false,
+  "dates": "2026-10-26UTC",
+  "queries": [
+    "GPU sumcheck GKR public preprocessing polynomial metadata cache2026githubrelease",
+    "sumcheck GKR circuit preprocessing reusable shapeCUDAprover2025 2026",
+    "site:github.com GPU sumcheck release2026October GKRpreprocessing",
+    "site:eprint.iacr.org2026sumcheckpreprocessingcacheGKR",
+    "sumcheckLagrangeinterpolationprecomputeddenominatorsbarycentricsumcheckprovergithub",
+    "TimeOptimalInteractiveProofsCircuitEvaluationThaler2013eprint",
+    "sumcheckprecomputeLagrangedenominatorsite:github.com/Plonky3/Plonky3",
+    "sumcheck barycentric precomputed",
+    "Time-OptimalInteractiveProofsforCircuitEvaluation2013arxiv",
+    "sumcheckfinite differences",
+    "sumcheckNewtoninterpolation",
+    "BerrutTrefethen2004BarycentricLagrangeInterpolationSIAMPDF",
+    "zkDuel:Characterizing2026",
+    "snarang181/zk-duelcommit",
+    "BarycentricLagrangeInterpolation site:people.maths.ox.ac.uk",
+    "zkDuelOctober2026"
+  ],
+  "note": "Compact normalized query text; exact primaryresult batches retained. Syntax-error orchestration before web9 made no toolcall."
+}

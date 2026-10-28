@@ -1,0 +1,44 @@
+{
+ "V": 32000,
+ "bos": 1,
+ "calibration_final_xhat": {
+  "calib_sequences": 108,
+  "xhat_rot_absmax": 5.453668118120166
+ },
+ "clipped": 0,
+ "d": 2048,
+ "final_norm": {
+  "ceps": 74429,
+  "cn_calibrated": 5664,
+  "cn_refusal_free": 1024,
+  "g0": 127,
+  "tn": 10,
+  "window_bits": 32
+ },
+ "final_norm_rule": "tlcalib.norm_site(c = 1) on calib_final_xhat_rot_absmax.bin at margin 0.5, tn / Ceps = the export's",
+ "head_int8_perrow.bin": {
+  "dtype": "int8",
+  "sha256": "b99cbec5f457e47ca2441de517135ba1bd1870e2ae8abe2038dbd84617436280",
+  "shape": [
+   32000,
+   2048
+  ]
+ },
+ "head_mult12.bin": {
+  "distinct": 1836,
+  "dtype": "int64 little-endian",
+  "max": 4096,
+  "min": 1027,
+  "rule": "m_j = max(1, floor(2^12 s_j / max s + 0.5))",
+  "sha256": "7824019e82a62fd6e36c165b9aabfd3711d03b815731e298b356a734a7ea663f",
+  "shape": [
+   32000
+  ]
+ },
+ "keyed_window_bits": 53,
+ "keyed_window_rule": "bits(2^15 * 2 d 127^2 * 2^12 + V - 1) (V_pad 2^15)",
+ "kind": "token-io head (per-row int8 + 12-bit multipliers, D25 T4 rule) for TinyLlama",
+ "minus128": 0,
+ "scales_f64_sha256": "5eb2b350e384749b9f7ab976e1f5027a4793e6a5a75515af9577e43ad5ea1b1c",
+ "source": "results/zk60_fidelity_parity_20261019/fp_tokenio_tl.py (fp_lib.IntHead = the b8_token_io build_heads rule)"
+}

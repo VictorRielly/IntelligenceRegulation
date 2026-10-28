@@ -1,0 +1,7 @@
+{
+  "path": "/home/victor/.rustup/toolchains/1.90.0-x86_64-unknown-linux-gnu/bin/rustc",
+  "sha256": "e6abf55ab1859e7c990be77fd593f51661ea99fb2fde626ae9f4108aaa34e7fa",
+  "version": "rustc 1.90.0 (1159e78c4 2025-09-14)\nbinary: rustc\ncommit-hash: 1159e78c4747b02ef996e55082b704c09b970588\ncommit-date: 2025-09-14\nhost: x86_64-unknown-linux-gnu\nrelease: 1.90.0\nLLVM version: 20.1.8\n",
+  "exit": 0,
+  "probe_binary_sha256": "e11946cf0843de589830f9947e5c96e61969813575171c9d6795630491b64710"
+}

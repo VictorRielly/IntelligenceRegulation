@@ -436,7 +436,7 @@ fn the_lookup_columns_are_the_serial_per_index_maps_they_were() {
         let blk = BlockPublic::new(public, ff);
         let w = super::witness::build_shaped(&sh, blk.attention(), blk.feed_forward(), &x).expect("an honest witness at this shape");
         let lay = Layout::for_shape(&sh).expect("the layout of this shape");
-        for dom in lay.lookup_doms() {
+        for dom in lay.lookup_doms().iter() {
             let len = lay.shape().size(*dom);
             let want: Vec<Vec<i64>> = lay
                 .lookups(*dom)

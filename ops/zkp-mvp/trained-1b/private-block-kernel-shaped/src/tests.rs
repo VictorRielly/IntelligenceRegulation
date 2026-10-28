@@ -16,14 +16,15 @@ use super::*;
 use std::vec;
 use std::vec::Vec;
 
-/// toy, the development rung's geometry, and the 125M-class geometry
-fn named() -> [Shape; 3] {
+/// toy, the development rung, the 125M geometry, and a decoupled query axis
+fn named() -> [Shape; 4] {
     [
         Shape::toy(),
         // the rung of ruling P-7, at the toy's softmax calibration (the
         // `F_E = 12` variant is step S8's, and changes no geometry here)
         Shape::new(24, 96, 192, 6, 2, 16, 9, 9, 14, 31),
         Shape::new(512, 768, 2048, 12, 4, 64, 9, 9, 18, 32),
+        Shape::new(4, 12, 16, 4, 2, 4, 9, 9, 14, 31),
     ]
 }
 
@@ -70,7 +71,6 @@ fn the_shape_refusals_fire_by_name() {
     assert_eq!(bad(&|s| s.tokens = 0), KernelError::Shape("shape: an axis is zero"));
     assert_eq!(bad(&|s| s.kv_heads = 0), KernelError::Shape("shape: an axis is zero"));
     assert_eq!(bad(&|s| s.head_dim = 7), KernelError::Shape("shape: the head dimension is odd"));
-    assert_eq!(bad(&|s| s.width = 24), KernelError::Shape("shape: width differs from q_heads * head_dim"));
     assert_eq!(
         bad(&|s| {
             s.q_heads = 3;
@@ -80,6 +80,18 @@ fn the_shape_refusals_fire_by_name() {
         KernelError::Shape("shape: the query heads do not divide into the key-value heads")
     );
     assert_eq!(bad(&|s| s.norm_wrho = 63), KernelError::Shape("shape: a calibration window is out of range"));
+}
+
+#[test]
+fn the_query_axis_can_differ_from_the_model_width() {
+    let mut sh = Shape::toy();
+    sh.width = 24;
+    sh.check().expect("R12 permits model width != query heads * head dimension");
+    assert_eq!((sh.x_len(), sh.q_len()), (32 * 24, 32 * 16));
+    assert_eq!(sh.part_len(Part::NaY), sh.x_len());
+    for part in [Part::Q8, Part::Qr8, Part::O8] {
+        assert_eq!(sh.part_len(part), sh.q_len());
+    }
 }
 
 // ------------------------------------------------------------- a tiny GQA shape

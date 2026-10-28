@@ -1,0 +1,128 @@
+[
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/zkp-core/src/pcs.rs",
+    "copy": "source/r9__zkp-core__src__pcs.rs",
+    "sha256": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495",
+    "scope": "r9"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/zkp-core/src/ntt.rs",
+    "copy": "source/r9__zkp-core__src__ntt.rs",
+    "sha256": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890",
+    "scope": "r9"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/zkp-core/src/field.rs",
+    "copy": "source/r9__zkp-core__src__field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "scope": "r9"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/pcs.rs",
+    "copy": "source/r9__hashline__src__pcs.rs",
+    "sha256": "8b14096b66f6597e3cdfe239a7359457dd17dfd475c2a5d0f4e112a41342127f",
+    "scope": "r9"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/zk.rs",
+    "copy": "source/r9__hashline__src__zk.rs",
+    "sha256": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32",
+    "scope": "r9"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/gpu/cuda.rs",
+    "copy": "source/r9__hashline__src__gpu__cuda.rs",
+    "sha256": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9",
+    "scope": "r9"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/protocol.rs",
+    "copy": "source/r9__hashline__src__private_block__protocol.rs",
+    "sha256": "c482402329e4da32a70c780435b2077e8054d1805b1006289f571820017564a4",
+    "scope": "r9"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/run.rs",
+    "copy": "source/r9__hashline__src__private_block__run.rs",
+    "sha256": "cf80735dbea505fef939abb91ed23ed5d4b74d2a9a1464727f6f7058dfc11339",
+    "scope": "r9"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/shape.rs",
+    "copy": "source/r9__hashline__src__private_block__shape.rs",
+    "sha256": "e214db86945e0b9df8336edc7974041ebcfe77f2f1884a565a77a0392fca1165",
+    "scope": "r9"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/endpoint_g.rs",
+    "copy": "source/r9__hashline__src__private_block__endpoint_g.rs",
+    "sha256": "6e3691d0bfa1c1fb1f66b9be8ae5438597492c62dc00451d6f25dbff90ab84ce",
+    "scope": "r9"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/boundary.rs",
+    "copy": "source/r9__hashline__src__private_block__boundary.rs",
+    "sha256": "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581",
+    "scope": "r9"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/hashline/src/gpu/cuda.rs",
+    "copy": "source/active__hashline__src__gpu__cuda.rs",
+    "sha256": "a0ed0b3af7e38bd9a842cc0c024f9c12cc988c81fa586d2e4a67d5c7c5c11e9d",
+    "scope": "active"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/hashline/src/gpu/mod.rs",
+    "copy": "source/active__hashline__src__gpu__mod.rs",
+    "sha256": "706ca7fafb3e54114ca7c7241541a52ed6238764314f2877585071a1be37a31c",
+    "scope": "active"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/hashline/src/pcs.rs",
+    "copy": "source/active__hashline__src__pcs.rs",
+    "sha256": "9537915b26b21ea906b0098d14afedf65c3d33320619bd380d4987d0c5fcf5a7",
+    "scope": "active"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/zkp-core/src/pcs.rs",
+    "copy": "source/active__zkp-core__src__pcs.rs",
+    "sha256": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+    "scope": "active"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/zkp-core/src/ntt.rs",
+    "copy": "source/active__zkp-core__src__ntt.rs",
+    "sha256": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890",
+    "scope": "active"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dyadic-dd-shards-20261020/result.json",
+    "copy": "source/prior__dyadic-dd-shards-20261020__result.json",
+    "sha256": "348d1f789fa352357115662ef2193c4109d35c4e8328cc1e41cffb6021b88999",
+    "scope": "prior"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dyadic-dd-shards-20261020/validation-result.json",
+    "copy": "source/prior__dyadic-dd-shards-20261020__validation-result.json",
+    "sha256": "c17fb0e2582f4a7970f9f7c5306fcaad6bd57ffc4b2d4b517c7b4b2b0c059e03",
+    "scope": "prior"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dyadic-dd-shards-20261020/hypotheses.json",
+    "copy": "source/prior__dyadic-dd-shards-20261020__hypotheses.json",
+    "sha256": "44f1f9b8fb91522cf870eec9f6126d77e97336b3226abb3df8aa1ef1d11e8ff8",
+    "scope": "prior"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-setup-lifetimes-20261019/result.json",
+    "copy": "source/prior__public-setup-lifetimes-20261019__result.json",
+    "sha256": "4f571ccc7c001a23b681f93ccaa925f5bf54e9a9df859d915bc06b00ad480baf",
+    "scope": "prior"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/pcs-small-ntt-census-20261020/result.json",
+    "copy": "source/prior__pcs-small-ntt-census-20261020__result.json",
+    "sha256": "53e9fb3a793df55bae0f7499405ed745edb3356a4d6cab96208dbce9b4995976",
+    "scope": "prior"
+  }
+]

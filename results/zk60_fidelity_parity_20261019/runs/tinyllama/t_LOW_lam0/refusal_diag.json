@@ -1,0 +1,75 @@
+{
+ "run": "t_LOW_lam0",
+ "seqs": [
+  22,
+  47
+ ],
+ "first_refused_layer": {
+  "22": 10,
+  "47": 21
+ },
+ "overrides": {
+  "gate_pc": "-5:mc5",
+  "sh_s_plus": {},
+  "to_end": false
+ },
+ "records": [
+  {
+   "layer": 10,
+   "site": "FFN gate",
+   "seq": 22,
+   "pos": 89,
+   "token": 2812,
+   "constants": {
+    "sh_qkv": 8,
+    "sh_s": 6,
+    "exp_e_s": 1
+   },
+   "channels": [
+    {
+     "ch": 4350,
+     "gate": -9.037132859230042,
+     "e_j": -4,
+     "range": [
+      -8.0,
+      7.99609375
+     ],
+     "coarsest_registry_range": 63.97,
+     "needs_e": -3,
+     "calib_channel_max": 4.143953800201416,
+     "calib_tensor_max": 5.494322776794434
+    }
+   ],
+   "n_bad_channels": 1
+  },
+  {
+   "layer": 21,
+   "site": "V",
+   "seq": 47,
+   "pos": 106,
+   "token": 13240,
+   "constants": {
+    "sh_qkv": 8,
+    "sh_s": 5,
+    "exp_e_s": 1
+   }
+  }
+ ],
+ "violations": [
+  {
+   "layer": 10,
+   "site": "FFN gate",
+   "seq": 22,
+   "pos": 89,
+   "count": 1
+  },
+  {
+   "layer": 21,
+   "site": "V",
+   "seq": 47,
+   "pos": 106,
+   "count": 1
+  }
+ ],
+ "scope": "fidelity data, not a proof, not a privacy claim"
+}

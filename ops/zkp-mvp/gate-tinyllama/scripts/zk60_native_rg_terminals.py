@@ -110,6 +110,7 @@ if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
 from zk60_native_jv_cfs import sumcheck_final  # noqa: E402
+import zk60_native_rg_stagecal as SCAL  # noqa: E402  [v17] each stage's calibration
 from zk60_native_rg_gqa import (  # noqa: E402
     ARGUMENT_DEFINITIONS,
     BILINEAR_SLOTS,
@@ -582,6 +583,19 @@ from zk60_native_rg_tinyllama_r7_pins import (  # noqa: E402
     TERMINALS_PINNED_IF_PRESENT as _R7_PIP)
 _tl_merge2(ALSO_ACCEPTED, _R7_AA, "ALSO_ACCEPTED")
 _tl_merge2(PINNED_IF_PRESENT, _R7_PIP, "PINNED_IF_PRESENT")
+# [TINYLLAMA PORT v11, round 8] the tk7 tree's shape.rs (protocol.rs and
+# layout.rs are R7's bytes) (`zk60_native_rg_tinyllama_tk7_pins`)
+from zk60_native_rg_tinyllama_tk7_pins import (  # noqa: E402
+    TERMINALS_PINNED_IF_PRESENT as _TK7_PIP)
+_tl_merge2(PINNED_IF_PRESENT, _TK7_PIP, "PINNED_IF_PRESENT")
+# [TINYLLAMA PORT v17, gate round 14] native R9 (DD): layout.rs, protocol.rs,
+# the gate's patched plane_index.rs, shape.rs and pad.rs
+# (`zk60_native_rg_tinyllama_r9_pins`); the DD slots are ported in `ports_for`
+from zk60_native_rg_tinyllama_r9_pins import (  # noqa: E402
+    TERMINALS_ALSO_ACCEPTED as _R9_AA,
+    TERMINALS_PINNED_IF_PRESENT as _R9_PIP)
+_tl_merge2(ALSO_ACCEPTED, _R9_AA, "ALSO_ACCEPTED")
+_tl_merge2(PINNED_IF_PRESENT, _R9_PIP, "PINNED_IF_PRESENT")
 
 # **ROUND 4 (2026-09-20), finding S19-F1.**  `argument.rs` is the file that
 # decides what a slot's polynomial IS, and its stage-20 digest carries a
@@ -677,6 +691,12 @@ LIMBS_ISQRT = 3      # shape.rs:28; `N_LIMBS = 3 * LIMBS_ISQRT = 9`
 U8_LEN = 256         # layout.rs:59
 # `gamma.mul_base(Fp::new(TAG))`, tables_attn.rs
 TAG_EXP, TAG_U8, TAG_ACT = 129, 133, 134
+# [v17, gate round 14: DD, native R9 / D30] the dictionary's LogUp tag
+# (layout.rs R9 `TAG_DD = 141`) and its zero-check, APPENDED as slot 23
+# (`SC_DD`), present only on a DD profile (`Shape::n_slots`)
+TAG_DD = 141
+SC_DD = 23
+SC_SZC = 17
 
 POW256 = [(pow(256, j, P), 0) for j in range(4)]
 
@@ -797,6 +817,8 @@ class PadGeometry:
             "S": s["q_heads"] * s["tokens"] * s["tokens"],
             "F": s["tokens"] * s["hidden"],
             "Tab": U8_LEN,
+            # [v17, gate round 14] `Shape::true_size(Dom::Dd)` (R9)
+            "Dd": s["q_heads"] * s["tokens"] * max(s.get("dd_cap", 0), 1),
         }[dom]
 
     def pads(self, dom: str) -> bool:
@@ -1032,6 +1054,24 @@ def lookups_at(dom: str, counts: dict, shape_raw: dict):
         v += [_byte("A_RVL"), _scaled("A_RVL", one(cal.sh_qkv))]
         v += _sym("A_KR8")
         v += [_byte("A_RKRL"), _scaled("A_RKRL", 2)]
+    elif dom == "S" and shape_raw.get("dd_cap", 0) > 0:
+        # [v17, gate round 14] R9 `layout.rs::lookups_at`, `Dom::S` at a DD
+        # profile: the division limbs are the DICTIONARY's (D30), never a
+        # score entry's
+        v += _sym("A_S8")
+        v += [_byte("A_RSL"), _scaled("A_RSL", one(cal.sh_s))]
+    elif dom == "Dd":
+        # [v17, gate round 14] R9 `layout.rs::lookups_at`, `Dom::Dd if
+        # sh.dd_cap > 0`: the quotient's limbs with its top pin, then rho_s's
+        # and sigma_s's, each with its top pin -- at EVERY dictionary slot
+        if shape_raw.get("dd_cap", 0) <= 0:
+            raise ValueError("Dom::Dd lookups asked of a shape without a dictionary")
+        v += [_byte(f"A_PL{j}") for j in range(lp)]
+        v += [_scaled(f"A_PL{lp - 1}", p_scale)]
+        v += [_byte(f"A_SR{j}") for j in range(ls)]
+        v += [_scaled(f"A_SR{ls - 1}", sigma_scale)]
+        v += [_byte(f"A_SG{j}") for j in range(ls)]
+        v += [_scaled(f"A_SG{ls - 1}", sigma_scale)]
     elif dom == "S":
         v += _sym("A_S8")
         v += [_byte("A_RSL"), _scaled("A_RSL", one(cal.sh_s))]
@@ -1146,6 +1186,8 @@ class SlotCtx:
         self.structural = structural
         self.alpha, self.beta = gate.alpha, gate.beta
         self.g_u8, self.g_exp, self.g_act = gate.g_u8, gate.g_exp, gate.g_act
+        # [v17, gate round 14] the dictionary's tag (None off a DD profile)
+        self.g_dd = gate.g_dd
         self.main = arg["main"]
         self.cube = 1 << arg["main"]
         self.names = list(plane_names)
@@ -1510,6 +1552,122 @@ def sc_szc(v, cx):
     return add(add(mul(v[cx.eq(0)], zc),
                    mul(mul(mul(nu[0], v[cx.eq(1)]), gate_at(ght, v)), host_rs)),
                mul(mul(mul(nu[1], v[cx.eq(2)]), g), host_s))
+
+
+def _dd_draws(cx, lt: int, n_mu: int, n_nu: int):
+    """[v17] a DD slot's definition draws: `tau(lt)`, `mu(n_mu)`, `nu(n_nu)`
+    and NO pad draws (a DD profile refuses `pad_on` in both DD arms,
+    argument.rs R9).  Refused by name when the capture declares another
+    count."""
+    want = lt + n_mu + n_nu
+    if len(cx.dc) != want:
+        raise ValueError(
+            f"slot {cx.slot}: this DD slot consumes {want} definition draws "
+            f"(tau {lt} + mu {n_mu} + nu {n_nu}, no pad term) and the capture "
+            f"declares {len(cx.dc)}"
+        )
+    return cx.dc[lt:lt + n_mu], cx.dc[lt + n_mu:want]
+
+
+def sc_szc_dd(v, cx):
+    """[v17, gate round 14] `SC_SZC if sh.dd_cap > 0` (argument.rs R9, the
+    softmax zero-check on a DD profile).  Draws tau(log S), mu(2 + n_help +
+    2), nu(2); no pad term (refused at a DD profile).  Push order: eq(tau)
+    eq(p_ht) eq(p_s) public(causal), `A_S8 .. A_P` (no division limbs: they
+    are the dictionary's), the `A_MX` and `A_SUM` `Dom::Ht` slices,
+    `H_S0 .. H_S{n-1}`, `H_SEXP`, `H_STUPLE`.
+
+    Each score entry keeps the argmax clauses c0 / c1, its byte lookups
+    (sym(s8), rsl) and the exp pair, and carries ONE tuple lookup into its
+    row's dictionary:
+    `h_t * (alpha - (gamma TAG_DD + Sum + beta * mask * E + beta^2 P)) = 1`."""
+    if cx.g.dd_cap <= 0:
+        raise ValueError("the DD softmax zero-check at a shape without a dictionary")
+    # argument.rs R9: `if pad_on { return Err(..) }` -- a DD profile has no
+    # padded score position (`Shape::check_dd_geometry`)
+    if cx.pad_on("Ht", "S"):
+        raise ValueError(f"slot {cx.slot}: a DD profile's softmax zero-check would host a pad "
+                         "term; D30 here needs an unpadded score domain (argument.rs R9)")
+    n_help = cx.g.n_helpers("S")
+    cx.expect(["A_S8", "A_RSL", "A_ZSEL", "A_E", "A_P", "A_MX", "A_SUM"]
+              + [f"H_S{j}" for j in range(n_help)] + ["H_SEXP", "H_STUPLE"])
+    lt = cx.g.log("S")
+    mu, nu = _dd_draws(cx, lt, 2 + n_help + 2, 2)
+    if nu[0] == ZERO or nu[1] == ZERO:
+        raise ValueError(f"slot {cx.slot}: a zero nu draw (argument.rs `nonzero`)")
+    im = cx.p("causal", None)
+    ght, gs = cx.p("supp", "Ht"), cx.p("supp", "S")
+    imx, isum = cx.t("A_MX"), cx.t("A_SUM")
+    lks = cx.g.lk_tables(cx, "S")
+    mask, s8 = v[im], v[cx.t("A_S8")]
+    zsel, e, pp = v[cx.t("A_ZSEL")], v[cx.t("A_E")], v[cx.t("A_P")]
+    sm = v[isum]
+    delta = add(sub(v[imx], mul(mask, add(s8, k(-MASK_SCORE)))), k(-MASK_SCORE))
+    c0 = sub(mul(zsel, zsel), zsel)
+    c1 = mul(zsel, delta)
+    cxx = sub(mul(v[cx.t("H_SEXP")],
+                  sub(cx.alpha, add(add(delta, mul(cx.beta, e)), cx.g_exp))), ONE)
+    beta2 = mul(cx.beta, cx.beta)
+    ct = sub(mul(v[cx.t("H_STUPLE")],
+                 sub(cx.alpha, add(add(add(cx.g_dd, sm), mul(cx.beta, mul(mask, e))),
+                                   mul(beta2, pp)))), ONE)
+    clauses = add(mul(mu[0], c0), mul(mu[1], c1))
+    g = gate_at(gs, v)
+    zc = add(add(add(helper_sum(v, lks, cx.t("H_S0"), cx.alpha, mu[2:2 + n_help]),
+                     mul(mu[2 + n_help], cxx)),
+                 mul(mu[3 + n_help], ct)),
+             mul(g, clauses))
+    host_rs = mul(mul(nu[0], gate_at(ght, v)), add(sm, cx.lam_z))
+    cal = cx.g.cal
+    host_s = mul(mul(nu[1], g), sub(add(mul(k(1 << cal.sh_s), s8), v[cx.t("A_RSL")]),
+                                    k(Calibration.half(cal.sh_s))))
+    return add(add(mul(v[cx.eq(0)], zc), mul(v[cx.eq(1)], host_rs)),
+               mul(v[cx.eq(2)], host_s))
+
+
+def sc_dd(v, cx):
+    """[v17, gate round 14] `SC_DD` (argument.rs R9, slot 23, the dictionary
+    zero-check, Standalone).  Draws tau(log Dd), mu(3 + n_help + 1); no pad
+    term.  Push order: eq(tau), `A_PDICT A_PL0.. A_SR0.. A_SG0.. A_MDD` (the
+    `a_range(P_dict, M_dd)`), the `A_SUM` slice on the leading (h, t)
+    variables, public(e column), `H_DD0 .. H_DD{n-1}`, `H_GDD`.
+
+    At EVERY slot of the cube (h, t | k), no usage gate:
+      c2: e 2^F_P - P_dict Sum - rho_s = 0
+      c3: rho_s + sigma_s + 1 - Sum = 0
+      c4: P_dict = limbs(P_dict)
+    the limbs' byte lookups with their top pins, and the TABLE helper
+    `g (alpha - (gamma TAG_DD + Sum + beta e + beta^2 P_dict)) = M_dd`."""
+    if cx.g.dd_cap <= 0:
+        raise ValueError("the dictionary zero-check at a shape without a dictionary")
+    if cx.pad_on("Dd"):
+        raise ValueError(f"slot {cx.slot}: a DD profile's dictionary would host a pad term; "
+                         "D30 here needs an unpadded dictionary (argument.rs R9)")
+    ls, lp = cx.g.counts["ls"], cx.g.counts["lp"]
+    n_help = cx.g.n_helpers("Dd")
+    cx.expect(["A_PDICT"] + [f"A_PL{j}" for j in range(lp)]
+              + [f"A_SR{j}" for j in range(ls)] + [f"A_SG{j}" for j in range(ls)]
+              + ["A_MDD", "A_SUM"]
+              + [f"H_DD{j}" for j in range(n_help)] + ["H_GDD"])
+    lt = cx.g.log("Dd")
+    mu, _nu = _dd_draws(cx, lt, 3 + n_help + 1, 0)
+    ie = cx.c("dd_e_column")
+    pd, md, sm, e = v[cx.t("A_PDICT")], v[cx.t("A_MDD")], v[cx.t("A_SUM")], v[ie]
+    sr = limbs(v, [cx.t(f"A_SR{j}") for j in range(ls)])
+    sg = limbs(v, [cx.t(f"A_SG{j}") for j in range(ls)])
+    pl = limbs(v, [cx.t(f"A_PL{j}") for j in range(lp)])
+    c2 = sub(sub(mul(k(1 << F_P), e), mul(pd, sm)), sr)
+    c3 = sub(add(add(sg, sr), ONE), sm)
+    c4 = sub(pd, pl)
+    beta2 = mul(cx.beta, cx.beta)
+    ctab = sub(mul(v[cx.t("H_GDD")],
+                   sub(cx.alpha, add(add(add(cx.g_dd, sm), mul(cx.beta, e)), mul(beta2, pd)))),
+               md)
+    division = add(add(mul(mu[0], c2), mul(mu[1], c3)), mul(mu[2], c4))
+    lks = cx.g.lk_tables(cx, "Dd")
+    inner = add(add(division, helper_sum(v, lks, cx.t("H_DD0"), cx.alpha, mu[3:3 + n_help])),
+                mul(mu[3 + n_help], ctab))
+    return mul(v[cx.eq(0)], inner)
 
 
 def sc_fzc(v, cx):
@@ -1884,6 +2042,13 @@ PUBLIC_SPEC = {
     20: [("ones", "Tab")],
     21: [],
     22: [],
+    # [v17, gate round 14] the dictionary zero-check's one public table: the
+    # e column `sorted({0} U the exp table's outputs)` padded with 0 to
+    # `cap`, constant in (h, t) (`AttentionPublic::dd_e_column`, R9) -- a
+    # function of the block's public exp table, TAKEN from the capture and
+    # checked for its structure and against the exp table the same stage's
+    # slot 19 carries
+    23: [("captured", "dd_e_column", "dd_e_column")],
 }
 
 # The slots whose port needs a table no tool can rebuild from a bundle, and
@@ -1906,6 +2071,9 @@ PUBLIC_WHAT = {
                   "(table_values_exp_at, argument.rs:843)",
     "act_values": "the activation lookup table's public rows i + beta*act[i] + g_act "
                   "(table_values_act_at, argument.rs:854)",
+    "dd_e_column": "the DD dictionary's public e column, sorted({0} U the exp table's "
+                   "outputs) padded with 0 to cap, tiled over (h, t) "
+                   "(AttentionPublic::dd_e_column, private_block.rs R9)",
 }
 
 TAKEN_FROM_CAPTURE = {
@@ -1971,6 +2139,27 @@ PORTS = (
     (22, "SC_IO_OUT", sc_io_out, None),
 )
 
+def ports_for(bundle) -> tuple:
+    """[v17, gate round 14] THIS bundle's ported slots.  Off a DD profile it
+    is `PORTS` exactly.  At a DD profile (native R9 / D30) slot 17 is the DD
+    softmax zero-check (`sc_szc_dd`: no division clause, one tuple lookup)
+    and slot 23, the dictionary zero-check, is APPENDED, so a DD bundle's
+    24th slot is never silently uncovered."""
+    if int(bundle.run["shape"].get("dd_cap", 0)) <= 0:
+        return PORTS
+    out = []
+    for s, nm, fn, r in PORTS:
+        if s == SC_SZC:
+            out.append((s, "SC_SZC (DD)", sc_szc_dd, r))
+        else:
+            out.append((s, nm, fn, r))
+    out.append((SC_DD, "SC_DD", sc_dd,
+                "the slot's public table is the dictionary's e column, a function of "
+                "the block's public exp table, which a bundle without "
+                "`public_tables_included` does not carry"))
+    return tuple(out)
+
+
 # The twelve that need nothing but the shape, and the eleven that need the
 # captured public tables as well.
 COVERED_WITHOUT_TABLES = tuple(s for s, _n, fn, r in PORTS if fn is not None and r is None)
@@ -1981,10 +2170,12 @@ COVERED = tuple(s for s, _n, fn, _r in PORTS if fn is not None)
 def covered_at(bundle) -> tuple:
     """Which slots this port can evaluate for THIS bundle: the twelve
     shape-only ones always, and the other eleven only when the bundle
-    carries its public tables' values."""
+    carries its public tables' values.  [v17] Over `ports_for(bundle)`, so a
+    DD bundle's slot 23 counts (with its tables) and is never dropped."""
+    ports = ports_for(bundle)
     if getattr(bundle, "public_tables_included", False):
-        return COVERED
-    return COVERED_WITHOUT_TABLES
+        return tuple(s for s, _n, fn, _r in ports if fn is not None)
+    return tuple(s for s, _n, fn, r in ports if fn is not None and r is None)
 
 
 # =====================================================================
@@ -2000,8 +2191,26 @@ class TerminalGate:
         self.geom = PadGeometry(self.shape_raw, index.domain_log)
         # [TINYLLAMA PORT] the slot closures read `cx.g.cal`
         self.cal = self.geom.cal
+        # [v17, gate round 14] EACH STAGE'S CALIBRATION (native R8 / R9
+        # `run.rs::stage_shape`): a stage whose schedule line carries the
+        # layer's own constants is evaluated at that calibration, after the
+        # schedule digest is recomputed from run.json's lines
+        # (`zk60_native_rg_stagecal`).  A refusal there is held here and
+        # raised by `set_stage`, so no stage is evaluated at a guessed shape.
+        self.run_shape_raw = self.shape_raw
+        self.stage = None
+        try:
+            self.stage_shapes, self.stage_calibration = SCAL.stage_shapes(bundle.run)
+            self.stage_shape_error = None
+        except ValueError as exc:
+            self.stage_shapes, self.stage_calibration = None, None
+            self.stage_shape_error = str(exc)
         self.alpha = self.beta = None
         self.g_u8 = self.g_exp = self.g_act = None
+        # [v17, gate round 14] a DD profile (native R9 / D30): `dd_cap` slots
+        # per (h, t) row; the dictionary's tag is set per stage
+        self.dd_cap = int(self.shape_raw.get("dd_cap", 0))
+        self.g_dd = None
         self.public_tables: dict[tuple, str] = {}
         self.public_digest_failures: list[str] = []
         # round 3: the tables that are TAKEN from the capture, and the
@@ -2023,6 +2232,20 @@ class TerminalGate:
                        "lp": self._group("A_PL")}
         self._lk_cache: dict[str, list] = {}
 
+    def set_stage(self, k: int) -> None:
+        """[v17] evaluate stage `k` at ITS shape: the run shape, or (a layer
+        with its own constants) the shape its schedule line declares"""
+        if self.stage_shape_error is not None:
+            raise ValueError(f"stage calibration refused: {self.stage_shape_error}")
+        sh = self.stage_shapes[k] if k < len(self.stage_shapes) else self.run_shape_raw
+        self.stage = k
+        if sh is self.shape_raw:
+            return
+        self.shape_raw = sh
+        self.geom = PadGeometry(sh, self.index.domain_log)
+        self.cal = self.geom.cal
+        self._lk_cache = {}
+
     def _group(self, prefix: str) -> int:
         pat = re.compile("^" + prefix + r"\d+$")
         return sum(1 for p in self.index.a_planes if pat.match(p.name))
@@ -2035,6 +2258,9 @@ class TerminalGate:
         self.g_u8 = mulb(gamma, TAG_U8)
         self.g_exp = mulb(gamma, TAG_EXP)
         self.g_act = mulb(gamma, TAG_ACT)
+        # [v17, gate round 14] protocol.rs R9: `g_dd = gamma * TAG_DD` at every
+        # profile (read by a DD profile's two dictionary relations only)
+        self.g_dd = mulb(gamma, TAG_DD)
 
     def log(self, dom: str) -> int:
         return self.geom.log(dom)
@@ -2043,9 +2269,12 @@ class TerminalGate:
         """`Shape::helpers(dom)`, READ from the plane index: the `H` planes of
         the domain, minus the ONE extra pair helper `Dom::S` and `Dom::F`
         carry (`H_SEXP`, `H_FACT` -- shape.rs:486-489)."""
-        extra = {"S": "H_SEXP", "F": "H_FACT"}.get(dom)
+        # [v17, gate round 14] at a DD profile `Dom::S` also carries the
+        # score entry's tuple helper `H_STUPLE`, and `Dom::Dd` carries the
+        # dictionary's table helper `H_GDD` (shape.rs R9 `h_plane_doms`)
+        extra = {"S": ("H_SEXP", "H_STUPLE"), "F": ("H_FACT",), "Dd": ("H_GDD",)}.get(dom, ())
         return sum(1 for n in self.h_plane_names_by_domain.get(dom, [])
-                   if n != extra)
+                   if n not in extra)
 
     def lk_tables(self, cx, dom: str):
         """`lk_tables` (argument.rs:634), in this slot's table-index space."""
@@ -2231,6 +2460,8 @@ class TerminalGate:
             out += self._rope_structure(kind, dom, label, vals)
         elif structure == "lookup_values":
             out += self._lookup_structure(label, vals)
+        elif structure == "dd_e_column":
+            out += self._dd_e_column_structure(label, vals)
         else:
             out.append(f"{label}: no structure check is declared for it")
         if out:
@@ -2274,6 +2505,68 @@ class TerminalGate:
             {"dead_positions": dead, "partner_pairs": sym}
         )
         return out
+
+    def _dd_e_column_structure(self, label: str, vals) -> list:
+        """[v17, gate round 14] `AttentionPublic::dd_e_column` (R9) tiled over
+        the dictionary's cube: base-field integers; period `cap` (constant in
+        (h, t)); in one period, 0 first, then a STRICTLY increasing run of the
+        table's distinct nonzero outputs, then zero padding to `cap`; length
+        |Dom::Dd|.  That it is THIS block's exp table's column is checked
+        against the same stage's slot-19 exp table (`dd_e_column_attribution`)."""
+        out = []
+        cap = self.dd_cap
+        if cap <= 0:
+            return [f"{label}: a dictionary column at a shape without a dictionary"]
+        if len(vals) != self.geom.size("Dd"):
+            return [f"{label}: {len(vals)} entries, not |Dom::Dd| = {self.geom.size('Dd')}"]
+        if any(x[1] != 0 for x in vals):
+            out.append(f"{label}: an entry with a nonzero extension coordinate")
+        per = [x for x in range(len(vals)) if vals[x] != vals[x % cap]]
+        if per:
+            out.append(f"{label}: not periodic in cap = {cap} ({len(per)} positions differ, first {per[0]})")
+        col = [vals[x][0] for x in range(cap)]
+        if any(c >= P // 2 for c in col):
+            out.append(f"{label}: an entry that is not a small nonnegative integer")
+        n = 1
+        while n < cap and col[n] > col[n - 1]:
+            n += 1
+        if col[0] != 0:
+            out.append(f"{label}: the column does not start at 0")
+        if any(c != 0 for c in col[n:]):
+            out.append(f"{label}: the column is not a strictly increasing run then zero padding")
+        self.structure_detail.setdefault(label, []).append({"cap": cap, "n_col": n, "padding": cap - n})
+        return out
+
+    def dd_e_column_attribution(self, doc) -> dict:
+        """[v17, gate round 14] the e column slot 23 carries IS this stage's
+        block exp table's: the exp table is recovered from the SAME stage's
+        slot-19 captured `exp_values` (`value[x] = x + beta T[x] + g_exp`, as
+        `_lookup_structure` does), and `sorted({0} U T)` padded with 0 to
+        `cap` (`dd_e_column_of`, private_block.rs R9) must equal one period of
+        the captured column.  Call after `set_logup` for the stage."""
+        cap = self.dd_cap
+        a19, a23 = doc["arguments"][19], doc["arguments"][SC_DD]
+        pub19 = [t for t in a19["tables"] if t["kind"] == "public"]
+        pub23 = [t for t in a23["tables"] if t["kind"] == "public"]
+        if len(pub19) < 2 or not pub23 or pub19[1].get("values") is None or pub23[0].get("values") is None:
+            return {"checked": False, "why": "the stage carries no public table values"}
+        ev = [f2_from_list(x) for x in pub19[1]["values"]]
+        binv = f2_inv(self.beta)
+        exp = []
+        for i in range(U8_LEN):
+            t = mul(sub(sub(ev[i], k(i)), self.g_exp), binv)
+            if t[1] != 0:
+                return {"checked": True, "ok": False, "why": f"exp entry {i} is not a base-field value"}
+            exp.append(t[0] if t[0] < P // 2 else t[0] - P)
+        col = sorted(set([0] + exp))
+        if len(col) > cap:
+            return {"checked": True, "ok": False, "why": f"the exp table needs {len(col)} slots, more than cap {cap}"}
+        want = col + [0] * (cap - len(col))
+        got_vals = [f2_from_list(x) for x in pub23[0]["values"][:cap]]
+        got = [v[0] if v[0] < P // 2 else v[0] - P for v in got_vals]
+        return {"checked": True, "n_col": len(col), "cap": cap,
+                "ok": got == want and all(v[1] == 0 for v in got_vals),
+                "first_difference": next((i for i in range(cap) if got[i] != want[i]), None)}
 
     def _lookup_structure(self, label: str, vals) -> list:
         """`table_values_exp_at` / `table_values_act_at` (argument.rs:843,
@@ -2398,7 +2691,7 @@ def lam_z_of(stage_doc):
 
 def check_terminals(bundle, index, replay=None, structural=True,
                     stage_docs=None, slot_planes=None, check_digests=True,
-                    group=None, force_definition=None) -> dict:
+                    group=None, force_definition=None, stage_shapes=None) -> dict:
     """The per-slot terminal identity over every stage of the run.
 
     `stage_docs` / `slot_planes` override the bundle's own, which is how a
@@ -2412,8 +2705,15 @@ def check_terminals(bundle, index, replay=None, structural=True,
     caller -- the gate and every control -- gets the derived factor without
     asking.  `force_definition` makes a control evaluate the OTHER
     definition of those two slots on these bytes.
+
+    `stage_shapes` ([v17]) replaces the per-stage shapes read from the stage
+    lines, which is how a calibration control evaluates a stage at a shape
+    other than the one the run declares, without writing any file.
     """
     gate = TerminalGate(bundle, index)
+    if stage_shapes is not None:
+        gate.stage_shapes, gate.stage_shape_error = list(stage_shapes), None
+        gate.stage_calibration = {"overridden_by_a_control": True}
     covered = covered_at(bundle)
     out = {
         "what": "fin_s == c_s * mask_eval_s + poly_s(vals_s), the verifier's own "
@@ -2430,7 +2730,7 @@ def check_terminals(bundle, index, replay=None, structural=True,
         "covered_slots": list(covered),
         "covered_without_captured_tables": list(COVERED_WITHOUT_TABLES),
         "covered_only_with_captured_tables": [s for s in covered
-                                              if s in COVERED_WITH_TABLES],
+                                              if s in COVERED_WITH_TABLES or s == SC_DD],
         "slot_checks_attempted": 0,
         "slot_checks_equal": 0,
         "slot_checks_matching_the_stored_terminal_polynomial": 0,
@@ -2440,7 +2740,7 @@ def check_terminals(bundle, index, replay=None, structural=True,
         "public_table_structure_checks": 0,
         "public_table_structure_failures": [],
         "open_slots": [{"slot": s, "name": n, "reason": r}
-                       for s, n, fn, r in PORTS if s not in covered],
+                       for s, n, fn, r in ports_for(bundle) if s not in covered],
         "per_stage": [],
         "findings": [],
         # [round 5, finding K4-F1] every key a CALLER reads, present from the
@@ -2469,6 +2769,17 @@ def check_terminals(bundle, index, replay=None, structural=True,
             "ok": False,
         },
     }
+    # [v17, gate round 14] each stage's calibration (native R8 / R9
+    # `stage_shape`), read from the stage lines and bound to the schedule
+    # digest; a refusal stops the check before any slot is evaluated
+    out["stage_calibration"] = gate.stage_calibration
+    if gate.stage_shape_error is not None:
+        out["findings"].append(f"stage calibration refused: {gate.stage_shape_error}")
+        out["refused_before_any_slot_was_evaluated"] = (
+            "a stage's calibration could not be bound to the schedule digest "
+            "or did not parse: NO slot of any stage was checked")
+        out["ok"] = False
+        return out
     if not out["source_pins"]["ok"]:
         out["findings"].append(
             "the bundle's source pins are not the ones this port was read at: "
@@ -2505,10 +2816,18 @@ def check_terminals(bundle, index, replay=None, structural=True,
     }
     for st in bundle.stages:
         doc = docs[st.index]
+        gate.set_stage(st.index)
         gate.set_logup(doc["logup_challenges"])
         lam_z = lam_z_of(doc)
         row = {"stage": st.index, "checked": [], "equal": [], "not_checked": []}
-        for s, nm, fn, _reason in PORTS:
+        # [v17, gate round 14] at a DD bundle: the e column's attribution to
+        # this stage's exp table (slot 19's captured values)
+        if gate.dd_cap > 0:
+            att = gate.dd_e_column_attribution(doc)
+            out.setdefault("dd_e_column_attribution", []).append({"stage": st.index, **att})
+            if att.get("checked") and not att.get("ok"):
+                out["findings"].append(f"stage {st.index}: the dictionary's e column is not this stage's exp table's ({att})")
+        for s, nm, fn, _reason in ports_for(bundle):
             arg = doc["arguments"][s]
             if s not in covered:
                 row["not_checked"].append({"slot": s, "name": nm, "why": "OPEN"})

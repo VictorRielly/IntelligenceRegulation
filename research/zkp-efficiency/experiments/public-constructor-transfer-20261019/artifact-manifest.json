@@ -1,0 +1,589 @@
+{
+  "run_id": "20261019T181854Z-f5bd1f03",
+  "recorded_utc": "2026-10-19T18:33:25.417508+00:00",
+  "files": [
+    {
+      "path": "experiments/public-constructor-transfer-20261019/04-experiment.py.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/04-experiment.py.stdout.log",
+      "bytes": 1159,
+      "sha256": "4f3c7c8f3e3372c5b7d5af900eb56ffc4e250f301fde089511bb032b09ef899f",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/05-audit.py.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/05-audit.py.stdout.log",
+      "bytes": 434,
+      "sha256": "385162c4e17365358eb876410592e9ba3956ab64d33e731d6af39ef06a17b4cf",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/06-validate.py.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/06-validate.py.stdout.log",
+      "bytes": 276,
+      "sha256": "23f9b6d11ba29160f6a51800f7f76ca732c3f84a82688c8c1fcb5a1b7e45012c",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/07-experiment.py.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/07-experiment.py.stdout.log",
+      "bytes": 1160,
+      "sha256": "f250def5c6246ffc6bc07b3a08fb9f29c51b202120b7813fe87802446be2c02d",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/08-audit.py.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/08-audit.py.stdout.log",
+      "bytes": 434,
+      "sha256": "cdc6d6911d81240b5d146213b80b8bc4bcfcaacc6529e4a04061b68993c02dec",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/09-validate.py.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/09-validate.py.stdout.log",
+      "bytes": 276,
+      "sha256": "8eadbc99e4d759fc60a0097f3c7aba002dafac76e7e0fc1419151a2536173e5a",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/10-validate.py.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/10-validate.py.stdout.log",
+      "bytes": 276,
+      "sha256": "28e9f9dc701fc0fef400ad281332af7647342a5ab840c373deddc551761f5d91",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/README.md",
+      "bytes": 6213,
+      "sha256": "40a60eb94d822869209b7532a58547827092d11fba1a006f0268e0978f10a55a",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/audit-result.json",
+      "bytes": 468,
+      "sha256": "5ba746dba6e5e2b19f019c3d40a7b25d7a9523b117eefd33cc5b19d590e95440",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/audit.py",
+      "bytes": 4976,
+      "sha256": "25158fe4024adcd556c98abcb4280e48663cd8ae2511ecc33fb88ec126d1dce8",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/audit.py.stderr.log",
+      "bytes": 407,
+      "sha256": "e35db83261b5bfbf9a0c7afc316db35feb9df3a72c145e4baa46bd8297f11179",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/audit.py.stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/before-inline-act-model-refinement/README.md",
+      "bytes": 323,
+      "sha256": "3ef3df8ed2b5668ade8c0d0fc99e0afda066e14ca734b884b8b84477c3b1555a",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/before-inline-act-model-refinement/audit-result.json",
+      "bytes": 468,
+      "sha256": "b953e3d7b3697336bf2e5ee2e660efd12bd2c0486d70956dee15cec9a5fb7196",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/before-inline-act-model-refinement/commands.json",
+      "bytes": 3373,
+      "sha256": "db69c82d21b289ad7618863b14727812bcb8e1788491c89bf6077cfaed0d2463",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/before-inline-act-model-refinement/experiment.py",
+      "bytes": 15130,
+      "sha256": "0631f74a61a5664359166f936b1bbb5cb1f1109c821ab730e909c1bf18d96a26",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/before-inline-act-model-refinement/payload-ledger.json",
+      "bytes": 3964,
+      "sha256": "5b5fee9bd208f97fdebee74c8a7ab24aacbbfe425d98b9709a53da4cb3c7a7aa",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/before-inline-act-model-refinement/result.json",
+      "bytes": 1327,
+      "sha256": "98982cad10f08e76ccd8157a534f0b94c25b29a38ac4e4ed61a1a3f3bb8e69a2",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/before-inline-act-model-refinement/validation.json",
+      "bytes": 288,
+      "sha256": "1312c2955f8cc6a92a0420ddb236bb92c2d8b3194c82a521271db28de6419e22",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/before-support-reservation-fix/README.md",
+      "bytes": 380,
+      "sha256": "9cb9e28ae055e59846e77ed30764887e589777ab30812d1d20cd65c81fd6de5c",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/before-support-reservation-fix/audit-result.json",
+      "bytes": 469,
+      "sha256": "d9974f94d561a0a6cd9d4df2de1cae106fcc27fc5bc5566e0e2663e570998319",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/before-support-reservation-fix/audit.py",
+      "bytes": 4976,
+      "sha256": "25158fe4024adcd556c98abcb4280e48663cd8ae2511ecc33fb88ec126d1dce8",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/before-support-reservation-fix/audit.py.stderr.log",
+      "bytes": 407,
+      "sha256": "e35db83261b5bfbf9a0c7afc316db35feb9df3a72c145e4baa46bd8297f11179",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/before-support-reservation-fix/audit.py.stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/before-support-reservation-fix/commands.json",
+      "bytes": 1705,
+      "sha256": "a6b75270ffb778cffbc7aefe7d57231d417f71c92f7e6b90ecd5919d6467fd42",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/before-support-reservation-fix/experiment.py",
+      "bytes": 15134,
+      "sha256": "faacf9155389132902370436e1a45cb7acbc43d807e30372c11a095ccc9028bd",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/before-support-reservation-fix/experiment.py.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/before-support-reservation-fix/experiment.py.stdout.log",
+      "bytes": 1159,
+      "sha256": "2b8e7e7cc64f649cd24d6bc0eba8aaa51917f4489de4ccfadb8625ca50cfe755",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/before-support-reservation-fix/payload-ledger.json",
+      "bytes": 3964,
+      "sha256": "e6b34b5dc590ae07de02004f8e1ce0ccad3d45db83a427dd68c09d6d2a4aba12",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/before-support-reservation-fix/result.json",
+      "bytes": 1327,
+      "sha256": "97f10351748e9ddc6f04a634756845271fa89ffe6db7ef40c8811f37cc111b9f",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/commands.json",
+      "bytes": 5102,
+      "sha256": "10eb3a488f62778c7fcb3817d3bdae0716aa8ca6a5ec683d76b707f003a5f4ef",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/experiment.py",
+      "bytes": 15452,
+      "sha256": "950ec10cc656c2e59da97643d7dc1e44ecb1e734a68e65ca3d24d2bf11a333c7",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/experiment.py.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/experiment.py.stdout.log",
+      "bytes": 1159,
+      "sha256": "2b8e7e7cc64f649cd24d6bc0eba8aaa51917f4489de4ccfadb8625ca50cfe755",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/fixtures.json",
+      "bytes": 4861125,
+      "sha256": "16b6dffd0a507ed100177352f8553aca560c12d89c9bd6b84f875d3080f5c90d",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/hypotheses.json",
+      "bytes": 6539,
+      "sha256": "a82a7d7152df3277cf60b01984436cbc837b8cd93ad3e406ae7d482d7154b12b",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/initial-control-misclassification/experiment.py",
+      "bytes": 14824,
+      "sha256": "23d14a8f1f1c29b5fa0465f4f96c3fe6ea7aa63081cd2d3613ccb710f7eedfc3",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/initial-control-misclassification/failure.json",
+      "bytes": 618,
+      "sha256": "549d0f898700ec055a011a9336ca1d1d6f783e2117fa9801c334d70d5721f0f6",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/initial-control-misclassification/stderr.log",
+      "bytes": 376,
+      "sha256": "3b03c580e8f5a39498a916edbdba1d70fd95cf5f61695d5f712c0eee532e768f",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/intermediate-sources/first-passing-audit.py",
+      "bytes": 4956,
+      "sha256": "4c6c389b507480a21172a6d2e50b81cadc395e12f5e0c3ca702dd501c50d83aa",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/intermediate-sources/first-passing-experiment.py",
+      "bytes": 14840,
+      "sha256": "b4238448c6a80500f687ac78bbf210a3ebe079a7b054f874f47703c4b52035f1",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/native/R8_VERDICT.md",
+      "bytes": 9891,
+      "sha256": "db96529eff92557dd11acfafb3a1a1d27b0ea0991c5d744686a784bb70f64517",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/native/fid_runs_phases.txt",
+      "bytes": 6877,
+      "sha256": "b22bf1de174fba3fd48eeca0c2fd74644121b0caba40784a39ee581396021da2",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/native/hashline__src__gpu__cuda.rs",
+      "bytes": 205193,
+      "sha256": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/native/hashline__src__private_block.rs",
+      "bytes": 60632,
+      "sha256": "08551c3d3526259aec5ee8619c9ab803677a0ae079428cb07c4254277cf1b67c",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/native/hashline__src__private_block__boundary.rs",
+      "bytes": 36123,
+      "sha256": "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/native/hashline__src__private_block__endpoint_g.rs",
+      "bytes": 28558,
+      "sha256": "6e3691d0bfa1c1fb1f66b9be8ae5438597492c62dc00451d6f25dbff90ab84ce",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/native/hashline__src__private_block__layout.rs",
+      "bytes": 66327,
+      "sha256": "ee871fff7eed377cafcb05ec0438df95a70695ae8fdcd5b5822f5f40663b0ee9",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/native/hashline__src__private_block__protocol.rs",
+      "bytes": 71311,
+      "sha256": "85ca893173c4bfc0d8c88be69dbd0834831d4aec4ec9783c66e0b61d614615f6",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/native/hashline__src__private_block__run.rs",
+      "bytes": 77515,
+      "sha256": "d913a081b82d54b6a1a67cd938afe1700910e820d9b3a97019a398f8b61ea609",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/native/hashline__src__private_block__shape.rs",
+      "bytes": 119159,
+      "sha256": "8c62519c98e36ae966b7f9480e1d47884c57526c2ccf0288deb1286ca1a0fb34",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/native/hashline__src__private_block__trained_block.rs",
+      "bytes": 153950,
+      "sha256": "cc401eb4be9d8e8a723894bac837442e01fe96bc67df22461e42582ecd3feec8",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/native/hashline__src__private_block__trained_statement.rs",
+      "bytes": 36556,
+      "sha256": "e623c2278042a42ef55d005236f0509a27b57f1baf368eee52eec05ea9125a13",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/native/hashline__src__tables_attn.rs",
+      "bytes": 9318,
+      "sha256": "5a874788e20581010b492d50ccc5e662255115c65b9eebcf2f88314733b121e3",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/native/hashline__src__tables_v3.rs",
+      "bytes": 173,
+      "sha256": "726c9355f9e663ef1a43dc9efe17cb2c85aa3583977d0c794dad4cf21a24715d",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/native/manifest_frozen.json",
+      "bytes": 24867,
+      "sha256": "98bd6372f1f19d4fd1f83f044d3c367fc7127f2ccae3ceec967fd65517eb733a",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/native/report.json",
+      "bytes": 4952,
+      "sha256": "0a4d6c67846a0376b02d98ac65ca955fbcafadb0ca017d5d0dc0e88ad71dc6a8",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/native/zkp-core__src__field.rs",
+      "bytes": 11065,
+      "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/native/zkp-core__src__ntt.rs",
+      "bytes": 5725,
+      "sha256": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/patch-metadata.json",
+      "bytes": 274,
+      "sha256": "9d2737f2f9b7fb6b108cba1d7237e5a3b6fb6dc29ea608adc3e9ddc5f81064b1",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/payload-ledger.json",
+      "bytes": 3964,
+      "sha256": "5b5fee9bd208f97fdebee74c8a7ab24aacbbfe425d98b9709a53da4cb3c7a7aa",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/report_cycle.py",
+      "bytes": 24323,
+      "sha256": "ebde6bf049f80290d27163d305d7b848b1555302ca4aa6d197e68554cf02a092",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/result.json",
+      "bytes": 1328,
+      "sha256": "8fc82f73bfa1d45d5e662de38b52a918d0f77e478c3f7d60344ea4ddc354d4e9",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/review-only-owned-constructors.patch",
+      "bytes": 3010,
+      "sha256": "4ff40a04215b7439e097b3cdd3ff7769cffdf91e0c6dff1f124873267658c118",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/run_bounded.py",
+      "bytes": 1000,
+      "sha256": "eb655a1ded420ce428d185833dad0bcbd6aab8fdb9fb60ab4232788d483f0561",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/search-log.md",
+      "bytes": 2283,
+      "sha256": "84a0e7a265e8bb01a2a1635dbd251a3442fc7b5033700abbeb7ab64f59d86db9",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/source-pins.json",
+      "bytes": 5357,
+      "sha256": "4e118d44cbce1210d54632444f8a969f67667e61f5f268b31f194d27d6839c22",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/source-records.json",
+      "bytes": 7663,
+      "sha256": "04dc1a3a1eb39bcd13c50c773e87b7deb1faa40fdd816789831d31180d9d43c0",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/startup/AGENDA.md",
+      "bytes": 5603,
+      "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/startup/CLAUDE.md",
+      "bytes": 14089,
+      "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/startup/FINDINGS.md",
+      "bytes": 612581,
+      "sha256": "31a35a69f623c95bea1099e0a0c1fac2bb5052411bd2ae26ed948790917accc2",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/startup/MVP_STATUS.md",
+      "bytes": 79312,
+      "sha256": "6dd4794e6365b4256bd9e15b63a3a0b6932be047b864eb068a0038ca6040bb8e",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/startup/PROGRESS.md",
+      "bytes": 3866,
+      "sha256": "be7e1d55b25a629dabd228e24c747024ae47cfe452cfb2a5720a643da40361e2",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/startup/STATE.md",
+      "bytes": 5854,
+      "sha256": "d50752bac0b36fc17f01076febbe7d1c8c3c9cb84f0a65b8ee182480fd8c7cff",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/startup/ZK60_CODEX_FABLE_COORDINATION.md",
+      "bytes": 64889,
+      "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/startup/ZK60_DECISIONS.md",
+      "bytes": 96350,
+      "sha256": "cbc690f45e4e4f2a347b460cb55eeba0d6177a941311eff1c2fcadcbeca2854d",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/startup/ZK60_PRIVACY_REQUIREMENTS.md",
+      "bytes": 2264,
+      "sha256": "77037699ed0a89471d72795e112812276bdca1850078fbdd24abee26d7ff04a3",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/startup/ZK60_SPEED_PLAN_20261017.md",
+      "bytes": 35545,
+      "sha256": "6673a29c9960d16c85a3d031d950d4c8cbe7aa7e0f42137adf158547236683e5",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/startup/ZK60_THROUGHPUT_TARGET.md",
+      "bytes": 4941,
+      "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/startup/sources.jsonl",
+      "bytes": 608893,
+      "sha256": "27eb6f7b6e15c5f73913ef064fd803589b5e8ec0be15cb479426685c70c585b6",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/startup-manifest.json",
+      "bytes": 2938,
+      "sha256": "56c17b095e30c5fe742a2ff6370216bd815f70316b7e6713268db8586b015067",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/target-accounting.json",
+      "bytes": 1577,
+      "sha256": "e4ac64edd5081d97d4784e6f083986c29156e1165a6fd7fc16462323c76f0d7f",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/validate.py",
+      "bytes": 6133,
+      "sha256": "537bcf6add7ff6cf28c2999f399fa59e4717b4db787c81279fb38572903c32ab",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "experiments/public-constructor-transfer-20261019/validation.json",
+      "bytes": 288,
+      "sha256": "dcb5b7518dfb485d475ed717f30041b89b3311e98f37843b11d9c86099e66d78",
+      "scope": "research experiment artifact"
+    },
+    {
+      "path": "STATE.md",
+      "bytes": 5904,
+      "sha256": "90a463826f5e4a605adcf40c95549d79f97626d3abebaf16245f93c6e2720d78",
+      "scope": "research durable checkpoint at cycle finish; future cycles may change current ledgers"
+    },
+    {
+      "path": "PROGRESS.md",
+      "bytes": 2633,
+      "sha256": "90bc59af6f9bfa080c6580a59b3c5e67670840e95aa1cd3147f3118831198d4a",
+      "scope": "research durable checkpoint at cycle finish; future cycles may change current ledgers"
+    },
+    {
+      "path": "FINDINGS.md",
+      "bytes": 619268,
+      "sha256": "3e66d7456faf87aeccaf967b5574c1410bdbdf9a7d9e61efed63c1964639325a",
+      "scope": "research durable checkpoint at cycle finish; future cycles may change current ledgers"
+    },
+    {
+      "path": "sources.jsonl",
+      "bytes": 615964,
+      "sha256": "a028cacc4ec9e67ed4f98642ea407c7b0e61cca9471c25df2cd5e23212072d70",
+      "scope": "research durable checkpoint at cycle finish; future cycles may change current ledgers"
+    },
+    {
+      "path": "progress/20261019T181854Z-f5bd1f03.md",
+      "bytes": 6962,
+      "sha256": "3e890296a2f4be0ca2ede9b59d22c82347f54638e9fa6de3da31481b274d1658",
+      "scope": "research durable checkpoint at cycle finish; future cycles may change current ledgers"
+    },
+    {
+      "path": "handoffs/20261019-public-constructor-transfer.md",
+      "bytes": 4800,
+      "sha256": "6b9fd7ef95c4248ee614a93274ed5d1c763d04a56d681e73604c775f0db82cfc",
+      "scope": "research durable checkpoint at cycle finish; future cycles may change current ledgers"
+    }
+  ],
+  "self_excluded": true
+}

@@ -1,0 +1,1 @@
+{"status": "PASS", "checks": 588, "owner_phase_anchor_runs": 4, "elapsed_s": 0.04247884399956092, "maxrss_KiB": 14188, "scope": "Exact layout counts on owner replica plus independent affine delta identities; no runtime model"}

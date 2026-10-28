@@ -1,0 +1,10 @@
+
+running 5 tests
+test low_tests::exports_choose_an_explicit_stack_without_a_global_flag ... ok
+test low_tests::low_keeps_h16_and_its_downstream_scale ... ok
+test tests::invalid_base_or_derived_windows_are_refused ... ok
+test tests::legacy_shifts_and_widths_remain_unchanged ... ok
+test tests::low_h24_matches_the_received_build_spec ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

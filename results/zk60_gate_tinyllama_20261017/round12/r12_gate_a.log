@@ -1,0 +1,8 @@
+[zk60-guard 22:53:56] admission waiting: budget: 10+2.2 GiB > 11.9 GiB with live [gate-cap-tinyllama-t32-L22-fixed-pt1(cpu,4G), gate-r9-tokengate-tinyllama-t32-L1-dense-pt1(light,1G), fp-L_e8_c2_dg(light,5G)]
+[zk60-guard 22:54:57] admission waiting: budget: 10+2.2 GiB > 11.9 GiB with live [gate-cap-tinyllama-t32-L22-fixed-pt1(cpu,4G), gate-r9-tokengate-tinyllama-t32-L1-dense-pt1(light,1G), fp-L_e8_c2_dg(light,5G)]
+[zk60-guard 22:55:57] admission waiting: budget: 10.2+2.2 GiB > 11.9 GiB with live [gate-cap-llama3-8b-t32-L1-dense-pt1(cpu,4.2G), gate-r9-tokengate-tinyllama-t32-L1-dense-pt1(light,1G), fp-L_e8_c2_dg(light,5G)]
+[zk60-guard 22:56:57] admission waiting: budget: 10.2+2.2 GiB > 11.9 GiB with live [gate-cap-llama3-8b-t32-L2-dense-pt1(cpu,4.2G), gate-r9-tokengate-tinyllama-t32-L1-dense-pt1(light,1G), fp-L_e8_c2_dg(light,5G)]
+[zk60-guard 22:57:52] START gate-r9-tokengate-tinyllama-t32-L22-dense-pt1 class=light need=2.2G cap=3G enforce=cgroup+watchdog waited=236s run=0b4ca2959194
+[zk60-guard 00:02:15] END gate-r9-tokengate-tinyllama-t32-L22-dense-pt1 exit=0 child_wall=3863s peak_rss=1.75G min_avail=5.81G
+[zk60-guard 00:02:20] START gate-r9-tokengate-tinyllama-t32-L22-fixed-pt1 class=light need=2.2G cap=3G enforce=cgroup+watchdog waited=0s run=6982d67dbf2e
+[zk60-guard 01:14:07] END gate-r9-tokengate-tinyllama-t32-L22-fixed-pt1 exit=0 child_wall=4307s peak_rss=1.75G min_avail=7.97G

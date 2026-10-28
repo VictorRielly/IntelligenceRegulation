@@ -1,0 +1,78 @@
+{
+ "audience": {
+  "id": "adult",
+  "name": "Adult",
+  "restricted": []
+ },
+ "posts": [
+  {
+   "id": "a72321cd7fb00a48664ccfc04eaedbd0",
+   "created_at": "2026-10-21T03:09:18Z",
+   "author": "@victor",
+   "kind": "text",
+   "status": "published",
+   "status_message": "",
+   "prover_kind": "stub-next-token",
+   "published_at": "2026-10-21T03:34:52Z",
+   "labels": [
+    {
+     "category": "sexual",
+     "name": "Sexual / explicit content",
+     "short": "explicit",
+     "value": "no",
+     "proof": "accepted",
+     "bound_by_proof": false,
+     "policy_id": "pm-cat-sexual-v0",
+     "policy_sha256": "3ceb86a4ff399db7e0ea14c8fda0d7d0362aeccf3a40208b8b5be1b0334fdbd5"
+    },
+    {
+     "category": "violence",
+     "name": "Graphic violence",
+     "short": "violence",
+     "value": "no",
+     "proof": "accepted",
+     "bound_by_proof": false,
+     "policy_id": "pm-cat-violence-v0",
+     "policy_sha256": "fe7f041fe1e3f1222c8b0ad8d57c7f5c572ff2d3000c4d9b43a887e23461df10"
+    },
+    {
+     "category": "hate",
+     "name": "Hate / harassment",
+     "short": "hate",
+     "value": "no",
+     "proof": "accepted",
+     "bound_by_proof": false,
+     "policy_id": "pm-cat-hate-v0",
+     "policy_sha256": "1d9d6915c4c9f41b3d3ab1163e69df081de1913c0e85ae22b564e31266992761"
+    }
+   ],
+   "complete": true,
+   "text": "Sunrise run along the river this morning. Cold air, warm coffee, and a great playlist. Who else is out early today?",
+   "text_hidden": false,
+   "media": {},
+   "badge": {
+    "prover_kind": "stub-next-token",
+    "prover_label": "demo stub: next-token proof, classifier proof coming",
+    "classifier": "Shieldstral-1.0-3B"
+   },
+   "chunks": [
+    {
+     "index": 0,
+     "start": 0,
+     "end": 29,
+     "tokens": 29,
+     "status": "done",
+     "labels": {
+      "sexual": "no",
+      "violence": "no",
+      "hate": "no"
+     },
+     "error": null,
+     "statement_sha256": "bd0d0b4980221af291b881d03e990816a7edcb4ea7144247142aa612a466f362",
+     "proved_at": "2026-10-21T03:11:59Z"
+    }
+   ],
+   "retry_allowed": false
+  }
+ ]
+}

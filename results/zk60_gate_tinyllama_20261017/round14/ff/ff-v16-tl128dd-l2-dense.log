@@ -1,0 +1,9 @@
+[load          ]      0.7 s   peak RSS     165 MB   RAISED   KeyError: 'Dd'
+[replay        ]      1.6 s   peak RSS     167 MB   ok
+[hash          ]      0.3 s   peak RSS     167 MB   ok
+[terminals     ]      5.2 s   peak RSS     277 MB   FAIL
+[commitments   ]     79.2 s   peak RSS     277 MB   ok
+[boundary      ]      3.9 s   peak RSS     277 MB   ok
+[preimage      ]      1.1 s   peak RSS     277 MB   ok
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round14/ff/ff-v16-tl128dd-l2-dense.json   total 92.0 s   peak RSS 277 MB   ok=False
+status: NOT-OK   unexplained false leaves 11   -> /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round14/ff/ff-v16-tl128dd-l2-dense.status.json

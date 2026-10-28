@@ -20,7 +20,7 @@ use super::stage_in::{self, StageInWitness};
 use super::stage_out::{self, StageOutWitness};
 use super::*;
 use super::super::protocol::CheatingProver;
-use super::super::run::{RunShape, RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32, RUN_PROFILE_TOKEN_IO_RUNG_TC, RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32};
+use super::super::run::{RunShape, RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T128, RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32, RUN_PROFILE_TOKEN_IO_RUNG_TC, RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128, RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32};
 use super::super::trained_statement::{IntegerCalibration, LayerRecord, ModelSource, Provenance, SourceKind, TrainedModelStatement};
 use super::super::BlockPublic;
 use super::r0_words::*;
@@ -216,8 +216,8 @@ pub(super) fn honest(fx: &Fx, tp: &TokenProfile) -> HonestPipeline {
 /// rung's 2, R2's whole TinyLlama stack of 22
 pub(crate) fn census_l(profile: &str) -> usize {
     match profile {
-        RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32 => 22,
-        RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32 => 32,
+        RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32 | RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128 => 22,
+        RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32 | RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T128 => 32,
         _ => L,
     }
 }
@@ -227,6 +227,9 @@ pub(crate) fn census_statement(profile: &'static str, l: usize) -> (TokenRunStat
         RUN_PROFILE_TOKEN_IO_RUNG_TC => (rung(), norm(), 1),
         RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32 => (Shape::tinyllama_trained(32, &r2_calibration(), R2_F_E).expect("the TinyLlama T32 shape"), R2_NORM, 1),
         RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32 => (Shape::llama3_8b_t32_trained(&r3_calibration(), R3_F_E).expect("the Llama-3-8B T32 shape"), R3_NORM_GENERIC, R3_BOS),
+        // TOKEN I/O ROUND 8: the T128 profiles
+        RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128 => (Shape::tinyllama_trained(128, &r2_calibration(), R2_F_E).expect("the TinyLlama T128 shape"), R2_NORM, 1),
+        RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T128 => (Shape::llama3_8b_trained(128, &r3_calibration(), R3_F_E).expect("the Llama-3-8B T128 shape"), R3_NORM_GENERIC, R3_BOS),
         _ => panic!("census_statement: {profile} is not a registered token-I/O run profile"),
     };
     let tables = census_tables(profile);
@@ -263,8 +266,8 @@ pub(crate) fn census_tables(profile: &str) -> &'static TokenTables {
     static EIGHT: OnceLock<TokenTables> = OnceLock::new();
     match profile {
         RUN_PROFILE_TOKEN_IO_RUNG_TC => RUNG.get_or_init(|| generic_tables(384, 0x7531_6765)),
-        RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32 => TINY.get_or_init(|| generic_tables_v(32_000, 2048, 0x7232_6365)),
-        RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32 => EIGHT.get_or_init(|| hashed_tables(128_256, 4096)),
+        RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32 | RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128 => TINY.get_or_init(|| generic_tables_v(32_000, 2048, 0x7232_6365)),
+        RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32 | RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T128 => EIGHT.get_or_init(|| hashed_tables(128_256, 4096)),
         _ => panic!("census_tables: {profile} is not a registered token-I/O run profile"),
     }
 }

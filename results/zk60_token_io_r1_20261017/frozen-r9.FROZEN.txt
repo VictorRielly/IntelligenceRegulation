@@ -1,0 +1,16 @@
+Token-I/O lane round-9 tree frozen at 2026-10-20T03:00Z (privacy review round 4 + REVIEW5 folded in).
+copy:     /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r9/
+source:   /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io/ (build target/ directories excluded,
+          BASELINE.sha256 excluded as by tools/manifest.py)
+manifest: /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/manifest_final_r9.sha256
+          (236 files, list sha256 b666a991a402dd39dfe8376d755fef3ddfd892b7aba09f4bb23d224bfe30ca78 = manifest_r9C);
+          all 236 entries re-hashed in the copy: match, no missing, no extra.
+binary:   cli/zk60_token_io.r9.release.bin (b56f1b7152e617e8753c21aa9c77fa5de19862df759081cce514d0766c8d4851,
+          cli/binaries_r9.sha256; build note cli/zk60_token_io.r9.BUILD.txt), built from this tree (manifest_r9C).
+suite:    s13 (logs/s13-suite.log) on this tree: exit 0, 768 passed, 0 failed, 40 ignored, 29 test binaries.
+capture:  ~/zk60-artifacts/token-io/captures/tinyllama-t32-L2-dense-pt1-cli-r9/ (made with the binary above).
+vs frozen-r7 (manifest_final_r7): 12 changed, 3 added, 0 removed. ONE block/run file: private_block/run.rs
+          (round 8, additive: two T128 token-run profile constants, TOKEN_IO_RUN_PROFILES 3 -> 5, two
+          run-shape arms); every other changed or added file is token-only (private_block/token_io*,
+          examples/zk60_token_io.rs). Not a privacy acceptance.
+The lane's working copy may move on; this copy does not change.

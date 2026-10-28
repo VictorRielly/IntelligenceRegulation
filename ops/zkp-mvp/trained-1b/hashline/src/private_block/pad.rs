@@ -91,7 +91,7 @@ fn head_indicator(s: &Shape, dom: Dom, head_true: &dyn Fn(usize) -> bool) -> Vec
                 Dom::Ht => v[h * t_pad + t] = 1,
                 Dom::Q => {
                     for i in 0..s.head_dim {
-                        v[t * s.d_pad + h * s.head_dim + i] = 1;
+                        v[t * s.q_pad() + h * s.head_dim + i] = 1;
                     }
                 }
                 Dom::S => {
@@ -170,11 +170,14 @@ pub(crate) fn closed_form_indicator(s: &Shape, dom: Dom) -> Option<(Vec<i64>, Ve
         Dom::F => vec![(1, BitForm::of(s.hidden, f_pad)), (f_pad, BitForm::of(s.tokens, t_pad))],
         Dom::Kv => vec![(s.kv_heads * dh, BitForm::of(s.tokens, t_pad))],
         // `Dom::Q` is `(t, slot, i')`: the head factor sits above `log2(dh)`
-        Dom::Q => vec![(dh, head()), (d_pad, BitForm::of(s.tokens, t_pad))],
+        // NATIVE R12 (F2): its row stride is the QUERY width `q_pad`
+        Dom::Q => vec![(dh, head()), (s.q_pad(), BitForm::of(s.tokens, t_pad))],
         Dom::Ht => vec![(1, BitForm::of(s.tokens, t_pad)), (t_pad, head())],
         Dom::S => vec![(1, BitForm::of(s.tokens, t_pad)), (t_pad, BitForm::of(s.tokens, t_pad)), (t_pad * t_pad, head())],
         Dom::L => vec![(1, BitForm::of(s.tokens, t_pad)), (t_pad, BitForm::of(3 * LIMBS_ISQRT, s.size(dom) / t_pad))],
         Dom::Tab => vec![(1, BitForm::of(U8_LEN, s.size(dom)))],
+        // NATIVE R9: (h, t | k), unpadded on a DD profile (`check_dd_geometry`)
+        Dom::Dd => vec![(1, BitForm::of(s.dd_cap.max(1), s.dd_cap.max(1))), (s.dd_cap.max(1), BitForm::of(s.tokens, t_pad)), (t_pad * s.dd_cap.max(1), head())],
     };
     let mut factors = Vec::new();
     for (stride, form) in axes {
@@ -234,6 +237,8 @@ pub(crate) fn indicator_slots(dom: Dom) -> &'static [usize] {
         Dom::L => &[SC_LZC],
         Dom::Tab => &[SC_TAB],
         Dom::T => &[SC_TZC],
+        // NATIVE R9: a DD profile's dictionary never pads; listed for totality
+        Dom::Dd => &[SC_DD],
     }
 }
 
@@ -241,8 +246,8 @@ pub(crate) fn indicator_slots(dom: Dom) -> &'static [usize] {
 /// transpose of [`indicator_slots`] over the shape's padded domains, and zero
 /// everywhere on the frozen toy profile.
 #[cfg(test)]
-pub(crate) fn indicator_tables_per_slot(s: &Shape) -> [usize; N_SLOTS] {
-    let mut out = [0usize; N_SLOTS];
+pub(crate) fn indicator_tables_per_slot(s: &Shape) -> [usize; MAX_SLOTS] {
+    let mut out = [0usize; MAX_SLOTS];
     if !s.carries_pad_rule() {
         return out;
     }
@@ -355,6 +360,9 @@ pub(crate) fn pad_zero_host(dom: Dom) -> usize {
         Dom::S => SC_SZC,
         Dom::F => SC_FZC,
         Dom::Tab => SC_TAB,
+        // NATIVE R9: the dictionary's own zero-check (a DD profile's
+        // dictionary never pads, so it never hosts a term)
+        Dom::Dd => SC_DD,
     }
 }
 
@@ -933,7 +941,7 @@ mod tests {
     fn the_declared_degrees_are_inside_the_declared_range() {
         let (lo, hi) = Shape::degree_range();
         for s in [Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::rung_k4(), Shape::m125()] {
-            for (slot, (_, _, d)) in s.slots().iter().enumerate() {
+            for (slot, (_, _, d)) in s.slots().iter().enumerate().take(s.n_slots()) {
                 assert!((lo..=hi).contains(d), "{}: slot {slot} declares degree {d}, outside the declared range {lo}..={hi}", s.name);
             }
         }

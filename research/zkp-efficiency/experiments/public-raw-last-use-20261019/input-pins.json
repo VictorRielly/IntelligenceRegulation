@@ -1,0 +1,10 @@
+[
+  {
+    "path": "input-fixtures.json",
+    "sha256": "8c69c0f86574f1d06a2d0939b8c4bc8bb15977c0a2417afa4261dd8ae30122c8"
+  },
+  {
+    "path": "prior-direct-ledger.json",
+    "sha256": "8fdfb4d68610a33b8fd3fee7c7e47edd5a609ea49abf79df143e7d2b376b0341"
+  }
+]

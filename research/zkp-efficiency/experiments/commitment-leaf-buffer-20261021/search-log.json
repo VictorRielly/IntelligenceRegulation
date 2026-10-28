@@ -1,0 +1,27 @@
+{
+  "native_live_queries": [
+    "2026 GPU BLAKE3 Merkle tree zero knowledge proof memory coalescing",
+    "GPU polynomial commitment Merkle tree hashing streaming 2026 paper",
+    "site.github.com BLAKE3 GPU cuda tree hash",
+    "site.github.com BLAKE3-team BLAKE3 releases 1.8.3 2026",
+    "\"MARS\" \"Merkle\" GPU 2026",
+    "GPU BLAKE3 incremental CV stack streaming hash column",
+    "\"MARS: A General GPU Optimization Framework\" Merkle",
+    "\"blake3\" \"CV stack\" \"maximum input\"",
+    "\"GPU\" \"polynomial commitment\" \"2026\" \"October\""
+  ],
+  "primary_records": 8,
+  "rotation_this_cycle": [
+    "GPU commitments",
+    "memory traffic",
+    "batching/amortization",
+    "sumcheck/composition filters"
+  ],
+  "next_rotation": [
+    "proof composition",
+    "lookup/softmax fidelity",
+    "quantization exactness"
+  ],
+  "failures_recorded": true,
+  "no_external_code_executed": true
+}

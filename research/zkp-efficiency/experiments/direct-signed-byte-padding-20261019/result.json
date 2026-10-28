@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "run_id": "20261019T191854Z-6444ea2f",
+  "seed": 2026101987,
+  "checks": 5602,
+  "layouts": 48,
+  "matrix_cases": 432,
+  "exhaustive_byte_sweeps": 3,
+  "controls": {
+    "short": 432,
+    "long": 432,
+    "dtype_before_length": 432,
+    "shape_before_length": 432,
+    "unsigned": 432,
+    "source_stride": 204,
+    "pad_nonzero": 270,
+    "prefix": 36
+  },
+  "wall_seconds": 0.2979005929955747,
+  "rss_kib": 25924,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "nice": 19,
+  "python": "3.10.12",
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "scope": "Synthetic exact signed layout, source stride, zero pads and prevalidation only; no native proof or timing gain.",
+  "limits": "59s wall/CPU,512MiB AS,one nice19 CPU; estimated64MiB; no native/GPU/build"
+}

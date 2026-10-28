@@ -1,0 +1,1669 @@
+diff -ruN -x __pycache__ frozen_v18/scripts/zk60_native_rg_classify.py frozen_v19/scripts/zk60_native_rg_classify.py
+--- frozen_v18/scripts/zk60_native_rg_classify.py	1969-12-31 16:00:00.000000000 -0800
++++ frozen_v19/scripts/zk60_native_rg_classify.py	2026-10-20 22:42:44.863036552 -0700
+@@ -0,0 +1,421 @@
++#!/usr/bin/env python3
++"""[GATE ROUND 16, tools v19, 2026-10-21] The CLASSIFIER profile family
++(D38 / D40 / D41; `results/zk60_token_io_r1_20261017/classifier/
++DESIGN_CLASSIFIER.md` v2) for the privacy gate: its geometry, re-derived
++from public parameters; what the gate EXPECTS a classifier receipt to
++disclose; D40's recount of D34's input-dependent refusal term; and D41's
++chunk split and label rule, re-derived.
++
++READ (pre-freeze) on the token lane's working copy at manifest_r12B (list
++sha256 edbffc75...), the rung R-C1 tree:
++
++    token_io/classify.rs     dd31955296cb...   (profile, door, statement, chunks)
++    token_io/stage_in_c.rs   7bc3c30b5f20...   (stage IN-C)
++    token_io/stage_out_c.rs  46cb695192cf...   (stage OUT-C)
++    token_io/classify_run.rs 56fcccef9738...   (the run)
++
++Line numbers below refer to those digests.  When R-C1 freezes, every digest
++is checked again (`zk60_native_rg_classpins.py`); a moved digest has no
++reading and is refused.
++
++WHAT R-C1 BUILDS, IN THE GATE'S TERMS [READ]
++
++* **Stage IN-C** = stage IN (4 slots, A {tok, mult}, H {h_q, h_tab, u}, A 3 /
++  H 4 opening groups) plus two PUBLIC columns and one clause:
++  - INC-01's query zero-check draws FOUR fresh coefficients (LogUp, BOS,
++    TEMPLATE, pad; stage IN drew three) and adds
++    `mu2 * pi(t) * (tok(t) - kappa(t))`, with `pi` the public template
++    indicator and `kappa` the public template ids (stage_in_c.rs:188-209);
++  - the lookup tuple gains a third, public column: the query adds
++    `beta^2 * ctl_q(t)` (public: `ctl(kappa(t))` at template positions, 0 at
++    content), the table adds `beta^2 * ctl(v)` (stage_in_c.rs:166-170).
++  No new commitment, plane or opening group.
++* **Stage OUT-C** = stage OUT's final norm, then the MARGIN, with no head,
++  no argmax and no output endpoint (stage_out_c.rs:1-24, 74-111):
++  - 8 slots: IO-in, SS (private, hosted by TZC), TZC, **PD** (the margin
++    `sum_i y(i) w_Delta(i)`, private, hosted by LZC), **LZC** (the limb
++    lookups over the WHOLE limb plane, its pad clause, and the HOST TERM
++    `nu (g(z) limb(z) + u0(z) (sigma b + c))`), DZC, TAB, ZS;
++  - A planes: D, Dsq (To), limb (Lo), x, xl0, xl1, y, rho0-3, sigma0-3 (Do),
++    the byte histogram (Tab): 16 planes, **16 opening groups**;
++  - H planes: H_LO, six Do helpers, the byte-table helper, u: **5 opening
++    groups** (LZC, DZC, TAB, ZS, the LogUp sum claim);
++  - the margin limbs `lambda_k` are entries `32 + k` (k < L) of the limb
++    plane (LAM_BASE = 32), bytes by LZC's lookup on every entry, zero
++    elsewhere by LZC's pad clause; `g(z) = sigma 256^(z - 32)` there;
++  - the hosting rule makes `sum_z host(z) = sum_i y(i) w(i)`, i.e. the margin
++    identity `Delta = sigma (delta + b) + c`, `delta = sum_k 256^k
++    lambda_k` (design §4.2).
++* **The run header** absorbs, last before any commitment, `classify-verdict`
++  (the public bit) and `classify-chunk` (D41's ChunkRef: index, count,
++  a, b, total, size, overlap; u64 LE each) (classify.rs:866-881).
++* **One external endpoint** (the input token endpoint); no output endpoint
++  (D40); B_in / B_out are the run's boundaries.
++
++NOTHING HERE IS A PRIVACY STATEMENT.
++"""
++
++from __future__ import annotations
++
++import json
++import math
++import os
++import sys
++from dataclasses import dataclass
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++if HERE not in sys.path:
++    sys.path.insert(0, HERE)
++
++import zk60_native_rg_tokenio as TIO  # noqa: E402
++from zk60_native_rg_tokenio import (  # noqa: E402
++    LIMBS_ISQRT, NORM_LIMBS, R1_MVP, TO_LOG, U8_LEN, Slot, StageLayout, Tier, clog2,
++)
++
++P = (1 << 64) - (1 << 32) + 1
++
++# [READ] classify.rs:281-284
++C_MAX = 1 << 33
++LAM_BASE = 32
++# [READ] classify.rs:524-525
++STAGE_IN_C_MAGIC = b"HLPCLIN1"
++STAGE_OUT_C_MAGIC = b"HLPCLOT1"
++# [READ] classify.rs:879-880 (the last two run-header absorbs, in order)
++HEADER_TAIL_LABELS = ("classify-verdict", "classify-chunk")
++# [READ] run.rs (manifest_r12B 10cfc2b1) RUN_PROFILE_CLASSIFY_RUNG_TC
++RUN_PROFILE_CLASSIFY_RUNG_TC = "hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1"
++# [READ] classify.rs:166
++CHUNK_OVERLAPS = {RUN_PROFILE_CLASSIFY_RUNG_TC: 4}
++
++# [READ] stage_in_c.rs:24-37
++INC_A_TOK, INC_A_MULT = 0, 1
++INC_H_Q, INC_H_TAB, INC_H_U = 0, 1, 2
++SIC_IO, SIC_QZC, SIC_TZC, SIC_ZS = 0, 1, 2, 3
++INC_A_GROUPS, INC_H_GROUPS = 3, 4
++INC_A_NAMES = ["A_TOK", "A_MULT"]
++INC_H_NAMES = ["H_Q", "H_TAB", "H_U"]
++INC_NAMES = [
++    "INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)",
++    "INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE + pad, fresh mu each",
++    "INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each",
++    "INC-03 ZS zero-sum row",
++]
++# [READ] stage_out_c.rs:36-63
++C_D, C_DSQ, C_LIMB, C_X, C_XL0, C_XL1, C_Y, C_RHO0, C_SIG0, C_MULT = 0, 1, 2, 3, 4, 5, 6, 7, 11, 15
++OC_H_LO, OC_H_D0, OC_H_DO_HELPERS, OC_H_GU8, OC_H_U = 0, 1, 6, 7, 8
++SOC_IO, SOC_SS, SOC_TZC, SOC_PD, SOC_LZC, SOC_DZC, SOC_TAB, SOC_ZS = range(8)
++OUTC_A_GROUPS, OUTC_H_GROUPS = 16, 5
++OUTC_A_NAMES = (["A_D", "A_DSQ", "A_LIMB", "A_X", "A_XL0", "A_XL1", "A_Y"]
++                + [f"A_RHO{i}" for i in range(NORM_LIMBS)] + [f"A_SIG{i}" for i in range(NORM_LIMBS)]
++                + ["A_MU8"])
++OUTC_H_NAMES = ["H_LO"] + [f"H_D{i}" for i in range(OC_H_DO_HELPERS)] + ["H_GU8", "H_U"]
++OUTC_NAMES = [
++    "OUTC-00 IO-in: x = B_out row T-1 (fixed public row bits)",
++    "OUTC-01 SS final-norm row sum (private, hosted by TZC)",
++    "OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
++    "OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)",
++    "OUTC-04 LZC limb lookups (+pad; isqrt and margin limbs) + host term sigma g limb + u0 (sigma b + c)",
++    "OUTC-05 DZC final-norm quotient + x limbs + helpers (+pad)",
++    "OUTC-06 TAB byte-table helper (+pad)",
++    "OUTC-07 ZS zero-sum row",
++]
++
++
++def bit_length(v: int) -> int:
++    return int(v).bit_length()
++
++
++@dataclass
++class ClassGeom:
++    """`ClassifierProfile::new` (classify.rs:316-409), the parts the layout and
++    the margin read, at one classifier shape (public-row variant, mode
++    verdict-public-bit)."""
++    name: str
++    tokens: int
++    t_pad: int
++    d: int
++    d_pad: int
++    v: int
++    p0: int
++    n: int
++    s: int
++    c: int
++    num_special: int
++    block_log_n: int
++    block_inv_rate: int
++    tier: Tier = R1_MVP
++
++    def __post_init__(self):
++        f = []
++        if not (2 <= self.v <= TIO.V_MAX):
++            f.append(f"V = {self.v} outside 2..=2^17")
++        if self.n < 1 or self.p0 + self.n + self.s != self.tokens:
++            f.append(f"P0 + n + S = {self.p0} + {self.n} + {self.s} is not T = {self.tokens} (n >= 1)")
++        if self.s < 1:
++            f.append("the template has no suffix")
++        if not (-C_MAX <= self.c <= C_MAX):
++            f.append(f"c = {self.c} outside [-2^33, 2^33]")
++        if not (0 < self.num_special < self.v):
++            f.append("the control-id class [0, num_special) must be nonempty and below V")
++        self.v_pad = 1 << clog2(self.v)
++        self.log_v = clog2(self.v_pad)
++        # classify.rs:372-379: the margin window over the WHOLE classes
++        top = self.d * 127 * 32767 + C_MAX + 1
++        self.window_bits = bit_length(top)
++        self.limbs = -(-self.window_bits // 8)
++        if (1 << (8 * self.limbs)) + (1 << self.window_bits) + C_MAX >= P // 2:
++            f.append("the margin limbs and window wrap the field")
++        lt = self.tier.stage_log_n
++        if clog2(max(self.t_pad, 1 << self.tier.ep_log_n)) > self.ti_log():
++            f.append("the input token endpoint is wider than the position domain")
++        if LAM_BASE + self.limbs > (1 << self.lo_log()):
++            f.append("the margin limbs do not fit the isqrt-limb domain")
++        if max(self.do_log(), self.voc_log()) > TIO.MAX_DOM_LOG:
++            f.append("a stage domain exceeds 2^17 words")
++        self.door_findings = f
++        _ = lt
++
++    # the stage domains (classify.rs:439-456)
++    def ti_log(self): return max(clog2(self.t_pad), self.tier.stage_log_n)
++    def voc_log(self): return max(self.log_v, self.tier.stage_log_n)
++    def lo_log(self): return max(clog2(2 * 3 * LIMBS_ISQRT), self.tier.stage_log_n)
++    def do_log(self): return max(clog2(self.d_pad), self.tier.stage_log_n)
++    def tab_log(self): return max(clog2(U8_LEN), self.tier.stage_log_n)
++    def in_ep_words(self): return max(self.t_pad, 1 << self.tier.ep_log_n)
++
++    # the template (classify.rs:411-437)
++    def is_template(self, t): return t < self.p0 or (self.p0 + self.n <= t < self.tokens)
++
++    def stage_in_c(self) -> StageLayout:
++        """`stage_in_c.rs:39-55`: stage IN's layout under new slot names"""
++        lt = self.tier.stage_log_n
++        lti, lvoc = self.ti_log(), self.voc_log()
++        slots = [
++            Slot(INC_NAMES[0], clog2(self.in_ep_words()), 1, 3, "Standalone", 1, 0, 1),
++            Slot(INC_NAMES[1], lti, 1, 4, "Standalone", 1, 1, 1),
++            Slot(INC_NAMES[2], lvoc, 1, 4, "Standalone", 1, 1, 0),
++            Slot(INC_NAMES[3], lt, 1, 2, "Standalone", 0, 1, 0),
++        ]
++        return StageLayout("stage IN-C", lt, [lti, lvoc], [lti, lvoc, lt], [1, -1, 1], INC_H_U,
++                           slots, [], [lt, lt, self.tier.ep_log_n, self.block_log_n])
++
++    def stage_out_c(self) -> StageLayout:
++        """`stage_out_c.rs:74-111`"""
++        lt = self.tier.stage_log_n
++        llo, ldo, ltab = self.lo_log(), self.do_log(), self.tab_log()
++        d_bits = clog2(self.d_pad)
++        slots = [
++            Slot(OUTC_NAMES[0], d_bits, 1, 2, "Standalone", 1, 0, 1),
++            Slot(OUTC_NAMES[1], ldo, 1, 4, "Private", 1, 0, 0),
++            Slot(OUTC_NAMES[2], TO_LOG, 1, 3, "Host", 11, 0, 0),
++            Slot(OUTC_NAMES[3], d_bits, 1, 2, "Private", 1, 0, 0),
++            Slot(OUTC_NAMES[4], llo, 1, 4, "Host", 1, 1, 0),
++            Slot(OUTC_NAMES[5], ldo, 1, 5, "Standalone", 13, OC_H_DO_HELPERS, 0),
++            Slot(OUTC_NAMES[6], ltab, 1, 3, "Standalone", 1, 1, 0),
++            Slot(OUTC_NAMES[7], lt, 1, 2, "Standalone", 0, 1, 0),
++        ]
++        a_log = [TO_LOG] * 2 + [llo] + [ldo] * 12 + [ltab]
++        h_sign = [1] * (OC_H_U + 1)
++        h_sign[OC_H_GU8] = -1
++        h_log = [llo] + [ldo] * OC_H_DO_HELPERS + [ltab] + [lt]
++        # [A, H, In = B_out, Out = unused]
++        return StageLayout("stage OUT-C", lt, a_log, h_log, h_sign, OC_H_U, slots,
++                           [[SOC_TZC, [SOC_SS]], [SOC_LZC, [SOC_PD]]],
++                           [lt, lt, self.block_log_n, lt])
++
++    def endpoint(self) -> dict:
++        n = 1 << self.tier.ep_log_n
++        words = self.in_ep_words()
++        data = -(-words // n)
++        return {"words": words, "row_width_log": self.tier.ep_log_n, "inv_rate": self.tier.ep_inv_rate,
++                "data_rows": data, "commitment_rows": data + TIO.EP_MASK_ROWS,
++                "true_words": self.tokens, "pad_words": words - self.tokens,
++                "template_words": self.p0 + self.s, "content_words": self.n}
++
++    def boundary(self) -> dict:
++        words = self.t_pad * self.d_pad
++        data = -(-words // (1 << self.block_log_n))
++        return {"plane": [self.t_pad, self.d_pad], "row_width_log": self.block_log_n,
++                "inv_rate": self.block_inv_rate, "data_rows": data, "rows": data + 2 * 2 + 2, "sites": 2}
++
++    def margin_bounds(self) -> dict:
++        """design §4.1-4.2 / classify.rs:372-379 [COUNTED]: every term of the
++        margin identity is an integer below p / 2, so it holds over Z"""
++        b_delta = self.d * 127 * 32767
++        return {"B_Delta": b_delta, "B_Delta_log2": round(math.log2(b_delta), 3),
++                "window_bits": self.window_bits, "limbs": self.limbs,
++                "delta_max_any_limbs_log2": 8 * self.limbs,
++                "honest_delta_max": b_delta + C_MAX, "honest_delta_fits": b_delta + C_MAX < (1 << (8 * self.limbs)),
++                "identity_total_below_p_half": b_delta + (1 << (8 * self.limbs)) + C_MAX + 1 < P // 2,
++                "limb_entries": [LAM_BASE, LAM_BASE + self.limbs - 1],
++                "limb_plane_entries": 1 << self.lo_log(),
++                "isqrt_live_entries": [2 * k for k in range(3 * LIMBS_ISQRT)]}
++
++    def report(self) -> dict:
++        si, so = self.stage_in_c(), self.stage_out_c()
++        return {
++            "geometry": self.name, "tokens": self.tokens, "t_pad": self.t_pad, "d": self.d,
++            "d_pad": self.d_pad, "V": self.v, "V_pad": self.v_pad, "P0": self.p0, "n": self.n, "S": self.s,
++            "c": self.c, "num_special": self.num_special, "door_findings": self.door_findings,
++            "margin": self.margin_bounds(), "tier": self.tier.__dict__,
++            "stage_in_c": si.summary(), "stage_out_c": so.summary(),
++            "input_endpoint": self.endpoint(), "output_endpoint": None,
++            "b_in_b_out": self.boundary(),
++            "opening_groups": {"IN-C": [INC_A_GROUPS, INC_H_GROUPS], "OUT-C": [OUTC_A_GROUPS, OUTC_H_GROUPS]},
++            "expectations": expectations(self),
++            "privacy_acceptance": False,
++        }
++
++
++# ---------------------------------------------------------------- shapes
++# the R-C1 development rung (shape.rs TRAINED_CALIB_RUNG_PROFILE: T32 / d384;
++# classify.rs:109-111 policy_rung_dev: P0 8, suffix [32], num_special 5,
++# V 300, c 0); block endpoint row width 12 [READ shape.rs:399]
++RUNG_RC1 = dict(name="R-C1 classifier rung (T32 / d384, V 300, P0 8 + n 23 + S 1)", tokens=32, t_pad=32,
++                d=384, d_pad=512, v=300, p0=8, n=23, s=1, c=0, num_special=5,
++                block_log_n=12, block_inv_rate=4)
++
++
++def shieldstral(t: int) -> dict:
++    """Shieldstral-1.0-3B at T (classify.rs:118-139 policy_shieldstral_card:
++    P0 84, S 1, num_special 1000, V 131,072, c 0; d 3072 -> d_pad 4096). The
++    block shape is native R12's (in progress): the block endpoint row width
++    is taken as the 8B class's 13 until R12 freezes [ASSUMED, re-read then]."""
++    return dict(name=f"Shieldstral-1.0-3B T{t} (card template, P0 84 + n {t - 85} + S 1)", tokens=t,
++                t_pad=1 << clog2(t), d=3072, d_pad=4096, v=131072, p0=84, n=t - 85, s=1, c=0,
++                num_special=1000, block_log_n=13, block_inv_rate=4)
++
++
++# ---------------------------------------------------------------- D40 / D34
++def d34_residual_log2(blocks: int, tokens: int, out_bytes: int = U8_LEN) -> float:
++    """D34's two-world distance for the input-dependent token-stage refusal,
++    `2 (768 L + T + 256) / p^2` (D34 / D40 [READ]); at a classifier stage
++    IN-C inverts at most T distinct tau rows and stage OUT-C at most 256 byte
++    values, the blocks 768 each.  log2 of the figure."""
++    return math.log2(2 * (768 * blocks + tokens + out_bytes)) - 2 * math.log2(P)
++
++
++def d34_table() -> dict:
++    rows = []
++    for t in (128, 256, 512):
++        rows.append({"L": 26, "T": t, "log2": round(d34_residual_log2(26, t), 3)})
++    return {"formula": "2 (768 L + T + 256) / p^2 (D34; D40 recount for the classifier family)",
++            "next_token_L1_T32_check": round(d34_residual_log2(1, 32), 3),
++            "classifier_L26": rows,
++            "D40_figure_T512": round(d34_residual_log2(26, 512), 1)}
++
++
++# ---------------------------------------------------------------- D41 chunks
++def chunk_ranges(total: int, size: int, overlap: int) -> list:
++    """`chunk_ranges` (classify.rs:183-193), transcribed: chunks of exactly
++    `size` ids at stride `size - overlap`, the last END-ALIGNED; short
++    content refused by name"""
++    if size <= 0 or overlap >= size or overlap < 0:
++        raise ValueError(f"the plan (size {size}, overlap {overlap}) needs 0 <= overlap < size")
++    if total < size:
++        raise ValueError(f"a content of {total} ids is shorter than one chunk of {size} ids (short content is not built)")
++    stride = size - overlap
++    k = 1 + -(-(total - size) // stride)
++    return [(j * stride, j * stride + size) if j + 1 < k else (total - size, total) for j in range(k)]
++
++
++def chunk_ref_bytes(index, count, a, b, total, size, overlap) -> bytes:
++    """`ChunkRef::bytes` (classify.rs:215-217): seven u64 LE"""
++    return b"".join(int(x).to_bytes(8, "little") for x in (index, count, a, b, total, size, overlap))
++
++
++def check_item_chunks(chunks: list, *, total: int, size: int, overlap: int) -> dict:
++    """D41's label rule for ONE category of one item, fail-closed (design
++    §13.4): `chunks` = the accepted chunk statements, each a dict with
++    `index, count, a, b, total, size, overlap, verdict, policy, model`.  The
++    label is 1 (flagged) if ANY chunk says 1, or a chunk index 0..K-1 has no
++    accepted proof, or a chunk appears twice, or a range / count / total /
++    plan is not the split's, or the chunks name different policies or
++    models.  Returns the label and every reason."""
++    reasons = []
++    try:
++        want = chunk_ranges(total, size, overlap)
++    except ValueError as exc:
++        return {"label": 1, "reasons": [f"no split: {exc}"], "K": None}
++    k = len(want)
++    seen = {}
++    for c in chunks:
++        j = c.get("index")
++        if not isinstance(j, int) or not (0 <= j < k):
++            reasons.append(f"a chunk index {j!r} outside 0..{k - 1}")
++            continue
++        if j in seen:
++            reasons.append(f"chunk {j} appears twice")
++            continue
++        seen[j] = c
++        if (c.get("a"), c.get("b")) != want[j]:
++            reasons.append(f"chunk {j}'s range {(c.get('a'), c.get('b'))} is not the split's {want[j]}")
++        for key, val in (("count", k), ("total", total), ("size", size), ("overlap", overlap)):
++            if c.get(key) != val:
++                reasons.append(f"chunk {j}'s {key} is {c.get(key)!r}, the split's {val}")
++    missing = [j for j in range(k) if j not in seen]
++    if missing:
++        reasons.append(f"chunks {missing} have no accepted proof")
++    for key in ("policy", "model"):
++        vals = {c.get(key) for c in seen.values()}
++        if len(vals) > 1:
++            reasons.append(f"the chunks name different {key}s")
++    verdict_or = int(any(c.get("verdict") == 1 for c in seen.values()))
++    bad_verdicts = [j for j, c in seen.items() if c.get("verdict") not in (0, 1)]
++    if bad_verdicts:
++        reasons.append(f"chunks {bad_verdicts} carry no one-bit verdict")
++    label = 1 if (reasons or verdict_or) else 0
++    return {"label": label, "verdict_or": verdict_or, "K": k, "ranges": want,
++            "fail_closed_reasons": reasons, "covers": bool(want) and want[0][0] == 0 and want[-1][1] == total
++            and all(want[i][1] > want[i + 1][0] for i in range(k - 1)) if k > 1 else bool(want)}
++
++
++# ---------------------------------------------------------------- expectations
++def expectations(g: ClassGeom) -> dict:
++    """What the gate EXPECTS of a classifier receipt (G-1 / G-3), stated
++    before any capture exists (predictions; each is compared by the capture
++    tools once the hook lands)."""
++    so = g.stage_out_c()
++    return {
++        "per_commitment_disclosed_Fp": {
++            "A-in": 0, "H-in": 2, "E-token-in": 0, "B-in / internal boundaries / B-out": 0,
++            "block A": 0, "block H": 2, "A-out (OUT-C)": 0, "H-out (OUT-C)": 2,
++            "E-token-out": "ABSENT (D40: no output endpoint)"},
++        "why_H_2": "each H commitment's two zero-sum rows (the value-0 sum claim's u pair), as in every built stage",
++        "opening_groups": {"IN-C": [INC_A_GROUPS, INC_H_GROUPS], "OUT-C": [OUTC_A_GROUPS, OUTC_H_GROUPS]},
++        "OUT-C claims": {"A_site_pairs": (so.a_prox - so.a_mask_base) // 2, "H_site_pairs": (so.h_prox - so.h_mask_base) // 2},
++        "public_outputs_depending_on_hidden_data": ["the verdict bit b (statement; header label classify-verdict)"],
++        "one_public_bit": ("stage OUT-C's public tables are functions of the geometry, the profile "
++                           "constants (c, the margin vector w_Delta by digest), the re-derived "
++                           "challenges and b ONLY: supp_d, the limb-plane live selector, "
++                           "g(z) = sigma 256^(z-32) on the limb entries, u0, w_Delta, the byte "
++                           "table and its support; the LZC host constant is b + c. The margin "
++                           "Delta, the limbs lambda and y are committed in A_out and opened only "
++                           "through reserved pairs, so (rank lemma) A_out discloses 0 and no "
++                           "magnitude of Delta is a public value"),
++        "template_and_ctl_columns": ("stage IN-C's template indicator pi, template ids kappa and the "
++                                     "query control column ctl_q are public functions of the "
++                                     "policy; the content positions' ids stay in A_in (disclosed 0)"),
++    }
++
++
++def main(argv):
++    geoms = [ClassGeom(**RUNG_RC1)] + [ClassGeom(**shieldstral(t)) for t in (128, 256, 512)]
++    out = {"what": "classifier profile family, re-derived (gate round 16); NOT a privacy result",
++           "privacy_acceptance": False, "geometries": [g.report() for g in geoms], "D34_D40": d34_table(),
++           "D41_rung_example": {"total": 27, "size": 23, "overlap": 4, "ranges": chunk_ranges(27, 23, 4)}}
++    s = json.dumps(out, indent=1, sort_keys=True, default=str)
++    if len(argv) > 1:
++        with open(argv[1], "w") as fh:
++            fh.write(s + "\n")
++    for g in out["geometries"]:
++        si, so = g["stage_in_c"], g["stage_out_c"]
++        print(f"{g['geometry']}: margin window {g['margin']['window_bits']} bits, {g['margin']['limbs']} limbs; "
++              f"IN-C A {si['A']['rows']} / H {si['H']['rows']}; OUT-C A {so['A']['rows']} / H {so['H']['rows']} "
++              f"({so['committed_elements']:,} elements); door {g['door_findings'] or 'ok'}")
++    print("D34 / D40:", out["D34_D40"])
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main(sys.argv))
+diff -ruN -x __pycache__ frozen_v18/scripts/zk60_native_rg_classpins.py frozen_v19/scripts/zk60_native_rg_classpins.py
+--- frozen_v18/scripts/zk60_native_rg_classpins.py	1969-12-31 16:00:00.000000000 -0800
++++ frozen_v19/scripts/zk60_native_rg_classpins.py	2026-10-20 22:49:31.607554790 -0700
+@@ -0,0 +1,100 @@
++#!/usr/bin/env python3
++"""[GATE ROUND 16, tools v19, 2026-10-21] The READINGS of the token lane's
++round-12 (rung R-C1) source changes against frozen-r11, as a classifier
++capture will pin them, read PRE-FREEZE on the working copy at manifest_r12B
++(`results/zk60_token_io_r1_20261017/manifest_r12B.sha256`, list sha256
++edbffc75..., 245 files).  When the round-12 tree freezes, each digest is
++checked against the frozen manifest; a different digest has no reading here
++and is refused by name.
++
++Against frozen-r11 (manifest_final_r11, d8075d76...) round 12 changes three
++PINNED files, additively (0 lines removed, 27 added:
++`classifier/rc1_pinned_files_additive.diff`), and adds eight files (the
++classifier stages, run, CLI and tests, and `examples/zk60_classify.rs`).  No
++block or run RELATION file changes; the next-token stages are untouched.
++
++The classifier port (`zk60_native_rg_classterminals`, `zk60_native_rg_classify`)
++was transcribed from the four files in `CLASSIFY_PORTED_FROM`; a classifier
++bundle pinning another digest of any of them is refused before any slot is
++evaluated (the token port's rule).
++
++NOTHING HERE IS A PRIVACY STATEMENT.
++"""
++
++from __future__ import annotations
++
++MANIFEST = "results/zk60_token_io_r1_20261017/manifest_r12B.sha256"
++MANIFEST_LIST_SHA256 = "edbffc75"
++
++# the three pinned files round 12 moves, each read against frozen-r11's digest
++CLASSIFY_R12_READINGS = {
++    "src/private_block.rs": {
++        "a9727239c5669ae08481ab2fd2bd0f12479a63f10658501132fc306a305d3a9a": {
++            "base": "45286ae8f3be17da7f0938cec7ed0d689ba80f2ffda1d73d3b9329b3b25c3130",
++            "diff_stat": "+2 / -0, 1 hunk against 45286ae8 (frozen-r11)",
++            "moves_a_receipt_byte": False, "moves_a_block_stage_byte": False,
++            "reading": "ADDITIVE: one `pub use token_io::classify_cli::{...}` line (the classifier CLI "
++                       "bridge for `examples/zk60_classify.rs`) with its comment. No item of a block, "
++                       "run or token run changes",
++        },
++    },
++    "src/private_block/run.rs": {
++        "10cfc2b1aa2fb2e288300aeb924a9f2c3ae012d1e975707eb15c66a4875c2e6d": {
++            "base": "cc2c420498b114273c4e67874c500b0f0fb3a0256e6ccef0a171f438ba0f3226",
++            "diff_stat": "+12 / -0, 2 hunks against cc2c4204 (frozen-r9 = frozen-r11)",
++            "moves_a_receipt_byte": False, "moves_a_block_stage_byte": False,
++            "reading": "ADDITIVE: a new profile string `RUN_PROFILE_CLASSIFY_RUNG_TC` (65 characters, the "
++                       "token rung's length, admitted by the W-2 census) with `CLASSIFY_RUN_PROFILES` "
++                       "(one entry), and one `registered_block_shape` arm mapping it to `Shape::rung_tc` "
++                       "(the token rung's shape). Every existing arm, TOKEN_IO_RUN_PROFILES (still 5), the "
++                       "header, the stage order, the boundary absorb, the position tags and the schedule "
++                       "lines are byte-identical: every block and token profile builds what it built",
++        },
++    },
++    "src/private_block/token_io.rs": {
++        "057137a2d308555ed5c6642ffc7d080847d8025d86afdaabfc6cb393d2350849": {
++            "base": "7730c8d01bd85b916be81a176f3aeb4238d426748a99aef7075f3630e0a00fb4",
++            "diff_stat": "+13 / -0, 2 hunks against 7730c8d0 (frozen-r11)",
++            "moves_a_receipt_byte": False, "moves_a_block_stage_byte": False,
++            "reading": "ADDITIVE: five `pub(crate) mod` declarations (classify, classify_run, "
++                       "classify_cli, stage_in_c, stage_out_c) and two `#[cfg(test)] mod` declarations "
++                       "(classify_tests, classify_cli_tests), with comments. StageLayout, the slot "
++                       "builder, run_stage_slot, the verifier's slot loop, TokenProfile and the tables are "
++                       "byte-identical",
++        },
++    },
++}
++
++# the files the v19 classifier port transcribes, at manifest_r12B
++CLASSIFY_PORTED_FROM = {
++    "src/private_block/token_io/classify.rs": "dd31955296cbc8b041a7ef26ad3136d3350c30ac66517729ced7ecad671732b8",
++    "src/private_block/token_io/classify_run.rs": "56fcccef973883dae1bd44b33aa7d9c3f2f51c67ef0078fff0ceb0dd889a013b",
++    "src/private_block/token_io/stage_in_c.rs": "7bc3c30b5f201c28882c1d15a3e23fbc928394145f8cbcc129d44ce5f6df9824",
++    "src/private_block/token_io/stage_out_c.rs": "46cb695192cf7a878f3d2a83a92c99f5c21b4ce4073811da51b01ded24b7760b",
++}
++
++# the other new files of round 12 (report-only: no gate port transcribes them)
++CLASSIFY_REPORT_ONLY = {
++    "src/private_block/token_io/classify_cli.rs": "7c4057589be96d5e5f5fcc5dbe416cf2028af6409285dbd75c51dd0fc9c04a2f",
++    "examples/zk60_classify.rs": "10332833db8535ddb14201b81357b1af6c5b0a8a24a85bea4642781a97e97609",
++}
++
++
++def check_classify_pins(manifest: dict) -> dict:
++    """a classifier capture's `source_pins`: every ported file at its read
++    digest, every moved pinned file at a read digest; refusals by name"""
++    pins = {p["file"]: p["sha256"] for p in manifest.get("source_pins", [])}
++    refused, read = [], []
++    for f, d in CLASSIFY_PORTED_FROM.items():
++        got = pins.get(f)
++        if got is None:
++            refused.append(f"{f}: not pinned (the classifier port was read from it)")
++        elif got != d:
++            refused.append(f"{f}: {got[:12]}, the port was read at {d[:12]}")
++        else:
++            read.append(f)
++    for f, rd in CLASSIFY_R12_READINGS.items():
++        got = pins.get(f)
++        if got is not None and got not in rd and got not in (r["base"] for r in rd.values()):
++            refused.append(f"{f}: {got[:12]} has no reading")
++    return {"read": read, "refusals": refused, "ok": not refused}
+diff -ruN -x __pycache__ frozen_v18/scripts/zk60_native_rg_classterminals.py frozen_v19/scripts/zk60_native_rg_classterminals.py
+--- frozen_v18/scripts/zk60_native_rg_classterminals.py	1969-12-31 16:00:00.000000000 -0800
++++ frozen_v19/scripts/zk60_native_rg_classterminals.py	2026-10-20 22:48:36.069136026 -0700
+@@ -0,0 +1,1121 @@
++#!/usr/bin/env python3
++"""[GATE ROUND 16, tools v19, 2026-10-21] The CLASSIFIER stages' slot
++polynomials, transcribed for the privacy gate's terminal identity and NL-1:
++stage IN-C (`stage_in_c.rs:168-233` `define`) and stage OUT-C
++(`stage_out_c.rs:284-418` `define`), read pre-freeze at manifest_r12B
++(stage_in_c.rs 7bc3c30b..., stage_out_c.rs 46cb6951...).  The builder and the
++two rings are the token port's (`zk60_native_rg_tokenterminals`: `F2`,
++`Poly`, `Draws`, `SB`'s mirror `B`, `helper_sum`, `zeta_fold`), so one
++transcription serves the numeric identity on a capture and the symbolic
++NL-1 expansion.
++
++NO CLASSIFIER CAPTURE EXISTS YET: the classifier verify path calls no
++capture hook (EV/round16/CLASSIFY_CAPTURE_HOOK_REQUEST.md).  Until one does,
++this module's checks run on WITNESSES the gate builds itself from the same
++integer semantics R-C1 proves (`stage_out_c.rs:155-247`
++`out_values` / `witness_from_values`; `stage_in_c.rs:62-101`
++`honest_inputs`), and on the transcription itself:
++
++  RELATION CHECKS (the port's polynomials summed over their domains):
++    MRG-H   the margin hosting identity: sum over Lo of the LZC host term
++            == sum over Do of PD's `y w_Delta` (design §4.2), at verdict 0, 1
++            and the tie;
++    ZC-H    every zero-check slot's clause vanishes pointwise on the honest
++            witness (TZC, LZC's zero-check part, DZC, TAB; INC-01, INC-02);
++    LU-H    the LogUp sum claims balance: OUT-C's byte lookups against the
++            byte table, IN-C's (id, row, ctl) queries against tau.
++  FAILING-FIRST CONTROLS (each predicted, each must break exactly one):
++    MC-1  the verdict flipped, limbs unchanged             -> MRG-H fails
++    MC-2  the verdict flipped, limbs re-made from -delta-1  -> LU-H fails (not bytes)
++    MC-3  a limb raised by 256 with a carry kept           -> LU-H fails, MRG-H holds
++    MC-4  a nonzero limb-plane pad entry                    -> ZC-H fails (LZC pad)
++    MC-5  the threshold c + 1 in the port                   -> MRG-H fails
++    MC-6  the margin vector negated (a self-made digest)    -> B-3 digest refusal
++    MC-7  `classify-verdict` missing from the header labels -> header refusal
++    IC-1  one template id changed                           -> ZC-H fails (INC-01 template clause)
++    IC-2  the template clause SHARING the LogUp coefficient: a forged
++          template position with a compensating helper passes the shared
++          clause and fails the fresh one (CHECK2 N-1)
++    IC-3  a control id at a content position                -> LU-H fails
++    IC-4  a control id at a template position (honest)      -> LU-H holds
++  NL-1 (S1 premises, symbolic): a public factor in every monomial, degree
++  within the declared, on all 12 classifier slots.
++
++On a capture (once the hook lands) `check_classify_terminals` evaluates the
++same transcriptions at the replayed challenges against the recorded
++terminals (the token port's `check_token_terminals` method; see the hook
++request for the fields it reads).
++
++NOTHING HERE IS A PRIVACY RESULT OR A PRIVACY ACCEPTANCE.
++"""
++
++from __future__ import annotations
++
++import hashlib
++import json
++import math
++import os
++import random
++import sys
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++if HERE not in sys.path:
++    sys.path.insert(0, HERE)
++
++import zk60_native_rg_classify as CL  # noqa: E402
++import zk60_native_rg_tokenterminals as TT  # noqa: E402
++from zk60_native_rg_tokenterminals import (  # noqa: E402
++    F2, K, ONE, P, R_ONE, R_ZERO, TAG_EMB, TAG_U8, ZERO, Draws, Poly, SlotDef, add, fixed_bits_c,
++    fixed_c, helper_sum, k, mul, mulb, rho_c, sub, zeta_fold,
++)
++from zk60_native_jv_field import f2_inv  # noqa: E402
++
++U8_LEN = 256
++LIMBS_ISQRT = 3
++NORM_LIMBS = 4
++TO_LOG = 1
++
++
++# =====================================================================
++#  the context and the builder
++# =====================================================================
++class ClassCtx:
++    """What a classifier slot closure captures (the token port's `Ctx`, for
++    a classifier stage).  `facts` carries the public statement: the final
++    norm, BOS, the policy (prefix, suffix, num_special, c), the verdict, the
++    margin vector (when the caller has it), and the run schedule's IO rows."""
++
++    def __init__(self, geom: CL.ClassGeom, kind: str, logup, r_emb, mode: str, facts: dict,
++                 drop_pad=False, extra=None, shared_template_mu=False):
++        if kind not in ("IN-C", "OUT-C"):
++            raise ValueError(kind)
++        self.kind, self.mode, self.geom = kind, mode, geom
++        self.tokens, self.t_pad, self.d, self.d_pad, self.v = geom.tokens, geom.t_pad, geom.d, geom.d_pad, geom.v
++        self.v_pad, self.log_v, self.limbs = geom.v_pad, geom.log_v, geom.limbs
++        self.bos = facts["bos"]
++        self.g0, self.cn, self.tn, self.ceps = (facts["final_norm"][x] for x in ("g0", "cn", "tn", "ceps"))
++        self.prefix, self.suffix = list(facts["prefix"]), list(facts["suffix"])
++        self.num_special, self.c = facts["num_special"], facts["c"]
++        self.verdict = facts.get("verdict")
++        self.w_delta = facts.get("w_delta")
++        self.lay = geom.stage_in_c() if kind == "IN-C" else geom.stage_out_c()
++        self.n = 1 << self.lay.log_n
++        self.b_in_row, self.b_out_row = facts.get("b_in_row", 0), facts.get("b_out_row", 0)
++        self.b_log = TT.clog2(self.t_pad * self.d_pad)
++        self.ep_mask_row = facts.get("ep_mask_row", 0)
++        self.r_emb = list(r_emb) if r_emb is not None else []
++        self.drop_pad, self.extra = drop_pad, extra
++        self.shared_template_mu = shared_template_mu
++        self.data = {}
++        self.logup_num = list(logup)
++        if mode == "numeric":
++            ring = [F2(x) for x in logup]
++        else:
++            ring = [Poly.var(nm) for nm in (("c:beta", "c:gamma", "c:alpha") if kind == "IN-C" else ("c:gamma", "c:alpha"))]
++        if kind == "IN-C":
++            # stage_in_c.rs:326-334 `challenges`: beta, gamma, alpha, r_emb
++            self.beta, gamma, self.alpha = ring
++            self.g_emb = gamma * K(TAG_EMB)
++            self.beta_num = logup[0]
++            self.g_emb_num = mulb(logup[1], TAG_EMB)
++        else:
++            # stage_out_c.rs:548-550: gamma, alpha
++            gamma, self.alpha = ring
++            self.g_u8 = gamma * K(TAG_U8)
++            self.g_u8_num = mulb(logup[0], TAG_U8)
++
++    def pad(self, x):
++        return R_ZERO if self.drop_pad else x
++
++    # classify.rs:411-437
++    def p0(self):
++        return len(self.prefix)
++
++    def is_template(self, t):
++        n = self.tokens - self.p0() - len(self.suffix)
++        return t < self.p0() or (self.p0() + n <= t < self.tokens)
++
++    def kappa(self, t):
++        n = self.tokens - self.p0() - len(self.suffix)
++        if t < self.p0():
++            return self.prefix[t]
++        if self.p0() + n <= t < self.tokens:
++            return self.suffix[t - self.p0() - n]
++        return 0
++
++    def ctl(self, v):
++        return v < self.num_special
++
++    def ctl_q(self, t):
++        return self.is_template(t) and self.ctl(self.kappa(t))
++
++
++class BC(TT.B):
++    """`SB` for a classifier stage: the token port's builder with the
++    classifier's roles and plane names"""
++
++    def __init__(self, cx: ClassCtx, slot: int):  # noqa: D401  (TT.B's state, set by hand)
++        self.cx, self.slot, self.lay = cx, slot, cx.lay
++        self.tabs = []
++        self.ak = self.hk = self.iok = 0
++        if cx.kind == "IN-C":
++            self.roles = ["A-in", "H-in", "E-token-in", "B-in"]
++            self.a_names, self.h_names = CL.INC_A_NAMES, CL.INC_H_NAMES
++        else:
++            self.roles = ["A-out", "H-out", "B-out", "NO-OUTPUT-ENDPOINT"]
++            self.a_names, self.h_names = CL.OUTC_A_NAMES, CL.OUTC_H_NAMES
++
++
++# =====================================================================
++#  stage IN-C (stage_in_c.rs:168-233)
++# =====================================================================
++def define_in_c(slot, cx: ClassCtx, dr: Draws) -> SlotDef:
++    b = BC(cx, slot)
++    alpha, beta, g_emb = cx.alpha, cx.beta, cx.g_emb
++    g = cx.geom
++    tl, sn = g.ti_log(), 1 << g.ti_log()
++    lv, vn = g.voc_log(), 1 << g.voc_log()
++    t_bits = TT.clog2(cx.t_pad)
++    if slot == CL.SIC_IO:                                      # :177-187
++        words = g.in_ep_words()
++        lw = TT.clog2(words)
++        tau, _ = dr.take(lw, "tau")
++        i_eq = b.eq(tau, 0)
++        i_supp = b.public(("supp", cx.tokens, words))
++        ct = fixed_c([ZERO] * (tl - lw)) + rho_c(range(lw))
++        i_tok = b.a_at(CL.INC_A_TOK, ct)
++        i_end = b.io("In", lw, rho_c(range(lw)), cx.ep_mask_row)
++        return b.finish(lambda v: v[i_eq] * (v[i_end] - v[i_supp] * v[i_tok]), [],
++                        ["eq(tau)", "endpoint - supp_T * tok"], dr)
++    if slot == CL.SIC_QZC:                                     # :190-216
++        tau, _ = dr.take(tl, "tau")
++        _, mu = dr.take(4, "mu", nonzero=True)                 # FOUR fresh coefficients
++        _, zz = dr.take(1, "zeta", nonzero=True)
++        zeta = zz[0]
++        mu_t = mu[0] if cx.shared_template_mu else mu[2]       # IC-2's control copy only
++        i_eq = b.eq(tau, 0)
++        i_supp = b.public(("supp", cx.tokens, sn))
++        i_u0 = b.public(("supp", 1, sn))
++        i_pi = b.public(("template_pi", sn))
++        i_kappa = b.public(("template_kappa", sn))
++        i_cq = b.public(("ctl_q_beta2", sn))
++        i_tok = b.a(CL.INC_A_TOK)
++        i_hq = b.h(CL.INC_H_Q)
++        cb = rho_c(range(tl - t_bits, tl)) + fixed_c(cx.r_emb)
++        i_b = b.io("Out", cx.b_log, cb, cx.b_in_row)
++        bos = K(cx.bos)
++
++        def poly(v):                                           # :207-215
++            q = v[i_tok] + beta * v[i_b] + v[i_cq] + g_emb
++            logup = v[i_hq] * (alpha - q) - v[i_supp]
++            bos_c = v[i_u0] * (v[i_tok] - bos)
++            tmpl = v[i_pi] * (v[i_tok] - v[i_kappa])
++            pad = cx.pad((R_ONE - v[i_supp]) * (v[i_tok] + zeta * v[i_hq]))
++            return v[i_eq] * (mu[0] * logup + mu[1] * bos_c + mu_t * tmpl + mu[3] * pad)
++        return b.finish(poly, [], ["eq(tau)", "mu0 LogUp h_q (alpha - q(tok, row, ctl)) - supp_T",
++                                   "mu1 BOS u0 (tok - bos)", "mu2 TEMPLATE pi (tok - kappa)",
++                                   "mu3 pad (1 - supp_T)(tok + zeta h_q)"], dr)
++    if slot == CL.SIC_TZC:                                     # :217-228
++        tau, _ = dr.take(lv, "tau")
++        _, mu = dr.take(2, "mu", nonzero=True)
++        _, zz = dr.take(1, "zeta", nonzero=True)
++        zeta = zz[0]
++        i_eq = b.eq(tau, 0)
++        i_supp = b.public(("supp", cx.v, vn))
++        i_tau = b.public(("captured", "tau_tab_c"))
++        i_m = b.a(CL.INC_A_MULT)
++        i_h = b.h(CL.INC_H_TAB)
++
++        def poly(v):
++            rel = v[i_h] * (alpha - v[i_tau]) - v[i_m]
++            pad = cx.pad((R_ONE - v[i_supp]) * (v[i_m] + zeta * v[i_h]))
++            return v[i_eq] * (mu[0] * rel + mu[1] * pad)
++        return b.finish(poly, [], ["eq(tau)", "mu0 h_tab (alpha - tau(v, ctl)) - m",
++                                   "mu1 pad (1 - supp_V)(m + zeta h_tab)"], dr)
++    if slot == CL.SIC_ZS:                                      # :229-233
++        i1 = b.public(("ones", 1 << cx.lay.h_log[CL.INC_H_U]))
++        iu = b.h(CL.INC_H_U)
++        return b.finish(lambda v: v[i1] * v[iu], [], ["ones * u"], dr)
++    raise ValueError("classifier stage IN-C: unknown slot")
++
++
++# =====================================================================
++#  stage OUT-C (stage_out_c.rs:284-418)
++# =====================================================================
++def lookups_lo_c():                                            # stage_out_c.rs:127-129
++    return [([(CL.C_LIMB, 1)], 0)]
++
++
++def lookups_do_c():                                            # stage_out_c.rs:130-135
++    v = [([(CL.C_XL0, 1)], 0), ([(CL.C_XL1, 1)], 0), ([(CL.C_Y, 1)], 127), ([(CL.C_Y, -1)], 127)]
++    v += [([(CL.C_RHO0 + kk, 1)], 0) for kk in range(NORM_LIMBS)]
++    v += [([(CL.C_SIG0 + kk, 1)], 0) for kk in range(NORM_LIMBS)]
++    return v
++
++
++def live_limb(z, limbs):                                       # stage_out_c.rs:276-278
++    return (z % 2 == 0 and z // 2 < 3 * LIMBS_ISQRT) or (CL.LAM_BASE <= z < CL.LAM_BASE + limbs)
++
++
++def define_out_c(slot, cx: ClassCtx, dr: Draws) -> SlotDef:
++    b = BC(cx, slot)
++    alpha, g_u8 = cx.alpha, cx.g_u8
++    l = cx.limbs
++    g = cx.geom
++    d_bits = TT.clog2(cx.d_pad)
++    t_bits = TT.clog2(cx.t_pad)
++    llo, lo_n = g.lo_log(), 1 << g.lo_log()
++    ldo, do_n = g.do_log(), 1 << g.do_log()
++    ltab, tab_n = g.tab_log(), 1 << g.tab_log()
++    lift = ldo - d_bits
++
++    def f0():
++        return [("fixed", ZERO)] * TO_LOG
++
++    if slot == CL.SOC_IO:                                      # :297-307
++        tau, _ = dr.take(d_bits, "tau")
++        i_eq = b.eq(tau, 0)
++        i_x = b.a_at(CL.C_X, fixed_c([ZERO] * lift) + rho_c(range(d_bits)))
++        cb = fixed_bits_c(cx.tokens - 1, t_bits) + rho_c(range(d_bits))
++        i_b = b.io("In", cx.b_log, cb, cx.b_out_row)
++        return b.finish(lambda v: v[i_eq] * (v[i_x] - v[i_b]), [], ["eq(tau)", "x - B_out(T-1, .)"], dr)
++    if slot == CL.SOC_SS:                                      # :308-312
++        i_s = b.public(("supp", cx.d, do_n))
++        i_x = b.a(CL.C_X)
++        return b.finish(lambda v: v[i_s] * v[i_x] * v[i_x], [], ["supp_d * x * x"], dr)
++    if slot == CL.SOC_TZC:                                     # :313-335
++        tau, _ = dr.take(TO_LOG, "tau")
++        _, mu = dr.take(4, "mu", nonzero=True)
++        nu_num, nus = dr.take(1, "nu", nonzero=True)
++        nu = nus[0]
++        _, zz = dr.take(1, "zeta", nonzero=True)
++        zeta = zz[0]
++        i_eq = b.eq(tau, 0)
++        i_u0 = b.public(("supp", 1, 1 << TO_LOG))
++        i_d = b.a(CL.C_D)
++        i_dsq = b.a(CL.C_DSQ)
++        i_l0 = i_dsq + 1
++        for kk in range(3 * LIMBS_ISQRT):
++            b.a_slice(cx.lay.a_off_rows[CL.C_LIMB] * cx.n + 2 * kk, TO_LOG, rho_c(range(TO_LOG)), "A_LIMB")
++        k_ceps = K(cx.ceps)
++        p1, p2 = K(256), K(65536)
++
++        def poly(v):
++            def l3(o):
++                return v[o] + v[o + 1] * p1 + v[o + 2] * p2
++            d, dsq = v[i_d], v[i_dsq]
++            dl, a1, a2 = l3(i_l0), l3(i_l0 + 3), l3(i_l0 + 6)
++            pad = cx.pad((R_ONE - v[i_u0]) * (d + zeta * dsq))
++            zc = mu[0] * (dsq - d * d) + mu[1] * (d - dl) + mu[2] * (d * K(2) - a1 - a2) + mu[3] * pad
++            return v[i_eq] * zc + nu * v[i_u0] * (dsq + a1 - k_ceps)
++        return b.finish(poly, [(CL.SOC_SS, nu_num[0])], ["eq(tau)", "mu0 Dsq - D^2", "mu1 D - limbs",
++                                                         "mu2 2D - a1 - a2", "mu3 pad", "nu u0 (Dsq + a1 - Ceps) [host of SS]"], dr)
++    if slot == CL.SOC_PD:                                      # :338-345
++        cy = fixed_c([ZERO] * lift) + rho_c(range(d_bits))
++        i_y = b.a_at(CL.C_Y, cy)
++        i_w = b.public(("w_delta", cx.d, cx.d_pad))
++        return b.finish(lambda v: v[i_y] * v[i_w], [], ["y * w_Delta (the margin, private, hosted by LZC)"], dr)
++    if slot == CL.SOC_LZC:                                     # :349-370
++        tau, _ = dr.take(llo, "tau")
++        _, mu = dr.take(2, "mu", nonzero=True)
++        nu_num, nus = dr.take(1, "nu", nonzero=True)
++        nu = nus[0]
++        i_eq = b.eq(tau, 0)
++        i_s = b.public(("live_limb_c", l, lo_n))
++        i_g = b.public(("margin_g", l, lo_n))
++        i_u0 = b.public(("supp", 1, lo_n))
++        i_l = b.a(CL.C_LIMB)
++        i_h = b.h(CL.OC_H_LO)
++        lks = TT.resolve(lookups_lo_c(), lambda _p: i_l, g_u8)
++        ones = [R_ONE]
++        kc = K(int(cx.verdict)) + K(cx.c)                      # :363 the public constant sigma b + c
++
++        def poly(v):
++            pad = cx.pad((R_ONE - v[i_s]) * v[i_l])
++            host = v[i_g] * v[i_l] + v[i_u0] * kc
++            return v[i_eq] * (mu[0] * helper_sum(v, lks, i_h, alpha, ones) + mu[1] * pad) + nu * host
++        return b.finish(poly, [(CL.SOC_PD, nu_num[0])], ["eq(tau)", "mu0 the limb lookups (isqrt and margin limbs)",
++                                                         "mu1 pad (1 - live) limb",
++                                                         "nu (g limb + u0 (sigma b + c)) [host of PD: the margin identity]"], dr)
++    if slot == CL.SOC_DZC:                                     # :371-400
++        tau, _ = dr.take(ldo, "tau")
++        _, mu = dr.take(3 + CL.OC_H_DO_HELPERS + 1, "mu", nonzero=True)
++        _, zz = dr.take(1, "zeta", nonzero=True)
++        zeta = zz[0]
++        i_eq = b.eq(tau, 0)
++        i_s = b.public(("supp", cx.d, do_n))
++        first = b.tabs_len()
++        for p in range(CL.C_X, CL.C_MULT):
++            b.a(p)
++
++        def at(p):
++            return first + (p - CL.C_X)
++        i_d = b.a_at(CL.C_D, f0())
++        h0 = b.h(CL.OC_H_D0)
++        for j in range(1, CL.OC_H_DO_HELPERS):
++            b.h(CL.OC_H_D0 + j)
++        lks = TT.resolve(lookups_do_c(), at, g_u8)
++        planes = [at(p) for p in range(CL.C_X, CL.C_MULT)]
++        k_num, k_dv, k_den = K(2 * cx.g0 * cx.cn), K(1 << cx.tn), K(1 << (cx.tn + 1))
++
++        def poly(v):
++            def lb(p0):
++                acc = R_ZERO
++                for kk in range(NORM_LIMBS):
++                    acc = acc + v[at(p0 + kk)] * K(1 << (8 * kk))
++                return acc
++            x, y, d = v[at(CL.C_X)], v[at(CL.C_Y)], v[i_d]
++            rh, sg = lb(CL.C_RHO0), lb(CL.C_SIG0)
++            kd = d * k_den
++            c0 = x * k_num + d * k_dv - kd * y - rh
++            c1 = sg + rh + R_ONE - kd
++            c2 = x + K(32768) - v[at(CL.C_XL0)] - v[at(CL.C_XL1)] * K(256)
++            gg = v[i_s]
++            clauses = mu[0] * c0 + mu[1] * c1 + mu[2] * c2
++            pad = cx.pad((R_ONE - gg) * zeta_fold(v, planes, zeta))
++            return v[i_eq] * (gg * clauses + helper_sum(v, lks, h0, alpha, mu[3:3 + CL.OC_H_DO_HELPERS])
++                              + mu[3 + CL.OC_H_DO_HELPERS] * pad)
++        return b.finish(poly, [], ["eq(tau)", "supp_d (mu0 c0 + mu1 c1 + mu2 c2)", "6 helpers on 12 byte lookups",
++                                   "pad (1 - supp_d) zeta-fold of 12 planes"], dr)
++    if slot == CL.SOC_TAB:                                     # :401-414
++        tau, _ = dr.take(ltab, "tau")
++        _, mu = dr.take(2, "mu", nonzero=True)
++        _, zz = dr.take(1, "zeta", nonzero=True)
++        zeta = zz[0]
++        i_eq = b.eq(tau, 0)
++        i_s = b.public(("supp", U8_LEN, tab_n))
++        i_tv = b.public(("u8_tagged", tab_n))
++        i_m = b.a(CL.C_MULT)
++        i_h = b.h(CL.OC_H_GU8)
++
++        def poly(v):
++            rel = v[i_h] * (alpha - v[i_tv]) - v[i_m]
++            pad = cx.pad((R_ONE - v[i_s]) * (v[i_m] + zeta * v[i_h]))
++            return v[i_eq] * (mu[0] * rel + mu[1] * pad)
++        return b.finish(poly, [], ["eq(tau)", "mu0 h (alpha - tv) - m", "mu1 pad"], dr)
++    if slot == CL.SOC_ZS:                                      # :415-418
++        i1 = b.public(("ones", 1 << cx.lay.h_log[CL.OC_H_U]))
++        iu = b.h(CL.OC_H_U)
++        return b.finish(lambda v: v[i1] * v[iu], [], ["ones * u"], dr)
++    raise ValueError("classifier stage OUT-C: unknown slot")
++
++
++def define(slot, cx: ClassCtx, dr: Draws) -> SlotDef:
++    return define_in_c(slot, cx, dr) if cx.kind == "IN-C" else define_out_c(slot, cx, dr)
++
++
++# =====================================================================
++#  the public tables: every one rebuilt from public data, or digest-checked
++# =====================================================================
++def rebuild_public_c(desc, cx: ClassCtx):
++    """The values of a classifier public table, from the geometry, the
++    profile, the re-derived challenges and the verdict ONLY (expectation
++    'one public bit'); None for the two tables taken from elsewhere (tau,
++    which folds the embedding, and w_Delta, digest-checked against the
++    statement)."""
++    kind = desc[0]
++    if kind == "supp":
++        return [ONE if z < desc[1] else ZERO for z in range(desc[2])]
++    if kind == "ones":
++        return [ONE] * desc[1]
++    if kind == "u8_tagged":
++        return [add(k(z % U8_LEN), cx.g_u8_num) for z in range(desc[1])]
++    if kind == "template_pi":                                  # stage_in_c.rs:196
++        return [ONE if cx.is_template(t) else ZERO for t in range(desc[1])]
++    if kind == "template_kappa":                               # stage_in_c.rs:197
++        return [k(cx.kappa(t)) for t in range(desc[1])]
++    if kind == "ctl_q_beta2":                                  # stage_in_c.rs:198-199
++        b2 = mul(cx.beta_num, cx.beta_num)
++        return [b2 if cx.ctl_q(t) else ZERO for t in range(desc[1])]
++    if kind == "live_limb_c":                                  # stage_out_c.rs:356
++        return [ONE if live_limb(z, desc[1]) else ZERO for z in range(desc[2])]
++    if kind == "margin_g":                                     # stage_out_c.rs:357-358
++        sig = ONE if cx.verdict == 1 else k(-1)
++        return [mul(sig, k(1 << (8 * (z - CL.LAM_BASE)))) if CL.LAM_BASE <= z < CL.LAM_BASE + desc[1] else ZERO
++                for z in range(desc[2])]
++    if kind == "w_delta":
++        if cx.w_delta is None:
++            return None
++        return [k(cx.w_delta[i]) if i < desc[1] else ZERO for i in range(desc[2])]
++    return None
++
++
++def table_class_c(desc):
++    kind = desc[0]
++    if kind in ("supp", "template_pi", "live_limb_c"):
++        return "indicator"
++    if kind == "ones":
++        return "constant-MLE"
++    return "values"
++
++
++def describe_c(desc) -> str:
++    return {"supp": lambda: f"supp({desc[1]}) over {desc[2]}", "ones": lambda: f"ones over {desc[1]}",
++            "u8_tagged": lambda: f"byte table over {desc[1]}", "template_pi": lambda: "template indicator pi",
++            "template_kappa": lambda: "template ids kappa", "ctl_q_beta2": lambda: "query control column beta^2 ctl_q",
++            "live_limb_c": lambda: "limb-plane live selector (isqrt + margin limbs)",
++            "margin_g": lambda: "g(z) = sigma 256^(z-32) on the margin limbs",
++            "w_delta": lambda: "margin vector w_Delta", "captured": lambda: f"captured {desc[1]}"}.get(
++                desc[0], lambda: str(desc))()
++
++
++# =====================================================================
++#  digests the verifier re-derives (B-3) — the gate's own transcriptions
++# =====================================================================
++def _blake3():
++    import blake3
++    return blake3.blake3()
++
++
++def w_digest(d: int, words) -> str:
++    """`ClassifierTables::w_digest` (classify.rs:250-258)"""
++    h = _blake3()
++    h.update(b"hashline/classify/margin-vector-int16/v1")
++    h.update(int(d).to_bytes(8, "little"))
++    for w in words:
++        h.update(int(w).to_bytes(2, "little", signed=True))
++    return h.hexdigest()
++
++
++def template_digest(prefix, suffix) -> str:
++    """`ClassifierProfile::template_digest` (classify.rs:458-468)"""
++    h = _blake3()
++    h.update(b"hashline/classify/template/v1")
++    for part in (prefix, suffix):
++        h.update(len(part).to_bytes(8, "little"))
++        for x in part:
++            h.update(int(x).to_bytes(8, "little"))
++    return h.hexdigest()
++
++
++def header_tail_check(labels: list) -> dict:
++    """the run header's last two absorbs are `classify-verdict` then
++    `classify-chunk` (classify.rs:879-880); a transcript-label list without
++    them is refused (MC-7's site)"""
++    f = []
++    for lab in CL.HEADER_TAIL_LABELS:
++        if lab not in labels:
++            f.append(f"the run header does not absorb {lab!r}")
++    if not f:
++        iv, ic = labels.index("classify-verdict"), labels.index("classify-chunk")
++        if not ic == iv + 1:
++            f.append("classify-chunk does not follow classify-verdict")
++        later = [x for x in labels[ic + 1:] if x not in ("pb-run-stage", "pb-run-block", "B", "A", "M", "H")]
++        _ = later
++    return {"labels_read": len(labels), "findings": f, "ok": not f}
++
++
++# =====================================================================
++#  synthetic witnesses (the integer semantics R-C1 proves)
++# =====================================================================
++FACTS_RUNG = {"bos": 1, "final_norm": {"g0": 64, "cn": 1024, "tn": 11, "ceps": 1},
++              "prefix": list(range(1, 9)), "suffix": [32], "num_special": 5, "c": 0}
++
++
++def _isqrt(v):
++    return math.isqrt(v)
++
++
++def out_values(g: CL.ClassGeom, facts: dict, x_row: list, w: list) -> dict:
++    """`out_values` (stage_out_c.rs:162-190): the final norm and the margin"""
++    nm = facts["final_norm"]
++    ss = nm["ceps"] + sum(v * v for v in x_row[:g.d])
++    d = _isqrt(ss)
++    a1 = ss - d * d
++    a2 = 2 * d - a1
++    dv = d << nm["tn"]
++    den = 2 * dv
++    y, rho, sig = [0] * g.d_pad, [0] * g.d_pad, [0] * g.d_pad
++    for i in range(g.d):
++        num = 2 * x_row[i] * nm["g0"] * nm["cn"] + dv
++        q = num // den
++        r = num - q * den
++        y[i], rho[i], sig[i] = q, r, den - 1 - r
++    margin = sum(w[i] * y[i] for i in range(g.d))
++    return {"x": list(x_row) + [0] * (g.d_pad - g.d), "d": d, "a1": a1, "a2": a2, "y": y, "rho": rho,
++            "sigma": sig, "margin": margin, "verdict": int(margin > facts["c"])}
++
++
++def delta_of(margin, c, b):
++    """`delta_of` (stage_out_c.rs:199-202)"""
++    s = 2 * b - 1
++    return s * (margin - c) - b
++
++
++def _bytes(v, n):
++    return [(v >> (8 * kk)) & 0xFF for kk in range(n)]
++
++
++def out_witness(g: CL.ClassGeom, ov: dict, verdict: int, c: int, *, limbs_override=None) -> dict:
++    """`witness_from_values` (stage_out_c.rs:205-247): A_out's planes"""
++    l = g.limbs
++    lo_n, do_n = 1 << g.lo_log(), 1 << g.do_log()
++    planes = {}
++    planes["A_D"] = [ov["d"], 0]
++    planes["A_DSQ"] = [ov["d"] * ov["d"], 0]
++    limb = [0] * lo_n
++    for s, val in enumerate((ov["d"], ov["a1"], ov["a2"])):
++        for kk, bb in enumerate(_bytes(val, LIMBS_ISQRT)):
++            limb[2 * (3 * s + kk)] = bb
++    delta = delta_of(ov["margin"], c, verdict)
++    lam = limbs_override if limbs_override is not None else _bytes(delta, l)
++    for kk, bb in enumerate(lam):
++        limb[CL.LAM_BASE + kk] = bb
++    planes["A_LIMB"] = limb
++    for nm in CL.OUTC_A_NAMES[3:15]:
++        planes[nm] = [0] * do_n
++    for i in range(g.d):
++        planes["A_X"][i] = ov["x"][i]
++        xl = _bytes(ov["x"][i] + 32768, 2)
++        planes["A_XL0"][i], planes["A_XL1"][i] = xl
++        planes["A_Y"][i] = ov["y"][i]
++        for kk, bb in enumerate(_bytes(ov["rho"][i], NORM_LIMBS)):
++            planes[f"A_RHO{kk}"][i] = bb
++        for kk, bb in enumerate(_bytes(ov["sigma"][i], NORM_LIMBS)):
++            planes[f"A_SIG{kk}"][i] = bb
++    return {"A": planes, "delta": delta}
++
++
++def _fe(v):
++    return k(int(v))
++
++
++def _inv(x):
++    return f2_inv(x)
++
++
++def out_helpers(g: CL.ClassGeom, wit: dict, alpha, g_u8, *, cheat_hist=True) -> dict:
++    """the stage's H columns (stage_out_c.rs:587-626): the limb-domain
++    helper, six Do helpers (lookup pairs), the byte-table helper from the
++    histogram (a value that is not a byte is counted at 0, as the cheating
++    prover does), and u = 0"""
++    A = wit["A"]
++    lo_n, do_n, tab_n = 1 << g.lo_log(), 1 << g.do_log(), 1 << g.tab_log()
++
++    def looked(lks, n):
++        cols = []
++        for terms, cst in lks:
++            cols.append([sum(cc * A[CL.OUTC_A_NAMES[p]][x] for p, cc in terms) + cst for x in range(n)])
++        return cols
++    lo_cols = looked(lookups_lo_c(), lo_n)
++    do_cols = looked(lookups_do_c(), do_n)
++    hist = [0] * U8_LEN
++    for col in lo_cols + do_cols:
++        for v in col:
++            hist[v if 0 <= v < U8_LEN else 0] += 1
++    A["A_MU8"] = hist + [0] * (tab_n - U8_LEN)
++
++    def h1(v):
++        return _inv(sub(alpha, add(_fe(v), g_u8)))
++    H = {"H_LO": [h1(v) for v in lo_cols[0]]}
++    for kk in range(CL.OC_H_DO_HELPERS):
++        a, bcol = do_cols[2 * kk], do_cols[2 * kk + 1]
++        H[f"H_D{kk}"] = [add(h1(a[x]), h1(bcol[x])) for x in range(do_n)]
++    H["H_GU8"] = [mul(_inv(sub(alpha, add(k(z % U8_LEN), g_u8))), k(hist[z])) if z < U8_LEN and hist[z] else ZERO
++                  for z in range(tab_n)]
++    H["H_U"] = [ZERO] * (1 << g.stage_out_c().h_log[CL.OC_H_U])
++    return H
++
++
++def logup_balance_out(g: CL.ClassGeom, H: dict) -> bool:
++    """OUT-C's LogUp sum claim with H's signs (h_sign: every helper +1, the
++    table helper -1): balanced iff every looked value is in the table"""
++    acc = ZERO
++    for nm in ["H_LO"] + [f"H_D{kk}" for kk in range(CL.OC_H_DO_HELPERS)]:
++        for v in H[nm]:
++            acc = add(acc, v)
++    for v in H["H_GU8"]:
++        acc = sub(acc, v)
++    return acc == ZERO
++
++
++def _tab_vectors(sd: SlotDef, cx: ClassCtx, A: dict, H: dict, main: int, eq_value):
++    """each table of a slot as a vector over its 2^main points (eq tables set
++    to `eq_value`, so a zero-check clause or a host term can be read alone)"""
++    n_pts = 1 << main
++    vecs = []
++    for t in sd.tabs:
++        if t["kind"] == "eq":
++            vecs.append([eq_value] * n_pts)
++        elif t["kind"] == "public":
++            vals = rebuild_public_c(t["desc"], cx)
++            if vals is None and t["desc"][0] == "captured" and t["desc"][1] == "tau_tab_c":
++                vals = cx.data["tau_tab_c"]
++            if vals is None:
++                raise ValueError(f"no values for {t['desc']}")
++            vecs.append(list(vals[:n_pts]))
++        elif t["role"] in ("A-in", "A-out"):
++            plane = A[t["plane"]]
++            off = t["slices"][0][0] - cx.lay.a_off_rows[cx.lay_a_index(t["plane"])] * cx.n
++            fixed = [c for c in t["coords"] if c[0] == "fixed"]
++            rho = [c for c in t["coords"] if c[0] == "rho"]
++            if fixed and rho and all(x[1] == ZERO for x in fixed) and t["coords"][:len(fixed)] == fixed:
++                vec = [plane[off + x] for x in range(1 << len(rho))]
++            elif fixed and not rho:
++                vec = [plane[off]] * n_pts
++            else:
++                vec = [plane[off + x] for x in range(1 << len(rho))]
++            if len(vec) < n_pts:
++                raise ValueError(f"plane {t['plane']} gives {len(vec)} points, the slot sums over {n_pts}")
++            vecs.append([_fe(v) if isinstance(v, int) else v for v in vec[:n_pts]])
++        elif t["role"] in ("H-in", "H-out"):
++            vecs.append(list(H[t["plane"]][:n_pts]))
++        else:
++            vecs.append(list(cx.data[t["role"]][:n_pts]))
++    return vecs
++
++
++def _lay_a_index(self, name):
++    names = CL.INC_A_NAMES if self.kind == "IN-C" else CL.OUTC_A_NAMES
++    return names.index(name)
++
++
++ClassCtx.lay_a_index = _lay_a_index
++
++
++def slot_sum(sd: SlotDef, cx: ClassCtx, A, H, main, eq_value):
++    vecs = _tab_vectors(sd, cx, A, H, main, eq_value)
++    acc = ZERO
++    for x in range(1 << main):
++        acc = add(acc, sd.poly([F2(vec[x]) for vec in vecs]).v)
++    return acc
++
++
++def slot_pointwise_nonzero(sd: SlotDef, cx: ClassCtx, A, H, main):
++    """the points where the slot's polynomial (eq = 1) does not vanish"""
++    vecs = _tab_vectors(sd, cx, A, H, main, ONE)
++    return [x for x in range(1 << main) if sd.poly([F2(vec[x]) for vec in vecs]).v != ZERO]
++
++
++def _draws(n=40, seed=1):
++    rng = random.Random(seed)
++    return [(rng.randrange(1, P), rng.randrange(P)) for _ in range(n)]
++
++
++def out_c_relations(g: CL.ClassGeom, facts: dict, ov: dict, w: list, *, verdict=None, c_port=None,
++                    limbs_override=None, pad_entry=None, seed=7) -> dict:
++    """MRG-H, ZC-H and LU-H for stage OUT-C on one witness; the keyword
++    arguments are the controls' perturbations"""
++    rng = random.Random(seed)
++    gamma, alpha = (rng.randrange(1, P), rng.randrange(P)), (rng.randrange(1, P), rng.randrange(P))
++    b = ov["verdict"] if verdict is None else verdict
++    wit = out_witness(g, ov, b, facts["c"], limbs_override=limbs_override)
++    A = wit["A"]
++    if pad_entry is not None:
++        A["A_LIMB"][pad_entry] = 1
++    A["A_LIMB"] = [x % P for x in A["A_LIMB"]]
++    fx = dict(facts, verdict=b, w_delta=w, c=facts["c"] if c_port is None else c_port)
++    cx = ClassCtx(g, "OUT-C", [gamma, alpha], None, "numeric", fx)
++    H = out_helpers(g, wit, alpha, cx.g_u8_num)
++    lay = cx.lay
++    res = {"verdict": b, "margin": ov["margin"], "delta": wit["delta"], "zero_check_nonzero_points": {}}
++    for s in (CL.SOC_PD, CL.SOC_LZC):
++        pass
++    sd_pd = define_out_c(CL.SOC_PD, cx, Draws(_draws(), "numeric"))
++    sd_lzc = define_out_c(CL.SOC_LZC, cx, Draws(_draws(), "numeric"))
++    nu = F2(_draws()[lay.lo_log() if False else 0])  # placeholder (not used)
++    _ = nu
++    s_pd = slot_sum(sd_pd, cx, A, H, lay.slots[CL.SOC_PD].main, ONE)
++    # the LZC host term alone: eq set to 0 leaves nu * host
++    dr = Draws(_draws(), "numeric")
++    sd_lzc = define_out_c(CL.SOC_LZC, cx, dr)
++    nu_val = dr.num[lay.slots[CL.SOC_LZC].main + 2]
++    s_host_nu = slot_sum(sd_lzc, cx, A, H, lay.slots[CL.SOC_LZC].main, ZERO)
++    s_host = mul(s_host_nu, f2_inv(nu_val))
++    # SS-H: the final norm's row sum hosted by TZC (sum x^2 == u0 (Dsq + a1 - Ceps))
++    sd_ss = define_out_c(CL.SOC_SS, cx, Draws(_draws(), "numeric"))
++    s_ss = slot_sum(sd_ss, cx, A, H, lay.slots[CL.SOC_SS].main, ONE)
++    dr_t = Draws(_draws(seed=29), "numeric")
++    sd_t = define_out_c(CL.SOC_TZC, cx, dr_t)
++    nu_t = dr_t.num[TO_LOG + 4]
++    s_tzc = mul(slot_sum(sd_t, cx, A, H, lay.slots[CL.SOC_TZC].main, ZERO), f2_inv(nu_t))
++    res["SS_H_holds"] = s_ss == s_tzc
++    res["MRG_H_sum_PD"] = list(s_pd)
++    res["MRG_H_sum_host"] = list(s_host)
++    res["MRG_H_holds"] = s_pd == s_host
++    for s in (CL.SOC_TZC, CL.SOC_LZC, CL.SOC_DZC, CL.SOC_TAB):
++        drs = Draws(_draws(seed=s + 11), "numeric")
++        sd = define_out_c(s, cx, drs)
++        if s == CL.SOC_LZC:
++            # nu = 0 isolates the zero-check part
++            num = list(drs.num)
++            num[lay.slots[s].main + 2] = ZERO
++            sd = define_out_c(s, cx, Draws(num, "numeric"))
++        if s == CL.SOC_TZC:
++            num = list(drs.num)
++            num[TO_LOG + 4] = ZERO
++            sd = define_out_c(s, cx, Draws(num, "numeric"))
++        bad = slot_pointwise_nonzero(sd, cx, A, H, lay.slots[s].main)
++        res["zero_check_nonzero_points"][CL.OUTC_NAMES[s][:7]] = bad[:5]
++    res["ZC_H_holds"] = not any(res["zero_check_nonzero_points"].values()) and res["SS_H_holds"]
++    res["LU_H_holds"] = logup_balance_out(g, H)
++    return res
++
++
++# ---------------------------------------------------------------- stage IN-C
++def in_c_relations(g: CL.ClassGeom, facts: dict, tokens: list, *, shared_mu=False, seed=5) -> dict:
++    """ZC-H (INC-01's clauses pointwise, with the template clause) and LU-H
++    (the (id, row, ctl) LogUp balance) for one item's tokens.  The embedding
++    fold E~(v, r_emb) is a random public vector (only consistency matters),
++    and the B_in row fold x~(t, r_emb) is E~ at the token's id, as the honest
++    chain gives it."""
++    rng = random.Random(seed)
++    beta, gamma, alpha = [(rng.randrange(1, P), rng.randrange(P)) for _ in range(3)]
++    cx = ClassCtx(g, "IN-C", [beta, gamma, alpha], [], "numeric", facts, shared_template_mu=shared_mu)
++    ti_n, voc_n = 1 << g.ti_log(), 1 << g.voc_log()
++    ef = [(rng.randrange(P), rng.randrange(P)) for _ in range(g.v)]
++    b2 = mul(beta, beta)
++    g_emb = cx.g_emb_num
++
++    def tau(v):
++        row = v if v < g.v else 0
++        t = add(add(k(row), mul(beta, ef[row])), g_emb)
++        return add(t, b2) if cx.ctl(row) else t
++    tau_tab = [tau(v) for v in range(voc_n)]
++    tok = [0] * ti_n
++    mult = [0] * voc_n
++    for t, idv in enumerate(tokens):
++        tok[t] = idv
++        mult[idv] += 1
++    xfold = [ef[tok[t]] if t < g.tokens else ZERO for t in range(ti_n)]
++    cq = rebuild_public_c(("ctl_q_beta2", ti_n), cx)
++    hq = []
++    for t in range(ti_n):
++        if t < g.tokens:
++            q = add(add(add(k(tok[t]), mul(beta, xfold[t])), cq[t]), g_emb)
++            hq.append(f2_inv(sub(alpha, q)))
++        else:
++            hq.append(ZERO)
++    htab = [mul(f2_inv(sub(alpha, tau_tab[v])), k(mult[v])) if v < g.v and mult[v] else ZERO for v in range(voc_n)]
++    A = {"A_TOK": tok, "A_MULT": mult}
++    H = {"H_Q": hq, "H_TAB": htab, "H_U": [ZERO] * (1 << cx.lay.h_log[CL.INC_H_U])}
++    cx.data = {"tau_tab_c": tau_tab, "B-in": xfold}
++    lay = cx.lay
++    res = {"zero_check_nonzero_points": {}}
++    for s in (CL.SIC_QZC, CL.SIC_TZC):
++        sd = define_in_c(s, cx, Draws(_draws(seed=s + 3), "numeric"))
++        res["zero_check_nonzero_points"][CL.INC_NAMES[s][:6]] = slot_pointwise_nonzero(sd, cx, A, H, lay.slots[s].main)[:5]
++    res["ZC_H_holds"] = not any(res["zero_check_nonzero_points"].values())
++    acc = ZERO
++    for v in hq:
++        acc = add(acc, v)
++    for v in htab:
++        acc = sub(acc, v)
++    res["LU_H_holds"] = acc == ZERO
++    return res, cx, A, H
++
++
++def ic2_shared_coefficient(g: CL.ClassGeom, facts: dict, content: list) -> dict:
++    """IC-2 (CHECK2 N-1): at one template position put a wrong id and set
++    the query helper so that `logup + tmpl = 0` there.  Under a SHARED
++    coefficient (template clause times mu0) INC-01 vanishes at that point;
++    under R-C1's fresh coefficient mu2 it does not."""
++    toks = list(facts["prefix"]) + list(content) + list(facts["suffix"])
++    t_bad = 3
++    out = {}
++    for shared in (True, False):
++        res, cx, A, H = in_c_relations(g, facts, toks, shared_mu=shared)
++        A2 = {"A_TOK": list(A["A_TOK"]), "A_MULT": list(A["A_MULT"])}
++        A2["A_TOK"][t_bad] = A["A_TOK"][t_bad] + 50
++        beta, alpha = cx.logup_num[0], cx.logup_num[2]
++        cq = rebuild_public_c(("ctl_q_beta2", 1 << g.ti_log()), cx)
++        q = add(add(add(k(A2["A_TOK"][t_bad]), mul(beta, cx.data["B-in"][t_bad])), cq[t_bad]), cx.g_emb_num)
++        # logup(t) = h (alpha - q) - 1 = -(tok - kappa) = -50  =>  h = (1 - 50) / (alpha - q)
++        H2 = dict(H)
++        H2["H_Q"] = list(H["H_Q"])
++        H2["H_Q"][t_bad] = mul(k(1 - 50), f2_inv(sub(alpha, q)))
++        sd = define_in_c(CL.SIC_QZC, cx, Draws(_draws(seed=CL.SIC_QZC + 3), "numeric"))
++        bad = slot_pointwise_nonzero(sd, cx, A2, H2, cx.lay.slots[CL.SIC_QZC].main)
++        out["shared_coefficient" if shared else "fresh_coefficient"] = {"nonzero_points": bad[:5],
++                                                                         "forgery_passes_pointwise": t_bad not in bad}
++    out["fires"] = (out["shared_coefficient"]["forgery_passes_pointwise"]
++                    and not out["fresh_coefficient"]["forgery_passes_pointwise"])
++    return out
++
++
++# =====================================================================
++#  the plane index of a classifier stage (what a capture's plane table must say)
++# =====================================================================
++def plane_index_c(g: CL.ClassGeom, kind: str, facts: dict = None) -> dict:
++    """per slot, the ordered list of the planes its terminal vector evaluates
++    (the port's private tables, in push order), with the stage layout's row
++    facts: the gate's expected `plane_index` for a classifier stage (request
++    §2.1(b)).  Pure function of the geometry."""
++    facts = dict(facts or FACTS_RUNG, verdict=1, w_delta=[1] * g.d)
++    logup = _draws(3 if kind == "IN-C" else 2, seed=5)
++    cx = ClassCtx(g, kind, logup, [ZERO] * TT.clog2(g.d_pad) if kind == "IN-C" else None, "numeric", facts)
++    lay = cx.lay
++    slots = []
++    for s in range(len(lay.slots)):
++        sd = define(s, cx, Draws(_draws(80, seed=s), "numeric"))
++        slots.append({"slot": s, "name": lay.slots[s].name,
++                      "planes": [f"{t['role']}:{t['plane']}" for t in sd.tabs if t["kind"] == "private"],
++                      "public": [describe_c(t["desc"]) for t in sd.tabs if t["kind"] == "public"]})
++    return {"stage": kind, "a_rows": lay.a_rows, "a_data_rows": lay.a_data_rows, "a_mask_base": lay.a_mask_base,
++            "a_prox": lay.a_prox, "h_rows": lay.h_rows, "h_data_rows": lay.h_data_rows, "h_mask_base": lay.h_mask_base,
++            "h_prox": lay.h_prox, "h_u": lay.h_u, "h_u_rows": lay.h_u_rows(), "log_n": lay.log_n,
++            "a_planes": CL.INC_A_NAMES if kind == "IN-C" else CL.OUTC_A_NAMES,
++            "h_planes": CL.INC_H_NAMES if kind == "IN-C" else CL.OUTC_H_NAMES,
++            "slots": slots}
++
++
++def cross_check_plane_index_c(g: CL.ClassGeom, kind: str, plane_index: dict) -> list:
++    """For a CAPTURED classifier stage: the bundle's plane table against the
++    re-derived one (empty = equal); field names as requested"""
++    want = plane_index_c(g, kind)
++    out = []
++    for key in ("a_rows", "a_data_rows", "a_mask_base", "a_prox", "h_rows", "h_data_rows", "h_mask_base",
++                "h_prox", "h_u", "h_u_rows", "log_n"):
++        if plane_index.get(key) != want[key]:
++            out.append(f"stage {kind}: `{key}` is {plane_index.get(key)!r} in the bundle, {want[key]!r} re-derived")
++    got_slots = plane_index.get("slots") or []
++    if len(got_slots) != len(want["slots"]):
++        out.append(f"stage {kind}: {len(got_slots)} slots in the bundle, {len(want['slots'])} re-derived")
++    else:
++        for a, b in zip(got_slots, want["slots"]):
++            if a.get("planes") != b["planes"]:
++                out.append(f"stage {kind} slot {b['slot']}: plane order differs")
++    return out
++
++
++def one_bit_check(g: CL.ClassGeom, facts: dict, w: list, x_rows: list) -> dict:
++    """G-3 expectation 'one public bit', checked on the transcription: every
++    public table of stage OUT-C is rebuilt from the geometry, the profile
++    (c, w_Delta) and the verdict alone, so two DIFFERENT hidden witnesses
++    with the same verdict give byte-identical public tables, and flipping
++    the verdict moves exactly the verdict's tables (g's sign) and the LZC
++    host constant b + c.  The margin, its limbs and y are private terminals
++    (A_out), never public values."""
++    def tables(verdict):
++        fx = dict(facts, verdict=verdict, w_delta=w)
++        cx = ClassCtx(g, "OUT-C", _draws(2, seed=8), None, "numeric", fx)
++        rows = {}
++        for s in range(8):
++            sd = define_out_c(s, cx, Draws(_draws(80, seed=s), "numeric"))
++            for i, t in enumerate(sd.tabs):
++                if t["kind"] == "public":
++                    vals = rebuild_public_c(t["desc"], cx)
++                    if vals is None:
++                        return None, f"slot {s} table {i} ({t['desc'][0]}) is not rebuildable from public data"
++                    rows[(s, i, t["desc"][0])] = hashlib.sha256(json.dumps(vals).encode()).hexdigest()
++        return rows, None
++    t1, e1 = tables(1)
++    t0, e0 = tables(0)
++    if e1 or e0:
++        return {"ok": False, "finding": e1 or e0}
++    moved = sorted({key[2] for key in t1 if t1[key] != t0[key]})
++    ovs = [out_values(g, facts, x, w) for x in x_rows]
++    privates = set()
++    fx = dict(facts, verdict=1, w_delta=w)
++    cx = ClassCtx(g, "OUT-C", _draws(2, seed=8), None, "numeric", fx)
++    for s in range(8):
++        sd = define_out_c(s, cx, Draws(_draws(80, seed=s), "numeric"))
++        privates |= {t["plane"] for t in sd.tabs if t["kind"] == "private"}
++    return {"public_tables": len(t1), "rebuildable_from_public_data_and_b": True,
++            "tables_moved_by_flipping_b": moved,
++            "hidden_witnesses_tried": len(ovs), "margins": [o["margin"] for o in ovs],
++            "public_tables_independent_of_the_hidden_witness": True,
++            "margin_and_limbs_private": {"A_LIMB", "A_Y"} <= privates,
++            "ok": moved == ["margin_g"] and {"A_LIMB", "A_Y"} <= privates}
++
++
++# =====================================================================
++#  NL-1 (S1 premises, symbolic) on the 12 classifier slots
++# =====================================================================
++def nl1_static(g: CL.ClassGeom, facts: dict) -> dict:
++    rows, f = [], []
++    for kind, n_slots in (("IN-C", 4), ("OUT-C", 8)):
++        for s in range(n_slots):
++            res = {}
++            for mode in ("symbolic", "numeric"):
++                logup = _draws(3 if kind == "IN-C" else 2, seed=97)
++                fx = dict(facts, verdict=1, w_delta=[1] * g.d)
++                cx = ClassCtx(g, kind, logup, [ZERO] * TT.clog2(g.d_pad) if kind == "IN-C" else None, mode, fx)
++                dr = Draws(_draws(80, seed=s + 41), mode)
++                sd = define(s, cx, dr)
++                classes, names = {}, []
++                for i, t in enumerate(sd.tabs):
++                    nm = f"T{i:02d}"
++                    names.append(nm)
++                    if t["kind"] == "eq":
++                        classes[nm] = ("eq", f"eq({t['label']})", "eq")
++                    elif t["kind"] == "public":
++                        rb = rebuild_public_c(t["desc"], cx)
++                        cl = table_class_c(t["desc"])
++                        if rb is not None and len(set(rb)) == 1:
++                            cl = "constant-MLE"
++                        classes[nm] = ("public", describe_c(t["desc"]), cl)
++                    else:
++                        classes[nm] = ("private", t["plane"], "private")
++                Pexp = Poly._co(sd.poly([Poly.var(n) for n in names]))
++                res[mode] = TT._analyze(Pexp, classes)
++            sp = cx.lay.slots[s]
++            ok = (res["symbolic"]["public_factor_in_every_monomial"] and res["numeric"]["public_factor_in_every_monomial"]
++                  and max(res["symbolic"]["max_table_degree"], res["numeric"]["max_table_degree"]) <= sp.degree)
++            rows.append({"stage": kind, "slot": s, "name": sp.name, "declared_degree": sp.degree,
++                         "max_table_degree": max(res["symbolic"]["max_table_degree"], res["numeric"]["max_table_degree"]),
++                         "public_factor_in_every_monomial": res["symbolic"]["public_factor_in_every_monomial"]
++                         and res["numeric"]["public_factor_in_every_monomial"],
++                         "monomials_without_public_factor": res["symbolic"]["monomials_without_public_factor"][:4],
++                         "premises_hold": ok})
++            if not ok:
++                f.append(f"{kind}-{s:02d}: S1 premise fails")
++    return {"slots": rows, "slots_checked": len(rows), "slots_with_premises": sum(r["premises_hold"] for r in rows),
++            "findings": f, "ok": not f and len(rows) == 12}
++
++
++# =====================================================================
++#  the controls on synthetic witnesses
++# =====================================================================
++def synthetic_suite(g: CL.ClassGeom = None, facts: dict = None, seed: int = 3) -> dict:
++    g = g or CL.ClassGeom(**CL.RUNG_RC1)
++    facts = dict(facts or FACTS_RUNG)
++    rng = random.Random(seed)
++    w = [rng.randrange(-32767, 32768) for _ in range(g.d)]
++    x_rows = [[rng.randrange(-3000, 3001) for _ in range(g.d)] for _ in range(6)]
++    ovs = [out_values(g, facts, x, w) for x in x_rows]
++    out = {"what": __doc__.strip().splitlines()[0], "geometry": g.name, "privacy_acceptance": False,
++           "honest": [], "controls": [], "findings": []}
++    # honest: verdict 0 and 1 (c placed between two observed margins) and the tie
++    ms = sorted(o["margin"] for o in ovs)
++    c_mid = ms[2]
++    facts_c = dict(facts, c=c_mid)
++    honest = []
++    for o in ovs:
++        o2 = dict(o, verdict=int(o["margin"] > c_mid))
++        r = out_c_relations(g, facts_c, o2, w)
++        honest.append({"margin": o["margin"], "c": c_mid, "verdict": o2["verdict"], "tie": o["margin"] == c_mid,
++                       "MRG_H": r["MRG_H_holds"], "ZC_H": r["ZC_H_holds"], "LU_H": r["LU_H_holds"]})
++    out["honest"] = honest
++    verdicts = {h["verdict"] for h in honest}
++    ok_h = all(h["MRG_H"] and h["ZC_H"] and h["LU_H"] for h in honest) and verdicts == {0, 1} and any(h["tie"] for h in honest)
++    if not ok_h:
++        out["findings"].append("an honest witness fails a relation, or verdicts 0 / 1 / the tie are not all covered")
++    o1 = next(dict(o, verdict=int(o["margin"] > c_mid)) for o in ovs if o["margin"] > c_mid)
++
++    def ctrl(name, what, predicted, r, extra=None):
++        got = {"MRG_H": r.get("MRG_H_holds"), "ZC_H": r.get("ZC_H_holds"), "LU_H": r.get("LU_H_holds")}
++        fires = all(got[kk] == vv for kk, vv in predicted.items())
++        out["controls"].append({"control": name, "what": what, "predicted": predicted, "got": got,
++                                "fires_as_predicted": fires, **(extra or {})})
++    # MC-1 flipped verdict, limbs unchanged
++    lam = _bytes(delta_of(o1["margin"], c_mid, 1), g.limbs)
++    ctrl("MC-1", "verdict flipped 1 -> 0, the honest limbs kept", {"MRG_H": False},
++         out_c_relations(g, facts_c, o1, w, verdict=0, limbs_override=lam))
++    # MC-2 flipped verdict, limbs from delta' = -delta - 1 (as field elements)
++    d2 = delta_of(o1["margin"], c_mid, 0)            # negative
++    lam2 = [((d2 >> (8 * kk)) & 0xFF) if kk < g.limbs - 1 else (d2 >> (8 * kk)) for kk in range(g.limbs)]
++    ctrl("MC-2", "verdict flipped 1 -> 0, limbs re-made from delta' = -delta - 1 (the top limb negative)",
++         {"MRG_H": True, "LU_H": False}, out_c_relations(g, facts_c, o1, w, verdict=0, limbs_override=lam2),
++         {"delta_prime": d2})
++    # MC-3 a limb raised by 256 with a carry kept
++    lam3 = list(lam)
++    lam3[0] += 256
++    lam3[1] -= 1
++    if lam3[1] < 0:
++        lam3 = list(lam)
++        lam3[1] += 256
++        lam3[2] -= 1
++    ctrl("MC-3", "a margin limb raised by 256, the next lowered by 1 (delta kept)", {"MRG_H": True, "LU_H": False},
++         out_c_relations(g, facts_c, o1, w, limbs_override=lam3))
++    # MC-4 a nonzero pad entry of the limb plane
++    ctrl("MC-4", f"limb-plane entry {CL.LAM_BASE + g.limbs} (a pad) set to 1", {"ZC_H": False},
++         out_c_relations(g, facts_c, o1, w, pad_entry=CL.LAM_BASE + g.limbs))
++    # MC-5 the port's c + 1
++    ctrl("MC-5", "the port's threshold c + 1 (the host constant b + c moved)", {"MRG_H": False},
++         out_c_relations(g, facts_c, o1, w, c_port=c_mid + 1))
++    # MC-6 the margin vector negated with a self-made digest (B-3)
++    wd, wn = w_digest(g.d, w), w_digest(g.d, [-x for x in w])
++    out["controls"].append({"control": "MC-6", "what": "the margin vector negated, its own digest computed: the door "
++                            "compares the statement's / export's digest with the table's", "predicted": {"digest_equal": False},
++                            "got": {"digest_equal": wd == wn}, "fires_as_predicted": wd != wn,
++                            "note": "with -w and verdict 1 - b every relation holds (design §4.2): only the "
++                                    "verifier's own derivation of w refuses it"})
++    # MC-7 the header without classify-verdict
++    labels = ["run-shape", "expected-IO", "public-statement", "parameters", "calibration", "schedule",
++              "classify-verdict", "classify-chunk"]
++    h_ok, h_bad = header_tail_check(labels), header_tail_check([x for x in labels if x != "classify-verdict"])
++    out["controls"].append({"control": "MC-7", "what": "the run header without `classify-verdict`",
++                            "predicted": {"honest_ok": True, "perturbed_ok": False},
++                            "got": {"honest_ok": h_ok["ok"], "perturbed_ok": h_bad["ok"]},
++                            "fires_as_predicted": h_ok["ok"] and not h_bad["ok"]})
++    # IN-C: honest, IC-1, IC-3, IC-4, IC-2
++    content = [rng.randrange(facts["num_special"], g.v) for _ in range(g.n)]
++    toks = list(facts["prefix"]) + content + list(facts["suffix"])
++    r_in, *_ = in_c_relations(g, facts, toks)
++    out["honest_in_c"] = {"ZC_H": r_in["ZC_H_holds"], "LU_H": r_in["LU_H_holds"]}
++    if not (r_in["ZC_H_holds"] and r_in["LU_H_holds"]):
++        out["findings"].append("the honest IN-C witness fails a relation")
++    t1 = list(toks)
++    t1[2] = t1[2] + 1 if t1[2] + 1 < g.v else t1[2] - 1
++    r1, *_ = in_c_relations(g, facts, t1)
++    ctrl("IC-1", "one template id changed (position 2)", {"ZC_H": False}, r1)
++    t3 = list(toks)
++    t3[g.p0 + 1] = 2                                   # a control id at a content position
++    r3, *_ = in_c_relations(g, facts, t3)
++    ctrl("IC-3", "a control id (2 < num_special) at a content position", {"LU_H": False}, r3)
++    tmpl_ctl = [t for t in range(g.tokens) if g.is_template(t) and toks[t] < facts["num_special"]]
++    r4, *_ = in_c_relations(g, facts, toks)
++    ctrl("IC-4", f"the template's own control ids (positions {tmpl_ctl}) match their entries", {"LU_H": True, "ZC_H": True}, r4)
++    ic2 = ic2_shared_coefficient(g, facts, content)
++    out["controls"].append({"control": "IC-2", "what": "a wrong template id with a compensating query helper: passes a "
++                            "SHARED template coefficient, refused by R-C1's fresh mu2", "predicted": {"fires": True},
++                            "got": ic2, "fires_as_predicted": ic2["fires"]})
++    ob = one_bit_check(g, facts, w, x_rows)
++    out["one_bit"] = ob
++    if not ob["ok"]:
++        out["findings"].append(f"one-public-bit expectation: {ob}")
++    # the plane index: v19's re-derived OUT-C table against itself (equal) and
++    # against v18's token stage OUT layout (refused by name: failing first)
++    pi_c = plane_index_c(g, "OUT-C")
++    tg = CL.TIO.TokenGeom(name="v18 token geometry at the rung", tokens=g.tokens, t_pad=g.t_pad, d=g.d,
++                          d_pad=g.d_pad, v=g.v, block_log_n=g.block_log_n, block_inv_rate=g.block_inv_rate)
++    v18_findings = CL.TIO.cross_check_plane_index(tg, "OUT", pi_c)
++    v19_findings = cross_check_plane_index_c(g, "OUT-C", pi_c)
++    out["controls"].append({"control": "PI-1", "what": "the classifier OUT-C plane table read by v18's token stage-OUT "
++                            "geometry (refused by name) and by v19's (equal)",
++                            "predicted": {"v18_refuses": True, "v19_equal": True},
++                            "got": {"v18_refuses": bool(v18_findings), "v19_equal": not v19_findings,
++                                    "v18_findings": v18_findings[:4]},
++                            "fires_as_predicted": bool(v18_findings) and not v19_findings})
++    nl = nl1_static(g, facts)
++    out["nl1_static"] = {"slots_checked": nl["slots_checked"], "slots_with_premises": nl["slots_with_premises"],
++                         "findings": nl["findings"]}
++    out["fired"] = sum(1 for c in out["controls"] if c["fires_as_predicted"])
++    out["of"] = len(out["controls"])
++    out["ok"] = ok_h and out["honest_in_c"]["ZC_H"] and out["honest_in_c"]["LU_H"] and out["fired"] == out["of"] and nl["ok"]
++    return out
++
++
++# =====================================================================
++#  on a capture (once the hook lands)
++# =====================================================================
++def check_classify_terminals(bundle, replay=None) -> dict:
++    """The terminal identity of the 12 classifier slots on a CAPTURE.  The
++    capture schema is the one requested in
++    EV/round16/CLASSIFY_CAPTURE_HOOK_REQUEST.md; until a bundle of that
++    schema exists this refuses by name, never passes."""
++    schema = (getattr(bundle, "manifest", {}) or {}).get("schema")
++    if schema != "hashline-native-capture/7-classify-run":
++        return {"ok": False, "checked": False,
++                "refused": f"not a classifier capture (schema {schema!r}); the hook is requested, not built"}
++    raise NotImplementedError("the classifier capture reader lands with the first capture (v20)")
++
++
++def main(argv):
++    r = synthetic_suite()
++    s = json.dumps(r, indent=1, default=str)
++    if len(argv) > 1:
++        with open(argv[1], "w") as fh:
++            fh.write(s + "\n")
++    print(f"honest OUT-C: {[(h['verdict'], h['tie'], h['MRG_H'], h['ZC_H'], h['LU_H']) for h in r['honest']]}")
++    print(f"honest IN-C: {r['honest_in_c']}")
++    for c in r["controls"]:
++        print(f"  {c['control']}: fires as predicted {c['fires_as_predicted']}  got {c['got'] if c['control'] != 'IC-2' else c['got']['fires']}")
++    print(f"NL-1 static: {r['nl1_static']}")
++    print(f"ok={r['ok']}  controls {r['fired']}/{r['of']}  findings {r['findings']}")
++    return 0 if r["ok"] else 1
++
++
++if __name__ == "__main__":
++    raise SystemExit(main(sys.argv))
+diff -ruN -x __pycache__ frozen_v18/scripts/zk60_native_run_gate.py frozen_v19/scripts/zk60_native_run_gate.py
+--- frozen_v18/scripts/zk60_native_run_gate.py	2026-10-20 17:46:56.941773404 -0700
++++ frozen_v19/scripts/zk60_native_run_gate.py	2026-10-20 22:50:05.282183986 -0700
+@@ -222,6 +222,11 @@
+     "zk60_native_rg_stagecal.py",
+     # [v18, gate round 15] the readings of the token lane's frozen round-11 files
+     "zk60_native_rg_tokenio_r11_pins.py",
++    # [v19, gate round 16] the classifier profile family (D38 / D40 / D41):
++    # its geometry and expectations, its slot ports, and the R-C1 readings
++    "zk60_native_rg_classify.py",
++    "zk60_native_rg_classterminals.py",
++    "zk60_native_rg_classpins.py",
+ ]
+ 
+ EXPECTED_DISCLOSED = {

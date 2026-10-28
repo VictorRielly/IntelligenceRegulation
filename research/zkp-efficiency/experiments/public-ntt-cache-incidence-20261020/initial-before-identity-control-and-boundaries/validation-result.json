@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "checks": 92371,
+  "rows": 112,
+  "positions": 4416,
+  "trace_rows": 145,
+  "capacity_events": 50240,
+  "source_pins": 21,
+  "elapsed_s": 0.5529108330083545,
+  "maxrss_KiB": 72316,
+  "scope": "Independent polynomial coefficients/evaluation and fixed-domain live-event oracle; no probe/census import or native verification"
+}

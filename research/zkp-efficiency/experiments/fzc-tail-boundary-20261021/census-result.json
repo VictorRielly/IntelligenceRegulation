@@ -1,0 +1,8 @@
+{
+  "status": "PASS_COUNT_MODEL_ONLY",
+  "checks": 30720,
+  "schedules": 6144,
+  "wall_seconds": 0.35010752399102785,
+  "rss_kib": 18776,
+  "scope": "12 n values, four thresholds, both k/degree/fused/split/mapped/profile choices, baseline/candidate; no actual runtime incidence or CUDA clocks"
+}

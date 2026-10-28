@@ -1,0 +1,10 @@
+[load          ]      0.5 s   peak RSS      80 MB   ok
+[replay        ]      0.1 s   peak RSS      80 MB   ok
+[hash          ]      0.2 s   peak RSS      80 MB   ok
+[terminals     ]      0.6 s   peak RSS      81 MB   ok
+[commitments   ]      7.3 s   peak RSS     106 MB   ok
+[boundary      ]      2.3 s   peak RSS     123 MB   ok
+[preimage      ]      0.1 s   peak RSS     123 MB   ok
+[channels      ]      0.0 s   peak RSS     123 MB   ok
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round14/v17/dd-rung-l2-zero-a.json   total 11.1 s   peak RSS 123 MB   ok=True
+status: PASS   unexplained false leaves 0   -> /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round14/v17/dd-rung-l2-zero-a.status.json

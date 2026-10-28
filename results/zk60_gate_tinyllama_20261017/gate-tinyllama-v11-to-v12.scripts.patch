@@ -1,0 +1,887 @@
+diff -ruN -x __pycache__ frozen_v11/scripts/zk60_native_rg_tokencal.py frozen_v12/scripts/zk60_native_rg_tokencal.py
+--- frozen_v11/scripts/zk60_native_rg_tokencal.py	1969-12-31 16:00:00.000000000 -0800
++++ frozen_v12/scripts/zk60_native_rg_tokencal.py	2026-10-19 17:45:54.526857511 -0700
+@@ -0,0 +1,187 @@
++#!/usr/bin/env python3
++"""[GATE ROUND 10, tools v12, 2026-10-20; privacy review round 4, PR4-9] The
++CALIBRATION ATTRIBUTION of a token-I/O run capture: the run's absorbed
++`calibration` word recomputed from the EXPORT and the named TABLE files, and
++compared.
++
++    python3 zk60_native_rg_tokencal.py --attribution <log of the PR4-9 Rust tests> \
++        --bundle <token capture> [--bundle ...] --evidence <dir> --name <name>
++
++NOTHING HERE IS A PRIVACY RESULT OR A PRIVACY ACCEPTANCE.
++
++WHERE THE RECOMPUTATION COMES FROM.  The token run's header absorbs
++    calibration = BLAKE3("hashline/token-io-calibration/v1" || I || D)
++(`token_io/run.rs:303-308` [READ]) where I is the trained-model statement's
++identity over the run's layers (`trained_statement.rs:665-755`: the export's
++profile digest, every layer's manifest, word, table and source-tensor
++digests, block digests, constants) and D the token profile's digest
++(`token_io.rs:512-519`: V, BOS, the final-norm constants, the embedding and
++head digests with the multipliers, the variant, the tier).  The gate's tk7
++copy's test-only `pr4_9_calibration_words_*` (gr4_token_tests.rs) builds I
++and D from the EXPORT directory and the named TABLE directories with the
++production loaders -- the token capture test's own recipe, never a capture
++-- and prints them with the composed word and the per-layer block digests.
++
++WHAT IS CHECKED, per capture (a refusal by name each):
++  A1  the capture's README names an export and a layer range, and an
++      attribution line exists for exactly that export and range;
++  A2  the word is RE-COMPOSED here in Python from (I, D) by the same BLAKE3
++      rule and equals the Rust-composed word (the composition, checked twice);
++  A3  that word equals the capture's absorbed `calibration` (`run.json`);
++  A4  the token replay (`TokenRunReplay`) reproduces the run binding from
++      the header words, so the compared word is the one the transcript
++      absorbed;
++  A5  the capture's `block_digests` equal the attribution's, block for block.
++
++CONTROLS (failing-first: each must make the check fail):
++  K1  one bit of I flipped: A2 / A3 fail;
++  K2  the attribution of another layer range of the same export: A3 fails;
++  K3  the attribution of another export (when given): A3 fails;
++  K4  one bit of D flipped: A3 fails.
++"""
++
++from __future__ import annotations
++
++import argparse
++import hashlib
++import json
++import os
++import re
++import sys
++import time
++
++sys.dont_write_bytecode = True
++HERE = os.path.dirname(os.path.abspath(__file__))
++if HERE not in sys.path:
++    sys.path.insert(0, HERE)
++
++import zk60_native_rg_tokengate as TG  # noqa: E402
++
++DOMAIN = b"hashline/token-io-calibration/v1"
++README_RE = re.compile(r"export `([^`]+)` \(variant ([^)]+)\), layers (\d+)\.\.(\d+)")
++
++
++def _sha(p):
++    with open(p, "rb") as fh:
++        return hashlib.sha256(fh.read()).hexdigest()
++
++
++def compose(ident_hex: str, dig_hex: str) -> str:
++    import blake3
++    h = blake3.blake3()
++    h.update(DOMAIN)
++    h.update(bytes.fromhex(ident_hex))
++    h.update(bytes.fromhex(dig_hex))
++    return h.hexdigest()
++
++
++def read_attributions(path):
++    out = []
++    with open(path) as fh:
++        for line in fh:
++            line = line.strip()
++            if line.startswith("{") and '"pr4-9-attribution"' in line:
++                out.append(json.loads(line))
++    return out
++
++
++def readme_facts(d):
++    with open(os.path.join(d, "README.md")) as fh:
++        txt = fh.read()
++    m = README_RE.search(txt)
++    if not m:
++        return None
++    return {"export": os.path.normpath(m.group(1)), "variant": m.group(2),
++            "layers": list(range(int(m.group(3)), int(m.group(4)) + 1))}
++
++
++def _flip(hexs):
++    b = bytearray(bytes.fromhex(hexs))
++    b[0] ^= 1
++    return b.hex()
++
++
++def check_one(bundle_dir, atts):
++    rec = {"bundle": os.path.basename(bundle_dir), "findings": []}
++    run = json.load(open(os.path.join(bundle_dir, "run.json")))
++    word = bytes(run["calibration"]).hex()
++    rec["absorbed_calibration"] = word
++    facts = readme_facts(bundle_dir)
++    rec["readme"] = facts
++    if facts is None:
++        rec["findings"].append("A1: the README names no export / layer range")
++        rec["ok"] = False
++        return rec
++    match = [a for a in atts if os.path.normpath(a["export"]) == facts["export"] and a["layers"] == facts["layers"]]
++    if len(match) != 1:
++        rec["findings"].append(f"A1: {len(match)} attribution lines for {facts['export']} layers {facts['layers']}")
++        rec["ok"] = False
++        return rec
++    a = match[0]
++    rec["attribution"] = {k: a[k] for k in ("tag", "export", "emb_dir", "head_dir", "layers", "run_profile",
++                                            "trained_statement_identity", "token_profile_digest",
++                                            "calibration_word_composed", "statement_header_word_equal")}
++    py = compose(a["trained_statement_identity"], a["token_profile_digest"])
++    rec["A2_python_composition_equals_rust"] = py == a["calibration_word_composed"] and a["statement_header_word_equal"]
++    rec["A3_word_equals_the_absorbed_calibration"] = py == word
++    rec["A1_profile_matches"] = a["run_profile"] == run["profile"]
++    b = TG.load(bundle_dir)
++    rp = TG.TokenRunReplay(b).run().summary()
++    rec["A4_replay_reproduces_the_binding"] = bool(rp["ok"] and rp["run_binding_reproduced"])
++    caps = [bytes(x).hex() for x in run["block_digests"]]
++    rec["A5_block_digests_equal"] = caps == a["block_digests"]
++    for k in ("A1_profile_matches", "A2_python_composition_equals_rust", "A3_word_equals_the_absorbed_calibration",
++              "A4_replay_reproduces_the_binding", "A5_block_digests_equal"):
++        if not rec[k]:
++            rec["findings"].append(f"{k} is false")
++    # controls
++    ctl = {}
++    ctl["K1_identity_bit_flipped"] = {"fires": compose(_flip(a["trained_statement_identity"]), a["token_profile_digest"]) != word}
++    ctl["K4_profile_digest_bit_flipped"] = {"fires": compose(a["trained_statement_identity"], _flip(a["token_profile_digest"])) != word}
++    other = [x for x in atts if os.path.normpath(x["export"]) == facts["export"] and x["layers"] != facts["layers"]]
++    ctl["K2_another_layer_range"] = ({"with": other[0]["tag"],
++                                      "fires": compose(other[0]["trained_statement_identity"], other[0]["token_profile_digest"]) != word}
++                                     if other else {"not_applicable": "no other range of this export"})
++    foreign = [x for x in atts if os.path.normpath(x["export"]) != facts["export"]]
++    ctl["K3_another_export"] = ({"with": foreign[0]["tag"],
++                                 "fires": compose(foreign[0]["trained_statement_identity"], foreign[0]["token_profile_digest"]) != word}
++                                if foreign else {"not_applicable": "no other export given"})
++    rec["controls"] = ctl
++    live = [v for v in ctl.values() if "fires" in v]
++    rec["controls_ok"] = bool(live) and all(v["fires"] for v in live)
++    rec["ok"] = not rec["findings"] and rec["controls_ok"]
++    return rec
++
++
++def main(argv=None):
++    ap = argparse.ArgumentParser(description=__doc__.strip().splitlines()[0])
++    ap.add_argument("--attribution", required=True, action="append")
++    ap.add_argument("--bundle", required=True, action="append")
++    ap.add_argument("--evidence", required=True)
++    ap.add_argument("--name", required=True)
++    a = ap.parse_args(argv)
++    t0 = time.time()
++    atts = []
++    for p in a.attribution:
++        atts.extend(read_attributions(p))
++    rec = {"what": "PR4-9: the token captures' absorbed calibration words recomputed from the export and the "
++                   "named tables; NOT a privacy result", "privacy_acceptance": False,
++           "attribution_logs": {p: _sha(p) for p in a.attribution}, "attributions": len(atts),
++           "captures": [check_one(d, atts) for d in a.bundle]}
++    rec["ok"] = bool(rec["captures"]) and all(c["ok"] for c in rec["captures"])
++    rec["status"] = "PASS" if rec["ok"] else "NOT-OK"
++    rec["seconds"] = round(time.time() - t0, 1)
++    rec["tool_sha256"] = {os.path.basename(__file__): _sha(os.path.abspath(__file__))}
++    os.makedirs(a.evidence, exist_ok=True)
++    path = os.path.join(a.evidence, f"{a.name}.json")
++    with open(path, "w") as fh:
++        json.dump(rec, fh, indent=1, sort_keys=True)
++        fh.write("\n")
++    for c in rec["captures"]:
++        print(c["bundle"], "ok" if c["ok"] else "NOT OK", c["findings"])
++    print(f"record: {path}  status {rec['status']}")
++    return 0 if rec["ok"] else 1
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff -ruN -x __pycache__ frozen_v11/scripts/zk60_native_rg_tokennl.py frozen_v12/scripts/zk60_native_rg_tokennl.py
+--- frozen_v11/scripts/zk60_native_rg_tokennl.py	1969-12-31 16:00:00.000000000 -0800
++++ frozen_v12/scripts/zk60_native_rg_tokennl.py	2026-10-19 17:07:45.876175877 -0700
+@@ -0,0 +1,449 @@
++#!/usr/bin/env python3
++"""[GATE ROUND 10, tools v12, 2026-10-20] NL-1's machine check, stages S1-S5,
++on the token-I/O stages' NEW slots (stage IN, 4 slots; stage OUT, 11 slots),
++by feeding the FROZEN `nl_check.py` (results/zk60_nonlinear_channel_shaped/,
++digests checked before import, no bytecode written there) a slot IR of each
++new slot built from the gate's own transcription of `define`
++(`zk60_native_rg_tokenterminals.py`, whose evaluation equals the Rust
++terminal polynomial on every token capture: v10, 15 / 15).
++
++    python3 zk60_native_rg_tokennl.py --bundle <token capture> --evidence <dir> --name <name>
++
++NOTHING HERE IS A PRIVACY RESULT OR A PRIVACY ACCEPTANCE.
++
++THE IR.  `nl_check` reads `zk60-slot-ir/1` slots (tables with a kind, nodes,
++terms with coefficients).  The block slots' IR is exported by Rust
++(`slot_ir.rs`, stage 34); the token stages have none.  Here each new slot's
++transcribed polynomial is EXPANDED (the tokenterminals Poly ring) over its
++table variables, with the challenges either
++  * at the run's RE-DERIVED values (the token replay), or
++  * at independent RANDOM values (three seeds; `nl_check`'s own convention
++    for a challenge coefficient),
++and written as a flat IR: one term per monomial, no nodes, every coefficient
++a constant.  Table kinds: an eq table -> `eq(start=s,|point|=p)`; a public
++table -> `supp(...)` when it is a support indicator, else `pub`; an A plane
++-> `A`; an H helper -> `H`; an IO endpoint / boundary -> `EP`.
++
++FIDELITY (failing-first: F-1 perturbs one coefficient and must fail).
++  F-0  the IR evaluated by `nl_check.Slot` equals the transcription evaluated
++       in the numeric ring, at random table values, three seeds per slot;
++  T-0  the same module's `check_token_terminals` on this capture: the
++       transcription equals the Rust terminal polynomial, every new slot.
++
++THE STAGES (nl_check's numbering; its functions, not copies):
++  S1  per slot: the per-extension-round premise (exact, three seeds; and the
++      syntactic walk), a public factor in every monomial, the degree walk
++      within the declared degree, the per-variable bound, the mask budget
++      L + 256 <= 512;
++  S2  the stage sums: sum L, sum dim C, the kernel;
++  S3  Fact 2.1 at every distinct (N, d) of the new slots, five regimes;
++  S4  per slot a MINIATURE honest masked run with the slot's polynomial
++      (chain accepts, Fact 3.2, terminals = cd T + cm R, offset in Im R,
++      the fibre test of Theorem 3.3), and the per-slot terminal map onto
++      Fp2^m (random tails and a shared boolean tail);
++  S5  controls, each predicted:
++      N5-1  (every slot) one monomial stripped of its public factors: the
++            premise fails and the miniature's chain rejects;
++      N5-2  (every slot at zero slack) the declared degree minus one: the
++            chain rejects;
++      N5-3  the mask one degree short at the largest new (N, d): Fact 2.1's
++            rank no longer covers C;
++      N5-4  C7 / C8 at the new stage's largest m: (cm, cm) weights at a
++            boolean tail and a shared pair at one tail are short; the honest
++            forms are onto;
++      F-1   one IR coefficient perturbed: F-0 fails.
++"""
++
++from __future__ import annotations
++
++import argparse
++import copy
++import hashlib
++import json
++import os
++import resource
++import sys
++import time
++
++sys.dont_write_bytecode = True
++HERE = os.path.dirname(os.path.abspath(__file__))
++if HERE not in sys.path:
++    sys.path.insert(0, HERE)
++
++import zk60_native_rg_tokenterminals as TT  # noqa: E402
++import zk60_native_rg_tokengate as TG  # noqa: E402
++
++NL_DIR = "/home/victor/IntelligenceRegulation/results/zk60_nonlinear_channel_shaped"
++NL_PINS = {"nl_check.py": "e4db99a251ddde4f432675a53bd7e9149cdeb7c9edd61bbac87f50b87d0727c7",
++           "nl_field.py": "ea8ca39263213d88ef92c3f5d18fb8f86ed73471da027bf57348f94087dbb7e4"}
++
++
++def _sha(p):
++    with open(p, "rb") as fh:
++        return hashlib.sha256(fh.read()).hexdigest()
++
++
++def load_nl():
++    got = {n: _sha(os.path.join(NL_DIR, n)) for n in NL_PINS}
++    if got != NL_PINS:
++        raise SystemExit(f"the frozen NL-1 scripts moved: {got}")
++    if NL_DIR not in sys.path:
++        sys.path.insert(0, NL_DIR)
++    import nl_check as NL  # noqa: E402
++    import nl_field as NF  # noqa: E402
++    return NL, NF
++
++
++def _fstr(v):
++    return f"{v[0]}+{v[1]}u"
++
++
++SUPPORT_HINTS = ("supp", "indicator", "support")
++
++
++def _table_kind(t, cx):
++    if t["kind"] == "eq":
++        return f"eq(start={t['start']},|point|={len(t['point'])})", f"eq({t['label']})"
++    if t["kind"] == "public":
++        desc = TT.describe(t["desc"])
++        cl = TT.table_class(t["desc"])
++        if cl == "indicator" or any(h in desc.lower() for h in SUPPORT_HINTS):
++            return f"supp({desc})", desc
++        return "pub", desc
++    role = t["role"]
++    if role.startswith("A-"):
++        return "A", t["plane"]
++    if role.startswith("H-"):
++        return "H", t["plane"]
++    return "EP", t["plane"]
++
++
++def _rand_f2(rng):
++    return (rng.randrange(TT.P), rng.randrange(TT.P))
++
++
++def slot_defs(bundle, replay, chal="run", seed=0):
++    """(stage kind, slot, arg, SlotDef, Ctx) for every new slot, the
++    challenges at the run's values or at random ones"""
++    import random
++    out = []
++    for st in (bundle.stages[0], bundle.stages[-1]):
++        kind = st.kind
++        doc = st.doc
++        logup, r_emb, dcf, _rho, _cc = TT._new_stage_challenges(bundle, replay, st, doc)
++        rng = random.Random(f"tokennl/{kind}/{seed}")
++        if chal == "random":
++            logup = [_rand_f2(rng) for _ in logup]
++            r_emb = [_rand_f2(rng) for _ in r_emb]
++        pts = {}
++        for s in range(len(doc["arguments"])):
++            arg = doc["arguments"][s]
++            cx = TT.Ctx(bundle, kind, logup, r_emb, "numeric")
++            vals = dcf(s)
++            if chal == "random":
++                vals = [_rand_f2(rng) for _ in vals]
++            dr = TT.Draws(vals, "numeric")
++            sd = TT.define_in(s, cx, dr) if kind == "IN" else TT.define_out(s, cx, dr, pts)
++            out.append((kind, s, arg, sd, cx))
++    return out
++
++
++def to_ir(kind, s, arg, sd, cx):
++    names = [f"T{i:02d}" for i in range(len(sd.tabs))]
++    P = TT.Poly._co(sd.poly([TT.Poly.var(n) for n in names]))
++    idx = {n: i for i, n in enumerate(names)}
++    tables = []
++    for t in sd.tabs:
++        k, lab = _table_kind(t, cx)
++        tables.append({"kind": k, "label": lab, "prov": "token-io transcription"})
++    terms = []
++    for mono, c in sorted(P.t.items()):
++        inner = []
++        for n, e in mono:
++            inner.extend([{"table": idx[n]}] * e)
++        terms.append({"coef": {"value": _fstr(c)}, "wrapper": [], "inner": inner,
++                      "degree": len(inner)})
++    maxdeg = max((t["degree"] for t in terms), default=0)
++    return {"slot": s, "name": f"{kind}-{s:02d} {arg['name']}", "kind": arg["kind"],
++            "main_rounds": arg["main"], "extension_rounds": arg["extension"],
++            "declared_degree": arg["degree"], "max_product_degree": maxdeg,
++            "pad_on": None, "group_bits": 0, "tables": tables, "nodes": [], "terms": terms}
++
++
++def fidelity(NL, NF, ir, sd, seeds=(1, 2, 3)):
++    import random
++    sl = NL.Slot(ir, "token", {})
++    out = []
++    for sd_ in seeds:
++        rng = random.Random(f"fid/{ir['name']}/{sd_}")
++        vals = [_rand_f2(rng) for _ in ir["tables"]]
++        comp = sl.compile(NF.Rng(7))
++        a = NL.Slot.evaluate(comp, vals)
++        b = TT.F2._co(sd.poly([TT.F2(v) for v in vals]))
++        b = b if isinstance(b, tuple) else b
++        out.append(a == b)
++    return all(out)
++
++
++def s1_row(NL, NF, sl):
++    nd, tdeg, maxdeg, stored_ok = sl.degrees()
++    pvd = sl.per_variable_degree()
++    prem = []
++    for m in range(sl.ext):
++        zeros = []
++        for seed in (1, 2, 3):
++            rng = NF.Rng(NL.sd("token", sl.name, m, seed))
++            comp = sl.compile(rng)
++            v = [rng.fp2() if (i in sl.private and sl.ext_round[i] == m) else NF.ZERO for i in range(len(sl.tables))]
++            zeros.append(NF.is_zero(NL.Slot.evaluate(comp, v)))
++        live_m, _ = sl.live([i in sl.private and sl.ext_round[i] == m for i in range(len(sl.tables))])
++        prem.append({"round": m, "exact_zero_3_of_3": all(zeros), "syntactically_zero": not live_m})
++    rng = NF.Rng(NL.sd("token", sl.name, "mech"))
++    comp = sl.compile(rng)
++    v = [rng.fp2() if i in sl.private else NF.ZERO for i in range(len(sl.tables))]
++    pf = NF.is_zero(NL.Slot.evaluate(comp, v))
++    live_pub, _ = sl.live([i in sl.private for i in range(len(sl.tables))])
++    L = NL.mask_len(sl.main + sl.ext, sl.d)
++    return {"name": sl.name, "main": sl.main, "ext": sl.ext, "declared_degree": sl.d,
++            "max_product_degree_walked": maxdeg, "stored_degrees_agree": stored_ok,
++            "per_variable_degree_bound_max": max(pvd) if pvd else 0,
++            "degree_fits": maxdeg <= sl.d and (max(pvd) if pvd else 0) <= sl.d,
++            "slack": sl.d - maxdeg, "private_tables": len(sl.private),
++            "tables": {k: sl.kinds.count(k) for k in NL.PUBLIC_KINDS + NL.PRIVATE_KINDS if sl.kinds.count(k)},
++            "premise": prem, "premise_holds": all(p["exact_zero_3_of_3"] for p in prem),
++            "public_factor_in_every_monomial_exact": pf,
++            "public_factor_in_every_monomial_syntactic": not live_pub,
++            "L": L, "dimC": (sl.main + sl.ext) * sl.d + 1, "budget_ok": L + NL.MASK_Q <= NL.MASK_MSG,
++            "terms": len(sl.terms)}
++
++
++def s3_pairs(NL, NF, pairs):
++    regimes = ["random-Fp2", "all-zero", "all-one", "alternating-0-1", "all-equal"]
++    rows, tight_n = [], 0
++    for (N, d) in pairs:
++        for reg in regimes:
++            rng = NF.Rng(NL.sd(N, d, reg, "token"))
++            if reg == "random-Fp2":
++                rho = [rng.fp2() for _ in range(N)]
++            elif reg == "all-zero":
++                rho = [NF.ZERO] * N
++            elif reg == "all-one":
++                rho = [NF.ONE] * N
++            elif reg == "alternating-0-1":
++                rho = [NF.ZERO if k % 2 == 0 else NF.ONE for k in range(N)]
++            else:
++                v = rng.fp2()
++                rho = [v] * N
++            R = NL.round_matrix_rows(N, d, rho)
++            width = 1 + N * (d + 1)
++            L = NL.mask_len(N, d)
++            rk = NF.rank(R, width)
++            crk = NL.consistency_rank(N, d, rho)
++            dimC = width - crk
++            in_c = True
++            for r in R:
++                if NF.add(r[1], r[2]) != r[0]:
++                    in_c = False
++                for j in range(1, N):
++                    o = 1 + j * (d + 1)
++                    po = 1 + (j - 1) * (d + 1)
++                    if NF.add(r[o], r[o + 1]) != NL.interp(r[po:po + d + 1], rho[j - 1]):
++                        in_c = False
++            k = NL.explicit_kernel(N, d, rho)
++            Rk = [NF.ZERO] * width
++            for i in range(L):
++                if not NF.is_zero(k[i]):
++                    Rk = [NF.add(a, NF.mul(k[i], b)) for a, b in zip(Rk, R[i])]
++            kernel_ok = all(NF.is_zero(x) for x in Rk)
++            sw = NL.dot(NL.sum_weights(N, d), k)
++            ew = NL.dot(NL.eval_weights(rho, d), k)
++            tight = (rk == N * d + 1 and dimC == N * d + 1 and in_c and kernel_ok
++                     and NF.is_zero(sw) and NF.is_zero(ew) and (L - rk) == 1)
++            tight_n += int(tight)
++            rows.append({"N": N, "d": d, "regime": reg, "L": L, "rank_R": rk, "dimC": dimC,
++                         "ImR_in_C": in_c, "explicit_kernel": kernel_ok, "tight": tight})
++    return {"pairs": [list(p) for p in pairs], "checks": len(rows), "tight": tight_n, "rows": rows}
++
++
++def s4_rows(NL, NF, slots):
++    rows = []
++    for sl in slots:
++        r = NL.miniature(sl, NF.Rng(NL.sd("token-mini", sl.name)))
++        r["name"] = sl.name
++        r["passes"] = bool(r["chain_accepts"] and r["fact32_identity"] and r["terminal_formula"]
++                           and r["rank_R"] == r["dimC_expected"] and r["offset_in_ImR"]
++                           and r.get("fibre_constructed") and r.get("fibre_same_published_view")
++                           and r.get("fibre_witness_differs") and r.get("fibre_same_V"))
++        rng = NF.Rng(NL.sd("token-pair", sl.name))
++        m = len(sl.private)
++        rk = NL.terminal_pair_rank(m, 2, rng)
++        rkb = NL.terminal_pair_rank(m, 2, rng, tail_kind="boolean", same_tail=True)
++        r["terminal_map"] = {"m": m, "fp_rank_random_tails": rk, "fp_rank_shared_boolean_tail": rkb,
++                             "onto_Fp2^m": rk == 2 * m and rkb == 2 * m}
++        rows.append(r)
++    return rows
++
++
++def _strip_public(NL, ir):
++    """N5-1: the first monomial with a private table loses every public factor"""
++    js = copy.deepcopy(ir)
++    kinds = [NL.tkind(t) for t in js["tables"]]
++    for t in js["terms"]:
++        if any(kinds[fc["table"]] in NL.PRIVATE_KINDS for fc in t["inner"]):
++            t["inner"] = [fc for fc in t["inner"] if kinds[fc["table"]] in NL.PRIVATE_KINDS]
++            t["degree"] = len(t["inner"])
++            return js, True
++    return js, False
++
++
++def controls(NL, NF, irs, slots, sds):
++    out = {"N5_1": [], "N5_2": [], "N5_3": None, "N5_4": None, "F_1": []}
++    for ir, sl, sd in zip(irs, slots, sds):
++        js, moved = _strip_public(NL, ir)
++        js["max_product_degree"] = max(t["degree"] for t in js["terms"])
++        s2 = NL.Slot(js, "token", {})
++        prem = s1_row(NL, NF, s2)["premise_holds"]
++        mini = NL.miniature(s2, NF.Rng(NL.sd("N5-1", sl.name)))
++        out["N5_1"].append({"name": sl.name, "moved": moved, "premise_holds": prem,
++                            "chain_accepts": mini["chain_accepts"],
++                            "fires": moved and not prem and not mini["chain_accepts"]})
++        deg = sl.degrees()[2]
++        if deg == sl.d:
++            mini2 = NL.miniature(sl, NF.Rng(NL.sd("N5-2", sl.name)), override={"d": sl.d - 1})
++            out["N5_2"].append({"name": sl.name, "declared": sl.d - 1, "chain_accepts": mini2["chain_accepts"],
++                                "fires": not mini2["chain_accepts"]})
++        else:
++            out["N5_2"].append({"name": sl.name, "not_applicable": f"slack {sl.d - deg}", "fires": None})
++        bad = copy.deepcopy(ir)
++        c = NF.parse(bad["terms"][0]["coef"]["value"])
++        bad["terms"][0]["coef"]["value"] = _fstr(NF.add(c, NF.ONE))
++        out["F_1"].append({"name": sl.name, "fidelity_holds_on_perturbed_ir": fidelity(NL, NF, bad, sd),
++                           "fires": not fidelity(NL, NF, bad, sd)})
++    pairs = sorted({(sl.main + sl.ext, sl.d) for sl in slots})
++    N, d = max(pairs)
++    rng = NF.Rng(0xC6 ^ N)
++    rho = [rng.fp2() for _ in range(N)]
++    rows = NL.round_matrix_rows(N, d, rho, mask_degree=d - 1)
++    rk = NF.rank(rows, 1 + N * (d + 1))
++    out["N5_3"] = {"N": N, "d": d, "rank": rk, "dimC": N * d + 1, "covers": rk == N * d + 1,
++                   "fires": rk != N * d + 1}
++    m = max(len(sl.private) for sl in slots)
++    rng = NF.Rng(0xC7 + m)
++    honest_b = NL.terminal_pair_rank(1, 2, rng, tail_kind="boolean")
++    cm_cm_b = NL.terminal_pair_rank(1, 2, rng, weights="cm1", tail_kind="boolean")
++    honest_pair = NL.terminal_pair_rank(2, 2, rng, same_tail=True)
++    shared = NL.terminal_pair_rank(2, 2, rng, share=(0, 1), same_tail=True)
++    out["N5_4"] = {"honest_pair_boolean_tail": honest_b, "cm_cm_boolean_tail": cm_cm_b,
++                   "honest_distinct_pairs_same_tail": honest_pair, "shared_pair_same_tail": shared,
++                   "fires": honest_b == 2 and cm_cm_b < 2 and honest_pair == 4 and shared < 4}
++    live = [x for x in out["N5_2"] if x["fires"] is not None]
++    out["summary"] = {
++        "N5_1_fires": f"{sum(1 for x in out['N5_1'] if x['fires'])}/{len(out['N5_1'])}",
++        "N5_2_fires": f"{sum(1 for x in live if x['fires'])}/{len(live)} (not applicable at slack > 0: "
++                      f"{len(out['N5_2']) - len(live)})",
++        "N5_3_fires": out["N5_3"]["fires"], "N5_4_fires": out["N5_4"]["fires"],
++        "F_1_fires": f"{sum(1 for x in out['F_1'] if x['fires'])}/{len(out['F_1'])}",
++    }
++    out["ok"] = (all(x["fires"] for x in out["N5_1"]) and bool(live) and all(x["fires"] for x in live)
++                 and out["N5_3"]["fires"] and out["N5_4"]["fires"] and all(x["fires"] for x in out["F_1"]))
++    return out
++
++
++def run(bundle_dir):
++    NL, NF = load_nl()
++    t0 = time.time()
++    b = TG.load(bundle_dir)
++    rp = TG.TokenRunReplay(b).run()
++    rec = {"what": "NL-1 S1-S5 on the token stages' new slots, through the frozen nl_check with a "
++                   "slot IR built from the gate's transcription; NOT a privacy result",
++           "privacy_acceptance": False, "privacy_property_established": False,
++           "bundle": b.name, "bundle_dir": b.dir, "profile": b.profile,
++           "nl_check_pins": NL_PINS, "replay_ok": rp.summary()["ok"]}
++    tt = TT.check_token_terminals(b, rp)
++    rec["T0_terminal_identity"] = {"slots_equal": tt["slots_equal"], "slots_checked": tt["slots_checked"],
++                                   "ok": tt["ok"]}
++    modes = [("run", 0), ("random", 1), ("random", 2), ("random", 3)]
++    per_mode = {}
++    all_irs = {}
++    for chal, seed in modes:
++        key = chal if chal == "run" else f"random-{seed}"
++        defs = slot_defs(b, rp, chal, seed)
++        irs = [to_ir(*d) for d in defs]
++        slots = [NL.Slot(ir, "token", {}) for ir in irs]
++        sds = [d[3] for d in defs]
++        fid = [fidelity(NL, NF, ir, sd) for ir, sd in zip(irs, sds)]
++        s1 = [s1_row(NL, NF, sl) for sl in slots]
++        s4 = s4_rows(NL, NF, slots)
++        st = {}
++        for kind in ("IN", "OUT"):
++            rows = [r for r, d in zip(s1, defs) if d[0] == kind]
++            st[kind] = {"slots": len(rows), "sum_L": sum(r["L"] for r in rows),
++                        "sum_dimC": sum(r["dimC"] for r in rows),
++                        "sum_ker": sum(r["L"] - r["dimC"] for r in rows),
++                        "worst_L": max(r["L"] for r in rows), "budget_all_ok": all(r["budget_ok"] for r in rows)}
++        per_mode[key] = {
++            "F0_fidelity": f"{sum(fid)}/{len(fid)}",
++            "S1": s1, "S1_summary": {
++                "premise_holds": sum(1 for r in s1 if r["premise_holds"]),
++                "public_factor_every_monomial": sum(1 for r in s1 if r["public_factor_in_every_monomial_exact"]),
++                "degree_fits": sum(1 for r in s1 if r["degree_fits"]),
++                "budget_ok": sum(1 for r in s1 if r["budget_ok"]), "of": len(s1)},
++            "S2": st,
++            "S4": s4, "S4_summary": {"miniatures_pass": sum(1 for r in s4 if r["passes"]),
++                                     "terminal_map_onto": sum(1 for r in s4 if r["terminal_map"]["onto_Fp2^m"]),
++                                     "private_gamma_control_fires": sum(
++                                         1 for r in s4 if r.get("fibre_private_gamma_would_differ")
++                                         and r.get("fibre_private_gamma_shift_is_sigma_diff")),
++                                     "of": len(s4)},
++            "fidelity_all": all(fid)}
++        all_irs[key] = (irs, slots, sds)
++    pairs = sorted({(sl.main + sl.ext, sl.d) for sl in all_irs["run"][1]})
++    rec["S3_fact21"] = s3_pairs(NL, NF, pairs)
++    irs, slots, sds = all_irs["run"]
++    rec["S5_controls"] = controls(NL, NF, irs, slots, sds)
++    rec["per_challenge_mode"] = per_mode
++    rec["ir_run_challenges"] = {"schema": "zk60-slot-ir/1-token", "shape": b.profile,
++                                "slot_count": len(irs), "slots": irs}
++    n = len(irs)
++    good = all(
++        pm["fidelity_all"] and pm["S1_summary"]["premise_holds"] == n
++        and pm["S1_summary"]["public_factor_every_monomial"] == n
++        and pm["S1_summary"]["degree_fits"] == n and pm["S1_summary"]["budget_ok"] == n
++        and pm["S4_summary"]["miniatures_pass"] == n and pm["S4_summary"]["terminal_map_onto"] == n
++        for pm in per_mode.values())
++    rec["summary"] = {
++        "new_slots": n,
++        "T0_terminal_identity": f"{tt['slots_equal']}/{tt['slots_checked']}",
++        "per_mode": {k: {"F0": v["F0_fidelity"], "S1": v["S1_summary"], "S4": v["S4_summary"]}
++                     for k, v in per_mode.items()},
++        "S3_tight": f"{rec['S3_fact21']['tight']}/{rec['S3_fact21']['checks']}",
++        "S5": rec["S5_controls"]["summary"]}
++    rec["ok"] = bool(good and tt["ok"] and rec["S3_fact21"]["tight"] == rec["S3_fact21"]["checks"]
++                     and rec["S5_controls"]["ok"] and rec["replay_ok"])
++    rec["status"] = "PASS" if rec["ok"] else "NOT-OK"
++    rec["seconds"] = round(time.time() - t0, 1)
++    rec["peak_rss_mb"] = round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024)
++    rec["tool_sha256"] = {os.path.basename(p): _sha(p) for p in (
++        os.path.abspath(__file__), TT.__file__, TG.__file__)}
++    return rec
++
++
++def main(argv=None):
++    ap = argparse.ArgumentParser(description=__doc__.strip().splitlines()[0])
++    ap.add_argument("--bundle", required=True)
++    ap.add_argument("--evidence", required=True)
++    ap.add_argument("--name", required=True)
++    a = ap.parse_args(argv)
++    rec = run(a.bundle)
++    os.makedirs(a.evidence, exist_ok=True)
++    path = os.path.join(a.evidence, f"{a.name}.json")
++    with open(path, "w") as fh:
++        json.dump(rec, fh, indent=1, sort_keys=True, default=str)
++        fh.write("\n")
++    print(json.dumps(rec["summary"], indent=1))
++    print(f"record: {path}  status {rec['status']}")
++    return 0 if rec["ok"] else 1
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff -ruN -x __pycache__ frozen_v11/scripts/zk60_native_rg_tokents.py frozen_v12/scripts/zk60_native_rg_tokents.py
+--- frozen_v11/scripts/zk60_native_rg_tokents.py	1969-12-31 16:00:00.000000000 -0800
++++ frozen_v12/scripts/zk60_native_rg_tokents.py	2026-10-19 17:24:54.677432408 -0700
+@@ -0,0 +1,224 @@
++#!/usr/bin/env python3
++"""[GATE ROUND 10, tools v12, 2026-10-20] The TERMINAL SURJECTION (the
++G-7 computation of `docs/zkmatrix-poc/ZK60_TERMINAL_SURJECTION_REVIEW.md`,
++as the gate's G-7 helper ran it on R7's block stage files) on the token-I/O
++stages' commitments: stage IN's A_in, H_in and the input token endpoint;
++stage OUT's A_out, H_out, B_out and the output token endpoint; and,
++optionally, block stages inside the same token capture.
++
++    python3 zk60_native_rg_tokents.py --bundle <token capture> --evidence <dir> --name <name> \
++        [--block-stages 1,2] [--controls]
++
++NOTHING HERE IS A PRIVACY RESULT OR A PRIVACY ACCEPTANCE.
++
++What it reuses, unchanged: `EV/g7/ts_trained.py` (the G-7 helper's restated
++stage 2 at width N: per-group system, the null-space "disclosed", the
++connected components for groups sharing a non-data row, the PCS census and
++the controls C1 / C2 / C3 / C6 / C8 / G7-D1 / D2 / D3), which in turn
++imports the frozen review scripts with their digests checked.  Its digest
++is checked here before import.
++
++What it adds: a loader for the token capture (schema
++`hashline-native-capture/6-token-run`, arrays resolved from `arrays.bin` and
++checked against their SHA-256 names), and the ROW WIDTH set PER ROLE before
++the role is built: a stage commitment at 2^12 (B_in / B_out at the block's
++boundary width, 2^13 at 8B), a token endpoint at 2^8 with 2^11 encoded
++columns.  The helper's own width switch is the same three assignments
++(`ts_trained.fidelity`).
++
++Failing-first: the controls run on a token role (A_out) and must fire as
++the review predicts (C1 shared pair, C2 cm = 0 and G7-D3 short or
++disclosing; C3 / C6 / C8 / G7-D1 not).
++"""
++
++from __future__ import annotations
++
++import argparse
++import hashlib
++import json
++import os
++import resource
++import sys
++import time
++
++sys.dont_write_bytecode = True
++EV = "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017"
++TS_TRAINED = os.path.join(EV, "g7", "ts_trained.py")
++TS_TRAINED_PIN = "d6f6cf93ff1d5ad0dad6cb75671145b4e53bdd03be479841a72a0f2ae281f8bc"
++
++
++def _sha(p):
++    with open(p, "rb") as fh:
++        return hashlib.sha256(fh.read()).hexdigest()
++
++
++def load_ts():
++    got = _sha(TS_TRAINED)
++    if got != TS_TRAINED_PIN:
++        raise SystemExit(f"EV/g7/ts_trained.py moved: {got}")
++    import importlib.util
++    spec = importlib.util.spec_from_file_location("ts_trained_g7", TS_TRAINED)
++    mod = importlib.util.module_from_spec(spec)
++    argv = sys.argv
++    sys.argv = [TS_TRAINED]
++    try:
++        spec.loader.exec_module(mod)
++    finally:
++        sys.argv = argv
++    return mod
++
++
++def set_width(TT, log_cols, inv_rate):
++    n = 1 << log_cols
++    TT.T.N_COLS, TT.T.LOG_COLS, TT.T.ENC_COLS = n, log_cols, n * inv_rate
++    TT.N = n
++
++
++def load_token_roles(TT, d, stage_indices):
++    run = json.load(open(os.path.join(d, "run.json")))
++    assert run["field_modulus"] == TT.P and run["extension_nonresidue"] == 7
++    arr = TT.Arrays(os.path.join(d, "arrays.bin"))
++    files = sorted(f for f in os.listdir(d) if f.startswith("stage-") and f.endswith(".json"))
++    out = []
++    for k in stage_indices:
++        sf = files[k]
++        st = json.load(open(os.path.join(d, sf)))
++        cap = {"proof_sha256": st["segment_sha256"], "profile": run["profile"], "roles": []}
++        for r in st["roles"]:
++            pr = r["params"]
++            set_width(TT, pr["log_cols"], pr["inv_rate"])
++            rr = arr.resolve({kk: r[kk] for kk in TT.KEEP if kk in r})
++            cap["roles"].append(rr)
++            out.append({"stage": k, "stage_kind": st["stage_kind"], "file": sf, "profile": run["profile"],
++                        "log_cols": pr["log_cols"], "inv_rate": pr["inv_rate"],
++                        "role": TT.T.Role(cap, rr)})
++    return out, arr.checked
++
++
++def analyse(TT, ent):
++    set_width(TT, ent["log_cols"], ent["inv_rate"])
++    role = ent["role"]
++    s1 = TT.T.stage1_structure([(ent["file"], ent["profile"], [role])])
++    per = []
++    for gi in range(len(role.groups)):
++        small = len(role.groups[gi]) <= 2 and len(
++            {i for c_ in role.groups[gi] for i in role.rws[c_] if role.kind[i] == "data"}) <= 4
++        per.append(TT.analyse_group(role, gi, also_original=small))
++    comps = TT.components(role)
++    joint = [TT.analyse_component(role, gs) for gs in comps if len(gs) > 1]
++    census = TT.pcs_census(role)
++    return {
++        "stage": ent["stage"], "stage_kind": ent["stage_kind"], "role": role.name,
++        "width": 1 << ent["log_cols"], "rows": role.rows, "groups": len(per),
++        "stage1": s1,
++        "surjective_groups": sum(1 for g in per if g["surjective_onto_consistency_subspace"]),
++        "short_groups": [i for i, g in enumerate(per) if not g["surjective_onto_consistency_subspace"]],
++        "annihilator_kills_blinding": all(g["annihilator_kills_all_blinding_generators"] for g in per),
++        "annihilator_kills_data": all(g["annihilator_kills_all_data_generators"] for g in per),
++        "disclosed_by_group": {str(i): g["disclosed_Fp"] for i, g in enumerate(per) if g["disclosed_Fp"]},
++        "total_disclosed_Fp": sum(g["disclosed_Fp"] for g in per),
++        "original_form_checked": [(i, g["original_form_agrees"]) for i, g in enumerate(per) if "original_form_agrees" in g],
++        "joint_components": joint,
++        "census": census,
++        "per_group": per,
++    }
++
++
++def run(bundle_dir, block_stages=(), controls=True):
++    TT = load_ts()
++    t0 = time.time()
++    run_js = json.load(open(os.path.join(bundle_dir, "run.json")))
++    n_st = run_js["stages"]
++    idx = [0, n_st - 1] + [k for k in block_stages if 0 < k < n_st - 1]
++    ents, nchk = load_token_roles(TT, bundle_dir, idx)
++    rec = {"what": "the G-7 terminal surjection (ts_trained, per group and per joint component) "
++                   "on the token stages' commitments; NOT a privacy result",
++           "privacy_acceptance": False, "privacy_property_established": False,
++           "bundle": os.path.basename(bundle_dir), "stages_read": idx, "arrays_checked": nchk,
++           "ts_trained_sha256": TS_TRAINED_PIN, "stage0": TT.T.stage0_selftest(), "roles": []}
++    for ent in ents:
++        r = analyse(TT, ent)
++        rec["roles"].append(r)
++        print(f"{ent['file']} {r['role']}: groups {r['groups']}, surjective {r['surjective_groups']}, "
++              f"disclosed {r['total_disclosed_Fp']} {r['disclosed_by_group']}, joint "
++              f"{[(j['groups'], j['disclosed_Fp']) for j in r['joint_components']]} ({time.time() - t0:.1f} s)",
++              flush=True)
++    if controls:
++        rec["controls"] = {}
++        # (i) every token role's groups are SINGLETONS at these profiles, so
++        # the review's two-member controls cannot run on them; the token
++        # control TS-1 removes one claim's reserved pair (the review's C2 on
++        # a singleton group) and must make that group disclose, on every
++        # token role; the honest group must not
++        rows = []
++        for ent in ents:
++            if ent["stage_kind"] == "BLOCK":
++                continue
++            set_width(TT, ent["log_cols"], ent["inv_rate"])
++            role = ent["role"]
++            gi = next((i for i, g in enumerate(role.groups)
++                       if len(g) == 1 and not set(role.rws[g[0]]) & set(role.u_rows)), None)
++            if gi is None:
++                rows.append({"role": role.name, "not_applicable": "no singleton site-pair group"})
++                continue
++            c0 = role.groups[gi][0]
++            small = len({i for i in role.rws[c0] if role.kind[i] == "data"}) <= 4
++            honest = TT.analyse_group(role, gi, None, also_original=small)
++            rw0 = {i: v for i, v in role.rws[c0].items() if role.kind[i] == "data"}
++            pert = TT.analyse_group(role, gi, {"rws": {c0: rw0}}, also_original=small)
++            rows.append({"role": role.name, "stage": ent["stage"], "group": gi,
++                         "honest_disclosed_Fp": honest["disclosed_Fp"],
++                         "pair_removed_disclosed_Fp": pert["disclosed_Fp"],
++                         "fires": honest["disclosed_Fp"] == 0 and pert["disclosed_Fp"] > 0})
++        live = [r for r in rows if "fires" in r]
++        rec["controls"]["TS_1_pair_removed_on_token_roles"] = {
++            "rows": rows, "ok": bool(live) and all(r["fires"] for r in live)}
++        # (ii) the review's own controls on a two-member group, when a block
++        # stage was read (the block A of the same capture)
++        blk = next((e for e in ents if e["stage_kind"] == "BLOCK"
++                    and any(len(g) == 2 for g in e["role"].groups)), None)
++        if blk is not None:
++            set_width(TT, blk["log_cols"], blk["inv_rate"])
++            crow = TT.controls(blk["role"])
++            fires = {r["control"]: r["fires"] for r in crow}
++            want = {"honest reference": False, "C1 shared reserved pair": True,
++                    "C2 cm = 0 (pair removed)": True}
++            rec["controls"]["review_controls_on_block_A"] = {
++                "role": blk["role"].name, "stage": blk["stage"], "rows": crow, "fires": fires,
++                "ok": all(fires.get(k) is v for k, v in want.items())}
++        rec["controls"]["ok"] = all(v.get("ok") for v in rec["controls"].values() if isinstance(v, dict))
++    rec["summary"] = {f"{r['stage_kind']}:{r['role']}": {
++        "groups": r["groups"], "surjective": r["surjective_groups"],
++        "disclosed_Fp": r["total_disclosed_Fp"], "disclosed_by_group": r["disclosed_by_group"],
++        "joint": [(j["groups"], j["disclosed_Fp"]) for j in r["joint_components"]],
++        "census_identical_claims": r["census"].get("identical_claims"),
++        "census_equal_published_values": r["census"].get("equal_published_values")}
++        for r in rec["roles"]}
++    rec["seconds"] = round(time.time() - t0, 1)
++    rec["peak_rss_mb"] = round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024)
++    rec["tool_sha256"] = {os.path.basename(__file__): _sha(os.path.abspath(__file__))}
++    return rec
++
++
++def main(argv=None):
++    ap = argparse.ArgumentParser(description=__doc__.strip().splitlines()[0])
++    ap.add_argument("--bundle", required=True)
++    ap.add_argument("--evidence", required=True)
++    ap.add_argument("--name", required=True)
++    ap.add_argument("--block-stages", default="")
++    ap.add_argument("--no-controls", action="store_true")
++    a = ap.parse_args(argv)
++    bs = tuple(int(x) for x in a.block_stages.split(",") if x)
++    rec = run(a.bundle, bs, controls=not a.no_controls)
++    os.makedirs(a.evidence, exist_ok=True)
++    path = os.path.join(a.evidence, f"{a.name}.json")
++    with open(path, "w") as fh:
++        json.dump(rec, fh, indent=1, sort_keys=True, default=str)
++        fh.write("\n")
++    print(json.dumps(rec["summary"], indent=1, default=str))
++    print(f"record: {path}")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff -ruN -x __pycache__ frozen_v11/scripts/zk60_native_run_gate.py frozen_v12/scripts/zk60_native_run_gate.py
+--- frozen_v11/scripts/zk60_native_run_gate.py	2026-10-19 12:32:50.770176283 -0700
++++ frozen_v12/scripts/zk60_native_run_gate.py	2026-10-19 17:46:20.018193583 -0700
+@@ -206,6 +206,11 @@
+     # and the block-stage terminal identity inside a token run
+     "zk60_native_rg_tokenterminals.py",
+     "zk60_native_rg_tokenblocks.py",
++    # [v12, gate round 10] NL-1 S1-S5 on the new slots, the terminal
++    # surjection on the token stages' commitments, the calibration attribution
++    "zk60_native_rg_tokennl.py",
++    "zk60_native_rg_tokents.py",
++    "zk60_native_rg_tokencal.py",
+ ]
+ 
+ EXPECTED_DISCLOSED = {

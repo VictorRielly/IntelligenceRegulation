@@ -1,0 +1,7 @@
+[zk60-guard 20:04:13] admission waiting: budget: 11.3+1 GiB > 11.9 GiB with live [fp-L_t_LOWh8g(light,3G), gate-ddts-tl128dd-l2-dense(light,1.5G), gate-tl128dd-l1-dense-everything(light,2G), shieldstral-rope-plain(light,0.8G), gate-ddts-tl128dd-l2-dense(light,1G), fp-L_t_P3h8(light,3G)]
+[zk60-guard 20:05:14] admission waiting: budget: 11.3+1 GiB > 11.9 GiB with live [fp-L_t_LOWh8g(light,3G), gate-ddts-tl128dd-l2-dense(light,1.5G), gate-tl128dd-l1-dense-everything(light,2G), shieldstral-rope-yarn_notrunc(light,0.8G), gate-ddts-tl128dd-l2-dense(light,1G), fp-L_t_P3h8(light,3G)]
+[zk60-guard 20:06:14] admission waiting: budget: 11.3+1 GiB > 11.9 GiB with live [fp-L_t_LOWh8g(light,3G), gate-ddts-tl128dd-l2-dense(light,1.5G), gate-tl128dd-l1-dense-everything(light,2G), gate-ddts-tl128dd-l2-dense(light,1G), fp-L_t_P3h8(light,3G), shieldstral-rope-yarn_mscale(light,0.8G)]
+[zk60-guard 20:06:59] START shieldstral-bench_toxicchat_card_200-c1 class=light need=1G cap=1.8G enforce=cgroup+watchdog waited=166s run=36e5ed09b396
+[zk60-guard 20:15:49] END shieldstral-bench_toxicchat_card_200-c1 exit=0 child_wall=530s peak_rss=0.84G min_avail=7.70G
+[zk60-guard 20:15:49] START shieldstral-bench_openai_mod_card_200-c1 class=light need=1G cap=1.8G enforce=cgroup+watchdog waited=0s run=7313230f7dd4
+[zk60-guard 20:41:55] END shieldstral-bench_openai_mod_card_200-c1 exit=0 child_wall=1566s peak_rss=0.78G min_avail=7.71G

@@ -21,9 +21,9 @@
 //! Python were written from the same memo but not from each other; the tests
 //! in `grow_tests.rs` assert they agree, shape by shape.
 
-use super::layout::{domain_log_at, Dom, ALL_DOMS, LOOKUP_DOMS, N_FUNCTIONALS, N_SLOTS, U8_LEN};
+use super::layout::{domain_log_at, Dom, ALL_DOMS, LOOKUP_DOMS, MAX_SLOTS, N_FUNCTIONALS, N_SLOTS, U8_LEN};
 use zkp_core::hashtag::HashTag;
-use super::layout::{SC_DMM, SC_DZC, SC_FZC, SC_GMM, SC_IO_IN, SC_IO_OUT, SC_KMM, SC_KVZC, SC_LZC, SC_PV, SC_QMM, SC_QZC, SC_RS, SC_SCORE, SC_SS, SC_SSM, SC_SZC, SC_TAB, SC_TZC, SC_UMM, SC_VMM, SC_WO, SC_ZS};
+use super::layout::{SC_DMM, SC_DZC, SC_FZC, SC_GMM, SC_IO_IN, SC_IO_OUT, SC_KMM, SC_KVZC, SC_LZC, SC_PV, SC_QMM, SC_QZC, SC_RS, SC_SCORE, SC_SS, SC_SSM, SC_DD, SC_SZC, SC_TAB, SC_TZC, SC_UMM, SC_VMM, SC_WO, SC_ZS};
 
 /// byte limbs of the isqrt witness `D`, `a1`, `a2` (each below `2^24`)
 pub(crate) const LIMBS_ISQRT: usize = 3;
@@ -94,9 +94,69 @@ pub(crate) const LLAMA3_8B_T128_TRAINED_PROFILE: &str = "hashline-zk-mr1/private
 /// the trained Llama-3-8B profiles: the pinned checkpoint's, at each
 /// registered context length
 pub(crate) const LLAMA3_8B_TRAINED_PROFILES: [&str; 3] = [LLAMA3_8B_T32_TRAINED_PROFILE, LLAMA3_8B_T64_TRAINED_PROFILE, LLAMA3_8B_T128_TRAINED_PROFILE];
+/// **NATIVE R9: DD, the per-row division dictionary (register entry D30).**
+/// Three NEW block profiles (D17: a new relation is a new profile; every
+/// existing profile, its schedule, transcript and receipt are untouched):
+/// the TinyLlama and Llama-3-8B T128 geometries and a small development
+/// rung, each with `DD_CAP` dictionary slots per attention row. Their
+/// lengths equal existing profiles' (65 / 55 / 47 bytes), so no new hash
+/// input length appears on the path.
+pub(crate) const TINYLLAMA_T128_DD_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-ddict/1";
+pub(crate) const LLAMA3_8B_T128_DD_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-llama-3-8b-t128-ddict32/1";
+/// development grade, never a deliverable: T32 / d256 / f512, 8 heads of 32
+/// over 2 KV heads — nothing on the head or token axis pads, which DD
+/// requires (see [`Shape::check_dd_geometry`])
+pub(crate) const TRAINED_DD_RUNG_PROFILE: &str = "hashline-zk-mr1/private-block-rung-dd-t32-dev/1";
+/// **NATIVE R12 (D38): the Shieldstral-1.0-3B text decoder** (Mistral's open
+/// safety classifier; Ministral-3-3B: 26 layers, d 3072, 32 query heads of
+/// 128 over 8 key-value heads — the query axis is 4096 wide, decoupled from
+/// d / heads (F2) — SwiGLU 9216, YaRN RoPE (F1), tied embedding / head (F3)),
+/// at T128 and T256, with and without the DD dictionary. Every string's
+/// length equals an existing profile's (65 bytes, as the TinyLlama T128
+/// profiles; the run profiles 67), so no new hash input length appears.
+pub(crate) const SHIELDSTRAL_T128_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t128-trained-block/1";
+pub(crate) const SHIELDSTRAL_T256_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t256-trained-block/1";
+pub(crate) const SHIELDSTRAL_T128_DD_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t128-trained-ddict/1";
+pub(crate) const SHIELDSTRAL_T256_DD_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t256-trained-ddict/1";
+/// the four Shieldstral profiles (they carry the pinned Shieldstral source)
+pub(crate) const SHIELDSTRAL_PROFILES: [&str; 4] = [SHIELDSTRAL_T128_TRAINED_PROFILE, SHIELDSTRAL_T256_TRAINED_PROFILE, SHIELDSTRAL_T128_DD_TRAINED_PROFILE, SHIELDSTRAL_T256_DD_TRAINED_PROFILE];
+/// **NATIVE R12 (F2): the decoupled-head development rung** — development
+/// grade, never a deliverable: T32 / d192 / f384, 8 query heads of 64 over 2
+/// key-value heads, so the query axis (512, padded 512) is WIDER than the
+/// model axis (192, padded 256): every relation that reads the query axis
+/// meets a padded width other than the model's in seconds. Its length equals
+/// the other rungs' (47 bytes).
+pub(crate) const TRAINED_HD_RUNG_PROFILE: &str = "hashline-zk-mr1/private-block-rung-hd-t32-dev/1";
+/// the DD profiles
+pub(crate) const DD_PROFILES: [&str; 5] = [TINYLLAMA_T128_DD_TRAINED_PROFILE, LLAMA3_8B_T128_DD_TRAINED_PROFILE, TRAINED_DD_RUNG_PROFILE, SHIELDSTRAL_T128_DD_TRAINED_PROFILE, SHIELDSTRAL_T256_DD_TRAINED_PROFILE];
+/// **D30 / CHECK.md B-8: the dictionary's slots per attention row** — one
+/// constant for every DD profile, bound in the schedule line; the trained
+/// door refuses a layer whose exp table needs more (`n_col =
+/// |{0} U outputs| > DD_CAP`), by name, before any header
+pub(crate) const DD_CAP: usize = 32;
+/// the trained TinyLlama / Llama-3-8B DD profiles carry the pinned
+/// checkpoints of their families
+pub(crate) const TINYLLAMA_DD_PROFILES: [&str; 1] = [TINYLLAMA_T128_DD_TRAINED_PROFILE];
+pub(crate) const LLAMA3_8B_DD_PROFILES: [&str; 1] = [LLAMA3_8B_T128_DD_TRAINED_PROFILE];
 /// the profiles [`Shape::with_trained_calibration`] may give a non-frozen
 /// calibration to; every other profile's calibration is frozen
-pub(crate) const TRAINED_CALIBRATION_PROFILES: [&str; 7] = [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE, TINYLLAMA_T64_TRAINED_PROFILE, TINYLLAMA_T128_TRAINED_PROFILE, LLAMA3_8B_T32_TRAINED_PROFILE, LLAMA3_8B_T64_TRAINED_PROFILE, LLAMA3_8B_T128_TRAINED_PROFILE];
+pub(crate) const TRAINED_CALIBRATION_PROFILES: [&str; 15] = [
+    TINYLLAMA_T32_TRAINED_PROFILE,
+    TRAINED_CALIB_RUNG_PROFILE,
+    TINYLLAMA_T64_TRAINED_PROFILE,
+    TINYLLAMA_T128_TRAINED_PROFILE,
+    LLAMA3_8B_T32_TRAINED_PROFILE,
+    LLAMA3_8B_T64_TRAINED_PROFILE,
+    LLAMA3_8B_T128_TRAINED_PROFILE,
+    TINYLLAMA_T128_DD_TRAINED_PROFILE,
+    LLAMA3_8B_T128_DD_TRAINED_PROFILE,
+    TRAINED_DD_RUNG_PROFILE,
+    SHIELDSTRAL_T128_TRAINED_PROFILE,
+    SHIELDSTRAL_T256_TRAINED_PROFILE,
+    SHIELDSTRAL_T128_DD_TRAINED_PROFILE,
+    SHIELDSTRAL_T256_DD_TRAINED_PROFILE,
+    TRAINED_HD_RUNG_PROFILE,
+];
 const INT16_MAX: i128 = 32_767;
 /// the absolute endpoint of signed int16 (`-32768`), used by the TRAINED
 /// calibration rule only; every frozen profile keeps the historical 32767
@@ -178,12 +238,55 @@ pub(crate) fn llama3_8b_log_cols(tokens: usize) -> Option<usize> {
 /// profile with no trained calibration. An export or statement naming any
 /// other base is refused.
 pub(crate) fn trained_rope_theta(profile: &str) -> Option<f64> {
-    if LLAMA3_8B_TRAINED_PROFILES.contains(&profile) {
+    if LLAMA3_8B_TRAINED_PROFILES.contains(&profile) || LLAMA3_8B_DD_PROFILES.contains(&profile) {
         Some(LLAMA3_8B_ROPE_THETA)
+    } else if SHIELDSTRAL_PROFILES.contains(&profile) {
+        Some(SHIELDSTRAL_ROPE_THETA)
     } else if TRAINED_CALIBRATION_PROFILES.contains(&profile) {
         Some(TRAINED_ROPE_THETA)
     } else {
         None
+    }
+}
+
+/// NATIVE R12 (D38): Shieldstral's `rope_theta` (config.json `text_config.
+/// rope_parameters.rope_theta`, revision 003ec7e2...)
+pub(crate) const SHIELDSTRAL_ROPE_THETA: f64 = 1_000_000.0;
+
+/// **NATIVE R12 (F1): the RoPE frequency transform PINNED PER PROFILE** — a
+/// model fact like the base: YaRN at the Shieldstral profiles (config.json:
+/// factor 16, original 16384, beta 32 / 1, mscale = mscale_all_dim = 1, so the
+/// attention factor is exactly 1, truncate absent = true), none elsewhere. It
+/// changes the PUBLIC cos/sin tables only.
+pub(crate) fn trained_rope_scaling(profile: &str) -> Option<super::rope::RopeScaling> {
+    if SHIELDSTRAL_PROFILES.contains(&profile) {
+        Some(super::rope::RopeScaling::shieldstral())
+    } else if TRAINED_CALIBRATION_PROFILES.contains(&profile) {
+        Some(super::rope::RopeScaling::None)
+    } else {
+        None
+    }
+}
+
+/// the RoPE tables of a shape's profile at base `theta` (the generator the
+/// trained loader compares an export's tables against): the frozen generator
+/// for an unscaled profile, the scaled one otherwise
+pub(crate) fn rope_tables_for(sh: &Shape, theta: f64) -> Result<(Vec<i64>, Vec<i64>), String> {
+    let scaling = trained_rope_scaling(sh.profile).unwrap_or(super::rope::RopeScaling::None);
+    super::rope::rope_tables(sh.tokens, sh.head_dim, theta, &scaling, super::layout::F_RO)
+}
+
+/// **NATIVE R12: the Shieldstral row width at each registered context
+/// length** — the smallest counted receipt, as for Llama-3-8B (task 3):
+/// T128 at 2^14 (29,301,816 B per block; the 8B T128 width), T256 at 2^15
+/// (45,011,240 B against 48,025,704 at 2^14, for 2.3% more committed
+/// elements), counted in
+/// `r12_tests::the_shieldstral_row_widths_are_the_smallest_counted_receipts`
+pub(crate) fn shieldstral_log_cols(tokens: usize) -> Option<usize> {
+    match tokens {
+        128 => Some(14),
+        256 => Some(15),
+        _ => None,
     }
 }
 
@@ -310,8 +413,12 @@ const MASK_PATH: usize = 12;
 const MASK_MSG: usize = 1usize << crate::zk::MASK_LOG_MSG;
 const MASK_PADS: usize = crate::zk::MASK_Q;
 
-/// the structural degree of each slot, BEFORE any pad support indicator
-const BASE_DEGREE: [usize; N_SLOTS] = [3, 3, 3, 4, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 3, 2, 2, 2];
+/// the structural degree of each slot, BEFORE any pad support indicator.
+/// NATIVE R9: entry `SC_DD` (24th, present only on a DD profile) is the
+/// dictionary zero-check's: its LogUp pair helpers are degree 3 in the
+/// committed planes, times `eq` (D30; CHECK.md S-11 "degree <= 5" with the
+/// pad term, which a DD profile never carries)
+const BASE_DEGREE: [usize; MAX_SLOTS] = [3, 3, 3, 4, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 3, 2, 2, 2, 4];
 
 /// The slots whose relation is switched off on the pad by a support indicator,
 /// and which therefore gain ONE degree when their governing domain pads
@@ -371,6 +478,11 @@ fn trained_geometry(profile: &str, f_e: u32) -> Option<Result<Shape, String>> {
         let lc = llama3_8b_log_cols(tokens).expect("a registered 8B context length");
         Shape::build(name, p, tokens, 4096, 14336, 32, 128, 8, lc, 4, f_e, ((tokens * 4096) >> lc) + mask, None, None, None, None)
     };
+    // NATIVE R12: Shieldstral (d 3072 pads to 4096 on the model axis)
+    let ss = |name: &'static str, p: &'static str, tokens: usize| {
+        let lc = shieldstral_log_cols(tokens).expect("a registered Shieldstral context length");
+        Shape::build(name, p, tokens, 3072, 9216, 32, 128, 8, lc, 4, f_e, ((tokens.next_power_of_two() * 4096) >> lc) + mask, None, None, None, None)
+    };
     Some(match profile {
         TINYLLAMA_T32_TRAINED_PROFILE => tl("TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads)", TINYLLAMA_T32_TRAINED_PROFILE, 32, 12),
         TINYLLAMA_T64_TRAINED_PROFILE => tl("TinyLlama-1.1B block geometry, trained calibration (T64 / d2048 / f5632, 32 heads of 64 over 4 KV heads)", TINYLLAMA_T64_TRAINED_PROFILE, 64, 13),
@@ -397,6 +509,20 @@ fn trained_geometry(profile: &str, f_e: u32) -> Option<Result<Shape, String>> {
         LLAMA3_8B_T64_TRAINED_PROFILE => l8("Llama-3-8B block geometry, trained calibration (T64 / d4096 / f14336, 32 heads of 128 over 8 KV heads)", LLAMA3_8B_T64_TRAINED_PROFILE, 64),
         LLAMA3_8B_T128_TRAINED_PROFILE => l8("Llama-3-8B block geometry, trained calibration (T128 / d4096 / f14336, 32 heads of 128 over 8 KV heads)", LLAMA3_8B_T128_TRAINED_PROFILE, 128),
         TRAINED_CALIB_RUNG_PROFILE => Shape::build("development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)", TRAINED_CALIB_RUNG_PROFILE, 32, 384, 512, 12, 32, 4, 10, 4, 12, 21, None, None, None, None),
+        // NATIVE R9: the DD profiles (D30), the same geometries as their
+        // non-DD twins (the rung's own: nothing pads on the head or token axis)
+        TINYLLAMA_T128_DD_TRAINED_PROFILE => tl("TinyLlama-1.1B block geometry, trained calibration, DD (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads, 32-slot division dictionary)", TINYLLAMA_T128_DD_TRAINED_PROFILE, 128, 14),
+        LLAMA3_8B_T128_DD_TRAINED_PROFILE => l8("Llama-3-8B block geometry, trained calibration, DD (T128 / d4096 / f14336, 32 heads of 128 over 8 KV heads, 32-slot division dictionary)", LLAMA3_8B_T128_DD_TRAINED_PROFILE, 128),
+        TRAINED_DD_RUNG_PROFILE => Shape::build("development rung, trained norm calibration, DD (T32 / d256 / f512, 8 heads of 32 over 2 KV heads, 32-slot division dictionary)", TRAINED_DD_RUNG_PROFILE, 32, 256, 512, 8, 32, 2, 10, 4, 12, ((32 * 256) >> 10) + mask, None, None, None, None),
+        // NATIVE R12 (D38): Shieldstral-1.0-3B's text decoder. The endpoint
+        // plane is the model axis (d 3072, padded 4096), as every block's.
+        SHIELDSTRAL_T128_TRAINED_PROFILE => ss("Shieldstral-1.0-3B text block geometry, trained calibration (T128 / d3072 / q4096 / f9216, 32 heads of 128 over 8 KV heads, YaRN)", SHIELDSTRAL_T128_TRAINED_PROFILE, 128),
+        SHIELDSTRAL_T256_TRAINED_PROFILE => ss("Shieldstral-1.0-3B text block geometry, trained calibration (T256 / d3072 / q4096 / f9216, 32 heads of 128 over 8 KV heads, YaRN)", SHIELDSTRAL_T256_TRAINED_PROFILE, 256),
+        SHIELDSTRAL_T128_DD_TRAINED_PROFILE => ss("Shieldstral-1.0-3B text block geometry, trained calibration, DD (T128 / d3072 / q4096 / f9216, 32 heads of 128 over 8 KV heads, YaRN, 32-slot division dictionary)", SHIELDSTRAL_T128_DD_TRAINED_PROFILE, 128),
+        SHIELDSTRAL_T256_DD_TRAINED_PROFILE => ss("Shieldstral-1.0-3B text block geometry, trained calibration, DD (T256 / d3072 / q4096 / f9216, 32 heads of 128 over 8 KV heads, YaRN, 32-slot division dictionary)", SHIELDSTRAL_T256_DD_TRAINED_PROFILE, 256),
+        // NATIVE R12 (F2): the decoupled-head development rung (f_e 12, as the
+        // other rungs): the query axis 8 x 64 = 512 is wider than d_pad 256
+        TRAINED_HD_RUNG_PROFILE => Shape::build("development rung, trained norm calibration, decoupled head (T32 / d192 / q512 / f384, 8 heads of 64 over 2 KV heads)", TRAINED_HD_RUNG_PROFILE, 32, 192, 384, 8, 64, 2, 10, 4, 12, ((32 * 256) >> 10) + mask, None, None, None, None),
         _ => return None,
     })
 }
@@ -464,6 +590,11 @@ pub(crate) struct Shape {
     /// endpoint 32768 and the declared `ceps`, and its schedule's calibration
     /// line prints the trained form
     pub trained_calibration: bool,
+    /// **NATIVE R9 (D30): the division dictionary's slots per attention row,
+    /// 0 when the profile carries no dictionary.** DERIVED from the profile
+    /// string in [`Shape::build`] (a DD profile carries [`DD_CAP`]), never set
+    /// by hand, so CS-8's rebuild and CS-9's registry see it.
+    pub dd_cap: usize,
     // ---- derived
     pub t_pad: usize,
     pub d_pad: usize,
@@ -590,11 +721,12 @@ impl Shape {
         if !d_pad.is_power_of_two() || !f_pad.is_power_of_two() || !t_pad.is_power_of_two() {
             return Err("private block shape: a matmul width is not a power of two".into());
         }
-        // The `Q` and `D` domains share one flat index, which is only correct
-        // when the padded head slots tile the padded width exactly.
-        if d_pad != h_pad * head_dim {
-            return Err("private block shape: d_pad differs from h_pad * head_dim".into());
-        }
+        // NATIVE R12 (F2): the query axis is `h_pad * head_dim` wide, its own
+        // padded width (`Shape::q_pad`), decoupled from the model axis
+        // `d_pad`: `Wq` writes it, `Wo` reads it, and `Dom::Q` is laid out on
+        // it. (Until R11 a refusal "d_pad differs from h_pad * head_dim" kept
+        // the two equal; every shape that passed it has `q_pad == d_pad`, so
+        // no index of an existing profile moves.) Both are powers of two.
         if q_heads % kv_heads != 0 {
             return Err("private block shape: the query heads do not divide into the key-value heads".into());
         }
@@ -656,6 +788,7 @@ impl Shape {
             sh_h: NormCalibration::FROZEN.sh_h,
             sh_z: NormCalibration::FROZEN.sh_z,
             trained_calibration: false,
+            dd_cap: if DD_PROFILES.contains(&profile) { DD_CAP } else { 0 },
             t_pad,
             d_pad,
             h_pad,
@@ -840,10 +973,15 @@ impl Shape {
         // degree 5 and a 262-element message — and
         // `s24_tests::a_shape_whose_mask_leaves_no_room_for_the_pads_is_refused_by_name`
         // records it, with the control one bit below at 252.
+        // NATIVE R9 (D30): a DD profile's dictionary domain must be unpadded
+        // (see `check_dd_geometry`), refused by name here, at construction
+        if sh.dd_cap > 0 {
+            sh.check_dd_geometry()?;
+        }
         {
             let lens = sh.slot_lengths();
             let sl = sh.slots();
-            for s in 0..N_SLOTS {
+            for s in 0..sh.n_slots() {
                 if lens[s] + MASK_PADS > MASK_MSG {
                     return Err(format!(
                         "private block shape: ruling C-4 — slot {s}'s masked sumcheck message is {} field elements ({} main + {} extension rounds at degree {}, plus 2), and the masking commitment gives each slot ONE {MASK_MSG}-position row of which {MASK_PADS} are its random pads; {} + {MASK_PADS} > {MASK_MSG}, so the mask would not fit",
@@ -1727,8 +1865,75 @@ impl Shape {
     /// 2^10) under a declared trained calibration, so that the end-to-end
     /// norm-alias cases (D16 item 6) and the coefficient tamper controls run
     /// in seconds. At width 384 the class admits `tn <= 11`.
+    /// **NATIVE R9 (D30): the DD shapes**, through the same trained door.
+    pub(crate) fn tinyllama_t128_trained_dd(cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
+        Shape::check_f_e_class(128, f_e)?;
+        trained_geometry(TINYLLAMA_T128_DD_TRAINED_PROFILE, f_e).ok_or("private block shape: an unregistered trained profile")??.with_trained_calibration(cal)
+    }
+    pub(crate) fn llama3_8b_t128_trained_dd(cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
+        Shape::check_f_e_class(128, f_e)?;
+        trained_geometry(LLAMA3_8B_T128_DD_TRAINED_PROFILE, f_e).ok_or("private block shape: an unregistered trained profile")??.with_trained_calibration(cal)
+    }
+    /// the DD development rung (f_e 12, as the trained-calibration rung)
+    pub(crate) fn rung_dd(cal: &NormCalibration) -> Result<Shape, String> {
+        trained_geometry(TRAINED_DD_RUNG_PROFILE, 12).ok_or("private block shape: an unregistered trained profile")??.with_trained_calibration(cal)
+    }
     pub(crate) fn rung_tc(cal: &NormCalibration) -> Result<Shape, String> {
         trained_geometry(TRAINED_CALIB_RUNG_PROFILE, 12).ok_or("private block shape: an unregistered trained profile")??.with_trained_calibration(cal)
+    }
+    /// **NATIVE R12 (D38): the trained Shieldstral shape** at a registered
+    /// context length (128 or 256), through the trained door
+    pub(crate) fn shieldstral_trained(tokens: usize, cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
+        let profile = match tokens {
+            128 => SHIELDSTRAL_T128_TRAINED_PROFILE,
+            256 => SHIELDSTRAL_T256_TRAINED_PROFILE,
+            _ => return Err(format!("private block shape: no trained Shieldstral profile is registered at T = {tokens} (128 and 256 are)")),
+        };
+        Shape::check_f_e_class(tokens, f_e)?;
+        trained_geometry(profile, f_e).ok_or("private block shape: an unregistered trained profile")??.with_trained_calibration(cal)
+    }
+    /// the Shieldstral DD shapes (D30), the same geometries
+    pub(crate) fn shieldstral_trained_dd(tokens: usize, cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
+        let profile = match tokens {
+            128 => SHIELDSTRAL_T128_DD_TRAINED_PROFILE,
+            256 => SHIELDSTRAL_T256_DD_TRAINED_PROFILE,
+            _ => return Err(format!("private block shape: no Shieldstral DD profile is registered at T = {tokens} (128 and 256 are)")),
+        };
+        Shape::check_f_e_class(tokens, f_e)?;
+        trained_geometry(profile, f_e).ok_or("private block shape: an unregistered trained profile")??.with_trained_calibration(cal)
+    }
+    /// **TEST ONLY (R12): the Shieldstral geometry at another row width, for
+    /// the counted layouts** (builds past ruling CS-9: COUNTED, never proved)
+    #[cfg(test)]
+    pub(crate) fn shieldstral_at(tokens: usize, log_cols: usize, dd: bool, cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
+        let profile = match (tokens, dd) {
+            (128, false) => SHIELDSTRAL_T128_TRAINED_PROFILE,
+            // T512 is COUNTED only, under the T256 strings (no T512 profile
+            // is registered)
+            (256 | 512, false) => SHIELDSTRAL_T256_TRAINED_PROFILE,
+            (128, true) => SHIELDSTRAL_T128_DD_TRAINED_PROFILE,
+            (256 | 512, true) => SHIELDSTRAL_T256_DD_TRAINED_PROFILE,
+            _ => return Err(format!("no Shieldstral profile at T = {tokens}")),
+        };
+        let rows = ((tokens.next_power_of_two() * 4096) >> log_cols) + super::endpoint_g::MASK_ROWS;
+        Shape::build("Shieldstral-1.0-3B text block geometry, counted-layout ladder", profile, tokens, 3072, 9216, 32, 128, 8, log_cols, 4, f_e, rows, None, None, None, None)?.with_trained_calibration(cal)
+    }
+    /// the decoupled-head development rung (f_e 12)
+    pub(crate) fn rung_hd(cal: &NormCalibration) -> Result<Shape, String> {
+        trained_geometry(TRAINED_HD_RUNG_PROFILE, 12).ok_or("private block shape: an unregistered trained profile")??.with_trained_calibration(cal)
+    }
+
+    // ---- NATIVE R12 (F2): the query axis ------------------------------------
+    /// the TRUE query width `q_heads * head_dim` (4096 at Shieldstral, where
+    /// the model width is 3072; equal to `width` at every profile before R12)
+    pub(crate) fn q_width(&self) -> usize {
+        self.q_heads * self.head_dim
+    }
+    /// the PADDED query width `h_pad * head_dim`: the row stride of `Dom::Q`,
+    /// the output axis of `Wq` and the input axis of `Wo` (equal to `d_pad`
+    /// at every profile before R12)
+    pub(crate) fn q_pad(&self) -> usize {
+        self.h_pad * self.head_dim
     }
 
     // ---- the head permutation (correction C-1, ruling P-2) -----------------
@@ -1854,6 +2059,10 @@ impl Shape {
             Dom::S => clog2(self.h_pad * self.t_pad * self.t_pad),
             Dom::F => clog2(self.t_pad * self.f_pad),
             Dom::Tab => clog2(U8_LEN),
+            // NATIVE R9 (D30, B-4): the dictionary cube (h, t | k), `dd_cap`
+            // slots per (h, t) row; a shape without a dictionary has no such
+            // domain (a 1-entry placeholder, never laid out)
+            Dom::Dd => clog2(self.h_pad * self.t_pad * self.dd_cap.max(1)),
         }
     }
     /// the positions a domain actually uses, before any padding
@@ -1868,6 +2077,7 @@ impl Shape {
             Dom::S => self.q_heads * self.tokens * self.tokens,
             Dom::F => self.tokens * self.hidden,
             Dom::Tab => U8_LEN,
+            Dom::Dd => self.q_heads * self.tokens * self.dd_cap.max(1),
         }
     }
     /// the domain's log AFTER the P-3 lift (`layout::domain_log_at`)
@@ -1899,8 +2109,19 @@ impl Shape {
         v.extend(vec![Dom::D; 4 + 2 * ln + 8 + 2 * ln + 7]);
         v.extend([Dom::Q; 7]);
         v.extend([Dom::Kv; 6]);
-        v.extend(vec![Dom::S; 5 + self.limbs_p() + 2 * self.limbs_sigma_s()]);
-        v.extend([Dom::F; 11]);
+        if self.dd_cap > 0 {
+            // NATIVE R9 (D30): a score entry keeps S8, RSL, ZSEL, E and P and
+            // drops its own quotient / remainder limbs; the dictionary carries
+            // them, per slot, with the quotient itself and the multiplicity —
+            // committed in `A`, before every LogUp challenge (B-2), and BELOW
+            // the three histograms (CHECK.md E-1)
+            v.extend([Dom::S; 5]);
+            v.extend([Dom::F; 11]);
+            v.extend(vec![Dom::Dd; 2 + self.limbs_p() + 2 * self.limbs_sigma_s()]);
+        } else {
+            v.extend(vec![Dom::S; 5 + self.limbs_p() + 2 * self.limbs_sigma_s()]);
+            v.extend([Dom::F; 11]);
+        }
         v.extend([Dom::Tab; 3]);
         v
     }
@@ -1921,9 +2142,15 @@ impl Shape {
             Dom::Q => 13,
             Dom::Kv => 12,
             // sym(s8); rsl + scaled; p limbs + scaled top; rho_s and sigma_s
-            // limbs, each with a scaled top
+            // limbs, each with a scaled top. NATIVE R9: on a DD profile the
+            // last three groups move to the dictionary (D30)
+            Dom::S if self.dd_cap > 0 => 2 + 2,
             Dom::S => 2 + 2 + (self.limbs_p() + 1) + 2 * (self.limbs_sigma_s() + 1),
-            Dom::T | Dom::Ht | Dom::Tab => 0,
+            // NATIVE R9 (D30, B-1): at EVERY dictionary slot, the quotient's
+            // limbs + scaled top and rho_s / sigma_s limbs, each with a scaled
+            // top — today's division limbs, verbatim
+            Dom::Dd if self.dd_cap > 0 => (self.limbs_p() + 1) + 2 * (self.limbs_sigma_s() + 1),
+            Dom::T | Dom::Ht | Dom::Tab | Dom::Dd => 0,
         }
     }
 
@@ -1939,10 +2166,18 @@ impl Shape {
         v.extend(vec![Dom::Q; self.helpers(Dom::Q)]);
         v.extend(vec![Dom::Kv; self.helpers(Dom::Kv)]);
         // the `Dom::S` helpers plus the exponential pair's own helper
-        v.extend(vec![Dom::S; self.helpers(Dom::S) + 1]);
+        // (NATIVE R9: plus, on a DD profile, the score entry's single tuple
+        // helper into its row's dictionary)
+        v.extend(vec![Dom::S; self.helpers(Dom::S) + 1 + usize::from(self.dd_cap > 0)]);
         // the `Dom::F` helpers plus the activation pair's own helper
         v.extend(vec![Dom::F; self.helpers(Dom::F) + 1]);
-        // the three table helpers and the zero-sum pair `u`
+        // NATIVE R9 (D30): the dictionary's byte-lookup helpers and its TABLE
+        // helper (which enters the value-0 sum claim with sign -1)
+        if self.dd_cap > 0 {
+            v.extend(vec![Dom::Dd; self.helpers(Dom::Dd) + 1]);
+        }
+        // the three table helpers and the zero-sum pair `u` (P-3 / P-6: `u`
+        // stays the last plane, on `Dom::Tab`)
         v.extend([Dom::Tab; 4]);
         v
     }
@@ -1953,9 +2188,9 @@ impl Shape {
 
     // ---- claim sites -------------------------------------------------------
     /// one reserved mask pair per site; `(A sites, H sites)` per slot
-    pub(crate) fn claim_sites(&self) -> ([usize; N_SLOTS], [usize; N_SLOTS]) {
-        let mut a = [0usize; N_SLOTS];
-        let mut h = [0usize; N_SLOTS];
+    pub(crate) fn claim_sites(&self) -> ([usize; MAX_SLOTS], [usize; MAX_SLOTS]) {
+        let mut a = [0usize; MAX_SLOTS];
+        let mut h = [0usize; MAX_SLOTS];
         a[SC_SS] = 1;
         a[SC_SSM] = 1;
         // the four `Dom::T` planes, plus nine limb sub-slices per norm
@@ -1976,9 +2211,10 @@ impl Shape {
         h[SC_QZC] = self.helpers(Dom::Q);
         a[SC_KVZC] = self.a_planes_on(Dom::Kv) + 1;
         h[SC_KVZC] = self.helpers(Dom::Kv);
-        // + A_MX and A_SUM; + H_SEXP
+        // + A_MX and A_SUM; + H_SEXP (NATIVE R9: + the tuple helper on a DD
+        // profile, whose `Dom::S` block is five planes)
         a[SC_SZC] = self.a_planes_on(Dom::S) + 2;
-        h[SC_SZC] = self.helpers(Dom::S) + 1;
+        h[SC_SZC] = self.helpers(Dom::S) + 1 + usize::from(self.dd_cap > 0);
         // + H_FACT
         a[SC_FZC] = self.a_planes_on(Dom::F);
         h[SC_FZC] = self.helpers(Dom::F) + 1;
@@ -1987,15 +2223,23 @@ impl Shape {
         h[SC_ZS] = 1;
         a[SC_IO_IN] = 1;
         a[SC_IO_OUT] = 1;
+        // NATIVE R9 (D30): the dictionary zero-check — every `Dom::Dd` plane
+        // on its own cube, plus `A_SUM` read on the leading (h, t) variables
+        // (B-4: a claim site of this slot); its byte helpers plus the table
+        // helper. Each plane is opened only at its own reserved site.
+        if self.dd_cap > 0 {
+            a[SC_DD] = self.a_planes_on(Dom::Dd) + 1;
+            h[SC_DD] = self.helpers(Dom::Dd) + 1;
+        }
         (a, h)
     }
 
     /// private terminals a slot publishes
-    pub(crate) fn slot_terms(&self) -> [usize; N_SLOTS] {
+    pub(crate) fn slot_terms(&self) -> [usize; MAX_SLOTS] {
         let (a, h) = self.claim_sites();
-        let mut out = [0usize; N_SLOTS];
-        for s in 0..N_SLOTS {
-            out[s] = a[s] + h[s] + usize::from(s >= SC_IO_IN);
+        let mut out = [0usize; MAX_SLOTS];
+        for s in 0..self.n_slots() {
+            out[s] = a[s] + h[s] + usize::from(s == SC_IO_IN || s == SC_IO_OUT);
         }
         out
     }
@@ -2005,9 +2249,10 @@ impl Shape {
     /// slot's cube: the domain log for a zero-check or a row sum, and the
     /// matmul's INNER index log for a matmul (M-2: the four matmul families do
     /// NOT share one width).
-    pub(crate) fn slots(&self) -> [(usize, usize, usize); N_SLOTS] {
+    pub(crate) fn slots(&self) -> [(usize, usize, usize); MAX_SLOTS] {
         let cube = |s: usize| -> Option<Dom> {
             Some(match s {
+                SC_DD => Dom::Dd,
                 SC_SS | SC_SSM | SC_DZC | SC_IO_IN | SC_IO_OUT => Dom::D,
                 SC_TZC => Dom::T,
                 SC_LZC => Dom::L,
@@ -2029,15 +2274,17 @@ impl Shape {
         let lkv = clog2(self.kv_heads);
         let inner = |s: usize| -> usize {
             match s {
-                SC_QMM | SC_KMM | SC_VMM | SC_WO | SC_GMM | SC_UMM => clog2(self.d_pad),
+                SC_QMM | SC_KMM | SC_VMM | SC_GMM | SC_UMM => clog2(self.d_pad),
+                // NATIVE R12 (F2): `Wo` folds over the QUERY axis
+                SC_WO => clog2(self.q_pad()),
                 SC_SCORE => lkv + clog2(self.head_dim),
                 SC_PV => lkv + clog2(self.t_pad),
                 SC_DMM => clog2(self.f_pad),
                 _ => unreachable!(),
             }
         };
-        let mut out = [(0usize, 0usize, 0usize); N_SLOTS];
-        for s in 0..N_SLOTS {
+        let mut out = [(0usize, 0usize, 0usize); MAX_SLOTS];
+        for s in 0..self.n_slots() {
             let main = match cube(s) {
                 Some(dom) => self.log(dom),
                 None => inner(s),
@@ -2083,10 +2330,10 @@ impl Shape {
 
     /// the masked sumcheck message length `L = (main + ext) * degree + 2` of
     /// each slot; `L + 256 <= 512` is the M-row budget
-    pub(crate) fn slot_lengths(&self) -> [usize; N_SLOTS] {
+    pub(crate) fn slot_lengths(&self) -> [usize; MAX_SLOTS] {
         let sl = self.slots();
-        let mut out = [0usize; N_SLOTS];
-        for s in 0..N_SLOTS {
+        let mut out = [0usize; MAX_SLOTS];
+        for s in 0..self.n_slots() {
             out[s] = (sl[s].0 + sl[s].1) * sl[s].2 + 2;
         }
         out
@@ -2106,20 +2353,22 @@ impl Shape {
             h_data_rows,
             a_rows: a_data_rows + 2 * a_sites + 2,
             h_rows: h_data_rows + 2 * h_sites + 2,
-            m_rows: 2 * N_SLOTS + 4,
+            m_rows: self.m_rows(),
             a_sites,
             h_sites,
             a_groups: self.a_groups(),
             h_groups: self.h_groups(),
             logup_sum_claim_keys: self.logup_sum_claim_keys(),
-            functionals: N_FUNCTIONALS,
+            functionals: self.n_functionals(),
             largest_slot_length: *self.slot_lengths().iter().max().unwrap(),
             main_rounds: sl.iter().map(|s| s.0).sum(),
             extension_rounds: sl.iter().map(|s| s.1).sum(),
-            u8_per_domain: LOOKUP_DOMS.iter().map(|d| self.lookups_per_position(*d) * self.size(*d)).collect(),
-            u8_lookups: LOOKUP_DOMS.iter().map(|d| self.lookups_per_position(*d) * self.size(*d)).sum(),
+            u8_per_domain: self.lookup_doms().iter().map(|d| self.lookups_per_position(*d) * self.size(*d)).collect(),
+            u8_lookups: self.lookup_doms().iter().map(|d| self.lookups_per_position(*d) * self.size(*d)).sum(),
             exp_pairs: self.size(Dom::S),
             act_pairs: self.size(Dom::F),
+            dd_tuple_lookups: if self.dd_cap > 0 { self.size(Dom::S) } else { 0 },
+            dd_slots: if self.dd_cap > 0 { self.size(Dom::Dd) } else { 0 },
             receipt_bytes: self.receipt_bytes(),
         }
     }
@@ -2164,14 +2413,17 @@ impl Shape {
         // 10 score, 11 PV: two private factors each
         // 03 D, 04 Q, 05 KV, 06 softmax: the cube plus one off-cube plane
         // ZS: none of its own
-        tzc + 15 + 2 * 2 + 4 * 2
+        // NATIVE R9 (D30): the dictionary zero-check adds its own cube's
+        // group and the off-cube `A_SUM` group
+        tzc + 15 + 2 * 2 + 4 * 2 + if self.dd_cap > 0 { 2 } else { 0 }
     }
 
     /// `H`: one group per slot that raises `H` claims — `SC_LZC`, the five
     /// domain zero-checks, `SC_TAB`, `SC_ZS` — plus the single value-0 LogUp
     /// sum claim.
     pub(crate) fn h_groups(&self) -> usize {
-        8 + 1
+        // NATIVE R9: + the dictionary zero-check's helpers (one group)
+        8 + 1 + usize::from(self.dd_cap > 0)
     }
 
     /// How many distinct column-weight keys the single value-0 LogUp sum claim
@@ -2201,11 +2453,11 @@ impl Shape {
         let e_path = clog2(e_n * self.endpoint_inv_rate);
         let sl = self.slots();
         let terms = self.slot_terms();
-        let slot_words: usize = (0..N_SLOTS).map(|s| 1 + (sl[s].0 + sl[s].1) * (sl[s].2 + 1) + terms[s]).sum();
+        let slot_words: usize = (0..self.n_slots()).map(|s| 1 + (sl[s].0 + sl[s].1) * (sl[s].2 + 1) + terms[s]).sum();
         let parts = ReceiptBytes {
             header_and_three_roots: WIRE_HEADER + 3 * 32,
             slots: slot_words * 16,
-            mask_opening: 2 * MASK_VEC * 16 + COL_CHECKS * (8 + (2 * N_SLOTS + 4) * 8 + 32 + MASK_PATH * 32),
+            mask_opening: 2 * MASK_VEC * 16 + COL_CHECKS * (8 + self.m_rows() * 8 + 32 + MASK_PATH * 32),
             a_opening: opening(self.a_groups(), t.0, vec_len, path),
             h_opening: opening(self.h_groups(), t.1, vec_len, path),
             endpoint_openings: 2 * opening(1, self.endpoint_rows, e_vec, e_path),
@@ -2223,6 +2475,54 @@ impl Shape {
         data + 2 * self.claim_sites().1.iter().sum::<usize>() + 2
     }
 
+    /// **NATIVE R9: how many slots this profile's argument runs** — the
+    /// twenty-three, plus the dictionary zero-check (`SC_DD`, appended LAST)
+    /// on a DD profile only, so that no other profile's transcript gains a
+    /// slot, a mask row or a functional
+    pub(crate) fn n_slots(&self) -> usize {
+        N_SLOTS + usize::from(self.dd_cap > 0)
+    }
+    /// the masking commitment's rows: two per slot plus four
+    pub(crate) fn m_rows(&self) -> usize {
+        2 * self.n_slots() + 4
+    }
+    /// the CFS functionals: the declared 34, plus a Standalone dictionary
+    /// slot's `Gamma` and its evaluation on a DD profile
+    pub(crate) fn n_functionals(&self) -> usize {
+        N_FUNCTIONALS + if self.dd_cap > 0 { 2 } else { 0 }
+    }
+    /// the lookup domains in helper order: the six, plus `Dom::Dd` on a DD
+    /// profile (CHECK.md E-3: the dictionary's byte lookups enter the U8
+    /// histogram)
+    pub(crate) fn lookup_doms(&self) -> Vec<Dom> {
+        let mut v = LOOKUP_DOMS.to_vec();
+        if self.dd_cap > 0 {
+            v.push(Dom::Dd);
+        }
+        v
+    }
+    /// **NATIVE R9 (D30, B-3 by restriction): a DD profile's dictionary and
+    /// score domains are UNPADDED** — every head and token is true
+    /// (`h_pad == q_heads`, `t_pad == tokens`), `dd_cap` is a power of two,
+    /// and neither `Dom::S` nor `Dom::Dd` sits below the row width (no P-3
+    /// lift). Every dictionary position is then a true row's slot, carrying
+    /// the division clauses with no gate (B-1), and B-3's pad clause is
+    /// vacuous, as at Llama-3-8B T512. Refused by name; no relation changes.
+    pub(crate) fn check_dd_geometry(&self) -> Result<(), String> {
+        const DD: &str = "private block shape: DD (D30) needs an unpadded dictionary — ";
+        if self.h_pad != self.q_heads || self.t_pad != self.tokens {
+            return Err(format!("{DD}{} pads its head axis ({} of {}) or its token axis ({} of {})", self.profile, self.q_heads, self.h_pad, self.tokens, self.t_pad));
+        }
+        if !self.dd_cap.is_power_of_two() {
+            return Err(format!("{DD}a cap of {} slots is not a power of two", self.dd_cap));
+        }
+        for dom in [Dom::S, Dom::Dd] {
+            if self.natural_log(dom) < self.log_cols || self.size(dom) != self.true_size(dom) {
+                return Err(format!("{DD}{}'s {dom:?} domain pads or is lifted to the row width", self.profile));
+            }
+        }
+        Ok(())
+    }
     /// the domains that pad, in the fixed domain order
     pub(crate) fn padded_domains(&self) -> Vec<Dom> {
         ALL_DOMS.iter().copied().filter(|d| self.pads(*d)).collect()
@@ -2282,6 +2582,10 @@ pub(crate) struct Totals {
     pub u8_lookups: usize,
     pub exp_pairs: usize,
     pub act_pairs: usize,
+    /// NATIVE R9: the score entries' tuple lookups into the dictionary, and
+    /// the dictionary's slots (both 0 off a DD profile)
+    pub dd_tuple_lookups: usize,
+    pub dd_slots: usize,
     pub receipt_bytes: ReceiptBytes,
 }
 

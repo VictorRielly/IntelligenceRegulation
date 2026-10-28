@@ -1,0 +1,8 @@
+{
+  "field_prime": 18446744069414584321,
+  "legal_input": 18446744069414584319,
+  "after_binary64_roundtrip": 18446744069414584320,
+  "loss_before_multiply": 1,
+  "conclusion": "Direct unlimbed float64 cast is not exact for all native Goldilocks inputs; no rejection of every possible exact decomposition",
+  "upstream_code_executed": false
+}

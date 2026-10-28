@@ -1,0 +1,44 @@
+[
+  {
+    "label": "full_request",
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4326,
+    "text": "Pooled::take_min(&dev, kd * l * 2)"
+  },
+  {
+    "label": "constructor_full_view",
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4332,
+    "text": "slice_mut(t * l * 2..(t + 1) * l * 2)"
+  },
+  {
+    "label": "raw_requires_fusion",
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4309,
+    "text": "&& fzc_fused()"
+  },
+  {
+    "label": "raw_first_fold_above_tail",
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4312,
+    "text": "&& n - 1 > tail_log"
+  },
+  {
+    "label": "generic_fold_all_derived",
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4756,
+    "text": "(self.tabs.get_mut(), self.kd as i32, half as i32, self.stride as i32"
+  },
+  {
+    "label": "host_tail_only_original_k",
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4769,
+    "text": "let n_words = self.k * half * 2;"
+  },
+  {
+    "label": "finals_only_original_k",
+    "file": "hashline/src/gpu/cuda.rs",
+    "line": 4788,
+    "text": "(self.tabs.get(), self.k as i32, self.stride as i64, &mut self.d_fin)"
+  }
+]

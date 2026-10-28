@@ -1,0 +1,57 @@
+{
+  "status": "COMPLETE",
+  "cycle": "0111",
+  "run_id": "20261020T191854Z-93bbe548",
+  "checkpoint_utc": "2026-10-20T19:29:45.531119+00:00",
+  "probe": {
+    "status": "PASS",
+    "seed": 20261020111,
+    "checks": 3470,
+    "negative_controls": 63,
+    "consumer_cases": 472,
+    "layer_cases": 592,
+    "fixtures": 45,
+    "elapsed_s": 0.31311639200430363,
+    "maxrss_KiB": 12896,
+    "scope": "Synthetic native-field ordered factories and unmasked cubic consumer; no native private proof"
+  },
+  "audit": {
+    "status": "PASS",
+    "checks": 6280,
+    "consumer_cases": 354,
+    "layer_cases": 444,
+    "capacity_events": 528,
+    "prior_profiles_checked": 10,
+    "source_pins": 22,
+    "elapsed_s": 0.34901624100166373,
+    "maxrss_KiB": 16696,
+    "scope": "Independent tuple immutable tree/cubic/Boolean MLE/MSB ordering, enumerated operation graph, payload events and hashes; no native proof"
+  },
+  "accounting": {
+    "status": "PASS",
+    "checks": 240,
+    "elapsed_s": 0.29419223198783584,
+    "maxrss_KiB": 16904
+  },
+  "source_records": 12,
+  "source_ledger": 682,
+  "ranked_hypotheses": 23,
+  "new_verified_full_stack": {
+    "proofs": 0,
+    "passes": 0,
+    "positions": 0,
+    "context_length": null,
+    "accelerator": null,
+    "research_device": "Intel Core Ultra9 185H CPU; no GPU",
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "startup_s": null,
+    "startup_fraction": null,
+    "steady_rate": null,
+    "total_rate": null
+  },
+  "next_local": "Next local experiment: independently enumerate exact public exponential-table\noutputs versus score resolution/f_e and include0 in the DD cardinality. Pin the\nowner's r11 public table/count definitions; distinguish F_P output precision\nfrom S12/finer exponential inputs. Check the cited32-entry cap and cost any\nlarger dictionary domain/limbs/lookups without admitting a new profile.\nThe owner already models S12 as DD-infeasible; reproduce the actual public\ncardinality before carrying DD savings to a D32 fidelity configuration.\nAvoid duplicating native implementation or model-quality/calibration jobs.\n",
+  "next_owner": "Owner next: whole-prover GPU phase/capacity clocks and independently verified\nfixed-context resident1/2/4/8 workloads, DD context scaling and all-elevenFZC\ncompiler A/B under shared build/heavy locks. No such job was launched here.\n"
+}

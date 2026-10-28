@@ -1,0 +1,32 @@
+--- a/ops/zkp-mvp/trained-1b/zkp-core/src/mle.rs
++++ b/ops/zkp-mvp/trained-1b/zkp-core/src/mle.rs
+@@ -250,6 +250,29 @@
+ /// Lagrange-interpolate a univariate polynomial given its values at
+ /// 0, 1, ..., d and evaluate at x.
+ pub fn interpolate_eval(vals: &[Fp2], x: Fp2) -> Fp2 {
++    // Arithmetic only: same values at nodes 0..m-1, same evaluation point.
++    // Constants are inverses of factorials in Goldilocks; no proof material.
++    let m = vals.len();
++    if (2..=6).contains(&m) {
++        const INV_FACT: [Fp; 6] = [
++            Fp(1), Fp(1), Fp(9223372034707292161),
++            Fp(15372286724512153601), Fp(17678129733188976641),
++            Fp(18293021202169462785),
++        ];
++        let mut diff = [Fp2::ZERO; 6];
++        diff[..m].copy_from_slice(vals);
++        for order in 1..m {
++            for i in (order..m).rev() {
++                diff[i] = diff[i].sub(diff[i - 1]);
++            }
++        }
++        for i in 1..m { diff[i] = diff[i].mul_base(INV_FACT[i]); }
++        let mut acc = diff[m - 1];
++        for i in (0..m - 1).rev() {
++            acc = acc.mul(x.sub_base(Fp::new(i as u64))).add(diff[i]);
++        }
++        return acc;
++    }
+     let d = vals.len();
+     let mut acc = Fp2::ZERO;
+     for i in 0..d {

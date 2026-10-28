@@ -1,0 +1,352 @@
+[
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/FINDINGS.md.read-index.json",
+    "sha256": "f58dbf53274bd14e68fc696d6f699f3dcfb43591befe6ad22cbbf781e628ae51",
+    "bytes": 158229
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/MVP_STATUS.md.read-index.json",
+    "sha256": "372f58e45d2a78a3934f477bd28bc6bcec8f1a6a401c0bb1cb9aa3ad8d62073b",
+    "bytes": 4552
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/README.md",
+    "sha256": "6efa0c0a66de54e7c129241271515c33cdb82a0ef85328bfbf49269e73c789e4",
+    "bytes": 8363
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/ZK60_CODEX_FABLE_COORDINATION.md.read-index.json",
+    "sha256": "40920df2cc189aa3bf530926f62045a3b56fee60bad21ea8fa87e62510b2859b",
+    "bytes": 4257
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/ZK60_DECISIONS.md.read-index.json",
+    "sha256": "a019850a16b20d0c9a3a9a2709c1b151166569040af698e1c879573f2abddbfd",
+    "bytes": 16617
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/audit.py",
+    "sha256": "24695e14f12c6b4c59fa888db5850656a9020fcedc1e05ceab60f58b008bde69",
+    "bytes": 10308
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/capacity.json",
+    "sha256": "4267c278baa0a350e02063e5a6f9df86aa6fecdc66314d5d1b8d4caaadd821e5",
+    "bytes": 1095930
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/checkpoint.py",
+    "sha256": "ae329ed70e71ecf2e3416a005dc99c481cb20f60bf1458f26a3682f908fa8185",
+    "bytes": 25688
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/completion.json",
+    "sha256": "dfb43479007cbba9be51b374c42141ce81b4515faf5e2d320dbed24282e64f8a",
+    "bytes": 362
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/events.json",
+    "sha256": "61dfe9366bc38c35668dcc1f3700683b382a0e1eadf84ef97a290203eee5e3c4",
+    "bytes": 78696
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/extra-source-manifest.json",
+    "sha256": "2f5459706778b8216ccaabb59b4a80aa66de112acb197b18ecdf03768c726053",
+    "bytes": 683
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/final-direction-manifest.json",
+    "sha256": "e96e1c0b12f794fec595d367a16793d634c1f014bf5d930d1353b434290a5766",
+    "bytes": 1050
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/hypotheses.json",
+    "sha256": "3fd2a83664bf309579a07180863b0add3a9d055fe17302e2706066bae01c19f4",
+    "bytes": 8093
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/input-manifest.json",
+    "sha256": "86851773e58112acfd9084e5f2a66a223b36cefdaa005f756adbffd9db364218",
+    "bytes": 5172
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/model-result.json",
+    "sha256": "c44c90b641ca86d238b5f5f8b04c4a92bb59e26394e1ee07575c8b75a045dd46",
+    "bytes": 735
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/model.py",
+    "sha256": "a6df8119414dcf2594d64488747f67d889b6e67b1a1cde022db34f9484a002f1",
+    "bytes": 8940
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/owner-dd-update.json",
+    "sha256": "79cdc2f5885fbd473c7a27eab7063efc0706f1187fc704b8d38722b371afc5fd",
+    "bytes": 1365
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/record_sources.py",
+    "sha256": "bdeb67e8207386055c8fb6fe34ef9cdeea2de5934ae5d01fec53fb93a19f4243",
+    "bytes": 7598
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/result.json",
+    "sha256": "33e9dc52585205782f220e9fb9af6fc15ffe9aa0fdf70f2996255589dde24c88",
+    "bytes": 286597
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/run_bounded.py",
+    "sha256": "752776a06086eb03dea34847bef870d9916631fea529a96ff6e7dc40bce564e1",
+    "bytes": 1397
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/search-log.json",
+    "sha256": "cbc5031323d149b68ffa1cad2f5952d8f8a673c969a3338751499d35ae71d73f",
+    "bytes": 1298
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/setup.py",
+    "sha256": "c812f5096130340cdb8dad43bf68c96e5d667c66e0058342aac09e17f5f8c049",
+    "bytes": 4233
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/source/extra__pcs.rs",
+    "sha256": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495",
+    "bytes": 77003
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/source/extra__r9_counts.json",
+    "sha256": "ae24df761b94390667605d888394aca03f653d81f2ac07f9c135718e85e3b388",
+    "bytes": 1386
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/source/extra__r9_counts.py",
+    "sha256": "98de9781989c83299ceffd0022a3b64040ffa944169bb30c96ee57ca8ca0818e",
+    "bytes": 4515
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/source/gpu__gpu__cuda.rs",
+    "sha256": "dcc0e4bcd76c009827d30d8b1547e043118619948f59e63e75b132c5e6a38629",
+    "bytes": 258588
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/source/gpu__pcs.rs",
+    "sha256": "8b14096b66f6597e3cdfe239a7359457dd17dfd475c2a5d0f4e112a41342127f",
+    "bytes": 6900
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/source/gpu__private_block__boundary.rs",
+    "sha256": "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581",
+    "bytes": 36123
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/source/gpu__private_block__layout.rs",
+    "sha256": "fcf9dda4e507d2a347f786ddc537feff3ac57779abae88cea91ee48d4b34c855",
+    "bytes": 64489
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/source/gpu__private_block__protocol.rs",
+    "sha256": "4612a955a1148ba821e3d8722684ccb1d73304bb34955dcd3be28cafdbdc8e7d",
+    "bytes": 63656
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/source/gpu__private_block__run.rs",
+    "sha256": "9d324ad0871f8932c5e872f74f6aa01e6e4120b8d23cea6771cddccd2e9c4daa",
+    "bytes": 56637
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/source/gpu__private_block__shape.rs",
+    "sha256": "e6c7290b5c2d897ccaaa6284c813bbcfea563aaef7594c309b955a5588c1e073",
+    "bytes": 102462
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/source/gpu__zk.rs",
+    "sha256": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32",
+    "bytes": 254060
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/source/r8__gpu__cuda.rs",
+    "sha256": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9",
+    "bytes": 205193
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/source/r8__pcs.rs",
+    "sha256": "8b14096b66f6597e3cdfe239a7359457dd17dfd475c2a5d0f4e112a41342127f",
+    "bytes": 6900
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/source/r8__private_block__boundary.rs",
+    "sha256": "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581",
+    "bytes": 36123
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/source/r8__private_block__layout.rs",
+    "sha256": "ee871fff7eed377cafcb05ec0438df95a70695ae8fdcd5b5822f5f40663b0ee9",
+    "bytes": 66327
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/source/r8__private_block__protocol.rs",
+    "sha256": "85ca893173c4bfc0d8c88be69dbd0834831d4aec4ec9783c66e0b61d614615f6",
+    "bytes": 71311
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/source/r8__private_block__run.rs",
+    "sha256": "d913a081b82d54b6a1a67cd938afe1700910e820d9b3a97019a398f8b61ea609",
+    "bytes": 77515
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/source/r8__private_block__shape.rs",
+    "sha256": "8c62519c98e36ae966b7f9480e1d47884c57526c2ccf0288deb1286ca1a0fb34",
+    "bytes": 119159
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/source/r8__zk.rs",
+    "sha256": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32",
+    "bytes": 254060
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/source-facts.json",
+    "sha256": "405cdf2753d9057aa9bdcf4a4a89afff81d0f1f419c32903ca0bc78dd6ca0ba9",
+    "bytes": 4710
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/source-ledger-index.json",
+    "sha256": "6220f069265e520cd25a4ac31e5647b4dbb8fc56bb5299d22f7a125f1853512e",
+    "bytes": 212781
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/source-manifest.json",
+    "sha256": "3efda918f1f7a78ee2d6392274c1ecc75d89d350ac6f5741b7f449a8c42cecfa",
+    "bytes": 4343
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/source-records.json",
+    "sha256": "74ad781a8a439056220bc41dbe3ff2f3b90344c6d10a403d0373fa2b75510827",
+    "bytes": 9226
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/startup/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/startup/docs__zkmatrix-poc__MVP_STATUS.md",
+    "sha256": "333aa069afe29baed67702d4d1e87c7af2405f83ee2623aa2e51174aed83c417",
+    "bytes": 81342
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/startup/docs__zkmatrix-poc__START_HERE.md",
+    "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d",
+    "bytes": 42025
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/startup/docs__zkmatrix-poc__TASK_BOARD.md",
+    "sha256": "d96f67dd1d199ffc31672974dad5bd8c8d6453f2f7bab6a4849d229a91bef953",
+    "bytes": 186876
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/startup/docs__zkmatrix-poc__ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/startup/docs__zkmatrix-poc__ZK60_DECISIONS.md",
+    "sha256": "ef005e3448496ece9088c6433626bfa2f30242bf817aa7f1578898efbd1b0f2e",
+    "bytes": 98326
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/startup/docs__zkmatrix-poc__ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/startup/research__zkp-efficiency__AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/startup/research__zkp-efficiency__FINDINGS.md",
+    "sha256": "201862c34559063a6452c33e4f6d78485e9f810d0cce39b9d43de12c5b8f1434",
+    "bytes": 673548
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/startup/research__zkp-efficiency__PROGRESS.md",
+    "sha256": "27a70935f94ff8a0e3dfed3d5744dff38df1b9e977a5f21323f5ede0b5d8b8ca",
+    "bytes": 2255
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/startup/research__zkp-efficiency__STATE.md",
+    "sha256": "f0add8139fc398d3920ceb821b871825f2b8626cc611ac5b4396c5c7df22cd9a",
+    "bytes": 3982
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/startup/research__zkp-efficiency__experiments__device-allocation-coverage-20261020__README.md",
+    "sha256": "924e8dd6416d3efcb70d45233c2526fe5269f39331bb614063dccc73311c1327",
+    "bytes": 7670
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/startup/research__zkp-efficiency__experiments__device-allocation-coverage-20261020__census-result.json",
+    "sha256": "9b12d4d06e2bd75e74211dc1d3e276107a24cf6473000360c4638caf77919673",
+    "bytes": 208
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/startup/research__zkp-efficiency__experiments__device-allocation-coverage-20261020__hypotheses.json",
+    "sha256": "a3b75c150f7d4d3059f39fc9f0002ca8256462ab98c4b376d9dca61a87f3359b",
+    "bytes": 10000
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/startup/research__zkp-efficiency__experiments__device-allocation-coverage-20261020__result.json",
+    "sha256": "d79a711eb6fa067e24be29aba2e63385cfe452fe407873ab4da42a6c290d5963",
+    "bytes": 374
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/startup/research__zkp-efficiency__experiments__device-allocation-coverage-20261020__staging-result.json",
+    "sha256": "e02930e0bbd9dab8131a7b361ac70b25e15200c806c8ad8a324460d2ad6035a1",
+    "bytes": 1813
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/startup/research__zkp-efficiency__experiments__device-allocation-coverage-20261020__validation-result.json",
+    "sha256": "4f7633b63cf5d230d6aaddbc157cbb30667bfcfd3fe8d9f86027aaa5075d7b06",
+    "bytes": 432
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/startup/research__zkp-efficiency__sources.jsonl",
+    "sha256": "f10645f0b1881b765edbb6396cded6ea7a68287b6fc7d929590917647b3110a8",
+    "bytes": 681770
+  },
+  {
+    "path": "experiments/private-stage-lifetimes-20261020/validate.py",
+    "sha256": "4a2034545e31b8462b158a0e1c1e05a70d08012d258891dc0cd12cbdf8e89ce5",
+    "bytes": 4641
+  },
+  {
+    "path": "STATE.md",
+    "sha256": "13ad273207be1e8f5e1f7f9347b028097c9df55f4590f3f2f074e8d294fac97c",
+    "bytes": 3646
+  },
+  {
+    "path": "PROGRESS.md",
+    "sha256": "9f7254086cc45b9c39bdabfae6b724fc98baea5512d309c213305f42afb1a7c7",
+    "bytes": 1871
+  },
+  {
+    "path": "FINDINGS.md",
+    "sha256": "cc07a8f5a6c4027b90b22c5545c493b96ce19d566d7a793cb33cc788ff665ca0",
+    "bytes": 681629
+  },
+  {
+    "path": "sources.jsonl",
+    "sha256": "2d847d66234012e1bbf46912a23810a40d4e667e4a60aa4162a522f56c28f69a",
+    "bytes": 690310
+  },
+  {
+    "path": "progress/20261020T021854Z-e084e681.md",
+    "sha256": "92b78f356c496d8f1b35448cfe7b2ca44c98deb47dc27af50caa3ecfcbb3aff1",
+    "bytes": 8080
+  },
+  {
+    "path": "handoffs/20261020-private-stage-lifetimes.md",
+    "sha256": "e3541e66c351f97aa536e5359cee4259ffceba796fc3df40b75fbd50fbf1c324",
+    "bytes": 3181
+  }
+]

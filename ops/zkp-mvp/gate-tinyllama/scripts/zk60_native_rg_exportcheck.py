@@ -36,6 +36,33 @@ WHAT IS CHECKED, each a refusal by name:
       export layer's `exp.bin` / `act.bin` (act widened to int64), and
       `act[128] = 0`, `exp[0] = 2^f_e`.
 
+[v17, gate round 14] PER-LAYER CONSTANTS.  An export whose layers carry
+their own constants lists them in `profile.json["per_layer_constants_differ"]`
+and leaves them null in `profile_constants` (`tinyllama_dg_rot1_T128`:
+norm_cn_a, norm_cn_m, sh_ao, sh_h, sh_s, sh_z).  Native R8 then proves the run
+at a RUN calibration (`trained_block.rs` `run_constants`: each per-layer field
+the value tuple most of the run's layers carry, ties the smallest, fields in
+OWN_FIELDS order) and each layer that differs at its own (the stage line's
+clauses).  Tools v16 compared the run shape's per-layer fields with null and
+refused every such bundle.  v17:
+
+  E0  the export's integrity (`zk60_native_rg_tokenblocks.load_export`, X8):
+      every layer manifest hashes to profile.json's, every array to its
+      manifest, and every non-per-layer constant equals profile_constants;
+  E1  a per-layer field of the run shape equals the RUN calibration computed
+      from the run's export layers (above); every other field as before;
+  E3b (without --statement) each stage's layer IDENTIFIED from its slot-14
+      gains (the two public gamma tables, bound by the stage-8 terminal
+      identity) against every export layer, exactly one match each; the
+      README's declared layer list (not transcript-bound) must agree; with
+      --statement, the identification must agree with E3's map;
+  E5  each stage's calibration (the run shape plus its stage line's own
+      clauses, `zk60_native_rg_stagecal`, bound to the schedule digest)
+      equals its export layer's eleven constants.
+
+E1's per-layer part, E4 and E5 need the stage-to-layer map (E3 or E3b); a
+missing map is a refusal by name, never a pass.
+
 WHAT IT DOES NOT SHOW.  That the export is the right calibration of the model
 (the D24 review's subject), or anything about a hidden value.
 
@@ -55,6 +82,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
+README_LAYERS_LIST = re.compile(r"layers \[([\d, ]*)\]")
+GAMMA_SLOT = 14
 CONSTANTS = ("norm_tn", "norm_cn_a", "norm_cn_m", "norm_ceps", "sh_ao",
              "sh_qkv", "sh_s", "sh_o", "sh_g", "sh_h", "sh_z", "f_e")
 PARAM_SH = re.compile(r"/sh-g(\d+)-u0-h(\d+)-z(\d+)/")
@@ -88,6 +117,52 @@ def _recovered_tables(record):
     return None
 
 
+def SCAL_OWN(bundle) -> list:
+    """[v17] per stage: does its schedule line carry an own clause"""
+    import zk60_native_rg_stagecal as SCAL
+    return [bool(SCAL.OWN_CLAUSE.search(ln)) for ln in bundle.run.get("stage_lines") or []]
+
+
+def _readme_layers(bundle):
+    """the README's declared export layers (`layers [a, b, ..]`), or None"""
+    p = os.path.join(getattr(bundle, "dir", ""), "README.md")
+    if not os.path.exists(p):
+        return None
+    m = README_LAYERS_LIST.search(open(p).read())
+    if not m:
+        return None
+    return [int(x) for x in m.group(1).replace(" ", "").split(",") if x != ""]
+
+
+def _layers_by_gamma(bundle, exp) -> dict:
+    """[v17] E3b: each stage's slot-14 gains against every export layer"""
+    from zk60_native_jv_field import P, f2_from_list
+    width = int(bundle.run["shape"]["width"])
+    rows, f, lay = [], [], []
+    for st in bundle.stages:
+        pubs = [t for t in st.doc["arguments"][GAMMA_SLOT]["tables"] if t["kind"] == "public"]
+        match = []
+        if len(pubs) >= 2 and all("values" in t for t in pubs[:2]):
+            v0, v1 = pubs[0]["values"], pubs[1]["values"]
+            ga = [f2_from_list(v0[i]) for i in range(width)]
+            gm = [f2_from_list(v1[i]) for i in range(width)]
+            for layer, L_ in sorted(exp["layers"].items()):
+                tab = L_["tables"]
+                if (len(tab["gamma_a"]) == width
+                        and all(ga[i] == (tab["gamma_a"][i] % P, 0) for i in range(width))
+                        and all(gm[i] == (tab["gamma_m"][i] % P, 0) for i in range(width))):
+                    match.append(layer)
+        else:
+            f.append(f"stage {st.index}: slot {GAMMA_SLOT} carries no two public gain tables "
+                     "with values (a capture without public tables)")
+        if len(match) != 1:
+            f.append(f"stage {st.index}: the gains match export layers {match}, not exactly one")
+        rows.append({"stage": st.index, "layers_matching": match})
+        lay.append(match[0] if len(match) == 1 else None)
+    return {"per_stage": rows, "findings": f,
+            "layer_of_stage": lay if not f else None, "ok": not f}
+
+
 def export_check(bundle, export_dir, statement_path=None, record=None) -> dict:
     f: list[str] = []
     out = {"what": "the bundle's trained calibration against the export it "
@@ -103,10 +178,28 @@ def export_check(bundle, export_dir, statement_path=None, record=None) -> dict:
     out["export_profile_sha256"] = prof_sha
     if sh.get("trained_calibration") is not True:
         f.append("E1: the bundle declares no trained calibration")
+    # [v17] E0: the export's integrity and every layer's constants
+    per_layer = list(prof.get("per_layer_constants_differ") or [])
+    exp = None
+    try:
+        import zk60_native_rg_tokenblocks as TB
+        exp = TB.load_export(export_dir)
+        out["E0_export_integrity"] = {"ok": exp["X8"]["ok"], "layers": len(exp["layers"]),
+                                      "per_layer_constants_differ": per_layer}
+        f.extend(f"E0: {x}" for x in exp["findings"])
+    except Exception as exc:  # noqa: BLE001
+        out["E0_export_integrity"] = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
+        f.append(f"E0: the export does not load ({type(exc).__name__}: {exc})")
     # E1
     e1 = {}
+    deferred = []
     for key in CONSTANTS:
         got, want = sh.get(key), pc.get(key)
+        if key in per_layer:
+            # [v17] compared below with the run calibration of the run's layers
+            deferred.append(key)
+            e1[key] = {"bundle": got, "export": want, "per_layer": True}
+            continue
         e1[key] = {"bundle": got, "export": want, "equal": got == want}
         if got != want:
             f.append(f"E1: {key} is {got} in the bundle and {want} in the export")
@@ -165,6 +258,65 @@ def export_check(bundle, export_dir, statement_path=None, record=None) -> dict:
         out["E3_statement"] = {"checked": False,
                                "why": "no --statement given (stage-to-layer map "
                                "and identity not checked)"}
+    # [v17] E3b: each stage's layer identified from its gains
+    gm = _layers_by_gamma(bundle, exp) if exp is not None else None
+    declared = _readme_layers(bundle)
+    e3b = {"identified": gm, "readme_declared_layers": declared,
+           "what": "slot 14's two public gamma tables of each stage against every "
+                   "export layer's gamma_a / gamma_m; the README list is not "
+                   "transcript-bound and is only compared"}
+    map_source = "E3 (the statement)" if layer_of_stage is not None else None
+    if gm is not None and gm.get("layer_of_stage") is not None:
+        if layer_of_stage is None:
+            layer_of_stage, map_source = gm["layer_of_stage"], "E3b (the gains)"
+        elif gm["layer_of_stage"] != layer_of_stage:
+            f.append(f"E3b: the gains identify layers {gm['layer_of_stage']}, the "
+                     f"statement {layer_of_stage}")
+    elif gm is not None and layer_of_stage is None and (
+            deferred or any(SCAL_OWN(bundle)) or _recovered_tables(record) is not None):
+        # a refusal only where a check below needs the map
+        f.extend(f"E3b: {x}" for x in gm["findings"])
+    if declared is not None and layer_of_stage is not None and declared != layer_of_stage:
+        f.append(f"E3b: the README declares layers {declared}, the stages are layers "
+                 f"{layer_of_stage}")
+    e3b["layer_of_stage"], e3b["map_source"] = layer_of_stage, map_source
+    out["E3b_layers_by_gamma"] = e3b
+    # [v17] E1 (per-layer fields) and E5 (each stage's calibration)
+    if deferred or any(SCAL_OWN(bundle)):
+        if layer_of_stage is None or exp is None:
+            f.append(f"E1: per-layer constant(s) {deferred} cannot be checked: no "
+                     "stage-to-layer map (E3 / E3b)")
+        else:
+            cals = TB.calibrations(exp, layer_of_stage)
+            out["E1_run_calibration"] = {"layers": layer_of_stage,
+                                         "run_values": cals["run_values"],
+                                         "per_layer_fields": cals["per_layer_fields"],
+                                         "tally": cals["run_value_tally"],
+                                         "rule": cals["rule"]}
+            for key in deferred:
+                got, want = sh.get(key), cals["run_values"].get(key)
+                e1[key].update({"run_calibration": want, "equal": got == want})
+                if got != want:
+                    f.append(f"E1: {key} is {got} in the bundle and {want} in the run "
+                             f"calibration of export layers {layer_of_stage}")
+            e5 = {"per_stage": []}
+            try:
+                import zk60_native_rg_stagecal as SCAL
+                shapes, srec = SCAL.stage_shapes(bundle.run)
+                e5["stage_lines"] = srec
+                for k, layer in enumerate(layer_of_stage):
+                    want = cals["stage_values"][k]
+                    got = {key: int(shapes[k][key]) for key in want}
+                    diff = sorted(key for key in want if got[key] != int(want[key]))
+                    e5["per_stage"].append({"stage": k, "layer": layer,
+                                            "at_its_own_calibration": shapes[k] is not sh,
+                                            "differing": diff, "ok": not diff})
+                    for key in diff:
+                        f.append(f"E5: stage {k} (layer {layer}) is proved at {key} "
+                                 f"{got[key]}, the export layer's is {want[key]}")
+            except ValueError as exc:
+                f.append(f"E5: the stage lines do not give each stage's calibration ({exc})")
+            out["E5_stage_calibration"] = e5
     # E4
     tabs = _recovered_tables(record)
     if tabs is None:
@@ -172,7 +324,7 @@ def export_check(bundle, export_dir, statement_path=None, record=None) -> dict:
                             "this pass (stage 3 or 8 of this bundle needed)"}
     elif layer_of_stage is None:
         out["E4_tables"] = {"checked": False, "why": "no stage-to-layer map "
-                            "(needs --statement)"}
+                            "(needs --statement or E3b's identification)"}
         f.append("E4: recovered tables present but no stage-to-layer map to "
                  "compare them with")
     else:

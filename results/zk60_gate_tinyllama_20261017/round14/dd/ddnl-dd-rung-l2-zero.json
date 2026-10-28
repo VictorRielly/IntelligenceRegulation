@@ -1,0 +1,3988 @@
+{
+ "what": "NL-1 S1-S5 on the DD slots (17: SC_SZC's DD arm; 23: SC_DD), through the frozen nl_check with a slot IR built from the gate's symbolic transcription of argument.rs R9; NOT a privacy result",
+ "privacy_acceptance": false,
+ "privacy_property_established": false,
+ "bundle": "dd-rung-l2-zero",
+ "bundle_dir": "/home/victor/zk60-artifacts/dd-gate-r9/dd-rung-l2-zero",
+ "nl_check_pins": {
+  "nl_check.py": "e4db99a251ddde4f432675a53bd7e9149cdeb7c9edd61bbac87f50b87d0727c7",
+  "nl_field.py": "ea8ca39263213d88ef92c3f5d18fb8f86ed73471da027bf57348f94087dbb7e4"
+ },
+ "T0_terminal_identity_dd_slots": {
+  "checked": [
+   "stage 0 slot 17",
+   "stage 0 slot 23",
+   "stage 1 slot 17",
+   "stage 1 slot 23"
+  ],
+  "equal": 4,
+  "of": 4,
+  "whole_terminal_check_ok": true,
+  "findings": []
+ },
+ "S3_fact21": {
+  "pairs": [
+   [
+    14,
+    4
+   ]
+  ],
+  "checks": 5,
+  "tight": 5,
+  "rows": [
+   {
+    "N": 14,
+    "d": 4,
+    "regime": "random-Fp2",
+    "L": 58,
+    "rank_R": 57,
+    "dimC": 57,
+    "ImR_in_C": true,
+    "explicit_kernel": true,
+    "tight": true
+   },
+   {
+    "N": 14,
+    "d": 4,
+    "regime": "all-zero",
+    "L": 58,
+    "rank_R": 57,
+    "dimC": 57,
+    "ImR_in_C": true,
+    "explicit_kernel": true,
+    "tight": true
+   },
+   {
+    "N": 14,
+    "d": 4,
+    "regime": "all-one",
+    "L": 58,
+    "rank_R": 57,
+    "dimC": 57,
+    "ImR_in_C": true,
+    "explicit_kernel": true,
+    "tight": true
+   },
+   {
+    "N": 14,
+    "d": 4,
+    "regime": "alternating-0-1",
+    "L": 58,
+    "rank_R": 57,
+    "dimC": 57,
+    "ImR_in_C": true,
+    "explicit_kernel": true,
+    "tight": true
+   },
+   {
+    "N": 14,
+    "d": 4,
+    "regime": "all-equal",
+    "L": 58,
+    "rank_R": 57,
+    "dimC": 57,
+    "ImR_in_C": true,
+    "explicit_kernel": true,
+    "tight": true
+   }
+  ]
+ },
+ "S5_controls": {
+  "N5_1": [
+   {
+    "name": "stage00-17 06 softmax zero-check (hosts 07, 10)",
+    "moved": true,
+    "premise_holds": false,
+    "chain_accepts": false,
+    "fires": true
+   },
+   {
+    "name": "stage00-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+    "moved": true,
+    "premise_holds": false,
+    "chain_accepts": false,
+    "fires": true
+   },
+   {
+    "name": "stage01-17 06 softmax zero-check (hosts 07, 10)",
+    "moved": true,
+    "premise_holds": false,
+    "chain_accepts": false,
+    "fires": true
+   },
+   {
+    "name": "stage01-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+    "moved": true,
+    "premise_holds": false,
+    "chain_accepts": false,
+    "fires": true
+   }
+  ],
+  "N5_2": [
+   {
+    "name": "stage00-17 06 softmax zero-check (hosts 07, 10)",
+    "declared": 3,
+    "chain_accepts": false,
+    "fires": true
+   },
+   {
+    "name": "stage00-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+    "declared": 3,
+    "chain_accepts": false,
+    "fires": true
+   },
+   {
+    "name": "stage01-17 06 softmax zero-check (hosts 07, 10)",
+    "declared": 3,
+    "chain_accepts": false,
+    "fires": true
+   },
+   {
+    "name": "stage01-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+    "declared": 3,
+    "chain_accepts": false,
+    "fires": true
+   }
+  ],
+  "N5_3": {
+   "N": 14,
+   "d": 4,
+   "rank": 43,
+   "dimC": 57,
+   "covers": false,
+   "fires": true
+  },
+  "N5_4": {
+   "honest_pair_boolean_tail": 2,
+   "cm_cm_boolean_tail": 1,
+   "honest_distinct_pairs_same_tail": 4,
+   "shared_pair_same_tail": 2,
+   "fires": true
+  },
+  "F_1": [
+   {
+    "name": "stage00-17 06 softmax zero-check (hosts 07, 10)",
+    "fidelity_holds_on_perturbed_ir": false,
+    "fires": true
+   },
+   {
+    "name": "stage00-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+    "fidelity_holds_on_perturbed_ir": false,
+    "fires": true
+   },
+   {
+    "name": "stage01-17 06 softmax zero-check (hosts 07, 10)",
+    "fidelity_holds_on_perturbed_ir": false,
+    "fires": true
+   },
+   {
+    "name": "stage01-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+    "fidelity_holds_on_perturbed_ir": false,
+    "fires": true
+   }
+  ],
+  "summary": {
+   "N5_1_fires": "4/4",
+   "N5_2_fires": "4/4 (not applicable at slack > 0: 0)",
+   "N5_3_fires": true,
+   "N5_4_fires": true,
+   "F_1_fires": "4/4",
+   "X_1_fires": "4/4"
+  },
+  "ok": true,
+  "X_1": [
+   {
+    "stage": 0,
+    "slot": 17,
+    "fires": true
+   },
+   {
+    "stage": 0,
+    "slot": 23,
+    "fires": true
+   },
+   {
+    "stage": 1,
+    "slot": 17,
+    "fires": true
+   },
+   {
+    "stage": 1,
+    "slot": 23,
+    "fires": true
+   }
+  ]
+ },
+ "per_challenge_mode": {
+  "run": {
+   "X0_symbolic_equals_port": "4/4",
+   "F0_fidelity": "4/4",
+   "S1": [
+    {
+     "name": "stage00-17 06 softmax zero-check (hosts 07, 10)",
+     "main": 13,
+     "ext": 1,
+     "declared_degree": 4,
+     "max_product_degree_walked": 4,
+     "stored_degrees_agree": true,
+     "per_variable_degree_bound_max": 4,
+     "degree_fits": true,
+     "slack": 0,
+     "private_tables": 11,
+     "tables": {
+      "eq": 3,
+      "pub": 1,
+      "A": 7,
+      "H": 4
+     },
+     "premise": [
+      {
+       "round": 0,
+       "exact_zero_3_of_3": true,
+       "syntactically_zero": true
+      }
+     ],
+     "premise_holds": true,
+     "public_factor_in_every_monomial_exact": true,
+     "public_factor_in_every_monomial_syntactic": true,
+     "L": 58,
+     "dimC": 57,
+     "budget_ok": true,
+     "terms": 26
+    },
+    {
+     "name": "stage00-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+     "main": 13,
+     "ext": 1,
+     "declared_degree": 4,
+     "max_product_degree_walked": 4,
+     "stored_degrees_agree": true,
+     "per_variable_degree_bound_max": 4,
+     "degree_fits": true,
+     "slack": 0,
+     "private_tables": 18,
+     "tables": {
+      "eq": 1,
+      "pub": 1,
+      "A": 11,
+      "H": 7
+     },
+     "premise": [
+      {
+       "round": 0,
+       "exact_zero_3_of_3": true,
+       "syntactically_zero": true
+      }
+     ],
+     "premise_holds": true,
+     "public_factor_in_every_monomial_exact": true,
+     "public_factor_in_every_monomial_syntactic": true,
+     "L": 58,
+     "dimC": 57,
+     "budget_ok": true,
+     "terms": 40
+    },
+    {
+     "name": "stage01-17 06 softmax zero-check (hosts 07, 10)",
+     "main": 13,
+     "ext": 1,
+     "declared_degree": 4,
+     "max_product_degree_walked": 4,
+     "stored_degrees_agree": true,
+     "per_variable_degree_bound_max": 4,
+     "degree_fits": true,
+     "slack": 0,
+     "private_tables": 11,
+     "tables": {
+      "eq": 3,
+      "pub": 1,
+      "A": 7,
+      "H": 4
+     },
+     "premise": [
+      {
+       "round": 0,
+       "exact_zero_3_of_3": true,
+       "syntactically_zero": true
+      }
+     ],
+     "premise_holds": true,
+     "public_factor_in_every_monomial_exact": true,
+     "public_factor_in_every_monomial_syntactic": true,
+     "L": 58,
+     "dimC": 57,
+     "budget_ok": true,
+     "terms": 26
+    },
+    {
+     "name": "stage01-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+     "main": 13,
+     "ext": 1,
+     "declared_degree": 4,
+     "max_product_degree_walked": 4,
+     "stored_degrees_agree": true,
+     "per_variable_degree_bound_max": 4,
+     "degree_fits": true,
+     "slack": 0,
+     "private_tables": 18,
+     "tables": {
+      "eq": 1,
+      "pub": 1,
+      "A": 11,
+      "H": 7
+     },
+     "premise": [
+      {
+       "round": 0,
+       "exact_zero_3_of_3": true,
+       "syntactically_zero": true
+      }
+     ],
+     "premise_holds": true,
+     "public_factor_in_every_monomial_exact": true,
+     "public_factor_in_every_monomial_syntactic": true,
+     "L": 58,
+     "dimC": 57,
+     "budget_ok": true,
+     "terms": 40
+    }
+   ],
+   "S1_summary": {
+    "premise_holds": 4,
+    "public_factor_every_monomial": 4,
+    "degree_fits": 4,
+    "budget_ok": 4,
+    "of": 4
+   },
+   "S2": {
+    "slots": 4,
+    "sum_L": 232,
+    "sum_dimC": 228,
+    "worst_L": 58,
+    "budget_all_ok": true
+   },
+   "S4": [
+    {
+     "n_mini": 3,
+     "N": 4,
+     "d": 4,
+     "L": 18,
+     "chain_accepts": true,
+     "fact32_identity": true,
+     "terminal_formula": true,
+     "rank_R": 17,
+     "dimC_expected": 17,
+     "offset_in_ImR": true,
+     "fibre_constructed": true,
+     "fibre_same_published_view": true,
+     "fibre_witness_differs": true,
+     "fibre_same_V": true,
+     "fibre_private_gamma_would_differ": true,
+     "fibre_private_gamma_shift_is_sigma_diff": true,
+     "name": "stage00-17 06 softmax zero-check (hosts 07, 10)",
+     "passes": true,
+     "terminal_map": {
+      "m": 11,
+      "fp_rank_random_tails": 22,
+      "fp_rank_shared_boolean_tail": 22,
+      "onto_Fp2^m": true
+     }
+    },
+    {
+     "n_mini": 3,
+     "N": 4,
+     "d": 4,
+     "L": 18,
+     "chain_accepts": true,
+     "fact32_identity": true,
+     "terminal_formula": true,
+     "rank_R": 17,
+     "dimC_expected": 17,
+     "offset_in_ImR": true,
+     "fibre_constructed": true,
+     "fibre_same_published_view": true,
+     "fibre_witness_differs": true,
+     "fibre_same_V": true,
+     "fibre_private_gamma_would_differ": true,
+     "fibre_private_gamma_shift_is_sigma_diff": true,
+     "name": "stage00-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+     "passes": true,
+     "terminal_map": {
+      "m": 18,
+      "fp_rank_random_tails": 36,
+      "fp_rank_shared_boolean_tail": 36,
+      "onto_Fp2^m": true
+     }
+    },
+    {
+     "n_mini": 3,
+     "N": 4,
+     "d": 4,
+     "L": 18,
+     "chain_accepts": true,
+     "fact32_identity": true,
+     "terminal_formula": true,
+     "rank_R": 17,
+     "dimC_expected": 17,
+     "offset_in_ImR": true,
+     "fibre_constructed": true,
+     "fibre_same_published_view": true,
+     "fibre_witness_differs": true,
+     "fibre_same_V": true,
+     "fibre_private_gamma_would_differ": true,
+     "fibre_private_gamma_shift_is_sigma_diff": true,
+     "name": "stage01-17 06 softmax zero-check (hosts 07, 10)",
+     "passes": true,
+     "terminal_map": {
+      "m": 11,
+      "fp_rank_random_tails": 22,
+      "fp_rank_shared_boolean_tail": 22,
+      "onto_Fp2^m": true
+     }
+    },
+    {
+     "n_mini": 3,
+     "N": 4,
+     "d": 4,
+     "L": 18,
+     "chain_accepts": true,
+     "fact32_identity": true,
+     "terminal_formula": true,
+     "rank_R": 17,
+     "dimC_expected": 17,
+     "offset_in_ImR": true,
+     "fibre_constructed": true,
+     "fibre_same_published_view": true,
+     "fibre_witness_differs": true,
+     "fibre_same_V": true,
+     "fibre_private_gamma_would_differ": true,
+     "fibre_private_gamma_shift_is_sigma_diff": true,
+     "name": "stage01-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+     "passes": true,
+     "terminal_map": {
+      "m": 18,
+      "fp_rank_random_tails": 36,
+      "fp_rank_shared_boolean_tail": 36,
+      "onto_Fp2^m": true
+     }
+    }
+   ],
+   "S4_summary": {
+    "miniatures_pass": 4,
+    "terminal_map_onto": 4,
+    "of": 4
+   },
+   "all_ok": true
+  },
+  "random-1": {
+   "X0_symbolic_equals_port": "4/4",
+   "F0_fidelity": "4/4",
+   "S1": [
+    {
+     "name": "stage00-17 06 softmax zero-check (hosts 07, 10)",
+     "main": 13,
+     "ext": 1,
+     "declared_degree": 4,
+     "max_product_degree_walked": 4,
+     "stored_degrees_agree": true,
+     "per_variable_degree_bound_max": 4,
+     "degree_fits": true,
+     "slack": 0,
+     "private_tables": 11,
+     "tables": {
+      "eq": 3,
+      "pub": 1,
+      "A": 7,
+      "H": 4
+     },
+     "premise": [
+      {
+       "round": 0,
+       "exact_zero_3_of_3": true,
+       "syntactically_zero": true
+      }
+     ],
+     "premise_holds": true,
+     "public_factor_in_every_monomial_exact": true,
+     "public_factor_in_every_monomial_syntactic": true,
+     "L": 58,
+     "dimC": 57,
+     "budget_ok": true,
+     "terms": 26
+    },
+    {
+     "name": "stage00-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+     "main": 13,
+     "ext": 1,
+     "declared_degree": 4,
+     "max_product_degree_walked": 4,
+     "stored_degrees_agree": true,
+     "per_variable_degree_bound_max": 4,
+     "degree_fits": true,
+     "slack": 0,
+     "private_tables": 18,
+     "tables": {
+      "eq": 1,
+      "pub": 1,
+      "A": 11,
+      "H": 7
+     },
+     "premise": [
+      {
+       "round": 0,
+       "exact_zero_3_of_3": true,
+       "syntactically_zero": true
+      }
+     ],
+     "premise_holds": true,
+     "public_factor_in_every_monomial_exact": true,
+     "public_factor_in_every_monomial_syntactic": true,
+     "L": 58,
+     "dimC": 57,
+     "budget_ok": true,
+     "terms": 40
+    },
+    {
+     "name": "stage01-17 06 softmax zero-check (hosts 07, 10)",
+     "main": 13,
+     "ext": 1,
+     "declared_degree": 4,
+     "max_product_degree_walked": 4,
+     "stored_degrees_agree": true,
+     "per_variable_degree_bound_max": 4,
+     "degree_fits": true,
+     "slack": 0,
+     "private_tables": 11,
+     "tables": {
+      "eq": 3,
+      "pub": 1,
+      "A": 7,
+      "H": 4
+     },
+     "premise": [
+      {
+       "round": 0,
+       "exact_zero_3_of_3": true,
+       "syntactically_zero": true
+      }
+     ],
+     "premise_holds": true,
+     "public_factor_in_every_monomial_exact": true,
+     "public_factor_in_every_monomial_syntactic": true,
+     "L": 58,
+     "dimC": 57,
+     "budget_ok": true,
+     "terms": 26
+    },
+    {
+     "name": "stage01-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+     "main": 13,
+     "ext": 1,
+     "declared_degree": 4,
+     "max_product_degree_walked": 4,
+     "stored_degrees_agree": true,
+     "per_variable_degree_bound_max": 4,
+     "degree_fits": true,
+     "slack": 0,
+     "private_tables": 18,
+     "tables": {
+      "eq": 1,
+      "pub": 1,
+      "A": 11,
+      "H": 7
+     },
+     "premise": [
+      {
+       "round": 0,
+       "exact_zero_3_of_3": true,
+       "syntactically_zero": true
+      }
+     ],
+     "premise_holds": true,
+     "public_factor_in_every_monomial_exact": true,
+     "public_factor_in_every_monomial_syntactic": true,
+     "L": 58,
+     "dimC": 57,
+     "budget_ok": true,
+     "terms": 40
+    }
+   ],
+   "S1_summary": {
+    "premise_holds": 4,
+    "public_factor_every_monomial": 4,
+    "degree_fits": 4,
+    "budget_ok": 4,
+    "of": 4
+   },
+   "S2": {
+    "slots": 4,
+    "sum_L": 232,
+    "sum_dimC": 228,
+    "worst_L": 58,
+    "budget_all_ok": true
+   },
+   "S4": [
+    {
+     "n_mini": 3,
+     "N": 4,
+     "d": 4,
+     "L": 18,
+     "chain_accepts": true,
+     "fact32_identity": true,
+     "terminal_formula": true,
+     "rank_R": 17,
+     "dimC_expected": 17,
+     "offset_in_ImR": true,
+     "fibre_constructed": true,
+     "fibre_same_published_view": true,
+     "fibre_witness_differs": true,
+     "fibre_same_V": true,
+     "fibre_private_gamma_would_differ": true,
+     "fibre_private_gamma_shift_is_sigma_diff": true,
+     "name": "stage00-17 06 softmax zero-check (hosts 07, 10)",
+     "passes": true,
+     "terminal_map": {
+      "m": 11,
+      "fp_rank_random_tails": 22,
+      "fp_rank_shared_boolean_tail": 22,
+      "onto_Fp2^m": true
+     }
+    },
+    {
+     "n_mini": 3,
+     "N": 4,
+     "d": 4,
+     "L": 18,
+     "chain_accepts": true,
+     "fact32_identity": true,
+     "terminal_formula": true,
+     "rank_R": 17,
+     "dimC_expected": 17,
+     "offset_in_ImR": true,
+     "fibre_constructed": true,
+     "fibre_same_published_view": true,
+     "fibre_witness_differs": true,
+     "fibre_same_V": true,
+     "fibre_private_gamma_would_differ": true,
+     "fibre_private_gamma_shift_is_sigma_diff": true,
+     "name": "stage00-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+     "passes": true,
+     "terminal_map": {
+      "m": 18,
+      "fp_rank_random_tails": 36,
+      "fp_rank_shared_boolean_tail": 36,
+      "onto_Fp2^m": true
+     }
+    },
+    {
+     "n_mini": 3,
+     "N": 4,
+     "d": 4,
+     "L": 18,
+     "chain_accepts": true,
+     "fact32_identity": true,
+     "terminal_formula": true,
+     "rank_R": 17,
+     "dimC_expected": 17,
+     "offset_in_ImR": true,
+     "fibre_constructed": true,
+     "fibre_same_published_view": true,
+     "fibre_witness_differs": true,
+     "fibre_same_V": true,
+     "fibre_private_gamma_would_differ": true,
+     "fibre_private_gamma_shift_is_sigma_diff": true,
+     "name": "stage01-17 06 softmax zero-check (hosts 07, 10)",
+     "passes": true,
+     "terminal_map": {
+      "m": 11,
+      "fp_rank_random_tails": 22,
+      "fp_rank_shared_boolean_tail": 22,
+      "onto_Fp2^m": true
+     }
+    },
+    {
+     "n_mini": 3,
+     "N": 4,
+     "d": 4,
+     "L": 18,
+     "chain_accepts": true,
+     "fact32_identity": true,
+     "terminal_formula": true,
+     "rank_R": 17,
+     "dimC_expected": 17,
+     "offset_in_ImR": true,
+     "fibre_constructed": true,
+     "fibre_same_published_view": true,
+     "fibre_witness_differs": true,
+     "fibre_same_V": true,
+     "fibre_private_gamma_would_differ": true,
+     "fibre_private_gamma_shift_is_sigma_diff": true,
+     "name": "stage01-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+     "passes": true,
+     "terminal_map": {
+      "m": 18,
+      "fp_rank_random_tails": 36,
+      "fp_rank_shared_boolean_tail": 36,
+      "onto_Fp2^m": true
+     }
+    }
+   ],
+   "S4_summary": {
+    "miniatures_pass": 4,
+    "terminal_map_onto": 4,
+    "of": 4
+   },
+   "all_ok": true
+  },
+  "random-2": {
+   "X0_symbolic_equals_port": "4/4",
+   "F0_fidelity": "4/4",
+   "S1": [
+    {
+     "name": "stage00-17 06 softmax zero-check (hosts 07, 10)",
+     "main": 13,
+     "ext": 1,
+     "declared_degree": 4,
+     "max_product_degree_walked": 4,
+     "stored_degrees_agree": true,
+     "per_variable_degree_bound_max": 4,
+     "degree_fits": true,
+     "slack": 0,
+     "private_tables": 11,
+     "tables": {
+      "eq": 3,
+      "pub": 1,
+      "A": 7,
+      "H": 4
+     },
+     "premise": [
+      {
+       "round": 0,
+       "exact_zero_3_of_3": true,
+       "syntactically_zero": true
+      }
+     ],
+     "premise_holds": true,
+     "public_factor_in_every_monomial_exact": true,
+     "public_factor_in_every_monomial_syntactic": true,
+     "L": 58,
+     "dimC": 57,
+     "budget_ok": true,
+     "terms": 26
+    },
+    {
+     "name": "stage00-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+     "main": 13,
+     "ext": 1,
+     "declared_degree": 4,
+     "max_product_degree_walked": 4,
+     "stored_degrees_agree": true,
+     "per_variable_degree_bound_max": 4,
+     "degree_fits": true,
+     "slack": 0,
+     "private_tables": 18,
+     "tables": {
+      "eq": 1,
+      "pub": 1,
+      "A": 11,
+      "H": 7
+     },
+     "premise": [
+      {
+       "round": 0,
+       "exact_zero_3_of_3": true,
+       "syntactically_zero": true
+      }
+     ],
+     "premise_holds": true,
+     "public_factor_in_every_monomial_exact": true,
+     "public_factor_in_every_monomial_syntactic": true,
+     "L": 58,
+     "dimC": 57,
+     "budget_ok": true,
+     "terms": 40
+    },
+    {
+     "name": "stage01-17 06 softmax zero-check (hosts 07, 10)",
+     "main": 13,
+     "ext": 1,
+     "declared_degree": 4,
+     "max_product_degree_walked": 4,
+     "stored_degrees_agree": true,
+     "per_variable_degree_bound_max": 4,
+     "degree_fits": true,
+     "slack": 0,
+     "private_tables": 11,
+     "tables": {
+      "eq": 3,
+      "pub": 1,
+      "A": 7,
+      "H": 4
+     },
+     "premise": [
+      {
+       "round": 0,
+       "exact_zero_3_of_3": true,
+       "syntactically_zero": true
+      }
+     ],
+     "premise_holds": true,
+     "public_factor_in_every_monomial_exact": true,
+     "public_factor_in_every_monomial_syntactic": true,
+     "L": 58,
+     "dimC": 57,
+     "budget_ok": true,
+     "terms": 26
+    },
+    {
+     "name": "stage01-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+     "main": 13,
+     "ext": 1,
+     "declared_degree": 4,
+     "max_product_degree_walked": 4,
+     "stored_degrees_agree": true,
+     "per_variable_degree_bound_max": 4,
+     "degree_fits": true,
+     "slack": 0,
+     "private_tables": 18,
+     "tables": {
+      "eq": 1,
+      "pub": 1,
+      "A": 11,
+      "H": 7
+     },
+     "premise": [
+      {
+       "round": 0,
+       "exact_zero_3_of_3": true,
+       "syntactically_zero": true
+      }
+     ],
+     "premise_holds": true,
+     "public_factor_in_every_monomial_exact": true,
+     "public_factor_in_every_monomial_syntactic": true,
+     "L": 58,
+     "dimC": 57,
+     "budget_ok": true,
+     "terms": 40
+    }
+   ],
+   "S1_summary": {
+    "premise_holds": 4,
+    "public_factor_every_monomial": 4,
+    "degree_fits": 4,
+    "budget_ok": 4,
+    "of": 4
+   },
+   "S2": {
+    "slots": 4,
+    "sum_L": 232,
+    "sum_dimC": 228,
+    "worst_L": 58,
+    "budget_all_ok": true
+   },
+   "S4": [
+    {
+     "n_mini": 3,
+     "N": 4,
+     "d": 4,
+     "L": 18,
+     "chain_accepts": true,
+     "fact32_identity": true,
+     "terminal_formula": true,
+     "rank_R": 17,
+     "dimC_expected": 17,
+     "offset_in_ImR": true,
+     "fibre_constructed": true,
+     "fibre_same_published_view": true,
+     "fibre_witness_differs": true,
+     "fibre_same_V": true,
+     "fibre_private_gamma_would_differ": true,
+     "fibre_private_gamma_shift_is_sigma_diff": true,
+     "name": "stage00-17 06 softmax zero-check (hosts 07, 10)",
+     "passes": true,
+     "terminal_map": {
+      "m": 11,
+      "fp_rank_random_tails": 22,
+      "fp_rank_shared_boolean_tail": 22,
+      "onto_Fp2^m": true
+     }
+    },
+    {
+     "n_mini": 3,
+     "N": 4,
+     "d": 4,
+     "L": 18,
+     "chain_accepts": true,
+     "fact32_identity": true,
+     "terminal_formula": true,
+     "rank_R": 17,
+     "dimC_expected": 17,
+     "offset_in_ImR": true,
+     "fibre_constructed": true,
+     "fibre_same_published_view": true,
+     "fibre_witness_differs": true,
+     "fibre_same_V": true,
+     "fibre_private_gamma_would_differ": true,
+     "fibre_private_gamma_shift_is_sigma_diff": true,
+     "name": "stage00-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+     "passes": true,
+     "terminal_map": {
+      "m": 18,
+      "fp_rank_random_tails": 36,
+      "fp_rank_shared_boolean_tail": 36,
+      "onto_Fp2^m": true
+     }
+    },
+    {
+     "n_mini": 3,
+     "N": 4,
+     "d": 4,
+     "L": 18,
+     "chain_accepts": true,
+     "fact32_identity": true,
+     "terminal_formula": true,
+     "rank_R": 17,
+     "dimC_expected": 17,
+     "offset_in_ImR": true,
+     "fibre_constructed": true,
+     "fibre_same_published_view": true,
+     "fibre_witness_differs": true,
+     "fibre_same_V": true,
+     "fibre_private_gamma_would_differ": true,
+     "fibre_private_gamma_shift_is_sigma_diff": true,
+     "name": "stage01-17 06 softmax zero-check (hosts 07, 10)",
+     "passes": true,
+     "terminal_map": {
+      "m": 11,
+      "fp_rank_random_tails": 22,
+      "fp_rank_shared_boolean_tail": 22,
+      "onto_Fp2^m": true
+     }
+    },
+    {
+     "n_mini": 3,
+     "N": 4,
+     "d": 4,
+     "L": 18,
+     "chain_accepts": true,
+     "fact32_identity": true,
+     "terminal_formula": true,
+     "rank_R": 17,
+     "dimC_expected": 17,
+     "offset_in_ImR": true,
+     "fibre_constructed": true,
+     "fibre_same_published_view": true,
+     "fibre_witness_differs": true,
+     "fibre_same_V": true,
+     "fibre_private_gamma_would_differ": true,
+     "fibre_private_gamma_shift_is_sigma_diff": true,
+     "name": "stage01-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+     "passes": true,
+     "terminal_map": {
+      "m": 18,
+      "fp_rank_random_tails": 36,
+      "fp_rank_shared_boolean_tail": 36,
+      "onto_Fp2^m": true
+     }
+    }
+   ],
+   "S4_summary": {
+    "miniatures_pass": 4,
+    "terminal_map_onto": 4,
+    "of": 4
+   },
+   "all_ok": true
+  },
+  "random-3": {
+   "X0_symbolic_equals_port": "4/4",
+   "F0_fidelity": "4/4",
+   "S1": [
+    {
+     "name": "stage00-17 06 softmax zero-check (hosts 07, 10)",
+     "main": 13,
+     "ext": 1,
+     "declared_degree": 4,
+     "max_product_degree_walked": 4,
+     "stored_degrees_agree": true,
+     "per_variable_degree_bound_max": 4,
+     "degree_fits": true,
+     "slack": 0,
+     "private_tables": 11,
+     "tables": {
+      "eq": 3,
+      "pub": 1,
+      "A": 7,
+      "H": 4
+     },
+     "premise": [
+      {
+       "round": 0,
+       "exact_zero_3_of_3": true,
+       "syntactically_zero": true
+      }
+     ],
+     "premise_holds": true,
+     "public_factor_in_every_monomial_exact": true,
+     "public_factor_in_every_monomial_syntactic": true,
+     "L": 58,
+     "dimC": 57,
+     "budget_ok": true,
+     "terms": 26
+    },
+    {
+     "name": "stage00-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+     "main": 13,
+     "ext": 1,
+     "declared_degree": 4,
+     "max_product_degree_walked": 4,
+     "stored_degrees_agree": true,
+     "per_variable_degree_bound_max": 4,
+     "degree_fits": true,
+     "slack": 0,
+     "private_tables": 18,
+     "tables": {
+      "eq": 1,
+      "pub": 1,
+      "A": 11,
+      "H": 7
+     },
+     "premise": [
+      {
+       "round": 0,
+       "exact_zero_3_of_3": true,
+       "syntactically_zero": true
+      }
+     ],
+     "premise_holds": true,
+     "public_factor_in_every_monomial_exact": true,
+     "public_factor_in_every_monomial_syntactic": true,
+     "L": 58,
+     "dimC": 57,
+     "budget_ok": true,
+     "terms": 40
+    },
+    {
+     "name": "stage01-17 06 softmax zero-check (hosts 07, 10)",
+     "main": 13,
+     "ext": 1,
+     "declared_degree": 4,
+     "max_product_degree_walked": 4,
+     "stored_degrees_agree": true,
+     "per_variable_degree_bound_max": 4,
+     "degree_fits": true,
+     "slack": 0,
+     "private_tables": 11,
+     "tables": {
+      "eq": 3,
+      "pub": 1,
+      "A": 7,
+      "H": 4
+     },
+     "premise": [
+      {
+       "round": 0,
+       "exact_zero_3_of_3": true,
+       "syntactically_zero": true
+      }
+     ],
+     "premise_holds": true,
+     "public_factor_in_every_monomial_exact": true,
+     "public_factor_in_every_monomial_syntactic": true,
+     "L": 58,
+     "dimC": 57,
+     "budget_ok": true,
+     "terms": 26
+    },
+    {
+     "name": "stage01-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+     "main": 13,
+     "ext": 1,
+     "declared_degree": 4,
+     "max_product_degree_walked": 4,
+     "stored_degrees_agree": true,
+     "per_variable_degree_bound_max": 4,
+     "degree_fits": true,
+     "slack": 0,
+     "private_tables": 18,
+     "tables": {
+      "eq": 1,
+      "pub": 1,
+      "A": 11,
+      "H": 7
+     },
+     "premise": [
+      {
+       "round": 0,
+       "exact_zero_3_of_3": true,
+       "syntactically_zero": true
+      }
+     ],
+     "premise_holds": true,
+     "public_factor_in_every_monomial_exact": true,
+     "public_factor_in_every_monomial_syntactic": true,
+     "L": 58,
+     "dimC": 57,
+     "budget_ok": true,
+     "terms": 40
+    }
+   ],
+   "S1_summary": {
+    "premise_holds": 4,
+    "public_factor_every_monomial": 4,
+    "degree_fits": 4,
+    "budget_ok": 4,
+    "of": 4
+   },
+   "S2": {
+    "slots": 4,
+    "sum_L": 232,
+    "sum_dimC": 228,
+    "worst_L": 58,
+    "budget_all_ok": true
+   },
+   "S4": [
+    {
+     "n_mini": 3,
+     "N": 4,
+     "d": 4,
+     "L": 18,
+     "chain_accepts": true,
+     "fact32_identity": true,
+     "terminal_formula": true,
+     "rank_R": 17,
+     "dimC_expected": 17,
+     "offset_in_ImR": true,
+     "fibre_constructed": true,
+     "fibre_same_published_view": true,
+     "fibre_witness_differs": true,
+     "fibre_same_V": true,
+     "fibre_private_gamma_would_differ": true,
+     "fibre_private_gamma_shift_is_sigma_diff": true,
+     "name": "stage00-17 06 softmax zero-check (hosts 07, 10)",
+     "passes": true,
+     "terminal_map": {
+      "m": 11,
+      "fp_rank_random_tails": 22,
+      "fp_rank_shared_boolean_tail": 22,
+      "onto_Fp2^m": true
+     }
+    },
+    {
+     "n_mini": 3,
+     "N": 4,
+     "d": 4,
+     "L": 18,
+     "chain_accepts": true,
+     "fact32_identity": true,
+     "terminal_formula": true,
+     "rank_R": 17,
+     "dimC_expected": 17,
+     "offset_in_ImR": true,
+     "fibre_constructed": true,
+     "fibre_same_published_view": true,
+     "fibre_witness_differs": true,
+     "fibre_same_V": true,
+     "fibre_private_gamma_would_differ": true,
+     "fibre_private_gamma_shift_is_sigma_diff": true,
+     "name": "stage00-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+     "passes": true,
+     "terminal_map": {
+      "m": 18,
+      "fp_rank_random_tails": 36,
+      "fp_rank_shared_boolean_tail": 36,
+      "onto_Fp2^m": true
+     }
+    },
+    {
+     "n_mini": 3,
+     "N": 4,
+     "d": 4,
+     "L": 18,
+     "chain_accepts": true,
+     "fact32_identity": true,
+     "terminal_formula": true,
+     "rank_R": 17,
+     "dimC_expected": 17,
+     "offset_in_ImR": true,
+     "fibre_constructed": true,
+     "fibre_same_published_view": true,
+     "fibre_witness_differs": true,
+     "fibre_same_V": true,
+     "fibre_private_gamma_would_differ": true,
+     "fibre_private_gamma_shift_is_sigma_diff": true,
+     "name": "stage01-17 06 softmax zero-check (hosts 07, 10)",
+     "passes": true,
+     "terminal_map": {
+      "m": 11,
+      "fp_rank_random_tails": 22,
+      "fp_rank_shared_boolean_tail": 22,
+      "onto_Fp2^m": true
+     }
+    },
+    {
+     "n_mini": 3,
+     "N": 4,
+     "d": 4,
+     "L": 18,
+     "chain_accepts": true,
+     "fact32_identity": true,
+     "terminal_formula": true,
+     "rank_R": 17,
+     "dimC_expected": 17,
+     "offset_in_ImR": true,
+     "fibre_constructed": true,
+     "fibre_same_published_view": true,
+     "fibre_witness_differs": true,
+     "fibre_same_V": true,
+     "fibre_private_gamma_would_differ": true,
+     "fibre_private_gamma_shift_is_sigma_diff": true,
+     "name": "stage01-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+     "passes": true,
+     "terminal_map": {
+      "m": 18,
+      "fp_rank_random_tails": 36,
+      "fp_rank_shared_boolean_tail": 36,
+      "onto_Fp2^m": true
+     }
+    }
+   ],
+   "S4_summary": {
+    "miniatures_pass": 4,
+    "terminal_map_onto": 4,
+    "of": 4
+   },
+   "all_ok": true
+  }
+ },
+ "ir_run_challenges": {
+  "schema": "zk60-slot-ir/1-dd",
+  "profile": "hashline-zk-mr1/private-run-rung-dd-t32-dev/1",
+  "slot_count": 4,
+  "slots": [
+   {
+    "slot": 17,
+    "name": "stage00-17 06 softmax zero-check (hosts 07, 10)",
+    "kind": "Host",
+    "main_rounds": 13,
+    "extension_rounds": 1,
+    "declared_degree": 4,
+    "max_product_degree": 4,
+    "pad_on": false,
+    "group_bits": 0,
+    "tables": [
+     {
+      "kind": "eq(start=0,|point|=13)",
+      "label": "eq0",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "eq(start=0,|point|=8)",
+      "label": "eq1",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "eq(start=0,|point|=13)",
+      "label": "eq2",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "pub",
+      "label": "causal",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_S8",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_RSL",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_ZSEL",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_E",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_P",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_MX",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_SUM",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "H",
+      "label": "H_S0",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "H",
+      "label": "H_S1",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "H",
+      "label": "H_SEXP",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "H",
+      "label": "H_STUPLE",
+      "prov": "DD transcription (argument.rs R9)"
+     }
+    ],
+    "nodes": [],
+    "terms": [
+     {
+      "coef": {
+       "value": "9595472550138820981+12737887433184028299u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       }
+      ],
+      "degree": 1
+     },
+     {
+      "coef": {
+       "value": "2333388349452045902+7911836742862159284u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 3
+       },
+       {
+        "table": 4
+       },
+       {
+        "table": 6
+       }
+      ],
+      "degree": 4
+     },
+     {
+      "coef": {
+       "value": "13710665565142956409+10390136308517036323u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 3
+       },
+       {
+        "table": 4
+       },
+       {
+        "table": 13
+       }
+      ],
+      "degree": 4
+     },
+     {
+      "coef": {
+       "value": "1192415269776480418+8679086595106675734u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 3
+       },
+       {
+        "table": 6
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "16146395857585341598+9067670335192895736u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 3
+       },
+       {
+        "table": 7
+       },
+       {
+        "table": 14
+       }
+      ],
+      "degree": 4
+     },
+     {
+      "coef": {
+       "value": "7260584248184537769+9828482253228126230u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 3
+       },
+       {
+        "table": 13
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "11621373694124996950+6475906780756869032u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 4
+       },
+       {
+        "table": 4
+       },
+       {
+        "table": 11
+       }
+      ],
+      "degree": 4
+     },
+     {
+      "coef": {
+       "value": "16042219909417538085+4373688585830378629u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 5
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "715101794568661298+18151348715840167305u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 5
+       },
+       {
+        "table": 12
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "1961921650983644306+5937361417339734817u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 5
+       },
+       {
+        "table": 5
+       },
+       {
+        "table": 12
+       }
+      ],
+      "degree": 4
+     },
+     {
+      "coef": {
+       "value": "17061858569402532296+10647369609571662745u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 6
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "16113355719962538419+10534907326552425037u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 6
+       },
+       {
+        "table": 9
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "192470230235571607+17567031934150830163u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 6
+       },
+       {
+        "table": 6
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "3472572803512773526+3506148998479456476u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 7
+       },
+       {
+        "table": 13
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "1394771987715072107+2395614210718722306u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 8
+       },
+       {
+        "table": 14
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "4736078504271627912+8056607760897547998u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 9
+       },
+       {
+        "table": 13
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "18395093127927059450+12416135346493992561u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 10
+       },
+       {
+        "table": 14
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "7309100565482968358+3554877128543829549u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 11
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "4386804568523808780+9152054661435591223u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 12
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "11052347966578942061+2966630472729803810u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 13
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "15637271079695257190+14100227616036728189u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 14
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "6299605337493376694+12731654354025616159u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 1
+       }
+      ],
+      "degree": 1
+     },
+     {
+      "coef": {
+       "value": "4719942449200593265+7613938909558183313u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 1
+       },
+       {
+        "table": 10
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "11416724659662486339+5773886354790529903u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 2
+       }
+      ],
+      "degree": 1
+     },
+     {
+      "coef": {
+       "value": "14060038819504195964+6898971359833524515u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 2
+       },
+       {
+        "table": 4
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "2745219221786329164+16932954667901764682u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 2
+       },
+       {
+        "table": 5
+       }
+      ],
+      "degree": 2
+     }
+    ]
+   },
+   {
+    "slot": 23,
+    "name": "stage00-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+    "kind": "Standalone",
+    "main_rounds": 13,
+    "extension_rounds": 1,
+    "declared_degree": 4,
+    "max_product_degree": 4,
+    "pad_on": false,
+    "group_bits": 0,
+    "tables": [
+     {
+      "kind": "eq(start=0,|point|=13)",
+      "label": "eq0",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_PDICT",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_PL0",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_PL1",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_SR0",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_SR1",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_SR2",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_SG0",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_SG1",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_SG2",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_MDD",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_SUM",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "pub",
+      "label": "dd_e_column",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "H",
+      "label": "H_DD0",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "H",
+      "label": "H_DD1",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "H",
+      "label": "H_DD2",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "H",
+      "label": "H_DD3",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "H",
+      "label": "H_DD4",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "H",
+      "label": "H_DD5",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "H",
+      "label": "H_GDD",
+      "prov": "DD transcription (argument.rs R9)"
+     }
+    ],
+    "nodes": [],
+    "terms": [
+     {
+      "coef": {
+       "value": "1957134353616799201+2379908109370709066u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       }
+      ],
+      "degree": 1
+     },
+     {
+      "coef": {
+       "value": "9730095173758675419+704198091455331585u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 1
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "16985589366990913297+13314022263162451313u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 1
+       },
+       {
+        "table": 11
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "10764137296468981788+2916919940004220545u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 1
+       },
+       {
+        "table": 19
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "3621550995783852605+8512499581265441366u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 2
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "13351646169542528024+9216697672720772951u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 2
+       },
+       {
+        "table": 3
+       },
+       {
+        "table": 13
+       }
+      ],
+      "degree": 4
+     },
+     {
+      "coef": {
+       "value": "2198927059830201371+12086343233120672690u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 2
+       },
+       {
+        "table": 13
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "6897904389066249647+2120108248752254031u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 3
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "12586917400190329873+7157425363865107951u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 3
+       },
+       {
+        "table": 4
+       },
+       {
+        "table": 14
+       }
+      ],
+      "degree": 4
+     },
+     {
+      "coef": {
+       "value": "2198927059830201371+12086343233120672690u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 3
+       },
+       {
+        "table": 13
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "2392784749375099822+10948323553466416445u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 3
+       },
+       {
+        "table": 14
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "6635211153840128860+10653722365280476598u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 4
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "5225534031231837775+1035758683776721397u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 4
+       },
+       {
+        "table": 14
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "2024577651756785977+999871398797554533u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 5
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "13965158116757706199+13948025546399872436u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 5
+       },
+       {
+        "table": 6
+       },
+       {
+        "table": 15
+       }
+      ],
+      "degree": 4
+     },
+     {
+      "coef": {
+       "value": "11490528051407350737+2455335879096456974u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 5
+       },
+       {
+        "table": 15
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "4111794038499304813+16938464231041344454u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 6
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "3222463508570762481+15750712045624261727u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 6
+       },
+       {
+        "table": 7
+       },
+       {
+        "table": 16
+       }
+      ],
+      "degree": 4
+     },
+     {
+      "coef": {
+       "value": "11490528051407350737+2455335879096456974u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 6
+       },
+       {
+        "table": 15
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "7752887567752515652+11418338428932884400u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 6
+       },
+       {
+        "table": 16
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "14986514982119305622+15653546650036355399u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 7
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "8707480716661152929+11618420812360153360u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 7
+       },
+       {
+        "table": 16
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "15778946122548034863+1133661577218304872u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 8
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "4152060085966275040+9823862252710059518u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 8
+       },
+       {
+        "table": 9
+       },
+       {
+        "table": 17
+       }
+      ],
+      "degree": 4
+     },
+     {
+      "coef": {
+       "value": "11132790806001942478+10934356387351913394u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 8
+       },
+       {
+        "table": 17
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "10709090275148714047+17188521725985572983u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 9
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "11132790806001942478+10934356387351913394u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 9
+       },
+       {
+        "table": 17
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "17117032448107244262+10818007046163433804u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 9
+       },
+       {
+        "table": 18
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "6905786502878894750+8829643546466977155u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 10
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "5647132404090509381+7672051062630615987u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 11
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "6905786502878894750+8829643546466977155u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 11
+       },
+       {
+        "table": 19
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "10241444864336191448+8515906944221126514u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 12
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "3764518455198209144+17636947453090156844u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 12
+       },
+       {
+        "table": 19
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "6443210100587702993+12725841743835729277u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 13
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "1348305996054536197+8961706589156711839u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 14
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "510570295647807983+14106881909534488294u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 15
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "2982126111182271312+6575455557441543924u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 16
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "12230320877760327814+3171563964824732152u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 17
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "6928238471555598392+5546738700754549514u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 18
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "7350648849063804428+14091422313419341986u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 19
+       }
+      ],
+      "degree": 2
+     }
+    ]
+   },
+   {
+    "slot": 17,
+    "name": "stage01-17 06 softmax zero-check (hosts 07, 10)",
+    "kind": "Host",
+    "main_rounds": 13,
+    "extension_rounds": 1,
+    "declared_degree": 4,
+    "max_product_degree": 4,
+    "pad_on": false,
+    "group_bits": 0,
+    "tables": [
+     {
+      "kind": "eq(start=0,|point|=13)",
+      "label": "eq0",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "eq(start=0,|point|=8)",
+      "label": "eq1",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "eq(start=0,|point|=13)",
+      "label": "eq2",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "pub",
+      "label": "causal",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_S8",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_RSL",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_ZSEL",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_E",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_P",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_MX",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_SUM",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "H",
+      "label": "H_S0",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "H",
+      "label": "H_S1",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "H",
+      "label": "H_SEXP",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "H",
+      "label": "H_STUPLE",
+      "prov": "DD transcription (argument.rs R9)"
+     }
+    ],
+    "nodes": [],
+    "terms": [
+     {
+      "coef": {
+       "value": "3910360737254472987+922854167283257011u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       }
+      ],
+      "degree": 1
+     },
+     {
+      "coef": {
+       "value": "4967357707405968940+13677315010277377795u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 3
+       },
+       {
+        "table": 4
+       },
+       {
+        "table": 6
+       }
+      ],
+      "degree": 4
+     },
+     {
+      "coef": {
+       "value": "16649039316536944557+10429421543062966927u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 3
+       },
+       {
+        "table": 4
+       },
+       {
+        "table": 13
+       }
+      ],
+      "degree": 4
+     },
+     {
+      "coef": {
+       "value": "3665130480462188466+3025063780256053791u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 3
+       },
+       {
+        "table": 6
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "8549770815334487837+12713566854792850261u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 3
+       },
+       {
+        "table": 7
+       },
+       {
+        "table": 14
+       }
+      ],
+      "degree": 4
+     },
+     {
+      "coef": {
+       "value": "11499169286929346145+14817707040561312938u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 3
+       },
+       {
+        "table": 13
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "6981073111957718031+4175236847737887342u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 4
+       },
+       {
+        "table": 4
+       },
+       {
+        "table": 11
+       }
+      ],
+      "degree": 4
+     },
+     {
+      "coef": {
+       "value": "8261348573451701695+3391821696712002664u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 5
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "979542729909463658+8823948242214215572u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 5
+       },
+       {
+        "table": 12
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "9393059184114244209+5064590849234511737u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 5
+       },
+       {
+        "table": 5
+       },
+       {
+        "table": 12
+       }
+      ],
+      "degree": 4
+     },
+     {
+      "coef": {
+       "value": "8395040922377708659+15946835584985445491u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 6
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "13479386362008615381+4769429059137206526u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 6
+       },
+       {
+        "table": 9
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "6386572666574687196+17921588773587669360u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 6
+       },
+       {
+        "table": 6
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "17602431034617107547+626106405692565497u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 7
+       },
+       {
+        "table": 13
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "4517100206002149418+5522110664220599120u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 8
+       },
+       {
+        "table": 14
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "1797704752877639764+8017322526351617394u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 9
+       },
+       {
+        "table": 13
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "15389504345599861806+7748946256843239729u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 10
+       },
+       {
+        "table": 14
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "4295616107186907827+10975581092009903683u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 11
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "13874019003992821305+5702356150347129631u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 12
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "14166967474269241669+7744592607589534014u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 13
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "10405959311297329499+7496397074701107716u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 14
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "5122161192418180136+13156118674435864237u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 1
+       }
+      ],
+      "degree": 1
+     },
+     {
+      "coef": {
+       "value": "7857960007820317047+12413594944988397646u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 1
+       },
+       {
+        "table": 10
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "2568812820085396743+11205440341964386859u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 2
+       }
+      ],
+      "degree": 1
+     },
+     {
+      "coef": {
+       "value": "13309118429243790835+14482607454900394924u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 2
+       },
+       {
+        "table": 4
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "7909899729113543344+11981796526349752542u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 2
+       },
+       {
+        "table": 5
+       }
+      ],
+      "degree": 2
+     }
+    ]
+   },
+   {
+    "slot": 23,
+    "name": "stage01-23 DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+    "kind": "Standalone",
+    "main_rounds": 13,
+    "extension_rounds": 1,
+    "declared_degree": 4,
+    "max_product_degree": 4,
+    "pad_on": false,
+    "group_bits": 0,
+    "tables": [
+     {
+      "kind": "eq(start=0,|point|=13)",
+      "label": "eq0",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_PDICT",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_PL0",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_PL1",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_SR0",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_SR1",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_SR2",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_SG0",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_SG1",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_SG2",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_MDD",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "A",
+      "label": "A_SUM",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "pub",
+      "label": "dd_e_column",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "H",
+      "label": "H_DD0",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "H",
+      "label": "H_DD1",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "H",
+      "label": "H_DD2",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "H",
+      "label": "H_DD3",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "H",
+      "label": "H_DD4",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "H",
+      "label": "H_DD5",
+      "prov": "DD transcription (argument.rs R9)"
+     },
+     {
+      "kind": "H",
+      "label": "H_GDD",
+      "prov": "DD transcription (argument.rs R9)"
+     }
+    ],
+    "nodes": [],
+    "terms": [
+     {
+      "coef": {
+       "value": "11652833774415598808+2435807977140500775u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       }
+      ],
+      "degree": 1
+     },
+     {
+      "coef": {
+       "value": "9653879055950215532+13203725345878622050u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 1
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "5004963766150885519+4175885396564991738u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 1
+       },
+       {
+        "table": 11
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "4827766180324919558+5379377406169936480u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 1
+       },
+       {
+        "table": 19
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "8191579387198080658+8004064683118216230u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 2
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "17845458443148296190+2761045959582253959u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 2
+       },
+       {
+        "table": 3
+       },
+       {
+        "table": 13
+       }
+      ],
+      "degree": 4
+     },
+     {
+      "coef": {
+       "value": "16650267623137297250+4595766337514688670u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 2
+       },
+       {
+        "table": 13
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "12162139571732080033+11064868751780332304u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 3
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "12292758219699245342+12703346634256392402u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 3
+       },
+       {
+        "table": 4
+       },
+       {
+        "table": 14
+       }
+      ],
+      "degree": 4
+     },
+     {
+      "coef": {
+       "value": "16650267623137297250+4595766337514688670u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 3
+       },
+       {
+        "table": 13
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "14783101125290444744+10932173804692049553u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 3
+       },
+       {
+        "table": 14
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "11794784090304412625+3029696788475506052u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 4
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "16371887015820424480+13717642891674648635u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 4
+       },
+       {
+        "table": 14
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "14415235579542502151+11320143246029273036u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 5
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "14047336516157927200+5954170640494081851u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 5
+       },
+       {
+        "table": 6
+       },
+       {
+        "table": 15
+       }
+      ],
+      "degree": 4
+     },
+     {
+      "coef": {
+       "value": "13401565383046451674+4980205437817922228u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 5
+       },
+       {
+        "table": 15
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "5883510095943717178+3567529907511397953u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 6
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "8334477769822108448+7430177456102196817u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 6
+       },
+       {
+        "table": 7
+       },
+       {
+        "table": 16
+       }
+      ],
+      "degree": 4
+     },
+     {
+      "coef": {
+       "value": "13401565383046451674+4980205437817922228u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 6
+       },
+       {
+        "table": 15
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "17875541672664265993+18097020903235888523u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 6
+       },
+       {
+        "table": 16
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "10698084349731901940+10674930469637076116u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 7
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "17289360046351560939+17002859976755798860u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 7
+       },
+       {
+        "table": 16
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "10796476162533108379+10237030473825160638u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 8
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "427216374754323822+3986563362881963763u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 8
+       },
+       {
+        "table": 9
+       },
+       {
+        "table": 17
+       }
+      ],
+      "degree": 4
+     },
+     {
+      "coef": {
+       "value": "6483571088232407938+458964976281152339u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 8
+       },
+       {
+        "table": 17
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "17073320119837612511+17686153794686112157u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 9
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "6483571088232407938+458964976281152339u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 9
+       },
+       {
+        "table": 17
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "16647967236088506344+11751510930508637760u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 9
+       },
+       {
+        "table": 18
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "16794942552011542393+13782394784196249491u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 10
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "3202086809905771523+14603275699141474298u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 11
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "16794942552011542393+13782394784196249491u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 11
+       },
+       {
+        "table": 19
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "1555977379373834891+1768989010816011380u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 12
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "17278924830394886285+4726740123860345697u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 12
+       },
+       {
+        "table": 19
+       }
+      ],
+      "degree": 3
+     },
+     {
+      "coef": {
+       "value": "7651778601333080017+15823065340787998885u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 13
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "2232149446316449868+7752069384362278590u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 14
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "8288874415581799972+216649214458737063u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 15
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "17929794804555158449+18100344953954593530u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 16
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "2237972389260938690+10575547344519617095u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 17
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "11684796937221453558+5193743579314905314u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 18
+       }
+      ],
+      "degree": 2
+     },
+     {
+      "coef": {
+       "value": "8487135859770403163+2784985147125464936u"
+      },
+      "wrapper": [],
+      "inner": [
+       {
+        "table": 0
+       },
+       {
+        "table": 19
+       }
+      ],
+      "degree": 2
+     }
+    ]
+   }
+  ]
+ },
+ "summary": {
+  "dd_slot_instances": 4,
+  "T0": "4/4",
+  "per_mode": {
+   "run": {
+    "X0": "4/4",
+    "F0": "4/4",
+    "S1": {
+     "premise_holds": 4,
+     "public_factor_every_monomial": 4,
+     "degree_fits": 4,
+     "budget_ok": 4,
+     "of": 4
+    },
+    "S4": {
+     "miniatures_pass": 4,
+     "terminal_map_onto": 4,
+     "of": 4
+    }
+   },
+   "random-1": {
+    "X0": "4/4",
+    "F0": "4/4",
+    "S1": {
+     "premise_holds": 4,
+     "public_factor_every_monomial": 4,
+     "degree_fits": 4,
+     "budget_ok": 4,
+     "of": 4
+    },
+    "S4": {
+     "miniatures_pass": 4,
+     "terminal_map_onto": 4,
+     "of": 4
+    }
+   },
+   "random-2": {
+    "X0": "4/4",
+    "F0": "4/4",
+    "S1": {
+     "premise_holds": 4,
+     "public_factor_every_monomial": 4,
+     "degree_fits": 4,
+     "budget_ok": 4,
+     "of": 4
+    },
+    "S4": {
+     "miniatures_pass": 4,
+     "terminal_map_onto": 4,
+     "of": 4
+    }
+   },
+   "random-3": {
+    "X0": "4/4",
+    "F0": "4/4",
+    "S1": {
+     "premise_holds": 4,
+     "public_factor_every_monomial": 4,
+     "degree_fits": 4,
+     "budget_ok": 4,
+     "of": 4
+    },
+    "S4": {
+     "miniatures_pass": 4,
+     "terminal_map_onto": 4,
+     "of": 4
+    }
+   }
+  },
+  "S3_tight": "5/5",
+  "S5": {
+   "N5_1_fires": "4/4",
+   "N5_2_fires": "4/4 (not applicable at slack > 0: 0)",
+   "N5_3_fires": true,
+   "N5_4_fires": true,
+   "F_1_fires": "4/4",
+   "X_1_fires": "4/4"
+  }
+ },
+ "ok": true,
+ "status": "PASS",
+ "seconds": 2.1,
+ "peak_rss_mb": 79,
+ "tool_sha256": {
+  "zk60_native_rg_ddnl.py": "c7bea24bfd6e0289a260ba211f3fc0ff964aaebcbcbfa2680b9cc3163dcdc98b",
+  "zk60_native_rg_terminals.py": "093b35c0838db07984981c9a7f1249c8900f992c548292d0ce1a8977544cb6c6",
+  "zk60_native_rg_tokenterminals.py": "de0ded235bcde55c3c304e33c9dc84bcc3e9458328a2bbdda2089111ca85e662",
+  "zk60_native_rg_tokennl.py": "c5047cf0eec180a067435de2f76b5ab714dce5eae90fd1ee3174d18407f52f21"
+ }
+}

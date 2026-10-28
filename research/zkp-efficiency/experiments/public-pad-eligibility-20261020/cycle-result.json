@@ -1,0 +1,55 @@
+{
+  "run_id": "20261020T081854Z-6e7df31f",
+  "cycle": "0100",
+  "checkpoint_at": "2026-10-20T08:33:05.486060+00:00",
+  "result": {
+    "status": "PASS_PUBLIC_DESCRIPTOR_AND_GATE_MODEL_ONLY",
+    "seed": 20261020100,
+    "checks": 7616,
+    "pad_cases": 640,
+    "refused_zero_zeta": 8,
+    "gate_cases": 3132,
+    "negative_controls": 46,
+    "reachable_native_pad_counts": [
+      0,
+      11
+    ],
+    "wall_seconds": 0.44226594099018257,
+    "rss_kib": 12268,
+    "threads": 1,
+    "affinity": [
+      0
+    ],
+    "full_stack": {
+      "proofs": 0,
+      "passes": 0,
+      "positions": 0,
+      "context_length": null,
+      "device": null,
+      "witness_s": null,
+      "proof_s": null,
+      "serialization_s": null,
+      "verification_s": null,
+      "startup_fraction": null,
+      "steady_rate": null,
+      "total_rate": null
+    },
+    "scope": "Source-backed structural census plus synthetic public coefficients/gates; no native or GPU execution, private witness/masks/transcript/PCS/receipt/verifier"
+  },
+  "source_audit": {
+    "status": "PASS_SOURCE_AND_ARTIFACT_AUDIT_ONLY",
+    "source_checks": 51,
+    "source_pins_unchanged": 13,
+    "source_mutation_controls": 6,
+    "native_execution": false,
+    "wall_seconds": 0.016779817990027368,
+    "rss_kib": 17848
+  },
+  "source_records_before": 577,
+  "source_records_after": 585,
+  "hypotheses": 15,
+  "proving_speed_improvement_measured": false,
+  "native_candidate_status": "Prior uncompiled sketches only;this cycle constructor/gate supplement",
+  "integration_seam": "DevFzcRounds::new/SC_FZC public descriptor/raw-round0 fzs_impl phase1b",
+  "next_local": "Address-only actual fused NTT gather sector census;native compiler/phase evidence takes priority"
+}

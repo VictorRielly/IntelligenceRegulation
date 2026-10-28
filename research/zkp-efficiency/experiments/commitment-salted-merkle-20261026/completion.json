@@ -1,0 +1,10 @@
+{
+  "status": "COMPLETE_RESEARCH_CYCLE_NO_PROVING_GAIN",
+  "run_id": "20261026T172925Z-dd337876",
+  "checkpoint_utc": "2026-10-26T17:41:18.145236+00:00",
+  "experiment": "commitment-salted-merkle-20261026",
+  "no_native_build": true,
+  "no_gpu": true,
+  "no_external_writes": true,
+  "final_checkpoint_utc": "2026-10-26T17:43:15.990147+00:00"
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/pcs.rs",
+    "snapshot": "source/next-active-pcs.rs",
+    "sha256": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495",
+    "bytes": 77003,
+    "scope": "inspected next-experiment seam; not part of tested native source audit"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/merkle.rs",
+    "snapshot": "source/next-active-merkle.rs",
+    "sha256": "6e7817bd767a883985bfcd62b7a387d0c5f4c361010c4c5db37f5087d965744a",
+    "bytes": 6487,
+    "scope": "inspected next-experiment seam; not part of tested native source audit"
+  }
+]

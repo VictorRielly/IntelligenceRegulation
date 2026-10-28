@@ -1,0 +1,1 @@
+blockterm-L2-fixed: status PASS; false parts []; per block stage (token stage, equal, expected) [(1, 23, 23), (2, 23, 23)]; controls True; 8.4 s; peak 195 MB; record /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/token_io/blockterm_dev/blockterm-L2-fixed.json

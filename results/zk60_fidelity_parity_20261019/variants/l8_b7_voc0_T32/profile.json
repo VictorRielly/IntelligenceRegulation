@@ -1,0 +1,411 @@
+{
+ "T": 32,
+ "calib_T": 128,
+ "extra_calibration": null,
+ "kind": "profile",
+ "layers": [
+  {
+   "dir": "layer_00",
+   "layer": 0,
+   "manifest_sha256": "9d5adee7bd5245717cc5afd802ad5eb24f2ab00f8b757696646ab3cdb380a3c1"
+  },
+  {
+   "dir": "layer_01",
+   "layer": 1,
+   "manifest_sha256": "e7c899cf633628583f6f1883de33b4f9eede319dfcbcb74c1807acb99b57b4d5"
+  },
+  {
+   "dir": "layer_02",
+   "layer": 2,
+   "manifest_sha256": "da21a8ef510dee37a930aedacb7a9abccc60f3fa580bdd75fa1221ea9d242e12"
+  },
+  {
+   "dir": "layer_03",
+   "layer": 3,
+   "manifest_sha256": "72df349c0d53a7e425a0f0a4ac6e4966ac2b215bdc38f26735cb72994129a2ac"
+  },
+  {
+   "dir": "layer_04",
+   "layer": 4,
+   "manifest_sha256": "30d5a4cf8b9f1a208da23f1e8d03d722669a581e74c2735f783cf7ca24a72c24"
+  },
+  {
+   "dir": "layer_05",
+   "layer": 5,
+   "manifest_sha256": "837f2671fdfb201fbf55b2dba5847c887ffb3c0e30c9089c247fa6865ba3291f"
+  },
+  {
+   "dir": "layer_06",
+   "layer": 6,
+   "manifest_sha256": "5845fcbeb9fdf1eb507b3c11837019e2334c7daee0cead34ee531926662f4a31"
+  },
+  {
+   "dir": "layer_07",
+   "layer": 7,
+   "manifest_sha256": "f360987663bd58017138be68f58713f42ea094e3e917052398791d1112ab449d"
+  },
+  {
+   "dir": "layer_08",
+   "layer": 8,
+   "manifest_sha256": "6cf5108a101df3573247670a02598d64c7567a2a63f41da7f1e1450bc9193efa"
+  },
+  {
+   "dir": "layer_09",
+   "layer": 9,
+   "manifest_sha256": "971b94e1a5c5ca19ba5a2eb0abc510e0484095508000678ff84053b94ebab715"
+  },
+  {
+   "dir": "layer_10",
+   "layer": 10,
+   "manifest_sha256": "cf0024d1bfaf6bdb21fe102f5d9713801578a77e5eeebf3d31a1f67a8438847b"
+  },
+  {
+   "dir": "layer_11",
+   "layer": 11,
+   "manifest_sha256": "22f330bb1a6310fe351c8e313a1e0d46118024cfc98c06a320bb8a386c385b90"
+  },
+  {
+   "dir": "layer_12",
+   "layer": 12,
+   "manifest_sha256": "0eaf1ce3f748ec1d629fdfb0b4508b0b3a1535a325b49900182e4d2e3d6b8cfb"
+  },
+  {
+   "dir": "layer_13",
+   "layer": 13,
+   "manifest_sha256": "f254cea7b543be7a3f983225e22ec4f0665f3fb3878ce12c936b4a0778be5dc8"
+  },
+  {
+   "dir": "layer_14",
+   "layer": 14,
+   "manifest_sha256": "4e2ae8d89cb649a6bdf6c4b7f6bdc6dd981df5c5929d01c149f9ebfc9cf66fc1"
+  },
+  {
+   "dir": "layer_15",
+   "layer": 15,
+   "manifest_sha256": "16febbe0b8435414dd555f967a2ac1f24066af1c3c374e73daf644cad1a2db33"
+  },
+  {
+   "dir": "layer_16",
+   "layer": 16,
+   "manifest_sha256": "0708467a6de44729152ce1b3c5cfc4ce8b24dff6a40569b36d14400f5c7431fa"
+  },
+  {
+   "dir": "layer_17",
+   "layer": 17,
+   "manifest_sha256": "50a9b89416ff82106910517a70c08e6c281740d0f9564ff3ccb0cbba3777aa74"
+  },
+  {
+   "dir": "layer_18",
+   "layer": 18,
+   "manifest_sha256": "e32c44b0fb5a9159229f5b2b591a83f9d20c2c37ec0692707cff8e3131a9fedf"
+  },
+  {
+   "dir": "layer_19",
+   "layer": 19,
+   "manifest_sha256": "2755f1cd9addbb8a3db76bce299da7d5352b1349f9149802ac154ef80b50c0fc"
+  },
+  {
+   "dir": "layer_20",
+   "layer": 20,
+   "manifest_sha256": "62526d05bcb2d107d3c5a2c4109d3632b4545c505f98ef6afa8354f792d8ba86"
+  },
+  {
+   "dir": "layer_21",
+   "layer": 21,
+   "manifest_sha256": "655b728d19673dbf4b69ee028fcc3075d8f9b228b87ae507ff5ef65822d6c84a"
+  },
+  {
+   "dir": "layer_22",
+   "layer": 22,
+   "manifest_sha256": "f85926814a7da95a1b3da7a46cce5f1b324ecd6187d5323fa7850da7159acb7a"
+  },
+  {
+   "dir": "layer_23",
+   "layer": 23,
+   "manifest_sha256": "567f5788481fbc0a815d0ea2fdb3402cb043a69e817fc2afd30b27e64dc0c300"
+  },
+  {
+   "dir": "layer_24",
+   "layer": 24,
+   "manifest_sha256": "e5311cb54c5e9a9a2b36e71e7c17459843d4305563a6903d791dacc871e2fc70"
+  },
+  {
+   "dir": "layer_25",
+   "layer": 25,
+   "manifest_sha256": "daf1fd2cc8539298c64c618a867688c7fdb42de75405f207be9bb76d11319d92"
+  },
+  {
+   "dir": "layer_26",
+   "layer": 26,
+   "manifest_sha256": "7e77546cbfea2a92cfb12941ceb21eb31f748fe80f620c8c1621d2b2ac64ff2a"
+  },
+  {
+   "dir": "layer_27",
+   "layer": 27,
+   "manifest_sha256": "2351d4b44338bd35cdac6f35a45fadfbd6244b4fefbcf3ea9deb3fb83cce1b69"
+  },
+  {
+   "dir": "layer_28",
+   "layer": 28,
+   "manifest_sha256": "ff905871d10aa3286bbb4398e99999efec2a23dd9027796acfd79e998817b383"
+  },
+  {
+   "dir": "layer_29",
+   "layer": 29,
+   "manifest_sha256": "ba58b7f7f2ecbbadb6c990bcf8e4169b19627f6fb570fd0ff5a66a46fc8e3c65"
+  },
+  {
+   "dir": "layer_30",
+   "layer": 30,
+   "manifest_sha256": "503c93ce4dc416eb82b498b37a11c16d801a13e14faebd6d686fbd06dcdd9f4e"
+  },
+  {
+   "dir": "layer_31",
+   "layer": 31,
+   "manifest_sha256": "3ea637f9b05336b4f978427de2cd718999d6269102312f9dfe5c32bbb33a9ec6"
+  }
+ ],
+ "metadata_out_of_proof": {
+  "profile_decisions": {
+   "cn_a": 2092,
+   "cn_m": 1424,
+   "e_s": null,
+   "shifts": {
+    "ao": 3,
+    "g": 8,
+    "h": 14,
+    "o": 9,
+    "qkv": 8,
+    "rope": 7,
+    "s": 6,
+    "u": 0,
+    "z": 4
+   },
+   "silu": null
+  },
+  "residual_scales_in": [
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  "residual_scales_out": [
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454,
+   0.0007218075732845454
+  ],
+  "rotation": {
+   "seed": 1,
+   "sign_sha256": "776bc978e8ed8fc21d948d7f83deb6b5178a9ba94205a6924d10f3945e26d08b"
+  }
+ },
+ "only_layers": [
+  0
+ ],
+ "per_layer_constants_differ": [
+  "exp_e_s",
+  "sh_s",
+  "silu_member"
+ ],
+ "profile_constants": {
+  "exp_e_s": null,
+  "f_e": 9,
+  "f_p": 9,
+  "f_ro": 7,
+  "norm_ceps": 78617,
+  "norm_cn_a": 2092,
+  "norm_cn_m": 1424,
+  "norm_tn": 9,
+  "rope_theta": 500000.0,
+  "sh_ao": 3,
+  "sh_g": 8,
+  "sh_h": 14,
+  "sh_o": 9,
+  "sh_qkv": 8,
+  "sh_r2": 0,
+  "sh_rope": 7,
+  "sh_s": null,
+  "sh_u": 0,
+  "sh_z": 4,
+  "silu_member": null
+ },
+ "profile_from": "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/runs/llama3_8b_pg_rot1_T128/prepass.json",
+ "reference_export": "/home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T32",
+ "schema": "zk60-trained-profile-export/1 (pseudo-export of the fidelity lane; NOT an export of record)",
+ "scope": "fidelity data, not a proof, not a privacy claim",
+ "sequences": [],
+ "sh_s_overrides": {
+  "1": 7
+ },
+ "shift_windows": {
+  "ao": [
+   0,
+   8
+  ],
+  "g": [
+   1,
+   8
+  ],
+  "h": [
+   9,
+   16
+  ],
+  "o": [
+   9,
+   16
+  ],
+  "qkv": [
+   1,
+   8
+  ],
+  "rope": [
+   1,
+   8
+  ],
+  "s": [
+   1,
+   8
+  ],
+  "z": [
+   1,
+   8
+  ]
+ },
+ "tool_sha256": {
+  "fp_lib.py": "6bced24bd84447592f99b66c7aeee8ac368dbb1903ad10ece8d3ce12f29fcf77",
+  "fp_variant.py": "2b662dc00dd38ac765dc5481d1e374480b8e1c755c2a4ed972149deba82b5f9c"
+ },
+ "up_mc": null,
+ "variant": "l8_b7_voc0_T32",
+ "variant_options": {
+  "cn_max": 1048576,
+  "f_e": 9,
+  "f_p": 9,
+  "margin": 0.5,
+  "margin_ch": 3.0,
+  "margin_pow2": 0.25,
+  "name": "pg",
+  "norm_cn": "profile",
+  "o16": false,
+  "residual": "global",
+  "rotate": 1,
+  "s16": false,
+  "shapes": [
+   "range",
+   "smooth",
+   "gamma"
+  ],
+  "shifts": "profile",
+  "tables": "layer",
+  "tn": 9
+ },
+ "vocab0": {
+  "k_pair": [
+   15.080891541137476,
+   18.155017108809965
+  ],
+  "q_pair": [
+   14.363375353024653,
+   15.949927960369623
+  ],
+  "v_max": [
+   0.5222693681716919,
+   0.726884126663208
+  ],
+  "xa_max": [
+   4.674041748046875,
+   5.5318098068237305
+  ]
+ },
+ "words_equal_to_reference_per_layer": [
+  9,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13,
+  13
+ ]
+}

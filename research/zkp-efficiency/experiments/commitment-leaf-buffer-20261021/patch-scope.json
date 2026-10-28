@@ -1,0 +1,10 @@
+{
+  "status": "UNCOMPILED_REVIEW_CANDIDATE_ONLY",
+  "host_clear_sites": 3,
+  "kernel_init_sites": 1,
+  "preserves_reserved_depth": 24,
+  "capacity_compaction_in_patch": false,
+  "native_validation": false,
+  "source_manifest": "source-manifest.json",
+  "patch_sha256": "ee4378568fab5e30d6274c3de6ce4c16b4bf5427af91ef355b6a599f9f9ce198"
+}

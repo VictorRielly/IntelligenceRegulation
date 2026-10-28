@@ -1,0 +1,140 @@
+[
+  {
+    "heading": "",
+    "lead": "",
+    "tail": "",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "heading": "# ZK60 decisions register \u2014 the rulings that govern the proof project",
+    "lead": " **Read this before claiming any security or privacy property, and record every new ruling here the day it is made.** One entry per decision: what was decided, by whom, why, what it means day to day, and what would reopen it. Entries are never deleted; a reversed decision gets a new entry that points back. Keep this file short enough to read in five minutes.",
+    "tail": "decided, by whom, why, what it means day to day, and what would reopen it. Entries are never deleted; a reversed decision gets a new entry that points back. Keep this file short enough to read in five minutes. ",
+    "sha256": "930df021cd142fc4b20f79422ea94306cee06278598e4d1db748a4aab210a673"
+  },
+  {
+    "heading": "## At a glance",
+    "lead": " **2026-09-26 performance direction, clarified by Victor in this session:** continue the PoC and background researcher toward an **8B-parameter forward-pass proof at >=50 proved tokens/s on an RTX 5090 or another high-end GPU**. More tokens are explicitly acceptable to amortize initialization and initial prefill. The earlier same-day 512-token / <=10.24-second interpretation",
+    "tail": "live in `CLAUDE.md`; they are not repeated here.  --- ",
+    "sha256": "d442c024b56753d91a6251592821db839e3c018282a730b8e0e28927d747c381"
+  },
+  {
+    "heading": "## D1 \u2014 Privacy scope (standing since 2026-09-09)",
+    "lead": " **Decided.** The first proof of concept, P1, hides inputs, outputs and every intermediate activation from the verifier and from every public artifact; model weights may be public. The full version, P3, also hides weights.  **Why.** This is the product: a regulator or auditor can check that an",
+    "tail": " **Reopens only** on an explicit new instruction from Victor. Source: `ZK60_PRIVACY_REQUIREMENTS.md`. ",
+    "sha256": "cd3edbaf4d883a18a0b24a8a2fbb48a5501ed57b7dc670b227d4c99035ce8447"
+  },
+  {
+    "heading": "## D2 \u2014 Two lines (standing since 2026-09-17)",
+    "lead": " **Decided.** Run an implementation, review and test loop until a workable private MVP exists, using a RISC Zero zkVM re-execution of the exact integer block as the intermediate. Keep the custom-PCS prover (hashline) as the route to the model-scale throughput target. ",
+    "tail": "if the custom line's privacy acceptance lands first. Sources: `ZK60_MVP_LOOP_20260918.md`, `ZK60_ZKVM_REVIEW_DISPOSITION.md` (branch `zk60-mvp-fable`), `ZK60_FABLE_LANE_HANDOFF.md`. ",
+    "sha256": "5e725b41b9525ae596c20b55ba7af5d110375c36175bf9fe4d19f7adda5017b5"
+  },
+  {
+    "heading": "## D3 \u2014 About 97 bits of conjectured soundness accepted for the zkVM intermediate (2026-09-18)",
+    "lead": " **Decided.** The zkVM intermediate's proofs are accepted at RISC Zero's shipped security level, about 97 bits conjectured for 2^20-cycle segments (95 at 2^24) and roughly 100 bits for the BN254 Groth16 layer, instead of the project's 128-bit target. This is a **recorded deviation**, not a change of the target: the target stays 128 bits for the product.",
+    "tail": "`zkvm-block/security/` invokes the installed Rust functions without private data. The first proof ran with debug logs disabled; contrary to the earlier command hint, this crate emits the per-proof figures at **debug**, not info. ",
+    "sha256": "6c737ca27204578d857f835b9e738f092119bbf223accf7184b2d66633806469"
+  },
+  {
+    "heading": "## D4 \u2014 Groth16 trusted setup accepted for soundness (2026-09-18)",
+    "lead": " **Decided.** The public artifact of the zkVM intermediate is a Groth16 receipt, whose soundness depends on RISC Zero's trusted-setup ceremony. This dependency is accepted.  **What a trusted setup is, in plain words.** Groth16 proofs are tiny and",
+    "tail": "Sources: `ZK60_ZKVM_SOURCE_REVIEW.md` (CRS and prover-randomness chain), `ZK60_ZKVM_REVIEW_DISPOSITION.md` \u00a71, \u00a73; vendor page `dev.risczero.com/api/trusted-setup-ceremony`. ",
+    "sha256": "e9e4c47b87b5ac214a38cdb5e799bd193087ad7a791f45eb40b25e7abc1352fe"
+  },
+  {
+    "heading": "## D5 \u2014 Receipt kind: Groth16 only (2026-09-18)",
+    "lead": " **Decided.** Only a Groth16 receipt leaves the prover. A composite receipt is never public: its per-segment claims carry memory-image roots at every split and its segment count reveals cycle counts, and the rv32im segment prover adds no blinding rows in circuit 4.0.5. A succinct receipt is used only as explicitly experimental evidence while the Groth16 wrap is being",
+    "tail": "receipt at the shipped parameters. Sources: `ZK60_ZKVM_REVIEW_DISPOSITION.md` \u00a71\u2013\u00a72, \u00a74; `ZK60_ZKVM_SOURCE_REVIEW.md`. ",
+    "sha256": "e1d7e297456deb32b0e3ce7616e59b87b2d376ef38eb9d71b759a3d3f7919bf8"
+  },
+  {
+    "heading": "## D6 \u2014 Groth16 proving path on this box (in progress)",
+    "lead": " Docker is not installed; the crate's Docker path cannot run. Codex is extracting the native prover tools (`stark_verify`, `prover`, the proving key) from the official image at the pinned manifest digest and running them directly, with each tool's SHA-256 recorded (`scripts/zk60_zkvm_demo.py --native-tools`). The CUDA Groth16 component is the alternative, not",
+    "tail": "under `results/zk60_loop_20260918/block-integration/`; public artifacts retained in `\u2026/groth16_public/`. Hardening items from the source review (`ZK60_ZKVM_BLOCK_SOURCE_REVIEW_FABLE.md`) are open but not blocking. ",
+    "sha256": "d13a3d1b7609c77c25aff676b33497026bdd2178a318bf166b6e5d1aa9e2b114"
+  },
+  {
+    "heading": "## D7 \u2014 New endpoint and weight identity profile (implemented, ruling pending)",
+    "lead": " The zkVM route commits endpoints as salted SHA-256 hashes inside a fixed public journal (Codex's implementation: 144 bytes; Fable's proposal: 260 bytes, superseded by the implementation), and identifies weights and calibration by digests over the bytes the guest uses. Old PCS endpoint and weight roots have no meaning here; a chain of blocks is checked by journal",
+    "tail": "premises; and the second half of D7, the approval record for the model digests, is still to be written and cannot be credible before qualifier (2) is fixed. Pages: `ZK60_RULINGS_FOR_VICTOR.md` \u00a72. ",
+    "sha256": "1e4e1b08527272b76d61d3413423b47feff9bae8dc2c66c76203e8e9a87c070e"
+  },
+  {
+    "heading": "## D8 \u2014 Caller-fixed endpoint roots on the custom line (corrected 2026-09-18)",
+    "lead": " **Standing obligation.** A proof on the custom line must be simulatable for endpoint roots the caller fixed, with the distinguisher allowed to keep prior public history (`ZK60_ENDPOINT_SIMULATION_MODEL.md`).  **Correction.** The round-2 memo on `zk60-mvp-fable` claimed this is met by",
+    "tail": "engineering; they do not establish whole-proof privacy. Sources: `ZK60_JOINT_VIEW_REVIEW_20260918.md`; `ZK60_MVP_JOINT_VIEW.md` \u00a71.1 with its correction note. ",
+    "sha256": "58c6d55e3f0a6c64232d3b48ad9eb1e98931273e861bb0710839f3445b7f71f7"
+  },
+  {
+    "heading": "## D11 \u2014 Technical correction to D8 and profile clarification (2026-09-18)",
+    "lead": " The historical D8 text is retained above, but its statement that one-use ownership reduces the privacy experiment to unopened roots is not accepted. An ordinary authentication path or root-child hash query can exist before the sole accepted `finish`; the consuming API does not erase that history. The general caller-fixed-root obligation stands unchanged.",
+    "tail": "across blocks. The next separate token-model guest recomputes both blocks and their hidden seam inside one program; the public policy binds its complete model and endpoints. This clarification changes no user ruling. ",
+    "sha256": "fbf5d20f227b257bbac02dd09a901b01a5499f4a03acf1318b9b2030e8b4a179"
+  },
+  {
+    "heading": "## D12 \u2014 How a complete private block is composed on the custom line (construction rule, 2026-09-19)",
+    "lead": " **In plain words.** A transformer block is attention followed by a feed-forward part. Between them sit hidden values (the first residual `xres1`, the second norm's output `nm`, the feed-forward output `z16`). The tempting way to join the two existing components is to commit such a hidden value once and let both proofs open that one commitment. That is exactly the",
+    "tail": "Ruling and conditions: `ZK60_PRIVATE_BLOCK_CONSTRUCTION_DISPOSITION.md` on `zk60-attention-compile` (`e5962d2`). ",
+    "sha256": "1dc685517e202be6272c6444d19b88a256b45c0243e0aaf451e96444fe770441"
+  },
+  {
+    "heading": "## D9 \u2014 `fp()` reduction bias (accepted as stated, 2026-09-19)",
+    "lead": " Challenge words are 128-bit draws reduced mod p, each within 2^-96 of uniform; over a proof this is about 2^-75 at A00. Either accept the term in the privacy bound or re-freeze fixtures with rejection sampling (a byte-changing change). Not gating any current work. ",
+    "tail": "2^24.3. This is a property of the Goldilocks prime specifically \u2014 a generic 64-bit prime would give about 2^-66 per draw \u2014 so it must be re-derived if the field ever changes (D14). ",
+    "sha256": "1d0305691e7bf1f64c160cfdc09ea58fd586517de0fdb3a411cfa352bf839e81"
+  },
+  {
+    "heading": "## D10 \u2014 Compact-PCS proof-size lever (declined, 2026-09-19)",
+    "lead": " Drops a Mistral-7B layer's proof from 38.7 MB to 1.94 MB at 4.4x the prover time and 95\u201398 bits instead of 106 (`START_HERE.md`, lane AF). A soundness ruling for Victor; not compatible with the GPU path or zero knowledge yet.  **Ruling (Victor, Telegram, 2026-09-19 11:50): declined \u2014 keep the",
+    "tail": "is that the compact format cannot run privately. The costed memo of D14 must say what its lever does to proof size as well as to time. Pages: `ZK60_RULINGS_FOR_VICTOR.md` \u00a75. ",
+    "sha256": "4318f8ecdc6b6c253124ca4922518c388bdca3386282b8af6f070d70b9d75583"
+  },
+  {
+    "heading": "## D15 \u2014 \"106 bits\" is per opening; the whole 8B proof is about 94 (technical clarification, 2026-09-19)",
+    "lead": " **In plain words.** Each time the custom line's prover opens a commitment, a cheating prover slips past the check with probability about 2^-106: that is (3/4)^256, from 256 opened columns at encoding rate 1/4 under the proximity rule the code assumes (`zkp-core/src/pcs.rs:17\u201319`; reproduced exactly by the D14 memo). D3 above and several status pages quote that 106 as \"hashline's",
+    "tail": "composition might be about 5 bits better at 32 blocks (argument not written); all figures are interactive, and Fiat\u2013Shamir grinding over the A randomness makes the per-block figure a per-try rate. ",
+    "sha256": "2449a48ef2181764ba56904b7993dbaaa0c5a6ff45afb9f669d34f9137eff309"
+  },
+  {
+    "heading": "## D16 \u2014 The private block's norm before it is widened (construction rule, 2026-09-19)",
+    "lead": " **In plain words.** A norm divides by a square root. The proof does not compute the square root; the prover supplies it (`D`) with two helper numbers, and the verifier checks algebra that pins it. Over a prime field that algebra has a second solution nobody intended \u2014 `D` replaced by `k + (p\u22121)/2` \u2014 unless something forces `D` to be a small non-negative integer. In the project's",
+    "tail": "and by arithmetic tests, not run through the verifier, because reaching it needs production changes this lane was not allowed to make; the public-IO prover's R09 is unchanged and still owes the fix verified on 2026-09-08. ",
+    "sha256": "c62d08b77e199c075d38a32fab4cf41ae2f3013e4f0d4b7d140dd8d8d23866a8"
+  },
+  {
+    "heading": "## D17 \u2014 Hiding endpoints beyond the tiny shape (construction rule, 2026-09-19)",
+    "lead": " **In plain words.** The private feed-forward hides its input and its output by putting each in its own sealed commitment and proving, without opening either, that the sealed plane equals the plane inside the proof. Today that equality is checked over **one block** of the plane. At the tiny shape a plane is one block, so that is the whole plane and the code is sound. At any",
+    "tail": "privacy property and leaves D8 and D11 exactly where they were. Ruling and the 19 binding errata: `ZK60_PRIVATE_ENDPOINTS_AT_SCALE_DISPOSITION.md`. ",
+    "sha256": "0632768cc964aea72053463b6d3ad3419b6655fdef059cff047a0415f29b9e87"
+  },
+  {
+    "heading": "## D8/D11 \u2014 note of 2026-09-19: a restatement was attempted and NOT accepted; the obligation stands",
+    "lead": " A delegated draft restated the obligation as a game and recommended discharging part of it by restricting it to endpoint roots \"first published together with the proof that consumes them\". An independent check, told that the last confident closure was retracted within days, found the reduction **circular** (its own restriction assumes the conclusion) and found that it",
+    "tail": "one [COUNTED; no gadget exists]; and the Fiat\u2013Shamir transcript shares one untagged 64-byte hash domain with the Merkle and leaf hashes, which any argument that programs the oracle must face. ",
+    "sha256": "3f1b6fe20080f9641dd52a27ecc9f3c3e026151f1c5041d4a0a8a410af86aee9"
+  },
+  {
+    "heading": "## D18 \u2014 Who fixes the commitment to a hidden input (decided 2026-09-19: the prover, for the first MVP)",
+    "lead": " **In plain words.** A private proof refers to its hidden input through a sealed commitment. Either the **prover** seals it at the moment it proves, and the seal appears for the first time inside the receipt; or **someone else** seals it in advance \u2014 a regulator fixes an input today and asks for a proof about it tomorrow. Everything built so far does the first. The open",
+    "tail": "hash, so that hiding rests on the assumption D7 already accepted and only collision resistance rests on the newer primitive. Unchecked and unpriced. Nothing is scheduled to be built; the first MVP seals at proof time. ",
+    "sha256": "6214dc4697525ba5a58ee8010fb319ef6d28865e9f18ac60a9fef8bb5f9ec603"
+  },
+  {
+    "heading": "## D13 \u2014 What the first MVP must prove (decided 2026-09-19)",
+    "lead": " **Ruling (Victor, Telegram, 2026-09-19 11:50): the hidden transformer blocks are enough for the first MVP; generating a token is the next milestone.** In plain words: the first MVP is a private proof that the blocks of a model were computed correctly on hidden inputs, with hidden outputs. It does not have to go all the way to an emitted word \u2014 the embedding, the final norm, the output",
+    "tail": "embedding, head and token selection become next-milestone gates. What it does **not** change: P1 (D1) \u2014 inputs, outputs and activations hidden \u2014 and the two-line structure (D2). Pages: `ZK60_RULINGS_FOR_VICTOR.md` \u00a73. ",
+    "sha256": "73535f869e5746910bc54e537eb129c2d522d664062b6054c5184ce79b7537f6"
+  },
+  {
+    "heading": "## D14 \u2014 A costed memo for the fewer-hashed-bytes speed lever (commissioned 2026-09-19)",
+    "lead": " **Ruling (Victor, Telegram, 2026-09-19 11:50): write the memo. Paper only.** In plain words: almost all of the prover's device time goes into encoding and hashing committed data. Two changes would shrink that data: a Reed\u2013Solomon encoding rate of 1/2 instead of 1/4 or 1/8, and a 31\u201332-bit field instead of the 64-bit Goldilocks field. It is the only recorded lever",
+    "tail": "to proof bytes, what must be re-frozen, how many weeks, and what could make it fail. **Building it remains a separate ruling.** Pages: `ZK60_RULINGS_FOR_VICTOR.md` \u00a74. ",
+    "sha256": "908e0ca6f15cf3257cbbf190a8c4f2b02b51cf88cea4b6c4c5c59e4458c2e8ff"
+  },
+  {
+    "heading": "## D24 \u2014 Norm precision per profile instead of a fifth remainder limb (proposed 2026-10-17)",
+    "lead": " **In plain words.** The private block's RMS norm computes `y = round(g * Cn * x / (2^tn * D))` and proves the rounding with a remainder that must fit an exact window of `tn + 1 + bits(D_max)` bits. At the toy precision `tn = 11` that is 33 bits at TinyLlama's width 2048 and 34 bits at the 8B width 4096 (contract review of 2026-09-30, which also corrected `D_max`",
+    "tail": "classes positive); N-r8-b norm_tn must stay run-wide at the trained profiles; N-r8-c the base depends on the --layers range; N-r8-d parity against the Python reference at per-layer constants on a real export still owed (fidelity, not soundness). Not a privacy acceptance.",
+    "sha256": "68230856df3c500e2c0f2ec141bceec6a1f59d1b97f3e02a8cfce4e0d9bc347d"
+  }
+]

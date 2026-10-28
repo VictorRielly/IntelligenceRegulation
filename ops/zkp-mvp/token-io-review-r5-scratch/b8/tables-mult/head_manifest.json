@@ -1,0 +1,46 @@
+{
+ "V": 128256,
+ "bos": 128000,
+ "calibration_final_xhat": {
+  "T_cal": 128,
+  "final_residual_absmax": 14.83291244506836,
+  "sequences": 30,
+  "xhat_rot_absmax": 5.158717646270934
+ },
+ "clipped": 0,
+ "d": 4096,
+ "final_norm": {
+  "ceps": 78617,
+  "cn_calibrated": 4234,
+  "cn_refusal_free": 512,
+  "g0": 127,
+  "tn": 9,
+  "window_bits": 32
+ },
+ "final_norm_rule": "tlcalib.norm_site(c = 1) on calib_final_xhat_rot_absmax.bin at the export variant's margin 0.5, tn = profile norm_tn, Ceps = profile norm_ceps (asserted equal)",
+ "head_int8_perrow.bin": {
+  "dtype": "int8",
+  "sha256": "f50ba1aa4150172ffb381a335faa41050abf9a45c1ab6b0cbc6401ac8db228cc",
+  "shape": [
+   128256,
+   4096
+  ]
+ },
+ "head_mult12.bin": {
+  "distinct": 2304,
+  "dtype": "int64 little-endian",
+  "max": 4096,
+  "min": 859,
+  "rule": "m_j = max(1, floor(2^12 s_j / max s + 0.5))",
+  "sha256": "7761f93a45105b13021f46f4f3bf22b95e1a250d778bb1a5136e75d720730ccf",
+  "shape": [
+   128256
+  ]
+ },
+ "keyed_window_bits": 56,
+ "keyed_window_rule": "bits(2^17 * 2 d 127^2 * 2^12 + V - 1) (V_pad 2^17)",
+ "kind": "token-io R3 head (per-row int8 + 12-bit multipliers, D25 T4 as amended)",
+ "minus128": 0,
+ "scales_f64_sha256": "d10aace39c3593454e6cdf14065ce5a7b697814c3f3b2845704aeec6cc74c7fe",
+ "source": "results/zk60_8b_calibration_20261017/b8_token_io.py (the fidelity lane's s4_head.build_heads rule at 8B)"
+}

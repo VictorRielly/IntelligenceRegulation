@@ -1,0 +1,80 @@
+{
+  "status": "PASS",
+  "hypothesis_result": "Uniform raw-pointer translation FALSIFIED; partial parameter/base translation exact in symbolic and synthetic tests only",
+  "run_id": "20261019T151854Z-4f2eec2a",
+  "seed": 2026101983,
+  "symbolic_checks": 2888,
+  "negative_controls": {
+    "wrong_load_param_offset": true,
+    "wrong_load_base_offset": true,
+    "byte_element_unit_confusion": true,
+    "retained_raw_out_of_bounds": true,
+    "scratch_alias": true,
+    "stale_instance": true,
+    "naive_uniform_raw_value_failure": true,
+    "all_zero_cannot_validate_address_mapping": true
+  },
+  "numerical": {
+    "fixtures": 33,
+    "coefficients_per_arm": 165,
+    "naive_wrong_random": 24,
+    "naive_wrong_boundary": 7,
+    "naive_wrong_zero": 0
+  },
+  "naive_first_failure": "('source_lineage', 4, 30, 'load_raw', 92, 90)",
+  "output_digest": "d05633f9bb708e07c9684eaf451f21a97b5356359fff97943a819cae82f26964",
+  "dag_ops": 1167,
+  "field_primitives": {
+    "sub": 209,
+    "mul": 331,
+    "add": 272,
+    "base": 72
+  },
+  "original_tables": 59,
+  "original_fold_reads": 118,
+  "original_fold_writes": 59,
+  "original_finals": 59,
+  "original_folds_unchanged": true,
+  "degree": 4,
+  "families": 2,
+  "repeated_calls": 11,
+  "noncanonical_instances": 9,
+  "nonuniform_raw_instances": 9,
+  "minimal_raw_translation_groups": {
+    "3": 2,
+    "6": 3
+  },
+  "partial_map_cost": {
+    "baseline_map_bytes": 634,
+    "removed_entries": 99,
+    "removed_map_bytes": 198,
+    "remaining_map_bytes": 436,
+    "repeated_source_loads": {
+      "load_raw": 66,
+      "load_param": 77,
+      "load_base": 22
+    },
+    "added_nonzero_pointer_shifts": 18,
+    "extra_helper_arguments": 0,
+    "partial_logical_bytes": 8964,
+    "baseline_shared_logical_bytes": 9162,
+    "scalar_logical_bytes": 4320,
+    "scratch_bytes": 208,
+    "compiled_code_bytes": null,
+    "physical_DRAM_bytes": null,
+    "candidate_runtime_seconds": null,
+    "note": "Static address-index requests only. Interpreter retains full maps as oracle; no lowered kernel implemented. Pointer arithmetic/stack/compiler costs unmeasured."
+  },
+  "wall_seconds": 0.25404293699830305,
+  "rss_kib": 18980,
+  "cpu_model": "Intel(R) Core(TM) Ultra 9 185H",
+  "cpu_affinity": [
+    0
+  ],
+  "threads": 1,
+  "nice": 19,
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "limits": "59 seconds CPU/wall;512MiB address space;one nice19 CPU;no GPU/build/install/foreign execution",
+  "scope": "Public topology/address census and arbitrary synthetic Fp2 coefficient values. No native admission, profile fixture generation, sampler/folds/finals proof test, transcript/RNG/masks/PCS/proof/verification/GPU timing. No tokens counted."
+}

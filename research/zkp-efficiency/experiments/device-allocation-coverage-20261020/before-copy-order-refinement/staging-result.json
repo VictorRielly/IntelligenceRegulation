@@ -1,0 +1,54 @@
+{
+  "status": "GENERATED",
+  "fixtures": 144,
+  "seed": 2026102093,
+  "projections": [
+    {
+      "n": 16,
+      "table_entries": 65536,
+      "all_host_source_bytes": 12058624,
+      "two_buffer_source_bytes": 1048576,
+      "source_saving_bytes": 11010048,
+      "split_supp_table_bytes": 24117248,
+      "extra_explicit_syncs_all_host": 17,
+      "all_resident_saving_bytes": 0
+    },
+    {
+      "n": 18,
+      "table_entries": 262144,
+      "all_host_source_bytes": 48234496,
+      "two_buffer_source_bytes": 4194304,
+      "source_saving_bytes": 44040192,
+      "split_supp_table_bytes": 96468992,
+      "extra_explicit_syncs_all_host": 17,
+      "all_resident_saving_bytes": 0
+    },
+    {
+      "n": 20,
+      "table_entries": 1048576,
+      "all_host_source_bytes": 192937984,
+      "two_buffer_source_bytes": 16777216,
+      "source_saving_bytes": 176160768,
+      "split_supp_table_bytes": 385875968,
+      "extra_explicit_syncs_all_host": 17,
+      "all_resident_saving_bytes": 0
+    },
+    {
+      "n": 22,
+      "table_entries": 4194304,
+      "all_host_source_bytes": 771751936,
+      "two_buffer_source_bytes": 67108864,
+      "source_saving_bytes": 704643072,
+      "split_supp_table_bytes": 1543503872,
+      "extra_explicit_syncs_all_host": 17,
+      "all_resident_saving_bytes": 0
+    }
+  ],
+  "wall_seconds": 0.4827620090072742,
+  "rss_kib": 20984,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "scope": "synthetic table-byte and capacity model; zero native/proof/GPU evidence"
+}

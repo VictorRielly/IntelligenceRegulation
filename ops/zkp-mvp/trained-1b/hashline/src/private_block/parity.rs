@@ -384,6 +384,8 @@ fn shaped_case(s: &Shape, idx: usize) -> ShapedCase {
     // a lane constant well clear of the toy sweep's indices
     let mut r = Rng::seeded(1_000_000 + idx);
     let (d, f, kvw) = (s.width, s.hidden, s.kv_heads * s.head_dim);
+    // NATIVE R12 (F2): `Wq` (query, model), `Wo` (model, query)
+    let qw = s.q_width();
     // the band is narrower than the toy's: at 96 inputs per accumulation a
     // full band leaves the int8 class six times sooner than at 16
     const BAND: [i64; 8] = [0, 1, 2, 4, 8, 16, 48, 127];
@@ -392,10 +394,10 @@ fn shaped_case(s: &Shape, idx: usize) -> ShapedCase {
     let xmag = [1i64, 4, 32, 512, 32_767][(idx / 32) % 5];
     let ffn_mag = BAND[(idx / 3) % 8];
     let words = [
-        matrix(&mut r, d, d, 64, mag),
+        matrix(&mut r, qw, d, 64, mag),
         matrix(&mut r, kvw, d, 64, mag),
         matrix(&mut r, kvw, d, 64, mag),
-        matrix(&mut r, d, d, 64, mag),
+        matrix(&mut r, d, qw, 64, mag),
         (0..d).map(|_| r.pick(gain - 8, gain).clamp(-127, 127) as i8).collect(),
         (0..d).map(|_| r.pick(gain - 8, gain).clamp(-127, 127) as i8).collect(),
         matrix(&mut r, d, f, 64, ffn_mag),
@@ -413,7 +415,8 @@ fn shaped_case(s: &Shape, idx: usize) -> ShapedCase {
 pub(super) fn shaped_case_from_words(s: &Shape, words: [Vec<i8>; 9], input: Vec<i16>) -> ShapedCase {
     // ROUND 4: the RoPE base pinned for the shape's profile (500000 at the
     // Llama-3-8B profile; 10000 everywhere else, as before)
-    let (cos, sin) = crate::tables_attn::rope_tables_generate(s.tokens, s.head_dim, super::shape::trained_rope_theta(s.profile).unwrap_or(10000.0), F_RO);
+    // NATIVE R12 (F1): and the profile's pinned RoPE transform (none before R12)
+    let (cos, sin) = super::shape::rope_tables_for(s, super::shape::trained_rope_theta(s.profile).unwrap_or(10000.0)).expect("the profile's RoPE tables");
     let (exp, _) = crate::tables_attn::exp_member(0, s.head_dim, s.f_e);
     let (act, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, -3, -11).expect("frozen SiLU int16-out member (-3, -11)");
     // the module takes the PADDED, head-permuted statement (ruling P-2); the

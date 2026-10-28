@@ -1,0 +1,55 @@
+{
+ "label": "8b",
+ "off": {
+  "blocks": 32,
+  "committed_words": 117882880,
+  "a_words": 55787520,
+  "h_words": 62095360,
+  "byte_lookups": 51937280,
+  "element_terms": 217315584,
+  "slot23_terms": 0,
+  "seconds_by_half": {
+   "attention": 46.59,
+   "commit": 121.32,
+   "endpoints": 3.41,
+   "feed-forward": 47.02,
+   "lookup-table": 2.49,
+   "norm": 3.36,
+   "openings": 17.29,
+   "residual": 49.93,
+   "run (witness, boundary)": 99.82
+  },
+  "prove_run_seconds": 393.785,
+  "total_seconds": 478.737,
+  "receipt_bytes": 922711264,
+  "identity": "5585f5eed7a24a559ce76ddbd0413ddffd877637efb07d29bbd9408b4fc5a3b4"
+ },
+ "on": {
+  "blocks": 32,
+  "committed_words": 113328128,
+  "a_words": 53788672,
+  "h_words": 59539456,
+  "byte_lookups": 48398336,
+  "element_terms": 211286272,
+  "slot23_terms": 4456448,
+  "seconds_by_half": {
+   "attention": 47.64,
+   "commit": 118.39,
+   "endpoints": 3.51,
+   "feed-forward": 46.9,
+   "lookup-table": 2.42,
+   "norm": 3.26,
+   "openings": 17.62,
+   "residual": 49.86,
+   "run (witness, boundary)": 98.77
+  },
+  "prove_run_seconds": 391.824,
+  "total_seconds": 474.906,
+  "receipt_bytes": 930231520,
+  "identity": "4da580bdda8b9e4aef4ceb281e2b31e8008d99425d2601553b38f753b1492520"
+ },
+ "d_committed_pct": -3.86,
+ "d_byte_lookups_pct": -6.81,
+ "d_element_terms_pct": -2.77,
+ "d_prove_run_pct": -0.5
+}

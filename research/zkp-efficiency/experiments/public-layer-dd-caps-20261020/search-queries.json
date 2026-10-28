@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-20",
+  "native_live": true,
+  "queries": [
+    "site.eprint.iacr.org 2026 GPU sumcheck October 2026 polynomial commitment",
+    "site.github.com Goldilocks NTT CUDA releases 2026 Icicle",
+    "site.eprint.iacr.org lookup public tables variable size batching Caulk Baloo cq 2023",
+    "site.eprint.iacr.org 2026 lookup arguments multiple tables preprocessing",
+    "site.eprint.iacr.org 2025 lookup \"tables\" \"zero-knowledge\" \"adaptive\"",
+    "site.github.com GPU NTT Goldilocks 2026 October release",
+    "site.eprint.iacr.org \"2026\" \"sumcheck\" \"October 20\"",
+    "site.github.com \"Goldilocks\" \"NTT\" \"Oct\" \"2026\"",
+    "site.github.com \"MARLUT\""
+  ]
+}

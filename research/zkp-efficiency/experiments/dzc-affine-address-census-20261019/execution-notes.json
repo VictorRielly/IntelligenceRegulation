@@ -1,0 +1,28 @@
+{
+  "run_id": "20261019T151854Z-4f2eec2a",
+  "command_sequence": [
+    "python3 experiments/dzc-affine-address-census-20261019/run.py",
+    "python3 experiments/dzc-affine-address-census-20261019/audit.py",
+    "python3 experiments/dzc-affine-address-census-20261019/record_sources.py",
+    "python3 experiments/dzc-affine-address-census-20261019/checkpoint.py",
+    "python3 experiments/dzc-affine-address-census-20261019/validate.py"
+  ],
+  "seeds": {
+    "main": 2026101983,
+    "native_field_audit": 2026101984
+  },
+  "initial_failures": "initial-harness-failure.txt retains both safe assertions and corrections",
+  "field": "Goldilocks p=2^64-2^32+1;Fp2[u]/(u^2-7)",
+  "estimated_experiment_memory_mib": 64,
+  "enforced_address_space_mib": 512,
+  "one_thread": true,
+  "nice": 19,
+  "cpu_wall_limit_seconds": 59,
+  "heavy_builds": 0,
+  "gpu_jobs": 0,
+  "installed_dependencies": 0,
+  "foreign_code_executed": false,
+  "oracle": "Own prior research binary/source, hash matched to prior manifest; no new compile.",
+  "incorrect_read_paths": "Initial searches for zkp-core/src/private_block/argument.rs and flat private_stack/stack_source.rs found no file; actual hashline/private_block seam located read-only.",
+  "touched_scope": "Only research directory excluding runtime. No production/Git/receipts/calibration/safety/instruction/reviewer writes or external messages."
+}

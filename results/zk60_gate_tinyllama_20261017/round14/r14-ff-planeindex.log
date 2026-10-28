@@ -1,0 +1,15 @@
+
+running 1 test
+test private_block::run_capture_tests::the_plane_index_builds_at_the_dd_layouts ... 
+thread 'private_block::run_capture_tests::the_plane_index_builds_at_the_dd_layouts' (709365) panicked at src/private_block/run_capture_tests.rs:2364:63:
+development rung, trained norm calibration, DD (T32 / d256 / f512, 8 heads of 32 over 2 KV heads, 32-slot division dictionary): the plane index does not build: private block: the A plane name table has 83 names for 85 planes
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    private_block::run_capture_tests::the_plane_index_builds_at_the_dd_layouts
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 607 filtered out; finished in 0.00s
+

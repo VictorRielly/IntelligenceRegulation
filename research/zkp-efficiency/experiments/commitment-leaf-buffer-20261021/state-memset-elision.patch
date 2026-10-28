@@ -1,0 +1,55 @@
+--- a/hashline/src/gpu/cuda.rs
++++ b/hashline/src/gpu/cuda.rs
+@@ -1826,7 +1826,7 @@
+         let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;
+         let state_words = B3_STATE_SLOTS * nn;
+         let mut d_state = Pooled::take_min(&dev, (state_words + 1) / 2)?;
+-        dev.memset_zeros(d_state.get_mut()).map_err(|e| format!("state memset: {e}"))?;
++        // Research candidate: first hash launch initializes the logical stack.
+         let mut d_leaves = unsafe { dev.alloc::<u32>(nn * 8) }.map_err(|e| format!("leaves alloc: {e}"))?;
+         note_raw_alloc(nn * 8 * 4); // [round-7 review] the leaf buffer is a raw allocation too
+         let f_hash = dev.get_func(MODULE, "k_hash_cols_stream").ok_or("k_hash_cols_stream missing")?;
+@@ -2258,10 +2258,10 @@
+         let t0 = Instant::now();
+         let mut d_coef = Pooled::take_min(&dev, rmax * n)?;
+         let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;
+-        // the per-column blake3 state (u32 slots, carried as a u64 pool buffer), zeroed
++        // the per-column blake3 state (u32 slots, carried as a u64 pool buffer)
+         let state_words = B3_STATE_SLOTS * nn;
+         let mut d_state = Pooled::take_min(&dev, (state_words + 1) / 2)?;
+-        dev.memset_zeros(d_state.get_mut()).map_err(|e| format!("state memset: {e}"))?;
++        // Research candidate: first hash launch initializes the logical stack.
+         let mut d_leaves = unsafe { dev.alloc::<u32>(nn * 8) }.map_err(|e| format!("leaves alloc: {e}"))?;
+         note_raw_alloc(nn * 8 * 4);
+         let f_hash = dev.get_func(MODULE, "k_hash_cols_stream").ok_or("k_hash_cols_stream missing")?;
+@@ -2313,7 +2313,7 @@
+         let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;
+         let state_words = B3_STATE_SLOTS * nn;
+         let mut d_state = Pooled::take_min(&dev, (state_words + 1) / 2)?;
+-        dev.memset_zeros(d_state.get_mut()).map_err(|e| format!("state memset: {e}"))?;
++        // Research candidate: first hash launch initializes the logical stack.
+         let mut d_leaves = unsafe { dev.alloc::<u32>(nn * 8) }.map_err(|e| format!("leaves alloc: {e}"))?;
+         note_raw_alloc(nn * 8 * 4);
+         let f_hash = dev.get_func(MODULE, "k_hash_cols_stream").ok_or("k_hash_cols_stream missing")?;
+--- a/hashline/src/gpu/kernels.cu
++++ b/hashline/src/gpu/kernels.cu
+@@ -1417,8 +1417,8 @@
+ // row-chunk boundary is a blake3 chunk boundary and no partial chunk state
+ // is needed; the per-column CV STACK lives in `state` across launches:
+ //   state[(8 s + i) * nn + j] = stack[s][i] of column j (s < B3_MAX_DEPTH),
+-//   state[(8 B3_MAX_DEPTH) * nn + j] = its stack length (zeroed before the
+-//   first chunk).
++//   state[(8 B3_MAX_DEPTH) * nn + j] = its stack length; row0 == 0
++//   initializes the local count without reading stale state.
+ // The launch that holds the last row finishes the column exactly as
+ // b3_hash_column does (the same compressions with the same flags in the
+ // same order — blake3 is a function of the byte string, and the byte
+@@ -1434,7 +1434,7 @@
+     const u32 n_chunks = (len + 1023u) / 1024u;
+     const size_t snn = (size_t)nn;
+     #define STK(s, i) state[((size_t)(8 * (s) + (i))) * snn + (size_t)j]
+-    int stack_len = (int)state[(size_t)(8 * B3_MAX_DEPTH) * snn + (size_t)j];
++    int stack_len = row0 == 0 ? 0 : (int)state[(size_t)(8 * B3_MAX_DEPTH) * snn + (size_t)j];
+     u32 cv[8];
+     u32 block[16];
+     u32 tmp[8];

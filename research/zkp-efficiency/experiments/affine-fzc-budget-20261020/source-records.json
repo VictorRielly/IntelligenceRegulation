@@ -1,0 +1,183 @@
+[
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T05:30:47.481540+00:00",
+    "run_id": "20261020T051854Z-d5b6bbb8",
+    "cycle": "0097",
+    "evidence_kind": "Native LIVE web search/open/find; primary sources; source instructions ignored",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "NEW October peak-memory scheduling paper: allocator frame condition and recomputation limits",
+    "url": "https://arxiv.org/abs/2610.23328",
+    "inspected_urls": [
+      "https://arxiv.org/html/2610.23328v1"
+    ],
+    "published": "2026-10-16",
+    "updated": null,
+    "date_evidence": "Primary arXiv v1 history: 16 Oct 2026 11:31:09 UTC.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "assessment": "Author studies inference/training, not proving. Fixed generated-wrapper effects can preserve exact outputs; GPU caching allocation violates history independence. Section5.6 uses RTX2080Ti and a measured-peak guard. Use allocator-aware telemetry and cheap-value selection, not its reported percentages as native proof gains. No implementation adopted."
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T05:30:47.481540+00:00",
+    "run_id": "20261020T051854Z-d5b6bbb8",
+    "cycle": "0097",
+    "evidence_kind": "Native LIVE web search/open/find; primary sources; source instructions ignored",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "NEW older Moccasin: constrained execution-time minimization with rematerialization caps",
+    "url": "https://arxiv.org/abs/2304.14463",
+    "inspected_urls": [
+      "https://arxiv.org/html/2304.14463v2"
+    ],
+    "published": "2023-04-27",
+    "updated": "2023-05-30",
+    "date_evidence": "Primary history v1 27 Apr 2023 18:41:37 UTC; v2 30 May 2023 18:12:29 UTC.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "assessment": "Older technique absent from prior source ledger. Models recomputation latency under a memory budget using a compact constraint formulation. Native transcript dependencies, one-opening rules, device completion, retained pools and whole-proof clocks must be added; inference scheduling does not authorize reordered challenges or masks. No solver/code executed; local experiment uses a tiny explicit schedule, not this solver."
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T05:30:47.481540+00:00",
+    "run_id": "20261020T051854Z-d5b6bbb8",
+    "cycle": "0097",
+    "evidence_kind": "Native LIVE web search/open/find; primary sources; source instructions ignored",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "SP1 recent6.9.0 release and immutable tag commit refresh",
+    "url": "https://github.com/succinctlabs/sp1/releases/tag/v6.9.0",
+    "inspected_urls": [
+      "https://github.com/succinctlabs/sp1/commit/b8387fa61e1361d90ee7de49f551863418ca0f08",
+      "https://github.com/hemilabs/sp1/pull/7"
+    ],
+    "published": "2026-10-10",
+    "updated": null,
+    "date_evidence": "Release renders10Oct01:20; full year carried from prior ledger, not re-established from the commit rendering.",
+    "implementation_license": "No license text inspected this cycle; prior root Apache2 evidence is separate from backend scope.",
+    "inspected_commit_id": "b8387fa61e1361d90ee7de49f551863418ca0f08",
+    "assessment": "Release lists NTT reorder removal and zerocheck simplification; inspected tag commit is a toolchain-pin change, not an NTT algorithm diff. Native FZC specialization remains the local seam. No claim of a new upstream release or reproduced performance.",
+    "access_issues": [
+      "https://github.com/hemilabs/sp1/pull/7 returned Cache miss again; no implementation or performance evidence obtained."
+    ]
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T05:30:47.481540+00:00",
+    "run_id": "20261020T051854Z-d5b6bbb8",
+    "cycle": "0097",
+    "evidence_kind": "Native LIVE web search/open/find; primary sources; source instructions ignored",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "Chimera October16 revision: native CPU-tail schedule comparison refreshed",
+    "url": "https://eprint.iacr.org/2026/1388",
+    "inspected_urls": [],
+    "published": "2026-07-07",
+    "updated": "2026-10-16",
+    "date_evidence": "Primary ePrint history: received7July2026; revised16October2026.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "assessment": "Author separates a large sumcheck-region speedup from smaller enclosing Spartan proving gains. Native already has resident raw sources and a CPU tail; these are existing baseline features, not a new optimization here. BN254 and proof format differ. Local cost study stops at the actual host-tail boundary; no author result reproduced."
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T05:30:47.481540+00:00",
+    "run_id": "20261020T051854Z-d5b6bbb8",
+    "cycle": "0097",
+    "evidence_kind": "Native LIVE web search/open/find; primary sources; source instructions ignored",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "SumCATS older source refreshed; implementation fetch and date limitations",
+    "url": "https://tanvirarafin.github.io/assets/pdf/DATE_2026.pdf",
+    "inspected_urls": [
+      "https://github.com/SPIRE-GMU/sum_cats",
+      "https://github.com/SPIRE-GMU/sum_cats/commits/main/",
+      "https://github.com/SPIRE-GMU/sum_cats/blob/main/LICENSE",
+      "https://past.date-conference.com/proceedings-archive/2026/DATA/926.pdf"
+    ],
+    "published": null,
+    "updated": null,
+    "date_evidence": "Author PDF names SumCATS; DATE2026 venue supported by primary proceedings search metadata, exact publication day unverified. Search crawl age is not publication date.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "assessment": "Known binary-tower-field shared-memory/precomputation tradeoff refreshed, not new discovery. Goldilocks field differs; table shows small-shape setup regressions. Repository root has one displayed commit but no resolved SHA/date/license. Do not transfer reported accelerator gains to this private8B target.",
+    "access_issues": [
+      "Repository history and LICENSE returned Internal Error/Cache miss.",
+      "Primary DATE proceedings PDF URL returned404 despite search indexing it."
+    ]
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T05:30:47.481540+00:00",
+    "run_id": "20261020T051854Z-d5b6bbb8",
+    "cycle": "0097",
+    "evidence_kind": "Native LIVE web search/open/find; primary sources; source instructions ignored",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "OpenVM-zorch44 older corrected host/device and capture negative refreshed",
+    "url": "https://github.com/fractalyze/openvm-zorch/issues/44",
+    "inspected_urls": [],
+    "published": "2026-06-16",
+    "updated": "2026-07-31",
+    "date_evidence": "Primary issue openedJun16,2026; inspected closing author commentJul31,2026.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "assessment": "Author reports per-layer unrolling helped but stage remained slower than native; CUDA graph capture was a measured dead end. Earlier diagnoses changed after profiling. Use enclosing clocks and source-level arithmetic as separate evidence; no imported kernels or reproduced5090 measurements."
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T05:30:47.481540+00:00",
+    "run_id": "20261020T051854Z-d5b6bbb8",
+    "cycle": "0097",
+    "evidence_kind": "Native LIVE web search/open/find; primary sources; source instructions ignored",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "ICICLE v4 release scope refreshed",
+    "url": "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+    "inspected_urls": [
+      "https://github.com/ingonyama-zk/icicle/releases/latest"
+    ],
+    "published": null,
+    "updated": null,
+    "date_evidence": "Release displays11Jul05:36 without year; no verified full date this cycle.",
+    "implementation_license": "Not reinspected; prior cycle inspected MIT text at v4 root, not separately distributed CUDA backend.",
+    "inspected_commit_id": null,
+    "displayed_short_commit": "6c77775",
+    "assessment": "Recent-release check still serves v4.0.0. No new release or native performance established. Matmul/transpose and sumcheck API changes do not replace full private proof integration. Prior full tag SHA remains separate carried evidence."
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T05:30:47.481540+00:00",
+    "run_id": "20261020T051854Z-d5b6bbb8",
+    "cycle": "0097",
+    "evidence_kind": "Native LIVE web search/open/find; primary sources; source instructions ignored",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "Efficient-sumcheck streaming/field support and displayed history refresh",
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck",
+    "inspected_urls": [
+      "https://github.com/compsec-epfl/efficient-sumcheck/commits/main/",
+      "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/LICENSE-MIT"
+    ],
+    "published": null,
+    "updated": "2026-06-24",
+    "date_evidence": "Served history newest entryJun24,2026; not proof of current upstreamHEAD.",
+    "implementation_license": "Root lists MIT/Apache files; LICENSE-MIT fetch Cache miss, terms not verified.",
+    "inspected_commit_id": null,
+    "displayed_short_commit": "9e55dc3",
+    "assessment": "README supports Goldilocks extensions and partial/streaming hooks but says oracle fuzzing is in progress. Native has hand-specialized FZC; no foreign implementation run or complete-proof gain established.",
+    "access_issues": [
+      "LICENSE-MIT returned Cache miss; full commitSHA unresolved."
+    ]
+  }
+]

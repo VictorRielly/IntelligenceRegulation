@@ -1,0 +1,18 @@
+[zk60-guard 10:48:34] START astra-openai_mod_cat_violence_le168_strat300-c1 class=light need=1.1G cap=1.8G enforce=cgroup+watchdog waited=0s run=9f90cd518aeb
+[zk60-guard 10:52:15] END astra-openai_mod_cat_violence_le168_strat300-c1 exit=0 child_wall=221s peak_rss=0.75G min_avail=7.27G
+[zk60-guard 11:13:15] START astra-openai_mod_cat_hate_le168_strat300-c1 class=light need=1.1G cap=1.8G enforce=cgroup+watchdog waited=0s run=475a5b1948f9
+[zk60-guard 11:34:31] END astra-openai_mod_cat_hate_le168_strat300-c1 exit=0 child_wall=1276s peak_rss=0.79G min_avail=6.35G
+[zk60-guard 12:01:01] START astra-toxicchat_mod_hate-c1 class=light need=1.1G cap=1.8G enforce=cgroup+watchdog waited=0s run=bacf1fb0960a
+[zk60-guard 12:05:41] END astra-toxicchat_mod_hate-c1 exit=0 child_wall=279s peak_rss=0.83G min_avail=10.99G
+[zk60-guard 12:05:41] START astra-toxicchat_mod_sexual-c1 class=light need=1.1G cap=1.8G enforce=cgroup+watchdog waited=0s run=bb51fbfcdf1a
+[zk60-guard 12:11:24] END astra-toxicchat_mod_sexual-c1 exit=0 child_wall=343s peak_rss=0.85G min_avail=10.41G
+[zk60-guard 12:11:24] START astra-toxicchat_mod_violence-c1 class=light need=1.1G cap=1.8G enforce=cgroup+watchdog waited=0s run=8853fef2a580
+[zk60-guard 12:17:48] END astra-toxicchat_mod_violence-c1 exit=0 child_wall=384s peak_rss=0.84G min_avail=9.31G
+[zk60-guard 12:17:48] START astra-openai_mod_mod_sexual_le168_strat300-c1 class=light need=1.1G cap=1.8G enforce=cgroup+watchdog waited=0s run=263fc4deef15
+[zk60-guard 12:43:58] END astra-openai_mod_mod_sexual_le168_strat300-c1 exit=3 child_wall=1570s peak_rss=0.78G min_avail=5.83G
+[zk60-guard 12:43:58] START astra-openai_mod_mod_sexual_le168_strat300-c2 class=light need=1.1G cap=1.8G enforce=cgroup+watchdog waited=0s run=eb70fdf0055f
+[zk60-guard 12:45:23] END astra-openai_mod_mod_sexual_le168_strat300-c2 exit=0 child_wall=85s peak_rss=0.50G min_avail=6.28G
+[zk60-guard 12:45:24] START astra-openai_mod_mod_violence_le168_strat300-c1 class=light need=1.1G cap=1.8G enforce=cgroup+watchdog waited=0s run=a5ec9b9f8b1b
+[zk60-guard 13:10:37] END astra-openai_mod_mod_violence_le168_strat300-c1 exit=0 child_wall=1513s peak_rss=0.78G min_avail=5.08G
+[zk60-guard 13:10:37] START astra-openai_mod_mod_hate_le168_strat300-c1 class=light need=1.1G cap=1.8G enforce=cgroup+watchdog waited=0s run=9a4da4777baa
+[zk60-guard 13:32:47] END astra-openai_mod_mod_hate_le168_strat300-c1 exit=0 child_wall=1330s peak_rss=0.78G min_avail=5.27G

@@ -1,0 +1,17 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/private-transient-capacity-20261020/model.py",
+    "sha256": "9bb0e4e341de3085231331486aedc692261bea97b13ffb54ead5c7d904ebdda0",
+    "bytes": 8964
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/private-transient-capacity-20261020/audit.py",
+    "sha256": "00d369ca87aed3f145f42ecfc3e350c6c3792173db1c2c6bc52c6df87a41935d",
+    "bytes": 8147
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/private-transient-capacity-20261020/traces.json",
+    "sha256": "67b67f2b56211a050c9405e90d847b35209d7e765c4c85c7b82ac9c80a32379e",
+    "bytes": 8829383
+  }
+]

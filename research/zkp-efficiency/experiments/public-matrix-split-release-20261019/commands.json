@@ -1,0 +1,62 @@
+[
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-matrix-split-release-20261019/experiment.py"
+    ],
+    "started": "2026-10-19T21:26:46.997910+00:00",
+    "exit_code": 0,
+    "source_sha256": "a35a9fcd37df09cf10321405c1b3772e5d4e2fe2ba1b20c335151052bb1ac7b4",
+    "stdout": "00-experiment.py.stdout.log",
+    "stderr": "00-experiment.py.stderr.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-matrix-split-release-20261019/audit.py"
+    ],
+    "started": "2026-10-19T21:27:59.344678+00:00",
+    "exit_code": 0,
+    "source_sha256": "557cb2536dc6cd40198af013313ef2f9e747f260d7b88387846bcd687af4a3ae",
+    "stdout": "01-audit.py.stdout.log",
+    "stderr": "01-audit.py.stderr.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-matrix-split-release-20261019/experiment.py"
+    ],
+    "started": "2026-10-19T21:29:47.470451+00:00",
+    "exit_code": 0,
+    "source_sha256": "f6c24152e187c12a72909d669ea35f8e34318e1d9e321d82bc2093d9e8c3e1df",
+    "stdout": "02-experiment.py.stdout.log",
+    "stderr": "02-experiment.py.stderr.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-matrix-split-release-20261019/audit.py"
+    ],
+    "started": "2026-10-19T21:30:27.396736+00:00",
+    "exit_code": 0,
+    "source_sha256": "6ce3ebb9466dd59225d7ec8b7214160141e70ca72e0cf6c1f9408b552a7ab23b",
+    "stdout": "03-audit.py.stdout.log",
+    "stderr": "03-audit.py.stderr.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-matrix-split-release-20261019/validate.py"
+    ],
+    "started": "2026-10-19T21:34:46.902551+00:00",
+    "exit_code": 0,
+    "source_sha256": "5ffd4658eb981bdcf0e610480c14aa69272b10b0d4bb62086621a6f8f6e3bac2",
+    "stdout": "04-validate.py.stdout.log",
+    "stderr": "04-validate.py.stderr.log"
+  }
+]

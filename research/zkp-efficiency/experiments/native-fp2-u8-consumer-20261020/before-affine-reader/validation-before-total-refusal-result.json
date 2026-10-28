@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "seed": 20261020109,
+  "checks": 741,
+  "verified_pins": 6,
+  "source_fragment_mutations": 3,
+  "independent_inverse_cases": 96,
+  "original_fixture_cases": 40,
+  "native_wrapping_reader_values": 164,
+  "additional_tiled_consumers": 28,
+  "negative_controls": [
+    "wrapping_differs_from_unbounded_0",
+    "wrapping_differs_from_unbounded_1",
+    "wrapping_differs_from_unbounded_2",
+    "wrapping_differs_from_unbounded_3"
+  ],
+  "elapsed_s": 2.030386325001018,
+  "maxrss_KiB": 16888,
+  "scope": "Independent original-source basis, exponent inverse, compiled native wrapping reader; unmasked arithmetic only."
+}

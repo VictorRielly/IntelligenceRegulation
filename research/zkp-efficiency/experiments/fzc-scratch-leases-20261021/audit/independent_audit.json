@@ -1,0 +1,127 @@
+{
+  "checks": {
+    "constructor_eager_fallback_precedes_mapping": true,
+    "kernel_words_fence_flag_order": true,
+    "source_anchors_present": true,
+    "sync_and_reset_case_rejects_false_completion": true,
+    "trace_count_and_sizes": true,
+    "unsafe_reuse_cases_detected": true
+  },
+  "counts": {
+    "baseline_cumulative_bytes": 513792,
+    "baseline_cumulative_u64": {
+      "fallback_u64": 352,
+      "mapped_u64": 384,
+      "tail_u64": 63488
+    },
+    "baseline_per_attempt_native_allocation_events": 96,
+    "baseline_per_attempt_peak_u64": 2713,
+    "bounded_growth_cache_cumulative_allocated_bytes": 32112,
+    "bounded_growth_cache_cumulative_allocated_u64": {
+      "fallback_u64": 22,
+      "mapped_u64": 24,
+      "tail_u64": 3968
+    },
+    "bounded_growth_cache_events_by_kind": {
+      "fallback_u64": 2,
+      "mapped_u64": 2,
+      "tail_u64": 2
+    },
+    "bounded_growth_cache_final_retained_bytes": 21704,
+    "bounded_growth_cache_final_retained_u64": {
+      "fallback_u64": 12,
+      "mapped_u64": 13,
+      "tail_u64": 2688
+    },
+    "bounded_growth_cache_native_allocation_events": 6,
+    "interpretation": "One sequential same-context lease per kind; grow on demand. Counts assume each attempt reaches the host-tail transition and mapped allocation succeeds. Replacement may briefly hold old and new capacities simultaneously."
+  },
+  "findings": [
+    "Existing fresh FzcMapped zeroes all words; a retained allocation can expose prior flag 1 when a new DevFzcRounds resets seq to 0 and first launch increments to 1.",
+    "Degree 5 to 4 moves the flag from index 12 to 10, an old payload word; degree 4 to 5 moves it to index 12, which may contain a prior larger-shape flag. Reset must address the new degree and synchronize prior writers first.",
+    "The host polls a mapped flag after device __threadfence_system, but the flag is written inside a still-running kernel. Seeing it is not proof that the stream finished or that freeing/releasing mapped storage is safe. Stream completion must precede cross-attempt reuse and quarantine decisions.",
+    "The constructor allocates fallback PinBuf before trying mapping. A cache lease for fallback must be acquired eagerly at construction to preserve constructor-stage refusal; lazy acquisition on timeout changes when failure becomes visible. A cache hit skips a new native allocation and therefore cannot reproduce every allocator refusal.",
+    "Mapped allocation failure sets process-wide FZC_MAPPED_BROKEN and uses copy+sync; a reuse design must not silently retry a poisoned mapping or retain a buffer after context failure/uncertain stream completion.",
+    "Host-tail packing allocates separate device d_pack and pinned PinBuf of k*half*2 words. Only the pinned host capacity is counted here; d_pack remains per-tail and is outside this lease census."
+  ],
+  "limitations": "Synthetic flag states demonstrate logical hazards only. No CUDA memory-model proof, context recovery test, or native failure injection was run.",
+  "negative_controls": {
+    "clear_before_old_stream_completion_is_insufficient": true,
+    "degree_4_to_5_old_flag_slot_stale_seq1": true,
+    "degree_5_to_4_old_payload_equals_seq1": true,
+    "fresh_zeroed_mapping": false,
+    "same_context_sync_then_current_flag_reset": false,
+    "same_degree_stale_seq1": true
+  },
+  "reuse_preconditions": [
+    "Use one same-context sequential owner and keep each lease live through its final asynchronous writer/copy.",
+    "Establish CUDA stream completion before returning or rebinding mapped/pinned storage; a mapped flag alone is insufficient.",
+    "Reset the active mapped flag offset 2*(degree+1), and prevent stale or late seq=1 from satisfying the next attempt.",
+    "Acquire fallback pinned capacity eagerly at constructor; preserve the mapped-failure fallback and process-wide broken flag.",
+    "Quarantine/drop cached mapped and pinned resources after context poison, timeout with uncertain completion, or failed synchronization."
+  ],
+  "scope": "Independent read-only Rust/CUDA seam audit and pure Python synthetic state model; no native execution or performance measurement.",
+  "source_anchor_lines": {
+    "FzcMapped_constructor": 4130,
+    "eager_fallback_allocation": 4477,
+    "fallback_copy": 4712,
+    "fallback_drop_mapping": 4702,
+    "fallback_stream_sync": 4713,
+    "kernel_mapped_flag": 912,
+    "kernel_mapped_words": 906,
+    "kernel_system_fence": 910,
+    "mapped_allocation": 4482,
+    "mapped_zero_initialization": 4141,
+    "per_attempt_seq_reset": 4503,
+    "poll_flag": 4688,
+    "seq_increment": 4615,
+    "tail_pack_size": 4769,
+    "tail_pin_allocation": 4774
+  },
+  "source_sha256": {
+    "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/cuda.rs": "dcc0e4bcd76c009827d30d8b1547e043118619948f59e63e75b132c5e6a38629",
+    "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/fzc_kernels.cu": "7109e9cbba958876db03f538715258d07d2976c12b3959a293d2371c64bf356e"
+  },
+  "trace": {
+    "assumptions": "Every attempt constructs split path, successful mapped allocation, one eventual tail transition with half=2^tail_log; sequential and same CUDA context.",
+    "attempts": 32,
+    "cycle": [
+      {
+        "degree": 4,
+        "fallback_u64": 10,
+        "k": 20,
+        "mapped_u64": 11,
+        "nv": 5,
+        "tail_log": 5,
+        "tail_u64": 1280
+      },
+      {
+        "degree": 5,
+        "fallback_u64": 12,
+        "k": 21,
+        "mapped_u64": 13,
+        "nv": 6,
+        "tail_log": 6,
+        "tail_u64": 2688
+      },
+      {
+        "degree": 5,
+        "fallback_u64": 12,
+        "k": 20,
+        "mapped_u64": 13,
+        "nv": 6,
+        "tail_log": 5,
+        "tail_u64": 1280
+      },
+      {
+        "degree": 4,
+        "fallback_u64": 10,
+        "k": 21,
+        "mapped_u64": 11,
+        "nv": 5,
+        "tail_log": 6,
+        "tail_u64": 2688
+      }
+    ]
+  }
+}

@@ -222,7 +222,7 @@ fn the_trained_door_refuses_every_frozen_profile() {
         assert!(e.contains("is frozen"), "{}: {e}", sh.name);
         assert!(!sh.trained_calibration && sh.norm_calibration() == NormCalibration::FROZEN, "{}: a registered shape carries a non-frozen calibration", sh.name);
     }
-    assert_eq!(TRAINED_CALIBRATION_PROFILES, [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE, super::shape::TINYLLAMA_T64_TRAINED_PROFILE, super::shape::TINYLLAMA_T128_TRAINED_PROFILE, super::shape::LLAMA3_8B_T32_TRAINED_PROFILE, super::shape::LLAMA3_8B_T64_TRAINED_PROFILE, super::shape::LLAMA3_8B_T128_TRAINED_PROFILE]);
+    assert_eq!(TRAINED_CALIBRATION_PROFILES, [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE, super::shape::TINYLLAMA_T64_TRAINED_PROFILE, super::shape::TINYLLAMA_T128_TRAINED_PROFILE, super::shape::LLAMA3_8B_T32_TRAINED_PROFILE, super::shape::LLAMA3_8B_T64_TRAINED_PROFILE, super::shape::LLAMA3_8B_T128_TRAINED_PROFILE, super::shape::TINYLLAMA_T128_DD_TRAINED_PROFILE, super::shape::LLAMA3_8B_T128_DD_TRAINED_PROFILE, super::shape::TRAINED_DD_RUNG_PROFILE, super::shape::SHIELDSTRAL_T128_TRAINED_PROFILE, super::shape::SHIELDSTRAL_T256_TRAINED_PROFILE, super::shape::SHIELDSTRAL_T128_DD_TRAINED_PROFILE, super::shape::SHIELDSTRAL_T256_DD_TRAINED_PROFILE, super::shape::TRAINED_HD_RUNG_PROFILE]);
     // ROUND 3 (R3-2): one profile per context length; any other T is refused
     for t in [16usize, 48, 256, 512] {
         assert!(Shape::tinyllama_trained(t, &c, T3_F_E).unwrap_err().contains("no trained TinyLlama profile"), "T{t}");
@@ -460,6 +460,12 @@ pub(super) fn run_shape_for_checked(sh: &Shape, l: usize) -> Result<super::run::
     // own run profile; the development rung its own
     if sh.profile == super::shape::TRAINED_CALIB_RUNG_PROFILE {
         super::run::RunShape::rung_tc(sh.clone(), l)
+    } else if sh.profile == super::shape::TRAINED_DD_RUNG_PROFILE {
+        // NATIVE R9: the DD development rung's own run profile
+        super::run::RunShape::rung_dd(sh.clone(), l)
+    } else if sh.profile == super::shape::TRAINED_HD_RUNG_PROFILE {
+        // NATIVE R12: the decoupled-head rung's own run profile
+        super::run::RunShape::rung_hd(sh.clone(), l)
     } else {
         super::run::RunShape::tinyllama_trained(sh.clone(), l)
     }
@@ -479,6 +485,8 @@ pub(super) fn synthetic_statement(sh: &Shape, blocks: &[BlockPublic]) -> super::
     };
     let mut prov = Provenance::recipe("native/synthetic", 1.0 / 512.0, [5; 32], [6; 32]);
     prov.rope_theta = super::shape::trained_rope_theta(sh.profile).unwrap_or(prov.rope_theta);
+    // NATIVE R12 (F1): and the profile's pinned RoPE transform
+    prov.rope_scaling = super::shape::trained_rope_scaling(sh.profile).unwrap_or(super::rope::RopeScaling::None);
     let cal = IntegerCalibration::as_the_code_proves(sh, &prov);
     let recs = blocks.iter().enumerate().map(|(k, b)| LayerRecord::of_block(k as u32, b, vec![])).collect();
     let rp = run_shape_for_checked(sh, 1).map(|r| r.profile()).unwrap_or(sh.profile);
@@ -809,7 +817,7 @@ fn ir_walk(sh: &Shape) -> Vec<super::slot_ir::SlotIr> {
     let lay = Layout::for_shape(sh).unwrap();
     let (public, ff, _) = super::grow_tests::tame_case(sh);
     let c = |re: u64, im: u64| Fp2::new(Fp::new(re), Fp::new(im));
-    let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha: c(7, 1), beta: c(11, 2), g_u8: c(13, 3), g_exp: c(17, 5), g_act: c(19, 7) };
+    let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha: c(7, 1), beta: c(11, 2), g_u8: c(13, 3), g_exp: c(17, 5), g_act: c(19, 7), g_dd: c(23, 11) };
     let mut tr = crate::transcript::Transcript::new(sh.profile.as_bytes());
     let mut pts = IrPoints::default();
     (0..N_SLOTS).map(|s| build_slot_ir(s, &ctx, &mut pts, &mut tr).unwrap_or_else(|e| panic!("{}: slot {s} IR: {e}", sh.name))).collect()
@@ -998,7 +1006,22 @@ fn every_committed_value_under_a_non_unit_coefficient_is_range_proved_at_the_tra
 /// the calibration values; the calibration is bound through the schedule
 /// digest and the statement), and each run profile with its block shape.
 pub(super) fn registered_trained_shapes() -> Vec<Shape> {
-    vec![tinyllama(), rung_tc(), tinyllama_at(64), tinyllama_at(128), llama3_8b(), llama3_8b_at(64), llama3_8b_at(128)]
+    let mut v = vec![tinyllama(), rung_tc(), tinyllama_at(64), tinyllama_at(128), llama3_8b(), llama3_8b_at(64), llama3_8b_at(128), tinyllama_dd(), llama3_8b_dd(), rung_dd()];
+    // NATIVE R12 (D38, F2): the Shieldstral profiles and the decoupled-head rung
+    v.extend([super::r12_tests::shieldstral(128, false), super::r12_tests::shieldstral(256, false), super::r12_tests::shieldstral(128, true), super::r12_tests::shieldstral(256, true), super::r12_tests::rung_hd()]);
+    v
+}
+
+/// NATIVE R9: the three DD shapes (D30) at the same calibrations as their
+/// non-DD twins
+pub(super) fn tinyllama_dd() -> Shape {
+    Shape::tinyllama_t128_trained_dd(&t3_calibration(), T3_F_E).expect("the TinyLlama T128 DD shape")
+}
+pub(super) fn llama3_8b_dd() -> Shape {
+    Shape::llama3_8b_t128_trained_dd(&llama3_8b_calibration(), 9).expect("the Llama-3-8B T128 DD shape")
+}
+pub(super) fn rung_dd() -> Shape {
+    Shape::rung_dd(&rung_tc_calibration()).expect("the DD development rung")
 }
 
 /// ROUND 4 (R4-1): the trained Llama-3-8B shape with the B5 smoke's
@@ -1026,6 +1049,15 @@ pub(super) fn registered_trained_runs() -> Vec<(&'static str, Shape)> {
         (super::run::RUN_PROFILE_LLAMA3_8B_T32_TRAINED, llama3_8b()),
         (super::run::RUN_PROFILE_LLAMA3_8B_T64_TRAINED, llama3_8b_at(64)),
         (super::run::RUN_PROFILE_LLAMA3_8B_T128_TRAINED, llama3_8b_at(128)),
+        (super::run::RUN_PROFILE_TINYLLAMA_T128_DD, tinyllama_dd()),
+        (super::run::RUN_PROFILE_LLAMA3_8B_T128_DD, llama3_8b_dd()),
+        (super::run::RUN_PROFILE_RUNG_DD, rung_dd()),
+        // NATIVE R12 (D38, F2)
+        (super::run::RUN_PROFILE_SHIELDSTRAL_T128_TRAINED, super::r12_tests::shieldstral(128, false)),
+        (super::run::RUN_PROFILE_SHIELDSTRAL_T256_TRAINED, super::r12_tests::shieldstral(256, false)),
+        (super::run::RUN_PROFILE_SHIELDSTRAL_T128_DD, super::r12_tests::shieldstral(128, true)),
+        (super::run::RUN_PROFILE_SHIELDSTRAL_T256_DD, super::r12_tests::shieldstral(256, true)),
+        (super::run::RUN_PROFILE_RUNG_HD, super::r12_tests::rung_hd()),
     ]
 }
 
@@ -1058,8 +1090,14 @@ pub(super) fn trained_run_statement(sh: &Shape, profile: &'static str, l: usize,
     let recs = (0..l).map(|k| LayerRecord { index: k as u32, ..rec0.clone() }).collect();
     let mut prov = Provenance::recipe("registry", 1.0 / 1024.0, [1; 32], [2; 32]);
     prov.rope_theta = super::shape::trained_rope_theta(sh.profile).unwrap_or(prov.rope_theta);
+    // NATIVE R12 (F1): and the profile's pinned RoPE transform
+    prov.rope_scaling = super::shape::trained_rope_scaling(sh.profile).unwrap_or(super::rope::RopeScaling::None);
     let cal = IntegerCalibration::as_the_code_proves(sh, &prov);
-    let model = TrainedModelStatement::new(sh, profile, source, cal, recs).expect("the registry's trained statement");
-    let rs = if sh.profile == super::shape::TRAINED_CALIB_RUNG_PROFILE { RunShape::rung_tc(sh.clone(), l) } else { RunShape::tinyllama_trained(sh.clone(), l) }.expect("the trained run shape");
+    // NATIVE R12 (F3): a tied model's statement binds its tables to the
+    // pinned tensor (synthetic table digests in the registry)
+    let tied = tied_tensor_for_profile(sh.profile).map(|(name, digest)| TiedEmbedding { tensor: name.into(), tensor_sha256: digest, embedding_table_sha256: [3; 32], head_table_sha256: [4; 32], head_mult_sha256: [5; 32] });
+    let model = TrainedModelStatement::new_with_tied(sh, profile, source, cal, recs, tied).expect("the registry's trained statement");
+    let rs = run_shape_for_checked(sh, l).expect("the trained run shape");
+    let _ = RunShape::rung_tc;
     RunStatement::new_bound_from_digests(rs, ctx, expected, vec![one.digest(); l], &vec![(0, 0); l], &model).expect("the trained run statement")
 }

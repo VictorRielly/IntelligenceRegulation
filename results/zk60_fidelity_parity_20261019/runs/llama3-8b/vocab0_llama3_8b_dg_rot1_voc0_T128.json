@@ -1,0 +1,22 @@
+{
+ "export": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128",
+ "profile_sha256": "00aba3d9f75a443b0238bb889edecc5c3b0b8b07965f18a5a536d0be6a675827",
+ "vocab": 128256,
+ "input": "export embedding table",
+ "refusing_tokens": 0,
+ "by_site": {},
+ "worst_abs": {
+  "y": 30,
+  "Q": 64,
+  "K": 64,
+  "V": 86,
+  "QR_bound": 64,
+  "KR_bound": 64
+ },
+ "class_int8": 127,
+ "score_bound_all_token_pairs_loose": 586,
+ "score_class": 127,
+ "rows": [],
+ "seconds": 759.1361384391785,
+ "scope": "layer 0 only (exhaustive over the vocabulary for norm_a / Q / K / V / RoPE); later layers depend on context"
+}

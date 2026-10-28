@@ -1,0 +1,9 @@
+dd-rung-l1-dense                             keys    24589 refs    592 covered True ok True
+dd-rung-l1-zero                              keys    24589 refs    592 covered True ok True
+dd-rung-l2-dense                             keys    46149 refs   1183 covered True ok True
+dd-rung-l2-zero                              keys    46149 refs   1183 covered True ok True
+tl128dd-l1-dense                             keys    31345 refs    593 covered True ok True
+tl128dd-l1-zero                              keys    31345 refs    593 covered True ok True
+tl128dd-l2-dense                             keys    59693 refs   1185 covered True ok True
+tl128dd-l2-zero                              keys    59693 refs   1185 covered True ok True
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round14/controls_c/schema-dd.json   ok=True

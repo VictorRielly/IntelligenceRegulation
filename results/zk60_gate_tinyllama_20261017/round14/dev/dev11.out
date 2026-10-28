@@ -1,0 +1,2 @@
+[zk60-guard 17:16:02] START gate-dev11-tl128-l1-everything class=light need=3G cap=6G enforce=cgroup+watchdog waited=0s run=f3160564018f
+[zk60-guard 18:11:26] END gate-dev11-tl128-l1-everything exit=0 child_wall=3324s peak_rss=1.89G min_avail=7.48G

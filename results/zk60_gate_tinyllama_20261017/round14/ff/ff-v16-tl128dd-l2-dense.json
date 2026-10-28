@@ -1,0 +1,3450 @@
+{
+ "blocks": 2,
+ "bundle": "tl128dd-l2-dense",
+ "bundle_dir": "/home/victor/zk60-artifacts/dd-gate-r9/tl128dd-l2-dense",
+ "gate": "zk60-native-run-gate, staged at the shape 'TinyLlama-1.1B block geometry, trained calibration, DD (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads, 32-slot division dictionary)'",
+ "ok": false,
+ "peak_rss_mb": 277,
+ "privacy_acceptance": false,
+ "privacy_property_established": false,
+ "round": 9,
+ "schema": "hashline-native-capture/5-run",
+ "shape_name": "TinyLlama-1.1B block geometry, trained calibration, DD (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads, 32-slot division dictionary)",
+ "stage10_bilinear_group_factor": {
+  "controls": {
+   "ok": false,
+   "skipped": "controls not requested"
+  },
+  "group_factor": {
+   "bilinear_slots_per_stage": 2,
+   "bundle": "tl128dd-l2-dense",
+   "counts": {
+    "coordinate_entries_compared": 0,
+    "coordinate_lists_rederived_and_compared": 0,
+    "definition_challenge_counts_compared": 0,
+    "dimension_sets_derived_and_compared": 0,
+    "fixed_coordinates_compared_with_a_rederived_challenge": 0,
+    "group_point_entries_compared": 0,
+    "group_points_derived_and_compared": 0,
+    "slots_examined": 0
+   },
+   "definition_in_force": null,
+   "definition_reason": null,
+   "definition_selected_by": "the bundle's own source pin of argument.rs (112352bc35c8)",
+   "failures": [],
+   "finding": "S19-F1 (ZK60_BLOCK125M_S19F1_DISPOSITION.md)",
+   "geometry": {
+    "h_pad": 32,
+    "head_dim": 64,
+    "kv_heads": 4,
+    "ldh = lg(head_dim)": 6,
+    "lh = lg(h_pad)": 5,
+    "lkv = clog2(kv_heads)": 2,
+    "lt = lg(t_pad)": 7,
+    "q_heads": 32,
+    "t_pad": 128
+   },
+   "group_point_derived_from": "the transcript replay's own re-derived definition challenges",
+   "ok": false,
+   "per_slot": [],
+   "refusals": [
+    "the bundle pins an `argument.rs` this port has never read (112352bc35c8), so neither definition of the bilinear slots can be said to be the one it was made under"
+   ],
+   "slot_instances": 4,
+   "slots_with_a_derived_group_point": 0,
+   "stages": 2,
+   "superseded": false,
+   "superseded_note": null,
+   "what": "the two bilinear attention slots' GROUP FACTOR: lkv, the slot dimensions, the point r_g = r_h[..lkv] and both private factors' coordinate lists, all DERIVED from the shape and the replayed transcript and then compared with what the bundle declares.  The derived point is what the terminal identity evaluates; the declared one is only ever compared",
+   "what_this_does_not_establish": "that the private factors are the quantised query, key, probability and value planes of the statement.  No bundle carries a witness.  What is established is that the claim POINT and the slot's SCHEDULE are the ones the repaired construction derives from this shape, and that the group factor the verifier multiplies in is the one this tool computed for itself"
+  },
+  "ok": false
+ },
+ "stage1_integrity": {
+  "ok": false,
+  "seconds_before_it_raised": 0.7,
+  "the_stage_raised": "KeyError: 'Dd'",
+  "what_this_means": "this stage did not run at this shape.  The absence of a figure is not a figure, and nothing here says the bundle is bad"
+ },
+ "stage2_transcript_replay": {
+  "bundle": "tl128dd-l2-dense",
+  "challenges_checked": 9984,
+  "failures": [],
+  "final_counter": 10560,
+  "hash_rule": "blake3-keyed/1",
+  "not_rederived": [],
+  "ok": true,
+  "positions_checked": 261,
+  "profile": "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-ddict32-statement/1",
+  "run_binding_reproduced": true,
+  "segment_position_tags": [
+   {
+    "end_tag_ok": true,
+    "stage": 0,
+    "start_tag_ok": true
+   },
+   {
+    "end_tag_ok": true,
+    "stage": 1,
+    "start_tag_ok": true
+   }
+  ],
+  "stages": 2
+ },
+ "stage3_per_commitment": {
+  "exclusivity_controls": {
+   "all_fire": true,
+   "clauses": [
+    {
+     "id": "EX-1",
+     "name": "geometry",
+     "source": "protocol.rs:233-235 (audit_claims: the proximity pair is the last two rows, an even number of reserved rows) and :356-370 (endpoint_geometry)",
+     "what": "A / H / boundary: the proximity pair is the last two rows, the reserved (non-data, non-proximity, non-zero-sum) rows are exactly the declared site rows and there is an even number of them, and H's zero-sum rows are its declared sum rows; an external endpoint: (rows, rows - 5, rows - 3), sites [d, d+1], proximity [d+2, d+3], one spare row d+4"
+    },
+    {
+     "id": "EX-2",
+     "name": "no claim reaches the proximity pair",
+     "source": "protocol.rs:242-244 (first half)",
+     "what": "no part's rows end past the first proximity row (A / H / boundary), and no claim puts weight on a proximity row (every kind)"
+    },
+    {
+     "id": "EX-3",
+     "name": "no claim part leaves the commitment",
+     "source": "protocol.rs:242-244 (second half)",
+     "what": "every part's rows lie inside the commitment"
+    },
+    {
+     "id": "EX-4",
+     "name": "a part on a site row has a nonzero coefficient",
+     "source": "protocol.rs:246-248 ('zero terminal mask coefficient')",
+     "what": "every part that covers a site row carries a nonzero coefficient"
+    },
+    {
+     "id": "EX-5",
+     "name": "an evaluation claim carries exactly two adjacent site rows",
+     "source": "protocol.rs:258-262",
+     "what": "every claim that is not point-free puts nonzero weight on exactly two site rows, and they are adjacent"
+    },
+    {
+     "id": "EX-6",
+     "name": "the pair sits at an even offset",
+     "source": "protocol.rs:259 ((touched[0] - site_rows[0]) % 2)",
+     "what": "the first site row a claim touches is an even number of rows past the first site row"
+    },
+    {
+     "id": "EX-7",
+     "name": "no weight on a spare reserved row",
+     "source": "the reduction's hypothesis (X); protocol.rs:379-384 for the endpoint",
+     "what": "no claim puts weight on a reserved row that is no site row (the endpoint's row d+4)"
+    },
+    {
+     "id": "EX-8",
+     "name": "the sum claim is masked by the zero-sum pair alone",
+     "source": "protocol.rs:252-257",
+     "what": "the point-free LAST claim of a commitment with sum rows touches no site row and covers both zero-sum rows with nonzero coefficients"
+    },
+    {
+     "id": "EX-9",
+     "name": "no unexpected sum claim",
+     "source": "protocol.rs:263 ('unexpected sum claim')",
+     "what": "no point-free claim before the last one, and none on a commitment without sum rows"
+    },
+    {
+     "id": "EX-10",
+     "name": "pairs are disjoint",
+     "source": "protocol.rs:268-270 (uses[r] != 1: the 'shared' face)",
+     "what": "no site row carries weight from two claims -- the OVERLAP refusal of finding F-4"
+    },
+    {
+     "id": "EX-11",
+     "name": "every reserved row is used",
+     "source": "protocol.rs:268-270 (uses[r] != 1: the 'unused' face)",
+     "what": "every site row carries weight from some claim"
+    },
+    {
+     "id": "EX-12",
+     "name": "the pair basis",
+     "source": "not in audit_claims; argument.rs:382-384 (build_claim's (cm, cm*U))",
+     "what": "a claim's two site-row weights are an Fp-basis of Fp2"
+    },
+    {
+     "id": "EX-13",
+     "name": "one column key per claim",
+     "source": "protocol.rs:203-205 (opening_groups_at)",
+     "what": "every part of a claim has the same column-weight key"
+    },
+    {
+     "id": "EX-14",
+     "name": "the group count is the schedule's",
+     "source": "protocol.rs:321-324 (check_opening) and :389 (the endpoint's one group)",
+     "what": "the first-occurrence groups number a_groups on A, h_groups on H, the boundary's sites on a boundary, and 1 on an endpoint"
+    },
+    {
+     "id": "EX-15",
+     "name": "the endpoint claim's shape",
+     "source": "protocol.rs:379-384 (check_endpoint_opening)",
+     "what": "an endpoint opens exactly one claim of three parts on rows 0..d, d and d+1, every coefficient nonzero"
+    },
+    {
+     "id": "EX-16",
+     "name": "every group coefficient is nonzero",
+     "source": "protocol.rs:296-301 (check_opening_challenges: 'zero group member coefficient')",
+     "what": "every replayed lambda is nonzero"
+    }
+   ],
+   "clauses_exercised": [
+    "EX-1",
+    "EX-2",
+    "EX-3",
+    "EX-4",
+    "EX-5",
+    "EX-6",
+    "EX-7",
+    "EX-8",
+    "EX-9",
+    "EX-10",
+    "EX-11",
+    "EX-12",
+    "EX-13",
+    "EX-14",
+    "EX-15",
+    "EX-16"
+   ],
+   "clauses_not_exercised": [],
+   "control_names": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X02_A_claim_part_on_the_proximity_row",
+    "X03_A_claim_part_outside_the_commitment",
+    "X04_A_zero_mask_coefficient",
+    "X05a_A_evaluation_claim_with_no_site_row",
+    "X05b_A_evaluation_claim_with_one_site_row",
+    "X05c_A_evaluation_claim_with_three_site_rows",
+    "X05d_A_non_adjacent_pair",
+    "X06_A_pair_shifted_one_row",
+    "X07_endpoint_mask_part_on_the_spare_row",
+    "X08a_H_sum_claim_touches_a_site_row",
+    "X08b_H_sum_claim_misses_the_second_zero_sum_row",
+    "X09a_H_sum_claim_first",
+    "X09b_H_sum_claim_appended_to_A",
+    "X10a_A_overlapping_pairs",
+    "X10b_A_one_pair_shared_by_two_claims",
+    "X10c_boundary_site1_on_site0s_pair",
+    "X11_A_last_claim_dropped",
+    "X12_A_pair_weights_Fp_dependent",
+    "X13_A_parts_with_different_column_weights",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X15a_endpoint_two_claims",
+    "X15b_endpoint_zero_coefficient",
+    "X16_A_zero_group_coefficient"
+   ],
+   "controls": {
+    "X01_A_last_reserved_pair_declared_spare": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-1",
+       "EX-5",
+       "EX-7"
+      ],
+      "finding": "2 reserved row(s) that are no site row, first 1867",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-1",
+     "target_clause_name": "geometry",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [],
+      "h_pair": true
+     },
+     "what": "A@0: its last reserved pair, rows [1867, 1868], declared spare -- two reserved rows that are no site row"
+    },
+    "X02_A_claim_part_on_the_proximity_row": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-2",
+       "EX-5",
+       "EX-11"
+      ],
+      "finding": "claim 0: a part reaches row 1869 or beyond",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-2",
+     "target_clause_name": "no claim reaches the proximity pair",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 0 touches the proximity pair",
+       "A@0: claim 0 carries 2 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 0's second mask part moved onto the proximity row 1869"
+    },
+    "X03_A_claim_part_outside_the_commitment": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-2",
+       "EX-3",
+       "EX-11"
+      ],
+      "finding": "claim 0: a part leaves the commitment's 1871 rows",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-3",
+     "target_clause_name": "no claim part leaves the commitment",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": false,
+      "why": "a claim's row weights cannot be built, so the weight-level check has nothing to read"
+     },
+     "what": "A@0: claim 0's second mask part moved three rows past the last row"
+    },
+    "X04_A_zero_mask_coefficient": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-4",
+       "EX-5",
+       "EX-6",
+       "EX-11"
+      ],
+      "finding": "claim 0: a zero coefficient on a site row",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-4",
+     "target_clause_name": "a part on a site row has a nonzero coefficient",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 0 carries 1 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 0's first mask coefficient set to zero"
+    },
+    "X05a_A_evaluation_claim_with_no_site_row": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-5",
+       "EX-11"
+      ],
+      "finding": "claim 0: site rows [], not one adjacent pair",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-5",
+     "target_clause_name": "an evaluation claim carries exactly two adjacent site rows",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 0 carries 0 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 0's two mask parts removed (0 site rows)"
+    },
+    "X05b_A_evaluation_claim_with_one_site_row": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-5",
+       "EX-11"
+      ],
+      "finding": "claim 0: site rows [1623], not one adjacent pair",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-5",
+     "target_clause_name": "an evaluation claim carries exactly two adjacent site rows",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 0 carries 1 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 0's second mask part removed (1 site row)"
+    },
+    "X05c_A_evaluation_claim_with_three_site_rows": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-5",
+       "EX-10"
+      ],
+      "finding": "claim 0: site rows [1623, 1624, 1625], not one adjacent pair",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-5",
+     "target_clause_name": "an evaluation claim carries exactly two adjacent site rows",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 0 carries 3 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 0 given a third mask part, on claim 1's first site row (3 site rows)"
+    },
+    "X05d_A_non_adjacent_pair": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-5",
+       "EX-10",
+       "EX-11"
+      ],
+      "finding": "claim 0: site rows [1623, 1626], not one adjacent pair",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-5",
+     "target_clause_name": "an evaluation claim carries exactly two adjacent site rows",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 0 carries 2 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 0's second mask part moved onto claim 1's second row (a non-adjacent pair)"
+    },
+    "X06_A_pair_shifted_one_row": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-6",
+       "EX-10",
+       "EX-11"
+      ],
+      "finding": "claim 0: its pair starts at row 1624, an odd offset from 1623",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-6",
+     "target_clause_name": "the pair sits at an even offset",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [],
+      "h_pair": true
+     },
+     "what": "A@0: claim 0's pair shifted down one row (an odd offset)"
+    },
+    "X07_endpoint_mask_part_on_the_spare_row": {
+     "commitment": "E-Input",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-5",
+       "EX-7",
+       "EX-11",
+       "EX-15"
+      ],
+      "finding": "claim 0: weight on spare row 20",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-7",
+     "target_clause_name": "no weight on a spare reserved row",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "E-Input: claim 0 carries 2 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "E-Input: its claim's second mask part moved onto the spare row"
+    },
+    "X08a_H_sum_claim_touches_a_site_row": {
+     "commitment": "H@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-8",
+       "EX-10"
+      ],
+      "finding": "claim 51 (the sum claim) touches site row 1922",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-8",
+     "target_clause_name": "the sum claim is masked by the zero-sum pair alone",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "H@0: claim 51 carries 1 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "H@0: the sum claim given a point-free part on the first site row"
+    },
+    "X08b_H_sum_claim_misses_the_second_zero_sum_row": {
+     "commitment": "H@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-8"
+      ],
+      "finding": "claim 51 (the sum claim) does not cover zero-sum row 1921",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-8",
+     "target_clause_name": "the sum claim is masked by the zero-sum pair alone",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "H@0: claim 51 carries 0 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "H@0: the sum claim's parts on zero-sum row 1921 removed"
+    },
+    "X09a_H_sum_claim_first": {
+     "commitment": "H@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-9"
+      ],
+      "finding": "claim 0: a point-free claim before the last",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-9",
+     "target_clause_name": "no unexpected sum claim",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [],
+      "h_pair": true
+     },
+     "what": "H@0: the sum claim moved to the front of the claim list"
+    },
+    "X09b_H_sum_claim_appended_to_A": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-2",
+       "EX-3",
+       "EX-9",
+       "EX-14"
+      ],
+      "finding": "claim 123: a point-free claim on a commitment without sum rows",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-9",
+     "target_clause_name": "no unexpected sum claim",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": false,
+      "why": "a claim's row weights cannot be built, so the weight-level check has nothing to read"
+     },
+     "what": "A@0: H@0's sum claim appended (A has no sum rows)"
+    },
+    "X10a_A_overlapping_pairs": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-6",
+       "EX-10",
+       "EX-11"
+      ],
+      "finding": "1 site row(s) carry two claims, first row 1624 (claims [0, 1])",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-10",
+     "target_clause_name": "pairs are disjoint",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [],
+      "h_pair": true
+     },
+     "what": "A@0: claim 1's pair moved to (s0+1, s0+2), overlapping claim 0's (s0, s0+1) in one row -- finding F-4's case on real bytes"
+    },
+    "X10b_A_one_pair_shared_by_two_claims": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-10",
+       "EX-11"
+      ],
+      "finding": "2 site row(s) carry two claims, first row 1623 (claims [0, 1])",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-10",
+     "target_clause_name": "pairs are disjoint",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 1 shares its reserved pair with claim 0"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 1's pair moved onto claim 0's pair"
+    },
+    "X10c_boundary_site1_on_site0s_pair": {
+     "commitment": "B0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-10",
+       "EX-11"
+      ],
+      "finding": "2 site row(s) carry two claims, first row 16 (claims [0, 1])",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-10",
+     "target_clause_name": "pairs are disjoint",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "B0: claim 1 shares its reserved pair with claim 0"
+      ],
+      "h_pair": false
+     },
+     "what": "B0: the site-1 claim's pair moved onto site 0's pair"
+    },
+    "X11_A_last_claim_dropped": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-11",
+       "EX-14"
+      ],
+      "finding": "2 site row(s) carry no claim, first row 1867",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-11",
+     "target_clause_name": "every reserved row is used",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [],
+      "h_pair": true
+     },
+     "what": "A@0: its last claim dropped -- one reserved pair unused, nothing shared"
+    },
+    "X12_A_pair_weights_Fp_dependent": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-12"
+      ],
+      "finding": "claim 0: its pair's weights are Fp-dependent",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-12",
+     "target_clause_name": "the pair basis",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 0: its pair's two coefficients are not an Fp-basis of Fp2"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 0's second mask coefficient set to twice the first (an Fp-dependent pair)"
+    },
+    "X13_A_parts_with_different_column_weights": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-11",
+       "EX-13"
+      ],
+      "finding": "claim 0: parts with different column weights",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-13",
+     "target_clause_name": "one column key per claim",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": false,
+      "why": "a claim's row weights cannot be built, so the weight-level check has nothing to read"
+     },
+     "what": "A@0: the last coordinate of claim 0's last part's point changed"
+    },
+    "X14_A_singleton_group_rekeyed_into_group_0": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-14"
+      ],
+      "finding": "37 opening groups, the schedule declares 38",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-14",
+     "target_clause_name": "the group count is the schedule's",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [],
+      "h_pair": true
+     },
+     "what": "A@0: the first singleton group's claim given group 0's column key (its row weights unchanged) -- one group fewer than the schedule's"
+    },
+    "X15a_endpoint_two_claims": {
+     "commitment": "E-Input",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-10",
+       "EX-15"
+      ],
+      "finding": "2 claim(s); the endpoint opens one claim of three parts on rows 0..16, 16, 17, every coefficient nonzero",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-15",
+     "target_clause_name": "the endpoint claim's shape",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "E-Input: claim 1 shares its reserved pair with claim 0"
+      ],
+      "h_pair": false
+     },
+     "what": "E-Input: its one claim opened twice"
+    },
+    "X15b_endpoint_zero_coefficient": {
+     "commitment": "E-Input",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-4",
+       "EX-5",
+       "EX-6",
+       "EX-11",
+       "EX-15"
+      ],
+      "finding": "1 claim(s); the endpoint opens one claim of three parts on rows 0..16, 16, 17, every coefficient nonzero",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-15",
+     "target_clause_name": "the endpoint claim's shape",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "E-Input: claim 0 carries 1 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "E-Input: its claim's first mask coefficient set to zero"
+    },
+    "X16_A_zero_group_coefficient": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-16"
+      ],
+      "finding": "group 0 member 0: lambda is zero",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-16",
+     "target_clause_name": "every group coefficient is nonzero",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [],
+      "h_pair": true
+     },
+     "what": "A@0: group 0's first replayed lambda set to zero"
+    }
+   },
+   "every_clause_exercised": true,
+   "ok": true,
+   "the_old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "what": "one negative control per clause of exclusivity (ruling GC-2, finding F-6): each perturbs an in-memory COPY of one opening's claim list (or its declared geometry, or one replayed lambda), fires iff its target clause holds on the honest opening and fails on the perturbed one, and records every clause the perturbation broke and what the OLD weight-level H-pair check made of the same weights"
+  },
+  "expected": {
+   "A": 0,
+   "H": 2,
+   "M": 0,
+   "external-endpoint": 0,
+   "internal-boundary": 0
+  },
+  "masking_commitments": [
+   {
+    "batched_value": "the theta-batched functional of the slots' mask evaluations; M commits no witness data, so its part over the commitments' coordinates is 0 and that is computed here, not argued",
+    "commitment": "M@0",
+    "commits_witness_data": false,
+    "data_rows": 0,
+    "disclosed_dimension": 0,
+    "expected_disclosed_dimension": 0,
+    "meets_expectation": true,
+    "opened_columns": 256,
+    "rows": 52,
+    "specs": 24
+   },
+   {
+    "batched_value": "the theta-batched functional of the slots' mask evaluations; M commits no witness data, so its part over the commitments' coordinates is 0 and that is computed here, not argued",
+    "commitment": "M@1",
+    "commits_witness_data": false,
+    "data_rows": 0,
+    "disclosed_dimension": 0,
+    "expected_disclosed_dimension": 0,
+    "meets_expectation": true,
+    "opened_columns": 256,
+    "rows": 52,
+    "specs": 24
+   }
+  ],
+  "ok": true,
+  "pad_block_exact_rank_cross_check": {
+   "commitment": "B0",
+   "distinct_columns": 255,
+   "exact_rank_of_the_pad_block": 255,
+   "full_rank": true,
+   "pad_positions": 256,
+   "seconds": 59.0,
+   "what": "H-pad, computed rather than assumed: the pad block of the {E_j} over the distinct sampled columns has rank equal to their number, so no functional of the opened columns is supported on the message positions"
+  },
+  "per_commitment": [
+   {
+    "boundary": null,
+    "certifying_minor": {
+     "G": 38,
+     "determinant": 7188002124124825717,
+     "determinant_nonzero": true,
+     "full_row_rank": true,
+     "g": 78,
+     "generator_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77
+     ],
+     "generators": "the real and imaginary parts of the G group vectors and of the proximity vector",
+     "non_data_row_indices": [
+      1623,
+      1624,
+      1625,
+      1626,
+      1627,
+      1628,
+      1629,
+      1630,
+      1633,
+      1634,
+      1635,
+      1636,
+      1637,
+      1638,
+      1639,
+      1640,
+      1641,
+      1642,
+      1643,
+      1644,
+      1645,
+      1646,
+      1647,
+      1648,
+      1671,
+      1672,
+      1675,
+      1676,
+      1679,
+      1680,
+      1681,
+      1682,
+      1683,
+      1684,
+      1685,
+      1686,
+      1687,
+      1688,
+      1689,
+      1690,
+      1691,
+      1692,
+      1693,
+      1694,
+      1695,
+      1696,
+      1697,
+      1698,
+      1699,
+      1700,
+      1701,
+      1702,
+      1771,
+      1772,
+      1775,
+      1776,
+      1789,
+      1790,
+      1791,
+      1792,
+      1803,
+      1804,
+      1805,
+      1806,
+      1815,
+      1816,
+      1819,
+      1820,
+      1841,
+      1842,
+      1847,
+      1848,
+      1849,
+      1850,
+      1851,
+      1852,
+      1867,
+      1868
+     ],
+     "rank_on_non_data_rows": 78
+    },
+    "claims": 123,
+    "claims_evaluating_u_rows": 0,
+    "column_identity_checked": 21,
+    "column_identity_failures": 0,
+    "commitment_kind": "block",
+    "coset_nodes_distinct": true,
+    "data_rows": 1623,
+    "disclosed_dimension": 0,
+    "distinct_columns": 254,
+    "distinct_opened_columns": 254,
+    "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 123,
+     "failing": [],
+     "groups": 38,
+     "groups_the_schedule_declares": 38,
+     "ok": true,
+     "site_rows": 246,
+     "site_rows_used_exactly_once": 246,
+     "sum_claims": 0
+    },
+    "expected_disclosed_dimension": 0,
+    "findings": [],
+    "group_claim_identities_checked": 38,
+    "group_claim_identity_failures": 0,
+    "groups": 38,
+    "k0": 0,
+    "meets_expectation": true,
+    "non_data_rows": 248,
+    "pad_count": 256,
+    "pad_margin": 2,
+    "proximity_pair_determinant_nonzero": true,
+    "q_pad": 256,
+    "rank_P1": 78,
+    "rank_P1_on_non_data_rows": 78,
+    "reduction_hypotheses": {
+     "H-pad": true,
+     "H-pair": true,
+     "H-prox": true
+    },
+    "reserved_mask_rows": 246,
+    "reserved_pairs_used": 123,
+    "role": "A@0",
+    "rows": 1871,
+    "sampled_columns": 256,
+    "site_role": "A",
+    "spare_mask_rows": [],
+    "stage": 0,
+    "sum_claims_on_u_rows": 0,
+    "u_rows": [],
+    "vanishing_Zn_nodes": 0
+   },
+   {
+    "boundary": null,
+    "certifying_minor": {
+     "G": 10,
+     "determinant": 10660703510911442914,
+     "determinant_nonzero": true,
+     "full_row_rank": true,
+     "g": 22,
+     "generator_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21
+     ],
+     "generators": "the real and imaginary parts of the G group vectors and of the proximity vector",
+     "non_data_row_indices": [
+      1920,
+      1921,
+      1922,
+      1923,
+      1924,
+      1925,
+      1926,
+      1927,
+      1958,
+      1959,
+      1972,
+      1973,
+      1984,
+      1985,
+      1992,
+      1993,
+      2004,
+      2005,
+      2010,
+      2011,
+      2012,
+      2013
+     ],
+     "rank_on_non_data_rows": 22
+    },
+    "claims": 52,
+    "claims_evaluating_u_rows": 2,
+    "column_identity_checked": 28,
+    "column_identity_failures": 0,
+    "commitment_kind": "block",
+    "coset_nodes_distinct": true,
+    "data_rows": 1920,
+    "declared_data_rows_vs_row_roles": {
+     "declared": 1922,
+     "difference_is_the_zero_sum_rows": true,
+     "kind_data": 1920
+    },
+    "disclosed_dimension": 2,
+    "distinct_columns": 256,
+    "distinct_opened_columns": 256,
+    "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 51,
+     "failing": [],
+     "groups": 10,
+     "groups_the_schedule_declares": 10,
+     "ok": true,
+     "site_rows": 102,
+     "site_rows_used_exactly_once": 102,
+     "sum_claims": 1
+    },
+    "expected_disclosed_dimension": 2,
+    "findings": [],
+    "group_claim_identities_checked": 10,
+    "group_claim_identity_failures": 0,
+    "groups": 10,
+    "k0": 0,
+    "meets_expectation": true,
+    "non_data_rows": 106,
+    "pad_count": 256,
+    "pad_margin": 0,
+    "proximity_pair_determinant_nonzero": true,
+    "q_pad": 256,
+    "rank_P1": 22,
+    "rank_P1_on_non_data_rows": 22,
+    "reduction_hypotheses": {
+     "H-pad": true,
+     "H-pair": true,
+     "H-prox": true
+    },
+    "reserved_mask_rows": 102,
+    "reserved_pairs_used": 52,
+    "role": "H@0",
+    "rows": 2026,
+    "sampled_columns": 256,
+    "site_role": "H",
+    "spare_mask_rows": [],
+    "stage": 0,
+    "sum_claims_on_u_rows": 1,
+    "u_row_term": {
+     "equals_public_logup_identity": true,
+     "exact_form": "u* = rank \u0393_{D\u222aN'} \u2212 rank \u0393_{N'} \u2212 k0, \u0393 the real and imaginary parts of the group and proximity row-combinations, D the data rows, N' the non-data rows that are not zero-sum rows (ruling GC-2, finding F-3; the draft's \u00a72.2.3 derives it)",
+     "extra_dimension_beyond_k0": 2,
+     "per_indicator_equals_exact": true,
+     "per_indicator_term": 2,
+     "rank_gamma_on_data_and_n_prime": 22,
+     "rank_gamma_on_n_prime": 20,
+     "u_row_indicators_admissible": 2,
+     "xi_row_weights_nonzero": [
+      960,
+      960
+     ]
+    },
+    "u_rows": [
+     1920,
+     1921
+    ],
+    "vanishing_Zn_nodes": 0
+   },
+   {
+    "boundary": null,
+    "certifying_minor": {
+     "G": 1,
+     "determinant": 15332014873640042004,
+     "determinant_nonzero": true,
+     "full_row_rank": true,
+     "g": 4,
+     "generator_indices": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "generators": "the real and imaginary parts of the G group vectors and of the proximity vector",
+     "non_data_row_indices": [
+      16,
+      17,
+      18,
+      19
+     ],
+     "rank_on_non_data_rows": 4
+    },
+    "claims": 1,
+    "claims_evaluating_u_rows": 0,
+    "column_identity_checked": 14,
+    "column_identity_failures": 0,
+    "commitment_kind": "external-endpoint",
+    "coset_nodes_distinct": true,
+    "data_rows": 16,
+    "disclosed_dimension": 0,
+    "distinct_columns": 256,
+    "distinct_opened_columns": 256,
+    "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 1,
+     "failing": [],
+     "groups": 1,
+     "groups_the_schedule_declares": 1,
+     "ok": true,
+     "site_rows": 2,
+     "site_rows_used_exactly_once": 2,
+     "sum_claims": 0
+    },
+    "expected_disclosed_dimension": 0,
+    "findings": [],
+    "group_claim_identities_checked": 1,
+    "group_claim_identity_failures": 0,
+    "groups": 1,
+    "k0": 0,
+    "meets_expectation": true,
+    "non_data_rows": 5,
+    "pad_count": 256,
+    "pad_margin": 0,
+    "proximity_pair_determinant_nonzero": true,
+    "q_pad": 256,
+    "rank_P1": 4,
+    "rank_P1_on_non_data_rows": 4,
+    "reduction_hypotheses": {
+     "H-pad": true,
+     "H-pair": true,
+     "H-prox": true
+    },
+    "reserved_mask_rows": 3,
+    "reserved_pairs_used": 1,
+    "role": "E-Input",
+    "rows": 21,
+    "sampled_columns": 256,
+    "site_role": "Input",
+    "spare_mask_rows": [
+     20
+    ],
+    "stage": 0,
+    "sum_claims_on_u_rows": 0,
+    "u_rows": [],
+    "vanishing_Zn_nodes": 0
+   },
+   {
+    "boundary": null,
+    "certifying_minor": {
+     "G": 38,
+     "determinant": 1590427341603554093,
+     "determinant_nonzero": true,
+     "full_row_rank": true,
+     "g": 78,
+     "generator_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77
+     ],
+     "generators": "the real and imaginary parts of the G group vectors and of the proximity vector",
+     "non_data_row_indices": [
+      1623,
+      1624,
+      1625,
+      1626,
+      1627,
+      1628,
+      1629,
+      1630,
+      1633,
+      1634,
+      1635,
+      1636,
+      1637,
+      1638,
+      1639,
+      1640,
+      1641,
+      1642,
+      1643,
+      1644,
+      1645,
+      1646,
+      1647,
+      1648,
+      1671,
+      1672,
+      1675,
+      1676,
+      1679,
+      1680,
+      1681,
+      1682,
+      1683,
+      1684,
+      1685,
+      1686,
+      1687,
+      1688,
+      1689,
+      1690,
+      1691,
+      1692,
+      1693,
+      1694,
+      1695,
+      1696,
+      1697,
+      1698,
+      1699,
+      1700,
+      1701,
+      1702,
+      1771,
+      1772,
+      1775,
+      1776,
+      1789,
+      1790,
+      1791,
+      1792,
+      1803,
+      1804,
+      1805,
+      1806,
+      1815,
+      1816,
+      1819,
+      1820,
+      1841,
+      1842,
+      1847,
+      1848,
+      1849,
+      1850,
+      1851,
+      1852,
+      1867,
+      1868
+     ],
+     "rank_on_non_data_rows": 78
+    },
+    "claims": 123,
+    "claims_evaluating_u_rows": 0,
+    "column_identity_checked": 21,
+    "column_identity_failures": 0,
+    "commitment_kind": "block",
+    "coset_nodes_distinct": true,
+    "data_rows": 1623,
+    "disclosed_dimension": 0,
+    "distinct_columns": 255,
+    "distinct_opened_columns": 255,
+    "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 123,
+     "failing": [],
+     "groups": 38,
+     "groups_the_schedule_declares": 38,
+     "ok": true,
+     "site_rows": 246,
+     "site_rows_used_exactly_once": 246,
+     "sum_claims": 0
+    },
+    "expected_disclosed_dimension": 0,
+    "findings": [],
+    "group_claim_identities_checked": 38,
+    "group_claim_identity_failures": 0,
+    "groups": 38,
+    "k0": 0,
+    "meets_expectation": true,
+    "non_data_rows": 248,
+    "pad_count": 256,
+    "pad_margin": 1,
+    "proximity_pair_determinant_nonzero": true,
+    "q_pad": 256,
+    "rank_P1": 78,
+    "rank_P1_on_non_data_rows": 78,
+    "reduction_hypotheses": {
+     "H-pad": true,
+     "H-pair": true,
+     "H-prox": true
+    },
+    "reserved_mask_rows": 246,
+    "reserved_pairs_used": 123,
+    "role": "A@1",
+    "rows": 1871,
+    "sampled_columns": 256,
+    "site_role": "A",
+    "spare_mask_rows": [],
+    "stage": 1,
+    "sum_claims_on_u_rows": 0,
+    "u_rows": [],
+    "vanishing_Zn_nodes": 0
+   },
+   {
+    "boundary": null,
+    "certifying_minor": {
+     "G": 10,
+     "determinant": 14815093823524851827,
+     "determinant_nonzero": true,
+     "full_row_rank": true,
+     "g": 22,
+     "generator_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21
+     ],
+     "generators": "the real and imaginary parts of the G group vectors and of the proximity vector",
+     "non_data_row_indices": [
+      1920,
+      1921,
+      1922,
+      1923,
+      1924,
+      1925,
+      1926,
+      1927,
+      1958,
+      1959,
+      1972,
+      1973,
+      1984,
+      1985,
+      1992,
+      1993,
+      2004,
+      2005,
+      2010,
+      2011,
+      2012,
+      2013
+     ],
+     "rank_on_non_data_rows": 22
+    },
+    "claims": 52,
+    "claims_evaluating_u_rows": 2,
+    "column_identity_checked": 28,
+    "column_identity_failures": 0,
+    "commitment_kind": "block",
+    "coset_nodes_distinct": true,
+    "data_rows": 1920,
+    "declared_data_rows_vs_row_roles": {
+     "declared": 1922,
+     "difference_is_the_zero_sum_rows": true,
+     "kind_data": 1920
+    },
+    "disclosed_dimension": 2,
+    "distinct_columns": 256,
+    "distinct_opened_columns": 256,
+    "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 51,
+     "failing": [],
+     "groups": 10,
+     "groups_the_schedule_declares": 10,
+     "ok": true,
+     "site_rows": 102,
+     "site_rows_used_exactly_once": 102,
+     "sum_claims": 1
+    },
+    "expected_disclosed_dimension": 2,
+    "findings": [],
+    "group_claim_identities_checked": 10,
+    "group_claim_identity_failures": 0,
+    "groups": 10,
+    "k0": 0,
+    "meets_expectation": true,
+    "non_data_rows": 106,
+    "pad_count": 256,
+    "pad_margin": 0,
+    "proximity_pair_determinant_nonzero": true,
+    "q_pad": 256,
+    "rank_P1": 22,
+    "rank_P1_on_non_data_rows": 22,
+    "reduction_hypotheses": {
+     "H-pad": true,
+     "H-pair": true,
+     "H-prox": true
+    },
+    "reserved_mask_rows": 102,
+    "reserved_pairs_used": 52,
+    "role": "H@1",
+    "rows": 2026,
+    "sampled_columns": 256,
+    "site_role": "H",
+    "spare_mask_rows": [],
+    "stage": 1,
+    "sum_claims_on_u_rows": 1,
+    "u_row_term": {
+     "equals_public_logup_identity": true,
+     "exact_form": "u* = rank \u0393_{D\u222aN'} \u2212 rank \u0393_{N'} \u2212 k0, \u0393 the real and imaginary parts of the group and proximity row-combinations, D the data rows, N' the non-data rows that are not zero-sum rows (ruling GC-2, finding F-3; the draft's \u00a72.2.3 derives it)",
+     "extra_dimension_beyond_k0": 2,
+     "per_indicator_equals_exact": true,
+     "per_indicator_term": 2,
+     "rank_gamma_on_data_and_n_prime": 22,
+     "rank_gamma_on_n_prime": 20,
+     "u_row_indicators_admissible": 2,
+     "xi_row_weights_nonzero": [
+      960,
+      960
+     ]
+    },
+    "u_rows": [
+     1920,
+     1921
+    ],
+    "vanishing_Zn_nodes": 0
+   },
+   {
+    "boundary": 0,
+    "certifying_minor": {
+     "G": 2,
+     "determinant": 887810200542597736,
+     "determinant_nonzero": true,
+     "full_row_rank": true,
+     "g": 6,
+     "generator_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "generators": "the real and imaginary parts of the G group vectors and of the proximity vector",
+     "non_data_row_indices": [
+      16,
+      17,
+      18,
+      19,
+      20,
+      21
+     ],
+     "rank_on_non_data_rows": 6
+    },
+    "claims": 2,
+    "claims_evaluating_u_rows": 0,
+    "column_identity_checked": 21,
+    "column_identity_failures": 0,
+    "commitment_kind": "internal-boundary",
+    "coset_nodes_distinct": true,
+    "data_rows": 16,
+    "disclosed_dimension": 0,
+    "distinct_columns": 255,
+    "distinct_opened_columns": 255,
+    "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 2,
+     "failing": [],
+     "groups": 2,
+     "groups_the_schedule_declares": 2,
+     "ok": true,
+     "site_rows": 4,
+     "site_rows_used_exactly_once": 4,
+     "sum_claims": 0
+    },
+    "expected_disclosed_dimension": 0,
+    "findings": [],
+    "group_claim_identities_checked": 2,
+    "group_claim_identity_failures": 0,
+    "groups": 2,
+    "k0": 0,
+    "meets_expectation": true,
+    "non_data_rows": 6,
+    "pad_count": 256,
+    "pad_margin": 1,
+    "proximity_pair_determinant_nonzero": true,
+    "q_pad": 256,
+    "rank_P1": 6,
+    "rank_P1_on_non_data_rows": 6,
+    "reduction_hypotheses": {
+     "H-pad": true,
+     "H-pair": true,
+     "H-prox": true
+    },
+    "reserved_mask_rows": 4,
+    "reserved_pairs_used": 2,
+    "role": "B0",
+    "rows": 22,
+    "sampled_columns": 256,
+    "site_role": "Input",
+    "spare_mask_rows": [],
+    "stage": 1,
+    "sum_claims_on_u_rows": 0,
+    "u_rows": [],
+    "vanishing_Zn_nodes": 0
+   },
+   {
+    "boundary": null,
+    "certifying_minor": {
+     "G": 1,
+     "determinant": 5104572365794346624,
+     "determinant_nonzero": true,
+     "full_row_rank": true,
+     "g": 4,
+     "generator_indices": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "generators": "the real and imaginary parts of the G group vectors and of the proximity vector",
+     "non_data_row_indices": [
+      16,
+      17,
+      18,
+      19
+     ],
+     "rank_on_non_data_rows": 4
+    },
+    "claims": 1,
+    "claims_evaluating_u_rows": 0,
+    "column_identity_checked": 14,
+    "column_identity_failures": 0,
+    "commitment_kind": "external-endpoint",
+    "coset_nodes_distinct": true,
+    "data_rows": 16,
+    "disclosed_dimension": 0,
+    "distinct_columns": 254,
+    "distinct_opened_columns": 254,
+    "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 1,
+     "failing": [],
+     "groups": 1,
+     "groups_the_schedule_declares": 1,
+     "ok": true,
+     "site_rows": 2,
+     "site_rows_used_exactly_once": 2,
+     "sum_claims": 0
+    },
+    "expected_disclosed_dimension": 0,
+    "findings": [],
+    "group_claim_identities_checked": 1,
+    "group_claim_identity_failures": 0,
+    "groups": 1,
+    "k0": 0,
+    "meets_expectation": true,
+    "non_data_rows": 5,
+    "pad_count": 256,
+    "pad_margin": 2,
+    "proximity_pair_determinant_nonzero": true,
+    "q_pad": 256,
+    "rank_P1": 4,
+    "rank_P1_on_non_data_rows": 4,
+    "reduction_hypotheses": {
+     "H-pad": true,
+     "H-pair": true,
+     "H-prox": true
+    },
+    "reserved_mask_rows": 3,
+    "reserved_pairs_used": 1,
+    "role": "E-Output",
+    "rows": 21,
+    "sampled_columns": 256,
+    "site_role": "Output",
+    "spare_mask_rows": [
+     20
+    ],
+    "stage": 1,
+    "sum_claims_on_u_rows": 0,
+    "u_rows": [],
+    "vanishing_Zn_nodes": 0
+   }
+  ],
+  "per_slot_terminal_check": {
+   "bilinear_group_factor": {
+    "definition_in_force": null,
+    "definition_selected_by": null,
+    "failures": [],
+    "ok": false,
+    "refusals": [],
+    "slots_with_a_derived_group_point": 0,
+    "superseded": null
+   },
+   "captured_public_tables": [],
+   "checked": true,
+   "covered_slot_names": [
+    "SC_SS",
+    "SC_SSM",
+    "SC_TZC",
+    "SC_LZC",
+    "SC_RS",
+    "SC_QMM",
+    "SC_KMM",
+    "SC_VMM",
+    "SC_SCORE",
+    "SC_PV",
+    "SC_WO",
+    "SC_GMM",
+    "SC_UMM",
+    "SC_DMM",
+    "SC_DZC",
+    "SC_QZC",
+    "SC_KVZC",
+    "SC_SZC",
+    "SC_FZC",
+    "SC_TAB",
+    "SC_ZS",
+    "SC_IO_IN",
+    "SC_IO_OUT"
+   ],
+   "covered_slots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22
+   ],
+   "derived_group_points_used_and_compared": 0,
+   "findings": [
+    "the bundle's source pins are not the ones this port was read at: src/private_block/argument.rs: the bundle pins 112352bc35c8, which is neither definition of the bilinear attention slots this port has read (909670c96562, dd8469cb0279, ec3f97443245, f7fa2ad4213d, 2cee0a2253d6, 9b26bda8105c, 02df55ebec4d); src/private_block/layout.rs: the bundle pins 9332802e597b, the port was read at fec2e6476f16; src/private_block/protocol.rs: the bundle pins c482402329e4, the port was read at 4e916c693ad8; src/private_block/plane_index.rs: the bundle pins 0fe9eb4d3cd8, the port was read at 9de8320a8477; src/private_block/shape.rs: the bundle pins e214db86945e, which is not one this port has read; src/private_block/pad.rs: the bundle pins 20afa04f6418, which is not one this port has read"
+   ],
+   "ok": false,
+   "open_slots": [],
+   "per_stage": [],
+   "public_table_digest_failures": [],
+   "public_table_structure_checks": 0,
+   "public_table_structure_detail": [],
+   "public_table_structure_failures": [],
+   "public_tables_rebuilt_and_digest_matched": 0,
+   "public_tables_taken_from_the_capture": 0,
+   "rebuilt_public_tables": [],
+   "refused_before_any_slot_was_evaluated": "a moved or missing source pin: NO slot of any stage was checked, and the zeros above are the absence of a check, not a passing one.  Nothing here says the bundle is bad -- it says this port has not read the Rust that made it",
+   "slot_checks_attempted": 0,
+   "slot_checks_equal": 0,
+   "slot_checks_expected": 46,
+   "slot_checks_matching_the_stored_terminal_polynomial": 0,
+   "source_pins": {
+    "also_read_not_pinned_by_a_bundle": {
+     "src/private_block/pad.rs": "7b6a990be900ad56e890660e9e3587c19fefc69f434a9bb3d4eab817f603d1ff",
+     "src/private_block/shape.rs": "144012d5d960446784a64a451b01ada2d4d6bdd9493ede51e4142e90d28942e0",
+     "src/private_block/witness.rs": "b9b66c024e7ca68d2a0ae4ba46241eb2abbccc8c8d94fe828041abbc710850ad"
+    },
+    "argument_definitions_this_port_implements": {
+     "02df55ebec4d": "repaired",
+     "2cee0a2253d6": "repaired",
+     "909670c96562": "pre-repair",
+     "9b26bda8105c": "repaired",
+     "dd8469cb0279": "repaired",
+     "ec3f97443245": "repaired",
+     "f7fa2ad4213d": "repaired"
+    },
+    "bilinear_definition_reason": null,
+    "bilinear_definition_selected_by_the_argument_pin": null,
+    "ok": false,
+    "pins_at_an_accepted_second_digest": [],
+    "pins_missing_from_the_bundle": [],
+    "pins_that_moved": [
+     "src/private_block/argument.rs: the bundle pins 112352bc35c8, which is neither definition of the bilinear attention slots this port has read (909670c96562, dd8469cb0279, ec3f97443245, f7fa2ad4213d, 2cee0a2253d6, 9b26bda8105c, 02df55ebec4d)",
+     "src/private_block/layout.rs: the bundle pins 9332802e597b, the port was read at fec2e6476f16",
+     "src/private_block/protocol.rs: the bundle pins c482402329e4, the port was read at 4e916c693ad8",
+     "src/private_block/plane_index.rs: the bundle pins 0fe9eb4d3cd8, the port was read at 9de8320a8477",
+     "src/private_block/shape.rs: the bundle pins e214db86945e, which is not one this port has read",
+     "src/private_block/pad.rs: the bundle pins 20afa04f6418, which is not one this port has read"
+    ],
+    "ported_from": {
+     "src/private_block/argument.rs": "909670c96562e7ff99b7ad37f6c3aae027574f3c0e9ab74f01a27e45058bf675",
+     "src/private_block/layout.rs": "fec2e6476f165e1e3be7871a3dfbdef56a4619f5b2e7560eb98ff2c97587a99f",
+     "src/private_block/plane_index.rs": "9de8320a84770560d2b998c514b0e9745a8f6c9f0c1d0cdefda8164137107611",
+     "src/private_block/protocol.rs": "4e916c693ad8e6c62e8774ddb3d829f5e1c116932e74bb1c6088d62ab4aee449"
+    }
+   },
+   "status": "open",
+   "what": "fin_s == c_s * mask_eval_s + poly_s(vals_s), the verifier's own final check (argument.rs:381), recomputed from the published terminals and compared with the capture's `terminal_polynomial` (= fin - c*mask_eval)",
+   "what_a_captured_table_does_not_establish": null
+  }
+ },
+ "stage4_the_boundary": {
+  "adjacent_stage_pairs": [
+   {
+    "classes_shared_between_roles_data": 48,
+    "classes_shared_between_roles_non_data": 0,
+    "commitments": [
+     "A@0",
+     "H@0",
+     "E-Input",
+     "M@0",
+     "A@1",
+     "H@1",
+     "B0",
+     "E-Output",
+     "M@1"
+    ],
+    "coordinate_classes": 7898,
+    "findings": [],
+    "generators": 218,
+    "identified_rows": 64,
+    "joint_detail": {
+     "coordinate_classes": 7898,
+     "data_classes": 7070,
+     "disclosed_fp": 4,
+     "free_fp": 0,
+     "generators": 218,
+     "k0": 0,
+     "non_data_classes": 828,
+     "rank_all": 218,
+     "rank_on_non_data": 218,
+     "u_row_detail": {
+      "exact_form": "u* = rank \u0393_{D\u222aN'} \u2212 rank \u0393_{N'} \u2212 k0, \u0393 the real and imaginary parts of the group and proximity row-combinations, D the data rows, N' the non-data rows that are not zero-sum rows (ruling GC-2, finding F-3; the draft's \u00a72.2.3 derives it)",
+      "extra_dimension_beyond_k0": 4,
+      "indicators_admissible": 4,
+      "per_indicator_equals_exact": true,
+      "per_indicator_term_fp": 4,
+      "rank_gamma_on_data_and_n_prime": 218,
+      "rank_gamma_on_n_prime": 214,
+      "u_class_owners": [
+       "H@0[1920]",
+       "H@0[1921]",
+       "H@1[1920]",
+       "H@1[1921]"
+      ],
+      "u_classes": 4
+     },
+     "u_row_term_fp": 4
+    },
+    "joint_equals_sum_of_parts": true,
+    "joint_fp": 4,
+    "label": "stages 0 and 1 with boundary 0",
+    "matrix": "218 x 7898",
+    "non_data_block_is_block_diagonal_by_role": true,
+    "ok": true,
+    "parts_fp": {
+     "A@0": 0,
+     "A@1": 0,
+     "B0": 0,
+     "E-Input": 0,
+     "E-Output": 0,
+     "H@0": 2,
+     "H@1": 2,
+     "M@0": 0,
+     "M@1": 0
+    },
+    "rows_total": 7962,
+    "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
+    "sum_of_parts_fp": 4
+   }
+  ],
+  "ok": true,
+  "per_boundary": [
+   {
+    "boundary": 0,
+    "ok": true,
+    "restricted_to_the_reserved_rows": {
+     "boundary": 0,
+     "commitment": "B0",
+     "data_rows": 16,
+     "determinant": 887810200542597736,
+     "determinant_nonzero": true,
+     "disclosed_on_the_reserved_block_fp": 0,
+     "full_row_rank": true,
+     "generators": 6,
+     "groups": 2,
+     "pivot_columns": [
+      "row 16",
+      "row 17",
+      "row 18",
+      "row 19",
+      "row 20",
+      "row 21"
+     ],
+     "prox_row": 20,
+     "rank_on_the_reserved_block": 6,
+     "rank_over_all_rows": 6,
+     "reserved_columns": [
+      "row 16",
+      "row 17",
+      "row 18",
+      "row 19",
+      "row 20",
+      "row 21"
+     ],
+     "row_rule": "data + 2*sites + 2",
+     "rows": 22,
+     "site_rows": [
+      16,
+      17,
+      18,
+      19
+     ],
+     "sites": 2
+    },
+    "three_roles_of_the_plane": {
+     "aliasing_lost_to_the_identification_fp": 0,
+     "boundary": 0,
+     "classes_shared_between_roles_data": 16,
+     "classes_shared_between_roles_non_data": 0,
+     "coordinate_classes": 3732,
+     "equality_slots": [
+      {
+       "a_rows": [
+        472,
+        473,
+        474,
+        475,
+        476,
+        477,
+        478,
+        479,
+        480,
+        481,
+        482,
+        483,
+        484,
+        485,
+        486,
+        487
+       ],
+       "boundary": 0,
+       "claim_index_in_the_opening": 0,
+       "commitment": "B0",
+       "commitment_kind": "internal-boundary",
+       "commitment_rows": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+       ],
+       "log_size": 18,
+       "name": "IO-out endpoint equality",
+       "opened_at_stage": 1,
+       "reserved_pair_first_row": 16,
+       "rows": 16,
+       "same_evaluation_point": true,
+       "site_role": "Output",
+       "slot": 22,
+       "stage": 0,
+       "table_claim_field": 0
+      },
+      {
+       "a_rows": [
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+       ],
+       "boundary": 0,
+       "claim_index_in_the_opening": 1,
+       "commitment": "B0",
+       "commitment_kind": "internal-boundary",
+       "commitment_rows": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+       ],
+       "log_size": 18,
+       "name": "IO-in endpoint equality",
+       "opened_at_stage": 1,
+       "reserved_pair_first_row": 18,
+       "rows": 16,
+       "same_evaluation_point": true,
+       "site_role": "Input",
+       "slot": 21,
+       "stage": 1,
+       "table_claim_field": 0
+      }
+     ],
+     "findings": [],
+     "generators": 162,
+     "identification_source": "claim_sources / internal_boundaries[].claim_sites, not the role names (finding U-8)",
+     "identified_row_pairs": [
+      {
+       "a": "A@0[472]",
+       "b": "B0[0]"
+      },
+      {
+       "a": "A@0[473]",
+       "b": "B0[1]"
+      },
+      {
+       "a": "A@0[474]",
+       "b": "B0[2]"
+      },
+      {
+       "a": "A@0[475]",
+       "b": "B0[3]"
+      },
+      {
+       "a": "A@0[476]",
+       "b": "B0[4]"
+      },
+      {
+       "a": "A@0[477]",
+       "b": "B0[5]"
+      },
+      {
+       "a": "A@0[478]",
+       "b": "B0[6]"
+      },
+      {
+       "a": "A@0[479]",
+       "b": "B0[7]"
+      },
+      {
+       "a": "A@0[480]",
+       "b": "B0[8]"
+      },
+      {
+       "a": "A@0[481]",
+       "b": "B0[9]"
+      },
+      {
+       "a": "A@0[482]",
+       "b": "B0[10]"
+      },
+      {
+       "a": "A@0[483]",
+       "b": "B0[11]"
+      },
+      {
+       "a": "A@0[484]",
+       "b": "B0[12]"
+      },
+      {
+       "a": "A@0[485]",
+       "b": "B0[13]"
+      },
+      {
+       "a": "A@0[486]",
+       "b": "B0[14]"
+      },
+      {
+       "a": "A@0[487]",
+       "b": "B0[15]"
+      },
+      {
+       "a": "A@1[8]",
+       "b": "B0[0]"
+      },
+      {
+       "a": "A@1[9]",
+       "b": "B0[1]"
+      },
+      {
+       "a": "A@1[10]",
+       "b": "B0[2]"
+      },
+      {
+       "a": "A@1[11]",
+       "b": "B0[3]"
+      },
+      {
+       "a": "A@1[12]",
+       "b": "B0[4]"
+      },
+      {
+       "a": "A@1[13]",
+       "b": "B0[5]"
+      },
+      {
+       "a": "A@1[14]",
+       "b": "B0[6]"
+      },
+      {
+       "a": "A@1[15]",
+       "b": "B0[7]"
+      },
+      {
+       "a": "A@1[16]",
+       "b": "B0[8]"
+      },
+      {
+       "a": "A@1[17]",
+       "b": "B0[9]"
+      },
+      {
+       "a": "A@1[18]",
+       "b": "B0[10]"
+      },
+      {
+       "a": "A@1[19]",
+       "b": "B0[11]"
+      },
+      {
+       "a": "A@1[20]",
+       "b": "B0[12]"
+      },
+      {
+       "a": "A@1[21]",
+       "b": "B0[13]"
+      },
+      {
+       "a": "A@1[22]",
+       "b": "B0[14]"
+      },
+      {
+       "a": "A@1[23]",
+       "b": "B0[15]"
+      }
+     ],
+     "identified_rows": 32,
+     "is_that_a_theorem_here": {
+      "answer": true,
+      "why": "only DATA coordinates are shared -- no blinding source is -- so the non-data block is block diagonal by role and its rank is the sum of the three; identifying data coordinates can then only LOWER rank(all), so k0_joint <= sum k0_r, and with every part 0 the joint is forced to 0.  Both facts are COMPUTED above, and the controls show the equality breaking when a blinding row IS shared"
+     },
+     "joint_detail": {
+      "coordinate_classes": 3732,
+      "data_classes": 3230,
+      "disclosed_fp": 0,
+      "free_fp": 0,
+      "generators": 162,
+      "k0": 0,
+      "non_data_classes": 502,
+      "rank_all": 162,
+      "rank_on_non_data": 162,
+      "u_row_detail": {
+       "u_classes": 0
+      },
+      "u_row_term_fp": 0
+     },
+     "joint_equals_sum_of_parts": true,
+     "joint_fp": 0,
+     "joint_without_the_identifications_fp": 0,
+     "non_data_block_is_block_diagonal_by_role": true,
+     "ok": true,
+     "parts_detail": {
+      "A@0": {
+       "data_rows": 1623,
+       "disclosed_fp": 0,
+       "k0": 0,
+       "rank_all": 78,
+       "rank_on_non_data": 78,
+       "rows": 1871
+      },
+      "A@1": {
+       "data_rows": 1623,
+       "disclosed_fp": 0,
+       "k0": 0,
+       "rank_all": 78,
+       "rank_on_non_data": 78,
+       "rows": 1871
+      },
+      "B0": {
+       "data_rows": 16,
+       "disclosed_fp": 0,
+       "k0": 0,
+       "rank_all": 6,
+       "rank_on_non_data": 6,
+       "rows": 22
+      }
+     },
+     "parts_fp": {
+      "A@0": 0,
+      "A@1": 0,
+      "B0": 0
+     },
+     "roles": [
+      "A@0",
+      "B0",
+      "A@1"
+     ],
+     "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
+     "sum_of_parts_fp": 0,
+     "what": "the same hidden plane under three commitments: block k's activation commitment (its output plane), the boundary commitment, and block k+1's activation commitment (its input plane)"
+    }
+   }
+  ],
+  "ruling": "M-8: three blocks at the development rung, all three roles of each boundary plane ranked jointly, the shared-pair and single-proximity-row controls included",
+  "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
+  "shared_planes": {
+   "equality_slots": [
+    {
+     "a_rows": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23
+     ],
+     "boundary": null,
+     "claim_index_in_the_opening": 0,
+     "commitment": "E-Input",
+     "commitment_kind": "external-endpoint",
+     "commitment_rows": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+     ],
+     "log_size": 18,
+     "name": "IO-in endpoint equality",
+     "opened_at_stage": 0,
+     "reserved_pair_first_row": 16,
+     "rows": 16,
+     "same_evaluation_point": true,
+     "site_role": "Input",
+     "slot": 21,
+     "stage": 0,
+     "table_claim_field": 0
+    },
+    {
+     "a_rows": [
+      472,
+      473,
+      474,
+      475,
+      476,
+      477,
+      478,
+      479,
+      480,
+      481,
+      482,
+      483,
+      484,
+      485,
+      486,
+      487
+     ],
+     "boundary": 0,
+     "claim_index_in_the_opening": 0,
+     "commitment": "B0",
+     "commitment_kind": "internal-boundary",
+     "commitment_rows": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+     ],
+     "log_size": 18,
+     "name": "IO-out endpoint equality",
+     "opened_at_stage": 1,
+     "reserved_pair_first_row": 16,
+     "rows": 16,
+     "same_evaluation_point": true,
+     "site_role": "Output",
+     "slot": 22,
+     "stage": 0,
+     "table_claim_field": 0
+    },
+    {
+     "a_rows": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23
+     ],
+     "boundary": 0,
+     "claim_index_in_the_opening": 1,
+     "commitment": "B0",
+     "commitment_kind": "internal-boundary",
+     "commitment_rows": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+     ],
+     "log_size": 18,
+     "name": "IO-in endpoint equality",
+     "opened_at_stage": 1,
+     "reserved_pair_first_row": 18,
+     "rows": 16,
+     "same_evaluation_point": true,
+     "site_role": "Input",
+     "slot": 21,
+     "stage": 1,
+     "table_claim_field": 0
+    },
+    {
+     "a_rows": [
+      472,
+      473,
+      474,
+      475,
+      476,
+      477,
+      478,
+      479,
+      480,
+      481,
+      482,
+      483,
+      484,
+      485,
+      486,
+      487
+     ],
+     "boundary": null,
+     "claim_index_in_the_opening": 0,
+     "commitment": "E-Output",
+     "commitment_kind": "external-endpoint",
+     "commitment_rows": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+     ],
+     "log_size": 18,
+     "name": "IO-out endpoint equality",
+     "opened_at_stage": 1,
+     "reserved_pair_first_row": 16,
+     "rows": 16,
+     "same_evaluation_point": true,
+     "site_role": "Output",
+     "slot": 22,
+     "stage": 1,
+     "table_claim_field": 0
+    }
+   ],
+   "findings": [],
+   "identified_row_pairs": 64,
+   "source_facts": [
+    "private_block/argument.rs: the two endpoint-equality slots run eq(tau) * (A_plane - IO_plane) over log_size variables",
+    "private_block/layout.rs SLOT_KINDS marks them Standalone, so the sum they prove is zero and the published scalar is the CFS mask term alone; the capture carries the kind as data",
+    "the commitment behind an IO SITE is named by claim_sources, never by the site's role name (run-capture format finding U-8)"
+   ]
+  },
+  "whole_run": {
+   "classes_shared_between_roles_data": 48,
+   "classes_shared_between_roles_non_data": 0,
+   "commitments": [
+    "A@0",
+    "H@0",
+    "E-Input",
+    "M@0",
+    "A@1",
+    "H@1",
+    "B0",
+    "E-Output",
+    "M@1"
+   ],
+   "coordinate_classes": 7898,
+   "findings": [],
+   "generators": 218,
+   "identified_rows": 64,
+   "joint_detail": {
+    "coordinate_classes": 7898,
+    "data_classes": 7070,
+    "disclosed_fp": 4,
+    "free_fp": 0,
+    "generators": 218,
+    "k0": 0,
+    "non_data_classes": 828,
+    "rank_all": 218,
+    "rank_on_non_data": 218,
+    "u_row_detail": {
+     "exact_form": "u* = rank \u0393_{D\u222aN'} \u2212 rank \u0393_{N'} \u2212 k0, \u0393 the real and imaginary parts of the group and proximity row-combinations, D the data rows, N' the non-data rows that are not zero-sum rows (ruling GC-2, finding F-3; the draft's \u00a72.2.3 derives it)",
+     "extra_dimension_beyond_k0": 4,
+     "indicators_admissible": 4,
+     "per_indicator_equals_exact": true,
+     "per_indicator_term_fp": 4,
+     "rank_gamma_on_data_and_n_prime": 218,
+     "rank_gamma_on_n_prime": 214,
+     "u_class_owners": [
+      "H@0[1920]",
+      "H@0[1921]",
+      "H@1[1920]",
+      "H@1[1921]"
+     ],
+     "u_classes": 4
+    },
+    "u_row_term_fp": 4
+   },
+   "joint_equals_sum_of_parts": true,
+   "joint_fp": 4,
+   "label": "whole run",
+   "matrix": "218 x 7898",
+   "non_data_block_is_block_diagonal_by_role": true,
+   "ok": true,
+   "parts_fp": {
+    "A@0": 0,
+    "A@1": 0,
+    "B0": 0,
+    "E-Input": 0,
+    "E-Output": 0,
+    "H@0": 2,
+    "H@1": 2,
+    "M@0": 0,
+    "M@1": 0
+   },
+   "rows_total": 7962,
+   "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
+   "seconds": 1.6,
+   "sum_of_parts_fp": 4
+  }
+ },
+ "stage5_zero_data_preimage": {
+  "attempted": [
+   "B0",
+   "E-Input",
+   "E-Output"
+  ],
+  "fixed_input": "all zero",
+  "half": "message only",
+  "ok": true,
+  "per_commitment": [
+   {
+    "boundary": 0,
+    "commitment": "B0",
+    "commitment_kind": "internal-boundary",
+    "data_rows": 16,
+    "every_group_is_a_singleton": true,
+    "fibre_free_fp": 0,
+    "findings": [],
+    "fixed_input": "all zero",
+    "free_fp_per_position": 0,
+    "full_row_rank": true,
+    "generators": 6,
+    "message_positions": 16384,
+    "non_data_rows": 6,
+    "positions_without_a_solution": 0,
+    "preimage_exhibited": true,
+    "randomness_digest": "7785a7df5f5aad57bcb5db11d223475981a831b84752203a22ea86b42e39a91d",
+    "rank_of_the_non_data_block": 6,
+    "rows": 22,
+    "verification": {
+     "all_entries_equal": true,
+     "channels_not_verified": [
+      "the pad half of every published vector",
+      "the opened column values",
+      "the Merkle root, the leaf salts and the authentication paths"
+     ],
+     "channels_verified": [
+      "every opening group's vector, message half",
+      "the proximity vector, message half",
+      "every claim value"
+     ],
+     "claim_values_checked": 2,
+     "claim_values_differing": 0,
+     "message_entries_checked": 49152,
+     "message_entries_differing": 0
+    }
+   },
+   {
+    "boundary": null,
+    "commitment": "E-Input",
+    "commitment_kind": "external-endpoint",
+    "data_rows": 16,
+    "every_group_is_a_singleton": true,
+    "fibre_free_fp": 16384,
+    "findings": [],
+    "fixed_input": "all zero",
+    "free_fp_per_position": 1,
+    "full_row_rank": true,
+    "generators": 4,
+    "message_positions": 16384,
+    "non_data_rows": 5,
+    "positions_without_a_solution": 0,
+    "preimage_exhibited": true,
+    "randomness_digest": "314a2be5f88600becc3be53d80b76f2ab35e2b4e2edc6c2023ee5d2b089061f9",
+    "rank_of_the_non_data_block": 4,
+    "rows": 21,
+    "verification": {
+     "all_entries_equal": true,
+     "channels_not_verified": [
+      "the pad half of every published vector",
+      "the opened column values",
+      "the Merkle root, the leaf salts and the authentication paths"
+     ],
+     "channels_verified": [
+      "every opening group's vector, message half",
+      "the proximity vector, message half",
+      "every claim value"
+     ],
+     "claim_values_checked": 1,
+     "claim_values_differing": 0,
+     "message_entries_checked": 32768,
+     "message_entries_differing": 0
+    }
+   },
+   {
+    "boundary": null,
+    "commitment": "E-Output",
+    "commitment_kind": "external-endpoint",
+    "data_rows": 16,
+    "every_group_is_a_singleton": true,
+    "fibre_free_fp": 16384,
+    "findings": [],
+    "fixed_input": "all zero",
+    "free_fp_per_position": 1,
+    "full_row_rank": true,
+    "generators": 4,
+    "message_positions": 16384,
+    "non_data_rows": 5,
+    "positions_without_a_solution": 0,
+    "preimage_exhibited": true,
+    "randomness_digest": "613fb15d24ba89fe11317bd52082361fb16029b6744919a2ed02469b1b18bfd0",
+    "rank_of_the_non_data_block": 4,
+    "rows": 21,
+    "verification": {
+     "all_entries_equal": true,
+     "channels_not_verified": [
+      "the pad half of every published vector",
+      "the opened column values",
+      "the Merkle root, the leaf salts and the authentication paths"
+     ],
+     "channels_verified": [
+      "every opening group's vector, message half",
+      "the proximity vector, message half",
+      "every claim value"
+     ],
+     "claim_values_checked": 1,
+     "claim_values_differing": 0,
+     "message_entries_checked": 32768,
+     "message_entries_differing": 0
+    }
+   }
+  ],
+  "skipped": []
+ },
+ "stage8_plane_index_and_terminals": {
+  "carried_public_tables": {
+   "bundle": "tl128dd-l2-dense",
+   "digest_checked": 46,
+   "findings": [],
+   "length_checked": 46,
+   "ok": true,
+   "per_stage": [
+    {
+     "digest_checked": 23,
+     "length_checked": 23,
+     "public_tables": 23,
+     "stage": 0,
+     "with_values": 23
+    },
+    {
+     "digest_checked": 23,
+     "length_checked": 23,
+     "public_tables": 23,
+     "stage": 1,
+     "with_values": 23
+    }
+   ],
+   "public_tables": 46,
+   "public_tables_included": true,
+   "what": "each carried public table's values against the capture's own len and SHA-256 (the 16-byte little-endian Fp2 encoding, run_capture.rs:788)",
+   "with_values": 46
+  },
+  "channel_status": "open",
+  "controls": {
+   "ok": false,
+   "skipped": "controls not requested"
+  },
+  "ok": false,
+  "plane_index": {
+   "a_data_rows": 1623,
+   "a_planes": 83,
+   "a_planes_tile_exactly": true,
+   "domain_logs": {
+    "D": 18,
+    "Dd": 17,
+    "F": 20,
+    "Ht": 12,
+    "Kv": 15,
+    "L": 14,
+    "Q": 18,
+    "S": 19,
+    "T": 7,
+    "Tab": 14
+   },
+   "every_plane_is_read_by_a_slot": true,
+   "findings": [
+    "A plane 72 (A_PDICT) has domain 'Dd'",
+    "A plane 73 (A_PL0) has domain 'Dd'",
+    "A plane 74 (A_PL1) has domain 'Dd'",
+    "A plane 75 (A_SR0) has domain 'Dd'",
+    "A plane 76 (A_SR1) has domain 'Dd'",
+    "A plane 77 (A_SG0) has domain 'Dd'",
+    "A plane 78 (A_SG1) has domain 'Dd'",
+    "A plane 79 (A_MDD) has domain 'Dd'",
+    "H plane 41 (H_DD0) has domain 'Dd'",
+    "H plane 42 (H_DD1) has domain 'Dd'",
+    "H plane 43 (H_DD2) has domain 'Dd'",
+    "H plane 44 (H_DD3) has domain 'Dd'",
+    "H plane 45 (H_DD4) has domain 'Dd'",
+    "H plane 46 (H_GDD) has domain 'Dd'"
+   ],
+   "h_data_rows": 1922,
+   "h_plane_halves_tile_exactly": true,
+   "h_planes": 51,
+   "ok": false,
+   "per_stage": [
+    {
+     "private_tables": 176,
+     "slice_offsets_checked": 225,
+     "slice_offsets_inside_the_plane": 225,
+     "slots": 24,
+     "stage": 0,
+     "terminals": 176
+    },
+    {
+     "private_tables": 176,
+     "slice_offsets_checked": 225,
+     "slice_offsets_inside_the_plane": 225,
+     "slots": 24,
+     "stage": 1,
+     "terminals": 176
+    }
+   ],
+   "present": true,
+   "slots": 24,
+   "what_it_is_not": "the table says WHERE a plane lives and what it is called; it carries no plane content and is a function of the public shape alone"
+  },
+  "terminal_identity": {
+   "bilinear_group_factor": {
+    "definition_in_force": null,
+    "definition_selected_by": null,
+    "failures": [],
+    "ok": false,
+    "refusals": [],
+    "slots_with_a_derived_group_point": 0,
+    "superseded": null
+   },
+   "captured_public_tables": [],
+   "checked": true,
+   "covered_slot_names": [
+    "SC_SS",
+    "SC_SSM",
+    "SC_TZC",
+    "SC_LZC",
+    "SC_RS",
+    "SC_QMM",
+    "SC_KMM",
+    "SC_VMM",
+    "SC_SCORE",
+    "SC_PV",
+    "SC_WO",
+    "SC_GMM",
+    "SC_UMM",
+    "SC_DMM",
+    "SC_DZC",
+    "SC_QZC",
+    "SC_KVZC",
+    "SC_SZC",
+    "SC_FZC",
+    "SC_TAB",
+    "SC_ZS",
+    "SC_IO_IN",
+    "SC_IO_OUT"
+   ],
+   "covered_slots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22
+   ],
+   "derived_group_points_used_and_compared": 0,
+   "findings": [
+    "the bundle's source pins are not the ones this port was read at: src/private_block/argument.rs: the bundle pins 112352bc35c8, which is neither definition of the bilinear attention slots this port has read (909670c96562, dd8469cb0279, ec3f97443245, f7fa2ad4213d, 2cee0a2253d6, 9b26bda8105c, 02df55ebec4d); src/private_block/layout.rs: the bundle pins 9332802e597b, the port was read at fec2e6476f16; src/private_block/protocol.rs: the bundle pins c482402329e4, the port was read at 4e916c693ad8; src/private_block/plane_index.rs: the bundle pins 0fe9eb4d3cd8, the port was read at 9de8320a8477; src/private_block/shape.rs: the bundle pins e214db86945e, which is not one this port has read; src/private_block/pad.rs: the bundle pins 20afa04f6418, which is not one this port has read"
+   ],
+   "ok": false,
+   "open_slots": [],
+   "per_stage": [],
+   "public_table_digest_failures": [],
+   "public_table_structure_checks": 0,
+   "public_table_structure_detail": [],
+   "public_table_structure_failures": [],
+   "public_tables_rebuilt_and_digest_matched": 0,
+   "public_tables_taken_from_the_capture": 0,
+   "rebuilt_public_tables": [],
+   "refused_before_any_slot_was_evaluated": "a moved or missing source pin: NO slot of any stage was checked, and the zeros above are the absence of a check, not a passing one.  Nothing here says the bundle is bad -- it says this port has not read the Rust that made it",
+   "slot_checks_attempted": 0,
+   "slot_checks_equal": 0,
+   "slot_checks_expected": 46,
+   "slot_checks_matching_the_stored_terminal_polynomial": 0,
+   "source_pins": {
+    "also_read_not_pinned_by_a_bundle": {
+     "src/private_block/pad.rs": "7b6a990be900ad56e890660e9e3587c19fefc69f434a9bb3d4eab817f603d1ff",
+     "src/private_block/shape.rs": "144012d5d960446784a64a451b01ada2d4d6bdd9493ede51e4142e90d28942e0",
+     "src/private_block/witness.rs": "b9b66c024e7ca68d2a0ae4ba46241eb2abbccc8c8d94fe828041abbc710850ad"
+    },
+    "argument_definitions_this_port_implements": {
+     "02df55ebec4d": "repaired",
+     "2cee0a2253d6": "repaired",
+     "909670c96562": "pre-repair",
+     "9b26bda8105c": "repaired",
+     "dd8469cb0279": "repaired",
+     "ec3f97443245": "repaired",
+     "f7fa2ad4213d": "repaired"
+    },
+    "bilinear_definition_reason": null,
+    "bilinear_definition_selected_by_the_argument_pin": null,
+    "ok": false,
+    "pins_at_an_accepted_second_digest": [],
+    "pins_missing_from_the_bundle": [],
+    "pins_that_moved": [
+     "src/private_block/argument.rs: the bundle pins 112352bc35c8, which is neither definition of the bilinear attention slots this port has read (909670c96562, dd8469cb0279, ec3f97443245, f7fa2ad4213d, 2cee0a2253d6, 9b26bda8105c, 02df55ebec4d)",
+     "src/private_block/layout.rs: the bundle pins 9332802e597b, the port was read at fec2e6476f16",
+     "src/private_block/protocol.rs: the bundle pins c482402329e4, the port was read at 4e916c693ad8",
+     "src/private_block/plane_index.rs: the bundle pins 0fe9eb4d3cd8, the port was read at 9de8320a8477",
+     "src/private_block/shape.rs: the bundle pins e214db86945e, which is not one this port has read",
+     "src/private_block/pad.rs: the bundle pins 20afa04f6418, which is not one this port has read"
+    ],
+    "ported_from": {
+     "src/private_block/argument.rs": "909670c96562e7ff99b7ad37f6c3aae027574f3c0e9ab74f01a27e45058bf675",
+     "src/private_block/layout.rs": "fec2e6476f165e1e3be7871a3dfbdef56a4619f5b2e7560eb98ff2c97587a99f",
+     "src/private_block/plane_index.rs": "9de8320a84770560d2b998c514b0e9745a8f6c9f0c1d0cdefda8164137107611",
+     "src/private_block/protocol.rs": "4e916c693ad8e6c62e8774ddb3d829f5e1c116932e74bb1c6088d62ab4aee449"
+    }
+   },
+   "what": "fin_s == c_s * mask_eval_s + poly_s(vals_s), the verifier's own final check (argument.rs:381), recomputed from the published terminals and compared with the capture's `terminal_polynomial` (= fin - c*mask_eval)",
+   "what_a_captured_table_does_not_establish": null
+  }
+ },
+ "stage9_hash_layer": {
+  "bundle": "tl128dd-l2-dense",
+  "bytes_hashed": 16306176,
+  "columns_authenticated": 2304,
+  "columns_checked": 2304,
+  "cross_rule_probe": {
+   "column": {
+    "index": 1391,
+    "opening": "A",
+    "stage": 0
+   },
+   "derived_rule": "blake3-keyed/1",
+   "findings": [],
+   "honest": true,
+   "ok": true,
+   "what": "one opened column folded under the derived rule and under every wrong rule: only the derived one may reach the root",
+   "wrong_rules_that_reached_the_root": [],
+   "wrong_rules_tried": 4
+  },
+  "distinct_salted_leaves": 2283,
+  "findings": [],
+  "hash_rule": "blake3-keyed/1",
+  "ok": true,
+  "openings": 9,
+  "path_depth_checked": 2304,
+  "per_stage": [
+   {
+    "authenticated": 1024,
+    "columns": 1024,
+    "openings": [
+     {
+      "authenticated": 256,
+      "depth": 12,
+      "encoded_columns": 4096,
+      "kind": "masking",
+      "opened": 256,
+      "opening": "M",
+      "root": "1a6ca728fa404058",
+      "rows": 52
+     },
+     {
+      "authenticated": 256,
+      "depth": 16,
+      "encoded_columns": 65536,
+      "kind": "block",
+      "opened": 256,
+      "opening": "A",
+      "root": "a4eba303e31423aa",
+      "rows": 1871
+     },
+     {
+      "authenticated": 256,
+      "depth": 16,
+      "encoded_columns": 65536,
+      "kind": "block",
+      "opened": 256,
+      "opening": "H",
+      "root": "e7c7a4737826993d",
+      "rows": 2026
+     },
+     {
+      "authenticated": 256,
+      "depth": 16,
+      "encoded_columns": 65536,
+      "kind": "external-endpoint",
+      "opened": 256,
+      "opening": "Input",
+      "root": "05f9828bdf843162",
+      "rows": 21
+     }
+    ],
+    "stage": 0
+   },
+   {
+    "authenticated": 1280,
+    "columns": 1280,
+    "openings": [
+     {
+      "authenticated": 256,
+      "depth": 12,
+      "encoded_columns": 4096,
+      "kind": "masking",
+      "opened": 256,
+      "opening": "M",
+      "root": "44f2b7983682489d",
+      "rows": 52
+     },
+     {
+      "authenticated": 256,
+      "depth": 16,
+      "encoded_columns": 65536,
+      "kind": "block",
+      "opened": 256,
+      "opening": "A",
+      "root": "bd9fff8f97c0d58e",
+      "rows": 1871
+     },
+     {
+      "authenticated": 256,
+      "depth": 16,
+      "encoded_columns": 65536,
+      "kind": "block",
+      "opened": 256,
+      "opening": "H",
+      "root": "3df80ada867d6974",
+      "rows": 2026
+     },
+     {
+      "authenticated": 256,
+      "depth": 16,
+      "encoded_columns": 65536,
+      "kind": "internal-boundary",
+      "opened": 256,
+      "opening": "Input",
+      "root": "5762f75bb99d311f",
+      "rows": 22
+     },
+     {
+      "authenticated": 256,
+      "depth": 16,
+      "encoded_columns": 65536,
+      "kind": "external-endpoint",
+      "opened": 256,
+      "opening": "Output",
+      "root": "40ab3831a9fc170e",
+      "rows": 21
+     }
+    ],
+    "stage": 1
+   }
+  ],
+  "what": "every opened column re-hashed and its Merkle path re-folded: leaf = H_column(column bytes), salted = H_leaf(leaf||salt), root = fold H_node(left||right) -- pcs.rs:148/:691, merkle.rs:28"
+ },
+ "stages_run": [
+  "stage10_bilinear_group_factor",
+  "stage1_integrity",
+  "stage2_transcript_replay",
+  "stage3_per_commitment",
+  "stage4_the_boundary",
+  "stage5_zero_data_preimage",
+  "stage8_plane_index_and_terminals",
+  "stage9_hash_layer"
+ ],
+ "timings": [
+  {
+   "peak_rss_mb_after": 165,
+   "peak_rss_mb_before": 36,
+   "raised": "KeyError: 'Dd'",
+   "seconds": 0.7,
+   "stage": "load"
+  },
+  {
+   "peak_rss_mb_after": 167,
+   "peak_rss_mb_before": 165,
+   "raised": null,
+   "seconds": 1.6,
+   "stage": "replay"
+  },
+  {
+   "peak_rss_mb_after": 167,
+   "peak_rss_mb_before": 167,
+   "raised": null,
+   "seconds": 0.3,
+   "stage": "hash"
+  },
+  {
+   "peak_rss_mb_after": 277,
+   "peak_rss_mb_before": 167,
+   "raised": null,
+   "seconds": 5.2,
+   "stage": "terminals"
+  },
+  {
+   "peak_rss_mb_after": 277,
+   "peak_rss_mb_before": 277,
+   "raised": null,
+   "seconds": 79.2,
+   "stage": "commitments"
+  },
+  {
+   "peak_rss_mb_after": 277,
+   "peak_rss_mb_before": 277,
+   "raised": null,
+   "seconds": 3.9,
+   "stage": "boundary"
+  },
+  {
+   "peak_rss_mb_after": 277,
+   "peak_rss_mb_before": 277,
+   "raised": null,
+   "seconds": 1.1,
+   "stage": "preimage"
+  }
+ ],
+ "tool_sha256": {
+  "zk60_native_jv_capture.py": "11f598d1472eac3cdffd69555452ae112c9c9841e8cd74bed97e2165f2e6e904",
+  "zk60_native_jv_cfs.py": "2338e6a7966793c0c5ee69d4e4c2bbed08ca739ee583985799b1c0023b0ea2cb",
+  "zk60_native_jv_field.py": "ecd5ad199d31b55f88e0728368d7df1ae313c022d1b723b49a34ee9c9140b2bf",
+  "zk60_native_jv_joint.py": "544bfcc6412a861993091fb4c7b54345ac1612a20069acf991ac37549d52b907",
+  "zk60_native_jv_pcs.py": "cdaeebe7df60de0eba22136186c36df20bba9a66e7dfd32fe33043594acda89a",
+  "zk60_native_jv_replay.py": "7f69839b5e72344447ee516564e0472a329dd5bae996f7f995eb4ff8b01b3d70",
+  "zk60_native_manifest_pins.py": "1b08589ae22b842f09fc6e600d4710c6cd760cd278908ee5ffa778a73ca2d9e6",
+  "zk60_native_mask_commit.py": "fae15b4927b76f47a380050a66acdce245746db779b03b7f96d66061920334f1",
+  "zk60_native_pg_cfs.py": "4ee924228f3248f965dc8dce5c5f88fac0131b11ee4ede5ec72b2c3dac7d8302",
+  "zk60_native_pg_pcs.py": "9d37dd078bbbcf50d82a08db4b44d9556798ddd7371240e9cb457712f5d91c50",
+  "zk60_native_privacy_gate.py": "040891a757fc6efb991a57a02d4c713a31059ff0dcbe70b754df2ce4b31a7f98",
+  "zk60_native_profile_pins.py": "3689bbb3c6e4f55bb14260282124ef4bd73250107825c9cfba6dedd41de2c6ec",
+  "zk60_native_rg_ahcontrols.py": "d10e5168bd383a38edd86bf88140a2e9141db470d4b5bf004cd69b734e7468c2",
+  "zk60_native_rg_ahpreimage.py": "7113266cf720f16da95bf0ca46af272f9dc641ee59d025d46292fbd9b545eef2",
+  "zk60_native_rg_arrays.py": "0f0d167d4c4e0089b8c3687c73433b55a8ad9ccc2e6bdcfb7e252cbcf05aa63f",
+  "zk60_native_rg_block.py": "89fdfd8519563f6da928b90f00d2130759b3b5d728ecb8641f34cd4ba60b689b",
+  "zk60_native_rg_bundle.py": "1bb93a90dde772cd6314317b7c746269cb8fe4a4e0e664709aa834564f4d454c",
+  "zk60_native_rg_controls.py": "9a7197350109d8bfef6b13f32d40ccbfa7f196cbb1785c4af1a6d3cd19a10f9d",
+  "zk60_native_rg_exclusivity.py": "caf3e1fd17aff4a04deca5f6ff5c35841c3031daa7458e04bc0b8b4f9cd3d070",
+  "zk60_native_rg_exportcheck.py": "67e7fad75016230880bc79aa75cff7f7e5c05f70375533eb4553e59f31af719c",
+  "zk60_native_rg_g10controls.py": "81727bbd674ebd533af7d7142735e1433a5d7d30c1ad3f90bbb447273bcf2f80",
+  "zk60_native_rg_gcontrols.py": "785f8a695912c9580c41da65d5f28883b47637147dcd9a5470bc191c582bfe85",
+  "zk60_native_rg_gqa.py": "14499b5dfdbb574da6aac91ba51cd9ee39ead6672a2872060ee427979fd934f1",
+  "zk60_native_rg_hashlayer.py": "c9ceb75dbad369f0142e13714fc06f3fc60ff304b83419039a6acb80e479e572",
+  "zk60_native_rg_hashrule.py": "1dd46effc79ec22ec7471ba67e1fbfbc19bff7c3d5078051b868571af49b2233",
+  "zk60_native_rg_hcontrols.py": "0ca766b561707eeca44f424a2fef628cd7a22da4fd4e756dad92cfaae5d3f048",
+  "zk60_native_rg_joint.py": "d8007a395094fde7d0a02eee163e0edc2cf91e610e2c23f2a01ad64186a02e1a",
+  "zk60_native_rg_m125.py": "b64799b32e8d5fc3a3fea0d67ab28e49bfc167439d96fd8d561d12ad644f3ce9",
+  "zk60_native_rg_m125controls.py": "f46691f320385aada985c1ebdea47481714b2b5fa9b0702be7ac919e29657fd6",
+  "zk60_native_rg_mask.py": "5fc645a0cefac78732f23d1d3c7ab7b56fc6cfcdb2149a1c57d56d124a1cfff2",
+  "zk60_native_rg_mcontrols.py": "a555fca540b5f12e43906ff5d9d52a8184d522646c8c61b6acaf579589af96cd",
+  "zk60_native_rg_mjoint.py": "9a22097d89358c63faa0adeb07c8a263292d6d3fa7acb9ef53cfeb37652bf19c",
+  "zk60_native_rg_pcs.py": "b51ae706e42ab2d0e69517a7f39f808dcfcf5b065addfef4f7d750707c3f51ab",
+  "zk60_native_rg_pincontrols.py": "63902d150f3a8ff8ee295e34e27db2ef850c13d344108b79d444e10080608def",
+  "zk60_native_rg_planes.py": "990173caf4026852fddb7a21d635594af5493ddae50d41a052e7ed347e922944",
+  "zk60_native_rg_predict.py": "54fdcdf8e16248eb9b23b34945c82e1fa627350ed4a51dddc3c711333edae0af",
+  "zk60_native_rg_preimage.py": "48bdd7c48a8c85f0ac1839704e1eaf78cc1f3a523436e208b563ff2917a804f6",
+  "zk60_native_rg_replay.py": "6852cd94ab0fcaa7780ce5f92ad3d9ebdb20614d43787e629015eeb97e141360",
+  "zk60_native_rg_runpins.py": "46b3dcc951f763dba1b83ac3a6383a54b33595e421e1cc671f0f0bc097d6f943",
+  "zk60_native_rg_schema.py": "0ce637279da750897b6c4487f8f662e1918e749c0bdefb2a14f1d69afea5f6eb",
+  "zk60_native_rg_status.py": "0578430f50f03020db26cc7c27b66fcc8b501e602cfec7ad4c9f8ec612376992",
+  "zk60_native_rg_tcontrols.py": "6bae086acd81e6dcdd46957e78fde6ddba469c520582414e87cb0c16688187a8",
+  "zk60_native_rg_terminals.py": "44347753604b226a3b9bc42a0eb3b747ae020708ddfc5227806a6ee047264da9",
+  "zk60_native_rg_tinyllama_pins.py": "f26085d5c5b3abe1a06ffa5cf7426d365e58203d2c2341f3b4ffa8f8bc25ef78",
+  "zk60_native_rg_tinyllama_r5_pins.py": "f49a85a1dd3ac8e0fd67c9a5adda7a63caeea6dfc0187ea97ee28dde46f6d3c8",
+  "zk60_native_rg_tinyllama_r5b_pins.py": "4f88125aa6a8948fc2cf69dde585e576045cc6bc29e5d232191185521401a37c",
+  "zk60_native_rg_tinyllama_r7_pins.py": "bf18e73efb16e4d068ec78451f8c8ea4540b44b1698038cdf1aeb7109e4ae197",
+  "zk60_native_rg_tinyllama_tk7_pins.py": "0ac3ae3b86ae7a3350e4c1d002af249e7d27422f04da7d58c0337d523ae75d57",
+  "zk60_native_rg_tinyllama_tk9_pins.py": "4122cd42ab2eaba3f074760f1e6f29527ae597b7997a7b5506db639524bfc17a",
+  "zk60_native_rg_tlcontrols.py": "afb4d2d1be4461c0728b396a61288f40461bff9a09f2fbe42b6be27291b2efb9",
+  "zk60_native_rg_tokenblocks.py": "b5fdee30032498a57335521f57b284c5600222785f3c87f910a14aa92fb4096e",
+  "zk60_native_rg_tokencal.py": "d6fb455407e9f5c283eb2def5e922f0fb3783c31a3daee750de5ebead72cdf71",
+  "zk60_native_rg_tokengate.py": "bd2f0cf4b59b3afe1c3877469cd5a8578157f3079ffbdfc52bd9f54ef2f960be",
+  "zk60_native_rg_tokenio.py": "89927d28a6eb01c4ffd132f188e6f71d3d45d18c549b0f76ecf247461c4e44e4",
+  "zk60_native_rg_tokenio_r7c_pins.py": "f6c2cc546052faba9d100cc286fa5c01a19ddb601ecffd33e6a733048b2162ed",
+  "zk60_native_rg_tokenio_r9_pins.py": "5aaf61c5e381d46187c5ff9e384f7e2b8cf24cacdcd3b26348b277966f3aa4e9",
+  "zk60_native_rg_tokennl.py": "c5047cf0eec180a067435de2f76b5ab714dce5eae90fd1ee3174d18407f52f21",
+  "zk60_native_rg_tokenterminals.py": "de0ded235bcde55c3c304e33c9dc84bcc3e9458328a2bbdda2089111ca85e662",
+  "zk60_native_rg_tokents.py": "16cbc5d072c55043292262fc83ca80bc3f21bad51792abd7fe1f8f705df026fc",
+  "zk60_native_run_gate.py": "bfe116bb0d7709f30e7edfee60bf4ecb323caafc094c280815ad0caf4221ef3f"
+ },
+ "total_seconds": 92.0,
+ "trained_calibration": {
+  "norm_ceps": 74429,
+  "norm_cn_a": 1253,
+  "norm_cn_m": 1444,
+  "norm_tn": 10,
+  "sh_ao": 7,
+  "sh_g": 8,
+  "sh_h": 14,
+  "sh_o": 9,
+  "sh_qkv": 8,
+  "sh_s": 6,
+  "sh_z": 8,
+  "trained": true
+ },
+ "what_it_does_not_show": [
+  "linear channels of ONE captured two-block run at the shape 'TinyLlama-1.1B block geometry, trained calibration, DD (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads, 32-slot division dictionary)', at that run's real challenges.  Two runs are not a distribution and two blocks are not twelve",
+  "the hash layer's HIDING is still ARGUED: every OPENED column is re-hashed and re-authenticated, which says nothing about what an unopened leaf hides (M-2, M-3)",
+  "the joint LAW (Theorem B) is a reduction accepted on paper, conditional on G-R1 / G-R2 / G-R4, not a computation of this gate: what is computed is a rank",
+  "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
+  "NOT a privacy acceptance and NOT a privacy property"
+ ],
+ "what_this_is": "the linear channels of ONE captured private run at the shape 'TinyLlama-1.1B block geometry, trained calibration, DD (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads, 32-slot division dictionary)', at that run's real challenges, stage by stage with each stage's wall clock and the process's peak resident set"
+}

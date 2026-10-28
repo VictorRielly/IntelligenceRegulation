@@ -31,7 +31,7 @@
 //! `pcs.rs` and `zk.rs` (read fresh at every call and never memoised in a
 //! `OnceLock`, so a test can turn it on for one proof and off for the next).
 
-use super::layout::{N_SLOTS, SLOT_NAMES};
+use super::layout::{MAX_SLOTS, SLOT_NAMES};
 use std::time::Instant;
 
 /// the switch
@@ -145,7 +145,7 @@ const HALVES: [Half; 11] = [Half::Run, Half::Setup, Half::Commit, Half::Norm, Ha
 /// * `SC_TAB`, `SC_ZS` — the three public byte tables' helper relations and
 ///   the zero-sum row. LOOKUP-TABLE.
 /// * `SC_IO_IN`, `SC_IO_OUT` — the two external endpoint equalities. ENDPOINTS.
-pub(crate) const SLOT_HALF: [Half; N_SLOTS] = [
+pub(crate) const SLOT_HALF: [Half; MAX_SLOTS] = [
     Half::Norm,     // 00 SC_SS    row sums, norm_a
     Half::Norm,     // 01 SC_SSM   row sums, norm_m
     Half::Norm,     // 02 SC_TZC   norm squares zero-check (hosts 00, 01)
@@ -169,6 +169,7 @@ pub(crate) const SLOT_HALF: [Half; N_SLOTS] = [
     Half::Lookup,   // 20 SC_ZS    the zero-sum row
     Half::Endpoint, // 21 SC_IO_IN  input endpoint equality
     Half::Endpoint, // 22 SC_IO_OUT output endpoint equality
+    Half::Attn,     // 23 SC_DD    NATIVE R9: the softmax division dictionary (DD profiles only)
 ];
 
 /// Process resident memory and its high-water mark, in MiB, from Linux
@@ -247,7 +248,7 @@ impl Phases {
     /// ROUND 5: one slot with its counted ELEMENT-TERMS (cube x tables) and
     /// the bytes of one read of them (16 per extension-field element)
     pub(crate) fn slot_work(&mut self, s: usize, element_terms: u64) {
-        if !self.on || s >= N_SLOTS {
+        if !self.on || s >= MAX_SLOTS {
             return;
         }
         self.push(SLOT_HALF[s], SLOT_NAMES[s], Some(s), element_terms, "elem-terms", 16 * element_terms);
@@ -256,7 +257,7 @@ impl Phases {
     /// The same for one slot of the argument, labelled by the schedule's own
     /// public name and classified by [`SLOT_HALF`].
     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
-        if !self.on || s >= N_SLOTS {
+        if !self.on || s >= MAX_SLOTS {
             return;
         }
         self.push(SLOT_HALF[s], SLOT_NAMES[s], Some(s), size, unit, 0);
@@ -374,7 +375,7 @@ pub(crate) fn base_field_census(slot: usize, labels: &[String], tables: &[Vec<cr
     let t = Instant::now();
     let per: Vec<usize> = tables.par_iter().map(|t| t.iter().filter(|w| w.c1.is_zero()).count()).collect();
     let secs = t.elapsed().as_secs_f64();
-    let name = if slot < N_SLOTS { SLOT_NAMES[slot] } else { "?" };
+    let name = if slot < MAX_SLOTS { SLOT_NAMES[slot] } else { "?" };
     let words: usize = tables.iter().map(|t| t.len()).sum();
     let base: usize = per.iter().sum();
     let whole = per.iter().zip(tables.iter()).filter(|(b, t)| **b == t.len()).count();

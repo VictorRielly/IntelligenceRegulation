@@ -1,0 +1,23 @@
+{
+  "run_id": "20261021T041854Z-cfd5ba2e",
+  "completed_independently_verified_full_stack_proofs": 0,
+  "complete_model_passes": 0,
+  "proved_positions": 0,
+  "model_context_length": null,
+  "accelerator": null,
+  "research_device": "Intel Core Ultra 9 185H; one pinned CPU worker",
+  "witness_seconds": null,
+  "proof_seconds": null,
+  "serialization_seconds": null,
+  "verification_seconds": null,
+  "startup_seconds": null,
+  "startup_fraction": null,
+  "steady_state_proved_positions_per_second": null,
+  "total_workload_proved_positions_per_second": null,
+  "long_context_prefill_executed": false,
+  "resident_model_pass_series_executed": false,
+  "decode_executed": false,
+  "target_achieved": false,
+  "synthetic_traces_are_model_passes": false,
+  "gpu_job_executed": false
+}

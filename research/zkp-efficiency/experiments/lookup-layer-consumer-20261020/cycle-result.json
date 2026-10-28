@@ -1,0 +1,63 @@
+{
+  "cycle": "0105",
+  "run_id": "20261020T131854Z-4f8a9e18",
+  "status": "complete",
+  "completed_utc": "2026-10-20T13:30:01.692678+00:00",
+  "result": {
+    "seed": 20261020105,
+    "checks": 1515,
+    "fixtures": 10,
+    "tiny_column_cases": 51,
+    "tiny_layer_consumers": 183,
+    "negative_controls": [
+      "wrong_site_permutation_preserves_fraction_root",
+      "ordered_leaf_digest_detects_permutation",
+      "zero_denominator_refused_even_zero_multiplicity",
+      "fresh_challenges_prevent_denominator_reuse",
+      "omitting_fold_capacity_understates_peak",
+      "per_column_cache_has_cost_not_free_reuse",
+      "altered_cubic_sample_rejected",
+      "altered_terminal_rejected",
+      "wrong_equality_point_changes_claim",
+      "duplicated_global_histogram_rejected",
+      "altered_multiplicity_changes_root_value",
+      "native_field_and_privacy_not_certified"
+    ],
+    "elapsed_s": 3.6650336319871712,
+    "maxrss_KiB": 20808,
+    "scope": "Explicit chosen immutable-child/five-plane consumer. Symbolic Fp2 bytes plus tiny F65537 cubic fold arithmetic, not native GKR or proof.",
+    "full_stack": {
+      "proofs": 0,
+      "passes": 0,
+      "positions": 0,
+      "context_length": null,
+      "device": null,
+      "witness_s": null,
+      "proof_s": null,
+      "serialization_s": null,
+      "verification_s": null,
+      "startup_s": null,
+      "startup_fraction": null,
+      "steady_rate": null,
+      "total_rate": null
+    }
+  },
+  "validation": {
+    "status": "PASS",
+    "checks": 233250,
+    "randomized_cost_schedules": 480,
+    "cost_mutations": 1440,
+    "independent_consumer_cases": 80,
+    "alias_controls": 80,
+    "source_pins": 5,
+    "elapsed_s": 0.31938798900227994,
+    "maxrss_KiB": 15404,
+    "scope": "Independent phase widths, event replay, direct Boolean-basis polynomial samples and source pins; no protocol validation."
+  },
+  "hypotheses": 20,
+  "source_records_before": 613,
+  "source_records_after": 621,
+  "next_cycle_not_before": "2026-10-20T14:18:54Z",
+  "handoff": "handoffs/20261020-lookup-layer-consumer.md",
+  "final_checkpoint_utc": "2026-10-20T13:30:52.719969+00:00"
+}

@@ -1,0 +1,17 @@
+{
+  "retained_hypotheses": 34,
+  "material_refinement": [
+    3
+  ],
+  "updated_context": [
+    1,
+    34
+  ],
+  "top_four_order_unchanged": true,
+  "scratch_runtime_promotion": "parked pending measured materiality",
+  "next_rotation": [
+    "lookup/softmax",
+    "quantization/arithmetic",
+    "proof composition"
+  ]
+}

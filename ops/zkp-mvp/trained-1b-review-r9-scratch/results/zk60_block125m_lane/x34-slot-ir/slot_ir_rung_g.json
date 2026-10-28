@@ -1,0 +1,772 @@
+{
+ "schema":"zk60-slot-ir/1",
+ "shape":"rung_g",
+ "profile":"hashline-zk-mr1/private-block-rung-g-t24-dev/1",
+ "slot_count":23,
+ "tables":234,
+ "tables_base_field":134,
+ "slots":[
+  {
+   "slot":0,"name":"01 SS row sums norm_a (private)","kind":"Private",
+   "main_rounds":12,"extension_rounds":1,"declared_degree":4,"max_product_degree":4,
+   "pad_on":false,"group_bits":null,
+   "tables":[
+    {"id":0,"kind":"eq(start=0,|point|=5)","field":"ext","prov":"eq-of-challenges","label":"eq(r_t)"},
+    {"id":1,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[8] on its own domain"},
+    {"id":2,"kind":"supp(D)","field":"base","prov":"public-from-shape","label":"supp(D)"}
+   ],
+   "nodes":[
+   ],
+   "terms":[
+    {"coef":{"prov":"one","value":"1+0u"},"wrapper":[2],"inner":[{"table":0},{"table":1},{"table":1}],"degree":4,"note":"supp * eq(row point) * plane * plane: the private row sum of squares"}
+   ]
+  },
+  {
+   "slot":1,"name":"01m SS row sums norm_m (private)","kind":"Private",
+   "main_rounds":12,"extension_rounds":1,"declared_degree":4,"max_product_degree":4,
+   "pad_on":false,"group_bits":null,
+   "tables":[
+    {"id":0,"kind":"eq(start=0,|point|=5)","field":"ext","prov":"eq-of-challenges","label":"eq(r_t2)"},
+    {"id":1,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[24] on its own domain"},
+    {"id":2,"kind":"supp(D)","field":"base","prov":"public-from-shape","label":"supp(D)"}
+   ],
+   "nodes":[
+   ],
+   "terms":[
+    {"coef":{"prov":"one","value":"1+0u"},"wrapper":[2],"inner":[{"table":0},{"table":1},{"table":1}],"degree":4,"note":"supp * eq(row point) * plane * plane: the private row sum of squares"}
+   ]
+  },
+  {
+   "slot":2,"name":"02 norm squares zero-check (hosts 01, 01m)","kind":"Host",
+   "main_rounds":5,"extension_rounds":1,"declared_degree":3,"max_product_degree":3,
+   "pad_on":true,"group_bits":null,
+   "tables":[
+    {"id":0,"kind":"eq(start=0,|point|=5)","field":"ext","prov":"eq-of-challenges","label":"eq(tau)"},
+    {"id":1,"kind":"eq(start=0,|point|=5)","field":"ext","prov":"eq-of-challenges","label":"eq(r_t)"},
+    {"id":2,"kind":"eq(start=0,|point|=5)","field":"ext","prov":"eq-of-challenges","label":"eq(r_t2)"},
+    {"id":3,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[0] on its own domain"},
+    {"id":4,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[1] on its own domain"},
+    {"id":5,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[6] limb sub-slice 0"},
+    {"id":6,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[6] limb sub-slice 1"},
+    {"id":7,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[6] limb sub-slice 2"},
+    {"id":8,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[6] limb sub-slice 3"},
+    {"id":9,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[6] limb sub-slice 4"},
+    {"id":10,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[6] limb sub-slice 5"},
+    {"id":11,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[6] limb sub-slice 6"},
+    {"id":12,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[6] limb sub-slice 7"},
+    {"id":13,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[6] limb sub-slice 8"},
+    {"id":14,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[2] on its own domain"},
+    {"id":15,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[3] on its own domain"},
+    {"id":16,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[7] limb sub-slice 0"},
+    {"id":17,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[7] limb sub-slice 1"},
+    {"id":18,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[7] limb sub-slice 2"},
+    {"id":19,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[7] limb sub-slice 3"},
+    {"id":20,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[7] limb sub-slice 4"},
+    {"id":21,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[7] limb sub-slice 5"},
+    {"id":22,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[7] limb sub-slice 6"},
+    {"id":23,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[7] limb sub-slice 7"},
+    {"id":24,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[7] limb sub-slice 8"},
+    {"id":25,"kind":"supp(T)","field":"base","prov":"public-from-shape","label":"supp(T)"}
+   ],
+   "nodes":[
+    {"id":0,"degree":1,"label":"dl","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"1+0u"},"table":5},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"256+0u"},"table":6},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"65536+0u"},"table":7}]},
+    {"id":1,"degree":1,"label":"a1","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"1+0u"},"table":8},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"256+0u"},"table":9},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"65536+0u"},"table":10}]},
+    {"id":2,"degree":1,"label":"a2","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"1+0u"},"table":11},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"256+0u"},"table":12},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"65536+0u"},"table":13}]},
+    {"id":3,"degree":1,"label":"dl_m","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"1+0u"},"table":16},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"256+0u"},"table":17},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"65536+0u"},"table":18}]},
+    {"id":4,"degree":1,"label":"a1_m","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"1+0u"},"table":19},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"256+0u"},"table":20},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"65536+0u"},"table":21}]},
+    {"id":5,"degree":1,"label":"a2_m","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"1+0u"},"table":22},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"256+0u"},"table":23},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"65536+0u"},"table":24}]},
+    {"id":6,"degree":2,"label":"c0: dsq - d^2","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":4}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"table":3},{"table":3}]}]},
+    {"id":7,"degree":1,"label":"c1: d - dl","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":3}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":0}]}]},
+    {"id":8,"degree":1,"label":"c2: 2d - a1 - a2","body":"sum","subterms":[{"coef":{"prov":"kbase:the doubling of the norm clause","value":"2+0u"},"factors":[{"table":3}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":1}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":2}]}]},
+    {"id":9,"degree":2,"label":"c3: dsq_m - dm^2","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":15}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"table":14},{"table":14}]}]},
+    {"id":10,"degree":1,"label":"c4: dm - dl_m","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":14}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":3}]}]},
+    {"id":11,"degree":1,"label":"c5: 2dm - a1_m - a2_m","body":"sum","subterms":[{"coef":{"prov":"kbase:the doubling of the norm clause","value":"2+0u"},"factors":[{"table":14}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":4}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":5}]}]},
+    {"id":12,"degree":1,"label":"1 - supp[t25]","body":"affine","konst":{"prov":"one","value":"1+0u"},"terms":[{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"table":25}]},
+    {"id":13,"degree":1,"label":"pad group under supp[t25]","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"chal:zeta^0"},"table":3},{"coef":{"prov":"chal:zeta^1"},"table":4},{"coef":{"prov":"chal:zeta^2"},"table":14},{"coef":{"prov":"chal:zeta^3"},"table":15}]},
+    {"id":14,"degree":2,"label":"zc","body":"sum","subterms":[{"coef":{"prov":"chal:mu[0]"},"factors":[{"node":6}]},{"coef":{"prov":"chal:mu[1]"},"factors":[{"node":7}]},{"coef":{"prov":"chal:mu[2]"},"factors":[{"node":8}]},{"coef":{"prov":"chal:mu[3]"},"factors":[{"node":9}]},{"coef":{"prov":"chal:mu[4]"},"factors":[{"node":10}]},{"coef":{"prov":"chal:mu[5]"},"factors":[{"node":11}]},{"coef":{"prov":"chal:mu[6]"},"factors":[{"node":12},{"node":13}]}]},
+    {"id":15,"degree":1,"label":"host SC_SS: dsq + a1 - NORM_CEPS","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":4}]},{"coef":{"prov":"one","value":"1+0u"},"factors":[{"node":1}]},{"coef":{"prov":"kbase:NORM_CEPS","value":"18446744069414584320+0u"},"factors":[]}]},
+    {"id":16,"degree":1,"label":"host SC_SSM: dsq_m + a1_m - NORM_CEPS","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":15}]},{"coef":{"prov":"one","value":"1+0u"},"factors":[{"node":4}]},{"coef":{"prov":"kbase:NORM_CEPS","value":"18446744069414584320+0u"},"factors":[]}]}
+   ],
+   "terms":[
+    {"coef":{"prov":"one","value":"1+0u"},"wrapper":[0],"inner":[{"node":14}],"degree":3,"note":"the norm-squares zero-check"},
+    {"coef":{"prov":"chal:nu[0]"},"wrapper":[1,25],"inner":[{"node":15}],"degree":3,"note":"hosted SC_SS"},
+    {"coef":{"prov":"chal:nu[1]"},"wrapper":[2,25],"inner":[{"node":16}],"degree":3,"note":"hosted SC_SSM"}
+   ]
+  },
+  {
+   "slot":3,"name":"08 limb zero-check","kind":"Standalone",
+   "main_rounds":10,"extension_rounds":1,"declared_degree":4,"max_product_degree":4,
+   "pad_on":true,"group_bits":null,
+   "tables":[
+    {"id":0,"kind":"eq(start=0,|point|=10)","field":"ext","prov":"eq-of-challenges","label":"eq(tau)"},
+    {"id":1,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[6] on its own domain"},
+    {"id":2,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[7] on its own domain"},
+    {"id":3,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[0]"},
+    {"id":4,"kind":"supp(L)","field":"base","prov":"public-from-shape","label":"supp(L)"}
+   ],
+   "nodes":[
+    {"id":0,"degree":1,"label":"den[L:0]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":1}]},
+    {"id":1,"degree":1,"label":"den[L:1]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":2}]},
+    {"id":2,"degree":3,"label":"logup[L:0]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":3},{"node":0},{"node":1}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":0}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":1}]}]},
+    {"id":3,"degree":1,"label":"1 - supp[t4]","body":"affine","konst":{"prov":"one","value":"1+0u"},"terms":[{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"table":4}]},
+    {"id":4,"degree":1,"label":"pad group under supp[t4]","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"chal:zeta^0"},"table":1},{"coef":{"prov":"chal:zeta^1"},"table":2}]},
+    {"id":5,"degree":3,"label":"zc","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"node":2}]},{"coef":{"prov":"chal:this slot's pad weight (it draws no mu)"},"factors":[{"node":3},{"node":4}]}]}
+   ],
+   "terms":[
+    {"coef":{"prov":"one","value":"1+0u"},"wrapper":[0],"inner":[{"node":5}],"degree":4,"note":"the limb LogUp, batched with the all-ones weight"}
+   ]
+  },
+  {
+   "slot":4,"name":"07 masked row sums + selector (private)","kind":"Private",
+   "main_rounds":13,"extension_rounds":1,"declared_degree":4,"max_product_degree":4,
+   "pad_on":false,"group_bits":null,
+   "tables":[
+    {"id":0,"kind":"eq(start=0,|point|=8)","field":"ext","prov":"eq-of-challenges","label":"eq(p_ht)"},
+    {"id":1,"kind":"pub","field":"base","prov":"public-from-shape","label":"causal mask over the Dom::S cube"},
+    {"id":2,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[59] on its own domain"},
+    {"id":3,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[58] on its own domain"},
+    {"id":4,"kind":"supp(S)","field":"base","prov":"public-from-shape","label":"supp(S)"}
+   ],
+   "nodes":[
+    {"id":0,"degree":2,"label":"mask * e + lam_z * zsel","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":1},{"table":2}]},{"coef":{"prov":"chal:lam_z"},"factors":[{"table":3}]}]}
+   ],
+   "terms":[
+    {"coef":{"prov":"one","value":"1+0u"},"wrapper":[4,0],"inner":[{"node":0}],"degree":4,"note":"supp * eq(p_ht) * (mask * e + lam_z * zsel): the masked softmax row sums"}
+   ]
+  },
+  {
+   "slot":5,"name":"09Q matmul (private)","kind":"Private",
+   "main_rounds":7,"extension_rounds":1,"declared_degree":2,"max_product_degree":2,
+   "pad_on":false,"group_bits":null,
+   "tables":[
+    {"id":0,"kind":"A","field":"ext","prov":"committed(fixed=5,ext-slice-coef=false)","label":"A[11] at (r_q fixed, rho)"},
+    {"id":1,"kind":"pub","field":"ext","prov":"public-with-challenge:the weight matrix folded against eq(r_j)","label":"fold_rows_i8(W, eq(r_j))"}
+   ],
+   "nodes":[
+   ],
+   "terms":[
+    {"coef":{"prov":"one","value":"1+0u"},"wrapper":[],"inner":[{"table":0},{"table":1}],"degree":2,"note":"plane * folded weight"}
+   ]
+  },
+  {
+   "slot":6,"name":"09K matmul (private)","kind":"Private",
+   "main_rounds":7,"extension_rounds":1,"declared_degree":2,"max_product_degree":2,
+   "pad_on":false,"group_bits":null,
+   "tables":[
+    {"id":0,"kind":"A","field":"ext","prov":"committed(fixed=5,ext-slice-coef=false)","label":"A[11] at (r_q fixed, rho)"},
+    {"id":1,"kind":"pub","field":"ext","prov":"public-with-challenge:the weight matrix folded against eq(r_j)","label":"fold_rows_i8(W, eq(r_j))"}
+   ],
+   "nodes":[
+   ],
+   "terms":[
+    {"coef":{"prov":"one","value":"1+0u"},"wrapper":[],"inner":[{"table":0},{"table":1}],"degree":2,"note":"plane * folded weight"}
+   ]
+  },
+  {
+   "slot":7,"name":"09V matmul (private)","kind":"Private",
+   "main_rounds":7,"extension_rounds":1,"declared_degree":2,"max_product_degree":2,
+   "pad_on":false,"group_bits":null,
+   "tables":[
+    {"id":0,"kind":"A","field":"ext","prov":"committed(fixed=5,ext-slice-coef=false)","label":"A[11] at (r_q fixed, rho)"},
+    {"id":1,"kind":"pub","field":"ext","prov":"public-with-challenge:the weight matrix folded against eq(r_j)","label":"fold_rows_i8(W, eq(r_j))"}
+   ],
+   "nodes":[
+   ],
+   "terms":[
+    {"coef":{"prov":"one","value":"1+0u"},"wrapper":[],"inner":[{"table":0},{"table":1}],"degree":2,"note":"plane * folded weight"}
+   ]
+  },
+  {
+   "slot":8,"name":"10 score matmul (private, bilinear)","kind":"Private",
+   "main_rounds":5,"extension_rounds":2,"declared_degree":3,"max_product_degree":3,
+   "pad_on":false,"group_bits":1,
+   "tables":[
+    {"id":0,"kind":"group_eq(bits=1)","field":"ext","prov":"eq-of-challenges","label":"eq(r_g) over the leading 1 variables"},
+    {"id":1,"kind":"A","field":"ext","prov":"committed(fixed=7,ext-slice-coef=false)","label":"A[45] at (r_t fixed | group summed | r_hj fixed | c)"},
+    {"id":2,"kind":"A","field":"ext","prov":"committed(fixed=5,ext-slice-coef=false)","label":"A[54] at (r_j fixed | group summed | c)"}
+   ],
+   "nodes":[
+   ],
+   "terms":[
+    {"coef":{"prov":"one","value":"1+0u"},"wrapper":[0],"inner":[{"table":1},{"table":2}],"degree":3,"note":"eq(r_g) * the two private factors (the S19-F1 repair: the group is a sumcheck variable)"}
+   ]
+  },
+  {
+   "slot":9,"name":"11 PV matmul (private, bilinear)","kind":"Private",
+   "main_rounds":6,"extension_rounds":2,"declared_degree":3,"max_product_degree":3,
+   "pad_on":false,"group_bits":1,
+   "tables":[
+    {"id":0,"kind":"group_eq(bits=1)","field":"ext","prov":"eq-of-challenges","label":"eq(r_g) over the leading 1 variables"},
+    {"id":1,"kind":"A","field":"ext","prov":"committed(fixed=7,ext-slice-coef=false)","label":"A[60] at (group summed | r_hj fixed | r_t fixed | s)"},
+    {"id":2,"kind":"A","field":"ext","prov":"committed(fixed=4,ext-slice-coef=false)","label":"A[52] at (s | group summed | r_i fixed)"}
+   ],
+   "nodes":[
+   ],
+   "terms":[
+    {"coef":{"prov":"one","value":"1+0u"},"wrapper":[0],"inner":[{"table":1},{"table":2}],"degree":3,"note":"eq(r_g) * the two private factors"}
+   ]
+  },
+  {
+   "slot":10,"name":"12 Wo matmul (private)","kind":"Private",
+   "main_rounds":7,"extension_rounds":1,"declared_degree":2,"max_product_degree":2,
+   "pad_on":false,"group_bits":null,
+   "tables":[
+    {"id":0,"kind":"A","field":"ext","prov":"committed(fixed=5,ext-slice-coef=false)","label":"A[47] at (r_q fixed, rho)"},
+    {"id":1,"kind":"pub","field":"ext","prov":"public-with-challenge:the weight matrix folded against eq(r_j)","label":"fold_rows_i8(W, eq(r_j))"}
+   ],
+   "nodes":[
+   ],
+   "terms":[
+    {"coef":{"prov":"one","value":"1+0u"},"wrapper":[],"inner":[{"table":0},{"table":1}],"degree":2,"note":"plane * folded weight"}
+   ]
+  },
+  {
+   "slot":11,"name":"13G gate matmul (private)","kind":"Private",
+   "main_rounds":7,"extension_rounds":1,"declared_degree":2,"max_product_degree":2,
+   "pad_on":false,"group_bits":null,
+   "tables":[
+    {"id":0,"kind":"A","field":"ext","prov":"committed(fixed=5,ext-slice-coef=false)","label":"A[27] at (row point fixed, rho)"},
+    {"id":1,"kind":"pub","field":"ext","prov":"public-with-challenge:the weight matrix folded against eq(r_j)","label":"fold_cols_i8(W, eq(r_j))"}
+   ],
+   "nodes":[
+   ],
+   "terms":[
+    {"coef":{"prov":"one","value":"1+0u"},"wrapper":[],"inner":[{"table":0},{"table":1}],"degree":2,"note":"plane * folded weight"}
+   ]
+  },
+  {
+   "slot":12,"name":"13U up matmul (private)","kind":"Private",
+   "main_rounds":7,"extension_rounds":1,"declared_degree":2,"max_product_degree":2,
+   "pad_on":false,"group_bits":null,
+   "tables":[
+    {"id":0,"kind":"A","field":"ext","prov":"committed(fixed=5,ext-slice-coef=false)","label":"A[27] at (row point fixed, rho)"},
+    {"id":1,"kind":"pub","field":"ext","prov":"public-with-challenge:the weight matrix folded against eq(r_j)","label":"fold_cols_i8(W, eq(r_j))"}
+   ],
+   "nodes":[
+   ],
+   "terms":[
+    {"coef":{"prov":"one","value":"1+0u"},"wrapper":[],"inner":[{"table":0},{"table":1}],"degree":2,"note":"plane * folded weight"}
+   ]
+  },
+  {
+   "slot":13,"name":"13D down matmul (private)","kind":"Private",
+   "main_rounds":8,"extension_rounds":1,"declared_degree":2,"max_product_degree":2,
+   "pad_on":false,"group_bits":null,
+   "tables":[
+    {"id":0,"kind":"A","field":"ext","prov":"committed(fixed=5,ext-slice-coef=false)","label":"A[75] at (row point fixed, rho)"},
+    {"id":1,"kind":"pub","field":"ext","prov":"public-with-challenge:the weight matrix folded against eq(r_j)","label":"fold_cols_i8(W, eq(r_j))"}
+   ],
+   "nodes":[
+   ],
+   "terms":[
+    {"coef":{"prov":"one","value":"1+0u"},"wrapper":[],"inner":[{"table":0},{"table":1}],"degree":2,"note":"plane * folded weight"}
+   ]
+  },
+  {
+   "slot":14,"name":"03 D zero-check (hosts 12, 13D)","kind":"Host",
+   "main_rounds":12,"extension_rounds":1,"declared_degree":5,"max_product_degree":4,
+   "pad_on":true,"group_bits":null,
+   "tables":[
+    {"id":0,"kind":"eq(start=0,|point|=12)","field":"ext","prov":"eq-of-challenges","label":"eq(tau)"},
+    {"id":1,"kind":"eq(start=0,|point|=12)","field":"ext","prov":"eq-of-challenges","label":"eq(p_a)"},
+    {"id":2,"kind":"eq(start=0,|point|=12)","field":"ext","prov":"eq-of-challenges","label":"eq(p_z)"},
+    {"id":3,"kind":"pub","field":"base","prov":"public-from-shape","label":"gamma_a on the padded width (ruling P-2)"},
+    {"id":4,"kind":"pub","field":"base","prov":"public-from-shape","label":"gamma_m on the padded width (ruling P-2)"},
+    {"id":5,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[8] on its own domain"},
+    {"id":6,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[9] on its own domain"},
+    {"id":7,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[10] on its own domain"},
+    {"id":8,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[11] on its own domain"},
+    {"id":9,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[12] on its own domain"},
+    {"id":10,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[13] on its own domain"},
+    {"id":11,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[14] on its own domain"},
+    {"id":12,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[15] on its own domain"},
+    {"id":13,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[16] on its own domain"},
+    {"id":14,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[17] on its own domain"},
+    {"id":15,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[18] on its own domain"},
+    {"id":16,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[19] on its own domain"},
+    {"id":17,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[20] on its own domain"},
+    {"id":18,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[21] on its own domain"},
+    {"id":19,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[22] on its own domain"},
+    {"id":20,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[23] on its own domain"},
+    {"id":21,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[24] on its own domain"},
+    {"id":22,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[25] on its own domain"},
+    {"id":23,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[26] on its own domain"},
+    {"id":24,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[27] on its own domain"},
+    {"id":25,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[28] on its own domain"},
+    {"id":26,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[29] on its own domain"},
+    {"id":27,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[30] on its own domain"},
+    {"id":28,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[31] on its own domain"},
+    {"id":29,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[32] on its own domain"},
+    {"id":30,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[33] on its own domain"},
+    {"id":31,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[34] on its own domain"},
+    {"id":32,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[35] on its own domain"},
+    {"id":33,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[36] on its own domain"},
+    {"id":34,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[37] on its own domain"},
+    {"id":35,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[38] on its own domain"},
+    {"id":36,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[39] on its own domain"},
+    {"id":37,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[40] on its own domain"},
+    {"id":38,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[41] on its own domain"},
+    {"id":39,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[42] on its own domain"},
+    {"id":40,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[0] (Dom::T) read on the row axis"},
+    {"id":41,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[2] (Dom::T) read on the row axis"},
+    {"id":42,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[1]"},
+    {"id":43,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[2]"},
+    {"id":44,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[3]"},
+    {"id":45,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[4]"},
+    {"id":46,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[5]"},
+    {"id":47,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[6]"},
+    {"id":48,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[7]"},
+    {"id":49,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[8]"},
+    {"id":50,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[9]"},
+    {"id":51,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[10]"},
+    {"id":52,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[11]"},
+    {"id":53,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[12]"},
+    {"id":54,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[13]"},
+    {"id":55,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[14]"},
+    {"id":56,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[15]"},
+    {"id":57,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[16]"},
+    {"id":58,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[17]"},
+    {"id":59,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[18]"},
+    {"id":60,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[19]"},
+    {"id":61,"kind":"supp(D)","field":"base","prov":"public-from-shape","label":"supp(D)"}
+   ],
+   "nodes":[
+    {"id":0,"degree":1,"label":"nr","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"1+0u"},"table":9},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"256+0u"},"table":10},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"65536+0u"},"table":11},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"16777216+0u"},"table":12}]},
+    {"id":1,"degree":1,"label":"ns","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"1+0u"},"table":13},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"256+0u"},"table":14},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"65536+0u"},"table":15},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"16777216+0u"},"table":16}]},
+    {"id":2,"degree":1,"label":"mr","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"1+0u"},"table":25},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"256+0u"},"table":26},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"65536+0u"},"table":27},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"16777216+0u"},"table":28}]},
+    {"id":3,"degree":1,"label":"ms","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"1+0u"},"table":29},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"256+0u"},"table":30},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"65536+0u"},"table":31},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"16777216+0u"},"table":32}]},
+    {"id":4,"degree":1,"label":"l2(x)","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"1+0u"},"table":6},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"256+0u"},"table":7}]},
+    {"id":5,"degree":1,"label":"l2(ao)","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"1+0u"},"table":18},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"256+0u"},"table":19}]},
+    {"id":6,"degree":1,"label":"l2(x1)","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"1+0u"},"table":22},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"256+0u"},"table":23}]},
+    {"id":7,"degree":1,"label":"l2(x2)","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"1+0u"},"table":35},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"256+0u"},"table":36}]},
+    {"id":8,"degree":1,"label":"l2(z16)","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"1+0u"},"table":37},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"256+0u"},"table":38}]},
+    {"id":9,"degree":2,"label":"c0: 2 cn gamma_a x + 2^tn d - 2^(tn+1) y d - nr","body":"sum","subterms":[{"coef":{"prov":"kbase:2 * NORM_CN","value":"2048+0u"},"factors":[{"table":3},{"table":5}]},{"coef":{"prov":"kbase:2^NORM_TN","value":"2048+0u"},"factors":[{"table":40}]},{"coef":{"prov":"kbase:2^(NORM_TN+1)","value":"18446744069414580225+0u"},"factors":[{"table":8},{"table":40}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":0}]}]},
+    {"id":10,"degree":1,"label":"c1: ns + nr + 1 - 2^(tn+1) d","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"node":1}]},{"coef":{"prov":"one","value":"1+0u"},"factors":[{"node":0}]},{"coef":{"prov":"one","value":"1+0u"},"factors":[]},{"coef":{"prov":"kbase:2^(NORM_TN+1)","value":"18446744069414580225+0u"},"factors":[{"table":40}]}]},
+    {"id":11,"degree":1,"label":"c2: x + 32768 - l2(x)","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":5}]},{"coef":{"prov":"kbase:the int16 bias","value":"32768+0u"},"factors":[]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":4}]}]},
+    {"id":12,"degree":1,"label":"c3: ao + 32768 - l2(ao)","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":17}]},{"coef":{"prov":"kbase:the int16 bias","value":"32768+0u"},"factors":[]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":5}]}]},
+    {"id":13,"degree":1,"label":"c4: x1 + 32768 - l2(x1)","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":21}]},{"coef":{"prov":"kbase:the int16 bias","value":"32768+0u"},"factors":[]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":6}]}]},
+    {"id":14,"degree":1,"label":"c5: x1 - x - ao","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":21}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"table":5}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"table":17}]}]},
+    {"id":15,"degree":2,"label":"c6: 2 cn gamma_m x1 + 2^tn dm - 2^(tn+1) nm dm - mr","body":"sum","subterms":[{"coef":{"prov":"kbase:2 * NORM_CN","value":"2048+0u"},"factors":[{"table":4},{"table":21}]},{"coef":{"prov":"kbase:2^NORM_TN","value":"2048+0u"},"factors":[{"table":41}]},{"coef":{"prov":"kbase:2^(NORM_TN+1)","value":"18446744069414580225+0u"},"factors":[{"table":24},{"table":41}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":2}]}]},
+    {"id":16,"degree":1,"label":"c7: ms + mr + 1 - 2^(tn+1) dm","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"node":3}]},{"coef":{"prov":"one","value":"1+0u"},"factors":[{"node":2}]},{"coef":{"prov":"one","value":"1+0u"},"factors":[]},{"coef":{"prov":"kbase:2^(NORM_TN+1)","value":"18446744069414580225+0u"},"factors":[{"table":41}]}]},
+    {"id":17,"degree":1,"label":"c8: x2 + 32768 - l2(x2)","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":34}]},{"coef":{"prov":"kbase:the int16 bias","value":"32768+0u"},"factors":[]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":7}]}]},
+    {"id":18,"degree":1,"label":"c9: x2 - x1 - z16","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":34}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"table":21}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"table":33}]}]},
+    {"id":19,"degree":1,"label":"c10: z16 + 32768 - l2(z16)","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":33}]},{"coef":{"prov":"kbase:the int16 bias","value":"32768+0u"},"factors":[]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":8}]}]},
+    {"id":20,"degree":2,"label":"the eleven inhomogeneous clauses, batched","body":"sum","subterms":[{"coef":{"prov":"chal:mu[0]"},"factors":[{"node":9}]},{"coef":{"prov":"chal:mu[1]"},"factors":[{"node":10}]},{"coef":{"prov":"chal:mu[2]"},"factors":[{"node":11}]},{"coef":{"prov":"chal:mu[3]"},"factors":[{"node":12}]},{"coef":{"prov":"chal:mu[4]"},"factors":[{"node":13}]},{"coef":{"prov":"chal:mu[5]"},"factors":[{"node":14}]},{"coef":{"prov":"chal:mu[6]"},"factors":[{"node":15}]},{"coef":{"prov":"chal:mu[7]"},"factors":[{"node":16}]},{"coef":{"prov":"chal:mu[8]"},"factors":[{"node":17}]},{"coef":{"prov":"chal:mu[9]"},"factors":[{"node":18}]},{"coef":{"prov":"chal:mu[10]"},"factors":[{"node":19}]}]},
+    {"id":21,"degree":1,"label":"den[D:0]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":6}]},
+    {"id":22,"degree":1,"label":"den[D:1]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":7}]},
+    {"id":23,"degree":3,"label":"logup[D:0]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":42},{"node":21},{"node":22}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":21}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":22}]}]},
+    {"id":24,"degree":1,"label":"den[D:2]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":8}]},
+    {"id":25,"degree":1,"label":"den[D:3]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"1+0u"},"table":8}]},
+    {"id":26,"degree":3,"label":"logup[D:1]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":43},{"node":24},{"node":25}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":24}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":25}]}]},
+    {"id":27,"degree":1,"label":"den[D:4]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":9}]},
+    {"id":28,"degree":1,"label":"den[D:5]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":10}]},
+    {"id":29,"degree":3,"label":"logup[D:2]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":44},{"node":27},{"node":28}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":27}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":28}]}]},
+    {"id":30,"degree":1,"label":"den[D:6]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":11}]},
+    {"id":31,"degree":1,"label":"den[D:7]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":12}]},
+    {"id":32,"degree":3,"label":"logup[D:3]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":45},{"node":30},{"node":31}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":30}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":31}]}]},
+    {"id":33,"degree":1,"label":"den[D:8]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584319+0u"},"table":12}]},
+    {"id":34,"degree":1,"label":"den[D:9]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":13}]},
+    {"id":35,"degree":3,"label":"logup[D:4]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":46},{"node":33},{"node":34}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":33}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":34}]}]},
+    {"id":36,"degree":1,"label":"den[D:10]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":14}]},
+    {"id":37,"degree":1,"label":"den[D:11]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":15}]},
+    {"id":38,"degree":3,"label":"logup[D:5]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":47},{"node":36},{"node":37}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":36}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":37}]}]},
+    {"id":39,"degree":1,"label":"den[D:12]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":16}]},
+    {"id":40,"degree":1,"label":"den[D:13]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584319+0u"},"table":16}]},
+    {"id":41,"degree":3,"label":"logup[D:6]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":48},{"node":39},{"node":40}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":39}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":40}]}]},
+    {"id":42,"degree":1,"label":"den[D:14]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":18}]},
+    {"id":43,"degree":1,"label":"den[D:15]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":19}]},
+    {"id":44,"degree":3,"label":"logup[D:7]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":49},{"node":42},{"node":43}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":42}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":43}]}]},
+    {"id":45,"degree":1,"label":"den[D:16]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":20}]},
+    {"id":46,"degree":1,"label":"den[D:17]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584319+0u"},"table":20}]},
+    {"id":47,"degree":3,"label":"logup[D:8]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":50},{"node":45},{"node":46}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":45}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":46}]}]},
+    {"id":48,"degree":1,"label":"den[D:18]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":22}]},
+    {"id":49,"degree":1,"label":"den[D:19]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":23}]},
+    {"id":50,"degree":3,"label":"logup[D:9]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":51},{"node":48},{"node":49}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":48}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":49}]}]},
+    {"id":51,"degree":1,"label":"den[D:20]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":24}]},
+    {"id":52,"degree":1,"label":"den[D:21]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"1+0u"},"table":24}]},
+    {"id":53,"degree":3,"label":"logup[D:10]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":52},{"node":51},{"node":52}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":51}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":52}]}]},
+    {"id":54,"degree":1,"label":"den[D:22]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":25}]},
+    {"id":55,"degree":1,"label":"den[D:23]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":26}]},
+    {"id":56,"degree":3,"label":"logup[D:11]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":53},{"node":54},{"node":55}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":54}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":55}]}]},
+    {"id":57,"degree":1,"label":"den[D:24]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":27}]},
+    {"id":58,"degree":1,"label":"den[D:25]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":28}]},
+    {"id":59,"degree":3,"label":"logup[D:12]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":54},{"node":57},{"node":58}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":57}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":58}]}]},
+    {"id":60,"degree":1,"label":"den[D:26]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584319+0u"},"table":28}]},
+    {"id":61,"degree":1,"label":"den[D:27]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":29}]},
+    {"id":62,"degree":3,"label":"logup[D:13]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":55},{"node":60},{"node":61}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":60}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":61}]}]},
+    {"id":63,"degree":1,"label":"den[D:28]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":30}]},
+    {"id":64,"degree":1,"label":"den[D:29]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":31}]},
+    {"id":65,"degree":3,"label":"logup[D:14]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":56},{"node":63},{"node":64}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":63}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":64}]}]},
+    {"id":66,"degree":1,"label":"den[D:30]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":32}]},
+    {"id":67,"degree":1,"label":"den[D:31]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584319+0u"},"table":32}]},
+    {"id":68,"degree":3,"label":"logup[D:15]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":57},{"node":66},{"node":67}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":66}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":67}]}]},
+    {"id":69,"degree":1,"label":"den[D:32]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":35}]},
+    {"id":70,"degree":1,"label":"den[D:33]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":36}]},
+    {"id":71,"degree":3,"label":"logup[D:16]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":58},{"node":69},{"node":70}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":69}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":70}]}]},
+    {"id":72,"degree":1,"label":"den[D:34]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":37}]},
+    {"id":73,"degree":1,"label":"den[D:35]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":38}]},
+    {"id":74,"degree":3,"label":"logup[D:17]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":59},{"node":72},{"node":73}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":72}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":73}]}]},
+    {"id":75,"degree":1,"label":"den[D:36]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":39}]},
+    {"id":76,"degree":1,"label":"den[D:37]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584317+0u"},"table":39}]},
+    {"id":77,"degree":3,"label":"logup[D:18]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":60},{"node":75},{"node":76}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":75}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":76}]}]},
+    {"id":78,"degree":1,"label":"1 - supp[t61]","body":"affine","konst":{"prov":"one","value":"1+0u"},"terms":[{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"table":61}]},
+    {"id":79,"degree":1,"label":"pad group under supp[t61]","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"chal:zeta^0"},"table":5},{"coef":{"prov":"chal:zeta^1"},"table":6},{"coef":{"prov":"chal:zeta^2"},"table":7},{"coef":{"prov":"chal:zeta^3"},"table":8},{"coef":{"prov":"chal:zeta^4"},"table":9},{"coef":{"prov":"chal:zeta^5"},"table":10},{"coef":{"prov":"chal:zeta^6"},"table":11},{"coef":{"prov":"chal:zeta^7"},"table":12},{"coef":{"prov":"chal:zeta^8"},"table":13},{"coef":{"prov":"chal:zeta^9"},"table":14},{"coef":{"prov":"chal:zeta^10"},"table":15},{"coef":{"prov":"chal:zeta^11"},"table":16},{"coef":{"prov":"chal:zeta^12"},"table":17},{"coef":{"prov":"chal:zeta^13"},"table":18},{"coef":{"prov":"chal:zeta^14"},"table":19},{"coef":{"prov":"chal:zeta^15"},"table":20},{"coef":{"prov":"chal:zeta^16"},"table":21},{"coef":{"prov":"chal:zeta^17"},"table":22},{"coef":{"prov":"chal:zeta^18"},"table":23},{"coef":{"prov":"chal:zeta^19"},"table":24},{"coef":{"prov":"chal:zeta^20"},"table":25},{"coef":{"prov":"chal:zeta^21"},"table":26},{"coef":{"prov":"chal:zeta^22"},"table":27},{"coef":{"prov":"chal:zeta^23"},"table":28},{"coef":{"prov":"chal:zeta^24"},"table":29},{"coef":{"prov":"chal:zeta^25"},"table":30},{"coef":{"prov":"chal:zeta^26"},"table":31},{"coef":{"prov":"chal:zeta^27"},"table":32},{"coef":{"prov":"chal:zeta^28"},"table":33},{"coef":{"prov":"chal:zeta^29"},"table":34},{"coef":{"prov":"chal:zeta^30"},"table":35},{"coef":{"prov":"chal:zeta^31"},"table":36},{"coef":{"prov":"chal:zeta^32"},"table":37},{"coef":{"prov":"chal:zeta^33"},"table":38},{"coef":{"prov":"chal:zeta^34"},"table":39}]},
+    {"id":80,"degree":3,"label":"zc","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":61},{"node":20}]},{"coef":{"prov":"chal:mu[11]"},"factors":[{"node":23}]},{"coef":{"prov":"chal:mu[12]"},"factors":[{"node":26}]},{"coef":{"prov":"chal:mu[13]"},"factors":[{"node":29}]},{"coef":{"prov":"chal:mu[14]"},"factors":[{"node":32}]},{"coef":{"prov":"chal:mu[15]"},"factors":[{"node":35}]},{"coef":{"prov":"chal:mu[16]"},"factors":[{"node":38}]},{"coef":{"prov":"chal:mu[17]"},"factors":[{"node":41}]},{"coef":{"prov":"chal:mu[18]"},"factors":[{"node":44}]},{"coef":{"prov":"chal:mu[19]"},"factors":[{"node":47}]},{"coef":{"prov":"chal:mu[20]"},"factors":[{"node":50}]},{"coef":{"prov":"chal:mu[21]"},"factors":[{"node":53}]},{"coef":{"prov":"chal:mu[22]"},"factors":[{"node":56}]},{"coef":{"prov":"chal:mu[23]"},"factors":[{"node":59}]},{"coef":{"prov":"chal:mu[24]"},"factors":[{"node":62}]},{"coef":{"prov":"chal:mu[25]"},"factors":[{"node":65}]},{"coef":{"prov":"chal:mu[26]"},"factors":[{"node":68}]},{"coef":{"prov":"chal:mu[27]"},"factors":[{"node":71}]},{"coef":{"prov":"chal:mu[28]"},"factors":[{"node":74}]},{"coef":{"prov":"chal:mu[29]"},"factors":[{"node":77}]},{"coef":{"prov":"chal:mu[30]"},"factors":[{"node":78},{"node":79}]}]},
+    {"id":81,"degree":1,"label":"host SC_WO: 2^SH_AO ao + ral - 2^(SH_AO-1)","body":"sum","subterms":[{"coef":{"prov":"kbase:2^SH_AO","value":"128+0u"},"factors":[{"table":17}]},{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":20}]},{"coef":{"prov":"kbase:2^(SH_AO-1)","value":"18446744069414584257+0u"},"factors":[]}]},
+    {"id":82,"degree":1,"label":"host SC_DMM: 2^SH_Z z16 + rdl - 2^(SH_Z-1)","body":"sum","subterms":[{"coef":{"prov":"kbase:2^SH_Z","value":"64+0u"},"factors":[{"table":33}]},{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":39}]},{"coef":{"prov":"kbase:2^(SH_Z-1)","value":"18446744069414584289+0u"},"factors":[]}]}
+   ],
+   "terms":[
+    {"coef":{"prov":"one","value":"1+0u"},"wrapper":[0],"inner":[{"node":80}],"degree":4,"note":"the width zero-check"},
+    {"coef":{"prov":"chal:nu[0]"},"wrapper":[1,61],"inner":[{"node":81}],"degree":3,"note":"hosted SC_WO"},
+    {"coef":{"prov":"chal:nu[1]"},"wrapper":[2,61],"inner":[{"node":82}],"degree":3,"note":"hosted SC_DMM"}
+   ]
+  },
+  {
+   "slot":15,"name":"04 Q zero-check (hosts 09Q, 11)","kind":"Host",
+   "main_rounds":12,"extension_rounds":1,"declared_degree":5,"max_product_degree":4,
+   "pad_on":true,"group_bits":null,
+   "tables":[
+    {"id":0,"kind":"eq(start=0,|point|=12)","field":"ext","prov":"eq-of-challenges","label":"eq(tau)"},
+    {"id":1,"kind":"eq(start=0,|point|=12)","field":"ext","prov":"eq-of-challenges","label":"eq(pq)"},
+    {"id":2,"kind":"eq(start=0,|point|=12)","field":"ext","prov":"eq-of-challenges","label":"eq(p_o)"},
+    {"id":3,"kind":"pub","field":"base","prov":"public-from-shape","label":"RoPE cos on the padded domain stride"},
+    {"id":4,"kind":"pub","field":"base","prov":"public-from-shape","label":"RoPE sin on the padded domain stride"},
+    {"id":5,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[43] on its own domain"},
+    {"id":6,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[44] on its own domain"},
+    {"id":7,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[45] on its own domain"},
+    {"id":8,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[46] on its own domain"},
+    {"id":9,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[47] on its own domain"},
+    {"id":10,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[48] on its own domain"},
+    {"id":11,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[49] on its own domain"},
+    {"id":12,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[43] at the RoPE partner half (Coord::Flip at log - log2(head_dim))"},
+    {"id":13,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[20]"},
+    {"id":14,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[21]"},
+    {"id":15,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[22]"},
+    {"id":16,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[23]"},
+    {"id":17,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[24]"},
+    {"id":18,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[25]"},
+    {"id":19,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[26]"},
+    {"id":20,"kind":"supp(Q)","field":"base","prov":"public-from-shape","label":"supp(Q)"}
+   ],
+   "nodes":[
+    {"id":0,"degree":2,"label":"rope: cos src + sin partner - 2^SH_ROPE rot - rot_rem + 2^(SH_ROPE-1)","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":3},{"table":5}]},{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":4},{"table":12}]},{"coef":{"prov":"kbase:2^SH_ROPE","value":"18446744069414584193+0u"},"factors":[{"table":7}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"table":8}]},{"coef":{"prov":"kbase:2^(SH_ROPE-1)","value":"64+0u"},"factors":[]}]},
+    {"id":1,"degree":1,"label":"den[Q:0]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":5}]},
+    {"id":2,"degree":1,"label":"den[Q:1]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"1+0u"},"table":5}]},
+    {"id":3,"degree":3,"label":"logup[Q:0]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":13},{"node":1},{"node":2}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":1}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":2}]}]},
+    {"id":4,"degree":1,"label":"den[Q:2]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":6}]},
+    {"id":5,"degree":1,"label":"den[Q:3]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584319+0u"},"table":6}]},
+    {"id":6,"degree":3,"label":"logup[Q:1]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":14},{"node":4},{"node":5}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":4}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":5}]}]},
+    {"id":7,"degree":1,"label":"den[Q:4]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":7}]},
+    {"id":8,"degree":1,"label":"den[Q:5]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"1+0u"},"table":7}]},
+    {"id":9,"degree":3,"label":"logup[Q:2]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":15},{"node":7},{"node":8}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":7}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":8}]}]},
+    {"id":10,"degree":1,"label":"den[Q:6]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":8}]},
+    {"id":11,"degree":1,"label":"den[Q:7]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584319+0u"},"table":8}]},
+    {"id":12,"degree":3,"label":"logup[Q:3]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":16},{"node":10},{"node":11}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":10}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":11}]}]},
+    {"id":13,"degree":1,"label":"den[Q:8]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":9}]},
+    {"id":14,"degree":1,"label":"den[Q:9]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"1+0u"},"table":9}]},
+    {"id":15,"degree":3,"label":"logup[Q:4]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":17},{"node":13},{"node":14}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":13}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":14}]}]},
+    {"id":16,"degree":1,"label":"den[Q:10]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":10}]},
+    {"id":17,"degree":1,"label":"den[Q:11]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":11}]},
+    {"id":18,"degree":3,"label":"logup[Q:5]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":18},{"node":16},{"node":17}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":16}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":17}]}]},
+    {"id":19,"degree":1,"label":"den[Q:12]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584193+0u"},"table":11}]},
+    {"id":20,"degree":2,"label":"logup[Q:6] (single)","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":19},{"node":19}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[]}]},
+    {"id":21,"degree":1,"label":"1 - supp[t20]","body":"affine","konst":{"prov":"one","value":"1+0u"},"terms":[{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"table":20}]},
+    {"id":22,"degree":1,"label":"pad group under supp[t20]","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"chal:zeta^0"},"table":5},{"coef":{"prov":"chal:zeta^1"},"table":6},{"coef":{"prov":"chal:zeta^2"},"table":7},{"coef":{"prov":"chal:zeta^3"},"table":8},{"coef":{"prov":"chal:zeta^4"},"table":9},{"coef":{"prov":"chal:zeta^5"},"table":10},{"coef":{"prov":"chal:zeta^6"},"table":11}]},
+    {"id":23,"degree":3,"label":"zc","body":"sum","subterms":[{"coef":{"prov":"chal:mu[0]"},"factors":[{"table":20},{"node":0}]},{"coef":{"prov":"chal:mu[1]"},"factors":[{"node":3}]},{"coef":{"prov":"chal:mu[2]"},"factors":[{"node":6}]},{"coef":{"prov":"chal:mu[3]"},"factors":[{"node":9}]},{"coef":{"prov":"chal:mu[4]"},"factors":[{"node":12}]},{"coef":{"prov":"chal:mu[5]"},"factors":[{"node":15}]},{"coef":{"prov":"chal:mu[6]"},"factors":[{"node":18}]},{"coef":{"prov":"chal:mu[7]"},"factors":[{"node":20}]},{"coef":{"prov":"chal:mu[8]"},"factors":[{"node":21},{"node":22}]}]},
+    {"id":24,"degree":1,"label":"host SC_QMM: 2^SH_QKV q8 + rql - 2^(SH_QKV-1)","body":"sum","subterms":[{"coef":{"prov":"kbase:2^SH_QKV","value":"128+0u"},"factors":[{"table":5}]},{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":6}]},{"coef":{"prov":"kbase:2^(SH_QKV-1)","value":"18446744069414584257+0u"},"factors":[]}]},
+    {"id":25,"degree":1,"label":"host SC_PV: 2^SH_O o8 + ro0 + 256 ro1 - 2^(SH_O-1)","body":"sum","subterms":[{"coef":{"prov":"kbase:2^SH_O","value":"512+0u"},"factors":[{"table":9}]},{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":10}]},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"256+0u"},"factors":[{"table":11}]},{"coef":{"prov":"kbase:2^(SH_O-1)","value":"18446744069414584065+0u"},"factors":[]}]}
+   ],
+   "terms":[
+    {"coef":{"prov":"one","value":"1+0u"},"wrapper":[0],"inner":[{"node":23}],"degree":4,"note":"the RoPE zero-check"},
+    {"coef":{"prov":"chal:nu[0]"},"wrapper":[1,20],"inner":[{"node":24}],"degree":3,"note":"the first hosted matmul"},
+    {"coef":{"prov":"chal:nu[1]"},"wrapper":[2,20],"inner":[{"node":25}],"degree":3,"note":"the second hosted matmul"}
+   ]
+  },
+  {
+   "slot":16,"name":"05 KV zero-check (hosts 09K, 09V)","kind":"Host",
+   "main_rounds":10,"extension_rounds":1,"declared_degree":5,"max_product_degree":4,
+   "pad_on":true,"group_bits":null,
+   "tables":[
+    {"id":0,"kind":"eq(start=0,|point|=10)","field":"ext","prov":"eq-of-challenges","label":"eq(tau)"},
+    {"id":1,"kind":"eq(start=0,|point|=10)","field":"ext","prov":"eq-of-challenges","label":"eq(pk)"},
+    {"id":2,"kind":"eq(start=0,|point|=10)","field":"ext","prov":"eq-of-challenges","label":"eq(pv)"},
+    {"id":3,"kind":"pub","field":"base","prov":"public-from-shape","label":"RoPE cos on the padded domain stride"},
+    {"id":4,"kind":"pub","field":"base","prov":"public-from-shape","label":"RoPE sin on the padded domain stride"},
+    {"id":5,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[50] on its own domain"},
+    {"id":6,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[51] on its own domain"},
+    {"id":7,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[52] on its own domain"},
+    {"id":8,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[53] on its own domain"},
+    {"id":9,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[54] on its own domain"},
+    {"id":10,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[55] on its own domain"},
+    {"id":11,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[50] at the RoPE partner half (Coord::Flip at log - log2(head_dim))"},
+    {"id":12,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[27]"},
+    {"id":13,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[28]"},
+    {"id":14,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[29]"},
+    {"id":15,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[30]"},
+    {"id":16,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[31]"},
+    {"id":17,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[32]"},
+    {"id":18,"kind":"supp(Kv)","field":"base","prov":"public-from-shape","label":"supp(Kv)"}
+   ],
+   "nodes":[
+    {"id":0,"degree":2,"label":"rope: cos src + sin partner - 2^SH_ROPE rot - rot_rem + 2^(SH_ROPE-1)","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":3},{"table":5}]},{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":4},{"table":11}]},{"coef":{"prov":"kbase:2^SH_ROPE","value":"18446744069414584193+0u"},"factors":[{"table":9}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"table":10}]},{"coef":{"prov":"kbase:2^(SH_ROPE-1)","value":"64+0u"},"factors":[]}]},
+    {"id":1,"degree":1,"label":"den[Kv:0]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":5}]},
+    {"id":2,"degree":1,"label":"den[Kv:1]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"1+0u"},"table":5}]},
+    {"id":3,"degree":3,"label":"logup[Kv:0]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":12},{"node":1},{"node":2}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":1}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":2}]}]},
+    {"id":4,"degree":1,"label":"den[Kv:2]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":6}]},
+    {"id":5,"degree":1,"label":"den[Kv:3]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584319+0u"},"table":6}]},
+    {"id":6,"degree":3,"label":"logup[Kv:1]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":13},{"node":4},{"node":5}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":4}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":5}]}]},
+    {"id":7,"degree":1,"label":"den[Kv:4]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":7}]},
+    {"id":8,"degree":1,"label":"den[Kv:5]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"1+0u"},"table":7}]},
+    {"id":9,"degree":3,"label":"logup[Kv:2]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":14},{"node":7},{"node":8}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":7}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":8}]}]},
+    {"id":10,"degree":1,"label":"den[Kv:6]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":8}]},
+    {"id":11,"degree":1,"label":"den[Kv:7]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584319+0u"},"table":8}]},
+    {"id":12,"degree":3,"label":"logup[Kv:3]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":15},{"node":10},{"node":11}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":10}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":11}]}]},
+    {"id":13,"degree":1,"label":"den[Kv:8]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":9}]},
+    {"id":14,"degree":1,"label":"den[Kv:9]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"1+0u"},"table":9}]},
+    {"id":15,"degree":3,"label":"logup[Kv:4]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":16},{"node":13},{"node":14}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":13}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":14}]}]},
+    {"id":16,"degree":1,"label":"den[Kv:10]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":10}]},
+    {"id":17,"degree":1,"label":"den[Kv:11]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584319+0u"},"table":10}]},
+    {"id":18,"degree":3,"label":"logup[Kv:5]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":17},{"node":16},{"node":17}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":16}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":17}]}]},
+    {"id":19,"degree":1,"label":"1 - supp[t18]","body":"affine","konst":{"prov":"one","value":"1+0u"},"terms":[{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"table":18}]},
+    {"id":20,"degree":1,"label":"pad group under supp[t18]","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"chal:zeta^0"},"table":5},{"coef":{"prov":"chal:zeta^1"},"table":6},{"coef":{"prov":"chal:zeta^2"},"table":7},{"coef":{"prov":"chal:zeta^3"},"table":8},{"coef":{"prov":"chal:zeta^4"},"table":9},{"coef":{"prov":"chal:zeta^5"},"table":10}]},
+    {"id":21,"degree":3,"label":"zc","body":"sum","subterms":[{"coef":{"prov":"chal:mu[0]"},"factors":[{"table":18},{"node":0}]},{"coef":{"prov":"chal:mu[1]"},"factors":[{"node":3}]},{"coef":{"prov":"chal:mu[2]"},"factors":[{"node":6}]},{"coef":{"prov":"chal:mu[3]"},"factors":[{"node":9}]},{"coef":{"prov":"chal:mu[4]"},"factors":[{"node":12}]},{"coef":{"prov":"chal:mu[5]"},"factors":[{"node":15}]},{"coef":{"prov":"chal:mu[6]"},"factors":[{"node":18}]},{"coef":{"prov":"chal:mu[7]"},"factors":[{"node":19},{"node":20}]}]},
+    {"id":22,"degree":1,"label":"host SC_KMM: 2^SH_QKV k8 + rkl - 2^(SH_QKV-1)","body":"sum","subterms":[{"coef":{"prov":"kbase:2^SH_QKV","value":"128+0u"},"factors":[{"table":5}]},{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":6}]},{"coef":{"prov":"kbase:2^(SH_QKV-1)","value":"18446744069414584257+0u"},"factors":[]}]},
+    {"id":23,"degree":1,"label":"host SC_VMM: 2^SH_QKV v8 + rvl - 2^(SH_QKV-1)","body":"sum","subterms":[{"coef":{"prov":"kbase:2^SH_QKV","value":"128+0u"},"factors":[{"table":7}]},{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":8}]},{"coef":{"prov":"kbase:2^(SH_QKV-1)","value":"18446744069414584257+0u"},"factors":[]}]}
+   ],
+   "terms":[
+    {"coef":{"prov":"one","value":"1+0u"},"wrapper":[0],"inner":[{"node":21}],"degree":4,"note":"the RoPE zero-check"},
+    {"coef":{"prov":"chal:nu[0]"},"wrapper":[1,18],"inner":[{"node":22}],"degree":3,"note":"the first hosted matmul"},
+    {"coef":{"prov":"chal:nu[1]"},"wrapper":[2,18],"inner":[{"node":23}],"degree":3,"note":"the second hosted matmul"}
+   ]
+  },
+  {
+   "slot":17,"name":"06 softmax zero-check (hosts 07, 10)","kind":"Host",
+   "main_rounds":13,"extension_rounds":1,"declared_degree":5,"max_product_degree":5,
+   "pad_on":true,"group_bits":null,
+   "tables":[
+    {"id":0,"kind":"eq(start=0,|point|=13)","field":"ext","prov":"eq-of-challenges","label":"eq(tau)"},
+    {"id":1,"kind":"eq(start=0,|point|=8)","field":"ext","prov":"eq-of-challenges","label":"eq(p_ht)"},
+    {"id":2,"kind":"eq(start=0,|point|=13)","field":"ext","prov":"eq-of-challenges","label":"eq(p_s)"},
+    {"id":3,"kind":"pub","field":"base","prov":"public-from-shape","label":"causal mask over the Dom::S cube"},
+    {"id":4,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[56] on its own domain"},
+    {"id":5,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[57] on its own domain"},
+    {"id":6,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[58] on its own domain"},
+    {"id":7,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[59] on its own domain"},
+    {"id":8,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[60] on its own domain"},
+    {"id":9,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[61] on its own domain"},
+    {"id":10,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[62] on its own domain"},
+    {"id":11,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[63] on its own domain"},
+    {"id":12,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[64] on its own domain"},
+    {"id":13,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[65] on its own domain"},
+    {"id":14,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[66] on its own domain"},
+    {"id":15,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[67] on its own domain"},
+    {"id":16,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[68] on its own domain"},
+    {"id":17,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[4] (Dom::Ht) read on the leading coordinates"},
+    {"id":18,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[5] (Dom::Ht) read on the leading coordinates"},
+    {"id":19,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[33]"},
+    {"id":20,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[34]"},
+    {"id":21,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[35]"},
+    {"id":22,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[36]"},
+    {"id":23,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[37]"},
+    {"id":24,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[38]"},
+    {"id":25,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[39]"},
+    {"id":26,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[40]"},
+    {"id":27,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[41]"},
+    {"id":28,"kind":"supp(Ht)","field":"base","prov":"public-from-shape","label":"supp(Ht)"},
+    {"id":29,"kind":"supp(S)","field":"base","prov":"public-from-shape","label":"supp(S)"}
+   ],
+   "nodes":[
+    {"id":0,"degree":1,"label":"sr","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"1+0u"},"table":11},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"256+0u"},"table":12},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"65536+0u"},"table":13}]},
+    {"id":1,"degree":1,"label":"sg","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"1+0u"},"table":14},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"256+0u"},"table":15},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"65536+0u"},"table":16}]},
+    {"id":2,"degree":1,"label":"pl","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"1+0u"},"table":9},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"256+0u"},"table":10}]},
+    {"id":3,"degree":1,"label":"s8 + 127","body":"affine","konst":{"prov":"kbase:-MASK_SCORE","value":"127+0u"},"terms":[{"coef":{"prov":"one","value":"1+0u"},"table":4}]},
+    {"id":4,"degree":2,"label":"delta: mx - mask (s8 + 127) + 127","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":17}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"table":3},{"node":3}]},{"coef":{"prov":"kbase:-MASK_SCORE","value":"127+0u"},"factors":[]}]},
+    {"id":5,"degree":2,"label":"c0: zsel^2 - zsel","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":6},{"table":6}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"table":6}]}]},
+    {"id":6,"degree":3,"label":"c1: zsel * delta","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":6},{"node":4}]}]},
+    {"id":7,"degree":2,"label":"c2: 2^F_P mask e - p sum - sr","body":"sum","subterms":[{"coef":{"prov":"kbase:2^F_P","value":"512+0u"},"factors":[{"table":3},{"table":7}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"table":8},{"table":18}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":0}]}]},
+    {"id":8,"degree":1,"label":"c3: sg + sr + 1 - sum","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"node":1}]},{"coef":{"prov":"one","value":"1+0u"},"factors":[{"node":0}]},{"coef":{"prov":"one","value":"1+0u"},"factors":[]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"table":18}]}]},
+    {"id":9,"degree":1,"label":"c4: p - pl","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":8}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":2}]}]},
+    {"id":10,"degree":2,"label":"alpha - (delta + beta e + g_exp)","body":"sum","subterms":[{"coef":{"prov":"chal:alpha - g_exp"},"factors":[]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":4}]},{"coef":{"prov":"chal:-beta"},"factors":[{"table":7}]}]},
+    {"id":11,"degree":3,"label":"cx: the exponential PAIR lookup, ungated","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":27},{"node":10}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[]}]},
+    {"id":12,"degree":3,"label":"the five gated clauses, batched","body":"sum","subterms":[{"coef":{"prov":"chal:mu[0]"},"factors":[{"node":5}]},{"coef":{"prov":"chal:mu[1]"},"factors":[{"node":6}]},{"coef":{"prov":"chal:mu[2]"},"factors":[{"node":7}]},{"coef":{"prov":"chal:mu[3]"},"factors":[{"node":8}]},{"coef":{"prov":"chal:mu[4]"},"factors":[{"node":9}]}]},
+    {"id":13,"degree":1,"label":"den[S:0]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":4}]},
+    {"id":14,"degree":1,"label":"den[S:1]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"1+0u"},"table":4}]},
+    {"id":15,"degree":3,"label":"logup[S:0]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":19},{"node":13},{"node":14}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":13}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":14}]}]},
+    {"id":16,"degree":1,"label":"den[S:2]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":5}]},
+    {"id":17,"degree":1,"label":"den[S:3]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584317+0u"},"table":5}]},
+    {"id":18,"degree":3,"label":"logup[S:1]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":20},{"node":16},{"node":17}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":16}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":17}]}]},
+    {"id":19,"degree":1,"label":"den[S:4]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":9}]},
+    {"id":20,"degree":1,"label":"den[S:5]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":10}]},
+    {"id":21,"degree":3,"label":"logup[S:2]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":21},{"node":19},{"node":20}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":19}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":20}]}]},
+    {"id":22,"degree":1,"label":"den[S:6]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584257+0u"},"table":10}]},
+    {"id":23,"degree":1,"label":"den[S:7]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":11}]},
+    {"id":24,"degree":3,"label":"logup[S:3]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":22},{"node":22},{"node":23}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":22}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":23}]}]},
+    {"id":25,"degree":1,"label":"den[S:8]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":12}]},
+    {"id":26,"degree":1,"label":"den[S:9]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":13}]},
+    {"id":27,"degree":3,"label":"logup[S:4]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":23},{"node":25},{"node":26}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":25}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":26}]}]},
+    {"id":28,"degree":1,"label":"den[S:10]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584193+0u"},"table":13}]},
+    {"id":29,"degree":1,"label":"den[S:11]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":14}]},
+    {"id":30,"degree":3,"label":"logup[S:5]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":24},{"node":28},{"node":29}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":28}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":29}]}]},
+    {"id":31,"degree":1,"label":"den[S:12]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":15}]},
+    {"id":32,"degree":1,"label":"den[S:13]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":16}]},
+    {"id":33,"degree":3,"label":"logup[S:6]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":25},{"node":31},{"node":32}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":31}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":32}]}]},
+    {"id":34,"degree":1,"label":"den[S:14]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584193+0u"},"table":16}]},
+    {"id":35,"degree":2,"label":"logup[S:7] (single)","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":26},{"node":34}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[]}]},
+    {"id":36,"degree":1,"label":"1 - supp[t28]","body":"affine","konst":{"prov":"one","value":"1+0u"},"terms":[{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"table":28}]},
+    {"id":37,"degree":1,"label":"pad group under supp[t28]","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"chal:zeta^0"},"table":17},{"coef":{"prov":"chal:zeta^1"},"table":18}]},
+    {"id":38,"degree":1,"label":"1 - supp[t29]","body":"affine","konst":{"prov":"one","value":"1+0u"},"terms":[{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"table":29}]},
+    {"id":39,"degree":1,"label":"pad group under supp[t29]","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"chal:zeta^2"},"table":4},{"coef":{"prov":"chal:zeta^3"},"table":5},{"coef":{"prov":"chal:zeta^4"},"table":6},{"coef":{"prov":"chal:zeta^5"},"table":8},{"coef":{"prov":"chal:zeta^6"},"table":9},{"coef":{"prov":"chal:zeta^7"},"table":10},{"coef":{"prov":"chal:zeta^8"},"table":11},{"coef":{"prov":"chal:zeta^9"},"table":12},{"coef":{"prov":"chal:zeta^10"},"table":13},{"coef":{"prov":"chal:zeta^11"},"table":14},{"coef":{"prov":"chal:zeta^12"},"table":15},{"coef":{"prov":"chal:zeta^13"},"table":16}]},
+    {"id":40,"degree":4,"label":"zc","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":29},{"node":12}]},{"coef":{"prov":"chal:mu[13]"},"factors":[{"node":11}]},{"coef":{"prov":"chal:mu[5]"},"factors":[{"node":15}]},{"coef":{"prov":"chal:mu[6]"},"factors":[{"node":18}]},{"coef":{"prov":"chal:mu[7]"},"factors":[{"node":21}]},{"coef":{"prov":"chal:mu[8]"},"factors":[{"node":24}]},{"coef":{"prov":"chal:mu[9]"},"factors":[{"node":27}]},{"coef":{"prov":"chal:mu[10]"},"factors":[{"node":30}]},{"coef":{"prov":"chal:mu[11]"},"factors":[{"node":33}]},{"coef":{"prov":"chal:mu[12]"},"factors":[{"node":35}]},{"coef":{"prov":"chal:mu[14]"},"factors":[{"node":36},{"node":37}]},{"coef":{"prov":"chal:mu[14]"},"factors":[{"node":38},{"node":39}]}]},
+    {"id":41,"degree":1,"label":"host SC_RS: sum + lam_z","body":"affine","konst":{"prov":"chal:lam_z"},"terms":[{"coef":{"prov":"one","value":"1+0u"},"table":18}]},
+    {"id":42,"degree":1,"label":"host SC_SCORE: 2^SH_S s8 + rsl - 2^(SH_S-1)","body":"sum","subterms":[{"coef":{"prov":"kbase:2^SH_S","value":"64+0u"},"factors":[{"table":4}]},{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":5}]},{"coef":{"prov":"kbase:2^(SH_S-1)","value":"18446744069414584289+0u"},"factors":[]}]}
+   ],
+   "terms":[
+    {"coef":{"prov":"one","value":"1+0u"},"wrapper":[0],"inner":[{"node":40}],"degree":5,"note":"the softmax zero-check"},
+    {"coef":{"prov":"chal:nu[0]"},"wrapper":[1,28],"inner":[{"node":41}],"degree":3,"note":"hosted SC_RS, under the lifted supp(Dom::Ht)"},
+    {"coef":{"prov":"chal:nu[1]"},"wrapper":[2,29],"inner":[{"node":42}],"degree":3,"note":"hosted SC_SCORE"}
+   ]
+  },
+  {
+   "slot":18,"name":"14 F zero-check (hosts 13G, 13U)","kind":"Host",
+   "main_rounds":13,"extension_rounds":1,"declared_degree":5,"max_product_degree":4,
+   "pad_on":true,"group_bits":null,
+   "tables":[
+    {"id":0,"kind":"eq(start=0,|point|=13)","field":"ext","prov":"eq-of-challenges","label":"eq(tau)"},
+    {"id":1,"kind":"eq(start=0,|point|=13)","field":"ext","prov":"eq-of-challenges","label":"eq(p_g)"},
+    {"id":2,"kind":"eq(start=0,|point|=13)","field":"ext","prov":"eq-of-challenges","label":"eq(p_u)"},
+    {"id":3,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[69] on its own domain"},
+    {"id":4,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[70] on its own domain"},
+    {"id":5,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[71] on its own domain"},
+    {"id":6,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[72] on its own domain"},
+    {"id":7,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[73] on its own domain"},
+    {"id":8,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[74] on its own domain"},
+    {"id":9,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[75] on its own domain"},
+    {"id":10,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[76] on its own domain"},
+    {"id":11,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[77] on its own domain"},
+    {"id":12,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[78] on its own domain"},
+    {"id":13,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[79] on its own domain"},
+    {"id":14,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[42]"},
+    {"id":15,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[43]"},
+    {"id":16,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[44]"},
+    {"id":17,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[45]"},
+    {"id":18,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[46]"},
+    {"id":19,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[47]"},
+    {"id":20,"kind":"supp(F)","field":"base","prov":"public-from-shape","label":"supp(F)"}
+   ],
+   "nodes":[
+    {"id":0,"degree":1,"label":"l2(rh)","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"1+0u"},"table":12},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"256+0u"},"table":13}]},
+    {"id":1,"degree":1,"label":"l2(u16)","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"1+0u"},"table":7},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"256+0u"},"table":8}]},
+    {"id":2,"degree":1,"label":"l2(h16)","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"1+0u"},"table":10},{"coef":{"prov":"kbase:a power of 256 of a byte-limb decomposition","value":"256+0u"},"table":11}]},
+    {"id":3,"degree":2,"label":"f0: a16 u16 - 2^SH_H_PROD h16 - l2(rh) + 2^(SH_H_PROD-1)","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":5},{"table":6}]},{"coef":{"prov":"kbase:2^SH_H_PROD","value":"18446744069414567937+0u"},"factors":[{"table":9}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":0}]},{"coef":{"prov":"kbase:2^(SH_H_PROD-1)","value":"8192+0u"},"factors":[]}]},
+    {"id":4,"degree":1,"label":"f1: u16 + 32768 - l2(u16)","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":6}]},{"coef":{"prov":"kbase:the int16 bias","value":"32768+0u"},"factors":[]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":1}]}]},
+    {"id":5,"degree":1,"label":"f2: h16 + 32768 - l2(h16)","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":9}]},{"coef":{"prov":"kbase:the int16 bias","value":"32768+0u"},"factors":[]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":2}]}]},
+    {"id":6,"degree":1,"label":"alpha - (g8 + 128 + beta a16 + g_act)","body":"affine","konst":{"prov":"chal:alpha - 128 - g_act"},"terms":[{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"table":3},{"coef":{"prov":"chal:-beta"},"table":5}]},
+    {"id":7,"degree":2,"label":"f_act: the activation PAIR lookup, ungated","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":19},{"node":6}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[]}]},
+    {"id":8,"degree":2,"label":"the three gated clauses, batched","body":"sum","subterms":[{"coef":{"prov":"chal:mu[0]"},"factors":[{"node":3}]},{"coef":{"prov":"chal:mu[1]"},"factors":[{"node":4}]},{"coef":{"prov":"chal:mu[2]"},"factors":[{"node":5}]}]},
+    {"id":9,"degree":1,"label":"den[F:0]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":4}]},
+    {"id":10,"degree":1,"label":"den[F:1]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584319+0u"},"table":4}]},
+    {"id":11,"degree":3,"label":"logup[F:0]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":14},{"node":9},{"node":10}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":9}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":10}]}]},
+    {"id":12,"degree":1,"label":"den[F:2]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":7}]},
+    {"id":13,"degree":1,"label":"den[F:3]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":8}]},
+    {"id":14,"degree":3,"label":"logup[F:1]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":15},{"node":12},{"node":13}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":12}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":13}]}]},
+    {"id":15,"degree":1,"label":"den[F:4]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":10}]},
+    {"id":16,"degree":1,"label":"den[F:5]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":11}]},
+    {"id":17,"degree":3,"label":"logup[F:2]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":16},{"node":15},{"node":16}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":15}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":16}]}]},
+    {"id":18,"degree":1,"label":"den[F:6]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":12}]},
+    {"id":19,"degree":1,"label":"den[F:7]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584320+0u"},"table":13}]},
+    {"id":20,"degree":3,"label":"logup[F:3]","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":17},{"node":18},{"node":19}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":18}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"node":19}]}]},
+    {"id":21,"degree":1,"label":"den[F:8]","body":"affine","konst":{"prov":"chal:alpha - (lookup cst + g_u8)"},"terms":[{"coef":{"prov":"kbase:a lookup's integer coefficient","value":"18446744069414584317+0u"},"table":13}]},
+    {"id":22,"degree":2,"label":"logup[F:4] (single)","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":18},{"node":21}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[]}]},
+    {"id":23,"degree":1,"label":"1 - supp[t20]","body":"affine","konst":{"prov":"one","value":"1+0u"},"terms":[{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"table":20}]},
+    {"id":24,"degree":1,"label":"pad group under supp[t20]","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"chal:zeta^0"},"table":3},{"coef":{"prov":"chal:zeta^1"},"table":4},{"coef":{"prov":"chal:zeta^2"},"table":5},{"coef":{"prov":"chal:zeta^3"},"table":6},{"coef":{"prov":"chal:zeta^4"},"table":7},{"coef":{"prov":"chal:zeta^5"},"table":8},{"coef":{"prov":"chal:zeta^6"},"table":9},{"coef":{"prov":"chal:zeta^7"},"table":10},{"coef":{"prov":"chal:zeta^8"},"table":11},{"coef":{"prov":"chal:zeta^9"},"table":12},{"coef":{"prov":"chal:zeta^10"},"table":13}]},
+    {"id":25,"degree":3,"label":"zc","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":20},{"node":8}]},{"coef":{"prov":"chal:mu[3]"},"factors":[{"node":7}]},{"coef":{"prov":"chal:mu[4]"},"factors":[{"node":11}]},{"coef":{"prov":"chal:mu[5]"},"factors":[{"node":14}]},{"coef":{"prov":"chal:mu[6]"},"factors":[{"node":17}]},{"coef":{"prov":"chal:mu[7]"},"factors":[{"node":20}]},{"coef":{"prov":"chal:mu[8]"},"factors":[{"node":22}]},{"coef":{"prov":"chal:mu[9]"},"factors":[{"node":23},{"node":24}]}]},
+    {"id":26,"degree":1,"label":"host SC_GMM: 2^SH_G g8 + rgl - 2^(SH_G-1)","body":"sum","subterms":[{"coef":{"prov":"kbase:2^SH_G","value":"128+0u"},"factors":[{"table":3}]},{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":4}]},{"coef":{"prov":"kbase:2^(SH_G-1)","value":"18446744069414584257+0u"},"factors":[]}]}
+   ],
+   "terms":[
+    {"coef":{"prov":"one","value":"1+0u"},"wrapper":[0],"inner":[{"node":25}],"degree":4,"note":"the hidden-cube zero-check"},
+    {"coef":{"prov":"chal:nu[0]"},"wrapper":[1,20],"inner":[{"node":26}],"degree":3,"note":"hosted SC_GMM"},
+    {"coef":{"prov":"chal:nu[1]"},"wrapper":[2,20],"inner":[{"table":6}],"degree":3,"note":"hosted SC_UMM (SH_U = 0, so the host term is the plane)"}
+   ]
+  },
+  {
+   "slot":19,"name":"TAB table helper zero-check","kind":"Standalone",
+   "main_rounds":10,"extension_rounds":1,"declared_degree":3,"max_product_degree":3,
+   "pad_on":true,"group_bits":null,
+   "tables":[
+    {"id":0,"kind":"eq(start=0,|point|=10)","field":"ext","prov":"eq-of-challenges","label":"eq(tau)"},
+    {"id":1,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[80] on its own domain"},
+    {"id":2,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[48]"},
+    {"id":3,"kind":"pub","field":"ext","prov":"public-with-challenge:the U8 tag g_u8","label":"the U8 table's value column"},
+    {"id":4,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[81] on its own domain"},
+    {"id":5,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[49]"},
+    {"id":6,"kind":"pub","field":"ext","prov":"public-with-challenge:beta and the exp tag g_exp","label":"the exp table's value column"},
+    {"id":7,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[82] on its own domain"},
+    {"id":8,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[50]"},
+    {"id":9,"kind":"pub","field":"ext","prov":"public-with-challenge:beta and the activation tag g_act","label":"the activation table's value column"},
+    {"id":10,"kind":"supp(Tab)","field":"base","prov":"public-from-shape","label":"supp(Tab)"}
+   ],
+   "nodes":[
+    {"id":0,"degree":1,"label":"alpha - values[0]","body":"affine","konst":{"prov":"chal:alpha"},"terms":[{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"table":3}]},
+    {"id":1,"degree":2,"label":"r0: h (alpha - values) - m","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":2},{"node":0}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"table":1}]}]},
+    {"id":2,"degree":1,"label":"alpha - values[1]","body":"affine","konst":{"prov":"chal:alpha"},"terms":[{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"table":6}]},
+    {"id":3,"degree":2,"label":"r1: h (alpha - values) - m","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":5},{"node":2}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"table":4}]}]},
+    {"id":4,"degree":1,"label":"alpha - values[2]","body":"affine","konst":{"prov":"chal:alpha"},"terms":[{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"table":9}]},
+    {"id":5,"degree":2,"label":"r2: h (alpha - values) - m","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":8},{"node":4}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"table":7}]}]},
+    {"id":6,"degree":1,"label":"1 - supp[t10]","body":"affine","konst":{"prov":"one","value":"1+0u"},"terms":[{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"table":10}]},
+    {"id":7,"degree":1,"label":"pad group under supp[t10]","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"chal:zeta^0"},"table":1},{"coef":{"prov":"chal:zeta^1"},"table":4},{"coef":{"prov":"chal:zeta^2"},"table":7}]},
+    {"id":8,"degree":1,"label":"1 - supp[t10]","body":"affine","konst":{"prov":"one","value":"1+0u"},"terms":[{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"table":10}]},
+    {"id":9,"degree":1,"label":"pad group under supp[t10]","body":"affine","konst":{"prov":"kbase:0","value":"0+0u"},"terms":[{"coef":{"prov":"chal:zeta^3"},"table":2},{"coef":{"prov":"chal:zeta^4"},"table":5},{"coef":{"prov":"chal:zeta^5"},"table":8}]},
+    {"id":10,"degree":2,"label":"zc","body":"sum","subterms":[{"coef":{"prov":"chal:mu[0]"},"factors":[{"node":1}]},{"coef":{"prov":"chal:mu[1]"},"factors":[{"node":3}]},{"coef":{"prov":"chal:mu[2]"},"factors":[{"node":5}]},{"coef":{"prov":"chal:mu[3]"},"factors":[{"node":6},{"node":7}]},{"coef":{"prov":"chal:mu[3]"},"factors":[{"node":8},{"node":9}]}]}
+   ],
+   "terms":[
+    {"coef":{"prov":"one","value":"1+0u"},"wrapper":[0],"inner":[{"node":10}],"degree":3,"note":"the three byte tables' helper relations"}
+   ]
+  },
+  {
+   "slot":20,"name":"ZS zero-sum row","kind":"Standalone",
+   "main_rounds":10,"extension_rounds":1,"declared_degree":2,"max_product_degree":2,
+   "pad_on":false,"group_bits":null,
+   "tables":[
+    {"id":0,"kind":"pub","field":"base","prov":"public-from-shape","label":"the all-ones vector over Dom::Tab"},
+    {"id":1,"kind":"H","field":"ext","prov":"committed(fixed=0,ext-slice-coef=true)","label":"H[51]"}
+   ],
+   "nodes":[
+   ],
+   "terms":[
+    {"coef":{"prov":"one","value":"1+0u"},"wrapper":[],"inner":[{"table":0},{"table":1}],"degree":2,"note":"the zero-sum row"}
+   ]
+  },
+  {
+   "slot":21,"name":"IO-in endpoint equality","kind":"Standalone",
+   "main_rounds":12,"extension_rounds":1,"declared_degree":2,"max_product_degree":2,
+   "pad_on":false,"group_bits":null,
+   "tables":[
+    {"id":0,"kind":"eq(start=0,|point|=12)","field":"ext","prov":"eq-of-challenges","label":"eq(tau)"},
+    {"id":1,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[8] on its own domain"},
+    {"id":2,"kind":"EP","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"endpoint in"}
+   ],
+   "nodes":[
+    {"id":0,"degree":1,"label":"plane - endpoint","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":1}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"table":2}]}]}
+   ],
+   "terms":[
+    {"coef":{"prov":"one","value":"1+0u"},"wrapper":[0],"inner":[{"node":0}],"degree":2,"note":"the endpoint equality"}
+   ]
+  },
+  {
+   "slot":22,"name":"IO-out endpoint equality","kind":"Standalone",
+   "main_rounds":12,"extension_rounds":1,"declared_degree":2,"max_product_degree":2,
+   "pad_on":false,"group_bits":null,
+   "tables":[
+    {"id":0,"kind":"eq(start=0,|point|=12)","field":"ext","prov":"eq-of-challenges","label":"eq(tau)"},
+    {"id":1,"kind":"A","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"A[37] on its own domain"},
+    {"id":2,"kind":"EP","field":"base","prov":"committed(fixed=0,ext-slice-coef=false)","label":"endpoint out"}
+   ],
+   "nodes":[
+    {"id":0,"degree":1,"label":"plane - endpoint","body":"sum","subterms":[{"coef":{"prov":"one","value":"1+0u"},"factors":[{"table":1}]},{"coef":{"prov":"neg-one","value":"18446744069414584320+0u"},"factors":[{"table":2}]}]}
+   ],
+   "terms":[
+    {"coef":{"prov":"one","value":"1+0u"},"wrapper":[0],"inner":[{"node":0}],"degree":2,"note":"the endpoint equality"}
+   ]
+  }
+ ]
+}

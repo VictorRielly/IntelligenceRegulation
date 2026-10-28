@@ -1542,11 +1542,13 @@ fn the_draw_accounting_assertions_are_still_blocked_on_the_generators_accessor()
 /// — and the three `cfg(test)` modules that WRITE a retained bundle, because
 /// a retained capture counts as publishing and its digests are call sites
 /// like any other.
-const CALL_SITES: [(&str, &str, usize, &str); 14] = [
+const CALL_SITES: [(&str, &str, usize, &str); 15] = [
     // NATIVE LANE: the trained-block CLI's request context, an unkeyed hash of
     // public words (variant, label, layer); its file digests are SHA-256 via
     // `Sha256::digest`, not an entry point of this table
     ("src/private_block/trained_block.rs", "blake3::hash(", 2, "driver-side, outside the protocol: the trained-block CLI's and the trained-stack CLI's request contexts, unkeyed hashes of public length-prefixed words (variant, label, layer indices)"),
+    // NATIVE R12 (F3): the loader's streamed file digest
+    ("src/private_block/trained_block.rs", "Sha256::new(", 1, "driver-side, outside the protocol: the trained loader's streamed SHA-256 of the three public token tables a tied model's export names (F3), checked against their manifests; public files, never a transcript input"),
     // NATIVE LANE: the driver overlay's CLI bridge (pre-existing in the
     // candidate; this table had not been told about it): D4 recomputed to
     // check a policy's model root, the CLI's context derivation, and an

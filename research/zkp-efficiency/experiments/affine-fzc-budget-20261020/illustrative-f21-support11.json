@@ -1,0 +1,5584 @@
+[
+  {
+    "summary": {
+      "device_primitives": {
+        "base_mul": 123731966,
+        "base_add": 329252840,
+        "base_sub": 153092076
+      },
+      "host_preparation_primitives": {
+        "base_mul": 0,
+        "base_add": 0,
+        "base_sub": 0
+      },
+      "global_read_bytes": 134217664,
+      "global_write_bytes": 134217696,
+      "logical_shared_read_bytes": 956301312,
+      "extra_chunk_barriers": 0,
+      "last_device_length": 2,
+      "host_transfer_length": 0,
+      "device_rounds": 21,
+      "n": 21,
+      "table_entries": 2097152,
+      "tail_log": 0,
+      "support": true,
+      "pad_nonzero": 11,
+      "variant": "baseline",
+      "device_delta_vs_baseline": {
+        "base_mul": 0,
+        "base_add": 0,
+        "base_sub": 0
+      },
+      "saved_global_bytes_vs_baseline": 0,
+      "logical_shared_delta_vs_baseline": 0
+    },
+    "events": [
+      {
+        "kind": "derive_round0_literal",
+        "count": 1048576,
+        "primitives": {
+          "base_mul": 111149056,
+          "base_add": 295698432,
+          "base_sub": 127926272
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 956301312,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "initial_derived_store",
+        "count": 2097152,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 67108864,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 2097152,
+        "primitives": {
+          "base_mul": 6291456,
+          "base_add": 16777216,
+          "base_sub": 10485760
+        },
+        "global_read_bytes": 67108864,
+        "global_write_bytes": 33554432,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 1048576,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 2097152
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 1048576,
+        "primitives": {
+          "base_mul": 3145728,
+          "base_add": 8388608,
+          "base_sub": 5242880
+        },
+        "global_read_bytes": 33554432,
+        "global_write_bytes": 16777216,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 524288,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 1048576
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 524288,
+        "primitives": {
+          "base_mul": 1572864,
+          "base_add": 4194304,
+          "base_sub": 2621440
+        },
+        "global_read_bytes": 16777216,
+        "global_write_bytes": 8388608,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 262144,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 524288
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 262144,
+        "primitives": {
+          "base_mul": 786432,
+          "base_add": 2097152,
+          "base_sub": 1310720
+        },
+        "global_read_bytes": 8388608,
+        "global_write_bytes": 4194304,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 131072,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 262144
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 131072,
+        "primitives": {
+          "base_mul": 393216,
+          "base_add": 1048576,
+          "base_sub": 655360
+        },
+        "global_read_bytes": 4194304,
+        "global_write_bytes": 2097152,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 65536,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 131072
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 65536,
+        "primitives": {
+          "base_mul": 196608,
+          "base_add": 524288,
+          "base_sub": 327680
+        },
+        "global_read_bytes": 2097152,
+        "global_write_bytes": 1048576,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 32768,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 65536
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 32768,
+        "primitives": {
+          "base_mul": 98304,
+          "base_add": 262144,
+          "base_sub": 163840
+        },
+        "global_read_bytes": 1048576,
+        "global_write_bytes": 524288,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 16384,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 32768
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 16384,
+        "primitives": {
+          "base_mul": 49152,
+          "base_add": 131072,
+          "base_sub": 81920
+        },
+        "global_read_bytes": 524288,
+        "global_write_bytes": 262144,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 8192,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 16384
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 8192,
+        "primitives": {
+          "base_mul": 24576,
+          "base_add": 65536,
+          "base_sub": 40960
+        },
+        "global_read_bytes": 262144,
+        "global_write_bytes": 131072,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 4096,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 8192
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 4096,
+        "primitives": {
+          "base_mul": 12288,
+          "base_add": 32768,
+          "base_sub": 20480
+        },
+        "global_read_bytes": 131072,
+        "global_write_bytes": 65536,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 2048,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 4096
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 2048,
+        "primitives": {
+          "base_mul": 6144,
+          "base_add": 16384,
+          "base_sub": 10240
+        },
+        "global_read_bytes": 65536,
+        "global_write_bytes": 32768,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 1024,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 2048
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 1024,
+        "primitives": {
+          "base_mul": 3072,
+          "base_add": 8192,
+          "base_sub": 5120
+        },
+        "global_read_bytes": 32768,
+        "global_write_bytes": 16384,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 512,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 1024
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 512,
+        "primitives": {
+          "base_mul": 1536,
+          "base_add": 4096,
+          "base_sub": 2560
+        },
+        "global_read_bytes": 16384,
+        "global_write_bytes": 8192,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 256,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 512
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 256,
+        "primitives": {
+          "base_mul": 768,
+          "base_add": 2048,
+          "base_sub": 1280
+        },
+        "global_read_bytes": 8192,
+        "global_write_bytes": 4096,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 128,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 256
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 128,
+        "primitives": {
+          "base_mul": 384,
+          "base_add": 1024,
+          "base_sub": 640
+        },
+        "global_read_bytes": 4096,
+        "global_write_bytes": 2048,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 64,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 128
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 64,
+        "primitives": {
+          "base_mul": 192,
+          "base_add": 512,
+          "base_sub": 320
+        },
+        "global_read_bytes": 2048,
+        "global_write_bytes": 1024,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 32,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 64
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 32,
+        "primitives": {
+          "base_mul": 96,
+          "base_add": 256,
+          "base_sub": 160
+        },
+        "global_read_bytes": 1024,
+        "global_write_bytes": 512,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 16,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 32
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 16,
+        "primitives": {
+          "base_mul": 48,
+          "base_add": 128,
+          "base_sub": 80
+        },
+        "global_read_bytes": 512,
+        "global_write_bytes": 256,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 8,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 16
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 8,
+        "primitives": {
+          "base_mul": 24,
+          "base_add": 64,
+          "base_sub": 40
+        },
+        "global_read_bytes": 256,
+        "global_write_bytes": 128,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 4,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 8
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 4,
+        "primitives": {
+          "base_mul": 12,
+          "base_add": 32,
+          "base_sub": 20
+        },
+        "global_read_bytes": 128,
+        "global_write_bytes": 64,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 2,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 4
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "generic_boundary_fold",
+        "count": 2,
+        "primitives": {
+          "base_mul": 10,
+          "base_add": 8,
+          "base_sub": 4
+        },
+        "global_read_bytes": 64,
+        "global_write_bytes": 32,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      }
+    ]
+  },
+  {
+    "summary": {
+      "device_primitives": {
+        "base_mul": 117440510,
+        "base_add": 274726888,
+        "base_sub": 142606316
+      },
+      "host_preparation_primitives": {
+        "base_mul": 33,
+        "base_add": 66,
+        "base_sub": 33
+      },
+      "global_read_bytes": 134217664,
+      "global_write_bytes": 134217696,
+      "logical_shared_read_bytes": 637534208,
+      "extra_chunk_barriers": 0,
+      "last_device_length": 2,
+      "host_transfer_length": 0,
+      "device_rounds": 21,
+      "n": 21,
+      "table_entries": 2097152,
+      "tail_log": 0,
+      "support": true,
+      "pad_nonzero": 11,
+      "variant": "raw_pair",
+      "device_delta_vs_baseline": {
+        "base_mul": -6291456,
+        "base_add": -54525952,
+        "base_sub": -10485760
+      },
+      "saved_global_bytes_vs_baseline": 0,
+      "logical_shared_delta_vs_baseline": -318767104
+    },
+    "events": [
+      {
+        "kind": "prepare_coefficients",
+        "count": 1,
+        "primitives": {
+          "base_mul": 33,
+          "base_add": 66,
+          "base_sub": 33
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "host"
+      },
+      {
+        "kind": "derive_round0_paired",
+        "count": 1048576,
+        "primitives": {
+          "base_mul": 104857600,
+          "base_add": 236978176,
+          "base_sub": 117440512
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 637534208,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "reconstruct_high_for_global_store",
+        "count": 2097152,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 4194304,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "initial_derived_store",
+        "count": 2097152,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 67108864,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 2097152,
+        "primitives": {
+          "base_mul": 6291456,
+          "base_add": 16777216,
+          "base_sub": 10485760
+        },
+        "global_read_bytes": 67108864,
+        "global_write_bytes": 33554432,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 1048576,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 2097152
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 1048576,
+        "primitives": {
+          "base_mul": 3145728,
+          "base_add": 8388608,
+          "base_sub": 5242880
+        },
+        "global_read_bytes": 33554432,
+        "global_write_bytes": 16777216,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 524288,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 1048576
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 524288,
+        "primitives": {
+          "base_mul": 1572864,
+          "base_add": 4194304,
+          "base_sub": 2621440
+        },
+        "global_read_bytes": 16777216,
+        "global_write_bytes": 8388608,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 262144,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 524288
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 262144,
+        "primitives": {
+          "base_mul": 786432,
+          "base_add": 2097152,
+          "base_sub": 1310720
+        },
+        "global_read_bytes": 8388608,
+        "global_write_bytes": 4194304,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 131072,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 262144
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 131072,
+        "primitives": {
+          "base_mul": 393216,
+          "base_add": 1048576,
+          "base_sub": 655360
+        },
+        "global_read_bytes": 4194304,
+        "global_write_bytes": 2097152,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 65536,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 131072
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 65536,
+        "primitives": {
+          "base_mul": 196608,
+          "base_add": 524288,
+          "base_sub": 327680
+        },
+        "global_read_bytes": 2097152,
+        "global_write_bytes": 1048576,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 32768,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 65536
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 32768,
+        "primitives": {
+          "base_mul": 98304,
+          "base_add": 262144,
+          "base_sub": 163840
+        },
+        "global_read_bytes": 1048576,
+        "global_write_bytes": 524288,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 16384,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 32768
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 16384,
+        "primitives": {
+          "base_mul": 49152,
+          "base_add": 131072,
+          "base_sub": 81920
+        },
+        "global_read_bytes": 524288,
+        "global_write_bytes": 262144,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 8192,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 16384
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 8192,
+        "primitives": {
+          "base_mul": 24576,
+          "base_add": 65536,
+          "base_sub": 40960
+        },
+        "global_read_bytes": 262144,
+        "global_write_bytes": 131072,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 4096,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 8192
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 4096,
+        "primitives": {
+          "base_mul": 12288,
+          "base_add": 32768,
+          "base_sub": 20480
+        },
+        "global_read_bytes": 131072,
+        "global_write_bytes": 65536,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 2048,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 4096
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 2048,
+        "primitives": {
+          "base_mul": 6144,
+          "base_add": 16384,
+          "base_sub": 10240
+        },
+        "global_read_bytes": 65536,
+        "global_write_bytes": 32768,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 1024,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 2048
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 1024,
+        "primitives": {
+          "base_mul": 3072,
+          "base_add": 8192,
+          "base_sub": 5120
+        },
+        "global_read_bytes": 32768,
+        "global_write_bytes": 16384,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 512,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 1024
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 512,
+        "primitives": {
+          "base_mul": 1536,
+          "base_add": 4096,
+          "base_sub": 2560
+        },
+        "global_read_bytes": 16384,
+        "global_write_bytes": 8192,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 256,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 512
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 256,
+        "primitives": {
+          "base_mul": 768,
+          "base_add": 2048,
+          "base_sub": 1280
+        },
+        "global_read_bytes": 8192,
+        "global_write_bytes": 4096,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 128,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 256
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 128,
+        "primitives": {
+          "base_mul": 384,
+          "base_add": 1024,
+          "base_sub": 640
+        },
+        "global_read_bytes": 4096,
+        "global_write_bytes": 2048,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 64,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 128
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 64,
+        "primitives": {
+          "base_mul": 192,
+          "base_add": 512,
+          "base_sub": 320
+        },
+        "global_read_bytes": 2048,
+        "global_write_bytes": 1024,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 32,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 64
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 32,
+        "primitives": {
+          "base_mul": 96,
+          "base_add": 256,
+          "base_sub": 160
+        },
+        "global_read_bytes": 1024,
+        "global_write_bytes": 512,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 16,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 32
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 16,
+        "primitives": {
+          "base_mul": 48,
+          "base_add": 128,
+          "base_sub": 80
+        },
+        "global_read_bytes": 512,
+        "global_write_bytes": 256,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 8,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 16
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 8,
+        "primitives": {
+          "base_mul": 24,
+          "base_add": 64,
+          "base_sub": 40
+        },
+        "global_read_bytes": 256,
+        "global_write_bytes": 128,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 4,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 8
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 4,
+        "primitives": {
+          "base_mul": 12,
+          "base_add": 32,
+          "base_sub": 20
+        },
+        "global_read_bytes": 128,
+        "global_write_bytes": 64,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 2,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 4
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "generic_boundary_fold",
+        "count": 2,
+        "primitives": {
+          "base_mul": 10,
+          "base_add": 8,
+          "base_sub": 4
+        },
+        "global_read_bytes": 64,
+        "global_write_bytes": 32,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      }
+    ]
+  },
+  {
+    "summary": {
+      "device_primitives": {
+        "base_mul": 222298006,
+        "base_add": 591396582,
+        "base_sub": 255852422
+      },
+      "host_preparation_primitives": {
+        "base_mul": 0,
+        "base_add": 0,
+        "base_sub": 0
+      },
+      "global_read_bytes": 0,
+      "global_write_bytes": 0,
+      "logical_shared_read_bytes": 1912601712,
+      "extra_chunk_barriers": 32772,
+      "last_device_length": 2,
+      "host_transfer_length": 0,
+      "device_rounds": 21,
+      "n": 21,
+      "table_entries": 2097152,
+      "tail_log": 0,
+      "support": true,
+      "pad_nonzero": 11,
+      "variant": "implicit_literal",
+      "device_delta_vs_baseline": {
+        "base_mul": 98566040,
+        "base_add": 262143742,
+        "base_sub": 102760346
+      },
+      "saved_global_bytes_vs_baseline": 268435360,
+      "logical_shared_delta_vs_baseline": 956300400,
+      "extra_base_products_per_saved_global_byte": 0.3671872438862004
+    },
+    "events": [
+      {
+        "kind": "derive_round0_literal",
+        "count": 1048576,
+        "primitives": {
+          "base_mul": 111149056,
+          "base_add": 295698432,
+          "base_sub": 127926272
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 956301312,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "initial_derived_store",
+        "count": 2097152,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 524288,
+        "primitives": {
+          "base_mul": 55574528,
+          "base_add": 147849216,
+          "base_sub": 63963136
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 478150656,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 16384,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 16384,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 262144,
+        "primitives": {
+          "base_mul": 27787264,
+          "base_add": 73924608,
+          "base_sub": 31981568
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 239075328,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 8192,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 8192,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 131072,
+        "primitives": {
+          "base_mul": 13893632,
+          "base_add": 36962304,
+          "base_sub": 15990784
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 119537664,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 4096,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 4096,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 65536,
+        "primitives": {
+          "base_mul": 6946816,
+          "base_add": 18481152,
+          "base_sub": 7995392
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 59768832,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 2048,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 2048,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 32768,
+        "primitives": {
+          "base_mul": 3473408,
+          "base_add": 9240576,
+          "base_sub": 3997696
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 29884416,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 1024,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 1024,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 16384,
+        "primitives": {
+          "base_mul": 1736704,
+          "base_add": 4620288,
+          "base_sub": 1998848
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 14942208,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 512,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 512,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 8192,
+        "primitives": {
+          "base_mul": 868352,
+          "base_add": 2310144,
+          "base_sub": 999424
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 7471104,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 256,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 256,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 4096,
+        "primitives": {
+          "base_mul": 434176,
+          "base_add": 1155072,
+          "base_sub": 499712
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 3735552,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 128,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 128,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 2048,
+        "primitives": {
+          "base_mul": 217088,
+          "base_add": 577536,
+          "base_sub": 249856
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 1867776,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 64,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 64,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 1024,
+        "primitives": {
+          "base_mul": 108544,
+          "base_add": 288768,
+          "base_sub": 124928
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 933888,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 32,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 32,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 512,
+        "primitives": {
+          "base_mul": 54272,
+          "base_add": 144384,
+          "base_sub": 62464
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 466944,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 16,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 16,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 256,
+        "primitives": {
+          "base_mul": 27136,
+          "base_add": 72192,
+          "base_sub": 31232
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 233472,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 8,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 8,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 128,
+        "primitives": {
+          "base_mul": 13568,
+          "base_add": 36096,
+          "base_sub": 15616
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 116736,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 4,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 4,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 64,
+        "primitives": {
+          "base_mul": 6784,
+          "base_add": 18048,
+          "base_sub": 7808
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 58368,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 2,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 2,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 32,
+        "primitives": {
+          "base_mul": 3392,
+          "base_add": 9024,
+          "base_sub": 3904
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 29184,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 1,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 1,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 16,
+        "primitives": {
+          "base_mul": 1696,
+          "base_add": 4512,
+          "base_sub": 1952
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 14592,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 1,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 1,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 8,
+        "primitives": {
+          "base_mul": 848,
+          "base_add": 2256,
+          "base_sub": 976
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 7296,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 1,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 1,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 4,
+        "primitives": {
+          "base_mul": 424,
+          "base_add": 1128,
+          "base_sub": 488
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 3648,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 1,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 1,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 2,
+        "primitives": {
+          "base_mul": 212,
+          "base_add": 564,
+          "base_sub": 244
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 1824,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 1,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 1,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 1,
+        "primitives": {
+          "base_mul": 106,
+          "base_add": 282,
+          "base_sub": 122
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 912,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 1,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 1,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "generic_boundary_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      }
+    ]
+  },
+  {
+    "summary": {
+      "device_primitives": {
+        "base_mul": 209715100,
+        "base_add": 473956126,
+        "base_sub": 234880912
+      },
+      "host_preparation_primitives": {
+        "base_mul": 33,
+        "base_add": 66,
+        "base_sub": 33
+      },
+      "global_read_bytes": 0,
+      "global_write_bytes": 0,
+      "logical_shared_read_bytes": 1275067808,
+      "extra_chunk_barriers": 32772,
+      "last_device_length": 2,
+      "host_transfer_length": 0,
+      "device_rounds": 21,
+      "n": 21,
+      "table_entries": 2097152,
+      "tail_log": 0,
+      "support": true,
+      "pad_nonzero": 11,
+      "variant": "implicit_pair",
+      "device_delta_vs_baseline": {
+        "base_mul": 85983134,
+        "base_add": 144703286,
+        "base_sub": 81788836
+      },
+      "saved_global_bytes_vs_baseline": 268435360,
+      "logical_shared_delta_vs_baseline": 318766496,
+      "extra_base_products_per_saved_global_byte": 0.32031224947413783
+    },
+    "events": [
+      {
+        "kind": "prepare_coefficients",
+        "count": 1,
+        "primitives": {
+          "base_mul": 33,
+          "base_add": 66,
+          "base_sub": 33
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "host"
+      },
+      {
+        "kind": "derive_round0_paired",
+        "count": 1048576,
+        "primitives": {
+          "base_mul": 104857600,
+          "base_add": 236978176,
+          "base_sub": 117440512
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 637534208,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "initial_derived_store",
+        "count": 2097152,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 524288,
+        "primitives": {
+          "base_mul": 52428800,
+          "base_add": 118489088,
+          "base_sub": 58720256
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 318767104,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 16384,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 16384,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 262144,
+        "primitives": {
+          "base_mul": 26214400,
+          "base_add": 59244544,
+          "base_sub": 29360128
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 159383552,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 8192,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 8192,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 131072,
+        "primitives": {
+          "base_mul": 13107200,
+          "base_add": 29622272,
+          "base_sub": 14680064
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 79691776,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 4096,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 4096,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 65536,
+        "primitives": {
+          "base_mul": 6553600,
+          "base_add": 14811136,
+          "base_sub": 7340032
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 39845888,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 2048,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 2048,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 32768,
+        "primitives": {
+          "base_mul": 3276800,
+          "base_add": 7405568,
+          "base_sub": 3670016
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 19922944,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 1024,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 1024,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 16384,
+        "primitives": {
+          "base_mul": 1638400,
+          "base_add": 3702784,
+          "base_sub": 1835008
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 9961472,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 512,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 512,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 8192,
+        "primitives": {
+          "base_mul": 819200,
+          "base_add": 1851392,
+          "base_sub": 917504
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 4980736,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 256,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 256,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 4096,
+        "primitives": {
+          "base_mul": 409600,
+          "base_add": 925696,
+          "base_sub": 458752
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 2490368,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 128,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 128,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 2048,
+        "primitives": {
+          "base_mul": 204800,
+          "base_add": 462848,
+          "base_sub": 229376
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 1245184,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 64,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 64,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 1024,
+        "primitives": {
+          "base_mul": 102400,
+          "base_add": 231424,
+          "base_sub": 114688
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 622592,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 32,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 32,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 512,
+        "primitives": {
+          "base_mul": 51200,
+          "base_add": 115712,
+          "base_sub": 57344
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 311296,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 16,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 16,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 256,
+        "primitives": {
+          "base_mul": 25600,
+          "base_add": 57856,
+          "base_sub": 28672
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 155648,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 8,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 8,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 128,
+        "primitives": {
+          "base_mul": 12800,
+          "base_add": 28928,
+          "base_sub": 14336
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 77824,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 4,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 4,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 64,
+        "primitives": {
+          "base_mul": 6400,
+          "base_add": 14464,
+          "base_sub": 7168
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 38912,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 2,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 2,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 32,
+        "primitives": {
+          "base_mul": 3200,
+          "base_add": 7232,
+          "base_sub": 3584
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 19456,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 1,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 1,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 16,
+        "primitives": {
+          "base_mul": 1600,
+          "base_add": 3616,
+          "base_sub": 1792
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 9728,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 1,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 1,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 8,
+        "primitives": {
+          "base_mul": 800,
+          "base_add": 1808,
+          "base_sub": 896
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 4864,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 1,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 1,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 4,
+        "primitives": {
+          "base_mul": 400,
+          "base_add": 904,
+          "base_sub": 448
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 2432,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 1,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 1,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 2,
+        "primitives": {
+          "base_mul": 200,
+          "base_add": 452,
+          "base_sub": 224
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 1216,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 1,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 1,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_later",
+        "count": 1,
+        "primitives": {
+          "base_mul": 100,
+          "base_add": 226,
+          "base_sub": 112
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 608,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 1,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 1,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "generic_boundary_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      }
+    ]
+  },
+  {
+    "summary": {
+      "device_primitives": {
+        "base_mul": 180355005,
+        "base_add": 461373252,
+        "base_sub": 201326516
+      },
+      "host_preparation_primitives": {
+        "base_mul": 33,
+        "base_add": 66,
+        "base_sub": 33
+      },
+      "global_read_bytes": 67108832,
+      "global_write_bytes": 67108848,
+      "logical_shared_read_bytes": 1140850336,
+      "extra_chunk_barriers": 32772,
+      "last_device_length": 2,
+      "host_transfer_length": 0,
+      "device_rounds": 21,
+      "n": 21,
+      "table_entries": 2097152,
+      "tail_log": 0,
+      "support": true,
+      "pad_nonzero": 11,
+      "variant": "implicit_pl",
+      "device_delta_vs_baseline": {
+        "base_mul": 56623039,
+        "base_add": 132120412,
+        "base_sub": 48234440
+      },
+      "saved_global_bytes_vs_baseline": 134217680,
+      "logical_shared_delta_vs_baseline": 184549024,
+      "extra_base_products_per_saved_global_byte": 0.42187466658639905
+    },
+    "events": [
+      {
+        "kind": "prepare_coefficients",
+        "count": 1,
+        "primitives": {
+          "base_mul": 33,
+          "base_add": 66,
+          "base_sub": 33
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "host"
+      },
+      {
+        "kind": "derive_round0_GL_literal",
+        "count": 1048576,
+        "primitives": {
+          "base_mul": 35651584,
+          "base_add": 75497472,
+          "base_sub": 50331648
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 402653184,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "derive_round0_PL_paired",
+        "count": 1048576,
+        "primitives": {
+          "base_mul": 69206016,
+          "base_add": 184549376,
+          "base_sub": 69206016
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 369098752,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "initial_derived_store",
+        "count": 2097152,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 33554432,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 1048576,
+        "primitives": {
+          "base_mul": 3145728,
+          "base_add": 8388608,
+          "base_sub": 5242880
+        },
+        "global_read_bytes": 33554432,
+        "global_write_bytes": 16777216,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_PL_later",
+        "count": 524288,
+        "primitives": {
+          "base_mul": 34603008,
+          "base_add": 92274688,
+          "base_sub": 34603008
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 184549376,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 16384,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 16384,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 524288,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 1048576
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 524288,
+        "primitives": {
+          "base_mul": 1572864,
+          "base_add": 4194304,
+          "base_sub": 2621440
+        },
+        "global_read_bytes": 16777216,
+        "global_write_bytes": 8388608,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_PL_later",
+        "count": 262144,
+        "primitives": {
+          "base_mul": 17301504,
+          "base_add": 46137344,
+          "base_sub": 17301504
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 92274688,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 8192,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 8192,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 262144,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 524288
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 262144,
+        "primitives": {
+          "base_mul": 786432,
+          "base_add": 2097152,
+          "base_sub": 1310720
+        },
+        "global_read_bytes": 8388608,
+        "global_write_bytes": 4194304,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_PL_later",
+        "count": 131072,
+        "primitives": {
+          "base_mul": 8650752,
+          "base_add": 23068672,
+          "base_sub": 8650752
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 46137344,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 4096,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 4096,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 131072,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 262144
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 131072,
+        "primitives": {
+          "base_mul": 393216,
+          "base_add": 1048576,
+          "base_sub": 655360
+        },
+        "global_read_bytes": 4194304,
+        "global_write_bytes": 2097152,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_PL_later",
+        "count": 65536,
+        "primitives": {
+          "base_mul": 4325376,
+          "base_add": 11534336,
+          "base_sub": 4325376
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 23068672,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 2048,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 2048,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 65536,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 131072
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 65536,
+        "primitives": {
+          "base_mul": 196608,
+          "base_add": 524288,
+          "base_sub": 327680
+        },
+        "global_read_bytes": 2097152,
+        "global_write_bytes": 1048576,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_PL_later",
+        "count": 32768,
+        "primitives": {
+          "base_mul": 2162688,
+          "base_add": 5767168,
+          "base_sub": 2162688
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 11534336,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 1024,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 1024,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 32768,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 65536
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 32768,
+        "primitives": {
+          "base_mul": 98304,
+          "base_add": 262144,
+          "base_sub": 163840
+        },
+        "global_read_bytes": 1048576,
+        "global_write_bytes": 524288,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_PL_later",
+        "count": 16384,
+        "primitives": {
+          "base_mul": 1081344,
+          "base_add": 2883584,
+          "base_sub": 1081344
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 5767168,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 512,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 512,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 16384,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 32768
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 16384,
+        "primitives": {
+          "base_mul": 49152,
+          "base_add": 131072,
+          "base_sub": 81920
+        },
+        "global_read_bytes": 524288,
+        "global_write_bytes": 262144,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_PL_later",
+        "count": 8192,
+        "primitives": {
+          "base_mul": 540672,
+          "base_add": 1441792,
+          "base_sub": 540672
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 2883584,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 256,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 256,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 8192,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 16384
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 8192,
+        "primitives": {
+          "base_mul": 24576,
+          "base_add": 65536,
+          "base_sub": 40960
+        },
+        "global_read_bytes": 262144,
+        "global_write_bytes": 131072,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_PL_later",
+        "count": 4096,
+        "primitives": {
+          "base_mul": 270336,
+          "base_add": 720896,
+          "base_sub": 270336
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 1441792,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 128,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 128,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 4096,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 8192
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 4096,
+        "primitives": {
+          "base_mul": 12288,
+          "base_add": 32768,
+          "base_sub": 20480
+        },
+        "global_read_bytes": 131072,
+        "global_write_bytes": 65536,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_PL_later",
+        "count": 2048,
+        "primitives": {
+          "base_mul": 135168,
+          "base_add": 360448,
+          "base_sub": 135168
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 720896,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 64,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 64,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 2048,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 4096
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 2048,
+        "primitives": {
+          "base_mul": 6144,
+          "base_add": 16384,
+          "base_sub": 10240
+        },
+        "global_read_bytes": 65536,
+        "global_write_bytes": 32768,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_PL_later",
+        "count": 1024,
+        "primitives": {
+          "base_mul": 67584,
+          "base_add": 180224,
+          "base_sub": 67584
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 360448,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 32,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 32,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 1024,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 2048
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 1024,
+        "primitives": {
+          "base_mul": 3072,
+          "base_add": 8192,
+          "base_sub": 5120
+        },
+        "global_read_bytes": 32768,
+        "global_write_bytes": 16384,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_PL_later",
+        "count": 512,
+        "primitives": {
+          "base_mul": 33792,
+          "base_add": 90112,
+          "base_sub": 33792
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 180224,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 16,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 16,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 512,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 1024
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 512,
+        "primitives": {
+          "base_mul": 1536,
+          "base_add": 4096,
+          "base_sub": 2560
+        },
+        "global_read_bytes": 16384,
+        "global_write_bytes": 8192,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_PL_later",
+        "count": 256,
+        "primitives": {
+          "base_mul": 16896,
+          "base_add": 45056,
+          "base_sub": 16896
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 90112,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 8,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 8,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 256,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 512
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 256,
+        "primitives": {
+          "base_mul": 768,
+          "base_add": 2048,
+          "base_sub": 1280
+        },
+        "global_read_bytes": 8192,
+        "global_write_bytes": 4096,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_PL_later",
+        "count": 128,
+        "primitives": {
+          "base_mul": 8448,
+          "base_add": 22528,
+          "base_sub": 8448
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 45056,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 4,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 4,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 128,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 256
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 128,
+        "primitives": {
+          "base_mul": 384,
+          "base_add": 1024,
+          "base_sub": 640
+        },
+        "global_read_bytes": 4096,
+        "global_write_bytes": 2048,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_PL_later",
+        "count": 64,
+        "primitives": {
+          "base_mul": 4224,
+          "base_add": 11264,
+          "base_sub": 4224
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 22528,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 2,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 2,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 64,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 128
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 64,
+        "primitives": {
+          "base_mul": 192,
+          "base_add": 512,
+          "base_sub": 320
+        },
+        "global_read_bytes": 2048,
+        "global_write_bytes": 1024,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_PL_later",
+        "count": 32,
+        "primitives": {
+          "base_mul": 2112,
+          "base_add": 5632,
+          "base_sub": 2112
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 11264,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 1,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 1,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 32,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 64
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 32,
+        "primitives": {
+          "base_mul": 96,
+          "base_add": 256,
+          "base_sub": 160
+        },
+        "global_read_bytes": 1024,
+        "global_write_bytes": 512,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_PL_later",
+        "count": 16,
+        "primitives": {
+          "base_mul": 1056,
+          "base_add": 2816,
+          "base_sub": 1056
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 5632,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 1,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 1,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 16,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 32
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 16,
+        "primitives": {
+          "base_mul": 48,
+          "base_add": 128,
+          "base_sub": 80
+        },
+        "global_read_bytes": 512,
+        "global_write_bytes": 256,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_PL_later",
+        "count": 8,
+        "primitives": {
+          "base_mul": 528,
+          "base_add": 1408,
+          "base_sub": 528
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 2816,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 1,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 1,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 8,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 16
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 8,
+        "primitives": {
+          "base_mul": 24,
+          "base_add": 64,
+          "base_sub": 40
+        },
+        "global_read_bytes": 256,
+        "global_write_bytes": 128,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_PL_later",
+        "count": 4,
+        "primitives": {
+          "base_mul": 264,
+          "base_add": 704,
+          "base_sub": 264
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 1408,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 1,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 1,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 4,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 8
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 4,
+        "primitives": {
+          "base_mul": 12,
+          "base_add": 32,
+          "base_sub": 20
+        },
+        "global_read_bytes": 128,
+        "global_write_bytes": 64,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_PL_later",
+        "count": 2,
+        "primitives": {
+          "base_mul": 132,
+          "base_add": 352,
+          "base_sub": 132
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 704,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 1,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 1,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 2,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 4
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 2,
+        "primitives": {
+          "base_mul": 6,
+          "base_add": 16,
+          "base_sub": 10
+        },
+        "global_read_bytes": 64,
+        "global_write_bytes": 32,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "rematerialize_PL_later",
+        "count": 1,
+        "primitives": {
+          "base_mul": 66,
+          "base_add": 176,
+          "base_sub": 66
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 352,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "added_chunk_barrier",
+        "count": 1,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 1,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 1,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 2
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "generic_boundary_fold",
+        "count": 1,
+        "primitives": {
+          "base_mul": 5,
+          "base_add": 4,
+          "base_sub": 2
+        },
+        "global_read_bytes": 32,
+        "global_write_bytes": 16,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      }
+    ]
+  },
+  {
+    "summary": {
+      "device_primitives": {
+        "base_mul": 123731956,
+        "base_add": 329252832,
+        "base_sub": 153092072
+      },
+      "host_preparation_primitives": {
+        "base_mul": 0,
+        "base_add": 0,
+        "base_sub": 0
+      },
+      "global_read_bytes": 134217600,
+      "global_write_bytes": 134217664,
+      "logical_shared_read_bytes": 956301312,
+      "extra_chunk_barriers": 0,
+      "last_device_length": 2,
+      "host_transfer_length": 0,
+      "device_rounds": 21,
+      "n": 21,
+      "table_entries": 2097152,
+      "tail_log": 0,
+      "support": true,
+      "pad_nonzero": 11,
+      "variant": "boundary_skip",
+      "device_delta_vs_baseline": {
+        "base_mul": -10,
+        "base_add": -8,
+        "base_sub": -4
+      },
+      "saved_global_bytes_vs_baseline": 96,
+      "logical_shared_delta_vs_baseline": 0,
+      "extra_base_products_per_saved_global_byte": 0.0
+    },
+    "events": [
+      {
+        "kind": "derive_round0_literal",
+        "count": 1048576,
+        "primitives": {
+          "base_mul": 111149056,
+          "base_add": 295698432,
+          "base_sub": 127926272
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 956301312,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "initial_derived_store",
+        "count": 2097152,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 67108864,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 2097152,
+        "primitives": {
+          "base_mul": 6291456,
+          "base_add": 16777216,
+          "base_sub": 10485760
+        },
+        "global_read_bytes": 67108864,
+        "global_write_bytes": 33554432,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 1048576,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 2097152
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 1048576,
+        "primitives": {
+          "base_mul": 3145728,
+          "base_add": 8388608,
+          "base_sub": 5242880
+        },
+        "global_read_bytes": 33554432,
+        "global_write_bytes": 16777216,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 524288,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 1048576
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 524288,
+        "primitives": {
+          "base_mul": 1572864,
+          "base_add": 4194304,
+          "base_sub": 2621440
+        },
+        "global_read_bytes": 16777216,
+        "global_write_bytes": 8388608,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 262144,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 524288
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 262144,
+        "primitives": {
+          "base_mul": 786432,
+          "base_add": 2097152,
+          "base_sub": 1310720
+        },
+        "global_read_bytes": 8388608,
+        "global_write_bytes": 4194304,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 131072,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 262144
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 131072,
+        "primitives": {
+          "base_mul": 393216,
+          "base_add": 1048576,
+          "base_sub": 655360
+        },
+        "global_read_bytes": 4194304,
+        "global_write_bytes": 2097152,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 65536,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 131072
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 65536,
+        "primitives": {
+          "base_mul": 196608,
+          "base_add": 524288,
+          "base_sub": 327680
+        },
+        "global_read_bytes": 2097152,
+        "global_write_bytes": 1048576,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 32768,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 65536
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 32768,
+        "primitives": {
+          "base_mul": 98304,
+          "base_add": 262144,
+          "base_sub": 163840
+        },
+        "global_read_bytes": 1048576,
+        "global_write_bytes": 524288,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 16384,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 32768
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 16384,
+        "primitives": {
+          "base_mul": 49152,
+          "base_add": 131072,
+          "base_sub": 81920
+        },
+        "global_read_bytes": 524288,
+        "global_write_bytes": 262144,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 8192,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 16384
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 8192,
+        "primitives": {
+          "base_mul": 24576,
+          "base_add": 65536,
+          "base_sub": 40960
+        },
+        "global_read_bytes": 262144,
+        "global_write_bytes": 131072,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 4096,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 8192
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 4096,
+        "primitives": {
+          "base_mul": 12288,
+          "base_add": 32768,
+          "base_sub": 20480
+        },
+        "global_read_bytes": 131072,
+        "global_write_bytes": 65536,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 2048,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 4096
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 2048,
+        "primitives": {
+          "base_mul": 6144,
+          "base_add": 16384,
+          "base_sub": 10240
+        },
+        "global_read_bytes": 65536,
+        "global_write_bytes": 32768,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 1024,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 2048
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 1024,
+        "primitives": {
+          "base_mul": 3072,
+          "base_add": 8192,
+          "base_sub": 5120
+        },
+        "global_read_bytes": 32768,
+        "global_write_bytes": 16384,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 512,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 1024
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 512,
+        "primitives": {
+          "base_mul": 1536,
+          "base_add": 4096,
+          "base_sub": 2560
+        },
+        "global_read_bytes": 16384,
+        "global_write_bytes": 8192,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 256,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 512
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 256,
+        "primitives": {
+          "base_mul": 768,
+          "base_add": 2048,
+          "base_sub": 1280
+        },
+        "global_read_bytes": 8192,
+        "global_write_bytes": 4096,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 128,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 256
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 128,
+        "primitives": {
+          "base_mul": 384,
+          "base_add": 1024,
+          "base_sub": 640
+        },
+        "global_read_bytes": 4096,
+        "global_write_bytes": 2048,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 64,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 128
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 64,
+        "primitives": {
+          "base_mul": 192,
+          "base_add": 512,
+          "base_sub": 320
+        },
+        "global_read_bytes": 2048,
+        "global_write_bytes": 1024,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 32,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 64
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 32,
+        "primitives": {
+          "base_mul": 96,
+          "base_add": 256,
+          "base_sub": 160
+        },
+        "global_read_bytes": 1024,
+        "global_write_bytes": 512,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 16,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 32
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 16,
+        "primitives": {
+          "base_mul": 48,
+          "base_add": 128,
+          "base_sub": 80
+        },
+        "global_read_bytes": 512,
+        "global_write_bytes": 256,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 8,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 16
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 8,
+        "primitives": {
+          "base_mul": 24,
+          "base_add": 64,
+          "base_sub": 40
+        },
+        "global_read_bytes": 256,
+        "global_write_bytes": 128,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 4,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 8
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "fused_derived_fold",
+        "count": 4,
+        "primitives": {
+          "base_mul": 12,
+          "base_add": 32,
+          "base_sub": 20
+        },
+        "global_read_bytes": 128,
+        "global_write_bytes": 64,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "staged_derived_difference",
+        "count": 2,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 4
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      },
+      {
+        "kind": "generic_boundary_fold",
+        "count": 0,
+        "primitives": {
+          "base_mul": 0,
+          "base_add": 0,
+          "base_sub": 0
+        },
+        "global_read_bytes": 0,
+        "global_write_bytes": 0,
+        "logical_shared_read_bytes": 0,
+        "extra_chunk_barriers": 0,
+        "where": "device"
+      }
+    ]
+  }
+]

@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "<string>", line 7, in <module>
+  File "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v19/scripts/zk60_native_rg_classterminals.py", line 1102, in check_classify_terminals
+    raise NotImplementedError("the classifier capture reader lands with the first capture (v20)")
+NotImplementedError: the classifier capture reader lands with the first capture (v20)

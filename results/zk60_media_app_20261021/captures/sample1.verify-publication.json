@@ -1,0 +1,69 @@
+{
+    "accepted": true,
+    "pending": false,
+    "per_proof": {
+        "c0.hate": {
+            "accepted": true,
+            "reasons": [],
+            "checks": {
+                "manifest_hash": true,
+                "manifest_post_id": true,
+                "label_value": true,
+                "statement_hash": true,
+                "leaf_hash": true,
+                "receipt_segments": true,
+                "chain_integrity": true,
+                "anchor_tx": true,
+                "merkle_path": true,
+                "batch_file": true
+            },
+            "block": {
+                "block_number": 1,
+                "block_hash": "17fbd9c9769d092295aedf75023311216a4ba88c407706d0b53364bf3f6040b8",
+                "ts": "2026-10-21T03:55:52Z"
+            }
+        },
+        "c0.sexual": {
+            "accepted": true,
+            "reasons": [],
+            "checks": {
+                "manifest_hash": true,
+                "manifest_post_id": true,
+                "label_value": true,
+                "statement_hash": true,
+                "leaf_hash": true,
+                "receipt_segments": true,
+                "chain_integrity": true,
+                "anchor_tx": true,
+                "merkle_path": true,
+                "batch_file": true
+            },
+            "block": {
+                "block_number": 1,
+                "block_hash": "17fbd9c9769d092295aedf75023311216a4ba88c407706d0b53364bf3f6040b8",
+                "ts": "2026-10-21T03:55:52Z"
+            }
+        },
+        "c0.violence": {
+            "accepted": true,
+            "reasons": [],
+            "checks": {
+                "manifest_hash": true,
+                "manifest_post_id": true,
+                "label_value": true,
+                "statement_hash": true,
+                "leaf_hash": true,
+                "receipt_segments": true,
+                "chain_integrity": true,
+                "anchor_tx": true,
+                "merkle_path": true,
+                "batch_file": true
+            },
+            "block": {
+                "block_number": 1,
+                "block_hash": "17fbd9c9769d092295aedf75023311216a4ba88c407706d0b53364bf3f6040b8",
+                "ts": "2026-10-21T03:55:52Z"
+            }
+        }
+    }
+}

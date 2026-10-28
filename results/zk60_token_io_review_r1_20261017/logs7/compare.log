@@ -1,0 +1,7 @@
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r9-scratch/b8/run-8b-t32-r9/statement/statement.json /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/run-llama3_8b_pg_rot1_b7voc0_T32-r7-ho00/statement/statement.json differ: byte 2194, line 19
+statement.json vs the r7 run's: exit 1 (roots and context differ per run; expected to differ only in the two endpoint roots)
+statement.json minus the two endpoint-root lines vs the r7 run's: diff exit 0
+700 /tmp/claude-1000/-home-victor-IntelligenceRegulation/c08c4558-9df4-474f-a0b5-1bf1cd034626/scratchpad/r7/owners/run-8b-t32-r9.owner-private
+600 /tmp/claude-1000/-home-victor-IntelligenceRegulation/c08c4558-9df4-474f-a0b5-1bf1cd034626/scratchpad/r7/owners/run-8b-t32-r9.owner-private/input.dec
+600 /tmp/claude-1000/-home-victor-IntelligenceRegulation/c08c4558-9df4-474f-a0b5-1bf1cd034626/scratchpad/r7/owners/run-8b-t32-r9.owner-private/output.dec
+600 /tmp/claude-1000/-home-victor-IntelligenceRegulation/c08c4558-9df4-474f-a0b5-1bf1cd034626/scratchpad/r7/owners/token-8b-t32

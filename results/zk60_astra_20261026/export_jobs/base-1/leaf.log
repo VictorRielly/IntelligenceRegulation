@@ -1,0 +1,2 @@
+{"layer": 0, "seconds": 33.962355613708496, "manifest_sha256": "4311849ee1484660f58a7955f07e917ad6b7ff1e5008e0ba79deca601be47e97", "scales_sha256": "443e7c09504f81eddfe3b8dfebe006c093f6a212df6e007616e19557db29caa1", "weights_clipped": {"wq": 0, "wk": 0, "wv": 0, "wo": 0, "wg": 0, "wu": 0, "wd": 0}}
+{"status": "timebox", "next_layer": 1}

@@ -1,0 +1,21 @@
+[zk60-guard 12:46:54] waiting for admission lock (0s)
+[zk60-guard 12:46:55] admission waiting: budget: 11.8+0.8 GiB > 11.9 GiB with live [astra-stats-continue-2(light,2.4G), astra-openai_mod_mod_violence_le168_strat300-c1(light,1.1G), r12-dense(cpu,7.5G), gate-v20-classify-rung-L1-v0(light,0.8G)]
+[zk60-guard 12:47:55] admission waiting: budget: 11.8+0.8 GiB > 11.9 GiB with live [astra-stats-continue-2(light,2.4G), astra-openai_mod_mod_violence_le168_strat300-c1(light,1.1G), r12-dense(cpu,7.5G), gate-v20-classify-rung-L1-v0(light,0.8G)]; swap in use > 1 GiB (box is already under pressure)
+[zk60-guard 12:48:55] admission waiting: budget: 11.8+0.8 GiB > 11.9 GiB with live [astra-stats-continue-2(light,2.4G), astra-openai_mod_mod_violence_le168_strat300-c1(light,1.1G), r12-dense(cpu,7.5G), gate-v20-classify-rung-L1-v0(light,0.8G)]; swap in use > 1 GiB (box is already under pressure)
+[zk60-guard 12:49:56] admission waiting: swap in use > 1 GiB (box is already under pressure)
+[zk60-guard 12:50:56] admission waiting: swap in use > 1 GiB (box is already under pressure)
+[zk60-guard 12:51:56] admission waiting: swap in use > 1 GiB (box is already under pressure)
+[zk60-guard 12:52:56] admission waiting: swap in use > 1 GiB (box is already under pressure)
+[zk60-guard 12:53:56] admission waiting: swap in use > 1 GiB (box is already under pressure)
+[zk60-guard 12:54:56] admission waiting: swap in use > 1 GiB (box is already under pressure)
+[zk60-guard 12:55:56] admission waiting: swap in use > 1 GiB (box is already under pressure)
+[zk60-guard 12:56:57] admission waiting: swap in use > 1 GiB (box is already under pressure)
+[zk60-guard 12:57:57] admission waiting: swap in use > 1 GiB (box is already under pressure)
+[zk60-guard 12:58:57] admission waiting: swap in use > 1 GiB (box is already under pressure)
+[zk60-guard 12:59:57] admission waiting: swap in use > 1 GiB (box is already under pressure)
+[zk60-guard 13:00:22] START gate-v20-classify-rung-L2-v0 class=light need=0.8G cap=2G enforce=cgroup+watchdog waited=808s run=0519cfeef18c
+[zk60-guard 13:10:43] END gate-v20-classify-rung-L2-v0 exit=0 child_wall=621s peak_rss=0.31G min_avail=5.06G
+[zk60-guard 13:10:43] START gate-v20-classify-rung-L2-v1 class=light need=0.8G cap=2G enforce=cgroup+watchdog waited=0s run=fad82fd02f7b
+[zk60-guard 13:20:47] END gate-v20-classify-rung-L2-v1 exit=0 child_wall=604s peak_rss=0.32G min_avail=10.01G
+[zk60-guard 13:20:47] START gate-v20-classify-rung-L2-vtie class=light need=0.8G cap=2G enforce=cgroup+watchdog waited=0s run=0853bc25cd97
+[zk60-guard 13:31:33] END gate-v20-classify-rung-L2-vtie exit=0 child_wall=647s peak_rss=0.32G min_avail=5.25G

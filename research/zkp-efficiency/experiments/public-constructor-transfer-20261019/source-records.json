@@ -1,0 +1,143 @@
+[
+  {
+    "access_date": "2026-10-19",
+    "assessment": "New older allocation/ownership lead only. Shared public descriptors do not authorize witness/mask reuse. Actual source/diff unavailable, no implementation or speed factor assessed.",
+    "cycle": "0086",
+    "date_evidence": "Primary history lists clone_for_batch on2026-03-20, ScratchPadBatch on2026-03-21, and resident-tree lifetime work2026-07-20. Not verified current HEAD. Exact diffs failed Cache miss/InternalError.",
+    "displayed_uninspected_commits": [
+      "01a35d8",
+      "302fc4a",
+      "096581e"
+    ],
+    "evidence_kind": "Native LIVE web search/open/find/click; primary pages; untrusted source text not executed",
+    "external_execution": false,
+    "implementation_license": "AGPLv3 text read in current main/LICENSE. No code adopted; historical commit license not verified.",
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://github.com/PolyhedraZK/Expander/blob/main/LICENSE",
+      "https://github.com/PolyhedraZK/Expander/releases"
+    ],
+    "published": null,
+    "recorded_at_utc": "2026-10-19T18:28:40.538060+00:00",
+    "reproduced_performance": false,
+    "run_id": "20261019T181854Z-f5bd1f03",
+    "title": "Expander public clone and batch scratch allocation leads, newly assessed historical metadata",
+    "updated": null,
+    "url": "https://github.com/PolyhedraZK/Expander/commits/main/"
+  },
+  {
+    "access_date": "2026-10-19",
+    "assessment": "Known source refreshed. GPT2 cost rows use T16,batch1,32CPU threads and exclude graph preparation,inference,verification. QDQ utility leaves several operators floating. No precision reduction or performance transfer authorized; D32 remains binding.",
+    "cycle": "0086",
+    "date_evidence": "Primary v1 history2026-09-29 00:54:35UTC; HTML AppendixE inspected.",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary pages; untrusted source text not executed",
+    "external_execution": false,
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://arxiv.org/html/2609.36437v1"
+    ],
+    "published": "2026-09-29",
+    "recorded_at_utc": "2026-10-19T18:28:40.538060+00:00",
+    "reproduced_performance": false,
+    "run_id": "20261019T181854Z-f5bd1f03",
+    "title": "Bits Under ZK-LLM: refreshed quantization and complete-clock boundary",
+    "updated": null,
+    "url": "https://arxiv.org/abs/2609.36437"
+  },
+  {
+    "access_date": "2026-10-19",
+    "assessment": "Known source refreshed. Dense-weight commitment is separate from covered operators; nonlinear and opening-preparation costs include fitted/interpolated terms. Auditor sequences differ from private-prompt target. Not a reproduced complete private8B rate.",
+    "cycle": "0086",
+    "date_evidence": "Primary v1 Oct6 12:35:49UTC; v2 Oct11 04:45:08UTC. Third-party search incorrectly suggested Oct7; primary used.",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary pages; untrusted source text not executed",
+    "external_execution": false,
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://arxiv.org/html/2610.08258v2"
+    ],
+    "published": "2026-10-06",
+    "recorded_at_utc": "2026-10-19T18:28:40.538060+00:00",
+    "reproduced_performance": false,
+    "run_id": "20261019T181854Z-f5bd1f03",
+    "title": "zkLLMPoT v2: October operator/commitment accounting refresh",
+    "updated": "2026-10-11",
+    "url": "https://arxiv.org/abs/2610.08258"
+  },
+  {
+    "access_date": "2026-10-19",
+    "assessment": "Known older source refreshed. Author repository explicitly describes side-by-side interactive prover/verifier components requiring redesign for independent noninteractive use. CUDA lookup techniques need exact relation and privacy review; author gains not reproduced.",
+    "cycle": "0086",
+    "date_evidence": "Primary v1 Apr24,2024 18:04:50UTC. Current repository date not verified.",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary pages; untrusted source text not executed",
+    "external_execution": false,
+    "implementation_license": "MIT, actual current repository LICENSE read; no code adopted.",
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://github.com/jvhs0706/zkllm-ccs2024",
+      "https://github.com/jvhs0706/zkllm-ccs2024/blob/main/LICENSE"
+    ],
+    "published": "2024-04-24",
+    "recorded_at_utc": "2026-10-19T18:28:40.538060+00:00",
+    "reproduced_performance": false,
+    "run_id": "20261019T181854Z-f5bd1f03",
+    "title": "zkLLM historical CUDA lookup/softmax and independent-verifier boundary refresh",
+    "updated": null,
+    "url": "https://arxiv.org/abs/2404.16109"
+  },
+  {
+    "access_date": "2026-10-19",
+    "assessment": "Known source refreshed. Equal SRAM/bandwidth primitive comparison does not turn a vector lifetime reduction into end-to-end proving speed. No implementation execution, GPU transfer or rate reproduced.",
+    "cycle": "0086",
+    "date_evidence": "Primary v1 Jun15,2026 03:03:54UTC.",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary pages; untrusted source text not executed",
+    "external_execution": false,
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "published": "2026-06-15",
+    "recorded_at_utc": "2026-10-19T18:28:40.538060+00:00",
+    "reproduced_performance": false,
+    "run_id": "20261019T181854Z-f5bd1f03",
+    "title": "When Proofs Meet Hardware: memory availability and primitive comparison refresh",
+    "updated": null,
+    "url": "https://arxiv.org/abs/2606.16146"
+  },
+  {
+    "access_date": "2026-10-19",
+    "assessment": "Lists fused FRI/hiding LDE and bind/measure sumcheck changes. Exact PR2036 and rc2 page failed Cache miss. A lead, not source-inspected code, timing evidence or permission to change masks/transcript.",
+    "cycle": "0086",
+    "date_evidence": "Retrieved page displays v0.8.0 on Sep23 20:02, without year. Prior cycle retrieved October rc2. Do not assert newest release, date year or current HEAD from this view.",
+    "displayed_uninspected_commits": [
+      "a21e3ed"
+    ],
+    "evidence_kind": "Native LIVE web search/open/find/click; primary pages; untrusted source text not executed",
+    "external_execution": false,
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "published": null,
+    "recorded_at_utc": "2026-10-19T18:28:40.538060+00:00",
+    "reproduced_performance": false,
+    "run_id": "20261019T181854Z-f5bd1f03",
+    "title": "Plonky3 release lookup: fresh retrieval has inconsistent cached release views",
+    "updated": null,
+    "url": "https://github.com/Plonky3/Plonky3/releases"
+  },
+  {
+    "access_date": "2026-10-19",
+    "assessment": "Known older lead refreshed; no PDF/code implementation inspected this cycle. Existing native byte lookup and exact division remain the baseline. No author speed ratio reproduced.",
+    "cycle": "0086",
+    "date_evidence": "Primary received2025-03-18, approved2025-03-20; labels major revision of USENIX Security2024 work. No inferred2024 ePrint date.",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary pages; untrusted source text not executed",
+    "external_execution": false,
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "published": "2025-03-20",
+    "recorded_at_utc": "2026-10-19T18:28:40.538060+00:00",
+    "reproduced_performance": false,
+    "run_id": "20261019T181854Z-f5bd1f03",
+    "title": "Small-table nonlinear protocols: older metadata refresh",
+    "updated": null,
+    "url": "https://eprint.iacr.org/2025/507"
+  }
+]

@@ -1,0 +1,302 @@
+[
+  {
+    "model": "TinyLlama",
+    "T": 32,
+    "dd": false,
+    "scope": "owner-count fixture",
+    "ordered_lookup_columns": 83,
+    "global_tables": 1,
+    "tree_layers": 1297,
+    "all_semantic_terminals": 5188,
+    "private_semantic_terminals": 5020,
+    "unmerged_original_A_leaf_obligations": 168,
+    "ledger_sha256": "38ed656b922fb700611ef939644624f54a01fa6f0e3b1e4ffaa8d72860f297d9",
+    "conditional_private_pair_payload_by_log_cols": {
+      "13": 657981440,
+      "14": 1315962880,
+      "15": 2631925760
+    },
+    "conditional_leaf_pair_payload_by_log_cols": {
+      "13": 22020096,
+      "14": 44040192,
+      "15": 88080384
+    },
+    "old_U8_helper_bytes_carried": 50659328,
+    "actual_new_private_claim_sites": null,
+    "actual_extension_rounds": null,
+    "actual_CFS_coefficients": null,
+    "actual_PCS_groups": null,
+    "native_net_memory_saving_bytes": null,
+    "native_time_saving_s": null
+  },
+  {
+    "model": "TinyLlama",
+    "T": 64,
+    "dd": false,
+    "scope": "owner-count fixture",
+    "ordered_lookup_columns": 83,
+    "global_tables": 1,
+    "tree_layers": 1393,
+    "all_semantic_terminals": 5572,
+    "private_semantic_terminals": 5404,
+    "unmerged_original_A_leaf_obligations": 168,
+    "ledger_sha256": "e64718ea61abb3ba74007c67d475b02d201b5987d8efc4990425bac7a8b9132d",
+    "conditional_private_pair_payload_by_log_cols": {
+      "13": 708313088,
+      "14": 1416626176,
+      "15": 2833252352
+    },
+    "conditional_leaf_pair_payload_by_log_cols": {
+      "13": 22020096,
+      "14": 44040192,
+      "15": 88080384
+    },
+    "old_U8_helper_bytes_carried": 108658688,
+    "actual_new_private_claim_sites": null,
+    "actual_extension_rounds": null,
+    "actual_CFS_coefficients": null,
+    "actual_PCS_groups": null,
+    "native_net_memory_saving_bytes": null,
+    "native_time_saving_s": null
+  },
+  {
+    "model": "TinyLlama",
+    "T": 128,
+    "dd": false,
+    "scope": "owner-count fixture",
+    "ordered_lookup_columns": 83,
+    "global_tables": 1,
+    "tree_layers": 1489,
+    "all_semantic_terminals": 5956,
+    "private_semantic_terminals": 5788,
+    "unmerged_original_A_leaf_obligations": 168,
+    "ledger_sha256": "ee7b9369b2debe7285574cc8280a081c4035448841ce6e908d5814155aed08b0",
+    "conditional_private_pair_payload_by_log_cols": {
+      "13": 758644736,
+      "14": 1517289472,
+      "15": 3034578944
+    },
+    "conditional_leaf_pair_payload_by_log_cols": {
+      "13": 22020096,
+      "14": 44040192,
+      "15": 88080384
+    },
+    "old_U8_helper_bytes_carried": 246677504,
+    "actual_new_private_claim_sites": null,
+    "actual_extension_rounds": null,
+    "actual_CFS_coefficients": null,
+    "actual_PCS_groups": null,
+    "native_net_memory_saving_bytes": null,
+    "native_time_saving_s": null
+  },
+  {
+    "model": "TinyLlama",
+    "T": 128,
+    "dd": true,
+    "scope": "owner-count fixture",
+    "ordered_lookup_columns": 83,
+    "global_tables": 1,
+    "tree_layers": 1471,
+    "all_semantic_terminals": 5884,
+    "private_semantic_terminals": 5716,
+    "unmerged_original_A_leaf_obligations": 168,
+    "ledger_sha256": "11d9412e6208f80c19fc08c0aecb4510c19e600a106cc6f8b6c0772a94f334ff",
+    "conditional_private_pair_payload_by_log_cols": {
+      "13": 749207552,
+      "14": 1498415104,
+      "15": 2996830208
+    },
+    "conditional_leaf_pair_payload_by_log_cols": {
+      "13": 22020096,
+      "14": 44040192,
+      "15": 88080384
+    },
+    "old_U8_helper_bytes_carried": 215220224,
+    "actual_new_private_claim_sites": null,
+    "actual_extension_rounds": null,
+    "actual_CFS_coefficients": null,
+    "actual_PCS_groups": null,
+    "native_net_memory_saving_bytes": null,
+    "native_time_saving_s": null
+  },
+  {
+    "model": "8B",
+    "T": 32,
+    "dd": false,
+    "scope": "owner-count fixture",
+    "ordered_lookup_columns": 83,
+    "global_tables": 1,
+    "tree_layers": 1379,
+    "all_semantic_terminals": 5516,
+    "private_semantic_terminals": 5348,
+    "unmerged_original_A_leaf_obligations": 168,
+    "ledger_sha256": "2c6ba289f88c8b1df3aa429519855e1c8c0f331010f5d67fed23d18a64082dbb",
+    "conditional_private_pair_payload_by_log_cols": {
+      "13": 700973056,
+      "14": 1401946112,
+      "15": 2803892224
+    },
+    "conditional_leaf_pair_payload_by_log_cols": {
+      "13": 22020096,
+      "14": 44040192,
+      "15": 88080384
+    },
+    "old_U8_helper_bytes_carried": 99221504,
+    "actual_new_private_claim_sites": null,
+    "actual_extension_rounds": null,
+    "actual_CFS_coefficients": null,
+    "actual_PCS_groups": null,
+    "native_net_memory_saving_bytes": null,
+    "native_time_saving_s": null
+  },
+  {
+    "model": "8B",
+    "T": 64,
+    "dd": false,
+    "scope": "owner-count fixture",
+    "ordered_lookup_columns": 83,
+    "global_tables": 1,
+    "tree_layers": 1473,
+    "all_semantic_terminals": 5892,
+    "private_semantic_terminals": 5724,
+    "unmerged_original_A_leaf_obligations": 168,
+    "ledger_sha256": "84e7aa67030d62e632784c90928ff0efa24ceef3dd8fb45e0f2581bd3da6dac8",
+    "conditional_private_pair_payload_by_log_cols": {
+      "13": 750256128,
+      "14": 1500512256,
+      "15": 3001024512
+    },
+    "conditional_leaf_pair_payload_by_log_cols": {
+      "13": 22020096,
+      "14": 44040192,
+      "15": 88080384
+    },
+    "old_U8_helper_bytes_carried": 205651968,
+    "actual_new_private_claim_sites": null,
+    "actual_extension_rounds": null,
+    "actual_CFS_coefficients": null,
+    "actual_PCS_groups": null,
+    "native_net_memory_saving_bytes": null,
+    "native_time_saving_s": null
+  },
+  {
+    "model": "8B",
+    "T": 128,
+    "dd": false,
+    "scope": "owner-count fixture",
+    "ordered_lookup_columns": 83,
+    "global_tables": 1,
+    "tree_layers": 1569,
+    "all_semantic_terminals": 6276,
+    "private_semantic_terminals": 6108,
+    "unmerged_original_A_leaf_obligations": 168,
+    "ledger_sha256": "0cf40e3d1e07a481723a3da481c5dd718c95fc0a5795a903a583880cc80568fe",
+    "conditional_private_pair_payload_by_log_cols": {
+      "13": 800587776,
+      "14": 1601175552,
+      "15": 3202351104
+    },
+    "conditional_leaf_pair_payload_by_log_cols": {
+      "13": 22020096,
+      "14": 44040192,
+      "15": 88080384
+    },
+    "old_U8_helper_bytes_carried": 440664064,
+    "actual_new_private_claim_sites": null,
+    "actual_extension_rounds": null,
+    "actual_CFS_coefficients": null,
+    "actual_PCS_groups": null,
+    "native_net_memory_saving_bytes": null,
+    "native_time_saving_s": null
+  },
+  {
+    "model": "8B",
+    "T": 128,
+    "dd": true,
+    "scope": "owner-count fixture",
+    "ordered_lookup_columns": 83,
+    "global_tables": 1,
+    "tree_layers": 1551,
+    "all_semantic_terminals": 6204,
+    "private_semantic_terminals": 6036,
+    "unmerged_original_A_leaf_obligations": 168,
+    "ledger_sha256": "e21f880ab1abf3bf45f054d00e32f233078ca672a2a46194e64465d34df491bc",
+    "conditional_private_pair_payload_by_log_cols": {
+      "13": 791150592,
+      "14": 1582301184,
+      "15": 3164602368
+    },
+    "conditional_leaf_pair_payload_by_log_cols": {
+      "13": 22020096,
+      "14": 44040192,
+      "15": 88080384
+    },
+    "old_U8_helper_bytes_carried": 409206784,
+    "actual_new_private_claim_sites": null,
+    "actual_extension_rounds": null,
+    "actual_CFS_coefficients": null,
+    "actual_PCS_groups": null,
+    "native_net_memory_saving_bytes": null,
+    "native_time_saving_s": null
+  },
+  {
+    "model": "8B",
+    "T": 512,
+    "dd": false,
+    "scope": "COUNTED ONLY, unregistered T512; no proof/profile admission",
+    "ordered_lookup_columns": 85,
+    "global_tables": 1,
+    "tree_layers": 1805,
+    "all_semantic_terminals": 7220,
+    "private_semantic_terminals": 7048,
+    "unmerged_original_A_leaf_obligations": 172,
+    "ledger_sha256": "74626be28be3d03a3bc63489d466d472975ac6c1396f5e763e69b457c3f93c16",
+    "conditional_private_pair_payload_by_log_cols": {
+      "13": 923795456,
+      "14": 1847590912,
+      "15": 3695181824
+    },
+    "conditional_leaf_pair_payload_by_log_cols": {
+      "13": 22544384,
+      "14": 45088768,
+      "15": 90177536
+    },
+    "old_U8_helper_bytes_carried": 2600992768,
+    "actual_new_private_claim_sites": null,
+    "actual_extension_rounds": null,
+    "actual_CFS_coefficients": null,
+    "actual_PCS_groups": null,
+    "native_net_memory_saving_bytes": null,
+    "native_time_saving_s": null
+  },
+  {
+    "model": "8B",
+    "T": 512,
+    "dd": true,
+    "scope": "COUNTED ONLY, unregistered T512; no proof/profile admission",
+    "ordered_lookup_columns": 85,
+    "global_tables": 1,
+    "tree_layers": 1761,
+    "all_semantic_terminals": 7044,
+    "private_semantic_terminals": 6872,
+    "unmerged_original_A_leaf_obligations": 172,
+    "ledger_sha256": "1762ba159a00804116689926ad522f0d2afbcb3de2a99e5e1ad15bf6098d0ea5",
+    "conditional_private_pair_payload_by_log_cols": {
+      "13": 900726784,
+      "14": 1801453568,
+      "15": 3602907136
+    },
+    "conditional_leaf_pair_payload_by_log_cols": {
+      "13": 22544384,
+      "14": 45088768,
+      "15": 90177536
+    },
+    "old_U8_helper_bytes_carried": 1846018048,
+    "actual_new_private_claim_sites": null,
+    "actual_extension_rounds": null,
+    "actual_CFS_coefficients": null,
+    "actual_PCS_groups": null,
+    "native_net_memory_saving_bytes": null,
+    "native_time_saving_s": null
+  }
+]

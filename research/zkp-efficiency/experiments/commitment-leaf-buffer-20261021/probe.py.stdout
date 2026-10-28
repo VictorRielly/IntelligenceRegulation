@@ -1,0 +1,33 @@
+{
+  "status": "PASS_CPU_HASH_AND_STATE_MODEL_ONLY",
+  "seed": 202610210123,
+  "checks": 328043,
+  "control_types": 11,
+  "controls": [
+    "endian",
+    "no_root",
+    "counter_zero",
+    "too_short_public_depth",
+    "stale_nonzero_length",
+    "shape_growth_without_resize",
+    "zero_rows_not_modelled",
+    "u32_length_overflow_not_modelled",
+    "short_input",
+    "unaligned_chunk_request_rounded_like_native",
+    "all_poison_including_length_safe_only_with_first_launch_init"
+  ],
+  "wall_seconds": 4.605481023987522,
+  "rss_kib": 29724,
+  "threads": 1,
+  "blake3_package_version": "1.0.9",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "new_verified_full_stack_proofs": 0,
+  "native_cuda_executed": false,
+  "native_proof_executed": false,
+  "limits": [
+    "Independent installed library hash oracle; state model authored by same researcher",
+    "No GPU allocator/compiler/driver/receipt/privacy gate evidence",
+    "Compression graph unchanged; only reserved CV state and initialization differ",
+    "No claim about physical pooled capacity or critical-path time"
+  ]
+}

@@ -1,0 +1,12 @@
+pub fn dev_reserve_hard(lens: &[usize]) -> Result<(), String> {
+    match dev_reserve(lens) {
+        Ok(()) => Ok(()),
+        Err(first) => {
+            let freed = dev_pool_drain();
+            if verbose() {
+                eprintln!("[UPERF3-AI] reserve failed ({first}); drained {freed} pooled buffers and retrying");
+            }
+            dev_reserve(lens).map_err(|e| format!("{e}; {first} even after draining {freed} pooled buffers"))
+        }
+    }
+}

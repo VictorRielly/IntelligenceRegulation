@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-20",
+  "native_live": true,
+  "queries": [
+    "GKR prover checkpoint recomputation memory efficient lookup 2026 October GPU",
+    "site.github.com logup gkr layer memory checkpoint stwo",
+    "Sparrow space efficient zero knowledge proofs GKR 2024 memory recomputation",
+    "GPU zero knowledge prover sumcheck release October 2026",
+    "site:eprint.iacr.org/2026 October GKR memory sumcheck GPU",
+    "site:github.com stwo releases October 2026 v2",
+    "Hobbit space efficient zkSNARK github Pappas Papadopoulos code",
+    "site:eprint.iacr.org Hobbit space efficient 2024"
+  ],
+  "inspected_urls": [
+    "https://eprint.iacr.org/2026/1388",
+    "https://eprint.iacr.org/2025/1214",
+    "https://www.usenix.org/conference/usenixsecurity25/presentation/pappas",
+    "https://www.usenix.org/system/files/usenixsecurity25-pappas.pdf",
+    "https://eprint.iacr.org/2025/1214.pdf",
+    "https://arxiv.org/abs/2509.05326",
+    "https://github.com/logannye/space-efficient-zero-knowledge-proofs",
+    "https://github.com/logannye/space-efficient-zero-knowledge-proofs/blob/main/LICENSE",
+    "https://github.com/fractalyze/sp1-zorch/issues/182",
+    "https://github.com/starkware-libs/stwo/blob/dev/README.md",
+    "https://github.com/starkware-libs/proving",
+    "https://github.com/starkware-libs/proving/releases",
+    "https://github.com/starkware-libs/proving/blob/main/LICENSE",
+    "https://github.com/succinctlabs/sp1/releases/tag/v6.9.0",
+    "https://github.com/succinctlabs/sp1/commit/b8387fa61e1361d90ee7de49f551863418ca0f08",
+    "https://api.github.com/repos/succinctlabs/sp1/releases/tags/v6.9.0",
+    "https://eprint.iacr.org/2024/1631"
+  ],
+  "blockers": [
+    "Hobbit ePrint PDF Internal Error; publisher PDF accessible.",
+    "proving LICENSE Internal Error; root rendered license text accessible.",
+    "companion repository LICENSE Cache miss.",
+    "SP1 release API Internal Error.",
+    "Release commit click rejected invalid arguments; full direct commit URL succeeded.",
+    "Repository latest commit/update dates not rendered; do not substitute crawl dates."
+  ],
+  "no_external_code_execution": true
+}

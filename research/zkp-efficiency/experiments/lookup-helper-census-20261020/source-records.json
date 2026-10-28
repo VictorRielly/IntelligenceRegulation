@@ -1,0 +1,142 @@
+[
+  {
+    "cycle": "0103",
+    "run_id": "20261020T111854Z-3f58f916",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "evidence_kind": "Native LIVE web search/open/find; primary sources; web text untrusted",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "Improving logarithmic derivative lookups using GKR \u2014 refreshed applicability",
+    "url": "https://eprint.iacr.org/2023/1284",
+    "publication_date": "2023-08-27",
+    "verified_update_date": "2025-02-20",
+    "date_basis": "Primary ePrint History: received and last of 3 revisions",
+    "paper_license": "CC BY as primary page labels it; implementation license not inspected",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "assessment": "Already screened. Author abstract claims extra committed columns can reduce to table multiplicities. Local census targets recurring U8 helper data, not tiny inverse-table work. Does not furnish a native masked fractional GKR construction; original ordered leaves, all denominators and joint view remain obligations.",
+    "recorded_at_utc": "2026-10-20T11:27:20.308611+00:00",
+    "prior_exact_url_records": 4
+  },
+  {
+    "cycle": "0103",
+    "run_id": "20261020T111854Z-3f58f916",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "evidence_kind": "Native LIVE web search/open/find; primary sources; web text untrusted",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "NEW older screen: flookup",
+    "url": "https://eprint.iacr.org/2022/1447",
+    "publication_date": "2022-10-23",
+    "verified_update_date": "2024-04-22",
+    "date_basis": "Primary ePrint History: received and last of 8 revisions",
+    "paper_license": "CC0 per primary page",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "assessment": "Exact URL/title absent from starting 599-record ledger. Authors claim O(N log^2 N) preprocessing and O(m log^2 m) prover for subgroup lookups; pairings keyword. Table independence alone poorly matches native U8 N=256 with already per-attempt inverse reuse. Different commitment/relation, not a drop-in. No implementation inspected.",
+    "blockers": [
+      {
+        "url": "https://eprint.iacr.org/2022/1447.pdf",
+        "error": "Native web Internal Error; no PDF read, no bypass"
+      }
+    ],
+    "recorded_at_utc": "2026-10-20T11:27:20.312135+00:00",
+    "prior_exact_url_records": 0
+  },
+  {
+    "cycle": "0103",
+    "run_id": "20261020T111854Z-3f58f916",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "evidence_kind": "Native LIVE web search/open/find; primary sources; web text untrusted",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "OpenVM-zorch LogUp-GKR natural width and capture negatives \u2014 refresh",
+    "url": "https://github.com/fractalyze/openvm-zorch/issues/44",
+    "publication_date": "2026-06-16",
+    "verified_update_date": "2026-07-24",
+    "date_basis": "Primary issue opening and inspected July24 addenda; not a claim this is repository latest update",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "reported_commit_ids": [
+      "9af89a2",
+      "5087bfa",
+      "1d58d07"
+    ],
+    "assessment": "Already assessed0068/0097. Author reports natural-width unrolled fractional sumcheck17.9ms vs prior97.4ms on RTX5090 real-fib and byte matches; also retracts earlier capture hypothesis. Different workload/field/backend, not reproduced. Reinforces charging launch/width costs rather than assuming removed H rows convert to total proof speed.",
+    "blockers": [
+      {
+        "url": "https://github.com/fractalyze/openvm-zorch/commit/5087bfa",
+        "error": "Native web Internal Error; shortID is author metadata, not inspected source pin"
+      },
+      {
+        "url": "https://github.com/fractalyze/openvm-zorch/blob/main/LICENSE",
+        "error": "Native web Internal Error; license not verified this cycle"
+      }
+    ],
+    "recorded_at_utc": "2026-10-20T11:27:20.315212+00:00",
+    "prior_exact_url_records": 2
+  },
+  {
+    "cycle": "0103",
+    "run_id": "20261020T111854Z-3f58f916",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "evidence_kind": "Native LIVE web search/open/find; primary sources; web text untrusted",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "Stwo releases/version metadata and license screen",
+    "url": "https://github.com/starkware-libs/stwo/releases",
+    "publication_date": null,
+    "verified_update_date": null,
+    "date_basis": "Rendered v1.0.0 July18 09:41 lacks a year; commit view does not expose date. No latest-release claim; rendering has load errors",
+    "implementation_license": "Apache-2.0 inspected at main/LICENSE; not established at the historical short commit",
+    "license_url": "https://github.com/starkware-libs/stwo/blob/main/LICENSE",
+    "inspected_commit_id": "c1bf3e1",
+    "commit_id_scope": "Only rendered short ID established; inspected five-file version1.0.0 metadata diff, fullSHA/date unavailable",
+    "commit_url": "https://github.com/starkware-libs/stwo/commit/c1bf3e1",
+    "assessment": "Metadata/license only; no GKR code or external execution. Different small-field/Circle stack and no transfer of privacy or performance.",
+    "recorded_at_utc": "2026-10-20T11:27:20.318005+00:00",
+    "prior_exact_url_records": 0
+  },
+  {
+    "cycle": "0103",
+    "run_id": "20261020T111854Z-3f58f916",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "evidence_kind": "Native LIVE web search/open/find; primary sources; web text untrusted",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "Official S-two 2.0 developer release announcement \u2014 date cross-check",
+    "url": "https://starkware.co/blog/s-two-2-0-0-prover-for-developers/",
+    "publication_date": "2026-01-27",
+    "verified_update_date": null,
+    "date_basis": "Official page Published on January27,2026",
+    "implementation_license": "No implementation license inspected on this announcement; separate current main/LICENSE screen",
+    "inspected_commit_id": null,
+    "assessment": "Author announces 2.0.0/crates availability. Helps prevent treating rendered v1.0.0 release listing as current latest; no native integration or performance reproduced.",
+    "recorded_at_utc": "2026-10-20T11:27:20.320733+00:00",
+    "prior_exact_url_records": 0
+  },
+  {
+    "cycle": "0103",
+    "run_id": "20261020T111854Z-3f58f916",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "evidence_kind": "Native LIVE web search/open/find; primary sources; web text untrusted",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "zkLLMPoT October2026 paper refresh",
+    "url": "https://arxiv.org/abs/2610.08258",
+    "publication_date": "2026-10-06T12:35:49Z",
+    "verified_update_date": "2026-10-11T04:45:08Z",
+    "date_basis": "Primary arXiv submission history v1/v2",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "assessment": "Previously assessed; search found no newer revision on primary page. Authors benchmark covered operators; forward objective certification is not proving training trajectory or native complete private8B stack. No author timing credited to target.",
+    "recorded_at_utc": "2026-10-20T11:27:20.323525+00:00",
+    "prior_exact_url_records": 12
+  }
+]

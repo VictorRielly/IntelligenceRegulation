@@ -1,0 +1,22 @@
+fn pool_take_min(dev: &Arc<CudaDevice>, len: usize) -> Result<CudaSlice<u64>, String> {
+    if POOL_REUSE_ENABLED.load(Ordering::SeqCst) {
+        let mut pool = POOL.lock().unwrap();
+        let mut best: Option<usize> = None;
+        for (i, b) in pool.iter().enumerate() {
+            if b.len() >= len && best.map(|j| b.len() < pool[j].len()).unwrap_or(true) {
+                best = Some(i);
+            }
+        }
+        if let Some(i) = best {
+            note_reuse(pool[i].len(), len);
+            return Ok(pool.swap_remove(i));
+        }
+    }
+    // [ZK60-CL4 review] this allocated straight from the device, outside the
+    // cap, the injection and the counter. The chunked path uses take_min for
+    // ALL its scratch, so it was invisible to every assertion built on them.
+    fresh_alloc_gate(len)?;
+    let b = unsafe { dev.alloc::<u64>(len) }.map_err(|e| format!("cuMemAlloc({} MB): {e}", len * 8 >> 20))?;
+    FRESH_ALLOC_BYTES.fetch_add(len * 8, Ordering::SeqCst);
+    Ok(b)
+}

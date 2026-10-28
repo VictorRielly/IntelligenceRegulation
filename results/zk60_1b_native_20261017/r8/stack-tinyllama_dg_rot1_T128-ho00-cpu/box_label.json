@@ -1,0 +1,26 @@
+{
+ "run": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/stack-tinyllama_dg_rot1_T128-ho00-cpu",
+ "prove_start": "2026-10-19T15:59:50.511465Z",
+ "prove_end": "2026-10-19T16:02:54Z",
+ "label": "shared box",
+ "overlapping": [
+  {
+   "label": "fp-L_vocab0_8b_voc0_T32",
+   "cls": "light",
+   "start": "2026-10-19T15:48:20.657546Z",
+   "end": "2026-10-19T16:01:19Z",
+   "overlap_s": 88.49
+  }
+ ],
+ "boundary_ties": [
+  {
+   "label": "r8-stack-verify-tinyllama_dg_rot1_T128",
+   "cls": "cpu",
+   "start": "2026-10-19T16:02:53.929093Z",
+   "end": "2026-10-19T16:03:48Z",
+   "overlap_s": 0.07
+  }
+ ],
+ "tolerance_s": 1.5,
+ "note": "guarded jobs only (unguarded processes are not in the history); jobs still running at the time of this scan are not in the history yet; re-run the scan later to be sure"
+}

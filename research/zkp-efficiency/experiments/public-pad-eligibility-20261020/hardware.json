@@ -1,0 +1,10 @@
+{
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "accelerator_used": false,
+  "experiment_threads": 1,
+  "address_space_cap_mib": 512,
+  "cpu_limit_s": 59,
+  "parent_timeout_s": 60
+}

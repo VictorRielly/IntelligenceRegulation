@@ -1,0 +1,66 @@
+[
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-layer-consumer-20261020/probe.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 3.745439530990552,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-layer-consumer-20261020/validate.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 0.36853667499963194,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-layer-consumer-20261020/probe.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 3.7467121169902384,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-layer-consumer-20261020/validate.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 0.3685546750202775,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  }
+]

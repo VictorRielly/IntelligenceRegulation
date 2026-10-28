@@ -1,0 +1,25 @@
+{
+  "proofs": 0,
+  "passes": 0,
+  "positions": 0,
+  "actual_model_context": null,
+  "actual_accelerator": null,
+  "research_device": "Intel Core Ultra 9 185H, one CPU worker",
+  "witness_s": null,
+  "proof_s": null,
+  "serialization_s": null,
+  "verification_s": null,
+  "startup_s": null,
+  "startup_fraction": null,
+  "steady_rate": null,
+  "total_workload_rate": null,
+  "long_context_prefill": false,
+  "resident_model_proof_series": false,
+  "decode": false,
+  "counted_contexts": [
+    128,
+    512
+  ],
+  "T512_admitted": false,
+  "counted_profile": "Frozen R9 A/H geometry; current LOW/HIGH excluded"
+}

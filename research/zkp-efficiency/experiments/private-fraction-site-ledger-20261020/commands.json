@@ -1,0 +1,130 @@
+[
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/private-fraction-site-ledger-20261020/probe.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 4.148598280007718,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/private-fraction-site-ledger-20261020/probe.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 4.149563479004428,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/private-fraction-site-ledger-20261020/validate.py"
+    ],
+    "returncode": 1,
+    "parent_elapsed_s": 0.11727510500350036,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/private-fraction-site-ledger-20261020/validate.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 0.8722846530145034,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/private-fraction-site-ledger-20261020/probe.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 4.9066628080036025,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/private-fraction-site-ledger-20261020/validate.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 0.8221612759807613,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/private-fraction-site-ledger-20261020/probe.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 4.450630134000676,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/private-fraction-site-ledger-20261020/validate.py"
+    ],
+    "returncode": 0,
+    "parent_elapsed_s": 2.0314015980111435,
+    "limits": {
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_s": 60,
+      "address_space_MiB": 512,
+      "threads": 1,
+      "nice": 19
+    }
+  }
+]

@@ -1,0 +1,263 @@
+{
+  "status": "PASS_SOURCE_ORDER_AND_ROLE_FORMULAS_ONLY",
+  "checks": 59,
+  "source_pins": 3,
+  "source_findings": [
+    "constructor timer excludes prior GPU init/lock/memory diagnosis/optional warmup",
+    "build timer combines allocation, transfer, module work and synchronize",
+    "success-only total sampled before report overhead, transcript assignment and evaluator destruction",
+    "tail sample precedes local pin and d_pack scope destruction",
+    "profile-only round synchronization changes timing boundaries",
+    "constructor and round errors can return without ev.report; enclosing caller attempt timer must survive early returns"
+  ],
+  "role_fixtures": [
+    {
+      "degree": 4,
+      "k": 20,
+      "half": 2,
+      "fallback_pin_bytes": 80,
+      "mapped_pin_bytes": 88,
+      "tail_pin_bytes": 640,
+      "tail_device_pack_bytes": 640,
+      "host_allocations_if_mapping_and_tail_reached": 3,
+      "mapping_queries_if_mapping_reached": 1
+    },
+    {
+      "degree": 4,
+      "k": 20,
+      "half": 16,
+      "fallback_pin_bytes": 80,
+      "mapped_pin_bytes": 88,
+      "tail_pin_bytes": 5120,
+      "tail_device_pack_bytes": 5120,
+      "host_allocations_if_mapping_and_tail_reached": 3,
+      "mapping_queries_if_mapping_reached": 1
+    },
+    {
+      "degree": 4,
+      "k": 20,
+      "half": 32,
+      "fallback_pin_bytes": 80,
+      "mapped_pin_bytes": 88,
+      "tail_pin_bytes": 10240,
+      "tail_device_pack_bytes": 10240,
+      "host_allocations_if_mapping_and_tail_reached": 3,
+      "mapping_queries_if_mapping_reached": 1
+    },
+    {
+      "degree": 4,
+      "k": 21,
+      "half": 2,
+      "fallback_pin_bytes": 80,
+      "mapped_pin_bytes": 88,
+      "tail_pin_bytes": 672,
+      "tail_device_pack_bytes": 672,
+      "host_allocations_if_mapping_and_tail_reached": 3,
+      "mapping_queries_if_mapping_reached": 1
+    },
+    {
+      "degree": 4,
+      "k": 21,
+      "half": 16,
+      "fallback_pin_bytes": 80,
+      "mapped_pin_bytes": 88,
+      "tail_pin_bytes": 5376,
+      "tail_device_pack_bytes": 5376,
+      "host_allocations_if_mapping_and_tail_reached": 3,
+      "mapping_queries_if_mapping_reached": 1
+    },
+    {
+      "degree": 4,
+      "k": 21,
+      "half": 32,
+      "fallback_pin_bytes": 80,
+      "mapped_pin_bytes": 88,
+      "tail_pin_bytes": 10752,
+      "tail_device_pack_bytes": 10752,
+      "host_allocations_if_mapping_and_tail_reached": 3,
+      "mapping_queries_if_mapping_reached": 1
+    },
+    {
+      "degree": 5,
+      "k": 20,
+      "half": 2,
+      "fallback_pin_bytes": 96,
+      "mapped_pin_bytes": 104,
+      "tail_pin_bytes": 640,
+      "tail_device_pack_bytes": 640,
+      "host_allocations_if_mapping_and_tail_reached": 3,
+      "mapping_queries_if_mapping_reached": 1
+    },
+    {
+      "degree": 5,
+      "k": 20,
+      "half": 16,
+      "fallback_pin_bytes": 96,
+      "mapped_pin_bytes": 104,
+      "tail_pin_bytes": 5120,
+      "tail_device_pack_bytes": 5120,
+      "host_allocations_if_mapping_and_tail_reached": 3,
+      "mapping_queries_if_mapping_reached": 1
+    },
+    {
+      "degree": 5,
+      "k": 20,
+      "half": 32,
+      "fallback_pin_bytes": 96,
+      "mapped_pin_bytes": 104,
+      "tail_pin_bytes": 10240,
+      "tail_device_pack_bytes": 10240,
+      "host_allocations_if_mapping_and_tail_reached": 3,
+      "mapping_queries_if_mapping_reached": 1
+    },
+    {
+      "degree": 5,
+      "k": 21,
+      "half": 2,
+      "fallback_pin_bytes": 96,
+      "mapped_pin_bytes": 104,
+      "tail_pin_bytes": 672,
+      "tail_device_pack_bytes": 672,
+      "host_allocations_if_mapping_and_tail_reached": 3,
+      "mapping_queries_if_mapping_reached": 1
+    },
+    {
+      "degree": 5,
+      "k": 21,
+      "half": 16,
+      "fallback_pin_bytes": 96,
+      "mapped_pin_bytes": 104,
+      "tail_pin_bytes": 5376,
+      "tail_device_pack_bytes": 5376,
+      "host_allocations_if_mapping_and_tail_reached": 3,
+      "mapping_queries_if_mapping_reached": 1
+    },
+    {
+      "degree": 5,
+      "k": 21,
+      "half": 32,
+      "fallback_pin_bytes": 96,
+      "mapped_pin_bytes": 104,
+      "tail_pin_bytes": 10752,
+      "tail_device_pack_bytes": 10752,
+      "host_allocations_if_mapping_and_tail_reached": 3,
+      "mapping_queries_if_mapping_reached": 1
+    }
+  ],
+  "hooks": [
+    {
+      "file": "cuda.rs",
+      "anchor": "    pub fn new(srcs:",
+      "matching_lines": [
+        4242
+      ],
+      "proposal": "attempt/constructor: enter before gpu init and lock"
+    },
+    {
+      "file": "cuda.rs",
+      "anchor": "        let t0 = Instant::now();",
+      "matching_lines": [
+        862,
+        886,
+        1028,
+        1126,
+        1139,
+        1314,
+        1362,
+        1495,
+        1838,
+        1922,
+        2287,
+        2340,
+        2487,
+        4290,
+        4835
+      ],
+      "proposal": "legacy build starts after optional warmup; locate in constructor"
+    },
+    {
+      "file": "cuda.rs",
+      "anchor": "        let pin = PinBuf::new_read(&dev, nv * 2)?;",
+      "matching_lines": [
+        4477
+      ],
+      "proposal": "round fallback allocation role"
+    },
+    {
+      "file": "cuda.rs",
+      "anchor": "            match FzcMapped::new(&dev, nv * 2 + 1) {",
+      "matching_lines": [
+        4482
+      ],
+      "proposal": "round mapped allocation/map/zero roles"
+    },
+    {
+      "file": "cuda.rs",
+      "anchor": "    fn try_round(&mut self",
+      "matching_lines": [
+        4591
+      ],
+      "proposal": "round wrapper includes lock, launch and poll/copy"
+    },
+    {
+      "file": "cuda.rs",
+      "anchor": "            let n_words = self.k * half * 2;",
+      "matching_lines": [
+        4769
+      ],
+      "proposal": "tail entry and pack/pin role sizes"
+    },
+    {
+      "file": "cuda.rs",
+      "anchor": "            self.st.secs_tail += ta.elapsed().as_secs_f64();",
+      "matching_lines": [
+        4742,
+        4782
+      ],
+      "proposal": "tail clock sampled before local scope drop"
+    },
+    {
+      "file": "cuda.rs",
+      "anchor": "    pub fn report(&mut self)",
+      "matching_lines": [
+        4513
+      ],
+      "proposal": "legacy total sampled before owner drop"
+    },
+    {
+      "file": "cuda.rs",
+      "anchor": "impl Drop for PinBuf",
+      "matching_lines": [
+        797
+      ],
+      "proposal": "exact host free API scope"
+    },
+    {
+      "file": "cuda.rs",
+      "anchor": "impl Drop for FzcMapped",
+      "matching_lines": [
+        4150
+      ],
+      "proposal": "exact mapped host free API scope"
+    },
+    {
+      "file": "fzc.rs",
+      "anchor": "        let mut ev = super::cuda::DevFzcRounds::new",
+      "matching_lines": [
+        371
+      ],
+      "proposal": "caller attempt wrapper must enclose constructor and evaluator drop"
+    },
+    {
+      "file": "fzc.rs",
+      "anchor": "        ev.report();",
+      "matching_lines": [
+        377
+      ],
+      "proposal": "success-only report; failure exit needs separate accounting"
+    }
+  ],
+  "wall_seconds": 0.03152435799711384,
+  "rss_kib": 18636,
+  "caveat": "Source order and conditional request formulas only. Rust drop/API timing, driver fences, actual incidence and performance not executed."
+}

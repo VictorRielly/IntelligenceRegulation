@@ -1,0 +1,12 @@
+{
+  "status": "COMPLETE_RESEARCH_ONLY",
+  "run_id": "20261020T041854Z-f70297a5",
+  "checkpoint_at": "2026-10-20T04:31:19.844819+00:00",
+  "verified_full_stack_positions": 0,
+  "new_native_proof": false,
+  "target_achieved": false,
+  "source_count": 557,
+  "next_cycle_not_before": "2026-10-20T05:18:54Z",
+  "final_source_checkpoint_at": "2026-10-20T04:32:53.603170+00:00",
+  "final_checkpoint_at": "2026-10-20T04:33:40.848204+00:00"
+}

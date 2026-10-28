@@ -1,0 +1,32 @@
+{
+ "ts_end": "2026-10-19T23:00:01Z",
+ "run_id": "4e24516518c4",
+ "label": "tio-r8-d3-cli-prove",
+ "class": "cpu",
+ "cmd": [
+  "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_token_io.r8.release.bin",
+  "prove",
+  "--export",
+  "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T128",
+  "--emb",
+  "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T128/token_io",
+  "--head",
+  "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T128/token_io"
+ ],
+ "need_gib": 8.0,
+ "cap_gib": 10.0,
+ "exit": 70,
+ "child_rc": null,
+ "guard_killed": null,
+ "child_wall_seconds": null,
+ "refused": "could not take /tmp/zk-heavy.lock within 1357s",
+ "guard_error": null,
+ "guard_pid": 622194,
+ "boot_id": "9d3a66e4-7664-4344-a046-38a0c53a53f3",
+ "pid_ns": "pid:[4026532216]",
+ "guard_starttime_ticks": 9050095,
+ "lock_ids": {
+  "heavy": "2096:36955",
+  "build": "2096:37006"
+ }
+}

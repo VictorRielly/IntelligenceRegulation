@@ -1,0 +1,161 @@
+{
+  "status": "PASS",
+  "checks": 381,
+  "source_definitions": [
+    {
+      "scope": "r9",
+      "line": 1341,
+      "function": "reenc_bench_at",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "benchmark"
+    },
+    {
+      "scope": "r9",
+      "line": 1684,
+      "function": "ntt_rows",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    },
+    {
+      "scope": "r9",
+      "line": 1717,
+      "function": "ntt_rows_view",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    },
+    {
+      "scope": "r9",
+      "line": 2156,
+      "function": "encode_rows_view",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    },
+    {
+      "scope": "r9",
+      "line": 2212,
+      "function": "encode_rows_view_gather",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    },
+    {
+      "scope": "r9",
+      "line": 3583,
+      "function": "encode_rows",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    },
+    {
+      "scope": "active",
+      "line": 1337,
+      "function": "reenc_bench_at",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "benchmark"
+    },
+    {
+      "scope": "active",
+      "line": 1680,
+      "function": "ntt_rows",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    },
+    {
+      "scope": "active",
+      "line": 1713,
+      "function": "ntt_rows_view",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    },
+    {
+      "scope": "active",
+      "line": 2138,
+      "function": "encode_rows_view",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    },
+    {
+      "scope": "active",
+      "line": 2194,
+      "function": "encode_rows_view_gather",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    },
+    {
+      "scope": "active",
+      "line": 3551,
+      "function": "encode_rows",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    },
+    {
+      "scope": "gpu-owner",
+      "line": 1352,
+      "function": "reenc_bench_at",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "benchmark"
+    },
+    {
+      "scope": "gpu-owner",
+      "line": 1695,
+      "function": "ntt_rows",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    },
+    {
+      "scope": "gpu-owner",
+      "line": 1728,
+      "function": "ntt_rows_view",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    },
+    {
+      "scope": "gpu-owner",
+      "line": 2167,
+      "function": "encode_rows_view",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    },
+    {
+      "scope": "gpu-owner",
+      "line": 2223,
+      "function": "encode_rows_view_gather",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    },
+    {
+      "scope": "gpu-owner",
+      "line": 3594,
+      "function": "encode_rows",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    }
+  ],
+  "synthetic_batch_cases": 144,
+  "conditional_commit_schedules": 36,
+  "negative_controls": [
+    {
+      "name": "per-row GPU inversion count is wrong",
+      "detected": true
+    },
+    {
+      "name": "one inverse per entire chunked commitment is wrong",
+      "detected": true
+    },
+    {
+      "name": "mutated modulus pin rejected",
+      "detected": true
+    },
+    {
+      "name": "mutated inversion algorithm rejected",
+      "detected": true
+    },
+    {
+      "name": "mutated normalization store rejected",
+      "detected": true
+    }
+  ],
+  "table_bytes": 264,
+  "closed_form_table_bytes": 0,
+  "wall_seconds": 0.1340148260060232,
+  "rss_kib": 82684,
+  "scope": "Source arithmetic/incidence counts; CPU multiply shares are not elapsed shares and compare no host arithmetic to device arithmetic. No full-proof rate ceiling measured."
+}

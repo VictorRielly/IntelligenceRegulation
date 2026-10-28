@@ -1,0 +1,166 @@
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1097:13
+     |
+1097 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:905:4
+    |
+905 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:259:19
+    |
+216 | impl Phases {
+    | ----------- method in this implementation
+...
+259 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:554:19
+    |
+529 | impl Geometry {
+    | ------------- method in this implementation
+...
+554 |     pub(crate) fn is_dd(self) -> bool {
+    |                   ^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:501:5
+    |
+494 | struct Rec {
+    |        --- field in this struct
+...
+501 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:603:15
+    |
+603 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 17 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.07s
+     Running unittests src/lib.rs (/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/r9-golden-tree/hashline/target/release/deps/hashline-5c45b78e5ae6d4c6)
+
+running 5 tests
+test private_block::r12_golden_tests::r12_golden_seeded_llama3_8b_t128_block_is_byte_identical ... R12-GOLDEN 8B bands Bands { attn: 6, gate: 8, down: 2, gains: (40, 127), xmag: 6000 }
+R12-GOLDEN hashline-zk-mr1/private-block-llama-3-8b-t128-trained/1: 23 slots, 69 absorbs, debug text 101397813 B
+R12-GOLDEN-DIGEST llama3-8b-t128 05a22d72a892aff5fb2e35da4d0ab0c894d696f2e6afa542b6ecece5aeb9f4db
+ok
+test private_block::r12_golden_tests::r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical ... R12-GOLDEN 8B DD bands Bands { attn: 6, gate: 8, down: 2, gains: (40, 127), xmag: 6000 }
+R12-GOLDEN hashline-zk-mr1/private-block-llama-3-8b-t128-ddict32/1: 24 slots, 72 absorbs, debug text 102944941 B
+R12-GOLDEN-DIGEST llama3-8b-t128-dd 9c2572a3d5bc7b39374e39c3781d467f2c065279b23dd580bb0c9e02dd63c282
+R12-GOLDEN llama3-8b-t128-dd: no recorded golden yet (recording run)
+ok
+test private_block::r12_golden_tests::r12_golden_seeded_tinyllama_t128_block_is_byte_identical ... R12-GOLDEN hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-block/1: 23 slots, 69 absorbs, debug text 81760821 B
+R12-GOLDEN-DIGEST tinyllama-t128 782b64c97a88cba4c6c34a2fecb73132f26d5f54adc9bd159f3d6cf9df4205c0
+ok
+test private_block::r12_golden_tests::r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical ... R12-GOLDEN hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-ddict/1: 24 slots, 72 absorbs, debug text 83300975 B
+R12-GOLDEN-DIGEST tinyllama-t128-dd e50e71f86ab64c6f4d69c6bee1ec7881feef75b1dc4c3972e20a6810c4428324
+R12-GOLDEN tinyllama-t128-dd: no recorded golden yet (recording run)
+ok
+test private_block::r12_golden_tests::r12_golden_statement_identities ... R12-GOLDEN-IDENTITY tinyllama-t128 f9b1e6c427637153ef7e40efd336952fb8d53b11e039f09031425d1e4cd8f22a encode-blake3 49cb306259b89be28b11627e907da628be9f8e44584a842d1c119040aea5c991
+R12-GOLDEN-IDENTITY llama3-8b-t128 3a1a4533863de5ca158418d2e2eef29c067395c3881ab8cfd4fd55c0afeb0548 encode-blake3 f289f47fad22ec792326797b891fb949fec3c4d24b99767b869857fef156f4e1
+R12-GOLDEN-IDENTITY tinyllama-t128-dd 0827ed029a86d3aa47679962dcb96ed752a79d59a2603dcc2a9374acd60f8505 encode-blake3 04b4d2ff946a39d25c2918caa7b765a3fb6cea937399ca994962a92d3bafd3d3
+R12-GOLDEN-IDENTITY llama3-8b-t128-dd a0354c192baaf7243f07e023865f003a67d9ef8b1da605186f3f9aeb17b708b7 encode-blake3 2c2b33298087b768c808dc74f0a4b082652b7f411b34b7ef0c27034975d8e0c2
+R12-GOLDEN-IDENTITY rung-dd 35ea356f20f3c001c069273461fb807d3ad28503a81af76cc03e717f0ccc8bcd encode-blake3 17d06db0332b4f7d14d780775736e2ec43e3e52e0547d02e3188072a8e2d65b7
+ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 609 filtered out; finished in 41.45s
+

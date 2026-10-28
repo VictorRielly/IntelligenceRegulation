@@ -1,0 +1,1 @@
+{"checks": 245, "scope": "Provenance, saved synthetic results, report/target separation, and in-memory exact patch-hunk applicability; NOT Rust compilation/native validation.", "status": "PASS", "utc": "2026-10-19T18:32:11.610435+00:00", "wall_seconds": 0.036665562001871876}

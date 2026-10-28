@@ -37,6 +37,14 @@ pub(crate) mod load;
 pub(crate) mod run;
 pub(crate) mod stage_in;
 pub(crate) mod stage_out;
+// TOKEN I/O ROUND 12: the classifier variant (DESIGN_CLASSIFIER v2, rung
+// R-C1), in new files only: the next-token stages above are untouched
+pub(crate) mod classify;
+pub(crate) mod classify_run;
+// ROUND 12 (R-C1): the classifier CLI (examples/zk60_classify.rs)
+pub(crate) mod classify_cli;
+pub(crate) mod stage_in_c;
+pub(crate) mod stage_out_c;
 #[cfg(test)]
 mod r0_words;
 #[cfg(test)]
@@ -47,6 +55,31 @@ mod r2_tests;
 mod r3_tests;
 #[cfg(test)]
 mod cli_tests;
+// TOKEN I/O (round 7): the token-run captures for the privacy gate
+#[cfg(test)]
+mod capture_tests;
+// TOKEN I/O (round 8): the 128-token next-token profiles
+#[cfg(test)]
+mod t128_tests;
+// TOKEN I/O (round 9): F-T1, the token run's sealing pass
+#[cfg(test)]
+mod r9_tests;
+// TOKEN I/O (round 9, the coordinator on t34): runs a prover without the
+// sealing check finishes are rejected by the verifier
+#[cfg(test)]
+mod r9v_tests;
+// TOKEN I/O (round 11, review REVIEW6 TR7-5): the CLI's stage-shape
+// derivation is the library's at every registered profile
+#[cfg(test)]
+mod r11_tests;
+// TOKEN I/O (round 12, rung R-C1): the classifier variant's tests
+#[cfg(test)]
+mod classify_tests;
+#[cfg(test)]
+mod classify_cli_tests;
+// TOKEN I/O (round 12, gate round 16): classifier run captures
+#[cfg(test)]
+mod classify_capture_tests;
 
 /// **THE TOKEN-I/O RUN PROFILES THIS BUILD REGISTERS, with their block shape**
 /// (test only): the one list the profile-registry censuses (s24 / s25 / s33)
@@ -59,6 +92,10 @@ pub(crate) fn registered_token_runs() -> Vec<(&'static str, Shape)> {
         (super::run::RUN_PROFILE_TOKEN_IO_RUNG_TC, Shape::rung_tc(&super::trained_calib_tests::rung_tc_calibration()).expect("the trained-calibration rung")),
         (super::run::RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32, Shape::tinyllama_trained(32, &r2_calibration(), R2_F_E).expect("the trained TinyLlama T32 shape")),
         (super::run::RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32, Shape::llama3_8b_t32_trained(&r3_calibration(), R3_F_E).expect("the trained Llama-3-8B T32 shape")),
+        // TOKEN I/O ROUND 8: the T128 next-token profiles (the T32 profiles'
+        // calibrations stand in; each run builds its shape from its export)
+        (super::run::RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128, Shape::tinyllama_trained(128, &r2_calibration(), R2_F_E).expect("the trained TinyLlama T128 shape")),
+        (super::run::RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T128, Shape::llama3_8b_trained(128, &r3_calibration(), R3_F_E).expect("the trained Llama-3-8B T128 shape")),
     ]
 }
 
@@ -909,6 +946,11 @@ pub(crate) fn run_stage_slot(side: &mut Side, acc: &mut Acc, mut def: StageSlotD
     if def.tabs.iter().any(|t| matches!(t, Tab::Pub(v) if v.len() != 1usize << n)) {
         return Err(format!("token I/O {}: slot {s} public table length", sched.label));
     }
+    // TOKEN I/O (round 7; capture request 2.1(c)): the run capture's slot
+    // checkpoint, exactly where `argument::run_slot` takes its own (verify
+    // side only; `None` unless a recorder is attached)
+    #[cfg(test)]
+    let run_capture_before = if matches!(side, Side::Verify { .. }) { super::run_capture::checkpoint(tr) } else { None };
     tr.absorb_u64(b"pb-slot", s as u64);
     acc.order.push(format!("{} slot {s:02} begin", sched.label));
     let c = tr.challenge_fp2();
@@ -1021,7 +1063,34 @@ pub(crate) fn run_stage_slot(side: &mut Side, acc: &mut Acc, mut def: StageSlotD
     acc.fs.push(MaskFunctional { terms: vec![(s, CfsMask::eval_weights(&rho_full, degree))], value: g_val });
     acc.cs.push(c);
     acc.scalars.push(scalar);
+    // TOKEN I/O (round 7): the run capture records the slot, where
+    // `argument::run_slot` records a block slot
+    #[cfg(test)]
+    if let Side::Verify { slots } = side {
+        super::run_capture::stage_slot(&def, &sp, acc, &slots[s], &rho_full, c, g_val, run_capture_before, tr);
+    }
     Ok(())
+}
+
+/// TOKEN I/O (round 7): the run capture's geometry of a new stage's `A`
+/// commitment (the block's `"A"` Geom with the stage's own role and kind)
+#[cfg(test)]
+pub(crate) fn capture_a_geom(role: &'static str, kind: &'static str, lay: &StageLayout, root: Digest) -> super::run_capture::Geom {
+    super::run_capture::Geom { role, commitment_kind: kind, params: lay.params, root, rows: lay.a_rows, data_rows: lay.a_data_rows, site_rows: lay.a_site_rows(), sum_rows: None, prox_row: lay.a_prox, boundary: None, claim_sources: vec![] }
+}
+
+/// TOKEN I/O (round 7): the same for a new stage's `H` (its zero-sum pair)
+#[cfg(test)]
+pub(crate) fn capture_h_geom(role: &'static str, kind: &'static str, lay: &StageLayout, root: Digest) -> super::run_capture::Geom {
+    super::run_capture::Geom { role, commitment_kind: kind, params: lay.params, root, rows: lay.h_rows, data_rows: lay.h_data_rows, site_rows: lay.h_site_rows(), sum_rows: Some(lay.h_u_rows()), prox_row: lay.h_prox, boundary: None, claim_sources: vec![] }
+}
+
+/// TOKEN I/O (round 7): a token endpoint's geometry (one claim site, the
+/// pair right after its data rows, then the proximity pair)
+#[cfg(test)]
+pub(crate) fn capture_ep_geom(role: &'static str, spec: &super::endpoint_g::EndpointSpecG, root: Digest, claim_sources: Vec<(usize, usize, usize)>) -> super::run_capture::Geom {
+    let d = spec.data_rows();
+    super::run_capture::Geom { role, commitment_kind: "token-endpoint", params: spec.params(), root, rows: spec.commitment_rows(), data_rows: d, site_rows: vec![d, d + 1], sum_rows: None, prox_row: d + 2, boundary: None, claim_sources }
 }
 
 /// The slot builder (as `argument::B`): counts the claim sites each slot

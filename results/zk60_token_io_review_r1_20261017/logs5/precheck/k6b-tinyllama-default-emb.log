@@ -1,0 +1,2 @@
+layer0-precheck: [Errno 2] No such file or directory: '/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/token_io/embedding_int16.bin'
+k6b exit 1

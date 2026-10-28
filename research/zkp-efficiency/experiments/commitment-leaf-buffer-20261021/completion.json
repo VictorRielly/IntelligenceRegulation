@@ -1,0 +1,12 @@
+{
+  "run_id": "20261021T071854Z-0fa6988f",
+  "status": "COMPLETE",
+  "checkpoint_utc": "2026-10-21T07:34:42.480903+00:00",
+  "new_proofs": 0,
+  "source_records_added": 8,
+  "hypotheses": 37,
+  "finalized_utc": "2026-10-21T07:37:06.437012+00:00",
+  "final_audit_checks": 302,
+  "immutable_artifacts": 61,
+  "source_pins": 7
+}

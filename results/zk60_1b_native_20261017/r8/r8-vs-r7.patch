@@ -1,0 +1,1042 @@
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/r4_tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/r4_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/r4_tests.rs	2026-10-17 17:12:27.852870534 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/r4_tests.rs	2026-10-19 06:33:46.615740322 -0700
+@@ -85,7 +85,7 @@
+     let sh = llama3_8b();
+     let rp = super::run::RUN_PROFILE_LLAMA3_8B_T32_TRAINED;
+     let mut prov = Provenance::recipe("r4/pin", 5.57e-4, [1; 32], [2; 32]);
+-    let rec = vec![LayerRecord { index: 0, block_digest: [1; 32], word_sha256: [[2; 32]; 9], table_sha256: [[3; 32]; 3], source_tensors: vec![], manifest_sha256: [4; 32], silu_member: (-3, -11), exp_e_s: 1, sh_s: None }];
++    let rec = vec![LayerRecord { index: 0, block_digest: [1; 32], word_sha256: [[2; 32]; 9], table_sha256: [[3; 32]; 3], source_tensors: vec![], manifest_sha256: [4; 32], silu_member: (-3, -11), exp_e_s: 1, own: [None; 11] }];
+     // the TinyLlama base at the 8B profile is refused, the 8B base accepted
+     let e = TrainedModelStatement::new(&sh, rp, pin.clone(), IntegerCalibration::as_the_code_proves(&sh, &prov), rec.clone()).unwrap_err();
+     assert!(e.contains("RoPE base"), "{e}");
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/r6_tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/r6_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/r6_tests.rs	2026-10-17 17:48:06.363802409 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/r6_tests.rs	2026-10-19 06:33:46.616700469 -0700
+@@ -87,7 +87,11 @@
+     let mut prov = Provenance::recipe("native/r6", 1.0 / 512.0, [5; 32], [6; 32]);
+     prov.rope_theta = super::shape::trained_rope_theta(sh.profile).unwrap_or(prov.rope_theta);
+     let cal = IntegerCalibration::as_the_code_proves(sh, &prov);
+-    let recs = blocks.iter().enumerate().map(|(k, b)| LayerRecord { sh_s: own[k], ..LayerRecord::of_block(k as u32, b, vec![]) }).collect();
++    let recs = blocks.iter().enumerate().map(|(k, b)| {
++        let mut o = [None; 11];
++        o[0] = own[k].map(i64::from);
++        LayerRecord { own: o, ..LayerRecord::of_block(k as u32, b, vec![]) }
++    }).collect();
+     let rp = super::trained_calib_tests::run_shape_for(sh, blocks.len()).profile();
+     TrainedModelStatement::new_synthetic_at_trained_profile_for_tests(sh, rp, source(blocks.len()), cal, recs)
+ }
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/r8_tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/r8_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/r8_tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/r8_tests.rs	2026-10-19 06:43:05.460269307 -0700
+@@ -0,0 +1,298 @@
++//! **NATIVE LANE, ROUND 8: EVERY EXPORT-CHOSEN CALIBRATION CONSTANT PER
++//! LAYER** (Victor's ruling D32, fidelity). TEST CODE ONLY. Public synthetic
++//! data only.
++//!
++//! * `Shape::with_layer_calibration`: trained shapes only; each of the eleven
++//!   constants admitted over its declared class (unchanged from R6) and
++//!   refused outside it; the plane list and lookup counts never move, the
++//!   schedule moves only in the lines that print the constants;
++//! * the trained statement records a layer's own constants canonically (one
++//!   label per constant, only where it differs; never equal to the run's)
++//!   and binds each; a run-wide statement encodes as before R6 and an
++//!   `sh_s`-only one as in R6;
++//! * the no-wrap clauses that involve a per-layer constant, over its whole
++//!   class, at all six trained profiles (TinyLlama and Llama-3-8B, T 32 / 64
++//!   / 128): every relation is block-local, so a class-wide bound holds for
++//!   every member a layer may choose;
++//! * a two-block bound run whose block 1 has its own constants in all eleven
++//!   fields: proves, verifies, and a run-wide verifier refuses.
++
++use super::layout::*;
++use super::shape::{NormCalibration, Shape, ONE_LIMB_SHIFT, TRAINED_CEPS_MAX, TRAINED_CN_MAX, TRAINED_SH_AO_MAX, TWO_LIMB_SHIFT};
++use super::trained_statement::*;
++use super::witness::{self, Witness};
++use super::*;
++
++fn rung() -> Shape {
++    Shape::rung_tc(&super::trained_calib_tests::rung_tc_calibration()).expect("the trained-calibration rung")
++}
++
++/// the calibration with field `i` of [`OWN_FIELDS`] set to `v`
++fn with_field(c: &NormCalibration, i: usize, v: i64) -> NormCalibration {
++    let mut own = [None; 11];
++    own[i] = Some(v);
++    apply_own(c, &own).expect("in range")
++}
++
++/// one admissible other value per field at the rung (base tn 10 / cn 1336,
++/// 2158 / ceps 33,554,467 / ao 6 / qkv 8 / score 5 / o 10 / gate 8 /
++/// product 13 / down 5), and values outside each class
++fn admissible_and_refused(i: usize) -> (Vec<i64>, Vec<i64>) {
++    match OWN_FIELDS[i].0 {
++        "sh_s" => (vec![1, 4, 8], vec![0, 9]),
++        // tn: the norm window tn + 1 + bits(D_max) must stay four limbs
++        // (25..=32 bits; bits(D_max) is 20 at width 384) AND on the base's
++        // side of 32: a window of exactly 32 bits needs no scaled top-limb
++        // pin, so the H plane list moves (52 -> 50 at the rung) and the
++        // door refuses tn 11 here by name
++        "norm_tn" => (vec![4, 9], vec![0, 3, 11, 12, 17]),
++        "norm_cn_a" | "norm_cn_m" => (vec![1, 700, TRAINED_CN_MAX], vec![0, -5, TRAINED_CN_MAX + 1]),
++        // ceps moves bits(D_max): 2^40 makes it 21 bits, the window 32, and
++        // the plane list moves (refused by name), as above
++        "norm_ceps" => (vec![1, 16_777_259], vec![0, TRAINED_CEPS_MAX, TRAINED_CEPS_MAX + 1]),
++        "sh_ao" => (vec![0, 5, i64::from(TRAINED_SH_AO_MAX)], vec![i64::from(TRAINED_SH_AO_MAX) + 1]),
++        "sh_qkv" | "sh_g" | "sh_z" => (vec![1, 7], vec![0, 9]),
++        "sh_o" | "sh_h" => (vec![9, 11, 16], vec![8, 17]),
++        other => panic!("an unlisted field {other}"),
++    }
++}
++
++#[test]
++fn with_layer_calibration_admits_each_class_and_refuses_outside_it() {
++    let sh = rung();
++    let base = sh.norm_calibration();
++    let lay = Layout::for_shape(&sh).unwrap();
++    for i in 0..OWN_FIELDS.len() {
++        let (ok, bad) = admissible_and_refused(i);
++        for v in ok {
++            if v == cal_field(&base, i) {
++                continue;
++            }
++            let c = with_field(&base, i, v);
++            let s = sh.with_layer_calibration(&c).unwrap_or_else(|e| panic!("{} {v}: {e}", OWN_FIELDS[i].0));
++            assert_eq!(s.norm_calibration(), c);
++            s.check_constructed().expect("CS-8 rebuild");
++            let l = Layout::for_shape(&s).unwrap();
++            assert_eq!((lay.a_rows, lay.h_rows), (l.a_rows, l.h_rows), "{} {v} moved the layout's counts", OWN_FIELDS[i].0);
++            let (da, db) = (lay.describe(), l.describe());
++            let differ: Vec<usize> = (0..da.len()).filter(|j| da[*j] != db[*j]).collect();
++            // only the lines that print the constants: the calibration line
++            // (norm, qkv, score, o, ao) and the feed-forward line (gate,
++            // product, down); never the A / H / M counts, a slot or a host
++            assert!(!differ.is_empty() && differ.iter().all(|j| da[*j].starts_with("calibration:") || da[*j].starts_with("feed-forward:")), "{} {v} moved a schedule line other than the constants' lines: {differ:?}", OWN_FIELDS[i].0);
++        }
++        for v in bad {
++            let r = apply_own(&base, &{
++                let mut o = [None; 11];
++                o[i] = Some(v);
++                o
++            });
++            match r {
++                Err(_) => {}
++                Ok(c) => {
++                    let e = sh.with_layer_calibration(&c).expect_err(&format!("{} {v} was admitted", OWN_FIELDS[i].0));
++                    assert!(e.contains("class") || e.contains("window") || e.contains("limb") || e.contains("moves the plane list"), "{} {v}: {e}", OWN_FIELDS[i].0);
++                }
++            }
++        }
++    }
++    // all eleven at once (the fully per-layer test's layer 1)
++    let all = NormCalibration { tn: 9, cn_a: 700, cn_m: 1100, ceps: 16_777_259, sh_ao: 7, sh_qkv: 7, sh_s: 6, sh_o: 11, sh_g: 7, sh_h: 14, sh_z: 6 };
++    assert!(own_of(&base, &all).iter().all(|v| v.is_some()), "the all-own calibration does not differ in every field");
++    sh.with_layer_calibration(&all).expect("all eleven own constants");
++    // a frozen shape takes none
++    assert!(Shape::rung_c6().with_layer_calibration(&NormCalibration::FROZEN).unwrap_err().contains("frozen"));
++}
++
++fn source(l: usize) -> ModelSource {
++    ModelSource {
++        kind: SourceKind::PublicSyntheticRecipe,
++        repo: "hashline/private-block/r8-per-layer".into(),
++        revision: "native-round-8".into(),
++        weights_sha256: [0; 32],
++        config_sha256: [0; 32],
++        checkpoint_parameters: 0,
++        checkpoint_layers: l as u32,
++    }
++}
++
++fn statement(sh: &Shape, blocks: &[BlockPublic], own: &[[Option<i64>; 11]]) -> Result<TrainedModelStatement, String> {
++    let mut prov = Provenance::recipe("native/r8", 1.0 / 512.0, [5; 32], [6; 32]);
++    prov.rope_theta = super::shape::trained_rope_theta(sh.profile).unwrap_or(prov.rope_theta);
++    let cal = IntegerCalibration::as_the_code_proves(sh, &prov);
++    let recs = blocks.iter().enumerate().map(|(k, b)| LayerRecord { own: own[k], ..LayerRecord::of_block(k as u32, b, vec![]) }).collect();
++    let rp = super::trained_calib_tests::run_shape_for(sh, blocks.len()).profile();
++    TrainedModelStatement::new_synthetic_at_trained_profile_for_tests(sh, rp, source(blocks.len()), cal, recs)
++}
++
++#[test]
++fn the_statement_records_each_own_constant_canonically_and_binds_it() {
++    let sh = rung();
++    let base = sh.norm_calibration();
++    let (blk, _) = super::trained_calib_tests::trained_dense_block(&sh);
++    let blocks = vec![blk.clone(), blk];
++    let none = statement(&sh, &blocks, &[[None; 11], [None; 11]]).unwrap();
++    let enc = String::from_utf8_lossy(&none.encode()).to_string();
++    assert!(OWN_FIELDS.iter().all(|(_, label, _)| !enc.contains(label)), "a run-wide statement carries a per-layer label");
++    let mut ids = vec![none.identity()];
++    for i in 0..OWN_FIELDS.len() {
++        let (ok, _) = admissible_and_refused(i);
++        let v = ok.into_iter().find(|v| *v != cal_field(&base, i)).unwrap();
++        let mut own = [None; 11];
++        own[i] = Some(v);
++        let st = statement(&sh, &blocks, &[[None; 11], own]).unwrap_or_else(|e| panic!("{} {v}: {e}", OWN_FIELDS[i].0));
++        let enc = String::from_utf8_lossy(&st.encode()).to_string();
++        for (j, (_, label, _)) in OWN_FIELDS.iter().enumerate() {
++            assert_eq!(enc.contains(label), i == j, "field {} put label {label} in the encoding", OWN_FIELDS[i].0);
++        }
++        assert!(!ids.contains(&st.identity()), "{}'s own value does not move the identity", OWN_FIELDS[i].0);
++        ids.push(st.identity());
++        // canonical: the run's own value is refused
++        let mut same = [None; 11];
++        same[i] = Some(cal_field(&base, i));
++        assert!(statement(&sh, &blocks, &[[None; 11], same]).unwrap_err().contains("equals the run's"), "{}", OWN_FIELDS[i].0);
++    }
++    // outside a class: refused at the statement
++    let mut bad = [None; 11];
++    bad[1] = Some(12); // tn 12: a five-limb norm window at width 384
++    assert!(statement(&sh, &blocks, &[[None; 11], bad]).is_err(), "an out-of-class tn was recorded");
++}
++
++/// The requantization host `2^sh out + r - half(sh) - acc`, at its largest
++/// magnitude over the shift window, with `out` in its class, `r` in
++/// `[0, 2^sh)` and `|acc| <= acc_max`.
++fn host(window: std::ops::RangeInclusive<u32>, out_max: i128, acc_max: i128) -> i128 {
++    window.map(|sh| (1i128 << sh) * out_max + ((1i128 << sh) - 1) + (if sh == 0 { 0 } else { 1i128 << (sh - 1) }) + acc_max).max().unwrap()
++}
++
++/// **The no-wrap clauses of every relation a per-layer constant enters, over
++/// its whole class, at all six trained profiles.** Conservative bounds from
++/// the shape's padded extents (int8 entries at magnitude 128, int16 at
++/// 32768): QKV over `d_pad` (sh_qkv 1..=8), score over `head_dim` (sh_s
++/// 1..=8), PV over `t_pad` keys with `p < 2^10` (sh_o 9..=16), AO over
++/// `d_pad` (sh_ao 0..=8, int16 out), gate over `d_pad` (sh_g 1..=8),
++/// product int16 x int16 (sh_h 9..=16, int16 out), down over `f_pad` (sh_z
++/// 1..=8, int16 out); the norm quotient relation `2 x g Cn + D 2^tn -
++/// 2 q D 2^tn - rho` with `Cn <= 2^20`, `D 2^tn < 2^31` (the four-limb window
++/// `tn + 1 + bits(D_max) <= 32`), `rho < 2^32`; the isqrt relation with
++/// `Ceps <= 2^40`. All must stay below p/2 (the relations then hold over the
++/// integers); printed as log2.
++#[test]
++fn the_no_wrap_clauses_hold_over_each_class_at_all_six_trained_profiles() {
++    let half_p = (zkp_core::field::P / 2) as i128;
++    let tl = super::trained_calib_tests::pg_calibration();
++    let l8 = super::trained_calib_tests::llama3_8b_calibration();
++    let shapes = [
++        Shape::tinyllama_trained(32, &tl, 9).unwrap(),
++        Shape::tinyllama_trained(64, &tl, 9).unwrap(),
++        Shape::tinyllama_trained(128, &tl, 9).unwrap(),
++        Shape::llama3_8b_trained(32, &l8, 9).unwrap(),
++        Shape::llama3_8b_trained(64, &l8, 9).unwrap(),
++        Shape::llama3_8b_trained(128, &l8, 9).unwrap(),
++    ];
++    let (i8m, i16m) = (128i128, 32_768i128);
++    let mut worst = 0i128;
++    for s in &shapes {
++        let rows = [
++            ("qkv (sh_qkv)", host(ONE_LIMB_SHIFT, i8m, s.d_pad as i128 * i8m * i8m)),
++            ("score (sh_s)", host(ONE_LIMB_SHIFT, i8m, s.head_dim as i128 * i8m * i8m)),
++            ("pv (sh_o)", host(TWO_LIMB_SHIFT, i8m, s.t_pad as i128 * 1024 * i8m)),
++            ("ao (sh_ao)", host(0..=TRAINED_SH_AO_MAX, i16m, s.d_pad as i128 * i8m * i8m)),
++            ("gate (sh_g)", host(ONE_LIMB_SHIFT, i8m, s.d_pad as i128 * i8m * i8m)),
++            ("product (sh_h)", host(TWO_LIMB_SHIFT, i16m, i16m * i16m)),
++            ("down (sh_z)", host(ONE_LIMB_SHIFT, i16m, s.f_pad as i128 * i16m * i8m)),
++            ("norm quotient (tn, cn, ceps)", 2 * i16m * i8m * i128::from(TRAINED_CN_MAX) + (1i128 << 31) + 2 * 127 * (1i128 << 31) + (1i128 << 32)),
++            ("norm isqrt (ceps)", i128::from(TRAINED_CEPS_MAX) + s.width as i128 * i16m * i16m + 3 * (1i128 << 24)),
++        ];
++        let mut line = format!("R8 no-wrap {}:", s.profile);
++        for (name, v) in rows {
++            assert!(v < half_p, "{}: {name} reaches p/2 ({v})", s.profile);
++            worst = worst.max(v);
++            line.push_str(&format!(" {name} 2^{:.2};", (v as f64).log2()));
++        }
++        eprintln!("{line}");
++    }
++    assert!(worst < 1i128 << 46, "worst clause 2^{:.2}", (worst as f64).log2());
++}
++
++/// two witnesses in order, with block 0's output as the one boundary
++struct Two(Vec<Option<Witness>>, Vec<i16>);
++
++impl super::run::RunWitnessSource for Two {
++    fn witness(&mut self, k: usize) -> Result<Witness, String> {
++        self.0[k].take().ok_or_else(|| "consumed".to_string())
++    }
++    fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String> {
++        if k == 0 {
++            Ok(self.1.clone())
++        } else {
++            Err("one boundary".into())
++        }
++    }
++}
++
++fn plane(w: &Witness, p: usize) -> Vec<i16> {
++    w.planes[p].iter().map(|v| i16::try_from(*v).unwrap()).collect()
++}
++
++fn true_words(sh: &Shape, padded: &[i16]) -> Vec<i16> {
++    (0..sh.tokens).flat_map(|t| padded[t * sh.d_pad..t * sh.d_pad + sh.width].to_vec()).collect()
++}
++
++/// **A two-block bound run with block 1 at its own constants in all eleven
++/// fields** (library level): proves and verifies; a verifier whose statement
++/// drops block 1's own constants refuses.
++#[test]
++fn a_two_block_run_with_block_1_fully_its_own_proves_verifies_and_is_bound() {
++    let sh = rung();
++    let base = sh.norm_calibration();
++    let all = NormCalibration { tn: 9, cn_a: 700, cn_m: 1100, ceps: 16_777_259, sh_ao: 7, sh_qkv: 7, sh_s: 6, sh_o: 11, sh_g: 7, sh_h: 14, sh_z: 6 };
++    let own1 = own_of(&base, &all);
++    let s1 = sh.with_layer_calibration(&all).unwrap();
++    let (w, input) = super::trained_calib_tests::trained_dense_words(&sh, super::trained_calib_tests::TRAINED_BANDS);
++    let mut w1 = w.clone();
++    for (i, m) in w1.iter_mut().enumerate() {
++        let len = m.len();
++        m.rotate_left((7 + i) % len);
++    }
++    let blocks: Vec<BlockPublic> = [w, w1]
++        .iter()
++        .map(|ws| {
++            let (p, f) = super::dense_tests::statement_of_words(&sh, ws);
++            BlockPublic::new(p, f)
++        })
++        .collect();
++    let ids = Ids::new(&sh).unwrap();
++    let w0 = witness::build_shaped(&sh, blocks[0].attention(), blocks[0].feed_forward(), &input).unwrap();
++    let x1 = true_words(&sh, &plane(&w0, ids.at(A_X2)));
++    let wit1 = witness::build_shaped(&s1, blocks[1].attention(), blocks[1].feed_forward(), &x1).expect("block 1's witness at its own constants");
++    let ctx = *blake3::hash(b"native r8: per-layer calibration").as_bytes();
++    let spec = IoSpec::new_shaped(&sh, ctx, 0, 0).unwrap();
++    let (expected, owners) = prepare_endpoints(spec, &plane(&w0, ids.at(A_X)), &plane(&wit1, ids.at(A_X2))).unwrap();
++    let st = super::run::RunStatement::new_bound(super::trained_calib_tests::run_shape_for(&sh, 2), ctx, expected.clone(), &blocks, &[(0, 0), (0, 0)], &statement(&sh, &blocks, &[[None; 11], own1]).unwrap()).unwrap();
++    assert_eq!(st.stage_shape(1).unwrap().norm_calibration(), all);
++    assert_eq!(st.stage_shape(0).unwrap().norm_calibration(), base);
++    let boundary = plane(&w0, ids.at(A_X2));
++    let mut segs = Vec::new();
++    super::run::prove_run(&st, &blocks, &mut Two(vec![Some(w0), Some(wit1)], boundary), owners, &mut |_, b| {
++        segs.push(b);
++        Ok(())
++    })
++    .expect("the fully per-layer run proves");
++    let verify = |own: [Option<i64>; 11]| -> Result<(), String> {
++        let e = ExpectedIo::from_bytes_at(&sh, &expected.to_bytes())?;
++        let st = super::run::RunStatement::new_bound(super::trained_calib_tests::run_shape_for(&sh, 2), ctx, e, &blocks, &[(0, 0), (0, 0)], &statement(&sh, &blocks, &[[None; 11], own])?)?;
++        super::run::verify_run(&st, &blocks, &segs)
++    };
++    verify(own1).expect("the fully per-layer run verifies");
++    assert!(verify([None; 11]).is_err(), "a run proved with block 1 at its own constants VERIFIED under a run-wide statement");
++    // and with only the shifts, or only the norm constants, of block 1
++    let mut shifts_only = own1;
++    for i in 1..=4 {
++        shifts_only[i] = None;
++    }
++    assert!(verify(shifts_only).is_err(), "VERIFIED with block 1's norm constants dropped");
++    let mut norm_only = [None; 11];
++    norm_only[1..=4].copy_from_slice(&own1[1..=4]);
++    assert!(verify(norm_only).is_err(), "VERIFIED with block 1's shifts dropped");
++}
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/review_d24_tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/review_d24_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/review_d24_tests.rs	2026-10-17 17:12:27.853097380 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/review_d24_tests.rs	2026-10-19 06:33:46.616326565 -0700
+@@ -206,7 +206,7 @@
+     let tsh = Shape::tinyllama_t32_trained(&pg(), 9).unwrap();
+     let cal = IntegerCalibration::as_the_code_proves(&tsh, &prov);
+     // a hand-made record (the statement's own checks never open a block)
+-    let rec = vec![LayerRecord { index: 0, block_digest: [1; 32], word_sha256: [[2; 32]; 9], table_sha256: [[3; 32]; 3], source_tensors: vec![], manifest_sha256: [4; 32], silu_member: (-3, -11), exp_e_s: 1, sh_s: None }];
++    let rec = vec![LayerRecord { index: 0, block_digest: [1; 32], word_sha256: [[2; 32]; 9], table_sha256: [[3; 32]; 3], source_tensors: vec![], manifest_sha256: [4; 32], silu_member: (-3, -11), exp_e_s: 1, own: [None; 11] }];
+     let rp = super::run::RUN_PROFILE_TINYLLAMA_T32_TRAINED;
+     TrainedModelStatement::new(&tsh, rp, ModelSource::tinyllama_chat_v1_0(), cal.clone(), rec.clone()).expect("the pinned checkpoint at the trained TinyLlama profile");
+     let mut other = ModelSource::tinyllama_chat_v1_0();
+@@ -532,7 +532,7 @@
+     let tsh = Shape::tinyllama_t32_trained(&pg(), 9).unwrap();
+     let prov = Provenance::recipe("re-review/r2-b", 1.0, [1; 32], [2; 32]);
+     let cal = IntegerCalibration::as_the_code_proves(&tsh, &prov);
+-    let rec = vec![LayerRecord { index: 0, block_digest: [1; 32], word_sha256: [[2; 32]; 9], table_sha256: [[3; 32]; 3], source_tensors: vec![], manifest_sha256: [4; 32], silu_member: (-3, -11), exp_e_s: 1, sh_s: None }];
++    let rec = vec![LayerRecord { index: 0, block_digest: [1; 32], word_sha256: [[2; 32]; 9], table_sha256: [[3; 32]; 3], source_tensors: vec![], manifest_sha256: [4; 32], silu_member: (-3, -11), exp_e_s: 1, own: [None; 11] }];
+     let rp = super::run::RUN_PROFILE_TINYLLAMA_T32_TRAINED;
+     let mut st = TrainedModelStatement::new(&tsh, rp, ModelSource::tinyllama_chat_v1_0(), cal.clone(), rec.clone()).unwrap();
+     st.check_against(&tsh, rp, &[[1; 32]], &[(0, 0)]).expect("the honest statement");
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/run.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/run.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/run.rs	2026-10-17 17:43:29.968613929 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/run.rs	2026-10-19 06:32:57.303153107 -0700
+@@ -265,12 +265,13 @@
+     /// `k + 1`'s declared input scale. There is no second place to declare it.
+     boundary_scales: Vec<i32>,
+     calibration: Digest,
+-    /// **NATIVE R6: each stage's softmax score shift** — the run shape's
+-    /// `sh_s` for every stage of a run-wide calibration, and a trained
+-    /// layer's own value where its record carries one (`LayerRecord::sh_s`,
+-    /// bound by the trained identity the header absorbs). Stage `k` is
+-    /// proved and verified at [`RunStatement::stage_shape`]`(k)`.
+-    stage_sh_s: Vec<u32>,
++    /// **NATIVE R8 (R6 for `sh_s`): each stage's calibration** — the run
++    /// shape's for every stage of a run-wide calibration, and a trained
++    /// layer's own constants applied where its record carries any
++    /// (`LayerRecord::own`, bound by the trained identity the header
++    /// absorbs). Stage `k` is proved and verified at
++    /// [`RunStatement::stage_shape`]`(k)`.
++    stage_cal: Vec<super::shape::NormCalibration>,
+ }
+ 
+ impl RunStatement {
+@@ -339,13 +340,16 @@
+         let approved = model.calibration.block_scales;
+         let n = digests.len();
+         let mut st = Self::new_with_calibration(rs, context, expected, digests, n, block_scales, model.identity(), approved)?;
+-        // NATIVE R6: a layer's own score shift, each validated at the trained
+-        // door (`Shape::with_score_shift`: the one-limb window, CS-8's
+-        // rebuild, the trained class)
++        // NATIVE R8 (R6 for sh_s): a layer's own constants, its whole
++        // calibration validated at the trained door
++        // (`Shape::with_layer_calibration`: every class, the plane list
++        // unmoved, CS-8's rebuild, the trained class)
++        let base = st.rs.sh.norm_calibration();
+         for (k, r) in model.layers.iter().enumerate() {
+-            if let Some(v) = r.sh_s {
+-                st.rs.sh.with_score_shift(v).map_err(|e| format!("private run: layer {}'s own score shift: {e}", r.index))?;
+-                st.stage_sh_s[k] = v;
++            if super::trained_statement::has_own(&r.own) {
++                let cal = super::trained_statement::apply_own(&base, &r.own).map_err(|e| format!("private run: layer {}: {e}", r.index))?;
++                st.rs.sh.with_layer_calibration(&cal).map_err(|e| format!("private run: layer {}'s own calibration: {e}", r.index))?;
++                st.stage_cal[k] = cal;
+             }
+         }
+         Ok(st)
+@@ -401,8 +405,8 @@
+             }
+         }
+         let boundary_scales: Vec<i32> = (0..rs.l - 1).map(|k| block_scales[k].1).collect();
+-        let stage_sh_s = vec![rs.sh.sh_s; rs.l];
+-        let st = RunStatement { rs, expected, block_digests, context, boundary_scales, calibration, stage_sh_s };
++        let stage_cal = vec![rs.sh.norm_calibration(); rs.l];
++        let st = RunStatement { rs, expected, block_digests, context, boundary_scales, calibration, stage_cal };
+         // **STAGE 16, ruling T-3.** `Layout::for_shape` has already checked
+         // `A`, `H`, `M` and the external endpoint against the BLOCK's set of
+         // hash-input lengths. A run absorbs one word no block does — its own
+@@ -500,21 +504,33 @@
+             if k + 1 == l { ", then the external output endpoint" } else { "" },
+         ))
+         .map(|s: String| format!("{s}; data rows {d}"))
+-        // NATIVE R6: a stage whose layer has its own score shift says so in
+-        // its schedule line (and so in the schedule digest the header
+-        // absorbs); a run-wide run's lines are what they were
+-        .map(|s| if self.stage_sh_s[k] != self.rs.sh.sh_s { format!("{s}; score shift {} (the layer's own; the run's is {})", self.stage_sh_s[k], self.rs.sh.sh_s) } else { s })
++        // NATIVE R8 (R6 for sh_s): a stage whose layer has its own constants
++        // says so in its schedule line, one clause per constant in the
++        // canonical order (and so in the schedule digest the header absorbs);
++        // a run-wide run's lines are what they were, and an sh_s-only clause
++        // is R6's text
++        .map(|s| {
++            let base = self.rs.sh.norm_calibration();
++            let mut s = s;
++            for (i, (_, _, label)) in super::trained_statement::OWN_FIELDS.iter().enumerate() {
++                let (v, b) = (super::trained_statement::cal_field(&self.stage_cal[k], i), super::trained_statement::cal_field(&base, i));
++                if v != b {
++                    s.push_str(&format!("; {label} {v} (the layer's own; the run's is {b})"));
++                }
++            }
++            s
++        })
+     }
+ 
+-    /// **NATIVE R6: the shape stage `k` is proved and verified at** — the run
+-    /// shape, or (a layer with its own score shift) the same shape with that
+-    /// `sh_s`, rebuilt through the trained door
++    /// **NATIVE R8 (R6 for sh_s): the shape stage `k` is proved and verified
++    /// at** — the run shape, or (a layer with its own constants) the same
++    /// shape with that layer's calibration, rebuilt through the trained door
+     pub(crate) fn stage_shape(&self, k: usize) -> Result<Shape, String> {
+-        let v = *self.stage_sh_s.get(k).ok_or_else(|| format!("private run: no stage {k}"))?;
+-        if v == self.rs.sh.sh_s {
++        let cal = *self.stage_cal.get(k).ok_or_else(|| format!("private run: no stage {k}"))?;
++        if cal == self.rs.sh.norm_calibration() {
+             Ok(self.rs.sh.clone())
+         } else {
+-            self.rs.sh.with_score_shift(v)
++            self.rs.sh.with_layer_calibration(&cal)
+         }
+     }
+ 
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/shape.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/shape.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/shape.rs	2026-10-17 17:42:52.188152206 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/shape.rs	2026-10-19 06:31:56.957545390 -0700
+@@ -1476,24 +1476,49 @@
+ 
+     /// **NATIVE R6: the same trained shape with ANOTHER SCORE SHIFT** — the
+     /// shape a run's stage is proved at when its layer declares its own
+-    /// `sh_s` (a per-layer export constant, like the exp `e_s` and the SiLU
+-    /// member). Only a trained-calibration shape; the value must lie in the
+-    /// one-limb window (the plane list and lookup counts do not move inside
+-    /// it: only the `scaled(rsl, 2^(8 - sh_s))` coefficient and the score
+-    /// host relation's `2^sh_s` / `2^(sh_s - 1)` constants); the result passes
+-    /// CS-8's rebuild through the door and the trained class check, so every
+-    /// derived window is the door's.
++    /// `sh_s`. Since NATIVE R8 a special case of
++    /// [`Shape::with_layer_calibration`] (the other ten constants the run's).
+     pub(crate) fn with_score_shift(&self, sh_s: u32) -> Result<Shape, String> {
++        self.with_layer_calibration(&NormCalibration { sh_s, ..self.norm_calibration() })
++    }
++
++    /// **NATIVE R8: the same trained shape with A LAYER'S OWN CALIBRATION**
++    /// (any of the eleven export-chosen constants: the norm's `tn`, `cn_a`,
++    /// `cn_m`, `ceps` and the seven requant shifts) — the shape a run's stage
++    /// is proved at when its layer declares its own values. Only a
++    /// trained-calibration shape. Every value must lie in its DECLARED class,
++    /// unchanged from R6 ([`NormCalibration::derive_at_width`]: the norm
++    /// classes, a four-limb norm window, `sh_ao <= 8`, each shift in its
++    /// structure-preserving window); then the plane list and the lookup counts
++    /// do not move (`Ids` / `HIds` are rebuilt and must equal this shape's),
++    /// only coefficients and host constants do; the result passes CS-8's
++    /// rebuild through the door and the trained class check.
++    pub(crate) fn with_layer_calibration(&self, cal: &NormCalibration) -> Result<Shape, String> {
+         if !self.trained_calibration {
+-            return Err(format!("private block shape: {} is not a trained-calibration shape; its score shift is frozen", self.profile));
+-        }
+-        if !ONE_LIMB_SHIFT.contains(&sh_s) {
+-            return Err(format!("trained calibration: a per-layer sh_s {sh_s} is outside its structure-preserving window {ONE_LIMB_SHIFT:?}"));
++            return Err(format!("private block shape: {} is not a trained-calibration shape; its calibration is frozen", self.profile));
+         }
++        let (d_max, wrho) = cal.derive_at_width(self.width)?;
+         let mut s = self.clone();
+-        s.sh_s = sh_s;
++        s.norm_tn = cal.tn;
++        s.norm_cn_a = cal.cn_a;
++        s.norm_cn_m = cal.cn_m;
++        s.norm_ceps = cal.ceps;
++        s.sh_ao = cal.sh_ao;
++        s.sh_qkv = cal.sh_qkv;
++        s.sh_s = cal.sh_s;
++        s.sh_o = cal.sh_o;
++        s.sh_g = cal.sh_g;
++        s.sh_h = cal.sh_h;
++        s.sh_z = cal.sh_z;
++        s.norm_wrho = wrho;
++        s.d_max = d_max;
+         s.check_constructed()?;
+         s.check_trained_class()?;
++        let (a, b) = (super::layout::Ids::new(self)?, super::layout::Ids::new(&s)?);
++        let (ha, hb) = (super::layout::HIds::new(self)?, super::layout::HIds::new(&s)?);
++        if a.n_a() != b.n_a() || (a.ln, a.ls, a.lp) != (b.ln, b.ls, b.lp) || ha.n_h() != hb.n_h() {
++            return Err(format!("private block shape: a layer calibration of {} moves the plane list (A {} -> {}, H {} -> {}); a per-layer constant may change coefficients only", self.profile, a.n_a(), b.n_a(), ha.n_h(), hb.n_h()));
++        }
+         Ok(s)
+     }
+ 
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/trained_block.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/trained_block.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/trained_block.rs	2026-10-19 02:32:28.436029961 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/trained_block.rs	2026-10-19 06:33:32.148373542 -0700
+@@ -42,7 +42,7 @@
+ use super::layout::{Ids, A_X, A_X2, F_RO};
+ use super::run::{self, RunShape, RunStatement, RunWitnessSource, RUN_PROFILE_RUNG_TC, RUN_PROFILE_TINYLLAMA_T32_TRAINED};
+ use super::shape::{NormCalibration, Shape};
+-use super::trained_statement::{IntegerCalibration, LayerRecord, ModelSource, Provenance, SourceKind, TrainedModelStatement};
++use super::trained_statement::{apply_own, cal_field, has_own, own_of, IntegerCalibration, LayerRecord, ModelSource, Provenance, SourceKind, TrainedModelStatement, OWN_FIELDS};
+ use super::witness::{self, Witness};
+ use super::{prepare_endpoints, AttentionPublic, BlockPublic, ExpectedIo, FeedForwardPublic, IoSpec};
+ use crate::merkle::Digest;
+@@ -818,41 +818,60 @@
+         Ok((mpath, mbytes, m))
+     }
+ 
+-    /// **NATIVE R6: does this export name `sh_s` per layer?** (`profile.json`
+-    /// lists it in `per_layer_constants_differ`, with `null` in
+-    /// `profile_constants`, as it already does for the table keys.)
+-    pub(crate) fn sh_s_per_layer(&self) -> bool {
+-        self.per_layer_differ.iter().any(|k| k == "sh_s")
++    /// **NATIVE R8 (R6 for `sh_s`): which of the eleven calibration
++    /// constants ([`OWN_FIELDS`]) this export names per layer** — the indices
++    /// of those `profile.json` lists in `per_layer_constants_differ` (with
++    /// `null` in `profile_constants`, as it already does for the table keys).
++    pub(crate) fn per_layer_cal_fields(&self) -> Vec<usize> {
++        (0..OWN_FIELDS.len()).filter(|i| self.per_layer_differ.iter().any(|k| k == OWN_FIELDS[*i].0)).collect()
++    }
++
++    /// a calibration with every per-layer field set to `base`'s
++    fn masked(&self, c: &Constants, base: &NormCalibration) -> Result<Constants, String> {
++        let fields = self.per_layer_cal_fields();
++        let mut own = [None; 11];
++        for i in fields {
++            own[i] = Some(cal_field(base, i));
++        }
++        Ok(Constants { cal: apply_own(&c.cal, &own)?, ..c.clone() })
+     }
+ 
+     /// **The ONE calibration of a run over `layers`.** The profile's uniform
+     /// constants, or, where the writer marked some per-layer, the layers'
+     /// own manifest constants — which must then agree across the run (a run
+     /// has one shape). Every layer's manifest constants must equal the result.
++    ///
++    /// NATIVE R8 (R6 for `sh_s`): with per-layer calibration fields, the
++    /// RUN's calibration is the one most of the run's layers carry in those
++    /// fields together (ties: the smallest in the canonical [`OWN_FIELDS`]
++    /// order, `sh_s` first — so an `sh_s`-only export gets R6's base); each
++    /// other layer records its differing fields (`LayerRecord::own`). Every
++    /// other run-level constant must agree across the run's layers, as before.
+     pub(crate) fn run_constants(&self, layers: &[u32]) -> Result<Constants, String> {
+         let mut out = self.constants.clone();
+-        // NATIVE R6: with a per-layer `sh_s` the RUN's value is the one most
+-        // of the run's layers carry (ties: the smaller); the others are
+-        // recorded per layer (`LayerRecord::sh_s`). Every other run-level
+-        // constant must agree across the run's layers, as before.
+-        let base_sh_s: Option<u32> = if self.sh_s_per_layer() && out.is_none() {
+-            let mut counts: std::collections::BTreeMap<u32, usize> = std::collections::BTreeMap::new();
+-            for &l in layers {
+-                let (mpath, _, m) = self.manifest(l)?;
+-                let c = constants_of(m.get("constants").map_err(|e| format!("{}: {e}", mpath.display()))?, &mpath.display().to_string(), self.geometry.rope_theta())?;
+-                *counts.entry(c.cal.sh_s).or_default() += 1;
++        let fields = self.per_layer_cal_fields();
++        let mut all: Vec<(PathBuf, Constants)> = Vec::with_capacity(layers.len());
++        for &l in layers {
++            let (mpath, _, m) = self.manifest(l)?;
++            let c = constants_of(m.get("constants").map_err(|e| format!("{}: {e}", mpath.display()))?, &mpath.display().to_string(), self.geometry.rope_theta())?;
++            all.push((mpath, c));
++        }
++        let base: Option<NormCalibration> = if !fields.is_empty() && out.is_none() {
++            let key = |c: &NormCalibration| -> Vec<i64> { fields.iter().map(|i| cal_field(c, *i)).collect() };
++            let mut counts: std::collections::BTreeMap<Vec<i64>, (usize, NormCalibration)> = std::collections::BTreeMap::new();
++            for (_, c) in &all {
++                counts.entry(key(&c.cal)).or_insert((0, c.cal)).0 += 1;
+             }
+-            let best = counts.values().copied().max().unwrap_or(0);
+-            counts.iter().find(|(_, n)| **n == best).map(|(v, _)| *v)
++            let best = counts.values().map(|(n, _)| *n).max().unwrap_or(0);
++            counts.values().find(|(n, _)| *n == best).map(|(_, c)| *c)
+         } else {
+             None
+         };
+-        for &l in layers {
+-            let (mpath, _, m) = self.manifest(l)?;
+-            let mut c = constants_of(m.get("constants").map_err(|e| format!("{}: {e}", mpath.display()))?, &mpath.display().to_string(), self.geometry.rope_theta())?;
+-            if let Some(b) = base_sh_s {
+-                c.cal.sh_s = b;
+-            }
++        for (mpath, c) in &all {
++            let c = match &base {
++                Some(b) => self.masked(c, b)?,
++                None => c.clone(),
++            };
+             match &out {
+                 Some(o) if *o != c => {
+                     return Err(format!(
+@@ -908,21 +927,18 @@
+             return Err(ctx(format!("the manifest is for layer {mi}, not {index}")));
+         }
+         let lc = constants_of(m.get("constants").map_err(ctx)?, &mpath.display().to_string(), self.geometry.rope_theta())?;
+-        // NATIVE R6: a profile that names `sh_s` per layer lets this layer's
+-        // score shift differ from the run's; every other constant is the
+-        // run's (one calibration per run)
+-        let layer_sh_s = lc.cal.sh_s;
+-        let lc_run = if self.sh_s_per_layer() { Constants { cal: NormCalibration { sh_s: c.cal.sh_s, ..lc.cal }, ..lc.clone() } } else { lc.clone() };
++        // NATIVE R8 (R6 for sh_s): a profile that names calibration fields
++        // per layer lets this layer's values of THOSE fields differ from the
++        // run's; every other constant is the run's (one calibration per run)
++        let lc_run = self.masked(&lc, &c.cal).map_err(ctx)?;
+         if lc_run != *c {
+             return Err(ctx("this layer's constants are not the run's (one calibration per run)".into()));
+         }
+-        let own_sh_s = if layer_sh_s != c.cal.sh_s {
+-            // validated per layer at the trained door
+-            sh.with_score_shift(layer_sh_s).map_err(|e| ctx(format!("layer {index}'s own sh_s: {e}")))?;
+-            Some(layer_sh_s)
+-        } else {
+-            None
+-        };
++        let own = own_of(&c.cal, &lc.cal);
++        if has_own(&own) {
++            // the layer's whole calibration, validated at the trained door
++            sh.with_layer_calibration(&lc.cal).map_err(|e| ctx(format!("layer {index}'s own calibration: {e}")))?;
++        }
+         // the per-block table keys: this layer's own
+         let tk = table_keys_of(m.get("constants").map_err(ctx)?, &mpath.display().to_string())?;
+         if sh.norm_calibration() != c.cal || sh.f_e != c.f_e {
+@@ -1041,7 +1057,7 @@
+         record.manifest_sha256 = manifest_sha256;
+         record.silu_member = tk.silu;
+         record.exp_e_s = tk.exp_e_s;
+-        record.sh_s = own_sh_s;
++        record.own = own;
+         let _ = (wq.sha256, exp.sha256);
+         Ok(TrainedLayer { index, manifest_sha256, blk, record, rope_note })
+     }
+@@ -2032,7 +2048,7 @@
+     let (mut kept_bytes, mut load_s, mut witness_s) = (0u64, 0.0f64, 0.0f64);
+     let mut first: Option<Vec<i16>> = None;
+     let mut shapes: Vec<Shape> = Vec::with_capacity(l);
+-    let mut lays: Vec<(u32, super::layout::Layout)> = Vec::new();
++    let mut lays: Vec<(NormCalibration, super::layout::Layout)> = Vec::new();
+     let mut x = x_in0.clone();
+     let timed_load = |k: usize| -> (Result<TrainedLayer, String>, f64) {
+         let t = Instant::now();
+@@ -2045,11 +2061,9 @@
+         load_s += ls;
+         let cur = cur?;
+         let layer = layers[k];
+-        // NATIVE R6: the block's witness at its layer's own score shift
+-        let ssh = match cur.record.sh_s {
+-            Some(v) => sh.with_score_shift(v)?,
+-            None => sh.clone(),
+-        };
++        // NATIVE R8 (R6 for sh_s): the block's witness at its layer's own
++        // calibration
++        let ssh = if has_own(&cur.record.own) { sh.with_layer_calibration(&apply_own(&sh.norm_calibration(), &cur.record.own)?)? } else { sh.clone() };
+         let ((wres, ws), nxt) = rayon::join(
+             || {
+                 let t = Instant::now();
+@@ -2065,10 +2079,10 @@
+         // refusal on the sealed witness, here in the sealing pass, so that no
+         // refusal of an admissible-looking chain is left to `prove_core`
+         // mid-run (H-1 as a fact of the code). One layout per score shift.
+-        let lay = match lays.iter().position(|(v, _)| *v == ssh.sh_s) {
++        let lay = match lays.iter().position(|(v, _)| *v == ssh.norm_calibration()) {
+             Some(i) => &lays[i].1,
+             None => {
+-                lays.push((ssh.sh_s, super::layout::Layout::for_shape(&ssh)?));
++                lays.push((ssh.norm_calibration(), super::layout::Layout::for_shape(&ssh)?));
+                 &lays[lays.len() - 1].1
+             }
+         };
+@@ -2405,8 +2419,10 @@
+     let recs: Vec<String> = layers
+         .iter()
+         .map(|l| {
+-            // NATIVE R6: a layer's own score shift, when it has one
+-            let own = l.record.sh_s.map(|v| format!(", \"sh_s\": {v}")).unwrap_or_default();
++            // NATIVE R8 (R6 for sh_s): a layer's own constants, when it has
++            // any, under their export keys in the canonical order (`sh_s`
++            // first, so an sh_s-only record renders as in R6)
++            let own: String = l.record.own.iter().enumerate().filter_map(|(i, v)| v.map(|v| format!(", \"{}\": {v}", OWN_FIELDS[i].0))).collect();
+             format!("{{\"layer\": {}, \"block_digest\": {}, \"manifest_sha256\": {}, \"silu_member\": [{}, {}], \"exp_e_s\": {}{own}}}", l.index, js(&hex(&l.record.block_digest)), js(&hex(&l.manifest_sha256)), l.record.silu_member.0, l.record.silu_member.1, l.record.exp_e_s)
+         })
+         .collect();
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/trained_stack_tests.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/trained_stack_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/trained_stack_tests.rs	2026-10-19 02:32:58.681136225 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/trained_stack_tests.rs	2026-10-19 06:34:38.930105196 -0700
+@@ -81,6 +81,23 @@
+ /// writes for a per-layer score shift.
+ fn write_stack_export_with(dir: &Path, variant: &str, n: usize, per_layer_sh_s: Option<&dyn Fn(usize) -> u32>) -> PathBuf {
+     let cal = super::trained_calib_tests::rung_tc_calibration();
++    match per_layer_sh_s {
++        Some(f) => write_stack_export_cal(dir, variant, n, Some(&|k| super::shape::NormCalibration { sh_s: f(k), ..cal })),
++        None => write_stack_export_cal(dir, variant, n, None),
++    }
++}
++
++/// **NATIVE R8: the same with a PER-LAYER CALIBRATION** — `per_layer_cal`
++/// names each layer's whole calibration (any of the eleven constants may
++/// differ); every layer's `x_out` is the INDEPENDENT reference kernel's at
++/// that layer's constants (cross-checked against the native witness here,
++/// and again by `stack-prove`'s parity); `profile.json` names per layer
++/// exactly the constants that vary across the layers (`null` in
++/// `profile_constants`, listed in `per_layer_constants_differ`), and each
++/// manifest carries its layer's values — the export format the calibration
++/// and fidelity lanes write.
++fn write_stack_export_cal(dir: &Path, variant: &str, n: usize, per_layer_cal: Option<&dyn Fn(usize) -> super::shape::NormCalibration>) -> PathBuf {
++    let cal = super::trained_calib_tests::rung_tc_calibration();
+     let sh = Shape::rung_tc(&cal).unwrap();
+     let ids = Ids::new(&sh).unwrap();
+     let (w0, mut x) = super::trained_calib_tests::trained_dense_words(&sh, super::trained_calib_tests::TRAINED_BANDS);
+@@ -99,16 +116,15 @@
+         }
+         let (e_s, silu) = keys(k);
+         let (public, ff, exp, act) = statement_with_tables(&sh, &w, e_s, silu);
+-        let lsh_s = per_layer_sh_s.map(|f| f(k)).unwrap_or(cal.sh_s);
+-        let lsh = if lsh_s == cal.sh_s { sh.clone() } else { sh.with_score_shift(lsh_s).unwrap() };
+-        let lcal = super::shape::NormCalibration { sh_s: lsh_s, ..cal };
++        let lcal = per_layer_cal.map(|f| f(k)).unwrap_or(cal);
++        let lsh = if lcal == cal { sh.clone() } else { sh.with_layer_calibration(&lcal).unwrap_or_else(|e| panic!("layer {k}: its calibration at the door: {e}")) };
+         let wit = witness::build_shaped(&lsh, &public, &ff, &x).unwrap_or_else(|e| panic!("layer {k}: the honest chained witness: {e}"));
+         let mut x_out: Vec<i16> = (0..sh.tokens).flat_map(|t| (0..sh.width).map(move |i| (t, i))).map(|(t, i)| wit.planes[ids.at(A_X2)][t * sh.d_pad + i] as i16).collect();
+-        if per_layer_sh_s.is_some() {
++        if per_layer_cal.is_some() {
+             // the export's x_out is the INDEPENDENT reference's (the parity
+             // reference), and it must equal the native witness's output
+             let reference = kernel_out(&lsh, &w, &x, &exp, &act);
+-            assert_eq!(x_out, reference, "layer {k} (sh_s {lsh_s}): the native witness and the reference kernel disagree");
++            assert_eq!(x_out, reference, "layer {k} ({}): the native witness and the reference kernel disagree", lcal.describe());
+             x_out = reference;
+         }
+         let ldir = vdir.join(format!("layer_{k:02}"));
+@@ -148,9 +164,16 @@
+     // the profile: run-level constants uniform, the table keys per layer
+     let mut pc = constants(&cal, sh.f_e, 0, (-3, -11)).replace("\"silu_member\": [-3, -11]", "\"silu_member\": null").replace("\"exp_e_s\": 0", "\"exp_e_s\": null");
+     let mut differ = "\"exp_e_s\", \"silu_member\"".to_string();
+-    if per_layer_sh_s.is_some() {
+-        pc = pc.replace(&format!("\"sh_s\": {}", cal.sh_s), "\"sh_s\": null");
+-        differ.push_str(", \"sh_s\"");
++    if let Some(f) = per_layer_cal {
++        for (i, (key, _, _)) in super::trained_statement::OWN_FIELDS.iter().enumerate() {
++            let v0 = super::trained_statement::cal_field(&cal, i);
++            if (0..n).any(|k| super::trained_statement::cal_field(&f(k), i) != v0) {
++                let before = pc.clone();
++                pc = pc.replace(&format!("\"{key}\": {v0}"), &format!("\"{key}\": null"));
++                assert_ne!(before, pc, "{key} is not in the profile constants");
++                differ.push_str(&format!(", \"{key}\""));
++            }
++        }
+     }
+     let profile = format!(
+         "{{\"schema\": \"zk60-trained-profile-export/1\", \"kind\": \"profile\", \"variant\": \"{variant}\", \"geometry\": \"rung-tc-t32-dev\", \"model\": {{\"repo\": \"synthetic/native-stack-export\", \"revision\": \"native-round-2\", \"sha256\": \"{}\"}}, \"calibration_tool\": {{\"path\": \"native-lane\", \"sha256\": {{\"trained_stack_tests.rs\": \"{}\"}}}}, \"T\": 32, \"profile_constants\": {pc}, \"per_layer_constants_differ\": [{differ}], \"layers\": [{}], \"sequences\": [\"seq_s0\"]}}\n",
+@@ -634,3 +657,75 @@
+     }
+     let _ = std::fs::remove_dir_all(&dir);
+ }
++
++/// NATIVE R8: the fully per-layer test's calibrations — layers 0 and 3 at the
++/// rung's (the run base, by majority), layer 1 with ALL ELEVEN constants its
++/// own, layer 2 with another seven of its own; each inside its class (the
++/// norm window stays four limbs: tn 9 / 10 at width 384), and the scale
++/// `cn / 2^tn` kept close so every int8 class stays unsaturated
++fn r8_layer_cal(k: usize) -> super::shape::NormCalibration {
++    let base = super::trained_calib_tests::rung_tc_calibration();
++    match k {
++        1 => super::shape::NormCalibration { tn: 9, cn_a: 700, cn_m: 1100, ceps: 16_777_259, sh_ao: 7, sh_qkv: 7, sh_s: 6, sh_o: 11, sh_g: 7, sh_h: 14, sh_z: 6 },
++        2 => super::shape::NormCalibration { cn_a: 1250, cn_m: 2050, ceps: 50_000_017, sh_ao: 5, sh_s: 4, sh_h: 14, sh_z: 6, ..base },
++        _ => base,
++    }
++}
++
++/// **NATIVE R8: A FULLY PER-LAYER CALIBRATION.** Four chained layers whose
++/// calibrations differ in all eleven export-chosen constants (layer 1 has all
++/// eleven of its own; layer 2 seven; layers 0 and 3 are the run base), each
++/// layer's `x_out` the INDEPENDENT reference kernel's at that layer's
++/// constants. The production CLI proves them as ONE bound run with parity
++/// bit-exact at every layer (so every native witness equals the reference at
++/// its own constants); the statement records exactly the own constants; the
++/// fresh-process verifier accepts with every run-level control refusing and
++/// publishes; and for EACH of layer 1's eleven constants, a verifier whose
++/// export says that one constant is the run's — same words and digests, its
++/// own statement pinned — is refused by the run binding.
++#[test]
++fn r8_a_fully_per_layer_calibration_proves_verifies_and_every_constant_is_bound() {
++    let dir = base_dir("stack-r8");
++    let vdir = write_stack_export_cal(&dir, "stack-r8", 4, Some(&r8_layer_cal));
++    let s = |v: &[&str]| -> Vec<String> { v.iter().map(|x| x.to_string()).collect() };
++    let vd = vdir.display().to_string();
++    let p = std::fs::read_to_string(vdir.join("profile.json")).unwrap();
++    for (key, _, _) in super::trained_statement::OWN_FIELDS {
++        assert!(p.contains(&format!("\"{key}\": null")) && p.contains(&format!("\"{key}\"")), "{key} is not named per layer: {p}");
++    }
++    let vc = super::trained_block_tests::verifier_copy(&vdir);
++    let vcd = vc.display().to_string();
++    let out = dir.join("run");
++    let od = out.display().to_string();
++    assert_eq!(trained_stack_prove_command(&s(&["--export", &vd, "--seq", "s0", "--out", &od, "--witness-cache-gib", "0"])), 0, "stack-prove of the fully per-layer export failed");
++    let stmt = std::fs::read_to_string(dir.join("run.unverified-statement").join("statement.json")).unwrap();
++    let base = super::trained_calib_tests::rung_tc_calibration();
++    let l1 = r8_layer_cal(1);
++    let own1: String = super::trained_statement::OWN_FIELDS.iter().enumerate().map(|(i, (key, _, _))| format!(", \"{key}\": {}", super::trained_statement::cal_field(&l1, i))).collect();
++    assert!(stmt.contains(&format!("\"exp_e_s\": 1{own1}}}")), "layer 1's eleven own constants are not in statement.json: {stmt}");
++    assert!(stmt.contains(&format!("\"norm_tn\": {}, \"norm_cn_a\": {}", base.tn, base.cn_a)), "the run's calibration is not the base: {stmt}");
++    let id = stmt.split("\"trained_statement_identity\": \"").nth(1).unwrap().split('"').next().unwrap().to_string();
++    assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &od, "--expect-statement", &id, "--controls"])), 0, "stack-verify of the fully per-layer run failed");
++    assert!(out.join("statement").join("statement.json").exists(), "the verified statement was not published");
++    // the binding, one constant at a time: layer 1's manifest says the run's
++    // value for that constant only; the export's own statement is pinned, so
++    // a refusal is the run binding's
++    let m1 = vc.join("layer_01").join("manifest.json");
++    let m = std::fs::read_to_string(&m1).unwrap();
++    for (i, (key, _, _)) in super::trained_statement::OWN_FIELDS.iter().enumerate() {
++        let flat = vc.with_file_name(format!("stack-r8-flat-{key}"));
++        super::trained_block_tests::copy_tree_for_tests(&vc, &flat);
++        let (own_v, base_v) = (super::trained_statement::cal_field(&l1, i), super::trained_statement::cal_field(&base, i));
++        let m_flat = m.replace(&format!("\"{key}\": {own_v},"), &format!("\"{key}\": {base_v},"));
++        assert_ne!(m_flat, m, "{key} is not in layer 1's manifest");
++        std::fs::write(flat.join("layer_01").join("manifest.json"), &m_flat).unwrap();
++        let pf = std::fs::read_to_string(flat.join("profile.json")).unwrap().replace(&hex(&sha256(m.as_bytes())), &hex(&sha256(m_flat.as_bytes())));
++        std::fs::write(flat.join("profile.json"), &pf).unwrap();
++        let flat_id = hex(&super::trained_block::stack_identity_for_tests(&flat).unwrap_or_else(|e| panic!("{key}: the flat export's statement: {e}")));
++        assert_ne!(flat_id, id, "dropping layer 1's own {key} did not move the statement");
++        assert_eq!(trained_stack_verify_command(&s(&["--export", &flat.display().to_string(), "--artifact", &od, "--expect-statement", &flat_id])), 1, "a run proved with layer 1's own {key} VERIFIED as a run with the run's {key}");
++        let _ = std::fs::remove_dir_all(&flat);
++    }
++    assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &od, "--expect-statement", &id])), 0, "the published fully per-layer run no longer verifies");
++    let _ = std::fs::remove_dir_all(&dir);
++}
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/trained_statement.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/trained_statement.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block/trained_statement.rs	2026-10-17 17:12:22.532012856 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/trained_statement.rs	2026-10-19 06:32:39.651044739 -0700
+@@ -39,7 +39,7 @@
+ //! imported from; the verifier must still hold (or recompute) the integer
+ //! words it trusts. It is not a privacy statement.
+ 
+-use super::shape::Shape;
++use super::shape::{NormCalibration, Shape};
+ use super::BlockPublic;
+ use crate::merkle::Digest;
+ use sha2::{Digest as _, Sha256};
+@@ -360,13 +360,94 @@
+     /// table's score exponent `e_s`
+     pub silu_member: (i32, i32),
+     pub exp_e_s: i32,
+-    /// **NATIVE R6: this layer's OWN softmax score shift**, when it is not
+-    /// the run's (`calibration.sh_s`): `None` for every layer of a run-wide
+-    /// export (so its encoding, and every identity made before R6, does not
+-    /// move), `Some(v)` with `v != calibration.sh_s` and `v` in the one-limb
+-    /// window for a per-layer export. The run proves that block's stage at
+-    /// `Shape::with_score_shift(v)`.
+-    pub sh_s: Option<u32>,
++    /// **NATIVE R8 (R6 for `sh_s` alone): this layer's OWN calibration
++    /// constants**, one entry per [`OWN_FIELDS`] in that order, each `Some`
++    /// only where the layer's value is not the run's: all `None` for every
++    /// layer of a run-wide export (so its encoding, and every identity made
++    /// before R6, does not move); a value equal to the run's is refused
++    /// (one encoding per statement); the layer's whole calibration
++    /// ([`apply_own`]) must pass the trained door
++    /// (`Shape::with_layer_calibration`). The run proves that block's stage at
++    /// that shape.
++    pub own: [Option<i64>; 11],
++}
++
++/// **NATIVE R8: the eleven export-chosen calibration constants a layer may
++/// carry as its own**, in their canonical order: the export key, the
++/// identity encoding's label, the stage schedule line's label. `sh_s` is
++/// FIRST and keeps R6's labels, so a statement or schedule whose only
++/// per-layer constant is `sh_s` encodes exactly as in R6 (the b7 identity
++/// 97c4acda... and its stage lines do not move).
++pub(crate) const OWN_FIELDS: [(&str, &str, &str); 11] = [
++    ("sh_s", "sh-score-layer", "score shift"),
++    ("norm_tn", "norm-tn-layer", "norm tn"),
++    ("norm_cn_a", "norm-cn-a-layer", "norm cn_a"),
++    ("norm_cn_m", "norm-cn-m-layer", "norm cn_m"),
++    ("norm_ceps", "norm-ceps-layer", "norm ceps"),
++    ("sh_ao", "sh-ao-layer", "ao shift"),
++    ("sh_qkv", "sh-qkv-layer", "qkv shift"),
++    ("sh_o", "sh-o-layer", "o shift"),
++    ("sh_g", "sh-gate-layer", "gate shift"),
++    ("sh_h", "sh-product-layer", "product shift"),
++    ("sh_z", "sh-down-layer", "down shift"),
++];
++
++/// field `i` of [`OWN_FIELDS`] in a calibration
++pub(crate) fn cal_field(c: &NormCalibration, i: usize) -> i64 {
++    match i {
++        0 => i64::from(c.sh_s),
++        1 => i64::from(c.tn),
++        2 => c.cn_a,
++        3 => c.cn_m,
++        4 => c.ceps,
++        5 => i64::from(c.sh_ao),
++        6 => i64::from(c.sh_qkv),
++        7 => i64::from(c.sh_o),
++        8 => i64::from(c.sh_g),
++        9 => i64::from(c.sh_h),
++        _ => i64::from(c.sh_z),
++    }
++}
++
++/// the run's calibration with a layer's own values applied (a `u32` field
++/// out of range is refused, never wrapped)
++pub(crate) fn apply_own(base: &NormCalibration, own: &[Option<i64>; 11]) -> Result<NormCalibration, String> {
++    let mut c = *base;
++    for (i, v) in own.iter().enumerate() {
++        let Some(v) = *v else { continue };
++        let u = || u32::try_from(v).map_err(|_| format!("trained calibration: a per-layer {} {v} is out of range", OWN_FIELDS[i].0));
++        match i {
++            0 => c.sh_s = u()?,
++            1 => c.tn = u()?,
++            2 => c.cn_a = v,
++            3 => c.cn_m = v,
++            4 => c.ceps = v,
++            5 => c.sh_ao = u()?,
++            6 => c.sh_qkv = u()?,
++            7 => c.sh_o = u()?,
++            8 => c.sh_g = u()?,
++            9 => c.sh_h = u()?,
++            _ => c.sh_z = u()?,
++        }
++    }
++    Ok(c)
++}
++
++/// a layer's own values against the run's: `Some` exactly where they differ
++pub(crate) fn own_of(base: &NormCalibration, layer: &NormCalibration) -> [Option<i64>; 11] {
++    let mut own = [None; 11];
++    for (i, o) in own.iter_mut().enumerate() {
++        let v = cal_field(layer, i);
++        if v != cal_field(base, i) {
++            *o = Some(v);
++        }
++    }
++    own
++}
++
++/// whether a layer record carries any own constant
++pub(crate) fn has_own(own: &[Option<i64>; 11]) -> bool {
++    own.iter().any(|v| v.is_some())
+ }
+ 
+ fn sha(bytes: &[u8]) -> [u8; 32] {
+@@ -387,7 +468,7 @@
+     /// ROUND 5 (R5-2): the record of a proving-pass RELOAD, which keeps only
+     /// the block (its digest is compared with the digest pass's record)
+     pub(crate) fn unhashed(index: u32) -> LayerRecord {
+-        LayerRecord { index, block_digest: [0; 32], word_sha256: [[0; 32]; 9], table_sha256: [[0; 32]; 3], source_tensors: vec![], manifest_sha256: [0; 32], silu_member: (0, 0), exp_e_s: 0, sh_s: None }
++        LayerRecord { index, block_digest: [0; 32], word_sha256: [[0; 32]; 9], table_sha256: [[0; 32]; 3], source_tensors: vec![], manifest_sha256: [0; 32], silu_member: (0, 0), exp_e_s: 0, own: [None; 11] }
+     }
+ 
+     pub(crate) fn of_block(index: u32, blk: &BlockPublic, source_tensors: Vec<(String, [u8; 32])>) -> LayerRecord {
+@@ -407,7 +488,7 @@
+         // a recipe block's tables are the frozen SiLU member (-3, -11) and
+         // `exp_member(0, ..)` (`dense_tests::statement_of_words`); the export
+         // loader overwrites both with the manifest's members
+-        LayerRecord { index, block_digest: blk.digest(), word_sha256, table_sha256, source_tensors, manifest_sha256: [0; 32], silu_member: (-3, -11), exp_e_s: 0, sh_s: None }
++        LayerRecord { index, block_digest: blk.digest(), word_sha256, table_sha256, source_tensors, manifest_sha256: [0; 32], silu_member: (-3, -11), exp_e_s: 0, own: [None; 11] }
+     }
+ }
+ 
+@@ -548,16 +629,22 @@
+         // value through each block digest, and the loader checks them against
+         // these generator members)
+         for r in &self.layers {
+-            // NATIVE R6: a per-layer score shift is canonical (never equal to
+-            // the run's, which would be a second encoding of one statement)
+-            // and inside the one-limb window
+-            if let Some(v) = r.sh_s {
+-                if v == self.calibration.sh_s {
+-                    return Err(format!("trained statement: layer {}'s own sh_s {v} equals the run's; a run-wide value is recorded once, in the calibration", r.index));
+-                }
+-                if !super::shape::ONE_LIMB_SHIFT.contains(&v) {
+-                    return Err(format!("trained statement: layer {}'s sh_s {v} is outside its structure-preserving window {:?}", r.index, super::shape::ONE_LIMB_SHIFT));
++            // NATIVE R8 (R6 for sh_s): a layer's own constants are canonical
++            // (never equal to the run's, which would be a second encoding of
++            // one statement) and its whole calibration passes the trained
++            // door at the run's shape (every class, the four-limb norm window,
++            // the plane list unmoved)
++            if has_own(&r.own) {
++                let base = sh.norm_calibration();
++                for (i, v) in r.own.iter().enumerate() {
++                    if let Some(v) = v {
++                        if *v == cal_field(&base, i) {
++                            return Err(format!("trained statement: layer {}'s own {} {v} equals the run's; a run-wide value is recorded once, in the calibration", r.index, OWN_FIELDS[i].0));
++                        }
++                    }
+                 }
++                let cal = apply_own(&base, &r.own).map_err(|e| format!("trained statement: layer {}: {e}", r.index))?;
++                sh.with_layer_calibration(&cal).map_err(|e| format!("trained statement: layer {}'s own calibration: {e}", r.index))?;
+             }
+             if !super::shape::TRAINED_EXP_E_S_RANGE.contains(&r.exp_e_s) {
+                 return Err(format!("trained statement: layer {}'s exp e_s {} is outside its declared class {:?}", r.index, r.exp_e_s, super::shape::TRAINED_EXP_E_S_RANGE));
+@@ -635,10 +722,13 @@
+             e.i64("silu-member-e-in", i64::from(r.silu_member.0));
+             e.i64("silu-member-e-out", i64::from(r.silu_member.1));
+             e.i64("exp-e-s", i64::from(r.exp_e_s));
+-            // NATIVE R6: present ONLY for a layer whose score shift is its
+-            // own, so a run-wide statement's bytes are what they were
+-            if let Some(v) = r.sh_s {
+-                e.u64("sh-score-layer", u64::from(v));
++            // NATIVE R8 (R6 for sh_s): present ONLY for a layer's own
++            // constants, in the canonical order, so a run-wide statement's
++            // bytes are what they were and an sh_s-only one is R6's
++            for (i, v) in r.own.iter().enumerate() {
++                if let Some(v) = v {
++                    e.u64(OWN_FIELDS[i].1, u64::try_from(*v).unwrap_or(u64::MAX));
++                }
+             }
+             for (k, d) in r.word_sha256.iter().enumerate() {
+                 e.field(&format!("word-{k}-sha256"), d);
+diff -ruN -x target -x target-gpu -x results /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block.rs /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r7/frozen-tree/hashline/src/private_block.rs	2026-10-17 17:16:32.654427265 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block.rs	2026-10-19 06:36:36.431886013 -0700
+@@ -167,6 +167,9 @@
+ // NATIVE R6: the per-layer softmax score shift (test only)
+ #[cfg(test)]
+ mod r6_tests;
++// NATIVE R8: every export-chosen calibration constant per layer (test only)
++#[cfg(test)]
++mod r8_tests;
+ // STAGE 19 (test-only): DENSE public weights and a numerically non-trivial
+ // witness at the shaped geometries, where the diagonal fixture leaves every
+ // hidden unit above `d` with no input and no output weight.

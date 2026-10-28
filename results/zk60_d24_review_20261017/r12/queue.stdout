@@ -1,0 +1,28 @@
+[zk60-guard 12:33:43] START r12-cli-build class=build need=2.5G cap=5G enforce=cgroup+watchdog waited=0s run=7f9d0c7d1a26
+[zk60-guard 12:35:25] END r12-cli-build exit=0 child_wall=102s peak_rss=1.00G min_avail=11.26G
+[zk60-guard 12:35:25] START r12-compat-tl-dd class=cpu need=2G cap=5G enforce=cgroup+watchdog waited=0s run=2a83f6ba002a
+[zk60-guard 12:35:45] END r12-compat-tl-dd exit=0 child_wall=19s peak_rss=0.80G min_avail=11.27G
+[zk60-guard 12:35:45] START r12-compat-8b-dd class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=e1f878b11e56
+[zk60-guard 12:36:46] END r12-compat-8b-dd exit=0 child_wall=61s peak_rss=1.97G min_avail=10.83G
+[zk60-guard 12:36:46] START r12-compat-tl class=cpu need=2G cap=5G enforce=cgroup+watchdog waited=0s run=fb8486065e19
+[zk60-guard 12:37:06] END r12-compat-tl exit=0 child_wall=20s peak_rss=0.67G min_avail=11.28G
+[zk60-guard 12:37:06] START r12-compat-8b class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=4465534fa57a
+[zk60-guard 12:38:14] END r12-compat-8b exit=0 child_wall=68s peak_rss=1.87G min_avail=10.16G
+[zk60-guard 12:38:14] START r12-compat-tl-t32 class=cpu need=2G cap=5G enforce=cgroup+watchdog waited=0s run=479b7a64e37f
+[zk60-guard 12:38:27] END r12-compat-tl-t32 exit=0 child_wall=12s peak_rss=0.75G min_avail=11.45G
+[zk60-guard 12:38:27] START r12-test-build class=build need=3G cap=6G enforce=cgroup+watchdog waited=0s run=bae36d39c534
+[zk60-guard 12:43:32] END r12-test-build exit=0 child_wall=305s peak_rss=1.82G min_avail=10.22G
+[zk60-guard 12:43:32] START r12-review class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=ceb7926e5e96
+[zk60-guard 12:43:38] END r12-review exit=0 child_wall=7s peak_rss=0.13G min_avail=12.14G
+[zk60-guard 12:43:39] START r12-author-subset class=cpu need=4G cap=7G enforce=cgroup+watchdog waited=0s run=4f33b9b3a5e0
+[zk60-guard 12:44:19] END r12-author-subset exit=0 child_wall=40s peak_rss=1.02G min_avail=11.21G
+[zk60-guard 12:44:19] START r12-saved-receipts class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=046a5d01ce8e
+[zk60-guard 12:44:32] END r12-saved-receipts exit=0 child_wall=13s peak_rss=0.77G min_avail=11.82G
+[zk60-guard 12:44:32] START r12-golden class=cpu need=7.5G cap=10.5G enforce=cgroup+watchdog waited=0s run=b0d6d9ba022a
+[zk60-guard 12:45:34] END r12-golden exit=0 child_wall=61s peak_rss=6.10G min_avail=6.34G
+[zk60-guard 12:45:34] START r12-dense class=cpu need=7.5G cap=10.5G enforce=cgroup+watchdog waited=0s run=ae896817f66a
+[zk60-guard 12:49:50] END r12-dense exit=0 child_wall=256s peak_rss=6.50G min_avail=6.03G
+[zk60-guard 13:00:22] START r9-golden-build class=build need=3G cap=6G enforce=cgroup+watchdog waited=0s run=4567553b3c6f
+[zk60-guard 13:04:46] END r9-golden-build exit=0 child_wall=264s peak_rss=1.81G min_avail=9.51G
+[zk60-guard 13:04:46] START r9-golden-run class=cpu need=7.5G cap=10.5G enforce=cgroup+watchdog waited=0s run=5be6843c724e
+[zk60-guard 13:05:49] END r9-golden-run exit=0 child_wall=63s peak_rss=6.20G min_avail=5.06G

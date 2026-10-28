@@ -87,7 +87,7 @@ fn walk_pairs(sh: &Shape, mut f: impl FnMut(usize, &SlotDef, &SlotIr)) {
     let lay = Layout::for_shape(sh).unwrap_or_else(|e| panic!("{}: layout: {e}", sh.name));
     let (public, ff, _) = super::grow_tests::tame_case(sh);
     let (alpha, beta, g_u8, g_exp, g_act) = ctx_scalars();
-    let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act };
+    let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act, g_dd: Fp2::ZERO };
     let mut tr_def = Transcript::new(sh.profile.as_bytes());
     let mut tr_ir = Transcript::new(sh.profile.as_bytes());
     let mut pts = Points::default();
@@ -354,7 +354,7 @@ fn every_table_the_ir_calls_base_field_is_base_field_in_the_tables_the_prover_bu
             let (a_data, h_data, io) = prover_data(&sh, &lay, honest);
             let masks = Vec::new();
             let pd = ProverData { data: [&a_data, &h_data, &io, &io], masks: &masks };
-            let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act };
+            let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act, g_dd: Fp2::ZERO };
             let mut tr_def = Transcript::new(sh.profile.as_bytes());
             let mut tr_ir = Transcript::new(sh.profile.as_bytes());
             let mut pts = Points::default();
@@ -435,7 +435,7 @@ fn the_field_kind_oracle_rejects_the_memos_own_classification_of_the_twelve_tabl
     let pd = ProverData { data: [&a_data, &h_data, &io, &io], masks: &masks };
     let (public, ff, _) = super::grow_tests::tame_case(&sh);
     let (alpha, beta, g_u8, g_exp, g_act) = ctx_scalars();
-    let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act };
+    let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act, g_dd: Fp2::ZERO };
     let mut tr_def = Transcript::new(sh.profile.as_bytes());
     let mut tr_ir = Transcript::new(sh.profile.as_bytes());
     let mut pts = Points::default();
@@ -508,7 +508,7 @@ fn the_honest_round_polynomial_satisfies_s0_plus_s1_equals_the_running_claim_at_
         let pd = ProverData { data: [&a_data, &h_data, &io, &io], masks: &masks };
         let (public, ff, _) = super::grow_tests::tame_case(&sh);
         let (alpha, beta, g_u8, g_exp, g_act) = ctx_scalars();
-        let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act };
+        let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act, g_dd: Fp2::ZERO };
         let mut tr = Transcript::new(sh.profile.as_bytes());
         let mut pts = Points::default();
         let mut r = xs(0xC19_0001);

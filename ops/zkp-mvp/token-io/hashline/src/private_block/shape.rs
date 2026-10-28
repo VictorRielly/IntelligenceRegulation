@@ -1476,24 +1476,49 @@ impl Shape {
 
     /// **NATIVE R6: the same trained shape with ANOTHER SCORE SHIFT** — the
     /// shape a run's stage is proved at when its layer declares its own
-    /// `sh_s` (a per-layer export constant, like the exp `e_s` and the SiLU
-    /// member). Only a trained-calibration shape; the value must lie in the
-    /// one-limb window (the plane list and lookup counts do not move inside
-    /// it: only the `scaled(rsl, 2^(8 - sh_s))` coefficient and the score
-    /// host relation's `2^sh_s` / `2^(sh_s - 1)` constants); the result passes
-    /// CS-8's rebuild through the door and the trained class check, so every
-    /// derived window is the door's.
+    /// `sh_s`. Since NATIVE R8 a special case of
+    /// [`Shape::with_layer_calibration`] (the other ten constants the run's).
     pub(crate) fn with_score_shift(&self, sh_s: u32) -> Result<Shape, String> {
+        self.with_layer_calibration(&NormCalibration { sh_s, ..self.norm_calibration() })
+    }
+
+    /// **NATIVE R8: the same trained shape with A LAYER'S OWN CALIBRATION**
+    /// (any of the eleven export-chosen constants: the norm's `tn`, `cn_a`,
+    /// `cn_m`, `ceps` and the seven requant shifts) — the shape a run's stage
+    /// is proved at when its layer declares its own values. Only a
+    /// trained-calibration shape. Every value must lie in its DECLARED class,
+    /// unchanged from R6 ([`NormCalibration::derive_at_width`]: the norm
+    /// classes, a four-limb norm window, `sh_ao <= 8`, each shift in its
+    /// structure-preserving window); then the plane list and the lookup counts
+    /// do not move (`Ids` / `HIds` are rebuilt and must equal this shape's),
+    /// only coefficients and host constants do; the result passes CS-8's
+    /// rebuild through the door and the trained class check.
+    pub(crate) fn with_layer_calibration(&self, cal: &NormCalibration) -> Result<Shape, String> {
         if !self.trained_calibration {
-            return Err(format!("private block shape: {} is not a trained-calibration shape; its score shift is frozen", self.profile));
+            return Err(format!("private block shape: {} is not a trained-calibration shape; its calibration is frozen", self.profile));
         }
-        if !ONE_LIMB_SHIFT.contains(&sh_s) {
-            return Err(format!("trained calibration: a per-layer sh_s {sh_s} is outside its structure-preserving window {ONE_LIMB_SHIFT:?}"));
-        }
+        let (d_max, wrho) = cal.derive_at_width(self.width)?;
         let mut s = self.clone();
-        s.sh_s = sh_s;
+        s.norm_tn = cal.tn;
+        s.norm_cn_a = cal.cn_a;
+        s.norm_cn_m = cal.cn_m;
+        s.norm_ceps = cal.ceps;
+        s.sh_ao = cal.sh_ao;
+        s.sh_qkv = cal.sh_qkv;
+        s.sh_s = cal.sh_s;
+        s.sh_o = cal.sh_o;
+        s.sh_g = cal.sh_g;
+        s.sh_h = cal.sh_h;
+        s.sh_z = cal.sh_z;
+        s.norm_wrho = wrho;
+        s.d_max = d_max;
         s.check_constructed()?;
         s.check_trained_class()?;
+        let (a, b) = (super::layout::Ids::new(self)?, super::layout::Ids::new(&s)?);
+        let (ha, hb) = (super::layout::HIds::new(self)?, super::layout::HIds::new(&s)?);
+        if a.n_a() != b.n_a() || (a.ln, a.ls, a.lp) != (b.ln, b.ls, b.lp) || ha.n_h() != hb.n_h() {
+            return Err(format!("private block shape: a layer calibration of {} moves the plane list (A {} -> {}, H {} -> {}); a per-layer constant may change coefficients only", self.profile, a.n_a(), b.n_a(), ha.n_h(), hb.n_h()));
+        }
         Ok(s)
     }
 

@@ -1,0 +1,1 @@
+blockterm2-llama3-8b-t32-L1-dense: status PASS; false parts []; equal 23 of 23; per stage [(1, 23, 23)]; controls True; 11.7 s; peak 272 MB; record /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/token_io/blockterm_dev/blockterm2-llama3-8b-t32-L1-dense.json

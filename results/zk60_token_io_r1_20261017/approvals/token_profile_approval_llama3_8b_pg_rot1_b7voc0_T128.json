@@ -1,0 +1,38 @@
+{
+ "V": 128256,
+ "approved_by": "coordinator, 2026-10-19 ~19:10 UTC (round-8 instruction 2: approval record for b7voc0_T128 from its data files and SHA256SUMS)",
+ "bos": 128000,
+ "evidence": [
+  "fidelity lane ledger: exports/llama3_8b_pg_rot1_b7voc0_T128 written 14:42 UTC 2026-10-19 (profile sha256 26fc103b...f796; b7 + layer-0 vocabulary recalibration); proved as a stack on native R8 (identity 5585f5ee..., the coordinator)",
+  "STALE WORDING, DATA CORRECT: this export's token_io/ is hard-linked from the calibration lane's b7_T128 token_io/ (README.md, token_io.json and f2_fidelity.json describe b7_T128, not this export; noted by the fidelity lane 14:46 UTC). The record is built from the data files and their SHA256SUMS only: embedding 8b5a5fb1..., head rows f50ba1aa..., multipliers 9eafb7f4..., head_manifest ceecb727... (final norm g0 127 / Cn 4234 / tn 9 / Ceps 78617 = this export's profile norm_tn / norm_ceps)",
+  "pins: zk60_token_io profile (round-8 binary 6b601c148da9...) over the VERIFIER copy's public files (logs/r8-profile-llama3_8b_pg_rot1_b7voc0_T128.log)"
+ ],
+ "export": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T128",
+ "export_profile_json_sha256": "26fc103b207cb33948e0824b399a60363583387a85ba570b8722e9c22be5f796",
+ "final_norm": {
+  "ceps": 78617,
+  "cn": 4234,
+  "g0": 127,
+  "tn": 9
+ },
+ "not": "not a privacy acceptance and not a ruling; a pin fixes which public tables a verifier accepts",
+ "pins": {
+  "expect_statement": "23e0e365126fb480dbad237ca9da77444485761138aba490106961c433dd1c2b",
+  "expect_token_profile": "1806fcc3371513d908aa6004de0e40ed60b9c766a03eb07f9f1c23ba1570967d"
+ },
+ "record": "approved token-profile pins for the token I/O tables of the export llama3_8b_pg_rot1_b7voc0_T128",
+ "token_io_SHA256SUMS_sha256": "dd7dd75a7862a7412000e488a024d4f9ba2b9c6d2e62d095fed6e7a2d250940e",
+ "token_io_files_sha256": {
+  "README.md": "1e67f8c624d308a8e628a953806f8118a74a2adb43914aa1d38f1bda36738a99",
+  "calib_final_xhat_rot_absmax.bin": "db2c1aaa46557960014a3155e9167b43e7e3dc0ff6a092a5c95c4daa20fc24c1",
+  "embedding_int16.bin": "8b5a5fb10fb331dd5b8882bac6717d800f88a2b9a6affe1c7b7b75238686f1ca",
+  "f2_fidelity.json": "3a5bfc93ff719373241b85194919d785871560fd4dd8cfec2e9a6ab3fe4b05ba",
+  "head_int8_perrow.bin": "f50ba1aa4150172ffb381a335faa41050abf9a45c1ab6b0cbc6401ac8db228cc",
+  "head_manifest.json": "ceecb7271b8299f841288a633ddf716b1eea423d84cf4b06babcc6b42b156154",
+  "head_mult12.bin": "9eafb7f4ecd6a6f14ef0c1d8186be69c2f9ce70c034e81732423936c8ee0d1f3",
+  "token_io.json": "d7c99b3c41b9f10b8d5c49722f08f93cefb668dc2d257f7ca6d73cc534800522"
+ },
+ "use": "a verifier reads --expect-statement / --expect-token-profile from `pins`; never from `zk60_token_io profile` over the prover's files (review TR5-3)",
+ "wording_corrected": "2026-10-20 UTC, review REVIEW5 TR6-4: 'record', 'written_by' and the SHA256SUMS key named the first (b7 T32, calibration lane) record's provenance; corrected to this export's. Every value is unchanged (the reviewer re-hashed every file). Before this correction the file's sha256 was c995594f25689103f1c7adb71a0ef6b49a40bb5702329d9fefce81379bfc7390.",
+ "written_by": "token-I/O lane, at the coordinator's instruction, from this export's own token_io/ files and its SHA256SUMS (below): the fidelity lane's export; its token_io/ is hard-linked from the calibration lane's b7_T128 token_io/ (same files, same SHA-256s; see evidence)"
+}

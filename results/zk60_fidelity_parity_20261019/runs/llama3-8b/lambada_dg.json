@@ -1,0 +1,43 @@
+{
+ "model": "llama3-8b",
+ "runs": [
+  "e8_dg_lam0",
+  "e8_dg_lam100"
+ ],
+ "items": 200,
+ "chunks": [
+  {
+   "n": 100,
+   "offset": 0,
+   "source": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/data/lambada_openai/en_test.parquet",
+   "sha256_expected": "99d8a9e54cda761c6340ddd4fa6feda7f846ffb0e716afa52968dea75495eea7",
+   "truncated_items": 0
+  },
+  {
+   "n": 100,
+   "offset": 100,
+   "source": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/data/lambada_openai/en_test.parquet",
+   "sha256_expected": "99d8a9e54cda761c6340ddd4fa6feda7f846ffb0e716afa52968dea75495eea7",
+   "truncated_items": 0
+  }
+ ],
+ "acc_float": 0.78,
+ "acc_float_ci95": [
+  0.72244432190998,
+  0.8375556780900201
+ ],
+ "acc_int": 0.675,
+ "acc_diff": -0.105,
+ "acc_diff_ci95": [
+  -0.1539211425761375,
+  -0.05607885742386249
+ ],
+ "acc_ratio_int_over_float": 0.8653846153846154,
+ "discordant": {
+  "int_only": 3,
+  "float_only": 24
+ },
+ "target_nll_float": 1.114301093781893,
+ "target_nll_int": 1.4630857422777688,
+ "refused_sequences": 7
+}

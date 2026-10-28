@@ -1,0 +1,144 @@
+[
+  {
+    "argv": [
+      "/home/victor/.rustup/toolchains/1.90.0-x86_64-unknown-linux-gnu/bin/rustc",
+      "--edition=2021",
+      "-C",
+      "opt-level=1",
+      "-C",
+      "codegen-units=1",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/decode-statement-scopes-20261019/drop_probe.rs",
+      "-o",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/decode-statement-scopes-20261019/drop_probe"
+    ],
+    "started": "2026-10-19T22:21:18.323482+00:00",
+    "wall_seconds": 0.7441544859902933,
+    "exit_code": 0,
+    "source_sha256": "00a1c40a7842e028c749a335d9979a58ed811ada2d2921cbca217345c77c92de",
+    "stdout": "00-compile.stdout.log",
+    "stderr": "00-compile.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "nice": 19,
+      "single_cpu_affinity": true,
+      "python_and_probe_threads": 1,
+      "compiler_codegen_units": 1,
+      "compiler_internal_thread_count": "not observed"
+    }
+  },
+  {
+    "argv": [
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/decode-statement-scopes-20261019/drop_probe"
+    ],
+    "started": "2026-10-19T22:21:21.797523+00:00",
+    "wall_seconds": 0.001999838001211174,
+    "exit_code": 0,
+    "source_sha256": "00a1c40a7842e028c749a335d9979a58ed811ada2d2921cbca217345c77c92de",
+    "stdout": "01-probe.stdout.log",
+    "stderr": "01-probe.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "nice": 19,
+      "single_cpu_affinity": true,
+      "python_and_probe_threads": 1,
+      "compiler_codegen_units": 1,
+      "compiler_internal_thread_count": "not observed"
+    }
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/decode-statement-scopes-20261019/experiment.py"
+    ],
+    "started": "2026-10-19T22:22:28.985986+00:00",
+    "wall_seconds": 0.8632083980046446,
+    "exit_code": 0,
+    "source_sha256": "dbca4146a3ea0bf4af792c915e763e8464b4f0ee042d08ac39124925920f7f64",
+    "stdout": "02-experiment.py.stdout.log",
+    "stderr": "02-experiment.py.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "nice": 19,
+      "single_cpu_affinity": true,
+      "python_and_probe_threads": 1,
+      "compiler_codegen_units": 1,
+      "compiler_internal_thread_count": "not observed"
+    }
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/decode-statement-scopes-20261019/experiment.py"
+    ],
+    "started": "2026-10-19T22:23:12.566931+00:00",
+    "wall_seconds": 0.8980121860076906,
+    "exit_code": 0,
+    "source_sha256": "3c233cec35840ab8fc141ce2522a8e5f38064bb4288e3731793eac8b6022bcb9",
+    "stdout": "03-experiment.py.stdout.log",
+    "stderr": "03-experiment.py.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "nice": 19,
+      "single_cpu_affinity": true,
+      "python_and_probe_threads": 1,
+      "compiler_codegen_units": 1,
+      "compiler_internal_thread_count": "not observed"
+    }
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/decode-statement-scopes-20261019/audit.py"
+    ],
+    "started": "2026-10-19T22:23:15.393726+00:00",
+    "wall_seconds": 0.17944163699576166,
+    "exit_code": 0,
+    "source_sha256": "c73a274b543e5562fd11e6299b7b364bac00f28646044969e8bc3126d938fd3a",
+    "stdout": "04-audit.py.stdout.log",
+    "stderr": "04-audit.py.stderr.log",
+    "limits": {
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "nice": 19,
+      "single_cpu_affinity": true,
+      "python_and_probe_threads": 1,
+      "compiler_codegen_units": 1,
+      "compiler_internal_thread_count": "not observed"
+    }
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/decode-statement-scopes-20261019/validate.py"
+    ],
+    "started": "2026-10-19T22:27:41.043766+00:00",
+    "wall_seconds": 0.06484835200535599,
+    "exit_code": 0,
+    "source_sha256": "6db62d6f42646678c77189f4a5a3c12bf7d54025e4a0165a6d65e92f3cef88e0",
+    "stdout": "05-validate.py.stdout.log",
+    "stderr": "05-validate.py.stderr.log",
+    "limits": {
+      "single_cpu_affinity": true,
+      "python_and_probe_threads": 1,
+      "compiler_codegen_units": 1,
+      "compiler_internal_thread_count": "not observed",
+      "cpu_seconds": 59,
+      "wall_alarm_seconds": 59,
+      "address_space_bytes": 536870912,
+      "nice": 19
+    }
+  }
+]

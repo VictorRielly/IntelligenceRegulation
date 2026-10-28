@@ -1,0 +1,18 @@
+{
+  "run_id": "20261020T061854Z-03bda577",
+  "cycle": "0098",
+  "status": "complete",
+  "completed_at": "2026-10-20T06:34:28.374874+00:00",
+  "next_cycle_not_before": "2026-10-20T07:18:54Z",
+  "deadline": "2026-10-20T06:38:54Z",
+  "new_verified_full_stack_proofs": 0,
+  "required_files": [
+    "STATE.md",
+    "FINDINGS.md",
+    "sources.jsonl",
+    "PROGRESS.md",
+    "progress/20261020T061854Z-03bda577.md"
+  ],
+  "native_execution": false,
+  "gpu_execution": false
+}

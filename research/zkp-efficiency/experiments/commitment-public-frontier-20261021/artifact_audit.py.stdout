@@ -1,0 +1,26 @@
+{
+  "status": "PASS_FINAL_ARTIFACT_PREFIX_PATCH_AUDIT",
+  "checks": 579,
+  "immutable_artifacts": 70,
+  "source_pins": 9,
+  "next_inspection_pins": 2,
+  "patches": [
+    {
+      "label": "legacy",
+      "parsed_files": 2,
+      "semantic_scope_matches": true,
+      "native_execution": false
+    },
+    {
+      "label": "active",
+      "parsed_files": 2,
+      "semantic_scope_matches": true,
+      "native_execution": false
+    }
+  ],
+  "wall_seconds": 0.02873374000773765,
+  "rss_kib": 21148,
+  "prior_sources_preserved": 790,
+  "prior_hypotheses_preserved": 37,
+  "prior_findings_prefix_preserved": true
+}

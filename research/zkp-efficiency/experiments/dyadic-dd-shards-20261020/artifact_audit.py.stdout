@@ -1,0 +1,1 @@
+{"status": "PASS", "checks": 443, "source_ledger": 709, "original_source_records_preserved": 702, "prior_findings_prefix_preserved": true, "prior_hypotheses_preserved": 26, "agenda_and_project_pins_unchanged": true, "summary_independently_reaggregated": true, "elapsed_s": 0.011944319005124271, "maxrss_KiB": 22244, "completed_utc": "2026-10-20T22:29:16.665357+00:00"}

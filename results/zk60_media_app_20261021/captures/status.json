@@ -1,0 +1,147 @@
+{
+    "deploy": {
+        "profile": "laptop",
+        "label": "Laptop (8 GB GPU / CPU only)",
+        "note": "about 40 content tokens per chunk",
+        "chunk_tokens": 40,
+        "overlap_tokens": 8,
+        "max_chunks": 4,
+        "effective_chunk_tokens": 31,
+        "effective_overlap_tokens": 8,
+        "capped_by_prover": true,
+        "max_content_tokens": 100,
+        "profiles": {
+            "laptop": {
+                "label": "Laptop (8 GB GPU / CPU only)",
+                "chunk_tokens": 40,
+                "overlap_tokens": 8,
+                "max_chunks": 4,
+                "note": "about 40 content tokens per chunk"
+            },
+            "workstation": {
+                "label": "Workstation (24-32 GB GPU)",
+                "chunk_tokens": 168,
+                "overlap_tokens": 16,
+                "max_chunks": 8,
+                "note": "168 content tokens per chunk"
+            },
+            "server": {
+                "label": "Server (80 GB GPU class)",
+                "chunk_tokens": 424,
+                "overlap_tokens": 32,
+                "max_chunks": 16,
+                "note": "424 content tokens per chunk"
+            }
+        },
+        "file": "/home/victor/IntelligenceRegulation/apps/proven-media/deploy.json"
+    },
+    "prover": {
+        "kind": "stub-next-token",
+        "label": "demo stub: next-token proof, classifier proof coming",
+        "supports": [
+            "text"
+        ],
+        "proves_verdict": false,
+        "model": "TinyLlama-1.1B (integer export pg_rot1_b4_T32_cal128)",
+        "T": 32,
+        "max_content_tokens": 31,
+        "binary_sha256": "0c9f247c0f91162177f8ed90285f8664cc4dd36ebd8934dc650804bafe5c2c6b",
+        "what_is_proved": "that the approved public TinyLlama-1.1B integer model ran on the hidden post (at most 31 tokens, padded to the public length 32) and sealed its next token; every layer is proved, the verifier never sees the post. It does NOT prove any category label; one stub run stands in for the three category proofs.",
+        "verdict_source": "stub placeholder: a short keyword list per category in the app (NOT Shieldstral, NOT proved); the classifier proofs will make each label the proof's public output"
+    },
+    "queue": {
+        "running": {
+            "job_id": 2,
+            "post_id": "a72321cd7fb00a48664ccfc04eaedbd0",
+            "kind": "recheck",
+            "chunk": 0,
+            "chunks": 1,
+            "progress": {
+                "total": 1,
+                "done": 1,
+                "failed": 0,
+                "running": 0,
+                "queued": 0,
+                "fraction": 1.0
+            },
+            "step": "verify",
+            "label": "Waiting for the machine (the shared box's resource guard) before: Verifying the proof from the public files only (fresh process)",
+            "step_since": 1792553714.0,
+            "started_at": "2026-10-21T03:35:14Z",
+            "waiting_for_machine": true
+        },
+        "queued": [
+            {
+                "post_id": "e6cb68a80848a4fb1b2bf9a8a6ce5ea8",
+                "kind": "prove",
+                "jobs": 1,
+                "position": 1,
+                "eta_s": 300.0,
+                "progress": {
+                    "total": 1,
+                    "done": 0,
+                    "failed": 0,
+                    "running": 0,
+                    "queued": 1,
+                    "fraction": 0.0
+                }
+            },
+            {
+                "post_id": "1bd6ce2d672f924522aa0a10c4fcad58",
+                "kind": "prove",
+                "jobs": 2,
+                "position": 2,
+                "eta_s": 600.0,
+                "progress": {
+                    "total": 2,
+                    "done": 0,
+                    "failed": 0,
+                    "running": 0,
+                    "queued": 2,
+                    "fraction": 0.0
+                }
+            }
+        ],
+        "queued_jobs": 3,
+        "held": false,
+        "guard": {
+            "ok": true,
+            "ram": "7.78 GiB available of 15.39; swap used 0.47 GiB",
+            "budget": "10.6 of 11.89 GiB committed by guarded jobs",
+            "locks": "heavy HELD, build free",
+            "jobs": 5
+        },
+        "per_job_s": 150.0,
+        "now": 1792555691.5181
+    },
+    "posts": {
+        "deleted": 2,
+        "in-development": 1,
+        "published": 1,
+        "queued": 2
+    },
+    "ledger": {
+        "blocks": 2,
+        "pending_leaves": 0,
+        "batch_secs": 600.0
+    },
+    "categories": [
+        {
+            "id": "sexual",
+            "name": "Sexual / explicit content",
+            "policy_id": "pm-cat-sexual-v0"
+        },
+        {
+            "id": "violence",
+            "name": "Graphic violence",
+            "policy_id": "pm-cat-violence-v0"
+        },
+        {
+            "id": "hate",
+            "name": "Hate / harassment",
+            "policy_id": "pm-cat-hate-v0"
+        }
+    ],
+    "hold": false,
+    "server_time": "2026-10-21T04:08:11Z"
+}

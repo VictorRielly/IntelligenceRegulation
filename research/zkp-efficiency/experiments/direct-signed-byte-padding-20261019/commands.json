@@ -1,0 +1,50 @@
+[
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/direct-signed-byte-padding-20261019/experiment.py"
+    ],
+    "started": "2026-10-19T19:22:11.176928+00:00",
+    "exit_code": 0,
+    "source_sha256": "e4fb74510ff0ffcb1b33a891e0b3ba817f866e400b307f97ba521d46543b7243",
+    "stdout": "00-experiment.py.stdout.log",
+    "stderr": "00-experiment.py.stderr.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/direct-signed-byte-padding-20261019/audit.py"
+    ],
+    "started": "2026-10-19T19:22:19.788862+00:00",
+    "exit_code": 0,
+    "source_sha256": "b96057a54021684218581f49f506e3644f2a50c29621b2784af11679cdac105d",
+    "stdout": "01-audit.py.stdout.log",
+    "stderr": "01-audit.py.stderr.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/direct-signed-byte-padding-20261019/validate.py"
+    ],
+    "started": "2026-10-19T19:28:53.882361+00:00",
+    "exit_code": 0,
+    "source_sha256": "f6eb38da5e753be5f2893ab32f752f0587e55f4fa54c81f005d2fd4556588e15",
+    "stdout": "02-validate.py.stdout.log",
+    "stderr": "02-validate.py.stderr.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/direct-signed-byte-padding-20261019/validate.py"
+    ],
+    "started": "2026-10-19T19:29:33.266893+00:00",
+    "exit_code": 0,
+    "source_sha256": "801fe08f7d07729f2f9df72f049d9f90023364f3642da57acb494e31ba914002",
+    "stdout": "03-validate.py.stdout.log",
+    "stderr": "03-validate.py.stderr.log"
+  }
+]

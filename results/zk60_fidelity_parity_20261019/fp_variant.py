@@ -75,6 +75,59 @@ def merge_vocab0(ck, R, stats):
     return rep
 
 
+MAX_KEYS_SKIP = ("rows", "excluded_here", "excluded_total")
+
+
+def merge_extra(ck, R, stats, spec, refused_tag, T_cal):
+    """Float statistics (b3calib.f_block_stats, rotated basis, every layer) of EXTRA sequences:
+    an fp_data spec (e.g. WikiText-2 validation windows) and/or the sequences an fp_eval run
+    refused; only the MAXIMA are merged into the calibration statistics (sums of squares, which
+    weight the solver's noise objectives, keep the original calibration set)."""
+    import fp_data
+    g = tc.GEO
+    ids_parts, info = [], {}
+    if spec:
+        ids, _, _, inf = fp_data.build(fl.MODEL, T_cal, spec)
+        ids_parts.append(ids)
+        info["spec"] = inf["corpora"]
+    if refused_tag:
+        s = json.loads((fl.HERE / "runs" / fl.MODEL / refused_tag / "summary.json").read_text())
+        rid = [i for i, f in enumerate(s["first_refusal"]) if f]
+        sp = ",".join(f"{k}:{v['n']}" + (f"@{v['offset']}" if v.get("offset") else "") for k, v in s["corpora"]["corpora"].items())
+        ids, _, _, inf = fp_data.build(fl.MODEL, int(s["T"]), sp)
+        assert inf["ids_sha256"] == s["corpora"]["ids_sha256"], "cannot rebuild the run's sequences"
+        assert int(s["T"]) == T_cal, "refused sequences must have the calibration length"
+        ids_parts.append(ids[rid])
+        info["refused_from"] = {"run": refused_tag, "sequence_indices": rid, "sites": [s["first_refusal"][i] for i in rid]}
+    ids = np.concatenate(ids_parts)
+    x = R.fwd(fl.emb_rows(ids).reshape(-1, g.d)).astype(np.float32).reshape(*ids.shape, g.d)
+    rope = tc.rope_f32(T_cal)
+    changed = {}
+    for l in range(len(stats)):
+        W = bl.load_layer(ck, l, R)
+        st = {}
+        outs = [b3.f_block_stats(x[s0:s0 + 4], W, *rope, st, keep=np.ones(min(4, len(x) - s0), dtype=bool)) for s0 in range(0, len(x), 4)]
+        x = np.concatenate(outs)
+        del W
+        if "rows" not in st:          # every extra sequence excluded here (|gate| > 63.5: no SiLU member carries it)
+            changed[l] = ["(all extra sequences excluded at this layer)"]
+            continue
+        st = b3.finalize_stats(st)
+        ch = []
+        for k, v in st.items():
+            if k in MAX_KEYS_SKIP or k.endswith("_ss") or k.endswith("_ms") or k in ("raw_cs", "raw_cn") or k not in stats[l]:
+                continue
+            old = stats[l][k]
+            new = np.maximum(old, v)
+            if np.any(np.asarray(new) > np.asarray(old)):
+                ch.append(k)
+            stats[l][k] = new
+        changed[l] = ch
+    info["summary"] = {"sequences": int(len(ids)), "layers_with_raised_maxima": sum(1 for v in changed.values() if v)}
+    info["raised"] = {str(l): v for l, v in changed.items() if v}
+    return info
+
+
 def install_wide_searches():
     """Copies of b3calib.norm_a_search / norm_m_search whose free-shift candidate
     lists cover the widened windows (b3calib tries SH_QKV in (7, 8, 6) and SH_G in
@@ -143,6 +196,14 @@ def main():
     ap.add_argument("--profile-from", default="", help="prepass.json whose profile decisions to reuse (8B b7: runs/llama3_8b_pg_rot1_T128)")
     ap.add_argument("--sh-s-layer", default="", help="per-layer SH_S overrides 'layer:shift,...' (8B b7: 1:7)")
     ap.add_argument("--window", default="", help="widen requant shift windows 'site:hi,...' (two-byte remainders: qkv:16,g:16,z:16)")
+    ap.add_argument("--calib-T", type=int, default=None, help="T of the cached calibration statistics (default T); e.g. --T 32 --calib-T 128")
+    ap.add_argument("--ref", default="", help="reference export (default: 8B b7_T128 / TinyLlama pg_rot1_b4_T128)")
+    ap.add_argument("--extra-calib", default="", help="fp_data spec of extra calibration sequences whose float maxima are merged into every layer (e.g. wtval:64)")
+    ap.add_argument("--extra-refused", default="", help="fp_eval run tag: merge the float maxima of that run's REFUSED sequences (named in its summary)")
+    ap.add_argument("--up-mc", type=float, default=None, help="per-channel bound multiplier for the FFN up range (int16; default b3calib margin_ch 3); large = tensor bound")
+    ap.add_argument("--up-margin", type=float, default=None, help="range margin factor for the FFN up bound (default the variant's 1 + margin)")
+    ap.add_argument("--sh-u", action="store_true", help="(a)-exact: give FFN up its own one-byte remainder (sh_u 0..8 per layer) so the "
+                    "Wu words use their unused bits; output scale unchanged")
     ap.add_argument("--vocab0", action="store_true", help="merge vocabulary-wide float layer-0 maxima (norm, Q/K pairs, V) into the layer-0 statistics")
     ap.add_argument("--only-layers", default="", help="solve only these layers ('0,1'); hard-link every other layer (and token_io) from the reference export")
     a = ap.parse_args()
@@ -150,6 +211,10 @@ def main():
         fl.log(f"DEFERRED: per-build hold logs/HOLD2_build_{a.name}")
         raise SystemExit(3)
     t0 = time.time()
+    global REF_EXPORT
+    if a.ref:
+        REF_EXPORT = Path(a.ref)
+    T_cal = a.calib_T or a.T
     if a.qkv_window != 8:
         tc.SHIFT_WINDOW["qkv"] = (1, a.qkv_window)
     for tok in [t for t in a.window.split(",") if t]:
@@ -170,15 +235,31 @@ def main():
     ck = fl.checkpoint()
     R = b3.Rotation(tc.GEO.d, a.rotate)
     L = ck.config["layers"]
-    cache = (fl.C8 / "runs" / f"b5_stats_T{a.T}_n30_r{a.rotate}_L{L}.pkl") if fl.IS8B else \
-        (fl.CAL / "runs" / f"b3_stats4_T{a.T}_c6_r{a.rotate}_b4fw54.pkl")
+    cache = (fl.C8 / "runs" / f"b5_stats_T{T_cal}_n30_r{a.rotate}_L{L}.pkl") if fl.IS8B else \
+        (fl.CAL / "runs" / f"b3_stats4_T{T_cal}_c6_r{a.rotate}_b4fw54.pkl")
     assert cache.exists(), cache
     stats = bl.float_stats(ck, None, None, L, R, cache)
     fl.log(f"variant {a.name}: {var}; qkv window {tc.SHIFT_WINDOW['qkv']}; stats {cache.name}; sh_s overrides {shs}")
+    extra_rep = None
+    if a.extra_calib or a.extra_refused:
+        extra_rep = merge_extra(ck, R, stats, a.extra_calib, a.extra_refused, T_cal)
+        fl.log(f"extra calibration maxima merged: {extra_rep['summary']}")
     vocab_rep = None
     if a.vocab0:
         vocab_rep = merge_vocab0(ck, R, stats)
         fl.log(f"vocab0: layer-0 maxima merged {vocab_rep}")
+    if a.up_mc is not None or a.up_margin is not None:
+        # after merge_extra / merge_vocab0, which replace the statistics arrays (the ids were taken before
+        # them until 2026-10-21, so --up-mc / --up-margin were silently ignored whenever extras were merged)
+        ups = {id(st["up_max"]) for st in stats}
+        _rb = b3.rb
+
+        def rb_up(arr, m, mc):
+            if id(arr) in ups:
+                return _rb(arr, a.up_margin if a.up_margin is not None else m, a.up_mc if a.up_mc is not None else mc)
+            return _rb(arr, m, mc)
+        b3.rb = rb_up
+        fl.log(f"FFN up bound: margin {a.up_margin}, per-channel multiplier {a.up_mc} (other sites unchanged)")
     only = {int(t) for t in a.only_layers.split(",") if t}
     floors = "none" if var.residual == "global" else "strict"
     if a.profile_from:
@@ -204,6 +285,23 @@ def main():
         if l in shs:
             glob_l = b3.Globals(**{**glob.__dict__, "shifts": dict(glob.shifts, s=shs[l])})
         P, rep = b3.solve_layer(W, stats[l], var, glob.s_in[l], glob.s_out[l], glob_l, caches[l])
+        if a.sh_u:
+            # (a)-exact up site: u16 = requant(nm . Wu, sh_u) with the SAME output scale s_u; the words get 2^sh_u finer
+            gm = W["post_attention_layernorm.weight"].astype(np.float64)
+            K_m = b3.norm_K(int(P.cn_m), int(P.tn))
+            fold_m = gm * K_m / P.gamma_m.astype(np.float64)
+            Wu_e = W["mlp.up_proj.weight"].astype(np.float64) * fold_m[None, :]
+            s_u = np.asarray(P.diag["u"], dtype=np.float64)
+            rmax = np.abs(Wu_e).max(1)
+            k = int(np.floor(np.log2(np.min(127.0 * s_u / np.maximum(rmax, 1e-30)))))
+            k = max(0, min(8, k))
+            if k:
+                q = np.clip(np.floor(Wu_e / (s_u / 2.0 ** k)[:, None] + 0.5), -127, 127).astype(np.int8)
+                P.wu_t = np.ascontiguousarray(q.T)
+                P.sh_u = k
+                P._mats = {}
+            rep["sh_u_exact"] = {"sh_u": k, "word_max_before": int(np.abs(P.wu_t.astype(np.int16)).max()) if not k else None}
+            fl.log(f"  L{l:02d} up remainder: sh_u {k}")
         del W
         bl.export_layer(out, l, P, rep, a.T, var)
         layers.append({"layer": l, "dir": f"layer_{l:02d}", "manifest_sha256": fl.sha_file(out / f"layer_{l:02d}" / "manifest.json"),
@@ -235,7 +333,8 @@ def main():
                                       "profile_decisions": {"cn_a": glob.cn_a, "cn_m": glob.cn_m, "e_s": glob.e_s,
                                                             "silu": glob.silu, "shifts": glob.shifts}},
             "reference_export": str(REF_EXPORT), "words_equal_to_reference_per_layer": same,
-            "profile_from": a.profile_from or None, "sh_s_overrides": shs, "vocab0": vocab_rep,
+            "profile_from": a.profile_from or None, "sh_s_overrides": shs, "vocab0": vocab_rep, "up_mc": a.up_mc, "up_margin": a.up_margin, "sh_u_exact": a.sh_u,
+            "calib_T": T_cal, "extra_calibration": extra_rep,
             "only_layers": sorted(only) or None,
             "tool_sha256": {p: fl.sha_file(fl.HERE / p) for p in ("fp_variant.py", "fp_lib.py")},
             "scope": "fidelity data, not a proof, not a privacy claim"}

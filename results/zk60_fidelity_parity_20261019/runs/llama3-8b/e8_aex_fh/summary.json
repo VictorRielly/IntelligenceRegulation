@@ -1,0 +1,2591 @@
+{
+ "model": "llama3-8b",
+ "export": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/l8_dg_aex",
+ "export_profile_sha256": "c76c17fcf806bb78063939216a198a8609a7e16e94becf850f021f75e4b8167f",
+ "T": 128,
+ "corpora": {
+  "tokenizer": "llama3 tokenizer.json",
+  "tokenizer_sha256": "e134af98b985517b4f068e3755ae90d4e9cd2d45d328325dc503f1c6b2d06cc7",
+  "T": 128,
+  "spec": "fineweb:48,wikitext:48",
+  "corpora": {
+   "fineweb": {
+    "n": 48,
+    "offset": 0,
+    "source": "/home/victor/models/fineweb-edu/sample/10BT/000_00000.parquet",
+    "sha256_expected": "b1ba7b2ce4cb5ea6ef42dca40263eabb85f37700d01693a68e9b30a31d78e871"
+   },
+   "wikitext": {
+    "n": 48,
+    "offset": 0,
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/data/wikitext2/test.parquet",
+    "sha256_expected": "5f1bea067869d04849c0f975a2b29c4ff47d867f484f5010ea5e861eab246d91"
+   }
+  },
+  "ids_sha256": "d662e41ff52f17a0d93720dd846df4445d5f7d8d879bec0c04d88db46534aaad"
+ },
+ "relax": [
+  "head"
+ ],
+ "exact_sites": [
+  "act",
+  "ao",
+  "emb",
+  "exp",
+  "gate",
+  "h",
+  "k",
+  "kr",
+  "nm",
+  "norm",
+  "o",
+  "p",
+  "q",
+  "qr",
+  "rope_tab",
+  "s",
+  "up",
+  "v",
+  "w_d",
+  "w_g",
+  "w_k",
+  "w_o",
+  "w_q",
+  "w_u",
+  "w_v",
+  "y",
+  "z"
+ ],
+ "head": {
+  "kind": "float head on the dequantized, un-rotated integer residual"
+ },
+ "head_final_norm_violations": 0,
+ "refused": 40,
+ "first_refusal": [
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  null,
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  null,
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  null,
+  null,
+  {
+   "layer": 5,
+   "site": "FFN up"
+  },
+  null,
+  {
+   "layer": 21,
+   "site": "FFN up"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  null,
+  null,
+  null,
+  null,
+  null,
+  {
+   "layer": 20,
+   "site": "FFN up"
+  },
+  {
+   "layer": 18,
+   "site": "FFN up"
+  },
+  {
+   "layer": 26,
+   "site": "FFN up"
+  },
+  null,
+  null,
+  null,
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  {
+   "layer": 5,
+   "site": "FFN up"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  null,
+  null,
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  {
+   "layer": 16,
+   "site": "FFN up"
+  },
+  null,
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  null,
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  null,
+  null,
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  null,
+  {
+   "layer": 8,
+   "site": "FFN up"
+  },
+  null,
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  null,
+  null,
+  null,
+  null,
+  null,
+  {
+   "layer": 7,
+   "site": "FFN up"
+  },
+  null,
+  null,
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  null,
+  null,
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  null,
+  null,
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  {
+   "layer": 7,
+   "site": "FFN up"
+  },
+  null,
+  null,
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  null,
+  null,
+  null,
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  null,
+  null,
+  null,
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  null,
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  null,
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  {
+   "layer": 0,
+   "site": "FFN up"
+  },
+  null
+ ],
+ "layers": [
+  {
+   "layer": 0,
+   "violations": 49,
+   "refused_new": 30,
+   "seconds": 77.53009605407715,
+   "weight_fit": null
+  },
+  {
+   "layer": 1,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 76.02744174003601,
+   "weight_fit": null
+  },
+  {
+   "layer": 2,
+   "violations": 1,
+   "refused_new": 1,
+   "seconds": 71.00734615325928,
+   "weight_fit": null
+  },
+  {
+   "layer": 3,
+   "violations": 1,
+   "refused_new": 1,
+   "seconds": 72.00090026855469,
+   "weight_fit": null
+  },
+  {
+   "layer": 4,
+   "violations": 2,
+   "refused_new": 1,
+   "seconds": 69.93550562858582,
+   "weight_fit": null
+  },
+  {
+   "layer": 5,
+   "violations": 3,
+   "refused_new": 2,
+   "seconds": 69.7526023387909,
+   "weight_fit": null
+  },
+  {
+   "layer": 6,
+   "violations": 1,
+   "refused_new": 1,
+   "seconds": 69.22857761383057,
+   "weight_fit": null
+  },
+  {
+   "layer": 7,
+   "violations": 3,
+   "refused_new": 2,
+   "seconds": 72.23795199394226,
+   "weight_fit": null
+  },
+  {
+   "layer": 8,
+   "violations": 4,
+   "refused_new": 3,
+   "seconds": 70.13062810897827,
+   "weight_fit": null
+  },
+  {
+   "layer": 9,
+   "violations": 2,
+   "refused_new": 1,
+   "seconds": 68.32392263412476,
+   "weight_fit": null
+  },
+  {
+   "layer": 10,
+   "violations": 1,
+   "refused_new": 1,
+   "seconds": 72.13911437988281,
+   "weight_fit": null
+  },
+  {
+   "layer": 11,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 70.54457330703735,
+   "weight_fit": null
+  },
+  {
+   "layer": 12,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 70.33570766448975,
+   "weight_fit": null
+  },
+  {
+   "layer": 13,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 70.56175994873047,
+   "weight_fit": null
+  },
+  {
+   "layer": 14,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 70.97714233398438,
+   "weight_fit": null
+  },
+  {
+   "layer": 15,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 70.0689263343811,
+   "weight_fit": null
+  },
+  {
+   "layer": 16,
+   "violations": 4,
+   "refused_new": 1,
+   "seconds": 70.87048959732056,
+   "weight_fit": null
+  },
+  {
+   "layer": 17,
+   "violations": 2,
+   "refused_new": 1,
+   "seconds": 69.67005205154419,
+   "weight_fit": null
+  },
+  {
+   "layer": 18,
+   "violations": 2,
+   "refused_new": 2,
+   "seconds": 68.03551483154297,
+   "weight_fit": null
+  },
+  {
+   "layer": 19,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 69.02733039855957,
+   "weight_fit": null
+  },
+  {
+   "layer": 20,
+   "violations": 30,
+   "refused_new": 1,
+   "seconds": 69.51522302627563,
+   "weight_fit": null
+  },
+  {
+   "layer": 21,
+   "violations": 2,
+   "refused_new": 1,
+   "seconds": 67.52342224121094,
+   "weight_fit": null
+  },
+  {
+   "layer": 22,
+   "violations": 5,
+   "refused_new": 1,
+   "seconds": 68.54429221153259,
+   "weight_fit": null
+  },
+  {
+   "layer": 23,
+   "violations": 27,
+   "refused_new": 1,
+   "seconds": 66.78712224960327,
+   "weight_fit": null
+  },
+  {
+   "layer": 24,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 67.28191089630127,
+   "weight_fit": null
+  },
+  {
+   "layer": 25,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 69.45737028121948,
+   "weight_fit": null
+  },
+  {
+   "layer": 26,
+   "violations": 1,
+   "refused_new": 1,
+   "seconds": 68.2925021648407,
+   "weight_fit": null
+  },
+  {
+   "layer": 27,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 69.85387086868286,
+   "weight_fit": null
+  },
+  {
+   "layer": 28,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 69.87222790718079,
+   "weight_fit": null
+  },
+  {
+   "layer": 29,
+   "violations": 1,
+   "refused_new": 1,
+   "seconds": 67.83956813812256,
+   "weight_fit": null
+  },
+  {
+   "layer": 30,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 69.07146859169006,
+   "weight_fit": null
+  },
+  {
+   "layer": 31,
+   "violations": 0,
+   "refused_new": 0,
+   "seconds": 68.1271538734436,
+   "weight_fit": null
+  }
+ ],
+ "metrics": {
+  "fineweb": {
+   "all": {
+    "sequences": 48,
+    "positions": 6096,
+    "top1_agreement": 0.849245406824147,
+    "kl_mean": 0.12868495324544132,
+    "ppl_float": 9.587805123435876,
+    "ppl_int": 10.812160723584805,
+    "ppl_ratio": {
+     "ratio": 1.1276992580039182,
+     "ci95_t": [
+      1.073576440346827,
+      1.184550599947735
+     ],
+     "ci95_boot": [
+      1.0812883912329632,
+      1.1873072375783034
+     ],
+     "n": 48
+    }
+   },
+   "accepted": {
+    "sequences": 23,
+    "positions": 2921,
+    "top1_agreement": 0.8366997603560424,
+    "kl_mean": 0.16267667818534717,
+    "ppl_float": 9.51532109862491,
+    "ppl_int": 11.019555855148186,
+    "ppl_ratio": {
+     "ratio": 1.1580855486569606,
+     "ci95_t": [
+      1.0505468526296993,
+      1.2766323887896425
+     ],
+     "ci95_boot": [
+      1.0698262544172321,
+      1.2968460316184403
+     ],
+     "n": 23
+    }
+   },
+   "refused": 25
+  },
+  "wikitext": {
+   "all": {
+    "sequences": 48,
+    "positions": 6096,
+    "top1_agreement": 0.822014435695538,
+    "kl_mean": 0.1314252736262131,
+    "ppl_float": 15.418771425976022,
+    "ppl_int": 16.943693319319785,
+    "ppl_ratio": {
+     "ratio": 1.098900350178012,
+     "ci95_t": [
+      1.0759645865232983,
+      1.1223250232829192
+     ],
+     "ci95_boot": [
+      1.075684100109223,
+      1.1217696511894664
+     ],
+     "n": 48
+    }
+   },
+   "accepted": {
+    "sequences": 33,
+    "positions": 4191,
+    "top1_agreement": 0.816034359341446,
+    "kl_mean": 0.1333605997238522,
+    "ppl_float": 15.32777186997723,
+    "ppl_int": 17.05828571319433,
+    "ppl_ratio": {
+     "ratio": 1.1129005479659246,
+     "ci95_t": [
+      1.088008908267182,
+      1.1383616625303454
+     ],
+     "ci95_boot": [
+      1.0896484083992481,
+      1.1368654073624522
+     ],
+     "n": 33
+    }
+   },
+   "refused": 15
+  }
+ },
+ "seconds": 2485.5507349967957,
+ "violations_where": [
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 0,
+   "pos": 30,
+   "token": 14071,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 2,
+   "pos": 18,
+   "token": 3616,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 4,
+   "pos": 101,
+   "token": 566,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 5,
+   "pos": 82,
+   "token": 3376,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 5,
+   "pos": 89,
+   "token": 10065,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 6,
+   "pos": 15,
+   "token": 546,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 6,
+   "pos": 16,
+   "token": 392,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 6,
+   "pos": 30,
+   "token": 392,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 12,
+   "pos": 91,
+   "token": 400,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 12,
+   "pos": 102,
+   "token": 400,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 24,
+   "pos": 40,
+   "token": 20018,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 26,
+   "pos": 2,
+   "token": 937,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 29,
+   "pos": 9,
+   "token": 12160,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 29,
+   "pos": 14,
+   "token": 12160,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 32,
+   "pos": 1,
+   "token": 91,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 33,
+   "pos": 98,
+   "token": 1677,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 33,
+   "pos": 101,
+   "token": 655,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 34,
+   "pos": 115,
+   "token": 10065,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 35,
+   "pos": 112,
+   "token": 455,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 37,
+   "pos": 63,
+   "token": 2352,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 38,
+   "pos": 96,
+   "token": 37444,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 41,
+   "pos": 10,
+   "token": 33438,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 45,
+   "pos": 16,
+   "token": 1637,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 45,
+   "pos": 52,
+   "token": 1637,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 45,
+   "pos": 78,
+   "token": 1637,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 45,
+   "pos": 111,
+   "token": 1637,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 54,
+   "pos": 60,
+   "token": 1697,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 55,
+   "pos": 72,
+   "token": 566,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 55,
+   "pos": 112,
+   "token": 566,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 56,
+   "pos": 88,
+   "token": 566,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 63,
+   "pos": 43,
+   "token": 1846,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 66,
+   "pos": 120,
+   "token": 400,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 69,
+   "pos": 94,
+   "token": 392,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 73,
+   "pos": 110,
+   "token": 26951,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 73,
+   "pos": 123,
+   "token": 26951,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 77,
+   "pos": 1,
+   "token": 21237,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 77,
+   "pos": 104,
+   "token": 38216,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 78,
+   "pos": 106,
+   "token": 400,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 82,
+   "pos": 8,
+   "token": 716,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 84,
+   "pos": 52,
+   "token": 3333,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 86,
+   "pos": 68,
+   "token": 1091,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 86,
+   "pos": 113,
+   "token": 1091,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "seq": 94,
+   "pos": 79,
+   "token": 4586,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 2,
+   "site": "FFN up",
+   "seq": 41,
+   "pos": 1,
+   "token": 41672,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 3,
+   "site": "FFN up",
+   "seq": 66,
+   "pos": 120,
+   "token": 400,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 4,
+   "site": "FFN up",
+   "seq": 0,
+   "pos": 12,
+   "token": 9499,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 4,
+   "site": "FFN up",
+   "seq": 0,
+   "pos": 109,
+   "token": 4106,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 5,
+   "site": "FFN up",
+   "seq": 9,
+   "pos": 12,
+   "token": 555,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 5,
+   "site": "FFN up",
+   "seq": 25,
+   "pos": 6,
+   "token": 1049,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 5,
+   "site": "FFN up",
+   "seq": 25,
+   "pos": 36,
+   "token": 1049,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 6,
+   "site": "FFN up",
+   "seq": 34,
+   "pos": 19,
+   "token": 791,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 7,
+   "site": "FFN up",
+   "seq": 51,
+   "pos": 33,
+   "token": 3166,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 7,
+   "site": "FFN up",
+   "seq": 70,
+   "pos": 43,
+   "token": 1888,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 7,
+   "site": "FFN up",
+   "seq": 70,
+   "pos": 44,
+   "token": 304,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 8,
+   "site": "FFN up",
+   "seq": 12,
+   "pos": 82,
+   "token": 5780,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 8,
+   "site": "FFN up",
+   "seq": 43,
+   "pos": 92,
+   "token": 26073,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 8,
+   "site": "FFN up",
+   "seq": 70,
+   "pos": 40,
+   "token": 6562,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 8,
+   "site": "FFN up",
+   "seq": 70,
+   "pos": 43,
+   "token": 1888,
+   "count": 1,
+   "corpus": "wikitext"
+  },
+  {
+   "layer": 9,
+   "site": "FFN up",
+   "seq": 9,
+   "pos": 42,
+   "token": 3475,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 9,
+   "site": "FFN up",
+   "seq": 9,
+   "pos": 99,
+   "token": 20155,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 10,
+   "site": "FFN up",
+   "seq": 9,
+   "pos": 99,
+   "token": 20155,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 16,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 71,
+   "token": 11439,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 16,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 72,
+   "token": 311,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 16,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 80,
+   "token": 8336,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 16,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 104,
+   "token": 13,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 17,
+   "site": "FFN up",
+   "seq": 29,
+   "pos": 99,
+   "token": 505,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 17,
+   "site": "FFN up",
+   "seq": 29,
+   "pos": 100,
+   "token": 30667,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 18,
+   "site": "FFN up",
+   "seq": 19,
+   "pos": 120,
+   "token": 1486,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 18,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 71,
+   "token": 11439,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 16,
+   "token": 7918,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 17,
+   "token": 13935,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 18,
+   "token": 311,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 22,
+   "token": 46192,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 23,
+   "token": 323,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 36,
+   "token": 311,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 37,
+   "token": 5471,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 38,
+   "token": 33318,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 50,
+   "token": 220,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 62,
+   "token": 315,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 63,
+   "token": 435,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 64,
+   "token": 7918,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 65,
+   "token": 50234,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 66,
+   "token": 304,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 72,
+   "token": 505,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 73,
+   "token": 279,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 81,
+   "token": 430,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 82,
+   "token": 220,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 86,
+   "token": 220,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 107,
+   "token": 555,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 108,
+   "token": 23391,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 109,
+   "token": 430,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 111,
+   "token": 3278,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 112,
+   "token": 636,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 113,
+   "token": 3403,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 114,
+   "token": 282,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 115,
+   "token": 7918,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 119,
+   "token": 11215,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 120,
+   "token": 889,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "seq": 18,
+   "pos": 121,
+   "token": 527,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 21,
+   "site": "FFN up",
+   "seq": 11,
+   "pos": 42,
+   "token": 701,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 21,
+   "site": "FFN up",
+   "seq": 11,
+   "pos": 46,
+   "token": 701,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 22,
+   "site": "FFN up",
+   "seq": 11,
+   "pos": 118,
+   "token": 5353,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 22,
+   "site": "FFN up",
+   "seq": 11,
+   "pos": 119,
+   "token": 499,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 22,
+   "site": "FFN up",
+   "seq": 11,
+   "pos": 120,
+   "token": 311,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 22,
+   "site": "FFN up",
+   "seq": 11,
+   "pos": 121,
+   "token": 9229,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 22,
+   "site": "FFN up",
+   "seq": 11,
+   "pos": 122,
+   "token": 701,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 70,
+   "token": 512,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 71,
+   "token": 11439,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 72,
+   "token": 311,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 73,
+   "token": 2038,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 75,
+   "token": 555,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 77,
+   "token": 753,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 79,
+   "token": 505,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 81,
+   "token": 2949,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 82,
+   "token": 279,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 83,
+   "token": 16777,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 84,
+   "token": 20214,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 100,
+   "token": 2403,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 101,
+   "token": 24666,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 102,
+   "token": 5426,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 107,
+   "token": 574,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 110,
+   "token": 264,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 111,
+   "token": 3293,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 113,
+   "token": 315,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 114,
+   "token": 279,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 115,
+   "token": 16777,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 116,
+   "token": 24780,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 117,
+   "token": 18362,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 120,
+   "token": 555,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 122,
+   "token": 9675,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 123,
+   "token": 1050,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 124,
+   "token": 32752,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "seq": 30,
+   "pos": 127,
+   "token": 575,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 26,
+   "site": "FFN up",
+   "seq": 20,
+   "pos": 14,
+   "token": 520,
+   "count": 1,
+   "corpus": "fineweb"
+  },
+  {
+   "layer": 29,
+   "site": "FFN up",
+   "seq": 37,
+   "pos": 24,
+   "token": 12415,
+   "count": 1,
+   "corpus": "fineweb"
+  }
+ ],
+ "refusal_tokens": [
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 566,
+   "text": "cl",
+   "sequences": 3
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 400,
+   "text": "\u0120$",
+   "sequences": 3
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 10065,
+   "text": "\u0120animal",
+   "sequences": 2
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 392,
+   "text": "ub",
+   "sequences": 2
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 14071,
+   "text": "\u0120yellow",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 3616,
+   "text": "ULT",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 3376,
+   "text": "oper",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 546,
+   "text": "ont",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 20018,
+   "text": "ounced",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 937,
+   "text": "SE",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 12160,
+   "text": "elly",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 91,
+   "text": "|",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 1677,
+   "text": "mon",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 655,
+   "text": "ber",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 455,
+   "text": "up",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 2352,
+   "text": "aster",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 37444,
+   "text": "\u0120colleague",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 33438,
+   "text": "prime",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 1637,
+   "text": "ward",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 1697,
+   "text": "ational",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 1846,
+   "text": "AD",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 26951,
+   "text": "\u0120tanks",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 21237,
+   "text": "itudes",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 38216,
+   "text": "\u0120Resolution",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 716,
+   "text": "per",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 3333,
+   "text": "eral",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 1091,
+   "text": "ask",
+   "sequences": 1
+  },
+  {
+   "layer": 0,
+   "site": "FFN up",
+   "token": 4586,
+   "text": "ATA",
+   "sequences": 1
+  },
+  {
+   "layer": 2,
+   "site": "FFN up",
+   "token": 41672,
+   "text": "Young",
+   "sequences": 1
+  },
+  {
+   "layer": 3,
+   "site": "FFN up",
+   "token": 400,
+   "text": "\u0120$",
+   "sequences": 1
+  },
+  {
+   "layer": 4,
+   "site": "FFN up",
+   "token": 9499,
+   "text": "\u0120temperature",
+   "sequences": 1
+  },
+  {
+   "layer": 4,
+   "site": "FFN up",
+   "token": 4106,
+   "text": "\u0120hot",
+   "sequences": 1
+  },
+  {
+   "layer": 5,
+   "site": "FFN up",
+   "token": 555,
+   "text": "\u0120by",
+   "sequences": 1
+  },
+  {
+   "layer": 5,
+   "site": "FFN up",
+   "token": 1049,
+   "text": "200",
+   "sequences": 1
+  },
+  {
+   "layer": 6,
+   "site": "FFN up",
+   "token": 791,
+   "text": "The",
+   "sequences": 1
+  },
+  {
+   "layer": 7,
+   "site": "FFN up",
+   "token": 3166,
+   "text": "IV",
+   "sequences": 1
+  },
+  {
+   "layer": 7,
+   "site": "FFN up",
+   "token": 1888,
+   "text": "\u0120best",
+   "sequences": 1
+  },
+  {
+   "layer": 7,
+   "site": "FFN up",
+   "token": 304,
+   "text": "\u0120in",
+   "sequences": 1
+  },
+  {
+   "layer": 8,
+   "site": "FFN up",
+   "token": 5780,
+   "text": "\u0120machine",
+   "sequences": 1
+  },
+  {
+   "layer": 8,
+   "site": "FFN up",
+   "token": 26073,
+   "text": "\u0120explaining",
+   "sequences": 1
+  },
+  {
+   "layer": 8,
+   "site": "FFN up",
+   "token": 6562,
+   "text": "\u0120wish",
+   "sequences": 1
+  },
+  {
+   "layer": 8,
+   "site": "FFN up",
+   "token": 1888,
+   "text": "\u0120best",
+   "sequences": 1
+  },
+  {
+   "layer": 9,
+   "site": "FFN up",
+   "token": 3475,
+   "text": "\u0120Test",
+   "sequences": 1
+  },
+  {
+   "layer": 9,
+   "site": "FFN up",
+   "token": 20155,
+   "text": "\u0120bulk",
+   "sequences": 1
+  },
+  {
+   "layer": 10,
+   "site": "FFN up",
+   "token": 20155,
+   "text": "\u0120bulk",
+   "sequences": 1
+  },
+  {
+   "layer": 16,
+   "site": "FFN up",
+   "token": 11439,
+   "text": "According",
+   "sequences": 1
+  },
+  {
+   "layer": 16,
+   "site": "FFN up",
+   "token": 311,
+   "text": "\u0120to",
+   "sequences": 1
+  },
+  {
+   "layer": 16,
+   "site": "FFN up",
+   "token": 8336,
+   "text": "\u0120sources",
+   "sequences": 1
+  },
+  {
+   "layer": 16,
+   "site": "FFN up",
+   "token": 13,
+   "text": ".",
+   "sequences": 1
+  },
+  {
+   "layer": 17,
+   "site": "FFN up",
+   "token": 505,
+   "text": "\u0120from",
+   "sequences": 1
+  },
+  {
+   "layer": 17,
+   "site": "FFN up",
+   "token": 30667,
+   "text": "\u0120torture",
+   "sequences": 1
+  },
+  {
+   "layer": 18,
+   "site": "FFN up",
+   "token": 1486,
+   "text": "\u0120point",
+   "sequences": 1
+  },
+  {
+   "layer": 18,
+   "site": "FFN up",
+   "token": 11439,
+   "text": "According",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 7918,
+   "text": "olic",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 13935,
+   "text": "\u0120acid",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 311,
+   "text": "\u0120to",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 46192,
+   "text": "\u0120vitamins",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 323,
+   "text": "\u0120and",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 5471,
+   "text": "\u0120prevent",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 33318,
+   "text": "\u0120devastating",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 220,
+   "text": "\u0120",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 315,
+   "text": "\u0120of",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 435,
+   "text": "\u0120F",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 50234,
+   "text": "\u0120Acid",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 304,
+   "text": "\u0120in",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 505,
+   "text": "\u0120from",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 279,
+   "text": "\u0120the",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 430,
+   "text": "\u0120that",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 555,
+   "text": "\u0120by",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 23391,
+   "text": "\u0120ensuring",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 3278,
+   "text": "\u0120women",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 636,
+   "text": "\u0120get",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 3403,
+   "text": "\u0120enough",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 282,
+   "text": "\u0120f",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 11215,
+   "text": "\u0120Women",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 889,
+   "text": "\u0120who",
+   "sequences": 1
+  },
+  {
+   "layer": 20,
+   "site": "FFN up",
+   "token": 527,
+   "text": "\u0120are",
+   "sequences": 1
+  },
+  {
+   "layer": 21,
+   "site": "FFN up",
+   "token": 701,
+   "text": "\u0120your",
+   "sequences": 1
+  },
+  {
+   "layer": 22,
+   "site": "FFN up",
+   "token": 5353,
+   "text": "\u0120cause",
+   "sequences": 1
+  },
+  {
+   "layer": 22,
+   "site": "FFN up",
+   "token": 499,
+   "text": "\u0120you",
+   "sequences": 1
+  },
+  {
+   "layer": 22,
+   "site": "FFN up",
+   "token": 311,
+   "text": "\u0120to",
+   "sequences": 1
+  },
+  {
+   "layer": 22,
+   "site": "FFN up",
+   "token": 9229,
+   "text": "\u0120lose",
+   "sequences": 1
+  },
+  {
+   "layer": 22,
+   "site": "FFN up",
+   "token": 701,
+   "text": "\u0120your",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 512,
+   "text": ":\u010a",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 11439,
+   "text": "According",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 311,
+   "text": "\u0120to",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 2038,
+   "text": "\u0120information",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 555,
+   "text": "\u0120by",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 753,
+   "text": "\u00e2\u0122\u013bs",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 505,
+   "text": "\u0120from",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 2949,
+   "text": "\u0120within",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 279,
+   "text": "\u0120the",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 16777,
+   "text": "\u0120Defense",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 20214,
+   "text": "\u0120Ministry",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 2403,
+   "text": "\u0120against",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 24666,
+   "text": "\u0120Turkish",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 5426,
+   "text": "\u0120national",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 574,
+   "text": "\u0120was",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 264,
+   "text": "\u0120a",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 3293,
+   "text": "\u0120recent",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 315,
+   "text": "\u0120of",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 24780,
+   "text": "\u0120Industry",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 18362,
+   "text": "\u0120Executive",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 9675,
+   "text": "\u0120Minister",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 1050,
+   "text": "\u0120Re",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 32752,
+   "text": "cep",
+   "sequences": 1
+  },
+  {
+   "layer": 23,
+   "site": "FFN up",
+   "token": 575,
+   "text": "ip",
+   "sequences": 1
+  },
+  {
+   "layer": 26,
+   "site": "FFN up",
+   "token": 520,
+   "text": "\u0120at",
+   "sequences": 1
+  },
+  {
+   "layer": 29,
+   "site": "FFN up",
+   "token": 12415,
+   "text": "\u00d0\u00b9",
+   "sequences": 1
+  }
+ ],
+ "gptq": null,
+ "words_from": null,
+ "mods": null,
+ "gate_pc": null,
+ "mult_bits": null,
+ "tool_sha256": {
+  "fp_lib.py": "a51282f2878d0ab887488a14f748fe8701d53c8d57346b5de8328198ff06234d",
+  "fp_data.py": "3d0fea7676f06dfd3b1ff4260f973906314c45745599925af22cd2f7aef1447b",
+  "fp_eval.py": "65f108279aa00a6ce1d57ea9df07e55889b486b262359cee7f117dfbea338939",
+  "fp_gptq.py": "74543c11cce091078f0d37e80e814a193cb6e5a12579ce5aa968ad428eb785bd"
+ },
+ "scope": "fidelity data, not a proof, not a privacy claim; refusals clamped to continue (diagnostic)"
+}

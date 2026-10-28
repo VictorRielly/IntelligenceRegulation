@@ -1,0 +1,23 @@
+{
+  "accessed_at_utc": "2026-10-20T08:28:56.197391+00:00",
+  "queries": [
+    "GPU sumcheck prover public preprocessing 2026 GitHub release October",
+    "GPU NTT commitment prover 2026 GitHub Icicle release",
+    "site.eprint.iacr.org 2026 zero knowledge transformer lookup softmax",
+    "Hierarchical Exploitation of Memory Efficiency HMFHE paper2026",
+    "GPU sumcheck October2026 release performance",
+    "COBRA bit reversal1998 algorithm",
+    "HyperDrive Guang Fan GPU FHE github",
+    "Pico3.0 github prover2026"
+  ],
+  "primary_records": 8,
+  "secondary_results_used_as_evidence": false,
+  "external_code_executed": false,
+  "blockers": [
+    "Primary Blackwell history/LICENSE/code Cache miss/Internal Error",
+    "ZeroCheck PDF403",
+    "Efficient-sumcheck exact commit429",
+    "Pico release fetchCache miss"
+  ],
+  "no_bypass": true
+}

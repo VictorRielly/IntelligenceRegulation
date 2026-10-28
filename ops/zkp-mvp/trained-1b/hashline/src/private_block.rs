@@ -99,6 +99,8 @@ mod run;
 // file per segment) and the `L` file names a streaming verifier reads back
 // one at a time. The wire format of a segment does not move here.
 mod run_sink;
+// NATIVE R12 (F1): RoPE frequency transforms, public tables only
+mod rope;
 mod shape;
 // STAGE 11: the phase clock. A write-only recorder, inert unless
 // `HL_PB_TIMING=1`, that answers WHERE the seconds of one block go (the P5
@@ -115,6 +117,7 @@ mod trained_statement;
 // MVP driver: it builds the public statement and the trained-model statement
 // from a calibration export and adds no protocol code.
 mod trained_block;
+pub mod tied_tables;
 pub use trained_block::{trained_prove_command, trained_stack_prove_command, trained_stack_verify_command, trained_verify_command};
 mod wire;
 mod witness;
@@ -170,6 +173,21 @@ mod r6_tests;
 // NATIVE R8: every export-chosen calibration constant per layer (test only)
 #[cfg(test)]
 mod r8_tests;
+// NATIVE R9: byte identity of the non-DD profiles across R8 -> R9 (test only)
+#[cfg(test)]
+mod r9_golden_tests;
+// NATIVE R9: DD, the per-row division dictionary (D30) (test only)
+#[cfg(test)]
+mod r9_tests;
+// NATIVE R12 (D38): Shieldstral — F1 RoPE transforms, F2 decoupled head_dim,
+// F3 tied embeddings, the profiles (test only)
+#[cfg(test)]
+mod r12_tests;
+#[cfg(test)]
+mod r12b_tests;
+// NATIVE R12: byte identity of the existing profiles across R9 -> R12 (test only)
+#[cfg(test)]
+mod r12_golden_tests;
 // STAGE 19 (test-only): DENSE public weights and a numerically non-trivial
 // witness at the shaped geometries, where the diagonal fixture leaves every
 // hidden unit above `d` with no input and no output weight.
@@ -401,7 +419,9 @@ enum Axis {
 impl Axis {
     fn len(self, sh: &shape::Shape) -> usize {
         match self {
-            Axis::D | Axis::Q => sh.d_pad,
+            Axis::D => sh.d_pad,
+            // NATIVE R12 (F2): the query axis has its own padded width
+            Axis::Q => sh.q_pad(),
             Axis::F => sh.f_pad,
             Axis::Full(n) => n,
         }
@@ -552,8 +572,10 @@ impl AttentionPublic {
     /// shape it is proved at, before anything is absorbed, committed or drawn.
     #[allow(clippy::too_many_arguments)]
     fn check_words(sh: &shape::Shape, wq: &[i8], wk: &[i8], wv: &[i8], wo: &[i8], gamma_a: &[i8], rope_cos: &[i64], rope_sin: &[i64], exp: &[i64]) -> Result<(), String> {
-        let (d, kv, half) = (sh.d_pad, sh.kv_heads * sh.head_dim, sh.head_dim / 2);
-        if [wq.len(), wo.len()] != [d * d; 2] || [wk.len(), wv.len()] != [kv * d; 2] || gamma_a.len() != d {
+        // NATIVE R12 (F2): `Wq` is (query axis, model axis), `Wo` (model
+        // axis, query axis); `q == d` at every profile before R12
+        let (d, q, kv, half) = (sh.d_pad, sh.q_pad(), sh.kv_heads * sh.head_dim, sh.head_dim / 2);
+        if [wq.len(), wo.len()] != [q * d; 2] || [wk.len(), wv.len()] != [kv * d; 2] || gamma_a.len() != d {
             return Err("private block: public weight shape".into());
         }
         // P-2: the destination axis's support, axis by axis. `Wq` writes the
@@ -589,6 +611,34 @@ impl AttentionPublic {
         Self::check_words(sh, &self.wq, &self.wk, &self.wv, &self.wo, &self.gamma_a, &self.rope_cos, &self.rope_sin, &self.exp).map_err(|e| format!("{CS4_ATTENTION_REFUSAL}: {e}"))
     }
 
+    /// **NATIVE R9 (D30; CHECK.md B-7, B-8, C-1): the dictionary's public e
+    /// column** — `sorted({0} U the exp table's outputs)`, padded with 0 to
+    /// `cap`. Masked positions look up e = 0, so 0 is always in the column
+    /// (B-7). A table whose column needs more than `cap` slots is REFUSED by
+    /// name: the refusal names the class and the count, both public (the
+    /// table is the block's public statement), and nothing else.
+    pub(crate) fn dd_e_column(&self, cap: usize) -> Result<Vec<i64>, String> {
+        dd_e_column_of(&self.exp, cap)
+    }
+
+}
+
+/// **NATIVE R9: [`AttentionPublic::dd_e_column`] on a bare table** (the
+/// trained door's and the tests' form)
+pub(crate) fn dd_e_column_of(exp: &[i64], cap: usize) -> Result<Vec<i64>, String> {
+    {
+        let mut col: Vec<i64> = std::iter::once(0).chain(exp.iter().copied()).collect();
+        col.sort_unstable();
+        col.dedup();
+        if col.len() > cap {
+            return Err(format!("private block: D30 / B-8 — this block's exp table needs a dictionary column of {} slots ({{0}} U its outputs), more than the profile's cap of {cap}; refused by name before any header", col.len()));
+        }
+        col.resize(cap, 0);
+        Ok(col)
+    }
+}
+
+impl AttentionPublic {
     fn absorb_into(&self, h: &mut blake3::Hasher) {
         for w in [&self.wq, &self.wk, &self.wv, &self.wo, &self.gamma_a] {
             h.update(&(w.len() as u64).to_le_bytes());
@@ -751,7 +801,15 @@ impl BlockPublic {
     /// feed-forward half's, in block order, each refusing by its own name.
     pub(crate) fn check_for_shape(&self, sh: &shape::Shape) -> Result<(), String> {
         self.attention.check_for_shape(sh)?;
-        self.feed_forward.check_for_shape(sh)
+        self.feed_forward.check_for_shape(sh)?;
+        // NATIVE R9 (D30 condition 6, CHECK.md B-8): at a DD profile the
+        // block's exp table must fit the dictionary — refused by name, from
+        // the public table alone, wherever a block meets a DD shape (the
+        // trained door, the run statement, both cores)
+        if sh.dd_cap > 0 {
+            self.attention.dd_e_column(sh.dd_cap)?;
+        }
+        Ok(())
     }
 
     pub fn digest(&self) -> Digest {

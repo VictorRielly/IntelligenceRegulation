@@ -1,0 +1,98 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/run.rs",
+    "sha256": "9d324ad0871f8932c5e872f74f6aa01e6e4120b8d23cea6771cddccd2e9c4daa",
+    "bytes": 56637,
+    "snapshot": "gpu__private_block__run.rs"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/protocol.rs",
+    "sha256": "4612a955a1148ba821e3d8722684ccb1d73304bb34955dcd3be28cafdbdc8e7d",
+    "bytes": 63656,
+    "snapshot": "gpu__private_block__protocol.rs"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/boundary.rs",
+    "sha256": "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581",
+    "bytes": 36123,
+    "snapshot": "gpu__private_block__boundary.rs"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/layout.rs",
+    "sha256": "fcf9dda4e507d2a347f786ddc537feff3ac57779abae88cea91ee48d4b34c855",
+    "bytes": 64489,
+    "snapshot": "gpu__private_block__layout.rs"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/shape.rs",
+    "sha256": "e6c7290b5c2d897ccaaa6284c813bbcfea563aaef7594c309b955a5588c1e073",
+    "bytes": 102462,
+    "snapshot": "gpu__private_block__shape.rs"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/cuda.rs",
+    "sha256": "dcc0e4bcd76c009827d30d8b1547e043118619948f59e63e75b132c5e6a38629",
+    "bytes": 258588,
+    "snapshot": "gpu__gpu__cuda.rs"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/pcs.rs",
+    "sha256": "8b14096b66f6597e3cdfe239a7359457dd17dfd475c2a5d0f4e112a41342127f",
+    "bytes": 6900,
+    "snapshot": "gpu__pcs.rs"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/zk.rs",
+    "sha256": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32",
+    "bytes": 254060,
+    "snapshot": "gpu__zk.rs"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/run.rs",
+    "sha256": "d913a081b82d54b6a1a67cd938afe1700910e820d9b3a97019a398f8b61ea609",
+    "bytes": 77515,
+    "snapshot": "r8__private_block__run.rs"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/protocol.rs",
+    "sha256": "85ca893173c4bfc0d8c88be69dbd0834831d4aec4ec9783c66e0b61d614615f6",
+    "bytes": 71311,
+    "snapshot": "r8__private_block__protocol.rs"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/boundary.rs",
+    "sha256": "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581",
+    "bytes": 36123,
+    "snapshot": "r8__private_block__boundary.rs"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/layout.rs",
+    "sha256": "ee871fff7eed377cafcb05ec0438df95a70695ae8fdcd5b5822f5f40663b0ee9",
+    "bytes": 66327,
+    "snapshot": "r8__private_block__layout.rs"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/shape.rs",
+    "sha256": "8c62519c98e36ae966b7f9480e1d47884c57526c2ccf0288deb1286ca1a0fb34",
+    "bytes": 119159,
+    "snapshot": "r8__private_block__shape.rs"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/gpu/cuda.rs",
+    "sha256": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9",
+    "bytes": 205193,
+    "snapshot": "r8__gpu__cuda.rs"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/pcs.rs",
+    "sha256": "8b14096b66f6597e3cdfe239a7359457dd17dfd475c2a5d0f4e112a41342127f",
+    "bytes": 6900,
+    "snapshot": "r8__pcs.rs"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/zk.rs",
+    "sha256": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32",
+    "bytes": 254060,
+    "snapshot": "r8__zk.rs"
+  }
+]

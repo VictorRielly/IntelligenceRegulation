@@ -1,0 +1,2067 @@
+diff -ruN -x __pycache__ frozen_v8/scripts/zk60_native_rg_tokengate.py scripts/zk60_native_rg_tokengate.py
+--- frozen_v8/scripts/zk60_native_rg_tokengate.py	1969-12-31 16:00:00.000000000 -0800
++++ scripts/zk60_native_rg_tokengate.py	2026-10-19 10:56:22.192062184 -0700
+@@ -0,0 +1,1100 @@
++#!/usr/bin/env python3
++"""[GATE ROUND 7, 2026-10-19] The privacy gate on a TOKEN-I/O run capture
++(schema `hashline-native-capture/6-token-run`): stage IN, the L block stages,
++stage OUT, under one transcript.
++
++WHAT IT REUSES, AND HOW.  Every rank, mask and hash computation is the gate's
++existing, frozen machinery (`zk60_native_rg_pcs.RunRoleView`,
++`zk60_native_run_gate.stage3`'s per-commitment model, `zk60_native_rg_joint`'s
++mask block, `zk60_native_rg_mask`'s CFS port, `zk60_native_rg_hashlayer`).  Three
++things are new and live here:
++
++1. **The loader** (`TokenRunBundle`).  Schema 6, coverage
++   `token-run-all-stages-v1`, `L + 2` stage files with `stage_kind` IN /
++   BLOCK / OUT, boundaries in TOKEN numbering (0 = B_in, L = B_out), the
++   `token_io` facts.  The array store is schema 5's.
++2. **The replay** (`TokenRunReplay`).  `zk60_native_rg_replay.RunReplay` with
++   the token stages' two prefixes (READ, `token_io/stage_in.rs:422-431`,
++   `stage_out.rs` verify; `run.json["transcript_program"]`):
++   * stage IN draws THREE LogUp challenges and then `clog2(d_pad)` more, the
++     column point `r_emb`, before `H`;
++   * stage OUT draws TWO (gamma, alpha), not three;
++   * the slot sites of a new stage are ITS slots (4 / 11), not the block's
++     23.
++   Every challenge is re-derived and compared, as for a block run.
++3. **The role adapter.**  The generic per-commitment model reads the row
++   width from a SHAPE and the expected group count from a role NAME.  A new
++   commitment is therefore handed to it with a per-opening shape built from
++   that opening's own `params`, and with its canonical role:
++   * `A-in` / `A-out` as an A, and `H-in` / `H-out` as an H, with the group
++     counts the token code declares
++     (`stage_in.rs` A_GROUPS 3 / H_GROUPS 4, `stage_out.rs` 18 / 6);
++   * `E-token-*` as an external endpoint (one group);
++   * `B-in` / `B-out` as internal boundaries (one group per site).
++
++   The record keeps the original names.
++
++NOTHING HERE IS A PRIVACY RESULT.
++"""
++
++from __future__ import annotations
++
++import copy
++import hashlib
++import json
++import os
++import sys
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++if HERE not in sys.path:
++    sys.path.insert(0, HERE)
++
++from zk60_native_rg_arrays import ARRAY_STORE_FILE, ArrayRefused, ArrayStore, resolve_document  # noqa: E402
++from zk60_native_rg_bundle import Shape, Stage, MANIFEST_KIND  # noqa: E402
++from zk60_native_rg_hashrule import rule_for_bundle  # noqa: E402
++from zk60_native_rg_replay import RunReplay  # noqa: E402
++import zk60_native_rg_tokenio as TIO  # noqa: E402
++
++SCHEMA_6 = "hashline-native-capture/6-token-run"
++RUN_KIND = "zk60-run-verifier-observations"
++STAGE_KIND = "zk60-run-stage-observations"
++COVERAGE_6 = "token-run-all-stages-v1"
++STAGE_KINDS = ("IN", "BLOCK", "OUT")
++# the opening order of each stage kind (READ, run.json transcript_program and
++# the stage verifiers): a block stage opens M A H then the boundary before it
++ORDER = {
++    "IN": ["M", "A-in", "H-in", "E-token-in"],
++    "BLOCK": ["M", "A", "H", "Input"],
++    "OUT": ["M", "A-out", "H-out", "B-out", "E-token-out"],
++}
++# the token code's declared opening groups (distinct column keys)
++GROUPS = {"A-in": 3, "H-in": 4, "A-out": 18, "H-out": 6}
++CANON = {
++    "A-in": ("A", "stage-in"), "H-in": ("H", "stage-in"),
++    "A-out": ("A", "stage-out"), "H-out": ("H", "stage-out"),
++    "E-token-in": ("Input", "external-endpoint"), "E-token-out": ("Output", "external-endpoint"),
++    "B-out": ("Output", "internal-boundary"),
++}
++# expected disclosed dimension per CLASS (the block's values, EXPECTED_DISCLOSED):
++# an A discloses 0, an H the 2 of its public LogUp identity, every endpoint and
++# boundary 0
++EXPECTED = {"A": 0, "H": 2, "endpoint": 0, "boundary": 0}
++
++
++class TokenStage(Stage):
++    """A token-run stage file: a block stage's content plus `stage_kind` and,
++    for IN / OUT, its `stage_plane_index`."""
++
++    def __init__(self, path, index, stages, store, refusals):
++        # `Stage.__init__` checks `blocks` against its argument; a token stage
++        # declares the run's L there, so the check is made against L below
++        with open(path, "rb") as fh:
++            raw = fh.read()
++        self.path, self.name = path, os.path.basename(path)
++        self.sha256, self.bytes = hashlib.sha256(raw).hexdigest(), len(raw)
++        self.doc = json.loads(raw)
++        d = self.doc
++        if d.get("schema") != SCHEMA_6:
++            raise ValueError(f"{self.name}: schema {d.get('schema')!r} is not {SCHEMA_6!r}")
++        self.arrays_resolved = resolve_document(d, store, self.name, refusals) if store else 0
++        if d.get("kind") != STAGE_KIND:
++            raise ValueError(f"{self.name}: kind {d.get('kind')!r}")
++        if d.get("stage") != index or d.get("stages") != stages:
++            raise ValueError(f"{self.name}: declares stage {d.get('stage')} of {d.get('stages')}, not {index} of {stages}")
++        if d.get("stage_kind") not in STAGE_KINDS:
++            raise ValueError(f"{self.name}: stage_kind {d.get('stage_kind')!r}")
++        self.index = index
++        self.kind = d["stage_kind"]
++
++    def key(self, role_name: str) -> str:
++        """Commitment names.  Boundaries in TOKEN numbering: `B0` = B_in
++        (opened at block 0's stage as `Input`), `B{L}` = B_out."""
++        r = self.role(role_name)
++        if r.get("boundary") is not None:
++            return f"B{r['boundary']}"
++        if role_name.startswith("E-token"):
++            return role_name
++        return f"{role_name}@{self.index}"
++
++
++class TokenRunBundle:
++    """A token-run capture: the run header, `token_io`, L + 2 stages."""
++
++    def __init__(self, directory: str):
++        self.dir = os.path.abspath(directory)
++        with open(os.path.join(self.dir, "run.json"), "rb") as fh:
++            raw = fh.read()
++        self.run_sha256, self.run_bytes = hashlib.sha256(raw).hexdigest(), len(raw)
++        self.run = d = json.loads(raw)
++        if d.get("schema") != SCHEMA_6:
++            raise ValueError(f"run.json: schema {d.get('schema')!r} is not {SCHEMA_6!r}")
++        self.schema = SCHEMA_6
++        if d.get("kind") != RUN_KIND or d.get("coverage") != COVERAGE_6:
++            raise ValueError("run.json: kind / coverage is not a token run's")
++        if d["profile"] != d["transcript_domain"] or bytes(d["transcript_domain_bytes"]).decode() != d["profile"]:
++            raise ValueError("run.json: the transcript domain is not the profile")
++        self.profile = d["profile"]
++        self.l = d["blocks"]
++        self.n_stages = d["stages"]
++        if self.n_stages != self.l + 2:
++            raise ValueError(f"run.json: {self.n_stages} stages for {self.l} blocks (a token run has L + 2)")
++        if d["boundaries"] != self.l + 1:
++            raise ValueError(f"run.json: {d['boundaries']} boundaries for L = {self.l} (a token run has L + 1: B_in .. B_out)")
++        self.shape = Shape(d["shape"], d["mask_domain"])
++        with open(os.path.join(self.dir, "manifest.json"), "rb") as fh:
++            self.manifest = json.loads(fh.read())
++        self.array_refusals: list[str] = []
++        listed = {e["file"]: e for e in self.manifest.get("files", [])}
++        e = listed.get(ARRAY_STORE_FILE, {})
++        try:
++            self.store = ArrayStore(os.path.join(self.dir, ARRAY_STORE_FILE),
++                                    declared_bytes=e.get("bytes"), declared_sha256=e.get("sha256"))
++        except ArrayRefused as exc:
++            self.store = None
++            self.array_refusals.append(str(exc))
++        self.stages = [TokenStage(os.path.join(self.dir, fn), k, self.n_stages, self.store,
++                                  self.array_refusals) for k, fn in enumerate(d["stage_files"])]
++        for st in self.stages:
++            if st.doc.get("blocks") != self.l:
++                raise ValueError(f"{st.name}: declares {st.doc.get('blocks')} blocks, not {self.l}")
++        self.run_arrays_resolved = resolve_document(self.run, self.store, "run.json",
++                                                    self.array_refusals) if self.store else 0
++        self.hash_rule_record = rule_for_bundle(self)
++        self.hash_rule = self.hash_rule_record["rule"]
++        self.public_tables_included = bool(d.get("public_tables_included", False))
++        # the replay's per-stage accumulator is sized by `blocks`
++        self.blocks = self.n_stages
++        ti = d["token_io"]
++        self.geom = TIO.TokenGeom(name=d["profile"], tokens=ti["T"], t_pad=ti["t_pad"], d=ti["d"],
++                                  d_pad=ti["d_pad"], v=ti["V"], block_log_n=self.shape.endpoint_log_n,
++                                  block_inv_rate=self.shape.endpoint_inv_rate)
++
++    @property
++    def name(self) -> str:
++        return os.path.basename(self.dir)
++
++    def labels(self) -> dict:
++        return {t["label"]: t["what"] for t in self.run["transcript_labels"]}
++
++
++# ------------------------------------------------------------------ replay
++class TokenRunReplay(RunReplay):
++    """`RunReplay` with the token stages' prefixes (see the module doc)."""
++
++    def _stage(self, tr, st):  # noqa: C901 (the parent's body, three changes marked)
++        from zk60_native_jv_field import f2_from_list
++        sh = self.b.shape
++        k, doc, acc = st.index, st.doc, self.stages[st.index]
++        tag = f"stage {k} ({st.kind})"
++        self._check_state(tr, doc["header"], f"{tag} header")
++        start = self._open_stage(tr, st, doc, tag)
++        self._absorb_root(tr, b"A", doc["a_root"], doc["a_rows"], doc["log_cols"])
++        tr.absorb(b"M", bytes(doc["mask_root"]))
++        # [TOKEN 1] the LogUp challenge count is the stage kind's: 3 for IN and
++        # a block, 2 for OUT (`stage_out.rs`: gamma, alpha)
++        want_n = {"IN": 3, "BLOCK": 3, "OUT": 2}[st.kind]
++        if len(doc["logup_challenges"]) != want_n:
++            self._fail(f"{tag}: {len(doc['logup_challenges'])} LogUp challenges recorded, the stage draws {want_n}")
++        logup = tr.challenge_fp2_vec(want_n)
++        for i, want in enumerate(doc["logup_challenges"][:want_n]):
++            self._eq_f2(logup[i], want, f"{tag} LogUp challenge {i}")
++        acc["logup"] = logup
++        # [TOKEN 2] stage IN draws the column point r_emb (clog2(d_pad) Fp2)
++        # BEFORE H (`stage_in.rs:429`)
++        if st.kind == "IN":
++            n_emb = TIO.clog2(self.b.geom.d_pad)
++            if doc.get("r_emb") is None or len(doc["r_emb"]) != n_emb:
++                self._fail(f"{tag}: r_emb has {None if doc.get('r_emb') is None else len(doc['r_emb'])} entries, the stage draws {n_emb}")
++            r_emb = tr.challenge_fp2_vec(n_emb)
++            for i, want in enumerate((doc.get("r_emb") or [])[:n_emb]):
++                self._eq_f2(r_emb[i], want, f"{tag} r_emb {i}")
++            acc["r_emb"] = r_emb
++        elif doc.get("r_emb"):
++            self._fail(f"{tag}: a {st.kind} stage records a non-empty r_emb")
++        self._absorb_root(tr, b"H", doc["h_root"], doc["h_rows"], doc["log_cols"])
++        sites = self._sites_of(doc, k, tag, n_slots=len(st.slots))
++        for arg in st.slots:
++            s = arg["slot"]
++            site = sites.get((k, f"slot {s:02d}"))
++            if site is None:
++                self._fail(f"{tag}: slot {s} is not in the stage's transcript_sites index")
++            else:
++                self._check_state(tr, site["before"], f"{tag} slot {s} site before")
++            self._check_state(tr, arg["before_definition"], f"{tag} slot {s} before_definition")
++            drawn = []
++            for i, want in enumerate(arg["definition_challenges"]):
++                dv = tr.challenge_fp2()
++                self._eq_f2(dv, want, f"{tag} slot {s} definition draw {i}")
++                drawn.append(dv)
++            acc["def_challenges"][s] = drawn
++            self._check_state(tr, arg["before"], f"{tag} slot {s} before")
++            tr.absorb_u64(b"pb-slot", s)
++            c = tr.challenge_fp2()
++            self._eq_f2(c, arg["c"], f"{tag} slot {s} mask challenge c")
++            acc["slot_c"][s] = f2_from_list(arg["c"])
++            tr.absorb_fp2(b"pb-scalar", [f2_from_list(arg["scalar"])])
++            rhos = []
++            for j, rnd in enumerate(arg["rounds"]):
++                tr.absorb_fp2(b"sc-round", [f2_from_list(v) for v in rnd])
++                r = tr.challenge_fp2()
++                self._eq_f2(r, arg["rho"][j], f"{tag} slot {s} round {j} challenge")
++                rhos.append(r)
++            if len(rhos) != len(arg["rho"]):
++                self._fail(f"{tag} slot {s}: {len(rhos)} rounds for {len(arg['rho'])} challenges")
++            acc["rho"][s] = rhos
++            tr.absorb_fp2(b"pb-term", [f2_from_list(v) for v in arg["terminals"]])
++            self._check_state(tr, arg["after"], f"{tag} slot {s} after")
++            if site is not None:
++                self._check_state(tr, site["after"], f"{tag} slot {s} site after")
++        m = st.mask
++        m_site = sites.get((k, "M opening"))
++        if m_site is None:
++            self._fail(f"{tag}: the M opening is not in the transcript_sites index")
++        elif m_site["before"] != m["before"] or m_site["after"] != m["after"]:
++            self._fail(f"{tag}: the M opening's site index differs from its own positions")
++        self._check_state(tr, m["before"], f"{tag} M before")
++        theta = tr.challenge_fp2()
++        self._eq_f2(theta, m["theta"], f"{tag} M theta")
++        acc["theta"] = theta
++        tr.absorb_fp2(b"mask-q", [f2_from_list(v) for v in m["q"]])
++        rhos = tr.challenge_fp2_vec(2 * len(m["specs"]) + 2)
++        for i, want in enumerate(m["proximity_rhos"]):
++            self._eq_f2(rhos[i], want, f"{tag} M proximity rho {i}")
++        acc["mask_prox_rhos"] = rhos
++        tr.absorb_fp2(b"mask-prox", [f2_from_list(v) for v in m["prox"]])
++        idx = tr.challenge_indices(sh.mask_columns, 1 << sh.mask_log_dom)
++        if idx != [c["index"] for c in m["columns"]]:
++            self._fail(f"{tag} M: sampled column indices differ")
++        acc["mask_indices"] = idx
++        self._check_state(tr, m["after"], f"{tag} M after")
++        order = doc["opening_order"]
++        # [TOKEN 3] the opening order is the stage kind's, checked by name
++        if order != ORDER[st.kind]:
++            self._fail(f"{tag}: opening_order {order} is not the {st.kind} stage's {ORDER[st.kind]}")
++        if [r["role"] for r in st.roles] != order[1:]:
++            self._fail(f"{tag}: the roles array does not follow opening_order")
++        for role in st.roles:
++            nm = role["role"]
++            key = st.key(nm)
++            r_site = sites.get((k, f"{nm} opening"))
++            if r_site is None:
++                self._fail(f"{tag}: the {nm} opening is not in the transcript_sites index")
++            elif r_site["before"] != role["before"] or r_site["after"] != role["after"]:
++                self._fail(f"{tag}: the {nm} opening's site index differs from its positions")
++            self._check_state(tr, role["before"], f"{tag} {nm} before")
++            lams = []
++            for gi, g in enumerate(role["groups"]):
++                lam = tr.challenge_fp2_vec(len(g["members"]))
++                for j, want in enumerate(g["lambdas"]):
++                    self._eq_f2(lam[j], want, f"{tag} {nm} group {gi} lambda {j}")
++                lams.append(lam)
++            acc["role_lambdas"][key] = lams
++            prox = tr.challenge_fp2_vec(role["commitment"]["rows"])
++            for i, want in enumerate(role["proximity_rhos"]):
++                self._eq_f2(prox[i], want, f"{tag} {nm} proximity rho {i}")
++            acc["role_prox_rhos"][key] = prox
++            for g in role["groups"]:
++                tr.absorb_fp2(b"pcs-vec", [f2_from_list(v) for v in g["vector"]])
++            tr.absorb_fp2(b"pcs-prox", [f2_from_list(v) for v in role["proximity_vector"]])
++            p = role["params"]
++            idx = tr.challenge_indices(p["num_col_checks"], (1 << p["log_cols"]) * p["inv_rate"])
++            if idx != [c["index"] for c in role["columns"]]:
++                self._fail(f"{tag} {nm}: sampled column indices differ")
++            acc["role_indices"][key] = idx
++            self._check_state(tr, role["after"], f"{tag} {nm} after")
++        self._close_stage(tr, st, doc, tag, start)
++
++    def _sites_of(self, doc, k, tag, n_slots=None):
++        sites = {(s["stage"], s["site"]): s for s in doc["transcript_sites"]}
++        want = [f"slot {s:02d}" for s in range(n_slots)] + [f"{nm} opening" for nm in doc["opening_order"]]
++        if [s["site"] for s in doc["transcript_sites"]] != want:
++            self._fail(f"{tag}: the transcript_sites index is not the declared site order")
++        if any(s["stage"] != k for s in doc["transcript_sites"]):
++            self._fail(f"{tag}: a transcript site names another stage")
++        return sites
++
++
++def load(directory: str) -> TokenRunBundle:
++    return TokenRunBundle(directory)
++
++
++
++
++# ------------------------------------------------------- per-commitment (G-1 / G-2 / G-6)
++class ParamShape:
++    """The shape numbers the per-commitment model reads, taken from ONE
++    opening's own `params` (a token endpoint is 2^8 wide at rate 1/8, a new
++    stage's A / H 2^12 at rate 1/4), with the group count the token code
++    declares for that commitment."""
++
++    def __init__(self, params: dict, block_shape, a_groups=None, h_groups=None):
++        self.log_cols = params["log_cols"]
++        self.cols = 1 << self.log_cols
++        self.inv_rate = params["inv_rate"]
++        self.enc_cols = self.cols * self.inv_rate
++        self.opened_cols = params["num_col_checks"]
++        self.a_groups = block_shape.a_groups if a_groups is None else a_groups
++        self.h_groups = block_shape.h_groups if h_groups is None else h_groups
++        self.n_slots = block_shape.n_slots
++
++
++def role_class(role: dict) -> str:
++    nm = role["role"]
++    if nm in ("A", "A-in", "A-out"):
++        return "A"
++    if nm in ("H", "H-in", "H-out"):
++        return "H"
++    if role.get("boundary") is not None:
++        return "boundary"
++    return "endpoint"
++
++
++def canonical(role: dict) -> dict:
++    """The role as the generic model reads it (see the module doc, item 3)."""
++    nm = role["role"]
++    if nm in CANON:
++        r = copy.copy(role)
++        r["role"], kind = CANON[nm]
++        r["commitment_kind"] = kind
++        r["original_role"] = nm
++        return r
++    if role.get("commitment_kind") == "B-in":
++        r = copy.copy(role)
++        r["commitment_kind"] = "internal-boundary"
++        r["original_role"] = nm
++        return r
++    return role
++
++
++def role_view(bundle, st, role, replay, perturb=None):
++    from zk60_native_rg_pcs import RunRoleView
++    key = st.key(role["role"])
++    nm = role["role"]
++    a_g = GROUPS.get(nm) if nm.startswith("A-") else None
++    h_g = GROUPS.get(nm) if nm.startswith("H-") else None
++    pshape = ParamShape(role["params"], bundle.shape, a_groups=a_g, h_groups=h_g)
++    v = RunRoleView(st, canonical(role), replay.stages[st.index]["role_prox_rhos"][key], pshape,
++                    name=key, perturb=perturb)
++    return key, v
++
++
++def token_stage3(bundle, replay, pad_rank=True):
++    """Every commitment of every stage of the token run, ranked at its own
++    opening's geometry (the block stages exactly as `stage3` ranks them)."""
++    import time
++    from zk60_native_rg_joint import RunJointSystem, mask_block
++    views, rows = {}, []
++    for st in bundle.stages:
++        for role in st.roles:
++            key, v = role_view(bundle, st, role, replay)
++            f = dict(v.run(replay.stages[st.index]["role_lambdas"][key]))
++            views[key] = v
++            f.pop("xi_vectors", None)
++            f.pop("data_rows_index", None)
++            f["site_role"] = role["role"]
++            f["stage_kind"] = st.kind
++            f["class"] = role_class(role)
++            f["expected_disclosed_dimension"] = EXPECTED[f["class"]]
++            f["meets_expectation"] = f["disclosed_dimension"] == f["expected_disclosed_dimension"]
++            rows.append(f)
++    masks = []
++    for st in bundle.stages:
++        blk = mask_block(st)
++        dd = RunJointSystem([blk]).disclosed(msg_width=bundle.shape.cols)
++        masks.append({"commitment": blk.name, "stage_kind": st.kind, "rows": blk.rows,
++                      "slots": len(st.mask["specs"]), "opened_columns": len(st.mask["columns"]),
++                      "disclosed_dimension": dd["disclosed_fp"], "expected_disclosed_dimension": 0,
++                      "meets_expectation": dd["disclosed_fp"] == 0})
++    pad = None
++    if pad_rank:
++        t0 = time.time()
++        r, dcols = views["B0"].pad_block_rank()
++        pad = {"commitment": "B0 (B_in)", "distinct_columns": dcols, "exact_rank_of_the_pad_block": r,
++               "full_rank": r == dcols, "seconds": round(time.time() - t0, 1)}
++    ok = all(
++        r["findings"] == [] and all(r["reduction_hypotheses"].values())
++        and r["column_identity_failures"] == 0 and r["group_claim_identity_failures"] == 0
++        and r["meets_expectation"] and r["certifying_minor"]["full_row_rank"]
++        and r["certifying_minor"]["determinant_nonzero"]
++        and r["distinct_opened_columns_within_pad_count"]
++        for r in rows) and all(m["meets_expectation"] for m in masks) and (pad is None or pad["full_rank"])
++    return {"per_commitment": rows, "masking_commitments": masks,
++            "pad_block_exact_rank_cross_check": pad, "ok": ok}, views
++
++
++def _boundary_facts(self, k):
++    """`bundle.boundary(k)` for the generic boundary figures: TOKEN numbering
++    (0 = B_in, L = B_out), from `run.json["token_boundaries"]`."""
++    fa = dict(self.run["token_boundaries"][k]["facts"])
++    # the derived row rule (ruling M-1), checked here rather than declared:
++    # a token boundary's facts carry the counts, not the rule's name
++    if fa["rows"] == fa["data_rows"] + 2 * fa["sites"] + 2:
++        fa["row_rule"] = "data + 2*sites + 2"
++    else:
++        fa["row_rule"] = f"NOT the derived rule: rows {fa['rows']} != {fa['data_rows']} + 2*{fa['sites']} + 2"
++    return fa
++
++
++TokenRunBundle.boundary = _boundary_facts
++
++
++# ------------------------------------------------------------------ pins (P-2 for a token run)
++def token_pins(manifest: dict) -> dict:
++    """Every `source_pins` entry of a token bundle, matched BY FILE NAME:
++    accepted if it equals the R7 pin read in v8 for that file, or a digest
++    `zk60_native_rg_tokenio_r7c_pins.TOKEN_R7C_READINGS` reads; refused
++    otherwise.  A file of either set absent from the bundle is refused too.
++    A refusal fails the token gate (no stage of a token bundle is read with
++    an unread pin: every figure of the record is then NOT a pass)."""
++    import zk60_native_rg_tokenio_r7c_pins as TP
++    pins = {p["file"]: p["sha256"] for p in manifest.get("source_pins", [])}
++    expected = set(TP.R7_PINS_READ_IN_V8) | set(TP.TOKEN_R7C_READINGS)
++    per, refused = [], []
++    for f in sorted(set(pins) | expected):
++        got = pins.get(f)
++        if got is None:
++            refused.append(f"{f}: not pinned by this bundle")
++            per.append({"file": f, "sha256": None, "status": "missing"})
++            continue
++        if got in TP.TOKEN_R7C_READINGS.get(f, {}):
++            per.append({"file": f, "sha256": got, "status": "read (token r7c reading)"})
++        elif TP.R7_PINS_READ_IN_V8.get(f) == got:
++            per.append({"file": f, "sha256": got, "status": "read (the R7 pin, v8)"})
++        else:
++            refused.append(f"{f}: {got[:12]} has no reading")
++            per.append({"file": f, "sha256": got, "status": "REFUSED"})
++    return {"pins": len(pins), "per_file": per, "refusals": refused,
++            "read_as_R7": sum(1 for x in per if x["status"] == "read (the R7 pin, v8)"),
++            "read_as_token_r7c": sum(1 for x in per if x["status"] == "read (token r7c reading)"),
++            "ok": not refused}
++
++
++# ------------------------------------------------------------------ integrity
++def _sha(path):
++    with open(path, "rb") as fh:
++        return hashlib.sha256(fh.read()).hexdigest()
++
++
++def token_integrity(bundle) -> dict:
++    """Hashes, schema, and every token fact against the RE-DERIVED geometry
++    (`zk60_native_rg_tokenio`): the stage plane indexes, the two token
++    endpoints (roots, rows, sites, the stage that opens each), B_in / B_out
++    (rows, sites, the stage that commits and the stage that opens each, the
++    claims that discharge each)."""
++    f = []
++    man = bundle.manifest
++    if man.get("schema") != SCHEMA_6 or man.get("kind") != MANIFEST_KIND:
++        f.append("manifest.json: schema / kind is not a token run's")
++    for e in man.get("files", []):
++        p = os.path.join(bundle.dir, e["file"])
++        if not os.path.exists(p):
++            f.append(f"manifest lists {e['file']}, which is absent")
++        elif _sha(p) != e["sha256"]:
++            f.append(f"{e['file']}: sha256 differs from the manifest")
++    listed = {e["file"] for e in man.get("files", [])}
++    for fn in bundle.run["stage_files"] + ["run.json", ARRAY_STORE_FILE]:
++        if fn not in listed:
++            f.append(f"{fn} is not in the manifest")
++    f += [f"array store: {x}" for x in bundle.array_refusals]
++    pins = token_pins(man)
++    f += [f"source pin: {x}" for x in pins["refusals"]]
++    g, ti, L = bundle.geom, bundle.run["token_io"], bundle.l
++    for k, want in (("V_pad", g.v_pad), ("limbs", g.limbs), ("window_bits", g.window_bits)):
++        if ti.get(k) != want:
++            f.append(f"token_io.{k} is {ti.get(k)}, re-derived {want}")
++    if ti.get("variant") != "public-row" or ti.get("mode") != "i":
++        f.append(f"variant / mode {ti.get('variant')} / {ti.get('mode')}: only the public row, mode (i), is built")
++    # the stage kinds and the two new stages' plane indexes
++    kinds = [st.kind for st in bundle.stages]
++    if kinds != ["IN"] + ["BLOCK"] * L + ["OUT"]:
++        f.append(f"stage kinds {kinds} are not IN, {L} x BLOCK, OUT")
++    for st, kind in ((bundle.stages[0], "IN"), (bundle.stages[-1], "OUT")):
++        spi = st.doc.get("stage_plane_index")
++        if spi is None:
++            f.append(f"stage {kind}: no stage_plane_index")
++            continue
++        f += TIO.cross_check_plane_index(g, kind, spi)
++        lay = g.stage_in() if kind == "IN" else g.stage_out()
++        if [p["log_size"] for p in spi["a_planes"]] != lay.a_log:
++            f.append(f"stage {kind}: A plane logs {[p['log_size'] for p in spi['a_planes']]} are not {lay.a_log}")
++        if [p["log_size"] for p in spi["h_planes"]] != lay.h_log:
++            f.append(f"stage {kind}: H plane logs differ from the re-derived {lay.h_log}")
++        if st.doc["a_rows"] != lay.a_rows or st.doc["h_rows"] != lay.h_rows:
++            f.append(f"stage {kind}: committed rows {st.doc['a_rows']} / {st.doc['h_rows']} are not {lay.a_rows} / {lay.h_rows}")
++        if len(st.slots) != len(lay.slots) or len(st.mask["specs"]) != len(lay.slots):
++            f.append(f"stage {kind}: {len(st.slots)} slots / {len(st.mask['specs'])} mask specs, re-derived {len(lay.slots)}")
++        elif [tuple(s) for s in st.mask["specs"]] != [tuple(s) for s in lay.mask_specs()]:
++            f.append(f"stage {kind}: mask specs {st.mask['specs']} are not {lay.mask_specs()}")
++    # the token endpoints
++    for nm, st, words, root_key, at_key in (("E-token-in", bundle.stages[0], g.in_ep_words(), "input_root", "input_endpoint_opened_at_stage"),
++                                            ("E-token-out", bundle.stages[-1], g.out_ep_words(), "output_root", "output_endpoint_opened_at_stage")):
++        r = st.role_or_none(nm)
++        ep = g.endpoint(words)
++        if r is None:
++            f.append(f"{nm}: no opening in stage {st.index}")
++            continue
++        if r["commitment"]["root"] != ti[root_key]:
++            f.append(f"{nm}: the opening's root is not token_io.{root_key}")
++        if ti[at_key] != st.index:
++            f.append(f"{nm}: token_io says it is opened at stage {ti[at_key]}, it is opened at {st.index}")
++        if (r["commitment"]["rows"], r["data_rows"], r["params"]["log_cols"], r["params"]["inv_rate"]) != (ep["commitment_rows"], ep["data_rows"], ep["row_width_log"], ep["inv_rate"]):
++            f.append(f"{nm}: rows / data / width / rate {(r['commitment']['rows'], r['data_rows'], r['params']['log_cols'], r['params']['inv_rate'])} are not the re-derived {(ep['commitment_rows'], ep['data_rows'], ep['row_width_log'], ep['inv_rate'])}")
++        if r["site_rows"] != [ep["data_rows"], ep["data_rows"] + 1] or r["prox_row"] != ep["data_rows"] + 2:
++            f.append(f"{nm}: site rows {r['site_rows']} / prox {r['prox_row']} are not one site after the data row")
++        if len(r["claims"]) != 1:
++            f.append(f"{nm}: {len(r['claims'])} claims, the public-row variant has one")
++    # B_in / B_out and the block boundaries: committed at stage k, opened at k + 1
++    bf = g.boundary()
++    for k in range(L + 1):
++        tb = bundle.run["token_boundaries"][k]
++        fa = tb["facts"]
++        if (fa["rows"], fa["data_rows"], fa["sites"], fa["log_n"]) != (bf["rows"], bf["data_rows"], bf["sites"], bf["row_width_log"]):
++            f.append(f"boundary {k}: rows / data / sites / width {(fa['rows'], fa['data_rows'], fa['sites'], fa['log_n'])} are not the derived {(bf['rows'], bf['data_rows'], bf['sites'], bf['row_width_log'])}")
++        if tb["committed_at_stage"] != k or tb["opened_at_stage"] != k + 1:
++            f.append(f"boundary {k}: committed at {tb['committed_at_stage']} / opened at {tb['opened_at_stage']}, not {k} / {k + 1}")
++        bc = bundle.stages[k].doc["boundary_committed"]
++        opener = None
++        for r in bundle.stages[k + 1].roles:
++            if r.get("boundary") == k:
++                opener = r
++        if bc is None or bc.get("boundary") != k:
++            f.append(f"stage {k} does not commit boundary {k}")
++        elif opener is None:
++            f.append(f"boundary {k} has no opening in stage {k + 1}")
++        else:
++            if opener["commitment"]["root"] != bc["root"]:
++                f.append(f"boundary {k}: the root stage {k + 1} opens is not the root stage {k} committed")
++            src = [(c["stage"], c["slot"]) for c in opener["claim_sources"]]
++            want = [(k, 1 if k == 0 else 22), (k + 1, 21 if k + 1 <= L else 0)]
++            if src != want:
++                f.append(f"boundary {k}: claim sources {src}, expected {want} (the outgoing claim, then the incoming)")
++    if bundle.stages[-1].doc["boundary_committed"] is not None:
++        f.append("stage OUT commits a boundary")
++    return {"findings": f, "ok": not f, "stages": len(bundle.stages), "blocks": L, "source_pins": pins,
++            "re_derived": {"stage_in": TIO.StageLayout.summary(g.stage_in()),
++                           "stage_out": TIO.StageLayout.summary(g.stage_out()),
++                           "input_endpoint": g.endpoint(g.in_ep_words()),
++                           "output_endpoint": g.endpoint(g.out_ep_words()), "boundary": bf}}
++
++
++# ------------------------------------------------------------------ G-2
++PUBLIC_CONSTS = ([0, 0], [1, 0])
++
++
++def g2_claim_points(bundle) -> dict:
++    """G-2: the claims on B_in and B_out at partially FIXED points.  Each
++    coordinate of each claim's evaluation point is classed as a public
++    constant (0 or 1), an entry of stage IN's challenge-fixed column point
++    `r_emb`, or other (a slot's own random point).  Row coordinates are the
++    leading `log_size - log_cols`; the column coordinates are the claim's
++    column key, which the two reserved-pair parts must share."""
++    r_emb = [list(x) for x in bundle.stages[0].doc["r_emb"]]
++    out = {}
++    L = bundle.l
++    for k, nm in ((0, "B_in"), (L, "B_out")):
++        op = None
++        for r in bundle.stages[k + 1].roles:
++            if r.get("boundary") == k:
++                op = r
++        claims = []
++        for ci, c in enumerate(op["claims"]):
++            p0 = c["parts"][0]
++            ln = op["params"]["log_cols"]
++            nrow = p0["log_size"] - ln
++            pt = [list(x) for x in p0["point"]]
++            rows, cols = pt[:nrow], pt[nrow:]
++
++            def cls(v):
++                if v in PUBLIC_CONSTS:
++                    return "public"
++                if v in r_emb:
++                    return f"r_emb[{r_emb.index(v)}]"
++                return "random"
++            mask_parts = c["parts"][1:]
++            same_key = all([list(x) for x in mp["point"]] == cols for mp in mask_parts)
++            src = op["claim_sources"][ci] if ci < len(op["claim_sources"]) else None
++            claims.append({
++                "claim": ci, "source": src,
++                "row_coordinates": [cls(v) for v in rows],
++                "column_coordinates": [cls(v) for v in cols],
++                "public_bits": sum(cls(v) == "public" for v in pt),
++                "public_column_bits": sum(cls(v) == "public" for v in cols),
++                "r_emb_column_coordinates": sum(cls(v).startswith("r_emb") for v in cols),
++                "mask_parts_share_the_column_key": same_key,
++                "mask_rows": sorted({mp["offset"] // (1 << ln) for mp in mask_parts}),
++            })
++        out[nm] = {"boundary": k, "opened_at_stage": k + 1, "claims": claims}
++    # the expected shape: B_in's stage-IN claim (claim 0) has clog2(d_pad)
++    # r_emb column coordinates; B_out's stage-OUT claim (claim 1) has the
++    # clog2(t_pad) public bits of row T - 1
++    g = bundle.geom
++    want_emb = TIO.clog2(g.d_pad)
++    want_pub = TIO.clog2(g.t_pad)
++    st = g.g2()["B_out"]
++    bi, bo = out["B_in"]["claims"], out["B_out"]["claims"]
++    checks = {
++        "B_in_stage_IN_claim_has_r_emb_column_point": bi[0]["r_emb_column_coordinates"] == want_emb,
++        "B_out_stage_OUT_claim_has_the_public_row_bits": bo[1]["public_bits"] == want_pub,
++        "B_out_public_bits_split_as_re_derived": (
++            bo[1]["public_column_bits"] == st["fixed_bits_in_the_column_coordinate"]),
++        "every_claim_masked_on_its_own_pair": all(
++            c["mask_parts_share_the_column_key"] for side in out.values() for c in side["claims"])
++        and len({tuple(c["mask_rows"]) for c in bi}) == len(bi)
++        and len({tuple(c["mask_rows"]) for c in bo}) == len(bo),
++    }
++    return {"claims": out, "checks": checks, "ok": all(checks.values())}
++
++
++# ------------------------------------------------------------------ G-4
++def _supp(n, size):
++    return [1] * n + [0] * (size - n)
++
++
++def g4_support_tables(bundle) -> dict:
++    """G-4: every public table of stage IN / OUT is identified by its SHA-256
++    against the support vectors the pad rule and the P-3 lift imply
++    (computed here from the re-derived geometry, never read).  A slot that
++    hosts a padded domain must carry that domain's support table."""
++    from zk60_native_rg_terminals import table_digest
++    g = bundle.geom
++    lt = g.tier.stage_log_n
++    cands = {
++        f"supp(T={g.tokens}) over the 2^{g.tier.ep_log_n}-word input endpoint plane": _supp(g.tokens, g.in_ep_words()),
++        f"supp(T={g.tokens}) over Ti = 2^{g.ti_log()}": _supp(g.tokens, 1 << g.ti_log()),
++        f"supp(V={g.v}) over V_pad = 2^{g.voc_log()} (the vocabulary pads)": _supp(g.v, 1 << g.voc_log()),
++        f"supp({2 * 3 * TIO.LIMBS_ISQRT}) over Lo = 2^{g.lo_log()}": _supp(2 * 3 * TIO.LIMBS_ISQRT, 1 << g.lo_log()),
++        f"supp(d_pad={g.d_pad}) over Do = 2^{g.do_log()}": _supp(g.d_pad, 1 << g.do_log()),
++        f"supp(256) over Tab = 2^{g.tab_log()}": _supp(256, 1 << g.tab_log()),
++        "the one-hot u0 over the 2^8-word output endpoint plane": [1] + [0] * (g.out_ep_words() - 1),
++        f"the BOS position indicator over Ti = 2^{g.ti_log()}": [1] + [0] * ((1 << g.ti_log()) - 1),
++        f"supp(d={g.d}) over d_pad = {g.d_pad}": _supp(g.d, g.d_pad),
++        "the all-ones vector over 2^{lt}".format(lt=lt): [1] * (1 << lt),
++        f"supp(V={g.v}) over V_pad (Vo)": _supp(g.v, 1 << g.vo_log()),
++        # `stage_out.rs:400`: the live isqrt limb positions, sub-plane k < 9 at
++        # To entry 0 (index 2k), over Lo
++        f"the live isqrt limb positions {{2k : k < {3 * TIO.LIMBS_ISQRT}}} over Lo = 2^{g.lo_log()}": [
++            1 if (z % 2 == 0 and z // 2 < 3 * TIO.LIMBS_ISQRT) else 0 for z in range(1 << g.lo_log())],
++        # `stage_out.rs:377`: To's entry-0 indicator, supp(1, 2^TO_LOG)
++        "To's entry-0 indicator supp(1) over 2^1": _supp(1, 1 << TIO.TO_LOG),
++    }
++    by_digest = {}
++    for name, vec in cands.items():
++        by_digest.setdefault(table_digest(vec), name)
++    per = []
++    for st in (bundle.stages[0], bundle.stages[-1]):
++        for a in st.slots:
++            tabs = []
++            for t in a["tables"]:
++                if t.get("kind") != "public":
++                    continue
++                tabs.append({"len": t["len"], "sha256": t["sha256"],
++                             "identified_as": by_digest.get(t["sha256"])})
++            per.append({"stage": st.kind, "slot": a["slot"], "name": a["name"],
++                        "definition_draws": len(a["definition_challenges"]),
++                        "public_tables": tabs})
++    # what must be present (DESIGN 4.2 G-4; stage_in.rs / stage_out.rs slot names)
++    need = {
++        ("IN", 0): f"supp(T={g.tokens}) over the 2^{g.tier.ep_log_n}-word input endpoint plane",
++        ("IN", 1): f"supp(T={g.tokens}) over Ti = 2^{g.ti_log()}",
++        ("IN", 2): f"supp(V={g.v}) over V_pad = 2^{g.voc_log()} (the vocabulary pads)",
++        ("OUT", 2): "To's entry-0 indicator supp(1) over 2^1",
++        ("OUT", 3): f"the live isqrt limb positions {{2k : k < {3 * TIO.LIMBS_ISQRT}}} over Lo = 2^{g.lo_log()}",
++        ("OUT", 6): f"supp(V={g.v}) over V_pad = 2^{g.voc_log()} (the vocabulary pads)",
++        ("OUT", 8): f"supp(256) over Tab = 2^{g.tab_log()}",
++    }
++    if g.do_log() > TIO.clog2(g.d_pad):
++        need[("OUT", 5)] = f"supp(d_pad={g.d_pad}) over Do = 2^{g.do_log()}"
++    present = {}
++    for (kind, slot), want in need.items():
++        row = next(r for r in per if r["stage"] == kind and r["slot"] == slot)
++        present[f"{kind}-{slot:02d}"] = {"needs": want,
++                                         "present": any(t["identified_as"] == want for t in row["public_tables"])}
++    return {"per_slot": per, "required_support_tables": present,
++            "vocabulary_pad_positions": g.v_pad - g.v,
++            "ok": all(v["present"] for v in present.values())}
++
++
++# ------------------------------------------------------------------ G-5
++def g5_tab_width(bundle) -> dict:
++    """G-5 on the CAPTURED stage OUT plane index: the byte-table helper and
++    histogram sit on the Tab domain at the stage row width."""
++    spi = bundle.stages[-1].doc["stage_plane_index"]
++    tab = [p for p in spi["a_planes"] + spi["h_planes"] if "TAB" in p["name"].upper() or "U8" in p["name"].upper() or "GU8" in p["name"].upper()]
++    ln = spi["log_n"]
++    return {"stage_out_row_width_log": ln,
++            "tab_planes": [{"name": p["name"], "log_size": p["log_size"]} for p in tab],
++            "re_derived": bundle.geom.g5(),
++            "ok": bool(tab) and all(p["log_size"] == ln for p in tab) and bundle.geom.g5()["stage OUT"]["holds"]}
++
++
++# ------------------------------------------------------------------ G-3
++class _ShimBundle:
++    """The bundle as the frozen per-stage tools read it, with `run.shape.slots`
++    replaced by ONE stage's own slot triples (a new stage's schedule, from
++    its `stage_plane_index`), so the shape-driven spec check compares the
++    stage with ITS schedule.  Nothing else changes."""
++
++    def __init__(self, bundle, stage):
++        self.__dict__.update(bundle.__dict__)
++        self.run = dict(bundle.run)
++        self.run["shape"] = dict(bundle.run["shape"])
++        if stage.kind != "BLOCK":
++            self.run["shape"]["slots"] = [[s["main"], s["extension"], s["degree"]]
++                                          for s in stage.doc["stage_plane_index"]["sched"]["slots"]]
++
++    @property
++    def name(self):
++        return os.path.basename(self.dir)
++
++
++def token_mask_cfs(bundle, replay, kinds=("IN", "BLOCK", "OUT")) -> dict:
++    """G-3: the masking commitment and the masked-sumcheck (CFS) channel of
++    each new stage, by the frozen shape-driven port (`mask_cfs_stage`) run
++    against the stage's own schedule; the re-derived schedule's functional
++    count (`zk60_native_rg_tokenio`) is compared."""
++    from zk60_native_rg_mask import mask_cfs_stage
++    g = bundle.geom
++    per = []
++    for st in bundle.stages:
++        if st.kind not in kinds:
++            continue
++        r = mask_cfs_stage(_ShimBundle(bundle, st), replay, st.index)
++        lay = g.stage_in() if st.kind == "IN" else (g.stage_out() if st.kind == "OUT" else None)
++        ent = r.get("entries_recomputed") or {}
++        row = {"stage": st.index, "stage_kind": st.kind, "ok": r.get("ok"),
++               "specs_ok": r["specs_against_the_shape"]["ok"], "domain_ok": r["mask_domain"]["ok"],
++               "declared_order_ok": (r["declared_order"] or {}).get("ok") if isinstance(r["declared_order"], dict) else None,
++               "disclosed": r["disclosed"], "cfs_findings": r["cfs"].get("findings"),
++               "entries_recomputed": ent.get("total"), "entries_differing": ent.get("differing"),
++               "functional_values": ent.get("functional_values"),
++               "salted_leaves_authenticated": ent.get("salted_leaves_authenticated"),
++               "seconds": r.get("seconds")}
++        if lay is not None:
++            row["functionals_re_derived"] = lay.n_functionals()
++            row["functionals_match"] = ent.get("functional_values") == lay.n_functionals()
++        per.append(row)
++    ok = bool(per) and all(p["ok"] and p.get("functionals_match", True) and p["entries_differing"] == 0 for p in per)
++    return {"per_stage": per, "ok": ok}
++
++
++# ------------------------------------------------------------------ G-6 (endpoint figures)
++def g6_endpoints(stage3_rows, views) -> dict:
++    """G-6, the D17 hard gate at the 2^8-word token endpoints: the
++    per-commitment view of each endpoint opening at its OWN geometry (2^8 at
++    rate 1/8, one site), its exclusivity facts, and the H-pad rank over its
++    distinct opened columns."""
++    out = {}
++    for nm in ("E-token-in", "E-token-out"):
++        r = next(x for x in stage3_rows if x["role"] == nm)
++        rk, dcols = views[nm].pad_block_rank()
++        out[nm] = {"disclosed_dimension": r["disclosed_dimension"], "k0": r["k0"],
++                   "exclusivity_ok": (r.get("exclusivity") or {}).get("ok"),
++                   "certifying_minor": r["certifying_minor"],
++                   "distinct_opened_columns": dcols, "pad_block_rank": rk,
++                   "pad_block_full_rank": rk == dcols,
++                   "ok": r["disclosed_dimension"] == 0 and r["meets_expectation"] and rk == dcols}
++    return {"endpoints": out, "ok": all(v["ok"] for v in out.values())}
++
++
++# ------------------------------------------------------------------ controls
++class _ShimStage:
++    """A stage whose `key("A" / "H" / "Input")` names a NEW stage's roles, so
++    the frozen exclusivity controls run on them unchanged."""
++
++    def __init__(self, stage, mapping):
++        self._st, self._map = stage, mapping
++        self.index = stage.index
++
++    def key(self, role):
++        return self._map[role]
++
++
++def token_controls(bundle, replay, views) -> dict:
++    """Negative controls on the NEW stages, each predicted to fire (every one
++    perturbs an in-memory copy; no captured byte is touched)."""
++    from zk60_native_rg_exclusivity import exclusivity_controls
++    from zk60_native_rg_joint import boundary_reserved_figure
++    L = bundle.l
++    out = {}
++    # TC-1 / TC-2: the exclusivity family (16 clauses) on stage IN's and stage OUT's openings
++    for name, k, mp, bkey in (("TC-1_exclusivity_on_stage_IN", 0, {"A": "A-in@0", "H": "H-in@0", "Input": "E-token-in"}, "B0"),
++                              ("TC-2_exclusivity_on_stage_OUT", L + 1, {"A": f"A-out@{L + 1}", "H": f"H-out@{L + 1}", "Input": "E-token-out"}, f"B{L}")):
++        shim = type("S", (), {})()
++        shim.stages = [_ShimStage(bundle.stages[k], mp)]
++        v2 = dict(views)
++        v2["B0"] = views[bkey]
++        r = exclusivity_controls(shim, v2)
++        out[name] = {"fires": r["ok"], "controls": len(r["control_names"]),
++                     "fired": sum(1 for c in r["controls"].values() if c["fires"]),
++                     "clauses_exercised": len(r["clauses_exercised"]),
++                     "not_exercised": r["clauses_not_exercised"]}
++    # TC-3 / TC-4: B_in and B_out, the shared-pair and single-proximity-row models
++    for name, k in (("TC-3_B_in", 0), ("TC-4_B_out", L)):
++        mp = boundary_reserved_figure(bundle, views[f"B{k}"], k, merge_pairs=True)
++        dp = boundary_reserved_figure(bundle, views[f"B{k}"], k, drop_prox_row=True)
++        out[name + "_shared_pair"] = {"fires": mp["disclosed_on_the_reserved_block_fp"] > 0,
++                                      "disclosed": mp["disclosed_on_the_reserved_block_fp"]}
++        out[name + "_single_proximity_row"] = {"fires": dp["disclosed_on_the_reserved_block_fp"] > 0,
++                                               "disclosed": dp["disclosed_on_the_reserved_block_fp"]}
++
++    # TC-5: the replay of the new stages' prefixes
++    def replay_fails(mutate, what):
++        b2 = copy.copy(bundle)
++        b2.stages = [copy.copy(s) for s in bundle.stages]
++        for s in b2.stages:
++            s.doc = copy.copy(s.doc)
++        mutate(b2)
++        rp = TokenRunReplay(b2).run()
++        return {"fires": not rp.summary()["ok"], "first_failure": (rp.failures or [None])[0], "what": what}
++
++    def flip_r_emb(b2):
++        d = b2.stages[0].doc
++        d["r_emb"] = [list(x) for x in d["r_emb"]]
++        d["r_emb"][0] = [(d["r_emb"][0][0] + 1) % 18446744069414584321, d["r_emb"][0][1]]
++    out["TC-5a_r_emb_entry_moved"] = replay_fails(flip_r_emb, "stage IN's first r_emb entry moved by one")
++
++    def extra_logup(b2):
++        d = b2.stages[-1].doc
++        d["logup_challenges"] = list(d["logup_challenges"]) + [d["logup_challenges"][0]]
++    out["TC-5b_stage_OUT_three_LogUp_challenges"] = replay_fails(extra_logup, "stage OUT recorded with three LogUp challenges")
++
++    def swap_order(b2):
++        d = b2.stages[0].doc
++        o = list(d["opening_order"])
++        o[1], o[2] = o[2], o[1]
++        d["opening_order"] = o
++    out["TC-5c_stage_IN_opening_order_swapped"] = replay_fails(swap_order, "stage IN's A-in / H-in openings swapped in the declared order")
++
++    # TC-6: integrity on the token facts
++    def integrity_fires(mutate, what):
++        b2 = copy.copy(bundle)
++        b2.run = copy.deepcopy(bundle.run)
++        b2.stages = [copy.copy(s) for s in bundle.stages]
++        for s in b2.stages:
++            s.doc = copy.copy(s.doc)
++        mutate(b2)
++        r = token_integrity(b2)
++        return {"fires": not r["ok"], "first_finding": (r["findings"] or [None])[0], "what": what}
++
++    def root_flip(b2):
++        b2.run["token_io"]["input_root"] = list(b2.run["token_io"]["input_root"])
++        b2.run["token_io"]["input_root"][0] ^= 1
++    out["TC-6a_input_root_flipped"] = integrity_fires(root_flip, "token_io.input_root's first byte flipped")
++
++    def bout_rows(b2):
++        b2.run["token_boundaries"][L]["facts"]["rows"] += 1
++    out["TC-6b_B_out_rows_moved"] = integrity_fires(bout_rows, "B_out's declared row count + 1")
++
++    def spi_rows(b2):
++        d = b2.stages[-1].doc
++        d["stage_plane_index"] = dict(d["stage_plane_index"])
++        d["stage_plane_index"]["a_rows"] += 2
++    out["TC-6c_stage_OUT_plane_index_moved"] = integrity_fires(spi_rows, "stage OUT's plane index a_rows + 2")
++
++    def ep_opened(b2):
++        b2.run["token_io"]["output_endpoint_opened_at_stage"] = 0
++    out["TC-6d_output_endpoint_opened_elsewhere"] = integrity_fires(ep_opened, "token_io says the output endpoint is opened at stage 0")
++
++    # TC-10: the token pins (P-2's discipline on a token bundle)
++    import zk60_native_rg_tokenio_r7c_pins as TP
++    man = copy.deepcopy(bundle.manifest)
++    for p in man["source_pins"]:
++        if p["file"] == "src/private_block/token_io/stage_out.rs":
++            p["sha256"] = "1" * 64
++    r = token_pins(man)
++    out["TC-10a_token_pin_moved"] = {"fires": not r["ok"], "refusals": r["refusals"][:2],
++                                     "what": "stage_out.rs's pin moved to an unread digest"}
++    man = copy.deepcopy(bundle.manifest)
++    man["source_pins"] = [p for p in man["source_pins"] if p["file"] != "src/private_block/token_io/stage_in.rs"]
++    r = token_pins(man)
++    out["TC-10b_token_pin_dropped"] = {"fires": not r["ok"], "refusals": r["refusals"][:2],
++                                       "what": "stage_in.rs's pin dropped from the bundle"}
++    man = copy.deepcopy(bundle.manifest)
++    for p in man["source_pins"]:
++        if p["file"] == "src/private_block/run.rs":
++            p["sha256"] = TP.R7_PINS_READ_IN_V8["src/private_block/run.rs"]
++    r = token_pins(man)
++    out["TC-10c_R7_run_rs_under_a_token_writer"] = {
++        "fires": r["ok"], "what": "run.rs at R7's digest (read in v8) is ACCEPTED: the control "
++        "shows the R7 basis is live (a pin at a read digest passes), the converse of TC-10a"}
++
++    # TC-7: G-2's claim-point classes
++    def g2_fires(mutate, what):
++        b2 = copy.copy(bundle)
++        b2.stages = [copy.copy(s) for s in bundle.stages]
++        for s in b2.stages:
++            s.doc = copy.deepcopy(s.doc)
++        mutate(b2)
++        r = g2_claim_points(b2)
++        return {"fires": not r["ok"], "checks": r["checks"], "what": what}
++
++    def bout_bit(b2):
++        op = b2.stages[L + 1].role("B-out")
++        op["claims"][1]["parts"][0]["point"][0] = [12345, 678]
++    out["TC-7a_B_out_row_bit_unfixed"] = g2_fires(bout_bit, "B_out's stage-OUT claim: its first public row bit replaced by a random value")
++
++    def bin_emb(b2):
++        op = b2.stages[1].role("Input")
++        p = op["claims"][0]["parts"][0]["point"]
++        p[-1] = [987, 654]
++    out["TC-7b_B_in_r_emb_coordinate_moved"] = g2_fires(bin_emb, "B_in's stage-IN claim: its last r_emb column coordinate replaced")
++
++    def bin_same_pair(b2):
++        op = b2.stages[1].role("Input")
++        for pp, qq in zip(op["claims"][1]["parts"][1:], op["claims"][0]["parts"][1:]):
++            pp["offset"] = qq["offset"]
++    out["TC-7c_B_in_claims_on_one_pair"] = g2_fires(bin_same_pair, "B_in's two claims masked on the same reserved pair")
++
++    # TC-8: G-4's required support tables
++    def g4_fires(mutate, what):
++        b2 = copy.copy(bundle)
++        b2.stages = [copy.copy(s) for s in bundle.stages]
++        for s in b2.stages:
++            s.doc = copy.deepcopy(s.doc)
++        mutate(b2)
++        r = g4_support_tables(b2)
++        return {"fires": not r["ok"], "missing": [k for k, v in r["required_support_tables"].items() if not v["present"]], "what": what}
++
++    def voc_table(b2):
++        for t in b2.stages[0].slots[2]["tables"]:
++            if t.get("kind") == "public" and t["len"] == bundle.geom.v_pad:
++                t["sha256"] = "0" * 64
++                break
++    out["TC-8a_vocabulary_support_table_replaced"] = g4_fires(voc_table, "stage IN's table zero-check: its vocabulary support table's digest replaced")
++
++    def tab_table(b2):
++        for t in b2.stages[-1].slots[8]["tables"]:
++            if t.get("kind") == "public" and t["len"] == 1 << bundle.geom.tab_log():
++                t["sha256"] = "0" * 64
++                break
++    out["TC-8b_byte_table_support_replaced"] = g4_fires(tab_table, "stage OUT's TAB slot: its Tab support table's digest replaced")
++    # TC-9: round 8's six mask controls on M_in and M_out (the stage's own
++    # schedule).  M4 targets the repaired BILINEAR slots (extension 2); a new
++    # stage has none, so M4 is NOT APPLICABLE by name there, as C1-C4 are at L = 1.
++    from zk60_native_rg_mcontrols import mask_controls_at_shape
++    for k in (0, L + 1):
++        st = bundle.stages[k]
++        mc = mask_controls_at_shape(_ShimBundle(bundle, st), replay, k)
++        bil = [s for s in st.doc["stage_plane_index"]["sched"]["slots"] if s["extension"] == 2]
++        for n in mc["control_names"]:
++            if n.startswith("M4") and not bil:
++                out[f"TC-9_{st.kind}_{n}"] = {"fires": None, "not_applicable": "the stage has no bilinear "
++                                              "(extension-2) slot, which is what M4 shortens"}
++            else:
++                out[f"TC-9_{st.kind}_{n}"] = {"fires": bool(mc[n].get("fires"))}
++    live = {k: v for k, v in out.items() if v.get("fires") is not None}
++    return {"controls": out, "all_fire": all(v["fires"] for v in live.values()),
++            "not_applicable": [k for k, v in out.items() if v.get("fires") is None],
++            "not_fired": [k for k, v in live.items() if not v["fires"]],
++            "ok": bool(live) and all(v["fires"] for v in live.values())}
++
++
++# ------------------------------------------------------------------ driver
++def gate(directory: str, controls=True) -> dict:
++    import time
++    t0 = time.time()
++    rec = {"what": "the privacy gate's token items (DESIGN 4.2 G-1..G-7) on ONE token-I/O run capture; "
++                   "NOT a privacy result", "privacy_acceptance": False,
++           "privacy_property_established": False, "timings": {}}
++
++    def tick(name, t):
++        rec["timings"][name] = round(time.time() - t, 1)
++    t = time.time()
++    b = load(directory)
++    rec["bundle"], rec["bundle_dir"], rec["profile"] = b.name, b.dir, b.profile
++    rec["blocks"], rec["stages"] = b.l, len(b.stages)
++    rec["integrity"] = token_integrity(b)
++    tick("load_and_integrity", t)
++    t = time.time()
++    rp = TokenRunReplay(b).run()
++    rec["replay"] = rp.summary()
++    tick("replay", t)
++    t = time.time()
++    from zk60_native_rg_hashlayer import check_hash_layer
++    h = check_hash_layer(b)
++    rec["hash_layer"] = {k: h[k] for k in ("ok", "columns_checked", "columns_authenticated", "bytes_hashed", "findings") if k in h}
++    rec["hash_layer"]["wrong_rules_that_reached_the_root"] = h.get("cross_rule_probe", {}).get("wrong_rules_that_reached_the_root")
++    tick("hash_layer", t)
++    t = time.time()
++    s3, views = token_stage3(b, rp, pad_rank=True)
++    rec["G1_per_commitment"] = s3
++    tick("per_commitment", t)
++    t = time.time()
++    from zk60_native_rg_joint import boundary_reserved_figure
++    rec["G1_G2_boundaries_reserved"] = {nm: boundary_reserved_figure(b, views[f"B{k}"], k)
++                                        for nm, k in (("B_in", 0), ("B_out", b.l))}
++    rec["G2_claim_points"] = g2_claim_points(b)
++    tick("boundaries_and_G2", t)
++    t = time.time()
++    rec["G3_mask_cfs"] = token_mask_cfs(b, rp)
++    tick("G3", t)
++    rec["G4_support_tables"] = g4_support_tables(b)
++    rec["G4_static"] = b.geom.g4()
++    rec["G5_tab_width"] = g5_tab_width(b)
++    t = time.time()
++    rec["G6_endpoints"] = g6_endpoints(s3["per_commitment"], views)
++    tick("G6", t)
++    rec["G7"] = {"in_scope": False, "why": "the D26 two-site input endpoint and its SHIFT / IO-s claims are not built "
++                 "(token_io/run.rs variant_is_built refuses every variant but the public row)"}
++    rec["G1_joint"] = {
++        "computed": "per commitment (G1_per_commitment) and on each boundary's reserved block (G1_G2_boundaries_reserved)",
++        "shared_planes": ["tok: A-in (Ti, positions 0..T-1) and E-token-in (words 0..T-1); words T..255 are the "
++                          "public zeros IN-00's supp_T factor forces",
++                          "B_in: the B0 commitment (claims from IN-01 and block 0's slot 21) and block 0's A (x)",
++                          "B_out: the B_L commitment (claims from block L-1's slot 22 and OUT-00) and A-out's x "
++                          "(row T-1 only)", "tok (output): A-out's To-domain tok and E-token-out (one word)"],
++        "argument": "[ARGUED] every commitment's opened functionals are blinded by its OWN reserved rows, pads and "
++                    "salts (one generator per run, distinct draws per commitment: G-R4, the stage-47 replay); a "
++                    "combination of functionals of two commitments is blinding-free only if each part is, so the "
++                    "joint blinding-free space restricted to the identified data coordinates has dimension at most "
++                    "the sum of the per-commitment disclosed dimensions, which is 0 for every commitment holding a "
++                    "new plane (A-in, E-token-in, B0, B_L, A-out, E-token-out) -- ruling R-3: joint = sum of parts "
++                    "is a model consistency check, not independence (G-R4's job)",
++        "ok": all(r["disclosed_dimension"] == 0 for r in s3["per_commitment"] if r["class"] in ("A", "endpoint", "boundary")),
++    }
++    if controls:
++        t = time.time()
++        rec["controls"] = token_controls(b, rp, views)
++        tick("controls", t)
++    else:
++        rec["controls"] = {"skipped": "controls not requested", "ok": None}
++    parts = ["integrity", "replay", "hash_layer", "G1_per_commitment", "G2_claim_points", "G3_mask_cfs",
++             "G4_support_tables", "G5_tab_width", "G6_endpoints", "G1_joint"]
++    bres = rec["G1_G2_boundaries_reserved"]
++    rec["boundaries_ok"] = all(v["disclosed_on_the_reserved_block_fp"] == 0 and v["full_row_rank"]
++                               and v["determinant_nonzero"] and v["row_rule"] == "data + 2*sites + 2"
++                               for v in bres.values())
++    rec["false_parts"] = [p for p in parts if rec[p].get("ok") is not True] + ([] if rec["boundaries_ok"] else ["boundaries"])
++    rec["ok"] = not rec["false_parts"] and (rec["controls"].get("ok") is True if controls else True)
++    rec["status"] = "PASS" if rec["ok"] and controls else ("PASS-NO-CONTROLS" if rec["ok"] else "NOT-OK")
++    rec["total_seconds"] = round(time.time() - t0, 1)
++    try:
++        import resource
++        rec["peak_rss_mb"] = round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024)
++    except Exception:  # noqa: BLE001
++        pass
++    import zk60_native_run_gate as G
++    rec["tool_sha256"] = G.tool_hashes()
++    return rec
++
++
++def main(argv=None):
++    import argparse
++    ap = argparse.ArgumentParser()
++    ap.add_argument("--bundle", required=True)
++    ap.add_argument("--evidence", required=True)
++    ap.add_argument("--name", required=True)
++    ap.add_argument("--no-controls", action="store_true")
++    a = ap.parse_args(argv)
++    rec = gate(a.bundle, controls=not a.no_controls)
++    os.makedirs(a.evidence, exist_ok=True)
++    path = os.path.join(a.evidence, f"{a.name}.json")
++    with open(path, "w") as fh:
++        json.dump(rec, fh, indent=1, sort_keys=True, default=str)
++    print(f"{a.name}: status {rec['status']}; false parts {rec['false_parts']}; "
++          f"controls not fired {rec['controls'].get('not_fired')}; {rec['total_seconds']} s; record {path}")
++    return 0 if rec["status"] == "PASS" else 1
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff -ruN -x __pycache__ frozen_v8/scripts/zk60_native_rg_tokenio.py scripts/zk60_native_rg_tokenio.py
+--- frozen_v8/scripts/zk60_native_rg_tokenio.py	1969-12-31 16:00:00.000000000 -0800
++++ scripts/zk60_native_rg_tokenio.py	2026-10-19 10:33:55.445379949 -0700
+@@ -0,0 +1,398 @@
++#!/usr/bin/env python3
++"""[GATE ROUND 7, 2026-10-19] The token-I/O stages' geometry, RE-DERIVED from
++public parameters, for the privacy gate's items G-1..G-7
++(`results/zk60_token_io_design_20261017/DESIGN.md` §4.2).
++
++WHY THIS EXISTS.  A gate never takes a layout from a bundle (ruling T-7): it
++re-derives every row count, domain and site row from the public statement and
++COMPARES.  The token lane's stages IN and OUT have their own layout code
++(`token_io.rs` `StageLayout::new`, `token_io/stage_in.rs` / `stage_out.rs`
++`layout`, `TokenProfile` helpers, `Tier`); this module ports it.  Read at the
++token tree's round 6 (`ops/zkp-mvp/token-io/hashline/`, manifest
++`results/zk60_token_io_r1_20261017/manifest_final_r6.sha256`), line numbers
++in the docstrings below.  The port is CHECKED against the token lane's own
++counted layouts (DESIGN §6.5: R2 stage IN A 17 / H 28, stage OUT A 182 / H 110,
++1,196,032 elements; R3 stage IN A 41 / H 76, stage OUT A 374 / H 302) by the
++unit tests (`tests/test_v4_status_g10.py`, class TokenIoGeometry).
++
++WHAT IS BUILT IN THE TOKEN TREE (READ, round 6 and round 7's wip): ONLY the
++PUBLIC-ROW variant, mode (i) (`token_io/run.rs` `variant_is_built` refuses the
++P and F variants: "D26's two-site endpoint is the next rung").  So the D26
++two-site input endpoint, its SHIFT / IO-s claims (G-7) and the hidden-length
++mode are NOT built and not in scope; this module describes their geometry
++nowhere.
++
++The static figures here are [COUNTED]; every receipt-level figure (ranks,
++CFS, joint view) needs a capture (EV/token_io/CAPTURE_HOOK_REQUEST.md).
++
++NOTHING HERE IS A PRIVACY RESULT.
++"""
++
++from __future__ import annotations
++
++import json
++import sys
++from dataclasses import dataclass, field
++
++# token_io.rs:253-269
++MULT_BITS = 12
++U8_LEN = 256
++LIMBS_ISQRT = 3
++NORM_LIMBS = 4
++V_MAX = 1 << 17
++MAX_DOM_LOG = 17
++# token_io/stage_out.rs:22
++TO_LOG = 1
++# endpoint_g.rs:92
++EP_MASK_ROWS = 5
++# zk.rs:373-374
++MASK_LOG_MSG = 9
++MASK_LOG_DOM = 12
++
++
++def clog2(v: int) -> int:
++    """`token_io.rs:271` clog2: the ceiling log2 (0 for v <= 1)"""
++    return max(0, (v - 1).bit_length())
++
++
++def rows_of(log: int, log_n: int) -> int:
++    """`token_io.rs:706`: `max(1, 2^log >> log_n)`"""
++    return max(1, (1 << log) >> log_n)
++
++
++@dataclass(frozen=True)
++class Tier:
++    """`token_io.rs` `Tier::R1_MVP` (the one registered tier, D27)"""
++    name: str = "mvp-95-whole-run (D27)"
++    opened_cols: int = 256
++    stage_log_n: int = 12
++    stage_inv_rate: int = 4
++    ep_log_n: int = 8
++    ep_inv_rate: int = 8
++    lookup_ext_degree: int = 2
++
++
++R1_MVP = Tier()
++
++
++@dataclass
++class Slot:
++    name: str
++    main: int
++    ext: int
++    degree: int
++    kind: str          # Standalone | Private | Host
++    a_sites: int
++    h_sites: int
++    io_sites: int
++
++
++@dataclass
++class StageLayout:
++    """`token_io.rs:680-805` `StageLayout::new` and its accessors"""
++    label: str
++    log_n: int
++    a_log: list
++    h_log: list
++    h_sign: list
++    h_u: int
++    slots: list
++    hosts: list
++    row_log: list           # [A, H, In, Out]
++    a_off_rows: list = field(default_factory=list)
++    a_data_rows: int = 0
++    a_mask_base: int = 0
++    a_prox: int = 0
++    a_rows: int = 0
++    h_off_rows: list = field(default_factory=list)   # (re_row, im_row)
++    h_data_rows: int = 0
++    h_mask_base: int = 0
++    h_prox: int = 0
++    h_rows: int = 0
++
++    def __post_init__(self):
++        row = 0
++        for lg in self.a_log:
++            self.a_off_rows.append(row)
++            row += rows_of(lg, self.log_n)
++        self.a_data_rows = row
++        a_sites = sum(s.a_sites for s in self.slots)
++        h_sites = sum(s.h_sites for s in self.slots)
++        self.a_mask_base = self.a_data_rows
++        self.a_prox = self.a_mask_base + 2 * a_sites
++        self.a_rows = self.a_prox + 2
++        row = 0
++        for lg in self.h_log:
++            r = rows_of(lg, self.log_n)
++            self.h_off_rows.append((row, row + r))
++            row += 2 * r
++        self.h_data_rows = row
++        self.h_mask_base = self.h_data_rows
++        self.h_prox = self.h_mask_base + 2 * h_sites
++        self.h_rows = self.h_prox + 2
++
++    @property
++    def n(self) -> int:
++        return 1 << self.log_n
++
++    def a_site_rows(self, slot: int) -> list:
++        base = self.a_mask_base + 2 * sum(s.a_sites for s in self.slots[:slot])
++        return [base + 2 * k for k in range(self.slots[slot].a_sites)]
++
++    def h_site_rows(self, slot: int) -> list:
++        base = self.h_mask_base + 2 * sum(s.h_sites for s in self.slots[:slot])
++        return [base + 2 * k for k in range(self.slots[slot].h_sites)]
++
++    def h_u_rows(self) -> list:
++        re, im = self.h_off_rows[self.h_u]
++        return [re, im]
++
++    def m_rows(self) -> int:
++        return 2 * len(self.slots) + 4
++
++    def mask_specs(self) -> list:
++        return [(s.main + s.ext, s.degree) for s in self.slots]
++
++    def n_functionals(self) -> int:
++        return sum(1 + (1 if s.kind == "Standalone" else 0) for s in self.slots) + len(self.hosts)
++
++    def elems(self) -> int:
++        return (self.a_rows + self.h_rows) * self.n
++
++    def summary(self) -> dict:
++        return {
++            "label": self.label, "row_width_log": self.log_n,
++            "A": {"rows": self.a_rows, "data_rows": self.a_data_rows,
++                  "site_pairs": (self.a_prox - self.a_mask_base) // 2,
++                  "prox_pair": [self.a_prox, self.a_prox + 1], "plane_logs": self.a_log},
++            "H": {"rows": self.h_rows, "data_rows": self.h_data_rows,
++                  "site_pairs": (self.h_prox - self.h_mask_base) // 2,
++                  "zero_sum_pair": self.h_u_rows(),
++                  "prox_pair": [self.h_prox, self.h_prox + 1], "plane_logs": self.h_log,
++                  "signs": self.h_sign},
++            "M": {"rows": self.m_rows(), "functionals": self.n_functionals(),
++                  "mask_specs": self.mask_specs()},
++            "row_log_A_H_In_Out": self.row_log,
++            "committed_elements": self.elems(),
++            "slots": [s.__dict__ for s in self.slots],
++            "hosts": self.hosts,
++        }
++
++
++@dataclass
++class TokenGeom:
++    """`token_io.rs:335-480` `TokenProfile` (the parts the layout reads) at a
++    registered shape, public-row variant, mode (i)."""
++    name: str
++    tokens: int
++    t_pad: int
++    d: int
++    d_pad: int
++    v: int
++    block_log_n: int        # the block shape's endpoint row width (B_in / B_out)
++    block_inv_rate: int
++    tier: Tier = R1_MVP
++
++    def __post_init__(self):
++        if not (2 <= self.v <= V_MAX):
++            raise ValueError(f"V = {self.v} outside 2..=2^17")
++        self.v_pad = 1 << clog2(self.v)
++        self.log_v = clog2(self.v_pad)
++        top = ((2 * self.d * 127 * 127 * (1 << MULT_BITS)) << self.log_v) + (self.v - 1)
++        self.window_bits = top.bit_length()
++        self.limbs = -(-self.window_bits // 8)
++        lt = self.tier.stage_log_n
++        if clog2(max(self.t_pad, 1 << self.tier.ep_log_n)) > max(clog2(self.t_pad), lt):
++            raise ValueError("the input token endpoint is wider than the position domain")
++
++    # domains (token_io.rs:438-466): natural padded size lifted UP to the row width
++    def ti_log(self): return max(clog2(self.t_pad), self.tier.stage_log_n)
++    def voc_log(self): return max(self.log_v, self.tier.stage_log_n)
++    def lo_log(self): return max(clog2(2 * 3 * LIMBS_ISQRT), self.tier.stage_log_n)
++    def do_log(self): return max(clog2(self.d_pad), self.tier.stage_log_n)
++    def vo_log(self): return max(self.log_v, self.tier.stage_log_n)
++    def tab_log(self): return max(clog2(U8_LEN), self.tier.stage_log_n)
++    def in_ep_words(self): return max(self.t_pad, 1 << self.tier.ep_log_n)
++    def out_ep_words(self): return 1 << self.tier.ep_log_n
++
++    def stage_in(self) -> StageLayout:
++        """`token_io/stage_in.rs:38-59`"""
++        lt = self.tier.stage_log_n
++        lti, lvoc = self.ti_log(), self.voc_log()
++        slots = [
++            Slot("IN-00 IO-in", clog2(self.in_ep_words()), 1, 3, "Standalone", 1, 0, 1),
++            Slot("IN-01 query zero-check", lti, 1, 4, "Standalone", 1, 1, 1),
++            Slot("IN-02 table zero-check", lvoc, 1, 4, "Standalone", 1, 1, 0),
++            Slot("IN-03 ZS zero-sum row", lt, 1, 2, "Standalone", 0, 1, 0),
++        ]
++        return StageLayout("stage IN", lt, [lti, lvoc], [lti, lvoc, lt], [1, -1, 1], 2,
++                           slots, [], [lt, lt, self.tier.ep_log_n, self.block_log_n])
++
++    def stage_out(self) -> StageLayout:
++        """`token_io/stage_out.rs:77-120`"""
++        lt = self.tier.stage_log_n
++        llo, ldo, lvo, ltab = self.lo_log(), self.do_log(), self.vo_log(), self.tab_log()
++        lmb = self.limbs
++        vplanes = 1 + lmb
++        h = -(-lmb // 2)
++        d_bits = clog2(self.d_pad)
++        slots = [
++            Slot("OUT-00 IO-in", d_bits, 1, 2, "Standalone", 1, 0, 1),
++            Slot("OUT-01 SS", ldo, 1, 4, "Private", 1, 0, 0),
++            Slot("OUT-02 TZC", TO_LOG, 1, 3, "Host", 11, 0, 0),
++            Slot("OUT-03 LZC", llo, 1, 4, "Standalone", 1, 1, 0),
++            Slot("OUT-04 HEAD", d_bits, 1, 2, "Private", 1, 0, 0),
++            Slot("OUT-05 DZC", ldo, 1, 5, "Standalone", 13, 6, 0),
++            Slot("OUT-06 VZC", lvo, 1, 5, "Host", vplanes + 2, h, 0),
++            Slot("OUT-07 RSEL", lvo, 1, 4, "Standalone", vplanes + 1, 0, 0),
++            Slot("OUT-08 TAB", ltab, 1, 3, "Standalone", 1, 1, 0),
++            Slot("OUT-09 ZS", lt, 1, 2, "Standalone", 0, 1, 0),
++            Slot("OUT-10 IO-out", clog2(self.out_ep_words()), 1, 3, "Standalone", 1, 0, 1),
++        ]
++        a_log = [TO_LOG] * 4 + [llo] + [ldo] * 12 + [lvo] * vplanes + [ltab]
++        n_h = 1 + 6 + h + 2
++        h_sign = [1] * n_h
++        h_sign[7 + h] = -1                     # h_gu8(l) = H_V0 + hv(l)
++        h_log = [llo] + [ldo] * 6 + [lvo] * h + [ltab] + [lt]
++        return StageLayout("stage OUT", lt, a_log, h_log, h_sign, 7 + h + 1, slots,
++                           [[2, [1]], [6, [4]]], [lt, lt, self.block_log_n, self.tier.ep_log_n])
++
++    def endpoint(self, words: int) -> dict:
++        """`endpoint_g.rs` `EndpointSpecG` at one row: data rows ceil(words / 2^ep_log_n),
++        commitment rows data + MASK_ROWS (5 = one reserved pair, its proximity
++        pair and one more row: the generic endpoint's own rule)"""
++        n = 1 << self.tier.ep_log_n
++        data = -(-words // n)
++        return {"words": words, "row_width_log": self.tier.ep_log_n,
++                "inv_rate": self.tier.ep_inv_rate, "data_rows": data,
++                "commitment_rows": data + EP_MASK_ROWS, "row_tail_words": data * n - words}
++
++    def boundary(self) -> dict:
++        """B_in / B_out: the block's boundary geometry, `data + 2*sites + 2`
++        rows (ruling M-1) at the block shape's endpoint row width"""
++        words = self.t_pad * self.d_pad
++        data = -(-words // (1 << self.block_log_n))
++        return {"plane": [self.t_pad, self.d_pad], "row_width_log": self.block_log_n,
++                "inv_rate": self.block_inv_rate, "data_rows": data,
++                "rows": data + 2 * 2 + 2, "sites": 2}
++
++    # ------------------------------------------------------------ G-items, static
++    def g5(self) -> dict:
++        """G-5: the stage-23 invariant log(Tab) == row width for each new
++        stage that looks up the byte table (stage OUT's U8 lookups; stage IN
++        looks up only the embedding compression on Voc, no byte table)"""
++        out = self.stage_out()
++        return {"stage IN": {"byte_table": False, "holds": None,
++                             "why": "stage IN has no byte-table lookup (its one LogUp table is the V-row embedding compression on Voc)"},
++                "stage OUT": {"byte_table": True, "tab_log": self.tab_log(), "row_width_log": out.log_n,
++                              "holds": self.tab_log() == out.log_n}}
++
++    def g4(self) -> dict:
++        """G-4, static half: the vocabulary domains' pad positions, the P-3
++        lift of every small domain, and the token endpoints' pad words.  The
++        pad-zero TERMS (present for m, h_tab, e, lambda, tok, h_q, s) and the
++        IO slots' public support factors are read from a capture's slot
++        definitions (needs the slot hook, 2.1(c) of the request)"""
++        lt = self.tier.stage_log_n
++        lifts = {}
++        for dom, natural, log in [("Ti (tok, h_q)", self.t_pad, self.ti_log()),
++                                  ("Voc (m, h_tab)", self.v_pad, self.voc_log()),
++                                  ("Lo (isqrt limbs)", 2 * 3 * LIMBS_ISQRT, self.lo_log()),
++                                  ("Do (x, y, norm limbs)", self.d_pad, self.do_log()),
++                                  ("Vo (e, lambda limbs)", self.v_pad, self.vo_log()),
++                                  ("Tab (byte table)", U8_LEN, self.tab_log())]:
++            lifts[dom] = {"natural": natural, "domain": 1 << log,
++                          "lifted_positions": (1 << log) - (1 << clog2(natural)),
++                          "lifted": log > clog2(natural)}
++        return {"vocabulary": {"V": self.v, "V_pad": self.v_pad, "pad_positions": self.v_pad - self.v},
++                "p3_lift": lifts,
++                "endpoints": {"input": self.endpoint(self.in_ep_words()) | {
++                                  "true_words": self.tokens,
++                                  "pad_words_in_plane": self.in_ep_words() - self.tokens},
++                              "output": self.endpoint(self.out_ep_words()) | {
++                                  "true_words": 1,
++                                  "pad_words_in_plane": self.out_ep_words() - 1}},
++                "row_width_log": lt}
++
++    def g2(self) -> dict:
++        """G-2, static half: B_out's stage-OUT claim fixes the row bits of
++        token row T - 1 (public-row variant).  The B_out plane is (t, i)
++        major, t_pad x d_pad words over rows of 2^block_log_n; of the
++        log2(t_pad) fixed bits, those below the row width are COLUMN bits.
++        B_in's stage-IN claim has the challenge-fixed column coordinate
++        r_emb.  Whether the reserved pair still masks the claim is a capture
++        check (needs the claim points, 2.1(c)/(d) of the request)"""
++        tb, db, ln = clog2(self.t_pad), clog2(self.d_pad), self.block_log_n
++        col_bits = [b for b in range(db, db + tb) if b < ln]
++        row_bits = [b for b in range(db, db + tb) if b >= ln]
++        return {"B_out": {"fixed_row": self.tokens - 1, "fixed_bits_total": tb,
++                          "fixed_bits_in_the_column_coordinate": len(col_bits),
++                          "fixed_bits_in_the_row_coordinate": len(row_bits),
++                          "bit_positions": {"column": col_bits, "row": row_bits},
++                          "plane_bits": db + tb, "row_width_log": ln},
++                "B_in": {"fixed": "column coordinate r_emb (challenge-fixed, drawn after A_in and M_in)"}}
++
++    def report(self) -> dict:
++        si, so = self.stage_in(), self.stage_out()
++        return {
++            "geometry": self.name, "tokens": self.tokens, "d": self.d, "d_pad": self.d_pad,
++            "V": self.v, "V_pad": self.v_pad, "log_V": self.log_v,
++            "keyed_window_bits": self.window_bits, "byte_limbs": self.limbs,
++            "tier": self.tier.__dict__,
++            "stage_in": si.summary(), "stage_out": so.summary(),
++            "input_endpoint": self.endpoint(self.in_ep_words()),
++            "output_endpoint": self.endpoint(self.out_ep_words()),
++            "b_in_b_out": self.boundary(),
++            "G2_static": self.g2(), "G4_static": self.g4(), "G5": self.g5(),
++            "not_built": ["D26 variant P (two-site input endpoint) and its SHIFT / IO-s claims (G-7)",
++                          "variant F", "mode (ii)", "the hidden-length variant"],
++            "privacy_acceptance": False,
++        }
++
++
++# the two geometries of gate round 7 (DESIGN §6.5; shape.rs at round 6)
++R2_TINYLLAMA_T32 = dict(name="R2 TinyLlama-1.1B T32 (public row, mode i)", tokens=32, t_pad=32,
++                        d=2048, d_pad=2048, v=32000, block_log_n=12, block_inv_rate=4)
++R3_LLAMA3_8B_T32 = dict(name="R3 Llama-3-8B T32 (public row, mode i)", tokens=32, t_pad=32,
++                        d=4096, d_pad=4096, v=128256, block_log_n=13, block_inv_rate=4)
++
++
++def cross_check_plane_index(geom: TokenGeom, stage_kind: str, plane_index: dict) -> list:
++    """For a CAPTURED stage (once the hook lands): compare the bundle's plane
++    index of a stage IN / OUT with the re-derived layout.  Returns findings
++    (empty = equal).  Field names follow the request (2.1(b))."""
++    lay = geom.stage_in() if stage_kind == "IN" else geom.stage_out()
++    want = {"a_rows": lay.a_rows, "a_data_rows": lay.a_data_rows, "a_mask_base": lay.a_mask_base,
++            "a_prox": lay.a_prox, "h_rows": lay.h_rows, "h_data_rows": lay.h_data_rows,
++            "h_mask_base": lay.h_mask_base, "h_prox": lay.h_prox, "h_u": lay.h_u,
++            "h_u_rows": lay.h_u_rows(), "log_n": lay.log_n}
++    out = []
++    for k, v in want.items():
++        got = plane_index.get(k)
++        if got is None:
++            out.append(f"stage {stage_kind}: the bundle's plane index has no `{k}`")
++        elif got != v:
++            out.append(f"stage {stage_kind}: `{k}` is {got} in the bundle, {v} re-derived")
++    return out
++
++
++def main(argv):
++    out = {"what": "token-I/O stage geometry, re-derived (gate round 7); NOT a privacy result",
++           "privacy_acceptance": False,
++           "geometries": [TokenGeom(**R2_TINYLLAMA_T32).report(), TokenGeom(**R3_LLAMA3_8B_T32).report()]}
++    s = json.dumps(out, indent=1, sort_keys=True)
++    if len(argv) > 1:
++        open(argv[1], "w").write(s + "\n")
++    for g in out["geometries"]:
++        si, so = g["stage_in"], g["stage_out"]
++        print(f"{g['geometry']}: limbs {g['byte_limbs']} (window {g['keyed_window_bits']} bits); "
++              f"stage IN A {si['A']['rows']} / H {si['H']['rows']} ({si['committed_elements']:,} elements); "
++              f"stage OUT A {so['A']['rows']} / H {so['H']['rows']} ({so['committed_elements']:,}); "
++              f"G-5 {g['G5']['stage OUT']['holds']}; V pads {g['G4_static']['vocabulary']['pad_positions']}; "
++              f"B_out fixed bits col/row {g['G2_static']['B_out']['fixed_bits_in_the_column_coordinate']}/"
++              f"{g['G2_static']['B_out']['fixed_bits_in_the_row_coordinate']}")
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main(sys.argv))
+diff -ruN -x __pycache__ frozen_v8/scripts/zk60_native_rg_tokenio_r7c_pins.py scripts/zk60_native_rg_tokenio_r7c_pins.py
+--- frozen_v8/scripts/zk60_native_rg_tokenio_r7c_pins.py	1969-12-31 16:00:00.000000000 -0800
++++ scripts/zk60_native_rg_tokenio_r7c_pins.py	2026-10-19 10:55:59.059174085 -0700
+@@ -0,0 +1,543 @@
++#!/usr/bin/env python3
++"""[GATE ROUND 7, tools v9, 2026-10-19] The source pins of a TOKEN-I/O run
++capture written from the token lane's tree "uncommitted-token-io-r7c"
++(`ops/zkp-mvp/token-io/hashline/`), and the reading behind each.
++
++A token bundle pins 52 files.  Two sets cover them:
++
++* `R7_PINS_READ_IN_V8`: the 46 pins of the gate's R7 bundles
++  (`~/zk60-artifacts/tinyllama-trained-r7-capture-*`, manifest
++  `source_pins`), every one checked ok by tools v8's
++  `check_run_layer_pins` and readings (v6 R5b readings, v8 R7 readings).  A
++  token bundle pin equal to one of these carries that reading.  At r7c, 40
++  of the 52 are.
++* `TOKEN_R7C_READINGS`: the 12 that are not (6 changed, 6 new).  They were
++  READ by the privacy gate's reading helper on 2026-10-19 (17:46:55 UTC;
++  `results/zk60_gate_tinyllama_20261017/token_io/readings/token_r7c_pin_readings.json`)
++  and spot-checked by this lane:
++  * shape.rs and trained_statement.rs equal native R8;
++  * run.rs is native R8 + 33 token lines;
++  * run_capture.rs descends from the native writer 1d43d68c, NOT from the
++    gate's 31557a27 (the gate's trained-calibration capture patch is absent,
++    so a token bundle's `shape` has no trained-calibration keys);
++  * the token header's six absorbs are as transcribed.
++
++The pins are matched BY FILE NAME: the token writer inserts its six files at
++positions 16-21, which moves every later pin (the helper's correction 2).
++
++NOTHING HERE IS A PRIVACY STATEMENT.
++"""
++
++R7_PINS_READ_IN_V8 = {
++    '../zkp-core/src/field.rs': 'df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13',
++    '../zkp-core/src/hashtag.rs': '71bf33150a296c2ce4da49d189c6d84a9f741b9ada1ef2488711938cffd6b651',
++    '../zkp-core/src/lib.rs': '388f012fbb535617bc5a105de8640c84b5572544284cb4947a4ad7606e891164',
++    '../zkp-core/src/merkle.rs': '6e7817bd767a883985bfcd62b7a387d0c5f4c361010c4c5db37f5087d965744a',
++    '../zkp-core/src/mle.rs': 'b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e',
++    '../zkp-core/src/ntt.rs': '97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890',
++    '../zkp-core/src/pcs.rs': '5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495',
++    '../zkp-core/src/pcs/backend.rs': 'ff2cb5c1806b34653f8a44ad82f54201fb5d9f6ba2602afe5efeae4d104e0103',
++    '../zkp-core/src/pcs/encode_buffer.rs': '3c01433d84507cddadcf5c1387c08948fd3efe853a066d74690c0a6e1ce3dd70',
++    '../zkp-core/src/rng.rs': '0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb',
++    '../zkp-core/src/sumcheck.rs': 'fc7374bbd5e5cc4ede62e8a21d325eb62acff9b9dcc786d12eae39efbdfdbb95',
++    '../zkp-core/src/sumcheck/grouped.rs': '7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b',
++    '../zkp-core/src/sumcheck/rounds.rs': 'c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df',
++    '../zkp-core/src/tables.rs': '8cc95bc8b576907a99f24755cd9d16ea8904cd9ccc514f32f471a95ca8f13e50',
++    '../zkp-core/src/transcript.rs': 'cc9752d0ef9bcd6d7b20e94e611ff26748593a2ea1a4f55b63d8c221715f1967',
++    'src/causal_oracle.rs': '758bd3401cc726dd621ff0b04b9d7b09a50decc773f03f4a21ddbc031921d85a',
++    'src/export_v3.rs': 'e0394ab4113d150336ee91353d7ba26589d5e4dffcb3cb7d2ad0fea833842acb',
++    'src/field.rs': '1dc6c53b9d3b014b8cabfb784c15dcbddde31bc58e6d7216101c6a4fbbf45669',
++    'src/gpu/mod.rs': 'd651be2ccf8f19ff75fe6bca5ad42f4b773b569d0ae2017306f0bf819c51b283',
++    'src/merkle.rs': '06fd5f0bd725599d601dacb1b8aac1e797914c7ca8c344c0a52a412260b47eee',
++    'src/mle.rs': 'bffe83fb5636f445f3a5a3b85141c374bdfeb4e4716c386eec30d10f5ed33741',
++    'src/ntt.rs': 'a7f7ac0b838747c4de59e8226213500a41c047356ddd8bcdb3ab906818843c7c',
++    'src/pcs.rs': '8b14096b66f6597e3cdfe239a7359457dd17dfd475c2a5d0f4e112a41342127f',
++    'src/private_block.rs': '386194fe90f01829feea20d012f4d50eabf53c1e9e2977fc2e03fbe918293587',
++    'src/private_block/argument.rs': '02df55ebec4da046d5522dfc14bf17a691c1fca851f014ba50a759502804e3b5',
++    'src/private_block/boundary.rs': '5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581',
++    'src/private_block/endpoint_g.rs': '6e3691d0bfa1c1fb1f66b9be8ae5438597492c62dc00451d6f25dbff90ab84ce',
++    'src/private_block/hash_domain.rs': 'da61c1d97ca1cd6d35071e3917cfdb900a2039c5abd213cdfe2f0ccc251ed3cd',
++    'src/private_block/layout.rs': 'ee871fff7eed377cafcb05ec0438df95a70695ae8fdcd5b5822f5f40663b0ee9',
++    'src/private_block/pad.rs': '4f0c11c50503dd8cb4fb38d2b5be5e4f08ec310ee916b83a357f0283ede9eb42',
++    'src/private_block/plane_index.rs': '13a7dd6ff1f9178dd640e3d38309a5581a39cf13c9c61238c41ceba83420afbf',
++    'src/private_block/protocol.rs': '85ca893173c4bfc0d8c88be69dbd0834831d4aec4ec9783c66e0b61d614615f6',
++    'src/private_block/run.rs': 'ad92be08fe55b86ea1f75931130a49d76de5c867c36210864694c2e1cd3dc0e9',
++    'src/private_block/run_capture.rs': '31557a2722997d900bcf21e67f3aa312b9bf7f70ea81a0212470c32602c5be6f',
++    'src/private_block/run_sink.rs': '005bac239d8dd616a46573f948c30ce1e2c540e02cf97035d3c457717c32921d',
++    'src/private_block/shape.rs': '7b0c9742db3434fd2283ce23b6fb4d6f623a57b2f73fe026fc80bfc2ae3cc5f6',
++    'src/private_block/trained_block.rs': '30cb9a31703a7a074c9028d9bb7941fa96be7fb736287305fb0a5c2702a57ff7',
++    'src/private_block/trained_statement.rs': '6f18efcd0fe584e1539e98e525ded8e9aa60c75c01c5b028aeb10a12a8de1c34',
++    'src/private_block/wire.rs': 'c8c13033f341ed40bd524091cfe870be3cb54433de566a6d9f4078c15cac374f',
++    'src/private_block/witness.rs': '130f6301ba1118a9dd90f852d8bd5adf076ef4222fb58eb0e1b17a3c0a83de94',
++    'src/private_seam.rs': '2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5',
++    'src/sumcheck.rs': 'f097dd71fab7888e95e61a29ab035b13153313d068e7547d91acbfd20c7bc566',
++    'src/tables_attn.rs': '5a874788e20581010b492d50ccc5e662255115c65b9eebcf2f88314733b121e3',
++    'src/tables_v3.rs': '726c9355f9e663ef1a43dc9efe17cb2c85aa3583977d0c794dad4cf21a24715d',
++    'src/transcript.rs': '4850b2b4dc80317659fd643908e307ca58923c98e98baf32c4c1623ba239fd78',
++    'src/zk.rs': '66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32',
++}
++
++TOKEN_R7C_READINGS = {
++    'src/private_block.rs': {
++        '45286ae8f3be17da7f0938cec7ed0d689ba80f2ffda1d73d3b9329b3b25c3130': {
++            'base': '386194fe90f01829feea20d012f4d50eabf53c1e9e2977fc2e03fbe918293587',
++            'blob': '5f95ca0125505f1dd878d5cef8bbd4b8f78824a7',
++            'bytes': 61160,
++            'diff_stat': (
++                '2 hunks, +11 / -0 against R7 386194fe; 1 hunk, +8 / -0 (token only) against native R8 '
++                '08551c3d'
++            ),
++            'moves_a_block_stage_byte': False,
++            'reading': (
++                '[TOKEN-IO R7c] [READ] read against `386194fe` (R7): +11 / -0, two hunks: the token '
++                "module and its CLI re-exports (:119-126), and native R8's cfg(test) module `r8_tests` "
++                '(:178-180); against native R8 (`08551c3d`) only the first remains. '
++                '`ExpectedIo::to_bytes`, `calibration_identity`, every statement check, and the cfg(test)'
++                ' gating of `run_capture` / `run_capture_tests` (:222-225) are outside both hunks. No '
++                'byte of any run moves.'
++            ),
++            'transcribed_by_the_gate': [],
++        },
++    },
++    'src/private_block/run.rs': {
++        '2c158dc9c22c23e46e1fc9b8b1215555880a3e7e8642703cc47d37f24b6116f2': {
++            'base': 'ad92be08fe55b86ea1f75931130a49d76de5c867c36210864694c2e1cd3dc0e9',
++            'blob': '23e2efa5a7af731840790c7fc79718405d4ea0a1',
++            'bytes': 80119,
++            'diff_stat': (
++                '7 hunks, +73 / -24 against R7 ad92be08; 4 hunks, +33 / -0 (token only) against native R8'
++                ' d913a081'
++            ),
++            'moves_a_block_stage_byte': False,
++            'reading': (
++                '[TOKEN-IO R7c] [READ] read against `ad92be08` (R7, read in round 6): `diff -u` is +73 / '
++                '-24, seven hunks; against the native R8 freeze `d913a081` only hunks 1, 2, 7 and the '
++                'token half of 4 remain (+33 / -0), so hunks 3, 5, 6 and the R8 half of 4 are native R8. '
++                "TOKEN: three new run profile strings and TOKEN_IO_RUN_PROFILES (:101-119); CS-7's "
++                'registry admits each over the same trained shape its blocks-only twin names (:153-155); '
++                'a blocks-only bound statement refuses a token profile (:365-367; the unbound `new` '
++                "already refuses every trained-calibration shape, :319-321); the block run's capture "
++                "header carries `token: None` (:682). NATIVE R8: `stage_cal` (:300) holds each stage's "
++                "whole calibration, the run shape's for every stage (:439) unless trained record k "
++                '`has_own` (:380-384: `apply_own` on the run base, validated by '
++                '`Shape::with_layer_calibration`); `stage_line` appends one clause per OWN_FIELDS field '
++                "whose value differs (:543-553; an sh_s-only clause is R7's text); `stage_shape(k)` is "
++                "the run shape's clone when the whole calibration is equal (:559-566). R8 is INERT at "
++                'both pg_rot1 TinyLlama T32 exports (see `r8_inert_when`): every stage at the run shape, '
++                "every schedule line R7's. **Outside every hunk**: `transcript` (tagged constructor, run-"
++                'shape SEVEN u64, expected-IO, public-statement, parameters, calibration = the trained '
++                'identity, schedule, :604-622), `position_tag` (:706-713), `stage_layout` (:693-695), '
++                "`RunVerifier::step`'s per-stage absorbs and boundary rule (:1141-1150) and the draw "
++                "order. At the TinyLlama T32 profile no byte of a blocks-only run moves. The token run's "
++                'block stages call the same `protocol::verify_core` / `prove_core` (protocol.rs 85ca8931,'
++                ' the R7 digest) at `TokenRunStatement::stage_shape`.'
++            ),
++            'transcribed_by_the_gate': ["the three token run profile strings (:101-116), of which the TinyLlama T32 one is the capture's profile", 'for a re-pinned trained TinyLlama statement: the R8 stage-line clause rule (:543-553), empty at pg_rot1_export_T32'],
++        },
++    },
++    'src/private_block/run_capture.rs': {
++        'aaff4e6e20c4deca7a0342f5b7dd2b9ac53a2837432af72f57c8a852e479db5e': {
++            'base': '31557a2722997d900bcf21e67f3aa312b9bf7f70ea81a0212470c32602c5be6f',
++            'blob': 'd190b626cbfbb1692f4c674077b05e84b3fea6fe',
++            'bytes': 132875,
++            'diff_stat': (
++                '19 hunks, +911 / -57 against the gate R7 copy 31557a27; 17 hunks, +909 / -12 against the'
++                " native R7 writer 1d43d68c (the file's actual ancestor). The difference, 3 hunks / +2 / "
++                "-45, is the gate lane's 2026-10-17 patch being ABSENT."
++            ),
++            'moves_a_block_stage_byte': 'see reading',
++            'reading': (
++                "[TOKEN-IO R7c] [READ] read against `31557a27` (the gate's R7 copy): +911 / -57, nineteen"
++                " hunks. That base is NOT this file's ancestor: against the native frozen R7 writer "
++                "`1d43d68c` (also native R8's) it is +909 / -12, seventeen hunks, each a token addition "
++                'or an `L` -> `stages_total(h)` generalisation; the three further hunks against '
++                "`31557a27` (@@ -1329, @@ -1734, @@ -1971) are the privacy-gate lane's own 2026-10-17 "
++                'trained-calibration patch, which this tree never carried. TOKEN HOOKS: '
++                '`stage_begin_stage(k, kind, bytes, start_tag, b_root, a_root, h_root, mask_root, planes,'
++                ' tr)` (:968) refuses a block header, an open stage, an out-of-order k, a kind other than'
++                ' IN (k = 0) / BLOCK (1..=L) / OUT (L + 1) and a boundary root the schedule does not '
++                'declare; builds the run plane index from the block Layout (BLOCK) or a TokenPlanes table'
++                ' (IN / OUT, layout digest = SHA-256 of `StageLayout::describe`); then replays the stage '
++                "prefix on the recorder's OWN transcript (:1073-1092): pb-run-stage k; pb-run-block "
++                '(embedding digest for IN, block_digests[k - 1] for BLOCK, head digest for OUT); B, rows,'
++                ' log-cols when the stage commits a boundary (IN: boundary 0 = B_in; BLOCK k: boundary k '
++                'in token numbering; OUT: none); A, rows, log-cols; M; 3 + r_emb_len (IN) / 2 (OUT) / 3 '
++                '(BLOCK) Fp2 draws; H, rows, log-cols. `stage_slot(def, spec, acc, proof, rho, c, '
++                'mask_eval, before, after)` (:1114) refuses a stage slot in a block stage (:1123) and '
++                "replays exactly the block `slot`'s sequence (definition draws up to the verifier's "
++                'checkpoint :1149, pb-slot :1152, c :1153 compared, pb-scalar :1158, `sumcheck::verify` '
++                "over main + ext :1160, pb-term :1171) at the slot's DECLARED (main, ext, degree), then "
++                "writes the block slot record's keys (slot, name, kind, main, extension, degree, "
++                'definition_challenges, c, scalar, claimed_sum, rho, sumcheck_final, mask_eval, '
++                'terminal_polynomial, terminals, rounds, hosted, tables, before_definition, before, '
++                "after) with the stage's own role names and FIXED coordinates as {fixed}; unlike the "
++                'block `slot` (:1367-1390) it does not compare the private-table order with an '
++                'independent plane-index derivation: the slot plane list is recorded AS OBSERVED '
++                '(`slot_planes_source`, :555). Token header facts (TokenFacts :386): run_profile, V, '
++                'V_pad, T, t_pad, d, d_pad, variant, mode, limbs, window_bits, mult_bits, emb / head '
++                'digests, BOS, final norm (g0, Cn_f, tn_f, Ceps_f), (s_in, s_out), tier (name, Q, stage '
++                'log_n / rate, endpoint log_n / rate), the two TokenEndpointFacts, both token roots, '
++                'boundaries 0 = B_in .. L = B_out, r_emb_len, both stage layouts. Geom roles and kinds '
++                'are strings set by the CALLERS (no list here): A-in / H-in / E-token-in '
++                '(stage_in.rs:457, :463, :469), A-out / H-out / B-out / E-token-out (stage_out.rs:819, '
++                ":825, :839, :862), and for each block's boundary opening role Input with commitment_kind"
++                ' B-in at block 0, internal-boundary after (token_io/run.rs:911-912); new kinds stage-in,'
++                ' stage-out, token-endpoint (token_io.rs:1059), B-in, B-out. NO-OP WITHOUT A RECORDER: '
++                'every hook runs inside `with` (:774), `checkpoint` returns None without a recorder '
++                '(:1280-1282) and `stage_slot` returns at once on None (:1115); the module is '
++                '`#[cfg(test)]` (private_block.rs:222-223); hooks take `&Transcript` and draw only on the'
++                " recorder's own copy; no transcript or receipt byte moves. A BLOCK RUN'S BUNDLE: "
++                '`write_run`, `write_stage`, `begin_run_with` and the block `slot` are outside every '
++                'token hunk and are selected when header.token is None (:1590, :1635, :2794), so '
++                "run.json, every stage-NN.json and README.md are byte for byte the NATIVE R7 writer's; "
++                "manifest.json's `source_pins` gains six entries INSERTED at indices 16-21, so "
++                'trained_block.rs moves from index 16 to 22 and every shared pin shifts by six, against '
++                "the function's own rule that new entries are appended and nothing re-sorted (:2869-2872)"
++                " [READ; the in-file comment calls it a PURE ADDITION, :261]. Against the gate's R7 "
++                'bundles a TinyLlama-T32-trained BLOCK bundle written by this file would also lose the 13'
++                ' `shape` keys (trained_calibration, norm_tn, norm_cn_a, norm_cn_m, norm_ceps, sh_ao, '
++                'sh_qkv, sh_s, sh_o, sh_g, sh_h, sh_z, d_max) and the trained README sentence. The token '
++                "bundle's `shape` carries none of the 13 either [READ tinyllama-t32-L1-dense-"
++                'pt1/run.json].'
++            ),
++            'transcribed_by_the_gate': ["the stage-prefix replay order (:1073-1092) as the gate's own transcript of an IN / BLOCK / OUT stage opening", "SCHEMA_TOKEN hashline-native-capture/6-token-run (:2107) and the 56 token ALLOWED_KEYS (:2686-2741) for the gate's closed-schema mirror", "write_run_token's `token_io` member (keys and order, :2264-2333) and write_stage_token's members, with logup_challenges = the first 3 (IN, BLOCK) or 2 (OUT) draws and r_emb = the rest for IN (:2133-2137, :2160-2161)", 'the boundary numbering of a token bundle: 0 = B_in committed at stage 0 and opened at stage 1, L = B_out committed at stage L and opened at stage L + 1 (write_run_token :2291-2305)', 'source_pins order: 23 own files, the six token files at indices 16-21, trained_block.rs at 22 (:219-278); key any pin lookup by file name, not index'],
++        },
++    },
++    'src/private_block/shape.rs': {
++        '8c62519c98e36ae966b7f9480e1d47884c57526c2ccf0288deb1286ca1a0fb34': {
++            'base': '7b0c9742db3434fd2283ce23b6fb4d6f623a57b2f73fe026fc80bfc2ae3cc5f6',
++            'blob': 'a17d0826a0f23754d524e161f5d62c942c497334',
++            'bytes': 119159,
++            'diff_stat': "1 hunk, +37 / -12 against R7 7b0c9742; byte-identical to native R8's shape.rs",
++            'moves_a_block_stage_byte': False,
++            'reading': (
++                '[TOKEN-IO R7c] [READ] read against `7b0c9742` (R7, read in round 6): +37 / -12, one '
++                "hunk; the file is byte-identical to the native R8 freeze's (`8c62519c`). "
++                '`with_score_shift(sh_s)` is now `with_layer_calibration(&NormCalibration { sh_s, '
++                '..self.norm_calibration() })` (:1481-1483) and has no production caller left (its '
++                'callers are test modules) [READ grep]. NEW `with_layer_calibration(cal)` (:1496-1523): '
++                'refused unless trained_calibration; `cal.derive_at_width(self.width)` (:238: width '
++                'class, tn class, cn_a / cn_m <= 2^20, ceps <= 2^40, sh_ao <= 8, the six shift windows, '
++                'D_max in three byte limbs, the remainder window exactly four limbs); clones and sets the'
++                ' eleven constants plus the derived norm_wrho and d_max; `check_constructed` and '
++                '`check_trained_class`; then rebuilds `Ids` / `HIds` and refuses unless n_a, (ln, ls, lp)'
++                " and n_h equal this shape's (the plane list unmoved). It is called only for a record "
++                'with own constants (run.rs:382, trained_statement.rs:647, trained_block.rs:938-941 and '
++                ':2066, token_io/run.rs:231 and :258), which no record of the pg_rot1 TinyLlama T32 '
++                'exports has. The trained geometry table and its TinyLlama T32 entry (`trained_geometry`,'
++                ' :367), ruling C-4 (:306, :817-849), `hash_tag` (:1810), `true_size` (:1860), `pads` '
++                '(:1885), `Shape::slots` (:2008) and the calibration validator itself are outside the '
++                'hunk. At these exports no shape value and no byte moves.'
++            ),
++            'transcribed_by_the_gate': [],
++        },
++    },
++    'src/private_block/token_io.rs': {
++        '396daba1a49477ba7f2034a31d053f51b41d67704487fc78ab65ce604029092a': {
++            'base': None,
++            'blob': '250300d85c06e402b7cac7282b00181166e3fbfc',
++            'bytes': 72455,
++            'diff_stat': 'new file, 1557 lines',
++            'moves_a_block_stage_byte': False,
++            'reading': (
++                "[TOKEN-IO R7c] [READ] New: the token run's module root (production, except the cfg(test)"
++                ' registries, test modules and capture Geom helpers). TIER: `Tier` (:119-133); '
++                '`Tier::R1_MVP` = {name `mvp-95-whole-run (D27)`, opened_cols 256, stage_log_n 12, '
++                'stage_inv_rate 4, ep_log_n 8, ep_inv_rate 8, lookup_ext_degree 2} (:143), the one '
++                'REGISTERED tier (:149); `check` (:160-201) refuses F_p^k with k != 2, out-of-range '
++                'geometry, Q != zk.rs MASK_Q (TR-2), DESIGN B-1 floors, unregistered levers. PROFILE '
++                'DOOR: `TokenProfile::new` (:368-438): V in 2..=2^17, BOS < V, g0 in [1, 127], Cn in [1, '
++                '2^20], Ceps in [1, 2^40], tn in 1..=16, head multipliers in [1, 2^12], no head word '
++                '-128, D_max in three limbs, final-norm window exactly 32 bits, keyed window over the '
++                "whole multiplier class with limbs = ceil(window / 8) and p's margin, stage domains <= "
++                '2^17. DOMAIN HELPERS, each lifted to the stage row width: ti_log = max(clog2 T_pad, '
++                'stage_log_n) (:445), voc_log = max(log V_pad, .) (:449), lo_log = max(clog2 18, .) '
++                '(:453), do_log = max(clog2 d_pad, .) (:457), vo_log = max(log V_pad, .) (:461), tab_log '
++                '= max(8, .) (:465); in_ep_words = max(T_pad, 2^ep_log_n) (:471), out_ep_words = '
++                '2^ep_log_n (:475). `describe_under` / `digest_under` (:484-519; the rung-TC and '
++                'TinyLlama T32 profiles keep the legacy text `token-io R1:`, :249-251). LAYOUT: '
++                '`StageLayout::new(params, a_log, h_log, h_sign, h_u, sched)` (:714-745): A planes '
++                'contiguous from row 0, rows_of(log) = max(1, 2^log >> log_n) (:709-711); a_mask_base = '
++                'a_data_rows; a_prox = a_mask_base + 2 * sum(a_sites); a_rows = a_prox + 2; each H plane '
++                'a (re, im) pair of rows_of rows; h_mask_base = h_data_rows; h_prox = h_mask_base + 2 * '
++                'sum(h_sites); h_rows = h_prox + 2. Accessors: a_site / h_site = mask_base + 2 * (prefix '
++                '+ k) (:753-764), a_site_rows / h_site_rows = [mask_base, prox) (:765-770), h_u_rows = '
++                "the zero-sum plane's two rows (:771-774), m_rows = 2 * slots + 4 (:775-777), mask_specs "
++                '= (main + ext, degree) per slot (:778-780), n_functionals = sum(1 + [Standalone]) + '
++                'number of host groups (:785-787); `logup_sum_claim` (:791-800). SLOT RUNNER: '
++                '`run_stage_slot` (:901-1039) on the verify side, in order: schedule checks (:906-914), '
++                'the capture checkpoint (:919, test only), absorb pb-slot (:920), draw c and refuse zero '
++                '(:922-925), absorb pb-scalar (:973), `sumcheck::verify(claimed, degree, main + ext)` = '
++                'one sc-round absorb and one draw per round (:975; zkp-core sumcheck.rs:152-163), g_val '
++                '(:992), refuse a degenerate e (:997), absorb pb-term (:1000), claims at '
++                "sched.row_log[cm] (:1002-1010), M functionals (:1017-1029), the capture's `stage_slot` "
++                "(:1035-1037, test only). These are argument.rs `run_slot`'s operations in the same order"
++                ' (:476, :480, :600, :602, :626, :629); the definition draws precede the call, in the '
++                "stage modules' `define`. `finish_functionals` (:1165-1172): per slot in slot order "
++                '[Gamma_s if Standalone] then eval_s, host Gammas deferred and appended last, count == '
++                'n_functionals, as argument.rs:640-655 and :1958-1962. Also: the one-site token endpoint '
++                'claim schedule (:1184-1197), the stage wire (:1238-1402), the owner check (:1532-1557). '
++                'Nothing here is called by a block stage.'
++            ),
++            'transcribed_by_the_gate': ["StageLayout::new's row rule (:709-745) and accessors a_site / h_site / a_site_rows / h_site_rows / h_u_rows / m_rows / mask_specs / n_functionals (:753-787)", "finish_functionals' M functional order (:1165-1172 with :1017-1029)", "run_stage_slot's verify-side sequence pb-slot, c, pb-scalar, sc-round x (main + ext), pb-term (:920-1000)", "TokenProfile's domain helpers ti / voc / lo / do / vo / tab and in_ep_words / out_ep_words (:445-477)", "Tier::R1_MVP's levers (:143)"],
++        },
++    },
++    'src/private_block/token_io/cli.rs': {
++        '04e328686466e1e5fcbe997e5599d8fc658bcbc48bec163f9840338226691dfe': {
++            'base': None,
++            'blob': 'c693bff3528b99e63fa780c0d5a256f080e7c33b',
++            'bytes': 42710,
++            'diff_stat': 'new file, 814 lines',
++            'moves_a_block_stage_byte': False,
++            'reading': (
++                '[TOKEN-IO R7c] [READ] New, REPORT-ONLY. The CLI bridge (prove, profile, verify, owner, '
++                "input-owner). `render` (:136-183) is the only writer of a token run's statement, schema "
++                '`zk60-token-io-run/2`: schema, scope, statement_written_by, prover_reported {backend, '
++                "gpu_declines, what} (checked by R7's `check_prover_reported`), run_profile, "
++                'block_profile, blocks, export_variant, export_profile_sha256, '
++                'trained_statement_identity, layers_with_own_calibration (R8; empty at the pg_rot1 '
++                'exports), tables {three SHA-256, V, d}, bos, final_norm, token_profile_digest, '
++                'context_label, context, both token endpoint roots, whole_run_floor_bits, parameter_line.'
++                ' `statement_of` (:220-226) rebuilds the TokenRunStatement from public files at '
++                'Tier::R1_MVP and the public-row variant, context = stack_context(variant, layers, label)'
++                ' with the one admitted label `zk60-token-io-next-token` (:85). Verify pins --expect-'
++                'statement (the trained identity, :576-585) and --expect-token-profile (the token profile'
++                " digest, :592-599), requires the found statement to be byte for byte `render`'s "
++                '(:648-650), verifies under --min-bits (default 95, :624, :663), then publishes '
++                "statement/ {statement.json, segments.json}. Prove (:475-571) checks B_in = the export's "
++                "x_in_L00 (:504-506), takes the next token from the last layer's x_out row T - 1 "
++                "(:507-514), writes the owners' decommitments to a 0700 owner directory and an UNVERIFIED"
++                ' statement. No run_capture call anywhere in the file: a CLI token run cannot be captured'
++                ' [READ grep].'
++            ),
++            'transcribed_by_the_gate': [],
++        },
++    },
++    'src/private_block/token_io/load.rs': {
++        '998bc0e85e94e1d797e8de1129f4de3e16f9cf94944207b327abcae231a07669': {
++            'base': None,
++            'blob': 'a77e618324465e566077b443735cb8c80ec99ff3',
++            'bytes': 13537,
++            'diff_stat': 'new file, 273 lines',
++            'moves_a_block_stage_byte': False,
++            'reading': (
++                '[TOKEN-IO R7c] [READ] New, REPORT-ONLY. Decides the public inputs a token run binds. '
++                '`read_manifests` (:83-114): token_io.json embedding_table {sha256, shape [V, d]} and '
++                'head_manifest.json {V, d, bos, head_int8_perrow.bin.sha256, head_mult12.bin.sha256, '
++                'final_norm {g0, cn_calibrated as Cn, tn, ceps}}, V and d cross-checked, a token_io.json '
++                "bos must equal the head manifest's; bounded strict reads, no link followed. "
++                '`load_token_tables` (:163-176) reads the three tables at exact lengths with streamed '
++                "SHA-256 checks; the binding rests on the tables' own digests (TokenTables::emb_digest / "
++                'head_digest), not on the manifests. `token_run_profile_of` (:179-188) maps the block '
++                'profile to its token run profile. `ExportPublic::load` (:205-230): '
++                '`TrainedExport::load`, `run_constants` (the R8 path, inert at the pg_rot1 exports), '
++                '`shape_for`, every layer loaded (record and digest kept, block dropped), and the '
++                'TrainedModelStatement built under the TOKEN run profile (:228). `ExportTokenBlocks` '
++                '(:236-273) reloads block k at its stage and refuses unless its digest is the digest '
++                "pass's (CS-6), one block resident. No transcript operation."
++            ),
++            'transcribed_by_the_gate': [],
++        },
++    },
++    'src/private_block/token_io/run.rs': {
++        '924ee3e27aea8da26e04567d556fc66af6cfbfcc11a7ffc8dca7a235cc9d1ae1': {
++            'base': None,
++            'blob': '3cec90c0a73e0d6ca041eb0f990cd0be7f9c7d10',
++            'bytes': 54132,
++            'diff_stat': 'new file, 1092 lines',
++            'moves_a_block_stage_byte': 'see reading',
++            'reading': (
++                '[TOKEN-IO R7c] [READ] New. HEADER (`TokenRunStatement::transcript`, :422-436): '
++                '`protocol::tagged_transcript(sh, token profile bytes)`; absorb run-shape = EIGHT u64 LE '
++                '[L, sh.tokens (T), width, sh.hidden (the true FFN width), q_heads, kv_heads, head_dim, '
++                'tp.v (the TRUE V, not V_pad)] (:425-429; capture tinyllama-t32-L1: [1, 32, 2048, 5632, '
++                '32, 4, 64, 32000]); expected-IO = `token-io-expected/v1` + in-spec digest + in root + '
++                'out-spec digest + out root (:282-290); public-statement = blake3(`hashline/token-io-run-'
++                'blocks/v1` + block digests + emb + head) (:292-301); parameters = `parameter_line` '
++                '(:311-344: the block line, with `/two-internal-boundaries/` for non-legacy profiles, L, '
++                'boundary, token-endpoint and stage geometry, `describe_under`, the whole-run floor and '
++                'opening count); calibration = blake3(`hashline/token-io-calibration/v1` + the trained '
++                'identity + the token profile digest) (:303-309), NOT the trained identity itself as a '
++                'blocks-only run absorbs (run.rs:619); schedule = blake3(`hashline/token-io-run-'
++                "schedule/v1` + length-prefixed lines: parameter line, the block Layout's describe at the"
++                " RUN shape, stage IN's and OUT's describe, the stage lines) (:397-419). `stage_lines` "
++                "(:348-395) number boundaries from 1 (`boundary 1 = B_in`); the capture's token numbering"
++                ' starts at 0. R8 ported: `stage_cal` from the trained records with a record-k-is-block-k'
++                ' check (:221-234), `stage_shape` (:253-260), stage-line clauses (:364-371); inert under '
++                '`r8_inert_when`. VERIFIER (`verify_token_run_with`, :833-955): before any segment, '
++                '`variant_is_built` (:165-170: only the public-row variant), `tier.check`, the whole-run '
++                'floor against the policy, L blocks and L + 2 segments, NTT fit, table digests '
++                '(:837-851). Stage order: stage IN (segment 0, header tag compared in decode, trailer '
++                ':868-870); blocks k = 0..L-1 as stages k + 1: CS-1/4/6 (:878), decode and path depths, '
++                'capture `stage_begin_stage(k + 1, BLOCK)` (:885), absorb pb-run-stage k + 1, pb-run-'
++                'block = block_digests[k], absorb_root B = the root of boundary k + 1 in token numbering '
++                '(boundary_spec(k + 1), BoundarySpec index k + 2; B_out at k = L - 1), carried in the '
++                'block segment (:886-890); `protocol::verify_core` at stage_shape(k) with IO mask rows '
++                '[boundary k site 1, boundary k + 1 site 0] (:572-574, :892-893); then ONE opening of '
++                "boundary k in token numbering (B_in at k = 0) with claims = pending (stage IN's IN-01 "
++                "claims at k = 0, else block k - 1's slot-22 claims) then this block's slot-21 claims "
++                '(:895-904); trailer (:931-933); stage OUT (segment L + 1, stage index L + 1, B_out '
++                'opened inside it, trailer :946-948); `run_accepted` (:952, test only). `position_tag` '
++                "(:589-596) is run.rs's character for character. The prover's order mirrors this "
++                '(:703-823). A token block stage is a block stage (the same verify_core) inside a '
++                'different transcript and stage numbering; its IO roles are two-site boundaries at both '
++                'ends, block 0 included.'
++            ),
++            'transcribed_by_the_gate': ['the six header absorbs in order and their byte compositions (:282-309, :311-344, :397-436)', 'run-shape words [L, T, width, hidden, q_heads, kv_heads, head_dim, V] (:426)', 'the stage order IN, blocks 1..L, OUT and the trailer checks (:857-948)', "a block stage's B absorb = boundary k + 1 (token numbering) and its one opening = boundary k with claims pending-then-incoming (:886-904)", 'variant_is_built (:165-170)', 'the boundary numbering offset: stage lines 1-based (:353, :373), capture facts 0-based'],
++        },
++    },
++    'src/private_block/token_io/stage_in.rs': {
++        '0387e6b1a9f617eb21bf79e76bf131dff8ba62a8ff6df875e0a78de606717728': {
++            'base': None,
++            'blob': '4318aa7a66ecd840aca52b27e0a2eba08e91f7cd',
++            'bytes': 23366,
++            'diff_stat': 'new file, 484 lines',
++            'moves_a_block_stage_byte': False,
++            'reading': (
++                '[TOKEN-IO R7c] [READ] New. `layout` (:38-55): four Standalone slots, no hosts: IN-00 IO-'
++                'in (main clog2(in_ep_words), ext 1, degree 3, A 1, IO 1), IN-01 query zero-check (main '
++                'ti_log, degree 4, A 1, H 1, IO 1), IN-02 table zero-check (main voc_log, degree 4, A 1, '
++                'H 1), IN-03 zero-sum (main stage_log_n, degree 2, H 1); row_log [A, H, In = input token '
++                'endpoint, Out = B_in] = [lt, lt, ep_log_n, block endpoint_log_n] (:51); A = [tok on Ti, '
++                'm on Voc], H = [h_q on Ti, h_tab on Voc, u one row], signs [1, -1, 1], h_u = 2 (:54). '
++                'A_GROUPS 3, H_GROUPS 4 (:33-34). VERIFY PREFIX (:429-436): absorb_u64 pb-run-stage 0; '
++                'absorb pb-run-block = emb_digest; absorb_root B (B_in root, b_spec.commitment_rows, '
++                'b_spec.log_n); absorb_root A (a_rows, stage log_n); absorb M (bare root); `challenges` '
++                '(:239-247): beta, gamma, alpha, then clog2(d_pad) r_emb coordinates (11 at d_pad 2048), '
++                'g_emb = gamma * 135; then absorb_root H. CONFIRMED as the bullet states. OPENINGS '
++                "(:447-469): M (`mask_verify_tagged`), A-in, H-in (the LogUp sum claim appended to H's "
++                'claims, :451), the input token endpoint; each preceded by a transcript-free schedule '
++                "check (`check_opening` replays on a clone). B_in is NOT opened here: IN-01's claim is "
++                "returned (:470) and opened in block 0's stage. SLOT TABLES (`define`, :149-221): IN-00 "
++                'draws tau (clog2 words); Eq(tau), PUBLIC supp(T, in_ep_words) (:165), tok read with the '
++                'top ti_log - lw bits fixed to 0 (:166-168), the endpoint on its own cube; poly eq * (end'
++                " - supp * tok), so the endpoint's pad words must be zero. IN-01 draws tau (ti_log), mu "
++                'x3, zeta x1 (nonzero); Eq, PUBLIC supp(T, 2^ti_log) (:179), PUBLIC u0 = supp(1, '
++                '2^ti_log) (:180), B_in read at (rho row bits, r_emb FIXED) (:185-187); clauses LogUp, '
++                'BOS u0 * (tok - BOS) with its own mu, pad (1 - supp)(tok + zeta h_q) (:189-195). IN-02 '
++                'draws tau (voc_log), mu x2, zeta; Eq, PUBLIC supp(V, 2^voc_log) (:203), PUBLIC tau table'
++                ' (true rows v + beta E~(v, r_emb) + g_emb, padded rows repeat row 0, :145-147); pad (1 -'
++                ' supp)(m + zeta h_tab) (:209). IN-03 no draws; PUBLIC all-ones over 2^h_log[H_U] (:215).'
++                ' Capture plane names A_TOK, A_MULT / H_Q, H_TAB, H_U and slot roles [A-in, H-in, '
++                'E-token-in, B-in] (:476-484, test only).'
++            ),
++            'transcribed_by_the_gate': ['layout (:38-55)', 'the verify prefix pb-run-stage 0, pb-run-block emb, B, A, M, beta, gamma, alpha, r_emb x clog2(d_pad), H (:429-436, :239-247)', 'the opening order M, A-in, H-in, input token endpoint (:447-469)', 'the public tables per slot: IN-00 supp(T, words) :165; IN-01 supp(T, 2^ti) :179 and u0 :180; IN-02 supp(V, 2^voc) :203 and tau :145-147; IN-03 ones :215; the fixed r_emb coordinates on B_in :185-187'],
++        },
++    },
++    'src/private_block/token_io/stage_out.rs': {
++        '69abed433fd751bf12b30fca40174ca21638230fd9e39af69ea07b987d03e8ca': {
++            'base': None,
++            'blob': '03504cec880b670a1077543a5303c5eaf66b4e52',
++            'bytes': 41081,
++            'diff_stat': 'new file, 892 lines',
++            'moves_a_block_stage_byte': False,
++            'reading': (
++                '[TOKEN-IO R7c] [READ] New. `layout` (:77-119): eleven slots: OUT-00 IO-in (main clog2 '
++                'd_pad, degree 2, Standalone, A 1, IO 1), OUT-01 SS (do_log, 4, Private, A 1), OUT-02 TZC'
++                ' (TO_LOG = 1, 3, Host of SS, A 11), OUT-03 LZC (lo_log, 4, Standalone, A 1, H 1), OUT-04'
++                ' HEAD (clog2 d_pad, 2, Private, A 1), OUT-05 DZC (do_log, 5, Standalone, A 13, H 6), '
++                'OUT-06 VZC (vo_log, 5, Host of HEAD, A 1 + L + 2, H ceil(L / 2)), OUT-07 RSEL (vo_log, '
++                '4, Standalone, A 1 + L + 1), OUT-08 TAB (tab_log, 3, Standalone, A 1, H 1), OUT-09 ZS '
++                '(stage_log_n, 2, H 1), OUT-10 IO-out (clog2 out_ep_words, 3, Standalone, A 1, IO 1); '
++                'hosts [(TZC, [SS]), (VZC, [HEAD])]; row_log [lt, lt, In = B_out at block endpoint_log_n,'
++                ' Out = output token endpoint at ep_log_n]; A = [To x4 at log 1, LIMB on Lo, twelve Do, e'
++                ' and L keyed limbs on Vo, the U8 histogram on Tab]; H = [Lo helper, six Do helpers, '
++                'ceil(L / 2) Vo helpers, the table helper (sign -1), u]. A_GROUPS 18, H_GROUPS 6 '
++                '(:74-75). At the R2 capture (L = 7 limbs): A 26 planes / 182 rows, H 13 planes / 110 '
++                'rows, M 26 rows, 20 functionals [READ capture stage_out_layout]. VERIFY PREFIX '
++                '(:793-800): absorb_u64 pb-run-stage = stage_index (the run passes L + 1, '
++                'token_io/run.rs:945); absorb pb-run-block = head_digest; absorb_root A; absorb M; gamma '
++                'then alpha (2 Fp2, g_u8 = gamma * TAG_U8); absorb_root H. No boundary absorb. CONFIRMED '
++                'as the bullet states. OPENINGS (:809-860): M, A-out, H-out (LogUp sum claim appended, '
++                ":813), B-out (claims = block L - 1's pending claims, then OUT-00's, :826-834), the "
++                'output token endpoint. SLOT TABLES (`define`, :336-542): OUT-00 draws tau (d_bits); no '
++                'public table; x read with the lift bits fixed 0, B_out read at fixed_bits(T - 1, t_bits)'
++                ' then rho (:358-363). OUT-01 no draws; PUBLIC supp(d, do_n) (:367). OUT-02 draws tau '
++                '(1), mu x4, nu, zeta; Eq, PUBLIC u0 = supp(1, 1 << TO_LOG) = supp(1, 2) (:377), nine '
++                'limb slices at A_LIMB offsets 2k (:381-383); pad (1 - u0)(D + zeta Dsq); host term nu * '
++                'u0 * (Dsq + a1 - Ceps) (:386-392). OUT-03 draws tau (lo_log), mu x2; PUBLIC live-limb '
++                'indicator {z : z even, z / 2 < 9} = {2k : k < 9} (:400); pad (1 - s) * limb. OUT-04 '
++                'draws r_j (vo_log, kept for VZC); PUBLIC Wf = head_fold(eq(r_j)[..V], d_pad) (:412-418).'
++                ' OUT-05 draws tau (do_log), mu x10, zeta; PUBLIC supp(d, do_n) (:426); pad (1 - g) * '
++                'zeta_fold of the twelve Do planes. OUT-06 draws tau (vo_log), mu x(2 + ceil(L / 2)), nu,'
++                ' zeta; Eq(tau) and Eq(r_j) (no redraw, :463), PUBLIC supp(V, vo_n) (:464), PUBLIC iota '
++                '(:465); pad (1 - s) * zeta_fold(e, limbs). OUT-07 draws c x3, no Eq; PUBLIC supp(V, '
++                'vo_n), iota, u0 = supp(1, vo_n) (:495-497). OUT-08 draws tau (tab_log), mu x2, zeta; '
++                'PUBLIC supp(256, tab_n) (:514), PUBLIC (z mod 256) + g_u8 (:517). OUT-09 PUBLIC all-ones'
++                ' (:528). OUT-10 draws tau (clog2 256); PUBLIC u0 = supp(1, 256) (:535). Capture slot '
++                'roles [A-out, H-out, B-out, E-token-out] (:890, test only).'
++            ),
++            'transcribed_by_the_gate': ['layout (:77-119)', 'the verify prefix pb-run-stage L + 1, pb-run-block head, A, M, gamma, alpha, H (:793-800)', 'the opening order M, A-out, H-out, B-out, output token endpoint (:809-860)', 'the public tables per slot (:367, :377, :400, :418, :426, :464-465, :495-497, :514, :517, :528, :535) and the fixed T - 1 row bits on B_out (:361)'],
++        },
++    },
++    'src/private_block/trained_block.rs': {
++        '0943baded99b1fb1a887a8a18d5d17d35b22a64a8f0b78f77e3062efa63d7846': {
++            'base': '30cb9a31703a7a074c9028d9bb7941fa96be7fb736287305fb0a5c2702a57ff7',
++            'blob': '803fe40983b7c2e543d9bd7267c076d1bb005c3d',
++            'bytes': 154060,
++            'diff_stat': (
++                '16 hunks, +73 / -57 against R7 30cb9a31 (8 native R8 + 8 visibility); 8 hunks, +10 / -10'
++                ' (visibility only) against native R8 cc401eb4'
++            ),
++            'moves_a_block_stage_byte': False,
++            'reading': (
++                '[TOKEN-IO R7c] [READ] read against `30cb9a31` (R7): +73 / -57, sixteen hunks; against '
++                'the native R8 freeze (`cc401eb4`) only the eight `fn` -> `pub(crate) fn` hunks remain '
++                '(flags, flag / need / js, refuse_prover_private_entries, write_new, stack_context, '
++                'render_segments_json, check_statement_dir, publish_statement_dir), which the token CLI '
++                'imports (token_io/cli.rs:74); the other eight are native R8. R8: '
++                '`per_layer_cal_fields()` (:825-827) replaces `sh_s_per_layer()`: the OWN_FIELDS indices '
++                'profile.json lists in per_layer_constants_differ; NEW `masked` sets those fields to a '
++                'base (:830-837); `run_constants` reads every layer manifest once and, with per-layer '
++                'fields and non-uniform profile constants, takes the run base as the most common tuple of'
++                ' those fields (ties: the smallest in canonical order, sh_s first) (:850-888); '
++                '`load_layer_mode` requires masked(lc, run) == run (:933), records own_of(run, lc) (:937)'
++                ' and validates a layer with own constants at `with_layer_calibration` (:938-941); '
++                "`record.own` (:1060); the sealing pass builds each witness at the layer's own "
++                'calibration and caches one Layout per calibration (:2051, :2066, :2082); the stack '
++                'statement renders own constants under their export keys (:2425; an sh_s-only record '
++                'renders as in R6 / R7). INERT at pg_rot1_export_T32 and pg_rot1_b4_T32_cal128 (see '
++                '`r8_inert_when`): base None, `masked` the identity, lc_run = lc as in R7, own all None, '
++                'no with_layer_calibration call, no own field rendered. The block-building path the '
++                'TinyLlama captures use (`load_layer`) and the CLI statement bytes do not move at these '
++                'exports [MINE from READ]. The token run reaches this file through load.rs '
++                '(`TrainedExport::load`, `run_constants`, `shape_for`, `load_layer`, `reload_block`) and '
++                'the CLI helpers.'
++            ),
++            'transcribed_by_the_gate': [],
++        },
++    },
++    'src/private_block/trained_statement.rs': {
++        'e623c2278042a42ef55d005236f0509a27b57f1baf368eee52eec05ea9125a13': {
++            'base': '6f18efcd0fe584e1539e98e525ded8e9aa60c75c01c5b028aeb10a12a8de1c34',
++            'blob': '0c4b0a43cd9b9f5ca97fc8ad0d4d54327668a6dc',
++            'bytes': 36556,
++            'diff_stat': (
++                "6 hunks, +113 / -23 against R7 6f18efcd; byte-identical to native R8's "
++                'trained_statement.rs'
++            ),
++            'moves_a_block_stage_byte': False,
++            'reading': (
++                '[TOKEN-IO R7c] [READ] read against `6f18efcd` (R7): +113 / -23, six hunks, all NATIVE '
++                "R8; the file is byte-identical to the native R8 freeze's (`e623c227`). "
++                '`LayerRecord::sh_s: Option<u32>` becomes `own: [Option<i64>; 11]` (:372), one entry per '
++                "OWN_FIELDS (:381-393: export key, identity label, schedule label), sh_s FIRST with R6's "
++                'labels sh-score-layer / score shift; helpers `cal_field` (:396), `apply_own` (:414, a '
++                'u32 field out of range is refused, never wrapped), `own_of` (:437), `has_own` (:449); '
++                'both constructors set [None; 11]. `check_self_with` (:631-648): each Some must differ '
++                'from `cal_field(&sh.norm_calibration(), i)` (R7 compared sh_s with '
++                '`self.calibration.sh_s`), then `apply_own` and `sh.with_layer_calibration`. `encode` '
++                'writes `OWN_FIELDS[i].1` as u64 ONLY for a Some entry, in canonical order, after exp-e-s'
++                " (:725-732), replacing R7's sh-score-layer-only write. With every record [None; 11] (the"
++                " pg_rot1 exports), the encoding and the identity bytes are R7's; an sh_s-only statement "
++                'encodes as R6 / R7 (same label, same u64). The rest of `encode` (:665-747) and the '
++                "identity's blake3 domain (:750-755) are outside every hunk. NOTE [READ load.rs:228 and "
++                'encode :669]: a token run builds its trained statement under the TOKEN run profile, and '
++                "`run-profile` is an encoded field, so the token run's trained identity is a different "
++                "digest from the blocks-only statement's of the same export [MINE from READ]; the token "
++                'header absorbs it only inside its own calibration digest (token_io/run.rs:303-309).'
++            ),
++            'transcribed_by_the_gate': ["for the gate's independent identity recomputation (stage 14, E1-E4) once the trained TinyLlama statement is re-pinned onto this tree: per layer, after exp-e-s, one u64 per Some own entry labelled OWN_FIELDS[i].1 in canonical order (:725-732); none at pg_rot1_export_T32, so the R7 encoding stands"],
++        },
++    },
++}
+diff -ruN -x __pycache__ frozen_v8/scripts/zk60_native_run_gate.py scripts/zk60_native_run_gate.py
+--- frozen_v8/scripts/zk60_native_run_gate.py	2026-10-19 03:05:55.756160601 -0700
++++ scripts/zk60_native_run_gate.py	2026-10-19 10:56:22.192376955 -0700
+@@ -197,6 +197,10 @@
+     "zk60_native_privacy_gate.py",
+     "zk60_native_profile_pins.py",
+     "zk60_native_rg_tinyllama_r7_pins.py",
++    # [v9, gate round 7] the token-I/O stages: geometry, gate, token pins
++    "zk60_native_rg_tokenio.py",
++    "zk60_native_rg_tokengate.py",
++    "zk60_native_rg_tokenio_r7c_pins.py",
+ ]
+ 
+ EXPECTED_DISCLOSED = {

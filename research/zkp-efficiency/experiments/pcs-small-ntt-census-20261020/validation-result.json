@@ -1,0 +1,9 @@
+{
+  "checks": 933,
+  "source_pins": 16,
+  "source_fragment_assertions": 64,
+  "rejected_source_mutations": 48,
+  "elapsed_s": 0.2836746129905805,
+  "maxrss_KiB": 23424,
+  "scope": "Pinned source fragments and independent census accounting, not Rust execution/profile admission"
+}

@@ -1,0 +1,6 @@
+{
+  "trained_statement_identity": "4d000793a04c1368e4fe31a5ca2586091e93b32046e1963af67ff8bcafad584d",
+  "binary_sha256": "04036e269a5c0984c70dd2b391dc9e045156d87dfd9c41ccccad4088a204bb76",
+  "fixture_manifest_sha256": "3542c004b4ccb0c2ac86c200a9ff33e370858f6ac5b808557671bd5d4c030a32",
+  "scope": "synthetic model identity recorded by pinned native CLI; receipt NOT VERIFIED; app fresh verification still required"
+}

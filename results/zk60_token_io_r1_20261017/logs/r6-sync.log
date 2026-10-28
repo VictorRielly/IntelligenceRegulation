@@ -1,0 +1,6 @@
+231 files; list sha256 2d6626a69348c850412136e8ec6d73f643758c6eaa613171efd66ddcf3187186
+vs manifest_r6A.sha256: changed 3, added 0, removed 0
+  changed hashline/examples/zk60_token_io.rs
+  changed hashline/src/private_block/token_io/cli.rs
+  changed hashline/src/private_block/token_io/cli_tests.rs
+14:42:59

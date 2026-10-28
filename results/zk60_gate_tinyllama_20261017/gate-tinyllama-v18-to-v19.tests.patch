@@ -1,0 +1,111 @@
+diff -ruN -x __pycache__ frozen_v18/tests/test_v4_status_g10.py frozen_v19/tests/test_v4_status_g10.py
+--- frozen_v18/tests/test_v4_status_g10.py	2026-10-20 17:47:16.269078421 -0700
++++ frozen_v19/tests/test_v4_status_g10.py	2026-10-20 22:50:28.647946906 -0700
+@@ -1347,3 +1347,107 @@
+         self.assertTrue(out["ok"], out["refusals"])
+         self.assertEqual(out["read_as_token_r11"], 2)
+         self.assertTrue(TT.check_source_pins(types.SimpleNamespace(manifest=man))["ok"])
++
++
++class ClassifierV19(unittest.TestCase):
++    """[v19, gate round 16] the classifier profile family (D38 / D40 / D41),
++    before any classifier capture exists: the re-derived geometry against
++    R-C1's own counts, the D34 recount, D41's split and fail-closed label,
++    the slot ports' relation checks with their failing-first controls, the
++    R-C1 readings, and the capture reader refusing a non-classifier bundle"""
++
++    TOKEN_IO = "/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io/hashline/src/private_block/token_io"
++    R = "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017"
++
++    def test_geometry_against_rc1(self):
++        import re
++        import zk60_native_rg_classify as CL
++        g = CL.ClassGeom(**CL.RUNG_RC1)
++        so = g.stage_out_c()
++        # R-C1's counted layout (token lane PROGRESS 04:48): A 76, H 38 at 2^12, window 34, 5 limbs
++        self.assertEqual((so.a_rows, so.h_rows, so.elems()), (76, 38, 466944))
++        self.assertEqual((g.window_bits, g.limbs), (34, 5))
++        self.assertEqual(g.door_findings, [])
++        for t in (128, 256, 512):
++            s = CL.ClassGeom(**CL.shieldstral(t))
++            self.assertEqual((s.window_bits, s.limbs, s.door_findings), (35, 5, []))
++        bad = dict(CL.RUNG_RC1, n=22)
++        self.assertTrue(CL.ClassGeom(**bad).door_findings)
++        src = os.path.join(self.TOKEN_IO, "stage_out_c.rs")
++        if os.path.isfile(src):
++            text = open(src).read()
++            self.assertIn("pub(crate) const A_GROUPS: usize = 16;", text)
++            self.assertIn("pub(crate) const H_GROUPS: usize = 5;", text)
++            self.assertEqual(len(re.findall(r'SlotSpec \{ name: "OUTC-', text)), 8)
++
++    def test_d34_recount(self):
++        import zk60_native_rg_classify as CL
++        self.assertAlmostEqual(CL.d34_residual_log2(1, 32), -116.96, places=2)
++        self.assertEqual(round(CL.d34_residual_log2(26, 512), 1), -112.7)
++        self.assertLess(CL.d34_residual_log2(26, 128), CL.d34_residual_log2(26, 512))
++
++    def test_chunks_and_the_label(self):
++        import zk60_native_rg_classify as CL
++        self.assertEqual(CL.chunk_ranges(27, 23, 4), [(0, 23), (4, 27)])
++        r = CL.chunk_ranges(1000, 43, 4)
++        self.assertEqual((r[0], r[-1]), ((0, 43), (957, 1000)))
++        self.assertTrue(all(b - a == 43 for a, b in r))
++        with self.assertRaises(ValueError):
++            CL.chunk_ranges(20, 23, 4)
++        plan = dict(total=27, size=23, overlap=4)
++
++        def ch(j, v=0, **kw):
++            a, b = CL.chunk_ranges(27, 23, 4)[j]
++            return dict(index=j, count=2, a=a, b=b, total=27, size=23, overlap=4, verdict=v, policy="p", model="m", **kw)
++        self.assertEqual(CL.check_item_chunks([ch(0), ch(1)], **plan)["label"], 0)
++        ok1 = CL.check_item_chunks([ch(0), ch(1, v=1)], **plan)
++        self.assertEqual((ok1["label"], ok1["fail_closed_reasons"]), (1, []))
++        for name, chunks in (("missing", [ch(0)]), ("duplicate", [ch(0), ch(0), ch(1)]),
++                             ("range", [ch(0), dict(ch(1), a=5, b=28)]), ("policy", [ch(0), dict(ch(1), policy="q")]),
++                             ("total", [ch(0), dict(ch(1), total=28)])):
++            r2 = CL.check_item_chunks(chunks, **plan)
++            self.assertEqual(r2["label"], 1, name)
++            self.assertTrue(r2["fail_closed_reasons"], name)
++        self.assertEqual(CL.check_item_chunks([], total=20, size=23, overlap=4)["label"], 1)
++
++    def test_synthetic_relations_and_controls(self):
++        import zk60_native_rg_classterminals as CT
++        r = CT.synthetic_suite()
++        self.assertTrue(r["ok"], (r["findings"], [c["control"] for c in r["controls"] if not c["fires_as_predicted"]]))
++        self.assertEqual(r["fired"], r["of"])
++        self.assertEqual({c["control"] for c in r["controls"]},
++                         {"MC-1", "MC-2", "MC-3", "MC-4", "MC-5", "MC-6", "MC-7", "IC-1", "IC-2", "IC-3", "IC-4", "PI-1"})
++        self.assertEqual({h["verdict"] for h in r["honest"]}, {0, 1})
++        self.assertTrue(any(h["tie"] for h in r["honest"]))
++        self.assertEqual(r["one_bit"]["tables_moved_by_flipping_b"], ["margin_g"])
++        self.assertEqual(r["nl1_static"]["slots_with_premises"], 12)
++
++    def test_rc1_readings(self):
++        import zk60_native_rg_classpins as CP
++        m12 = os.path.join(self.R, "manifest_r12B.sha256")
++        m11 = os.path.join(self.R, "manifest_final_r11.sha256")
++        if os.path.isfile(m12) and os.path.isfile(m11):
++            def rd(p):
++                with open(p) as fh:
++                    return {l.split(None, 1)[1].strip(): l.split()[0] for l in fh}
++            a, b = rd(m12), rd(m11)
++            for f, readings in CP.CLASSIFY_R12_READINGS.items():
++                (d, r), = readings.items()
++                self.assertEqual(a["hashline/" + f], d, f)
++                self.assertEqual(b["hashline/" + f], r["base"], f)
++                self.assertIs(r["moves_a_receipt_byte"], False)
++            for f, d in list(CP.CLASSIFY_PORTED_FROM.items()) + list(CP.CLASSIFY_REPORT_ONLY.items()):
++                self.assertEqual(a["hashline/" + f], d, f)
++        man = {"source_pins": [{"file": f, "sha256": d} for f, d in CP.CLASSIFY_PORTED_FROM.items()]
++               + [{"file": f, "sha256": next(iter(r))} for f, r in CP.CLASSIFY_R12_READINGS.items()]}
++        self.assertTrue(CP.check_classify_pins(man)["ok"])
++        bad = copy.deepcopy(man)
++        bad["source_pins"][0]["sha256"] = "1" * 64
++        self.assertFalse(CP.check_classify_pins(bad)["ok"])
++
++    def test_the_capture_reader_refuses_a_non_classifier_bundle(self):
++        import types
++        import zk60_native_rg_classterminals as CT
++        r = CT.check_classify_terminals(types.SimpleNamespace(manifest={"schema": "hashline-native-capture/6-token-run"}))
++        self.assertFalse(r["ok"])
++        self.assertFalse(r["checked"])

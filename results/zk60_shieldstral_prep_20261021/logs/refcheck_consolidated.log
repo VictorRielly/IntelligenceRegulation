@@ -1,0 +1,40 @@
+layer 0 done 3.6s
+layer 1 done 7.2s
+layer 2 done 10.0s
+layer 3 done 12.7s
+layer 4 done 15.4s
+layer 5 done 18.2s
+layer 6 done 21.0s
+layer 7 done 24.2s
+layer 8 done 27.8s
+layer 9 done 30.7s
+layer 10 done 33.9s
+layer 11 done 36.9s
+layer 12 done 39.7s
+layer 13 done 42.7s
+layer 14 done 45.5s
+layer 15 done 48.2s
+layer 16 done 50.8s
+layer 17 done 53.7s
+layer 18 done 56.6s
+layer 19 done 59.3s
+layer 20 done 62.0s
+layer 21 done 64.5s
+layer 22 done 67.0s
+layer 23 done 69.8s
+layer 24 done 73.0s
+layer 25 done 75.9s
+cb_safe          T=  84 margin=-16.8032 d38=0.0000 ref=0.0000 published=0.003 argmax=2649
+cb_unsafe        T=  83 margin=+5.8931 d38=0.9972 ref=0.9972 published=0.986 argmax=13059
+cb_financial     T=  79 margin=+4.5155 d38=0.9892 ref=0.9892 published=0.972 argmax=13059
+cb_pii           T= 107 margin=+8.3180 d38=0.9998 ref=0.9998 published=0.995 argmax=13059
+cb_medical       T=  87 margin=+6.6417 d38=0.9987 ref=0.9987 published=0.991 argmax=13059
+cb_conversation  T= 186 margin=-2.6051 d38=0.0688 ref=0.0688 published=0.018 argmax=2649
+cb_borderline    T=  97 margin=+0.0695 d38=0.5174 ref=0.5174 published=0.531 argmax=13059
+cb_multipolicy   T= 105 margin=-6.0249 d38=0.0024 ref=0.0024 published=0.002 argmax=2649
+cb_hate          T=  94 margin=-5.0705 d38=0.0062 ref=0.0062 published=0.007 argmax=2649
+cb_harassment    T=  92 margin=+6.4354 d38=0.9984 ref=0.9984 published=0.998 argmax=13059
+cb_threats       T=  93 margin=+1.3725 d38=0.7978 ref=0.7978 published=0.798 argmax=13059
+card_benign      T= 102 margin=-7.1060 d38=0.0008 ref=0.0008 published=None argmax=2649
+card_toxic       T= 102 margin=+11.7442 d38=1.0000 ref=1.0000 published=None argmax=13059
+wrote /home/victor/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/crosscheck/ref_consolidated_yarn.npz 79.5s

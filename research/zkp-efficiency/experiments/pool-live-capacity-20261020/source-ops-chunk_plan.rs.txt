@@ -1,0 +1,14 @@
+fn chunk_plan(rows: usize, chunk: usize) -> Vec<(usize, usize)> {
+    if rows <= chunk {
+        return vec![(0, rows)];
+    }
+    let step = (chunk / 128).max(1) * 128;
+    let mut out = Vec::new();
+    let mut r0 = 0;
+    while r0 < rows {
+        let rc = step.min(rows - r0);
+        out.push((r0, rc));
+        r0 += rc;
+    }
+    out
+}

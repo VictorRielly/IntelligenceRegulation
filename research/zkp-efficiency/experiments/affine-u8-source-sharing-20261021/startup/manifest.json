@@ -1,0 +1,72 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md",
+    "snapshot": "experiments/affine-u8-source-sharing-20261021/startup/AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603,
+    "lines": 85
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md",
+    "snapshot": "experiments/affine-u8-source-sharing-20261021/startup/STATE.md",
+    "sha256": "e72f0abb836276b7a64a5ac0521711e51b84455f152604cdeedae437da6600b3",
+    "bytes": 4999,
+    "lines": 76
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md",
+    "snapshot": "experiments/affine-u8-source-sharing-20261021/startup/PROGRESS.md",
+    "sha256": "40cd0b1f8d5c83c656260a85d038db613f11b1f438449396c0cac89ad0dc2088",
+    "bytes": 2706,
+    "lines": 43
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md",
+    "snapshot": "experiments/affine-u8-source-sharing-20261021/startup/FINDINGS.md",
+    "sha256": "d4ade32f2318abb5ab1ebff746d2ef403b072f0eee96f016ef424e05d5d908db",
+    "bytes": 887276,
+    "lines": 10447
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl",
+    "snapshot": "experiments/affine-u8-source-sharing-20261021/startup/sources.jsonl",
+    "sha256": "2ffdbad43f720bb80a19c09e7421caa7b12527a7dd576bdc957f055f5ae02e02",
+    "bytes": 952951,
+    "lines": 773
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+    "snapshot": "experiments/affine-u8-source-sharing-20261021/startup/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089,
+    "lines": 235
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+    "snapshot": "experiments/affine-u8-source-sharing-20261021/startup/MVP_STATUS.md",
+    "sha256": "f73d94ab2b89d12697272a68ebcdde00e60470e2bceabb5af1304d054871f5dc",
+    "bytes": 88375,
+    "lines": 1254
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "snapshot": "experiments/affine-u8-source-sharing-20261021/startup/ZK60_DECISIONS.md",
+    "sha256": "466f28769e743a43ace3d8ea460b2a0b872767cc3ce67c587b8355f973b4475e",
+    "bytes": 116699,
+    "lines": 1041
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+    "snapshot": "experiments/affine-u8-source-sharing-20261021/startup/ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889,
+    "lines": 995
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+    "snapshot": "experiments/affine-u8-source-sharing-20261021/startup/ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941,
+    "lines": 90
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "uname": {
+    "system": "Linux",
+    "node": "MSI",
+    "release": "6.18.54.1-microsoft-standard-WSL2",
+    "version": "#1 SMP PREEMPT_DYNAMIC Tue Oct  6 19:13:07 UTC 2026",
+    "machine": "x86_64",
+    "processor": "x86_64"
+  },
+  "cpuinfo_model": "model name\t: Intel(R) Core(TM) Ultra 9 185H",
+  "actual_gpu_used": false,
+  "worker_threads": 1,
+  "estimated_memory_mib": 128
+}

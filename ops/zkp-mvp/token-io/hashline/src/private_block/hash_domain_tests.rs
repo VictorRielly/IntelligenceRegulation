@@ -365,7 +365,7 @@ fn every_absorb_label_on_the_path_is_in_the_table() {
         assert!(!u.label.is_empty() && !u.site.is_empty() && !u.data.is_empty(), "the table entry for `{}` is incomplete", u.label);
     }
     let table: Vec<String> = entries.iter().map(|u| u.label.to_string()).collect();
-    let lane: [(&str, &str); 18] = [
+    let lane: [(&str, &str); 22] = [
         ("argument.rs", include_str!("argument.rs")),
         ("boundary.rs", include_str!("boundary.rs")),
         ("endpoint_g.rs", include_str!("endpoint_g.rs")),
@@ -386,12 +386,24 @@ fn every_absorb_label_on_the_path_is_in_the_table() {
         ("token_io/stage_in.rs", include_str!("token_io/stage_in.rs")),
         ("token_io/stage_out.rs", include_str!("token_io/stage_out.rs")),
         ("token_io/run.rs", include_str!("token_io/run.rs")),
+        // TOKEN I/O ROUND 12: the classifier run's sources
+        ("token_io/classify.rs", include_str!("token_io/classify.rs")),
+        ("token_io/classify_run.rs", include_str!("token_io/classify_run.rs")),
+        ("token_io/stage_in_c.rs", include_str!("token_io/stage_in_c.rs")),
+        ("token_io/stage_out_c.rs", include_str!("token_io/stage_out_c.rs")),
     ];
+    // TOKEN I/O ROUND 12: the classifier header's two labels are absorbed ONLY
+    // by a classifier run's header (`ClassifyRunStatement::transcript`) and by
+    // the run capture's rebuild of that header; the shared table, and so every
+    // other profile's length set, does not carry them (s25's classifier
+    // census lists them with their lengths). Anywhere else they fail here.
+    let classify_header: [&str; 2] = ["classify-verdict", "classify-chunk"];
     let mut seen = 0usize;
     for (name, src) in lane {
         for l in absorb_labels(src) {
             seen += 1;
-            assert!(table.contains(&l), "{name} absorbs `{l}`, which the label table of hash_domain.rs does not carry");
+            let classify_ok = (name == "token_io/classify.rs" || name == "run_capture.rs") && classify_header.contains(&l.as_str());
+            assert!(table.contains(&l) || classify_ok, "{name} absorbs `{l}`, which the label table of hash_domain.rs does not carry");
         }
     }
     assert!(seen >= 40, "the lane source scan found only {seen} labelled absorbs; it has stopped working");

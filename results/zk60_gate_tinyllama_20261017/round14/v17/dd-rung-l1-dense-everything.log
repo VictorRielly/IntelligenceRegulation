@@ -1,0 +1,14 @@
+[load          ]      0.3 s   peak RSS      64 MB   ok
+[replay        ]      0.1 s   peak RSS      64 MB   ok
+[hash          ]      0.1 s   peak RSS      64 MB   ok
+[terminals     ]      6.5 s   peak RSS     198 MB   ok
+[commitments   ]      6.5 s   peak RSS     198 MB   ok
+[boundary      ]      0.3 s   peak RSS     198 MB   ok
+[preimage      ]      0.0 s   peak RSS     198 MB   ok
+[fullpreimage  ]    222.1 s   peak RSS     308 MB   ok
+[mask          ]     37.2 s   peak RSS     459 MB   ok
+[joint         ]      0.0 s   peak RSS     459 MB   ok
+[runcontrols   ]      7.2 s   peak RSS     527 MB   ok
+[channels      ]      0.0 s   peak RSS     527 MB   ok
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round14/v17/dd-rung-l1-dense-everything.json   total 280.3 s   peak RSS 527 MB   ok=True
+status: PASS   unexplained false leaves 0   -> /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round14/v17/dd-rung-l1-dense-everything.status.json

@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "checks": 1381,
+  "source_pins": 5,
+  "source_fragments": 34,
+  "source_fragment_mutation_controls": 34,
+  "census_mutation_controls": 624,
+  "explicit_topology_checks": 160,
+  "elapsed_s": 0.019910827017156407,
+  "maxrss_KiB": 16336,
+  "scope": "Exact source sentinels/pins, independent symbolic count and tiny topology; no Rust, native relation, transcript, refusal or proof validation"
+}

@@ -1,0 +1,120 @@
+{
+  "status": "PASS",
+  "checks": 358,
+  "source_definitions": [
+    {
+      "scope": "r9",
+      "line": 1341,
+      "function": "reenc_bench_at",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "benchmark"
+    },
+    {
+      "scope": "r9",
+      "line": 1684,
+      "function": "ntt_rows",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    },
+    {
+      "scope": "r9",
+      "line": 1717,
+      "function": "ntt_rows_view",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    },
+    {
+      "scope": "r9",
+      "line": 2156,
+      "function": "encode_rows_view",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    },
+    {
+      "scope": "r9",
+      "line": 2212,
+      "function": "encode_rows_view_gather",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    },
+    {
+      "scope": "r9",
+      "line": 3583,
+      "function": "encode_rows",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    },
+    {
+      "scope": "active",
+      "line": 1337,
+      "function": "reenc_bench_at",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "benchmark"
+    },
+    {
+      "scope": "active",
+      "line": 1680,
+      "function": "ntt_rows",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    },
+    {
+      "scope": "active",
+      "line": 1713,
+      "function": "ntt_rows_view",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    },
+    {
+      "scope": "active",
+      "line": 2138,
+      "function": "encode_rows_view",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    },
+    {
+      "scope": "active",
+      "line": 2194,
+      "function": "encode_rows_view_gather",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    },
+    {
+      "scope": "active",
+      "line": 3551,
+      "function": "encode_rows",
+      "unit": "one host inverse per invocation with inverse=true, not per row",
+      "definition_kind": "device wrapper"
+    }
+  ],
+  "synthetic_batch_cases": 144,
+  "conditional_commit_schedules": 36,
+  "negative_controls": [
+    {
+      "name": "GPU inverse is not per row",
+      "expected": 1,
+      "incorrect": 4096
+    },
+    {
+      "name": "M forward has no inverse size",
+      "expected": 0
+    },
+    {
+      "name": "normalization already fused",
+      "removed_launches": 0
+    },
+    {
+      "name": "growing context changes attention",
+      "quadratic_work_unchanged": true
+    },
+    {
+      "name": "batching does not remove private masks",
+      "fresh_masks_unchanged": true
+    }
+  ],
+  "table_bytes": 264,
+  "closed_form_table_bytes": 0,
+  "wall_seconds": 0.12497208500280976,
+  "rss_kib": 82004,
+  "scope": "Source arithmetic/incidence counts; CPU multiply shares are not elapsed shares and compare no host arithmetic to device arithmetic. No full-proof rate ceiling measured."
+}

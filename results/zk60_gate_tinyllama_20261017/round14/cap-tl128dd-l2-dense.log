@@ -1,0 +1,8 @@
+
+running 1 test
+test private_block::run_capture_tests::capture_a_tinyllama_t128_dd_run ... CAPTURE TinyLlama-T128-DD L=2 layers 0..2 dense: parity words 524288, layers at their own calibration [1], prove+verify+record 17.63 s, high-water mark 3.37 GiB
+CAPTURE TinyLlama-T128-DD L=2 layers 0..2 dense RESULT: 107771750 B (107.8 MB) at /home/victor/zk60-artifacts/dd-gate-r9/tl128dd-l2-dense, self-consistent, every key on the allow-list - a CAPTURE, not a privacy result
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 607 filtered out; finished in 18.77s
+

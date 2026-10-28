@@ -1,0 +1,76 @@
+{
+  "status": "PASS_SYNTHETIC_ONLY",
+  "model": {
+    "affinity": [
+      0
+    ],
+    "cases": 72,
+    "events": 23094,
+    "excluded": [
+      "other slots including CPU DZC",
+      "opening scratch",
+      "preceding owner commit history",
+      "H helper construction",
+      "failure retries",
+      "twiddles",
+      "multiple/evicted public caches",
+      "host/pinned/mapped buffers",
+      "CUDA granularity,modules,driver"
+    ],
+    "full_stack": {
+      "context_length": null,
+      "device": "CPU accounting only; no accelerator",
+      "passes": 0,
+      "positions": 0,
+      "proof_s": null,
+      "proofs": 0,
+      "serialization_s": null,
+      "startup_fraction": null,
+      "steady_rate": null,
+      "total_rate": null,
+      "verification_s": null,
+      "witness_s": null
+    },
+    "rss_kib": 98652,
+    "scope": "Partial public allocation schedule; no timing/VRAM/native proof; R8 geometry/GPU allocator are separate versions",
+    "seed": 2026102095,
+    "status": "GENERATED",
+    "threads": 1,
+    "wall_seconds": 0.44822807400487363
+  },
+  "audit": {
+    "affinity": [
+      0
+    ],
+    "capacity_traces": 72,
+    "checks": 646591,
+    "negative_controls": 441,
+    "oversize_cases": 1,
+    "pool_limit_cases": 1,
+    "random_traces": 80,
+    "rss_kib": 48928,
+    "scope": "Authored independent interval oracle; no native arithmetic,transcripts,security review or proof verification",
+    "seed": 2026102095,
+    "status": "PASS",
+    "threads": 1,
+    "wall_seconds": 0.9788001660053851
+  },
+  "layout": {
+    "affinity": [
+      0
+    ],
+    "allocation_projections": 72,
+    "allocation_reference_checks": 222570,
+    "checks": 535848,
+    "fixtures": 30,
+    "negative_controls": 121,
+    "rss_kib": 49076,
+    "scope": "Synthetic2-lane mod101/base-challenge fold+offset oracle; source constraints and partial allocator projection; no native extension-field arithmetic,masks,proof bytes,GPU fit or performance",
+    "seed": 2026102095,
+    "status": "PASS",
+    "threads": 1,
+    "wall_seconds": 0.8328186950093368
+  },
+  "new_verified_full_stack_proofs": 0,
+  "proving_speed_improvement_measured": false
+}

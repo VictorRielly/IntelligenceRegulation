@@ -1,0 +1,122 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/argument.rs",
+    "sha256": "9e70bbe558d7771b16f2a6f7f526ad3e548895d32ed0f6b897b85d0dd48b29b5",
+    "category": "source-pins.json",
+    "matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/layout.rs",
+    "sha256": "fcf9dda4e507d2a347f786ddc537feff3ac57779abae88cea91ee48d4b34c855",
+    "category": "source-pins.json",
+    "matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/shape.rs",
+    "sha256": "e6c7290b5c2d897ccaaa6284c813bbcfea563aaef7594c309b955a5588c1e073",
+    "category": "source-pins.json",
+    "matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/pad.rs",
+    "sha256": "4f0c11c50503dd8cb4fb38d2b5be5e4f08ec310ee916b83a357f0283ede9eb42",
+    "category": "source-pins.json",
+    "matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/sumcheck/rounds.rs",
+    "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df",
+    "category": "source-pins.json",
+    "matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "category": "source-pins.json",
+    "matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-use-driven-affine-20261019/run.py",
+    "sha256": "e799acd424c08006b8ad4b8e60c4b9840ef6da924a7b3c18e61ef1c808c68c8f",
+    "category": "source-pins.json",
+    "matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-use-driven-affine-20261019/prior-run.py",
+    "sha256": "719c391dabc20916a06df0535028431726888b28cbb4f1ae44aaa914fe10b96a",
+    "category": "source-pins.json",
+    "matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-use-driven-affine-20261019/counted-shim.rs",
+    "sha256": "c37a376f040084c8dbbafd174db7345f51ef52e739e0556e6ccb141ce0d08e1e",
+    "category": "source-pins.json",
+    "matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-use-driven-affine-20261019/counted-reference.so",
+    "sha256": "4b19feefc87a255abb0c934f1498ec0ba39f9bd12f0b28ad49dd954eea15e6b3",
+    "category": "source-pins.json",
+    "matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-use-driven-affine-20261019/reference/reference_math.py",
+    "sha256": "2d5e05dcd7aba6f67520a4472faacb28c9cd16b6734ec05eb67249a8a88f7c26",
+    "category": "source-pins.json",
+    "matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/logs/t20-r3-trained-prove.log",
+    "sha256": "e9d36dc63706d6a56063391c5b1a69eb1a586d433fc168bf73f703eb079d451f",
+    "category": "owner-evidence-pins.json",
+    "matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/logs/t21-r3-trained-verify.log",
+    "sha256": "298622f165ce19a3a59598e9b0ca0594bb5173195b14f81032c792e75af97788",
+    "category": "owner-evidence-pins.json",
+    "matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/logs/t20-r3-trained-prove.guard.json",
+    "sha256": "0be25e71e0adb351c5180280ca4441c38508dc1e7085b05e06196a90c622092b",
+    "category": "owner-evidence-pins.json",
+    "matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/logs/t21-r3-trained-verify.guard.json",
+    "sha256": "9c0a35b447da2a37e69ff93bfcfa1c5dc379615dd68e09cd68987d86146e752f",
+    "category": "owner-evidence-pins.json",
+    "matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_token_io_review_r1_20261017/REVIEW3.md",
+    "sha256": "3f26d1a157a1e94e8c01a83c518495b3fa0502c20db029b5de12f9f289fd3a35",
+    "category": "owner-evidence-pins.json",
+    "matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/stack-llama3_8b_pg_rot1_b6_T128-ho00-cpu/prove.log",
+    "sha256": "682575d9590c91936778e08eab33fad92a0317d63aa3ae445d32b0c88c98b288",
+    "category": "carried-D-evidence-pins.json",
+    "matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/stack-llama3_8b_pg_rot1_b6_T128-ho00-cpu-quiet/prove.log",
+    "sha256": "6771f9f0ecb3e6c5b8bcb86df946a1f26379a4624c8b2267dcfc4eab2a010550",
+    "category": "carried-D-evidence-pins.json",
+    "matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/stack-llama3_8b_pg_rot1_b7_T128-ho00-cpu/prove.log",
+    "sha256": "3d372512ed7118aba8ca9f9095ae847b7b076b787955948a3c82083272bcf1f7",
+    "category": "carried-D-evidence-pins.json",
+    "matches": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/stack-llama3_8b_pg_rot1_b7_T128-ho00-cpu/report.json",
+    "sha256": "66fcf3c24f68acfa83947e566381d4e635994be933e7ecc280786489e4e41d34",
+    "category": "carried-D-evidence-pins.json",
+    "matches": true
+  }
+]

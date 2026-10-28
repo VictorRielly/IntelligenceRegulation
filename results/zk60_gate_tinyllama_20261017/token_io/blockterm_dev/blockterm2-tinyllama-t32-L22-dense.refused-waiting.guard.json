@@ -1,0 +1,32 @@
+{
+ "ts_end": "2026-10-19T19:04:49Z",
+ "run_id": "7735b6122dbc",
+ "label": "blockterm2-tinyllama-t32-L22-dense",
+ "class": "light",
+ "cmd": [
+  "python3",
+  "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/scripts/zk60_native_rg_tokenblocks.py",
+  "--bundle",
+  "/home/victor/zk60-artifacts/token-io/captures/tinyllama-t32-L22-dense-pt1",
+  "--evidence",
+  "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/token_io/blockterm_dev",
+  "--name",
+  "blockterm2-tinyllama-t32-L22-dense"
+ ],
+ "need_gib": 2.5,
+ "cap_gib": 4.0,
+ "exit": 70,
+ "child_rc": null,
+ "guard_killed": null,
+ "child_wall_seconds": null,
+ "refused": "terminated by signal 15 while waiting to start",
+ "guard_error": null,
+ "guard_pid": 589423,
+ "boot_id": "9d3a66e4-7664-4344-a046-38a0c53a53f3",
+ "pid_ns": "pid:[4026532216]",
+ "guard_starttime_ticks": 7646002,
+ "lock_ids": {
+  "heavy": "2096:36955",
+  "build": "2096:37006"
+ }
+}

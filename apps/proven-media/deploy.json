@@ -1,0 +1,12 @@
+{
+  "_doc": "Proven Media deployment settings (D41): long content is split into chunks, each proved separately per category. Chunk size and overlap are chosen per HARDWARE PROFILE so the demo runs on different machines. Edit active_profile (or a profile) and restart the server. The effective chunk size is also capped by the prover's own maximum (the demo stub proves at most 31 content tokens per run).",
+  "active_profile": "laptop",
+  "profiles": {
+    "laptop": {"label": "Laptop (8 GB GPU / CPU only)", "chunk_tokens": 40, "overlap_tokens": 8, "max_chunks": 4,
+               "note": "about 40 content tokens per chunk"},
+    "workstation": {"label": "Workstation (24-32 GB GPU)", "chunk_tokens": 168, "overlap_tokens": 16, "max_chunks": 8,
+                    "note": "168 content tokens per chunk"},
+    "server": {"label": "Server (80 GB GPU class)", "chunk_tokens": 424, "overlap_tokens": 32, "max_chunks": 16,
+               "note": "424 content tokens per chunk"}
+  }
+}

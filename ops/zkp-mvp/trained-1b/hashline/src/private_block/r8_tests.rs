@@ -41,10 +41,15 @@ fn admissible_and_refused(i: usize) -> (Vec<i64>, Vec<i64>) {
     match OWN_FIELDS[i].0 {
         "sh_s" => (vec![1, 4, 8], vec![0, 9]),
         // tn: the norm window tn + 1 + bits(D_max) must stay four limbs
-        // (25..=32 bits; bits(D_max) is 20 at width 384)
-        "norm_tn" => (vec![4, 9, 11], vec![0, 3, 12, 17]),
+        // (25..=32 bits; bits(D_max) is 20 at width 384) AND on the base's
+        // side of 32: a window of exactly 32 bits needs no scaled top-limb
+        // pin, so the H plane list moves (52 -> 50 at the rung) and the
+        // door refuses tn 11 here by name
+        "norm_tn" => (vec![4, 9], vec![0, 3, 11, 12, 17]),
         "norm_cn_a" | "norm_cn_m" => (vec![1, 700, TRAINED_CN_MAX], vec![0, -5, TRAINED_CN_MAX + 1]),
-        "norm_ceps" => (vec![1, 16_777_259, TRAINED_CEPS_MAX], vec![0, TRAINED_CEPS_MAX + 1]),
+        // ceps moves bits(D_max): 2^40 makes it 21 bits, the window 32, and
+        // the plane list moves (refused by name), as above
+        "norm_ceps" => (vec![1, 16_777_259], vec![0, TRAINED_CEPS_MAX, TRAINED_CEPS_MAX + 1]),
         "sh_ao" => (vec![0, 5, i64::from(TRAINED_SH_AO_MAX)], vec![i64::from(TRAINED_SH_AO_MAX) + 1]),
         "sh_qkv" | "sh_g" | "sh_z" => (vec![1, 7], vec![0, 9]),
         "sh_o" | "sh_h" => (vec![9, 11, 16], vec![8, 17]),
@@ -86,7 +91,7 @@ fn with_layer_calibration_admits_each_class_and_refuses_outside_it() {
                 Err(_) => {}
                 Ok(c) => {
                     let e = sh.with_layer_calibration(&c).expect_err(&format!("{} {v} was admitted", OWN_FIELDS[i].0));
-                    assert!(e.contains("class") || e.contains("window") || e.contains("limb"), "{} {v}: {e}", OWN_FIELDS[i].0);
+                    assert!(e.contains("class") || e.contains("window") || e.contains("limb") || e.contains("moves the plane list"), "{} {v}: {e}", OWN_FIELDS[i].0);
                 }
             }
         }

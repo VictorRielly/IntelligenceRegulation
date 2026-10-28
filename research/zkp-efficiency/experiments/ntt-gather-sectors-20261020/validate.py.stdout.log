@@ -1,0 +1,15 @@
+{
+  "status": "PASS_SOURCE_AND_ARTIFACT_AUDIT_ONLY",
+  "checks": 188,
+  "unchanged_source_pins": 12,
+  "source_mutations_rejected": 15,
+  "large_stride_distinct_sector_cases": 12,
+  "lane_scope": "P1 gather assertions agree in active GPU, frozen R9 and main. Main has the older branched pad producer; address/zero-tail equivalence does not certify its q>n producer algebra. Main producer assertions use its actual source, not the newer additive form.",
+  "wall_s": 0.04817225299484562,
+  "rss_kib": 18040,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "native_gpu_or_proof_execution": false
+}

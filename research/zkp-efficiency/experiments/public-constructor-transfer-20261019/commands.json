@@ -1,0 +1,136 @@
+[
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-constructor-transfer-20261019/experiment.py"
+    ],
+    "started": "2026-10-19T18:23:32.480170+00:00",
+    "exit_code": 0,
+    "source_sha256": "b4238448c6a80500f687ac78bbf210a3ebe079a7b054f874f47703c4b52035f1",
+    "stdout": null,
+    "stderr": null,
+    "logging_note": "Intermediate PASS logs overwritten before unique names were introduced; not final evidence. Exact source retained in intermediate-sources/."
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-constructor-transfer-20261019/audit.py"
+    ],
+    "started": "2026-10-19T18:24:18.429353+00:00",
+    "exit_code": 0,
+    "source_sha256": "4c6c389b507480a21172a6d2e50b81cadc395e12f5e0c3ca702dd501c50d83aa",
+    "stdout": null,
+    "stderr": null,
+    "logging_note": "Intermediate PASS logs overwritten before unique names were introduced; not final evidence. Exact source retained in intermediate-sources/."
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-constructor-transfer-20261019/experiment.py"
+    ],
+    "started": "2026-10-19T18:25:46.497867+00:00",
+    "exit_code": 0,
+    "source_sha256": "faacf9155389132902370436e1a45cb7acbc43d807e30372c11a095ccc9028bd",
+    "stdout": "before-support-reservation-fix/experiment.py.stdout.log",
+    "stderr": "before-support-reservation-fix/experiment.py.stderr.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-constructor-transfer-20261019/audit.py"
+    ],
+    "started": "2026-10-19T18:26:02.330340+00:00",
+    "exit_code": 1,
+    "source_sha256": "25158fe4024adcd556c98abcb4280e48663cd8ae2511ecc33fb88ec126d1dce8",
+    "stdout": "before-support-reservation-fix/audit.py.stdout.log",
+    "stderr": "before-support-reservation-fix/audit.py.stderr.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-constructor-transfer-20261019/experiment.py"
+    ],
+    "started": "2026-10-19T18:26:20.872846+00:00",
+    "exit_code": 0,
+    "source_sha256": "0631f74a61a5664359166f936b1bbb5cb1f1109c821ab730e909c1bf18d96a26",
+    "stdout": "04-experiment.py.stdout.log",
+    "stderr": "04-experiment.py.stderr.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-constructor-transfer-20261019/audit.py"
+    ],
+    "started": "2026-10-19T18:26:41.704801+00:00",
+    "exit_code": 0,
+    "source_sha256": "25158fe4024adcd556c98abcb4280e48663cd8ae2511ecc33fb88ec126d1dce8",
+    "stdout": "05-audit.py.stdout.log",
+    "stderr": "05-audit.py.stderr.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-constructor-transfer-20261019/validate.py"
+    ],
+    "started": "2026-10-19T18:30:12.990494+00:00",
+    "exit_code": 0,
+    "source_sha256": "2cd685f79ba7bdbae3d3229ec4f26319adde9978d3c2b10d6f6786316f333926",
+    "stdout": "06-validate.py.stdout.log",
+    "stderr": "06-validate.py.stderr.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-constructor-transfer-20261019/experiment.py"
+    ],
+    "started": "2026-10-19T18:30:58.452070+00:00",
+    "exit_code": 0,
+    "source_sha256": "950ec10cc656c2e59da97643d7dc1e44ecb1e734a68e65ca3d24d2bf11a333c7",
+    "stdout": "07-experiment.py.stdout.log",
+    "stderr": "07-experiment.py.stderr.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-constructor-transfer-20261019/audit.py"
+    ],
+    "started": "2026-10-19T18:31:17.733697+00:00",
+    "exit_code": 0,
+    "source_sha256": "25158fe4024adcd556c98abcb4280e48663cd8ae2511ecc33fb88ec126d1dce8",
+    "stdout": "08-audit.py.stdout.log",
+    "stderr": "08-audit.py.stderr.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-constructor-transfer-20261019/validate.py"
+    ],
+    "started": "2026-10-19T18:32:11.515120+00:00",
+    "exit_code": 0,
+    "source_sha256": "2cd685f79ba7bdbae3d3229ec4f26319adde9978d3c2b10d6f6786316f333926",
+    "stdout": "09-validate.py.stdout.log",
+    "stderr": "09-validate.py.stderr.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-constructor-transfer-20261019/validate.py"
+    ],
+    "started": "2026-10-19T18:32:48.389997+00:00",
+    "exit_code": 0,
+    "source_sha256": "537bcf6add7ff6cf28c2999f399fa59e4717b4db787c81279fb38572903c32ab",
+    "stdout": "10-validate.py.stdout.log",
+    "stderr": "10-validate.py.stderr.log"
+  }
+]

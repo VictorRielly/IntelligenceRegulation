@@ -1,0 +1,1 @@
+{"status": "PASS", "checks": 115, "source_pins_unchanged": 15, "r8_manifest_matches": 11, "prior_sources_and_findings_preserved": true, "source_records_before": 462, "source_records_after": 471, "timestamp": "2026-10-19T17:26:48.090658+00:00"}

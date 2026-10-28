@@ -1,0 +1,13 @@
+[zk60-guard 09:53:24] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 09:53:38] START tio-t30-capture class=cpu need=4G cap=6G enforce=cgroup+watchdog waited=14s run=cfe024d4567e
+[zk60-guard 10:09:44] END tio-t30-capture exit=0 child_wall=966s peak_rss=2.94G min_avail=8.42G
+[zk60-guard 10:09:44] START tio-r7c-cli-build class=build need=3G cap=5G enforce=cgroup+watchdog waited=0s run=7dfaf69674c4
+[zk60-guard 10:10:52] END tio-r7c-cli-build exit=0 child_wall=68s peak_rss=1.12G min_avail=10.20G
+[zk60-guard 10:10:52] START tio-cap-tinyllama-t32-L1-dense-pt1 class=cpu need=4G cap=6G enforce=cgroup+watchdog waited=0s run=609b802e3a74
+[zk60-guard 10:13:32] END tio-cap-tinyllama-t32-L1-dense-pt1 exit=0 child_wall=160s peak_rss=1.05G min_avail=10.32G
+[zk60-guard 10:13:32] START tio-cap-tinyllama-t32-L1-fixed-pt1 class=cpu need=4G cap=6G enforce=cgroup+watchdog waited=0s run=6fa3cdffcea4
+[zk60-guard 10:16:04] END tio-cap-tinyllama-t32-L1-fixed-pt1 exit=0 child_wall=152s peak_rss=1.01G min_avail=10.37G
+[zk60-guard 10:16:04] START tio-cap-tinyllama-t32-L2-dense-pt1 class=cpu need=4G cap=6G enforce=cgroup+watchdog waited=0s run=25927afe3521
+[zk60-guard 10:19:33] END tio-cap-tinyllama-t32-L2-dense-pt1 exit=0 child_wall=209s peak_rss=1.17G min_avail=9.94G
+[zk60-guard 10:19:33] START tio-cap-tinyllama-t32-L2-fixed-pt1 class=cpu need=4G cap=6G enforce=cgroup+watchdog waited=0s run=cd70940dd0d6
+[zk60-guard 10:23:03] END tio-cap-tinyllama-t32-L2-fixed-pt1 exit=0 child_wall=210s peak_rss=1.16G min_avail=10.34G

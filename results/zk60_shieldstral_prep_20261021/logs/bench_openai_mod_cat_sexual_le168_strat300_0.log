@@ -1,0 +1,18 @@
+openai_mod/cat_sexual: 612 selected, 0 done, 612 to do
+prefix 73 tokens K/V in 17.8s
+batch 1/12: 59 items, 4068 tail tokens, 160.8s (25.3 tok/s); total done 59
+batch 2/12: 52 items, 4027 tail tokens, 158.0s (25.5 tok/s); total done 111
+batch 3/12: 56 items, 4058 tail tokens, 151.1s (26.9 tok/s); total done 167
+batch 4/12: 48 items, 3984 tail tokens, 156.3s (25.5 tok/s); total done 215
+batch 5/12: 55 items, 4025 tail tokens, 154.9s (26.0 tok/s); total done 270
+batch 6/12: 55 items, 4085 tail tokens, 150.9s (27.1 tok/s); total done 325
+batch 7/12: 54 items, 4035 tail tokens, 157.6s (25.6 tok/s); total done 379
+batch 8/12: 50 items, 4086 tail tokens, 161.5s (25.3 tok/s); total done 429
+batch 9/12: 56 items, 4041 tail tokens, 152.2s (26.5 tok/s); total done 485
+batch 10/12: 53 items, 4065 tail tokens, 154.7s (26.3 tok/s); total done 538
+time box reached after 538 items; 74 left
+openai_mod/cat_sexual: 612 selected, 538 done, 74 to do
+prefix 73 tokens K/V in 19.4s
+batch 1/2: 57 items, 4089 tail tokens, 147.2s (27.8 tok/s); total done 57
+batch 2/2: 17 items, 1106 tail tokens, 53.7s (20.6 tok/s); total done 74
+all 74 items done in 3.8 min

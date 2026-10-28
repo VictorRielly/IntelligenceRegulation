@@ -169,6 +169,8 @@ fn every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_d
     runs.extend(super::trained_calib_tests::registered_trained_runs().into_iter().map(|(p, _)| p));
     // TOKEN I/O R1 LANE: the token-I/O run profile(s), one shared list
     runs.extend(super::token_io::registered_token_runs().into_iter().map(|(p, _)| p));
+    // TOKEN I/O ROUND 12: the classifier run profile(s), their own list
+    runs.extend(super::token_io::classify::registered_classify_runs().into_iter().map(|(p, _)| p));
     let mut covered: Vec<String> = shapes.iter().map(|s| s.profile.to_string()).collect();
     covered.extend(runs.iter().map(|r| r.to_string()));
     covered.sort();
@@ -223,6 +225,8 @@ fn every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_d
     // TOKEN I/O R1 LANE: a token-I/O run is keyed by its BLOCK shape's key set
     // too (the rule this item measures; review finding TR-7 recorded)
     run_shapes.extend(super::token_io::registered_token_runs());
+    // TOKEN I/O ROUND 12: a classifier run is keyed by its BLOCK shape's key set too
+    run_shapes.extend(super::token_io::classify::registered_classify_runs());
     for (rp, sh) in run_shapes {
         let live = super::protocol::tagged_transcript(&sh, rp.as_bytes()).state();
         let block_key = *sh.hash_tag().transcript_key().expect("a tagged block profile carries a transcript key");

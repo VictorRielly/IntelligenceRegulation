@@ -1,0 +1,1 @@
+{"status": "PASS", "fixtures": 144, "checks": 27301, "allocation_sites": 298, "negative_controls": 292, "corruption_controls": 1299, "seed": 2026102093, "wall_seconds": 0.5230858349968912, "rss_kib": 28476, "threads": 1, "affinity": [0], "scope": "independent authored single-agent synthetic/source audit; no external review/native proof"}

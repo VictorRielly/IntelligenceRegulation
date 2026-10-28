@@ -1,0 +1,22 @@
+[zk60-guard 20:26:32] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 20:27:32] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 20:27:51] START r12-t2-build class=build need=2G cap=5G enforce=cgroup+watchdog waited=79s run=5d65a5d5453b
+[zk60-guard 20:34:20] END r12-t2-build exit=0 child_wall=389s peak_rss=1.83G min_avail=8.02G
+[zk60-guard 21:35:59] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 21:36:59] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 21:37:59] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 21:38:59] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 21:39:59] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 21:40:59] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 21:41:59] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 21:42:59] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 21:43:59] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 21:44:59] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 21:45:59] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 21:46:59] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 21:47:59] waiting for /tmp/zk-heavy.lock (721s)
+[zk60-guard 21:48:59] waiting for /tmp/zk-heavy.lock (781s)
+[zk60-guard 21:49:02] START r12-t2-run class=cpu need=2.5G cap=6G enforce=cgroup+watchdog waited=783s run=18014c2c9500
+[zk60-guard 21:55:15] END r12-t2-run exit=0 child_wall=373s peak_rss=1.85G min_avail=7.60G
+[zk60-guard 22:02:17] START r12-t2-check class=cpu need=4G cap=7G enforce=cgroup+watchdog waited=0s run=00991b40115b
+[zk60-guard 22:04:28] END r12-t2-check exit=101 child_wall=131s peak_rss=1.22G min_avail=8.22G

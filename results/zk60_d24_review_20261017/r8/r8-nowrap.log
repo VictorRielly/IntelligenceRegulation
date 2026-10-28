@@ -1,0 +1,7 @@
+TinyLlama-1.1B T32 admitted (tn, ceps) points 410 | max 43.076 {'norm quotient c0 / c6': 43.076, 'isqrt host': 42.585, 'down host (sh_z 1..8)': 35.0}
+TinyLlama-1.1B T64 admitted (tn, ceps) points 410 | max 43.076 {'norm quotient c0 / c6': 43.076, 'isqrt host': 42.585, 'down host (sh_z 1..8)': 35.0}
+TinyLlama-1.1B T128 admitted (tn, ceps) points 410 | max 43.076 {'norm quotient c0 / c6': 43.076, 'isqrt host': 42.585, 'down host (sh_z 1..8)': 35.0}
+Llama-3-8B T32 admitted (tn, ceps) points 369 | max 43.322 {'norm quotient c0 / c6': 43.05, 'isqrt host': 43.322, 'down host (sh_z 1..8)': 36.0}
+Llama-3-8B T64 admitted (tn, ceps) points 369 | max 43.322 {'norm quotient c0 / c6': 43.05, 'isqrt host': 43.322, 'down host (sh_z 1..8)': 36.0}
+Llama-3-8B T128 admitted (tn, ceps) points 369 | max 43.322 {'norm quotient c0 / c6': 43.05, 'isqrt host': 43.322, 'down host (sh_z 1..8)': 36.0}
+WORST {'log2': 43.322, 'where': 'Llama-3-8B T32: isqrt host', 'half_p_log2': 63.0}

@@ -1,0 +1,290 @@
+[
+  {
+    "context": 32,
+    "layers": 1,
+    "passes": 1,
+    "hypothetical_resident_commit_inverse_calls": 4,
+    "hypothetical_removed_host_muls": 508,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 32,
+    "layers": 1,
+    "passes": 2,
+    "hypothetical_resident_commit_inverse_calls": 8,
+    "hypothetical_removed_host_muls": 1016,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 32,
+    "layers": 1,
+    "passes": 4,
+    "hypothetical_resident_commit_inverse_calls": 16,
+    "hypothetical_removed_host_muls": 2032,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 32,
+    "layers": 1,
+    "passes": 8,
+    "hypothetical_resident_commit_inverse_calls": 32,
+    "hypothetical_removed_host_muls": 4064,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 32,
+    "layers": 2,
+    "passes": 1,
+    "hypothetical_resident_commit_inverse_calls": 7,
+    "hypothetical_removed_host_muls": 889,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 32,
+    "layers": 2,
+    "passes": 2,
+    "hypothetical_resident_commit_inverse_calls": 14,
+    "hypothetical_removed_host_muls": 1778,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 32,
+    "layers": 2,
+    "passes": 4,
+    "hypothetical_resident_commit_inverse_calls": 28,
+    "hypothetical_removed_host_muls": 3556,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 32,
+    "layers": 2,
+    "passes": 8,
+    "hypothetical_resident_commit_inverse_calls": 56,
+    "hypothetical_removed_host_muls": 7112,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 32,
+    "layers": 32,
+    "passes": 1,
+    "hypothetical_resident_commit_inverse_calls": 97,
+    "hypothetical_removed_host_muls": 12319,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 32,
+    "layers": 32,
+    "passes": 2,
+    "hypothetical_resident_commit_inverse_calls": 194,
+    "hypothetical_removed_host_muls": 24638,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 32,
+    "layers": 32,
+    "passes": 4,
+    "hypothetical_resident_commit_inverse_calls": 388,
+    "hypothetical_removed_host_muls": 49276,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 32,
+    "layers": 32,
+    "passes": 8,
+    "hypothetical_resident_commit_inverse_calls": 776,
+    "hypothetical_removed_host_muls": 98552,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 64,
+    "layers": 1,
+    "passes": 1,
+    "hypothetical_resident_commit_inverse_calls": 4,
+    "hypothetical_removed_host_muls": 508,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 64,
+    "layers": 1,
+    "passes": 2,
+    "hypothetical_resident_commit_inverse_calls": 8,
+    "hypothetical_removed_host_muls": 1016,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 64,
+    "layers": 1,
+    "passes": 4,
+    "hypothetical_resident_commit_inverse_calls": 16,
+    "hypothetical_removed_host_muls": 2032,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 64,
+    "layers": 1,
+    "passes": 8,
+    "hypothetical_resident_commit_inverse_calls": 32,
+    "hypothetical_removed_host_muls": 4064,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 64,
+    "layers": 2,
+    "passes": 1,
+    "hypothetical_resident_commit_inverse_calls": 7,
+    "hypothetical_removed_host_muls": 889,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 64,
+    "layers": 2,
+    "passes": 2,
+    "hypothetical_resident_commit_inverse_calls": 14,
+    "hypothetical_removed_host_muls": 1778,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 64,
+    "layers": 2,
+    "passes": 4,
+    "hypothetical_resident_commit_inverse_calls": 28,
+    "hypothetical_removed_host_muls": 3556,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 64,
+    "layers": 2,
+    "passes": 8,
+    "hypothetical_resident_commit_inverse_calls": 56,
+    "hypothetical_removed_host_muls": 7112,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 64,
+    "layers": 32,
+    "passes": 1,
+    "hypothetical_resident_commit_inverse_calls": 97,
+    "hypothetical_removed_host_muls": 12319,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 64,
+    "layers": 32,
+    "passes": 2,
+    "hypothetical_resident_commit_inverse_calls": 194,
+    "hypothetical_removed_host_muls": 24638,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 64,
+    "layers": 32,
+    "passes": 4,
+    "hypothetical_resident_commit_inverse_calls": 388,
+    "hypothetical_removed_host_muls": 49276,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 64,
+    "layers": 32,
+    "passes": 8,
+    "hypothetical_resident_commit_inverse_calls": 776,
+    "hypothetical_removed_host_muls": 98552,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 128,
+    "layers": 1,
+    "passes": 1,
+    "hypothetical_resident_commit_inverse_calls": 4,
+    "hypothetical_removed_host_muls": 508,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 128,
+    "layers": 1,
+    "passes": 2,
+    "hypothetical_resident_commit_inverse_calls": 8,
+    "hypothetical_removed_host_muls": 1016,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 128,
+    "layers": 1,
+    "passes": 4,
+    "hypothetical_resident_commit_inverse_calls": 16,
+    "hypothetical_removed_host_muls": 2032,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 128,
+    "layers": 1,
+    "passes": 8,
+    "hypothetical_resident_commit_inverse_calls": 32,
+    "hypothetical_removed_host_muls": 4064,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 128,
+    "layers": 2,
+    "passes": 1,
+    "hypothetical_resident_commit_inverse_calls": 7,
+    "hypothetical_removed_host_muls": 889,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 128,
+    "layers": 2,
+    "passes": 2,
+    "hypothetical_resident_commit_inverse_calls": 14,
+    "hypothetical_removed_host_muls": 1778,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 128,
+    "layers": 2,
+    "passes": 4,
+    "hypothetical_resident_commit_inverse_calls": 28,
+    "hypothetical_removed_host_muls": 3556,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 128,
+    "layers": 2,
+    "passes": 8,
+    "hypothetical_resident_commit_inverse_calls": 56,
+    "hypothetical_removed_host_muls": 7112,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 128,
+    "layers": 32,
+    "passes": 1,
+    "hypothetical_resident_commit_inverse_calls": 97,
+    "hypothetical_removed_host_muls": 12319,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 128,
+    "layers": 32,
+    "passes": 2,
+    "hypothetical_resident_commit_inverse_calls": 194,
+    "hypothetical_removed_host_muls": 24638,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 128,
+    "layers": 32,
+    "passes": 4,
+    "hypothetical_resident_commit_inverse_calls": 388,
+    "hypothetical_removed_host_muls": 49276,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  },
+  {
+    "context": 128,
+    "layers": 32,
+    "passes": 8,
+    "hypothetical_resident_commit_inverse_calls": 776,
+    "hypothetical_removed_host_muls": 98552,
+    "scope": "Conditional one accepted resident commit per offered event; openings/fallback/extra CPU transforms excluded; not observed launches"
+  }
+]

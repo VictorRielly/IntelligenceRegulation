@@ -1,0 +1,7 @@
+{
+ "copy": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-r9/",
+ "manifest": "r9/manifest_frozen.json",
+ "listed": 222,
+ "moved": [],
+ "extra_files": []
+}

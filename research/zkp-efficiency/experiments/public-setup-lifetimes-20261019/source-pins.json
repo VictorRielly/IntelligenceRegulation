@@ -1,0 +1,92 @@
+[
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/trained_block.rs",
+    "snapshot": "native/hashline__src__private_block__trained_block.rs",
+    "sha256": "cc401eb4be9d8e8a723894bac837442e01fe96bc67df22461e42582ecd3feec8",
+    "r8_manifest_match": true
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/run.rs",
+    "snapshot": "native/hashline__src__private_block__run.rs",
+    "sha256": "d913a081b82d54b6a1a67cd938afe1700910e820d9b3a97019a398f8b61ea609",
+    "r8_manifest_match": true
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/protocol.rs",
+    "snapshot": "native/hashline__src__private_block__protocol.rs",
+    "sha256": "85ca893173c4bfc0d8c88be69dbd0834831d4aec4ec9783c66e0b61d614615f6",
+    "r8_manifest_match": true
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/layout.rs",
+    "snapshot": "native/hashline__src__private_block__layout.rs",
+    "sha256": "ee871fff7eed377cafcb05ec0438df95a70695ae8fdcd5b5822f5f40663b0ee9",
+    "r8_manifest_match": true
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/shape.rs",
+    "snapshot": "native/hashline__src__private_block__shape.rs",
+    "sha256": "8c62519c98e36ae966b7f9480e1d47884c57526c2ccf0288deb1286ca1a0fb34",
+    "r8_manifest_match": true
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/endpoint_g.rs",
+    "snapshot": "native/hashline__src__private_block__endpoint_g.rs",
+    "sha256": "6e3691d0bfa1c1fb1f66b9be8ae5438597492c62dc00451d6f25dbff90ab84ce",
+    "r8_manifest_match": true
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/boundary.rs",
+    "snapshot": "native/hashline__src__private_block__boundary.rs",
+    "sha256": "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581",
+    "r8_manifest_match": true
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block.rs",
+    "snapshot": "native/hashline__src__private_block.rs",
+    "sha256": "08551c3d3526259aec5ee8619c9ab803677a0ae079428cb07c4254277cf1b67c",
+    "r8_manifest_match": true
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/zkp-core/src/ntt.rs",
+    "snapshot": "native/zkp-core__src__ntt.rs",
+    "sha256": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890",
+    "r8_manifest_match": true
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/zkp-core/src/field.rs",
+    "snapshot": "native/zkp-core__src__field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "r8_manifest_match": true
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_d24_review_20261017/R8_VERDICT.md",
+    "snapshot": "native/R8_VERDICT.md",
+    "sha256": "db96529eff92557dd11acfafb3a1a1d27b0ea0991c5d744686a784bb70f64517",
+    "r8_manifest_match": null
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/manifest_frozen.json",
+    "snapshot": "native/manifest_frozen.json",
+    "sha256": "98bd6372f1f19d4fd1f83f044d3c367fc7127f2ccae3ceec967fd65517eb733a",
+    "r8_manifest_match": null
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/stack-llama3_8b_pg_rot1_b7voc0_T128-ho00-cpu/report.json",
+    "snapshot": "native/report.json",
+    "sha256": "0a4d6c67846a0376b02d98ac65ca955fbcafadb0ca017d5d0dc0e88ad71dc6a8",
+    "r8_manifest_match": null
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/fid_runs_phases.txt",
+    "snapshot": "native/fid_runs_phases.txt",
+    "sha256": "b22bf1de174fba3fd48eeca0c2fd74644121b0caba40784a39ee581396021da2",
+    "r8_manifest_match": null
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/gpu/cuda.rs",
+    "snapshot": "native/hashline__src__gpu__cuda.rs",
+    "sha256": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9",
+    "r8_manifest_match": true
+  }
+]

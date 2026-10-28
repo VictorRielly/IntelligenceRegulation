@@ -1,0 +1,46 @@
+{
+  "run_id": "20261020T211854Z-71297104",
+  "utc": "2026-10-20T21:19:28.757668+00:00",
+  "files": {
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md": {
+      "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+      "bytes": 5603
+    },
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md": {
+      "sha256": "bfec55603c8c5bbb0bff071fe949d64a660e548398c43ef7d3b55a38ab3d9e0d",
+      "bytes": 6256
+    },
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md": {
+      "sha256": "290a98fb6c791ec4fc459682a7aa089e9b4e7f8d5a2362aa97a7a5d73b4743f0",
+      "bytes": 818130
+    },
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md": {
+      "sha256": "0550bc09fff2cc914f432e258ed4f5b199820a17cd7f1d3a7b3bfb73144f866a",
+      "bytes": 2396
+    },
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl": {
+      "sha256": "3f2e5670f9af940c3f511a011dc98e1dd3efb1be803a2f879e88751b5ee1aa1b",
+      "bytes": 867804
+    },
+    "/home/victor/IntelligenceRegulation/CLAUDE.md": {
+      "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+      "bytes": 14089
+    },
+    "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md": {
+      "sha256": "621ced1c6a8611be5b76a22689d0977d43c76e7c02bdfdcee16b467b1513986e",
+      "bytes": 84664
+    },
+    "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md": {
+      "sha256": "9a7730c640fe8611327257a7df68f3da3be30cb1885cd3e7640b5ba2e22b869f",
+      "bytes": 102129
+    },
+    "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md": {
+      "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+      "bytes": 64889
+    },
+    "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md": {
+      "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+      "bytes": 4941
+    }
+  }
+}

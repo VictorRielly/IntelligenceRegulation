@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/fp_eval.py", line 381, in <module>
+    main()
+  File "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/fp_eval.py", line 227, in main
+    ex = fl.Export(Path(a.export), verify=not a.no_verify)
+  File "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/fp_lib.py", line 120, in __init__
+    self.prof = json.loads((self.root / "profile.json").read_text())
+  File "/usr/lib/python3.10/pathlib.py", line 1134, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/usr/lib/python3.10/pathlib.py", line 1119, in open
+    return self._accessor.open(self, mode, buffering, encoding, errors,
+FileNotFoundError: [Errno 2] No such file or directory: '/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/EVAL_llama3_8b_dg_w16u_voc0_T128/profile.json'

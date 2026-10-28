@@ -1,0 +1,5 @@
+[zk60-guard 18:21:17] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 18:21:57] START trv6-b3-build-tests-rv6-8 class=build need=3G cap=5G enforce=cgroup+watchdog waited=40s run=0b4d2362528f
+[zk60-guard 18:25:35] END trv6-b3-build-tests-rv6-8 exit=0 child_wall=218s peak_rss=2.01G min_avail=10.41G
+[zk60-guard 18:25:35] START trv6-t3-rv6-8 class=cpu need=5G cap=8G enforce=cgroup+watchdog waited=0s run=21869649cd66
+[zk60-guard 18:25:56] END trv6-t3-rv6-8 exit=0 child_wall=21s peak_rss=0.32G min_avail=11.94G

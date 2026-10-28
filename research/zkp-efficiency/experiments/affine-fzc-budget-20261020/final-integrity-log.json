@@ -1,0 +1,11 @@
+[
+  {
+    "status": "INITIAL_FAILED",
+    "reason": "Dated progress report used root-relative local links without ../; local link existence check caught it.",
+    "correction": "Adjusted experiment/handoff links to ../ from progress/."
+  },
+  {
+    "status": "FINAL_PASS",
+    "checked_at": "2026-10-20T05:36:43.601632+00:00"
+  }
+]

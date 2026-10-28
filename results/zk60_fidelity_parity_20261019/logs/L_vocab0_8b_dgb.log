@@ -1,0 +1,6 @@
+[18:28:55Z] tokens 0..4096: refusing so far 0 (49s)
+[18:31:55Z] tokens 32768..36864: refusing so far 0 (229s)
+[18:34:43Z] tokens 65536..69632: refusing so far 0 (397s)
+[18:37:49Z] tokens 98304..102400: refusing so far 0 (583s)
+[18:40:45Z] refusing tokens at layer 0: 0 of 128256; by site {}; worst {'y': 30, 'Q': 64, 'K': 64, 'V': 86, 'QR_bound': 64, 'KR_bound': 64}; loose score bound 586
+[18:40:45Z] done (759s) -> /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/runs/llama3-8b/vocab0_llama3_8b_dg_rot1_voc0_T128.json

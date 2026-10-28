@@ -1,0 +1,8 @@
+{
+  "status": "PASS_RESEARCH_ARTIFACTS_ONLY",
+  "checks": 508,
+  "source_files_unchanged": 8,
+  "native_execution": false,
+  "wall_seconds": 0.008906887989724055,
+  "rss_kib": 16588
+}

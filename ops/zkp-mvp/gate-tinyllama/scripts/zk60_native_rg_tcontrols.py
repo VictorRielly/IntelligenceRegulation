@@ -187,7 +187,10 @@ def terminal_controls(bundle, index, replay=None, old_bundle=None) -> dict:
     # slot 17's `A_SR0` and `A_SR1`: the same domain, the same row count, and
     # both read by the same polynomial, so the swap is invisible to any check
     # that only counts planes.
-    swap_slot = 17
+    # [v17, gate round 14] at a DD profile (native R9 / D30) the division
+    # limbs `A_SR*` / `A_SG*` are the DICTIONARY's: slot 23 (`SC_DD`) reads
+    # them and slot 17 does not, so the same swap is made in slot 23
+    swap_slot = 23 if int(bundle.run["shape"].get("dd_cap", 0)) > 0 else 17
     names17 = _names(index)[swap_slot]
     i, j = names17.index("A_SR0"), names17.index("A_SR1")
     table = _swapped_table(bundle, swap_slot, i, j)
@@ -361,7 +364,14 @@ def terminal_controls(bundle, index, replay=None, old_bundle=None) -> dict:
 PAD_HOSTS = {"T": (2, "SC_TZC"), "L": (3, "SC_LZC"), "D": (14, "SC_DZC"),
              "Q": (15, "SC_QZC"), "Kv": (16, "SC_KVZC"), "S": (17, "SC_SZC"),
              "Ht": (17, "SC_SZC"), "F": (18, "SC_FZC"),
-             "Tab": (19, "SC_TAB")}
+             "Tab": (19, "SC_TAB"),
+             # [v17, gate round 14] a DD profile's dictionary (only where the
+             # plane index has a Dd domain)
+             "Dd": (23, "SC_DD")}
+# [v17, gate round 14] at a DD profile the DD arms of slots 17 and 23 have NO
+# pad arithmetic: argument.rs R9 refuses `pad_on` by name, so a flipped pad
+# state must be refused by THAT name (the draws never differ)
+DD_PAD_REFUSAL = "would host a pad term"
 
 
 def _pad_rule_controls(bundle, index, replay, honest) -> list:
@@ -416,6 +426,10 @@ def _pad_rule_controls(bundle, index, replay, honest) -> list:
             SlotCtx.pad_on = real
         names_both = bool(said) and ("definition draws" in said[0]
                                      and "the capture declares" in said[0])
+        # [v17] a DD arm: refused by argument.rs R9's own name instead
+        dd_arm = int(bundle.run["shape"].get("dd_cap", 0)) > 0 and slot in (17, 23)
+        if dd_arm:
+            names_both = bool(said) and DD_PAD_REFUSAL in said[0]
         per.append({
             "domain": dom,
             "slot": slot,

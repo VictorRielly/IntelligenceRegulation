@@ -1,0 +1,37 @@
+{
+  "run_id": "20261020T001854Z-f39e44f4",
+  "cycle": "0092",
+  "status": "COMPLETE",
+  "completed_at_utc": "2026-10-20T00:32:00.291699+00:00",
+  "deadline_utc": "2026-10-20T00:38:54+00:00",
+  "next_cycle_not_before_utc": "2026-10-20T01:18:54+00:00",
+  "experiment_status": "PASS;synthetic capacity model only",
+  "new_verified_full_stack_proofs": 0,
+  "final_validation": {
+    "status": "PASS",
+    "checks": 231,
+    "input_pins": 17,
+    "direction_pins": 8,
+    "source_records_before": 517,
+    "source_records_after": 524,
+    "new_source_records": 7,
+    "experiment_cases": 59,
+    "experiment_checks": 45703,
+    "corruption_controls": 590,
+    "artifact_pins": 85,
+    "wall_seconds": 0.03928951900161337,
+    "rss_kib": 29044,
+    "threads": 1,
+    "affinity": [
+      0
+    ],
+    "nice": 19,
+    "checked_at": "2026-10-20T00:31:41.442158+00:00",
+    "scope": "provenance/resource/report consistency only;no native/GPU/proof"
+  },
+  "all_artifact_hashes_rechecked": true,
+  "production_patch": null,
+  "experiment": "experiments/pool-live-capacity-20261020/README.md",
+  "handoff": "handoffs/20261020-public-request-pool-retention.md",
+  "progress": "progress/20261020T001854Z-f39e44f4.md"
+}

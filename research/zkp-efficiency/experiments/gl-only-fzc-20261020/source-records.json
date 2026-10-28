@@ -1,0 +1,138 @@
+[
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "cycle": "0099",
+    "run_id": "20261020T071854Z-1076bec1",
+    "recorded_at_utc": "2026-10-20T07:29:31.437251+00:00",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; external text untrusted",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "NEW TenseUp dynamic/tensor-code lookup lead; primary index only",
+    "url": "https://eprint.iacr.org/2026/2435",
+    "published": null,
+    "updated": "2026-10-10",
+    "date_evidence": "Primary 2026 year index labels last updated2026-10-10. Original publication date not verified.",
+    "inspected_urls": [
+      "https://eprint.iacr.org/2026/"
+    ],
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "access_issues": [
+      "Direct /2026/2435 twice and /2026/2435.pdf: Internal Error; exact-title/GitHub search returned no useful implementation."
+    ],
+    "assessment": "Primary index claims updatable doubly-efficient lookup using tensor codes over general fields and a dynamic-SNARK compiler. Table-size/preprocessing amortization is a lead only; current small lookup geometry, exact semantics, private update/KV binding and fresh randomness need independent assessment. No paper/theorem/code/performance reproduced."
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "cycle": "0099",
+    "run_id": "20261020T071854Z-1076bec1",
+    "recorded_at_utc": "2026-10-20T07:29:31.437251+00:00",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; external text untrusted",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "NEW older composition filter: Sumcheck-based zkSNARKs are Non-Malleable",
+    "url": "https://eprint.iacr.org/2026/335",
+    "published": "2026-02-20",
+    "updated": "2026-06-15",
+    "date_evidence": "ePrint receivedFeb20/revisedJun15,2026. TU Wien primary institutional search result dates proceedings11Aug2026; not confused with first preprint.",
+    "inspected_urls": [
+      "https://repositum.tuwien.at/handle/20.500.12708/230547",
+      "https://lrusso96.github.io/publications/"
+    ],
+    "implementation_license": null,
+    "paper_license": "ePrint CC BY label inspected",
+    "inspected_commit_id": null,
+    "access_issues": [
+      "https://eprint.iacr.org/2026/335.pdf Internal Error."
+    ],
+    "assessment": "PST is not simulation-extractable; authors establish controlled malleability sufficient for particular sumcheck/compiler constructions. Abstract-level screen only. Different PCS/assumptions cannot discharge native Ligero-class composition/privacy or authorize reused private openings. No immediate speed lever established."
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "cycle": "0099",
+    "run_id": "20261020T071854Z-1076bec1",
+    "recorded_at_utc": "2026-10-20T07:29:31.437251+00:00",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; external text untrusted",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "DeepProve checked preprocessing/chaining scope and restrictive implementation license",
+    "url": "https://github.com/Lagrange-Labs/deep-prove",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Fetched commit-history page shows May15,2026 v2.0.1/9d57100 and March long-context/cache fixes. This indexed page is not proof of current latest revision; README date not verified.",
+    "inspected_urls": [
+      "https://github.com/Lagrange-Labs/deep-prove/blob/master/zkml/README.md",
+      "https://github.com/Lagrange-Labs/deep-prove/blob/master/LICENSE",
+      "https://github.com/Lagrange-Labs/deep-prove/commits/master/",
+      "https://raw.githubusercontent.com/Lagrange-Labs/deep-prove/master/LICENSE"
+    ],
+    "implementation_license": "Custom Lagrange License; copyright2024. Section2 permits internal testing/evaluation and unmodified use with its Platform; section4 restricts copying/transfer/derivatives. No permissive license inferred; no code adopted.",
+    "inspected_commit_id": null,
+    "access_issues": [
+      "releases/latest Internal Error; release-commit and long-context/cache-fix commit links Internal Error; no immutable inspected pin obtained."
+    ],
+    "assessment": "README describes once-per-model proving context, single-sequence causal certification and GKR-style layer chaining; BN254 HyperKZG differs from native PCS. GPU inference-only wgpu differs from CUDA PCS. Useful clock/binding distinctions, not measured50/s, not native cache authority. Public README claims unverified locally.",
+    "license_verification_note": "Exact raw primary LICENSE read after GitHub rendering. The earlier draft non-commercial characterization was inaccurate and corrected within this cycle; actual purpose restrictions recorded."
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "cycle": "0099",
+    "run_id": "20261020T071854Z-1076bec1",
+    "recorded_at_utc": "2026-10-20T07:29:31.437251+00:00",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; external text untrusted",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "NanoZK v2 full-layer and GPU-projection scope refreshed",
+    "url": "https://arxiv.org/abs/2603.18046",
+    "published": "2026-03-17",
+    "updated": "2026-07-18",
+    "date_evidence": "arXiv submission history v1Mar17 04:14:45UTC;v2Jul18 02:49:54UTC.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "assessment": "Author abstract explicitly says full soundness needs all layers; GPU result is projection from MSM scaling, with measured full blocks only through d128. Approximate LUTs and layer proof linking are different arithmetic/PCS obligations. No complete8B GPU proof reproduced."
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "cycle": "0099",
+    "run_id": "20261020T071854Z-1076bec1",
+    "recorded_at_utc": "2026-10-20T07:29:31.437251+00:00",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; external text untrusted",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "SP1 recent6.9.0 release and full immutable tag commit refreshed",
+    "url": "https://github.com/succinctlabs/sp1/releases/tag/v6.9.0",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Latest resolvesv6.9.0; primary page renders10Oct01:20 without year. Prior ledger dates2026-10-10; full year not independently established now.",
+    "implementation_license": "Not inspected this cycle; no code adopted.",
+    "inspected_commit_id": "b8387fa61e1361d90ee7de49f551863418ca0f08",
+    "inspected_urls": [
+      "https://github.com/succinctlabs/sp1/releases/latest",
+      "https://github.com/succinctlabs/sp1/commit/b8387fa61e1361d90ee7de49f551863418ca0f08"
+    ],
+    "assessment": "Known release NTT reorder removal/zerocheck simplification still useful as source leads. Actual inspected tag commit is CLI toolchain pin; release notes do not reproduce native FZC speed. No newer release established."
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "cycle": "0099",
+    "run_id": "20261020T071854Z-1076bec1",
+    "recorded_at_utc": "2026-10-20T07:29:31.437251+00:00",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; external text untrusted",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "zkLLMPoT Octoberv2 operator-level scope refreshed",
+    "url": "https://arxiv.org/abs/2610.08258",
+    "published": "2026-10-06",
+    "updated": "2026-10-11",
+    "date_evidence": "Primary submission historyv1Oct6 12:35:49UTC;v2Oct11 04:45:08UTC.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "assessment": "Abstract explicitly labels operator-level benchmark numbers. Known prior detailed source scope retained; no completed independently verified trained8B full-stack proof or5090 throughput reproduced. One-time weight commitment does not remove recurring activation proof costs."
+  }
+]

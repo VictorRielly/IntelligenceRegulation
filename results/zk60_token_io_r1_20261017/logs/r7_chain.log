@@ -1,0 +1,6 @@
+[zk60-guard 09:20:57] START tio-t29-r7-built class=cpu need=4G cap=6G enforce=cgroup+watchdog waited=0s run=198eb4c304ef
+[zk60-guard 09:26:38] END tio-t29-r7-built exit=0 child_wall=341s peak_rss=3.06G min_avail=8.36G
+[zk60-guard 09:26:38] START tio-r7-cli-build class=build need=3G cap=5G enforce=cgroup+watchdog waited=0s run=4cdc9dcdbe2a
+[zk60-guard 09:27:49] END tio-r7-cli-build exit=0 child_wall=71s peak_rss=1.11G min_avail=10.09G
+[zk60-guard 09:27:49] START tio-r7-profile-voc0 class=light need=3.5G cap=5G enforce=cgroup+watchdog waited=0s run=03bb4352e3d1
+[zk60-guard 09:28:23] END tio-r7-profile-voc0 exit=0 child_wall=34s peak_rss=1.84G min_avail=9.09G

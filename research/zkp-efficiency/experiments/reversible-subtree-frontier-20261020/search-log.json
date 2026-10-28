@@ -1,0 +1,21 @@
+{
+  "tool": "native LIVE web.run",
+  "queries": [
+    "site.eprint.iacr.org 2026 GPU sumcheck quantization lookup October",
+    "site.github.com openvm stark-backend logup reversible subtree fraction tree",
+    "site.eprint.iacr.org zero knowledge quantization exact inference 2026",
+    "\"Bits Under ZK-LLM\" github",
+    "site.github.com/openvm-org/stark-backend/releases \"2.0.2\"",
+    "site.eprint.iacr.org \"time-space\" \"sumcheck\" streaming",
+    "site.github.com sumcheck checkpointing pebbling memory prover",
+    "\"Time-Space Trade-Offs for Sumcheck\" Baweja 2025",
+    "site.usenix.org 2025 Pappas space efficient arguments folding sumcheck",
+    "site.github.com neutronnova Microsoft Nova folding 2026",
+    "site.github.com Scorpius Orion den Hollander Slamanig 2024",
+    "site.github.com Lagrange-Labs deep-prove releases quantization softmax 2026"
+  ],
+  "queries_count": 12,
+  "records": 12,
+  "access_date": "2026-10-20",
+  "execution_of_external_code": false
+}

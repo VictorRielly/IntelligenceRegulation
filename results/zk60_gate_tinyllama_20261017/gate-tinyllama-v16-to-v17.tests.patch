@@ -1,0 +1,205 @@
+diff -ruN -x __pycache__ frozen_v16/tests/test_v4_status_g10.py frozen_v17/tests/test_v4_status_g10.py
+--- frozen_v16/tests/test_v4_status_g10.py	2026-10-19 21:27:54.008404572 -0700
++++ frozen_v17/tests/test_v4_status_g10.py	2026-10-20 17:13:57.336975994 -0700
+@@ -1080,3 +1080,201 @@
+         rec = TC.check_one(TOKEN_L1, [a for a in atts if a["layers"] != [0]])
+         self.assertFalse(rec["ok"])
+         self.assertTrue(rec["findings"][0].startswith("A1: 0 attribution lines"), rec["findings"])
++
++
++DD_RUNG_L1 = "/home/victor/zk60-artifacts/dd-gate-r9/dd-rung-l1-dense"
++
++
++class R9Pins(unittest.TestCase):
++    """[v17, gate round 14: DD, native R9] the R9 readings.  Every digest the
++    r9 module adds is the R9 tree's file (production) or the gate copy's
++    (the two test-only patched files); the 46 pins of an R9 gate bundle split
++    32 R7 pins read in v8 + 14 read in the r9 module; the pin set passes the
++    run-layer, terminal and mask checks; without the r9 run.rs entry (the
++    v16 state) run.rs is refused; a moved run.rs is refused"""
++
++    R9 = "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline"
++    GATE = "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-r9/hashline"
++    PINS = ("/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/"
++            "round14/r9-source-pins.v1.json")
++
++    def _sha(self, root, rel):
++        import hashlib
++        with open(os.path.join(root, rel), "rb") as fh:
++            return hashlib.sha256(fh.read()).hexdigest()
++
++    @unittest.skipUnless(os.path.isdir(R9) and os.path.isdir(GATE) and os.path.isfile(PINS),
++                         "R9, the gate's R9 copy or its pin list is not on disk")
++    def test_every_r9_digest_and_the_pin_split(self):
++        import zk60_native_rg_tinyllama_r9_pins as K
++        import zk60_native_rg_tokenio_r7c_pins as TP
++        patched = {"src/private_block/run_capture.rs", "src/private_block/plane_index.rs"}
++        for table in (K.RUN_LAYER_PINS, K.TERMINALS_ALSO_ACCEPTED, K.TERMINALS_PINNED_IF_PRESENT, K.MASK_LAYER_PINS):
++            for path, digests in table.items():
++                root = self.GATE if path in patched else self.R9
++                self.assertEqual(list(digests), [self._sha(root, path)], path)
++        for path, (d, _why) in K.REPORT_ONLY.items():
++            self.assertEqual(d, self._sha(self.R9, path), path)
++        self.assertEqual(list(K.ARGUMENT_DEFINITIONS), [self._sha(self.R9, "src/private_block/argument.rs")])
++        with open(self.PINS) as fh:
++            pins = {p["pin"]: p["sha256_gate_copy"] for p in json.load(fh)["pins"]}
++        self.assertEqual(len(pins), 46)
++        read_here = set()
++        for t in (K.RUN_LAYER_PINS, K.TERMINALS_ALSO_ACCEPTED, K.TERMINALS_PINNED_IF_PRESENT, K.MASK_LAYER_PINS):
++            for path, digests in t.items():
++                read_here |= {(path, d) for d in digests}
++        read_here |= {(p, d) for p, (d, _w) in K.REPORT_ONLY.items()}
++        where = {}
++        for f, d in pins.items():
++            if TP.R7_PINS_READ_IN_V8.get(f) == d:
++                where[f] = "r7"
++            elif (f, d) in read_here:
++                where[f] = "r9"
++            else:
++                self.fail(f"{f} {d[:12]} has no reading")
++        self.assertEqual((sorted(where.values()).count("r7"), sorted(where.values()).count("r9")), (32, 14))
++
++    @unittest.skipUnless(os.path.isdir(DD_RUNG_L1), "the DD rung capture is not on disk")
++    def test_the_r9_pin_set_is_accepted_and_refused_without_its_reading(self):
++        import zk60_native_rg_runpins as RP
++        import zk60_native_rg_terminals as T
++        import zk60_native_rg_mask as M
++        import zk60_native_rg_tinyllama_r9_pins as K
++        b = load_bundle(DD_RUNG_L1)
++        self.assertTrue(RP.check_run_layer_pins(b)["ok"])
++        self.assertTrue(T.check_source_pins(b)["ok"])
++        self.assertTrue(M.check_mask_layer_pins(b)["ok"])
++        entry = RP.RUN_LAYER_PINS["src/private_block/run.rs"].pop(K.RUN_RS)
++        try:
++            off = RP.check_run_layer_pins(b)
++        finally:
++            RP.RUN_LAYER_PINS["src/private_block/run.rs"][K.RUN_RS] = entry
++        self.assertFalse(off["ok"])
++        self.assertTrue(off["pins_that_moved"][0].startswith("src/private_block/run.rs: the bundle pins cf80735dbea5"))
++
++
++class DDPorts(unittest.TestCase):
++    """[v17, gate round 14] the DD slot ports, statically and on the DD rung
++    capture: the lookups at Dom::S / Dom::Dd; `ports_for` swaps slot 17 and
++    appends slot 23 at DD only; the terminal identity covers and equals all
++    24 slots; the e column is attributed to the stage's exp table; the DD
++    controls and the DD NL-1 pass"""
++
++    def test_lookups_at_dd(self):
++        import zk60_native_rg_terminals as T
++        raw = {"norm_wrho": 31, "wrho_s": 17, "dd_cap": 32}
++        counts = {"ln": 4, "ls": 3, "lp": 2}
++        s_dd = T.lookups_at("S", counts, raw)
++        s_plain = T.lookups_at("S", counts, {"norm_wrho": 31, "wrho_s": 17})
++        names = lambda lks: {nm for terms, _c in lks for nm, _x in terms}
++        self.assertFalse(any(n.startswith(("A_PL", "A_SR", "A_SG")) for n in names(s_dd)))
++        self.assertTrue(any(n.startswith("A_SR") for n in names(s_plain)))
++        dd = T.lookups_at("Dd", counts, raw)
++        self.assertEqual(len(dd), (2 + 1) + 2 * (3 + 1))
++        with self.assertRaises(ValueError):
++            T.lookups_at("Dd", counts, {"norm_wrho": 31, "wrho_s": 17})
++
++    @unittest.skipUnless(os.path.isdir(DD_RUNG_L1), "the DD rung capture is not on disk")
++    def test_terminals_attribution_controls_and_nl1_on_the_rung(self):
++        import zk60_native_rg_terminals as T
++        import zk60_native_rg_ddcontrols as DC
++        import zk60_native_rg_ddnl as DN
++        from zk60_native_rg_planes import plane_index_of
++        from zk60_native_rg_replay import RunReplay
++        b = load_bundle(DD_RUNG_L1)
++        idx, _ = plane_index_of(b)
++        self.assertIn("Dd", idx.domain_log)
++        ports = T.ports_for(b)
++        self.assertEqual([p[0] for p in ports][-1], T.SC_DD)
++        self.assertIs(dict((p[0], p[2]) for p in ports)[T.SC_SZC], T.sc_szc_dd)
++        r = T.check_terminals(b, idx, replay=RunReplay(b).run())
++        self.assertTrue(r["ok"], r["findings"][:3])
++        self.assertEqual((r["slot_checks_equal"], r["slot_checks_expected"]), (24, 24))
++        self.assertTrue(all(a["ok"] for a in r["dd_e_column_attribution"]))
++        c = DC.run(DD_RUNG_L1)
++        self.assertTrue(c["ok"], [x["control"] for x in c["controls"] if not x["fires"]])
++        n = DN.run(DD_RUNG_L1)
++        self.assertTrue(n["ok"], n["summary"])
++
++    def test_a_non_dd_bundle_keeps_its_ports(self):
++        import types
++        import zk60_native_rg_terminals as T
++        b = types.SimpleNamespace(run={"shape": {}})
++        self.assertIs(T.ports_for(b), T.PORTS)
++
++
++TL128_L2 = "/home/victor/zk60-artifacts/dd-gate-r9/tl128dd-l2-dense"
++
++
++class StageCal(unittest.TestCase):
++    """[v17, gate round 14] each stage's calibration (native R8 / R9
++    `stage_shape`): the stage-line reader on a synthetic run whose schedule
++    digest is computed here, each refusal by its code, the token-run
++    exemption, and (with the capture on disk) the T128 DD L = 2 run, whose
++    stage 1 carries layer 1's own constants"""
++
++    BASE = "stage 01: commits nothing; slot 21 claims boundary 0 at pair row 18; data rows 16"
++
++    def _run(self, line1, bind=True):
++        import zk60_native_rg_stagecal as SC
++        shape = {"width": 2048, "trained_calibration": True, "norm_tn": 10, "norm_cn_a": 1253,
++                 "norm_cn_m": 1444, "norm_ceps": 74429, "sh_ao": 7, "sh_qkv": 8, "sh_s": 6,
++                 "sh_o": 9, "sh_g": 8, "sh_h": 14, "sh_z": 8, "d_max": 1482910, "norm_wrho": 32}
++        run = {"shape": shape, "parameter_line": "p/sh-g8-u0-h14-z8/", "layout_description": ["l0", "l1"],
++               "stage_lines": ["stage 00: commits boundary 0; data rows 16", line1]}
++        if bind:
++            run["schedule_digest"] = list(bytes.fromhex(SC.schedule_digest(run)["recomputed"]))
++        else:
++            run["schedule_digest"] = [0] * 32
++        return run
++
++    def test_reader_and_refusals(self):
++        import zk60_native_rg_stagecal as SC
++        own = self.BASE + "; score shift 8 (the layer's own; the run's is 6); ao shift 6 (the layer's own; the run's is 7)"
++        r = self._run(own)
++        shapes, rec = SC.stage_shapes(r)
++        self.assertIs(shapes[0], r["shape"])
++        self.assertEqual((shapes[1]["sh_s"], shapes[1]["sh_ao"], shapes[1]["norm_cn_a"]), (8, 6, 1253))
++        self.assertEqual(rec["stages_at_their_own_calibration"], [1])
++        self.assertTrue(rec["schedule_digest"]["equal"])
++        # no clause: every stage IS the run shape
++        r0 = self._run(self.BASE)
++        s0, _ = SC.stage_shapes(r0)
++        self.assertTrue(all(s is r0["shape"] for s in s0))
++        cases = {
++            "SC-5": self._run(own, bind=False),
++            "SC-1": self._run(self.BASE + "; score shift 8 (the layer's own; the run's is 5)"),
++            "SC-2": self._run(self.BASE + "; score shift 6 (the layer's own; the run's is 6)"),
++            "SC-3": self._run(self.BASE + "; ao shift 6 (the layer's own; the run's is 7); score shift 8 (the layer's own; the run's is 6)"),
++            "SC-4": self._run(self.BASE + "; Score shift 8 (the layer's own; the run's is 6)"),
++            "SC-7": self._run(self.BASE + "; norm tn 16 (the layer's own; the run's is 10)"),
++        }
++        for code, run in cases.items():
++            with self.assertRaises(ValueError, msg=code) as cm:
++                SC.stage_shapes(run)
++            self.assertTrue(str(cm.exception).startswith(code), (code, str(cm.exception)))
++        frozen = self._run(own)
++        frozen["shape"] = dict(frozen["shape"], trained_calibration=None)
++        frozen["schedule_digest"] = list(bytes.fromhex(SC.schedule_digest(frozen)["recomputed"]))
++        with self.assertRaises(ValueError) as cm:
++            SC.stage_shapes(frozen)
++        self.assertTrue(str(cm.exception).startswith("SC-6"))
++        tok = self._run(own, bind=False)
++        tok["token_io"] = {}
++        self.assertEqual(SC.stage_shapes(tok)[0], [])
++
++    @unittest.skipUnless(os.path.isdir(TL128_L2), "the T128 DD L = 2 capture is not on disk")
++    def test_t128_dd_l2_stage_one_and_tl6(self):
++        import zk60_native_rg_stagecal as SC
++        import zk60_native_rg_tlcontrols as TL
++        b = load_bundle(TL128_L2)
++        shapes, rec = SC.stage_shapes(b.run)
++        self.assertTrue(rec["schedule_digest"]["equal"])
++        self.assertIs(shapes[0], b.run["shape"])
++        self.assertEqual(rec["own_clauses"]["1"], {"sh_s": {"own": 8, "run": 6},
++                                                   "norm_cn_a": {"own": 2198, "run": 1253},
++                                                   "norm_cn_m": {"own": 1764, "run": 1444},
++                                                   "sh_ao": {"own": 6, "run": 7}})
++        rows = TL.tl6_stage_line_refusals(b)
++        self.assertEqual(sorted(r["expected_code"] for r in rows), ["SC-1", "SC-2", "SC-3", "SC-4", "SC-5"])
++        self.assertTrue(all(r["ok"] for r in rows), rows)

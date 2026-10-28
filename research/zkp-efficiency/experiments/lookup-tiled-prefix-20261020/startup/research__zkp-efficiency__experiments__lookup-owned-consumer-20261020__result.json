@@ -1,0 +1,38 @@
+{
+  "seed": 20261020106,
+  "status": "PASS",
+  "checks": 3383,
+  "tiny_column_services": 68,
+  "tiny_layer_consumers": 244,
+  "negative_controls": [
+    "borrowed_buffers_refused",
+    "aliased_planes_refused",
+    "zero_denominator_zero_multiplicity_refused",
+    "altered_round_rejected",
+    "altered_terminal_rejected",
+    "wrong_equality_order_detected",
+    "zero_equality_factor_no_inverse",
+    "wrong_site_swap_survives_root",
+    "ordered_source_digest_detects_swap",
+    "fresh_challenge_changes_inverse",
+    "histogram_duplication_changes_fraction"
+  ],
+  "elapsed_s": 21.745663941983366,
+  "maxrss_KiB": 33928,
+  "scope": "Unmasked tiny F65537 arithmetic plus symbolic Fp2 capacity. No native GKR, masks, CFS, PCS, privacy, full proof or timing gain.",
+  "full_stack": {
+    "proofs": 0,
+    "passes": 0,
+    "positions": 0,
+    "context_length": null,
+    "device": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "startup_s": null,
+    "startup_fraction": null,
+    "steady_rate": null,
+    "total_rate": null
+  }
+}

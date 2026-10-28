@@ -1,0 +1,17 @@
+[zk60-guard 12:01:49] START tio-r12-t4-capture class=cpu need=4G cap=6G enforce=cgroup+watchdog waited=0s run=c51961503aa2
+[zk60-guard 12:06:36] END tio-r12-t4-capture exit=0 child_wall=286s peak_rss=2.12G min_avail=10.91G
+[zk60-guard 12:06:36] START tio-r12-cap-classify-rung-L1-v0 class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=5be495e3241a
+[zk60-guard 12:06:38] END tio-r12-cap-classify-rung-L1-v0 exit=0 child_wall=2s peak_rss=0.20G min_avail=12.37G
+[zk60-guard 12:06:39] START tio-r12-cap-classify-rung-L1-v1 class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=86ac6d327ae0
+[zk60-guard 12:06:41] END tio-r12-cap-classify-rung-L1-v1 exit=0 child_wall=2s peak_rss=0.20G min_avail=12.47G
+[zk60-guard 12:06:41] START tio-r12-cap-classify-rung-L1-vtie class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=5d5e99734849
+[zk60-guard 12:06:43] END tio-r12-cap-classify-rung-L1-vtie exit=0 child_wall=2s peak_rss=0.20G min_avail=12.36G
+[zk60-guard 12:06:44] START tio-r12-cap-classify-rung-L2-v0 class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=0a64549761e6
+[zk60-guard 12:06:48] END tio-r12-cap-classify-rung-L2-v0 exit=0 child_wall=4s peak_rss=0.22G min_avail=12.38G
+[zk60-guard 12:06:48] START tio-r12-cap-classify-rung-L2-v1 class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=13176fbcf90f
+[zk60-guard 12:06:52] END tio-r12-cap-classify-rung-L2-v1 exit=0 child_wall=4s peak_rss=0.22G min_avail=12.27G
+[zk60-guard 12:06:52] START tio-r12-cap-classify-rung-L2-vtie class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=ff7e4540aef4
+[zk60-guard 12:06:57] END tio-r12-cap-classify-rung-L2-vtie exit=0 child_wall=5s peak_rss=0.22G min_avail=12.37G
+[zk60-guard 12:06:57] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 12:07:12] START tio-r12-cap-classify-rung-L2-v1-chunk1o27 class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=15s run=5c2aabf5e5f8
+[zk60-guard 12:07:16] END tio-r12-cap-classify-rung-L2-v1-chunk1o27 exit=0 child_wall=4s peak_rss=0.22G min_avail=12.35G

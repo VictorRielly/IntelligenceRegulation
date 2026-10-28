@@ -424,8 +424,10 @@ fn shape_labels(sh: &Shape, run_parameter_line: Option<&str>) -> Vec<LabelUse> {
     // from the SHAPE so that this function can be called from
     // `Layout::for_shape` without building a second layout.
     let (a_sites, h_sites) = sh.claim_sites();
-    let mut terms: Vec<usize> = (0..super::layout::N_SLOTS)
-        .map(|s| FP2 * (a_sites[s] + h_sites[s] + usize::from(s >= super::layout::SC_IO_IN)))
+    // NATIVE R9: over THIS profile's slots (a DD profile's dictionary slot
+    // included)
+    let mut terms: Vec<usize> = (0..sh.n_slots())
+        .map(|s| FP2 * (a_sites[s] + h_sites[s] + usize::from(s == super::layout::SC_IO_IN || s == super::layout::SC_IO_OUT)))
         .collect();
     terms.sort_unstable();
     terms.dedup();

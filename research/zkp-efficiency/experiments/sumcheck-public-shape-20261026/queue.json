@@ -1,0 +1,14 @@
+{
+  "current": "Sumcheck/GKR repeated public preprocessing and exact interpolation arithmetic",
+  "next": "Lookup/softmax: count and differential-test constructing fresh beta/tag encoded tiny public table rows once at256 then tiling into lifted cube; retainexactordering/mod256 and everyrefusal. Consultprior tablecache/public-support findings first.",
+  "rotation": [
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "lookup/softmax",
+    "memorytraffic",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proofcomposition"
+  ],
+  "parked": "Hashmicrochanges and scalarinterpolationtiming pendingownerexclusive/enclosingmeasurements."
+}

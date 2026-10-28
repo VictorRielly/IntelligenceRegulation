@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "run_id": "20261019T211854Z-fff84a98",
+  "seed": 2026101989,
+  "checks": 10625,
+  "fixtures": 48,
+  "accepted_path_cases": 78,
+  "honest_refusals": 18,
+  "mutation_path_cases": 6720,
+  "negative_controls": {
+    "early_drop_refused": 78,
+    "early_table_drop_refused": 78,
+    "digest_copy_does_not_release": 78,
+    "reload_digest_mismatch": 78
+  },
+  "rope_branches": [
+    "absent",
+    "equal",
+    "opted_in"
+  ],
+  "wall_seconds": 5.145889350998914,
+  "rss_kib": 40404,
+  "affinity": [
+    0
+  ],
+  "threads": 1,
+  "nice": 19,
+  "python": "3.10.12",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "measured_scope": "Synthetic public loader lifetime, integer bytes/SHA256 word records and modeled refusals. SHA256 block surrogate and JSON are NOT native BLAKE3/record wire/proof equivalence.",
+  "limits": "one nice19 CPU,59s wall/CPU,512MiB AS,estimated128MiB; no builds/GPU/proofs"
+}

@@ -1,0 +1,3 @@
+[00:35:52Z] hold #3 phase 1: lane-Y lock taken; waiting for e8_dg_noW to end
+[00:36:32Z] e8_dg_noW ended: lock released (one job at a time on the lock)
+[01:13:02Z] r8_8b.done present: hold #3 over

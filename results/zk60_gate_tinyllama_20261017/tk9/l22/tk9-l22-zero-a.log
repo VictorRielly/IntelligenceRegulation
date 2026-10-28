@@ -1,0 +1,34 @@
+[load          ]      6.4 s   peak RSS     861 MB   ok
+[replay        ]      4.0 s   peak RSS     861 MB   ok
+[hash          ]      2.5 s   peak RSS     861 MB   ok
+[terminals     ]     42.7 s   peak RSS     861 MB   ok
+[commitments   ]     63.8 s   peak RSS    1103 MB   ok
+[boundary      ]    594.9 s   peak RSS    5499 MB   ok
+[preimage      ]      2.4 s   peak RSS    5499 MB   ok
+[export        ]      0.0 s   peak RSS    5499 MB   ok
+[channels      ]      0.0 s   peak RSS    5499 MB   ok
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l22/tk9-l22-zero-a.json   total 716.7 s   peak RSS 5499 MB   ok=True
+status: PASS   unexplained false leaves 0   -> /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l22/tk9-l22-zero-a.status.json
+	Command being timed: "python3 /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v15/scripts/zk60_native_rg_m125.py --bundle /home/victor/zk60-artifacts/tinyllama-trained-tk9-capture-zero-l22 --other /home/victor/zk60-artifacts/tinyllama-trained-tk9-capture-dense-l22 --stages load,replay,hash,terminals,commitments,boundary,preimage,export,channels --export /home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_export_T32 --statement /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r2/stack-pg_rot1-ho00-gpu/run/statement/statement.json --evidence /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l22 --name tk9-l22-zero-a"
+	User time (seconds): 711.63
+	System time (seconds): 6.65
+	Percent of CPU this job got: 100%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 11:57.39
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 5631108
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 23
+	Minor (reclaiming a frame) page faults: 2606812
+	Voluntary context switches: 1258
+	Involuntary context switches: 234978
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

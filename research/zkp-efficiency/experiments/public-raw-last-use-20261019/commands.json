@@ -1,0 +1,62 @@
+[
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-raw-last-use-20261019/experiment.py"
+    ],
+    "started": "2026-10-19T20:22:06.120891+00:00",
+    "exit_code": 0,
+    "source_sha256": "f5a313a11c89b3e1360f20f258c97c617c4eeebbba8081f6939025e06231e896",
+    "stdout": "00-experiment.py.stdout.log",
+    "stderr": "00-experiment.py.stderr.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-raw-last-use-20261019/experiment.py"
+    ],
+    "started": "2026-10-19T20:23:09.077026+00:00",
+    "exit_code": 0,
+    "source_sha256": "6f7b56a5722d8689596dcb26d11bb6c793082e2b522df3a84633591cd6cdb3c4",
+    "stdout": "01-experiment.py.stdout.log",
+    "stderr": "01-experiment.py.stderr.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-raw-last-use-20261019/audit.py"
+    ],
+    "started": "2026-10-19T20:23:32.640366+00:00",
+    "exit_code": 0,
+    "source_sha256": "7be0fd4d981c95809c367cc17ebc30f59ab2c8e884c82dd1a9e4f07905067429",
+    "stdout": "02-audit.py.stdout.log",
+    "stderr": "02-audit.py.stderr.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-raw-last-use-20261019/validate.py"
+    ],
+    "started": "2026-10-19T20:27:39.548942+00:00",
+    "exit_code": 0,
+    "source_sha256": "d7b1dd7454e6b35417b94285986ecc3e97452e8ffe2e38aa0b7d85981bd16482",
+    "stdout": "03-validate.py.stdout.log",
+    "stderr": "03-validate.py.stderr.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-raw-last-use-20261019/validate.py"
+    ],
+    "started": "2026-10-19T20:28:11.560443+00:00",
+    "exit_code": 0,
+    "source_sha256": "d7b1dd7454e6b35417b94285986ecc3e97452e8ffe2e38aa0b7d85981bd16482",
+    "stdout": "04-validate.py.stdout.log",
+    "stderr": "04-validate.py.stderr.log"
+  }
+]

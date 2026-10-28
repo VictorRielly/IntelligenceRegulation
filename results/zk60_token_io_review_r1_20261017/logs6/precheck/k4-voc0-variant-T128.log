@@ -1,0 +1,2 @@
+{"event": "layer0-precheck", "status": "not-covered", "fingerprint": "cd91e5969a870f7cda61e8946edb3ffc7c8331618e28e30802f8dacaf87d5cf0", "note": "the export's RoPE tables are not a byte prefix of the scanned export's (positions beyond the scanned ones); nothing claimed"}
+k4 exit 0

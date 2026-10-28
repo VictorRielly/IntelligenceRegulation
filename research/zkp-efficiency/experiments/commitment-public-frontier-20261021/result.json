@@ -1,0 +1,416 @@
+{
+  "status": "PASS_CPU_PUBLIC_FRONTIER_MODEL_ONLY",
+  "seed": 202610210124,
+  "checks": 1528,
+  "fixtures": [
+    {
+      "rows": 1,
+      "columns": 2,
+      "plans": 3,
+      "depth": 0,
+      "leaf_sha256": "9e5e7cfea248eda21a50c69584100e6cae200f596983855feddecb7f667d5189",
+      "cv_reads_u32": 0,
+      "cv_writes_u32": 0
+    },
+    {
+      "rows": 7,
+      "columns": 2,
+      "plans": 3,
+      "depth": 0,
+      "leaf_sha256": "8ff49e7a8ca1d57a6d17b38485d0c2836a0e472d65d1ebb86be417d8a99a75ac",
+      "cv_reads_u32": 0,
+      "cv_writes_u32": 0
+    },
+    {
+      "rows": 8,
+      "columns": 2,
+      "plans": 3,
+      "depth": 0,
+      "leaf_sha256": "74c4e4c6aa600af4b2ac0b20dada4ca2cbeb0ede45defdfa4ec77e0a1f7d16d3",
+      "cv_reads_u32": 0,
+      "cv_writes_u32": 0
+    },
+    {
+      "rows": 9,
+      "columns": 2,
+      "plans": 3,
+      "depth": 0,
+      "leaf_sha256": "03a3da5eaef0f935fc1662d9107987b2fd4825f529781363f9d68babbb0708eb",
+      "cv_reads_u32": 0,
+      "cv_writes_u32": 0
+    },
+    {
+      "rows": 127,
+      "columns": 2,
+      "plans": 3,
+      "depth": 0,
+      "leaf_sha256": "08d65c59279ade843637b4eb594cc7cb70c577916a79ac7169c88a774bd64a44",
+      "cv_reads_u32": 0,
+      "cv_writes_u32": 0
+    },
+    {
+      "rows": 128,
+      "columns": 2,
+      "plans": 3,
+      "depth": 0,
+      "leaf_sha256": "bb4edec079fef35a51eb6e09ee0815b92ad53bc85b4e548b5bc8d8e3fb591471",
+      "cv_reads_u32": 0,
+      "cv_writes_u32": 0
+    },
+    {
+      "rows": 129,
+      "columns": 2,
+      "plans": 3,
+      "depth": 1,
+      "leaf_sha256": "5b693c33d1e6c30bce040af164a27ab4e2b99ebf59f52d7bffc64924d647ad78",
+      "cv_reads_u32": 16,
+      "cv_writes_u32": 16
+    },
+    {
+      "rows": 255,
+      "columns": 2,
+      "plans": 3,
+      "depth": 1,
+      "leaf_sha256": "11b2e99d5ae5dddc833b978b98608342b8e3d2bada13137284772eb0cce522e0",
+      "cv_reads_u32": 16,
+      "cv_writes_u32": 16
+    },
+    {
+      "rows": 256,
+      "columns": 2,
+      "plans": 3,
+      "depth": 1,
+      "leaf_sha256": "c71bd2ba64b71df38d8476b9d15091949040f768f450eec080f47268614a44dd",
+      "cv_reads_u32": 16,
+      "cv_writes_u32": 16
+    },
+    {
+      "rows": 257,
+      "columns": 2,
+      "plans": 3,
+      "depth": 2,
+      "leaf_sha256": "bceccfd12a706c35d0a3259a84d8f516b36dec15c72300d0abfd23ff85248fe6",
+      "cv_reads_u32": 48,
+      "cv_writes_u32": 48
+    },
+    {
+      "rows": 383,
+      "columns": 2,
+      "plans": 3,
+      "depth": 2,
+      "leaf_sha256": "27fbd659967fe8d00a5db26f2bd18c3a8edfd7112ee90159ab87e1d3e924fdf3",
+      "cv_reads_u32": 48,
+      "cv_writes_u32": 48
+    },
+    {
+      "rows": 384,
+      "columns": 2,
+      "plans": 3,
+      "depth": 2,
+      "leaf_sha256": "858d7b51ed97460f87152abf608e96d94e667057a154fa0782646034f49da3fe",
+      "cv_reads_u32": 48,
+      "cv_writes_u32": 48
+    },
+    {
+      "rows": 385,
+      "columns": 2,
+      "plans": 3,
+      "depth": 2,
+      "leaf_sha256": "8d4d60b7594a05ad7e2291ac79363eb578fe3556a4d3192febe3e78c7d94d5a5",
+      "cv_reads_u32": 64,
+      "cv_writes_u32": 64
+    },
+    {
+      "rows": 511,
+      "columns": 2,
+      "plans": 3,
+      "depth": 2,
+      "leaf_sha256": "389a811497aa56e61517b2040d63d9f3ecb40eac6b1ecfb59f16e8a3412b1b85",
+      "cv_reads_u32": 64,
+      "cv_writes_u32": 64
+    },
+    {
+      "rows": 512,
+      "columns": 2,
+      "plans": 3,
+      "depth": 2,
+      "leaf_sha256": "ff6e1606d927517417e8d10bf6893e14bef3aaccceda94fd0e62c4163ab25338",
+      "cv_reads_u32": 64,
+      "cv_writes_u32": 64
+    },
+    {
+      "rows": 513,
+      "columns": 2,
+      "plans": 3,
+      "depth": 3,
+      "leaf_sha256": "6406ab9a42e01413f082a77a121997a2a246900176caa0abb36e5347ec86f9c6",
+      "cv_reads_u32": 112,
+      "cv_writes_u32": 112
+    },
+    {
+      "rows": 767,
+      "columns": 2,
+      "plans": 3,
+      "depth": 3,
+      "leaf_sha256": "7d5fd8ab176470b8ff6c9c6a89af68a83803cf6dee80b4e504f6d1a197bbc5c2",
+      "cv_reads_u32": 128,
+      "cv_writes_u32": 128
+    },
+    {
+      "rows": 768,
+      "columns": 2,
+      "plans": 3,
+      "depth": 3,
+      "leaf_sha256": "57906ff8a805432c302348c7f6eb6e2104abe23fe3d176f06c6c0e89f8ff5831",
+      "cv_reads_u32": 128,
+      "cv_writes_u32": 128
+    },
+    {
+      "rows": 769,
+      "columns": 2,
+      "plans": 3,
+      "depth": 3,
+      "leaf_sha256": "3d88f620cc918b863745cd4d7007fdfe75f507628f5f07da1539aa4b53ff32c4",
+      "cv_reads_u32": 160,
+      "cv_writes_u32": 160
+    },
+    {
+      "rows": 1023,
+      "columns": 2,
+      "plans": 3,
+      "depth": 3,
+      "leaf_sha256": "c0178256fc301ebcdc49def1a1a6fe9295d6a3204b53077986ac5d32b6f1710c",
+      "cv_reads_u32": 176,
+      "cv_writes_u32": 176
+    },
+    {
+      "rows": 1024,
+      "columns": 2,
+      "plans": 3,
+      "depth": 3,
+      "leaf_sha256": "b492a7b809d924ff94867c3ccdc63684028e60a5ec151fc6ecdecb114e405926",
+      "cv_reads_u32": 176,
+      "cv_writes_u32": 176
+    },
+    {
+      "rows": 1025,
+      "columns": 2,
+      "plans": 3,
+      "depth": 4,
+      "leaf_sha256": "2eab4628ee1b0066340b3075dfde1af234600ad4a4ad5b9018c01394a8d9c9b2",
+      "cv_reads_u32": 240,
+      "cv_writes_u32": 240
+    },
+    {
+      "rows": 3283,
+      "columns": 1,
+      "plans": 3,
+      "depth": 5,
+      "leaf_sha256": "5cf9f1c6c617e8021da1c8653d8a7340d218836ef401b75ff944c50c98693d13",
+      "cv_reads_u32": 376,
+      "cv_writes_u32": 376
+    },
+    {
+      "rows": 3405,
+      "columns": 1,
+      "plans": 3,
+      "depth": 5,
+      "leaf_sha256": "9244245128b9c0a6408ee41b9988544d6f3c085b952825dc0d699814ae853c56",
+      "cv_reads_u32": 392,
+      "cv_writes_u32": 392
+    },
+    {
+      "rows": 3634,
+      "columns": 1,
+      "plans": 3,
+      "depth": 5,
+      "leaf_sha256": "e2efa7de91cba20a84f52d5f8cfb6de8d29591a616d2772c68606bbd1c9ec517",
+      "cv_reads_u32": 424,
+      "cv_writes_u32": 424
+    },
+    {
+      "rows": 3790,
+      "columns": 1,
+      "plans": 3,
+      "depth": 5,
+      "leaf_sha256": "3868ff0bc4a9ad1eafa0bda0230ab65cda1007dd6f42d3acbe5e1c99212301fc",
+      "cv_reads_u32": 432,
+      "cv_writes_u32": 432
+    },
+    {
+      "rows": 7303,
+      "columns": 1,
+      "plans": 3,
+      "depth": 6,
+      "leaf_sha256": "04386b07fa36809f6b8ce40206fc3e7732895772016182f8cf6d1168eb316a7b",
+      "cv_reads_u32": 880,
+      "cv_writes_u32": 880
+    },
+    {
+      "rows": 8724,
+      "columns": 1,
+      "plans": 3,
+      "depth": 7,
+      "leaf_sha256": "5cecdc181861a726ebb82713356133beb636831db19281e35312d7ccdda0f0f8",
+      "cv_reads_u32": 1072,
+      "cv_writes_u32": 1072
+    },
+    {
+      "rows": 9185,
+      "columns": 1,
+      "plans": 3,
+      "depth": 7,
+      "leaf_sha256": "47d72d1bf5f3f7371e2423e346c5f857cc9c9e31ea06b706e266831e2d3a6782",
+      "cv_reads_u32": 1104,
+      "cv_writes_u32": 1104
+    },
+    {
+      "rows": 11056,
+      "columns": 1,
+      "plans": 3,
+      "depth": 7,
+      "leaf_sha256": "6126b041f58f7fedcaed8bf4c002a802b34e19ecd2761d34130794c2b97f6b43",
+      "cv_reads_u32": 1344,
+      "cv_writes_u32": 1344
+    }
+  ],
+  "keyed_fixtures": [
+    {
+      "rows": 1,
+      "columns": 2,
+      "leaf_sha256": "6227b740894ab521f1f663bccfcf40977302deafc634b142bc8d6c77dd5330c4"
+    },
+    {
+      "rows": 8,
+      "columns": 2,
+      "leaf_sha256": "fb88e9ef03e0d8ea01d3e3d73ad8fd6179224663cf93131846d63f68b254582c"
+    },
+    {
+      "rows": 9,
+      "columns": 2,
+      "leaf_sha256": "4771ce2a353c1a04b1ad7a838c2dd15edf3465b39f38bf613d1c7a055ea353cb"
+    },
+    {
+      "rows": 127,
+      "columns": 2,
+      "leaf_sha256": "2e8096b95ecc62ccbfdc797727ac92e3a27f91f82c888db40db8c8fd4974bcc0"
+    },
+    {
+      "rows": 128,
+      "columns": 2,
+      "leaf_sha256": "709481352544b11c8cbe44e0b0a539bf0bf4c281cbc90e5af181fd0784aeb70b"
+    },
+    {
+      "rows": 129,
+      "columns": 2,
+      "leaf_sha256": "f241a0b6c5a6202fe63d655569e8b37222dbb77c9180158f90febb5be872de72"
+    },
+    {
+      "rows": 255,
+      "columns": 2,
+      "leaf_sha256": "156a8c1a3dd9fa8a83cda817a000c881da9fca37dc3881f685d55d18a4d57f27"
+    },
+    {
+      "rows": 256,
+      "columns": 2,
+      "leaf_sha256": "3ec3b5e2968122d257b914689d99afa64f6fd8db64ab89c2d798b4c381ef0ba6"
+    },
+    {
+      "rows": 257,
+      "columns": 2,
+      "leaf_sha256": "12c10cfd0be1591594b7201be56862f1ea1d2d67979276f30b8afea52a2f7ba7"
+    },
+    {
+      "rows": 383,
+      "columns": 2,
+      "leaf_sha256": "d985a96ba21c7845bc28ec151fea2e237d6951fdd81c09a085eac356d475680b"
+    },
+    {
+      "rows": 384,
+      "columns": 2,
+      "leaf_sha256": "1612edefc6d8a2e160c09ac0d7b116e7cd15ae3789d19d7bc65cb22bd8791863"
+    },
+    {
+      "rows": 385,
+      "columns": 2,
+      "leaf_sha256": "4700e6f5ea41adaa31490ad7c58dea2c2883302c87139a3a7ec1b36cae2b0a15"
+    },
+    {
+      "rows": 511,
+      "columns": 2,
+      "leaf_sha256": "ef8e27de44801dc3b0474e0370a0254f8c1418ad9d7757add837f9e0fed97af7"
+    },
+    {
+      "rows": 512,
+      "columns": 2,
+      "leaf_sha256": "c89f4965ca9711ea0b506ca4df5d14555a29f1bb0cd609106b7d41b966e58570"
+    },
+    {
+      "rows": 513,
+      "columns": 2,
+      "leaf_sha256": "773e02236499414c22d717eeb25d549ea5d267f6e9a3554d6114cc201184a49a"
+    },
+    {
+      "rows": 769,
+      "columns": 2,
+      "leaf_sha256": "1c8e3bc87e01a1d399f7da2d41ea826893b102b9dfd4d27abf862b62c5efbf33"
+    },
+    {
+      "rows": 1025,
+      "columns": 2,
+      "leaf_sha256": "9544520c5acb47b29b259045ef96f4b491c4e74c0eead8c7e226a5d963e831b5"
+    },
+    {
+      "rows": 3283,
+      "columns": 1,
+      "leaf_sha256": "e0d6a52fe43c48fe4fd58da04f17bb98054226cbf64a33e6ce569e9a122f3302"
+    },
+    {
+      "rows": 11056,
+      "columns": 1,
+      "leaf_sha256": "18eedd0ccf42f4e520e08d395275110803432fc3179f41f63e50794e1ca57db9"
+    }
+  ],
+  "restart_cases": 109,
+  "control_types": 26,
+  "controls": [
+    "eager_count",
+    "off_by_one",
+    "endian",
+    "no_root",
+    "local_counter",
+    "skip_first",
+    "gap",
+    "duplicate",
+    "reorder",
+    "partial_nonfinal",
+    "short",
+    "overrun",
+    "zero_launch",
+    "short_depth",
+    "short_input",
+    "zero_rows_outside_model",
+    "overflow_outside_model",
+    "negative_chunk",
+    "stale_cv_direct",
+    "shape_growth",
+    "drop_parent_key_flag",
+    "wrong_keyed_flag",
+    "missing_key",
+    "wrong_key",
+    "key_word_endian",
+    "short_key"
+  ],
+  "wall_seconds": 8.16892603400629,
+  "rss_kib": 23628,
+  "threads": 1,
+  "native_cuda_executed": false,
+  "native_proof_executed": false,
+  "new_verified_full_stack_proofs": 0,
+  "new_verified_positions": 0,
+  "limits": [
+    "Research-authored model; installed independent blake3 reference",
+    "No native failure/completion,compiler,pool,receipt or privacy gates",
+    "Plan validation is a model precondition, not a new native refusal"
+  ]
+}

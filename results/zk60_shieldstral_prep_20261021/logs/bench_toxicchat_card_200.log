@@ -1,0 +1,6 @@
+toxicchat/card: 200 selected, 0 done, 200 to do
+prefix 87 tokens K/V in 25.2s
+batch 1/3: 69 items, 4091 tail tokens, 206.5s (19.8 tok/s); total done 69
+batch 2/3: 87 items, 4006 tail tokens, 156.5s (25.6 tok/s); total done 156
+batch 3/3: 44 items, 2741 tail tokens, 120.1s (22.8 tok/s); total done 200
+all 200 items done in 8.8 min

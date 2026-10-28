@@ -1,0 +1,1 @@
+Superseded source-lifetime ledger: main PASS layout results; independent audit exit1 caught the support-index reservation accumulating across the one-/16-worker accounting rows. Fixed by adding the reservation before the loop. No native proof or time prediction. audit-result.json here is the prior PASS and is stale relative to this failed rerun; stderr/commands preserve exit1.

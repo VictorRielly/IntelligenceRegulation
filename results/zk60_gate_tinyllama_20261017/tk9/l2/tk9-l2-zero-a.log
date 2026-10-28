@@ -1,0 +1,11 @@
+[load          ]      0.7 s   peak RSS     128 MB   ok
+[replay        ]      0.4 s   peak RSS     128 MB   ok
+[hash          ]      0.3 s   peak RSS     128 MB   ok
+[terminals     ]      4.9 s   peak RSS     168 MB   ok
+[commitments   ]     22.9 s   peak RSS     168 MB   ok
+[boundary      ]      4.3 s   peak RSS     185 MB   ok
+[preimage      ]      0.2 s   peak RSS     185 MB   ok
+[export        ]      0.0 s   peak RSS     185 MB   ok
+[channels      ]      0.0 s   peak RSS     185 MB   ok
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l2/tk9-l2-zero-a.json   total 33.7 s   peak RSS 185 MB   ok=True
+status: PASS   unexplained false leaves 0   -> /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/l2/tk9-l2-zero-a.status.json

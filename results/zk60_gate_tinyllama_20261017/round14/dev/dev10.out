@@ -1,0 +1,9 @@
+[zk60-guard 17:15:59] START gate-dev10-tl-l2 class=light need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=60b759a432ed
+[zk60-guard 17:20:50] END gate-dev10-tl-l2 exit=0 child_wall=292s peak_rss=0.45G min_avail=9.59G
+[zk60-guard 17:20:50] START gate-dev10-ddnl-l2 class=light need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=7416674dfa56
+[zk60-guard 17:21:16] END gate-dev10-ddnl-l2 exit=0 child_wall=25s peak_rss=0.41G min_avail=10.11G
+[zk60-guard 17:21:16] START gate-dev10-ddcontrols-l2 class=light need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=f506939576a9
+[zk60-guard 17:23:52] END gate-dev10-ddcontrols-l2 exit=0 child_wall=156s peak_rss=0.63G min_avail=8.74G
+[zk60-guard 17:23:52] START gate-dev10-ddts-l2 class=light need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=fd581810e52a
+[zk60-guard 18:23:52] KILL gate-dev10-ddts-l2: exceeded --max-secs 3600
+[zk60-guard 18:23:52] END gate-dev10-ddts-l2 exit=75 child_wall=3600s peak_rss=1.07G min_avail=7.48G

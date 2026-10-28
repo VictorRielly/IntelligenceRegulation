@@ -1,0 +1,26 @@
+{
+  "native_live_queries": 8,
+  "queries": [
+    "site:docs.nvidia.com cuMemFreeHost synchronization cuEventQuery CUDA_ERROR_NOT_READY",
+    "site:eprint.iacr.org 2026 GPU sumcheck lookup October",
+    "site:github.com ingonyama-zk icicle releases sumcheck",
+    "site:docs.nvidia.com/cuda/cuda-driver-api \"cuMemFreeHost\" \"asynchronous\"",
+    "site:docs.nvidia.com/cuda/cuda-driver-api \"cuEventQuery\" \"most recent call\"",
+    "site:eprint.iacr.org/2026 \"sumcheck\" \"October\" GPU",
+    "site:eprint.iacr.org 2026 lookup sumcheck \"October\" \"2026\"",
+    "site:github.com \"sumcheck\" \"2026\" \"release\" GPU memory"
+  ],
+  "source_records": 7,
+  "rotation_this_cycle": [
+    "memory traffic and failure-safe amortization",
+    "GPU sumcheck/GKR releases",
+    "lookup search without a new implementation candidate"
+  ],
+  "next_rotation": [
+    "lookup arguments/softmax",
+    "quantization/arithmetic",
+    "proof composition"
+  ],
+  "new_older_assessment": "CUDA8 event lifecycle, documented update2017-06-02",
+  "scope": "primary source metadata/claims only; no downloaded code executed"
+}

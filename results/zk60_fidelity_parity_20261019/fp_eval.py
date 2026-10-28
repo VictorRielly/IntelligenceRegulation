@@ -79,6 +79,7 @@ def int_head_for(ex: fl.Export, runs: Path, ids_cal_fn=None):
         assert np.array_equal(head.mult.astype(np.int64), mult), "multipliers differ from the export's"
         assert np.array_equal(head.Wr, wr), "head words differ from the export's"
         return head, {"source": "export token_io (checked equal to the rule)", "cn": int(fn["cn_calibrated"]), "tn": tn, "ceps": ceps}
+    assert not fl.IS8B, "8B integer head needs the export's token_io (evaluate the export, not a pseudo-export)"
     info = build_final_norm_tinyllama(ex, tn, ceps, s_out, runs)
     seed = int(ex.prof["metadata_out_of_proof"]["rotation"]["seed"])
     head = fl.IntHead(ex.R, s_out, tn, ceps, int(info["cn"]), cache=runs / f"inthead_words_seed{seed}.npz")
@@ -214,8 +215,12 @@ def main():
     ap.add_argument("--words-from", default="", help="tag of an earlier run whose saved words replace the export's")
     ap.add_argument("--save-words", action="store_true")
     ap.add_argument("--mods", default="", help="what-if relation changes, comma list: pround")
-    ap.add_argument("--gate-pc", default="", help="WHAT-IF per-channel-group SiLU: 'EMIN[:sat]' e.g. -5 or -8:sat")
+    ap.add_argument("--mult-bits", default="", help="(c2) WHAT-IF per-output-channel public multipliers, e.g. q:5,k:5,v:7,o:8,g:6,u:4,d:6")
+    ap.add_argument("--gate-pc", default="", help="WHAT-IF per-channel-group SiLU: 'EMIN[:sat][:mcX][:tmY]' e.g. -5:mc8:tm2:ng4 (channel bound min(X chan max, Y tensor max); at most N tables per layer)")
     a = ap.parse_args()
+    if (fl.HERE / "runs" / fl.MODEL / a.tag / "summary.json").exists() and os.environ.get("FP_RERUN") != "1":
+        fl.log(f"ALREADY DONE: runs/{fl.MODEL}/{a.tag}/summary.json exists (set FP_RERUN=1 to recompute)")
+        raise SystemExit(0)
     if (fl.HERE / "logs" / f"HOLD_{a.tag}").exists() or (fl.HERE / "logs" / f"HOLD2_{a.tag}").exists():
         fl.log(f"DEFERRED: per-tag hold logs/HOLD_{a.tag}")
         raise SystemExit(3)
@@ -248,7 +253,9 @@ def main():
             x = x.reshape(*ids.shape, GEO.d)
     else:
         x = ex.R.fwd(fl.emb_rows(ids).reshape(-1, GEO.d)).astype(np.float32).astype(np.float64).reshape(*ids.shape, GEO.d) / ex.s_in[0]
-    need_real = any(s.startswith("w_") for s in relax) or bool(a.gptq)
+    mbits = {k: int(v) for k, v in (t.split(":") for t in a.mult_bits.split(",") if t)}
+    mult_rep = []
+    need_real = any(s.startswith("w_") for s in relax) or bool(a.gptq) or bool(mbits)
     xc, gptq_rep = None, []
     if a.gptq:
         import fp_gptq
@@ -267,6 +274,8 @@ def main():
         gpc_min = int(gtoks[0])
         gpc_sat = "sat" in gtoks[1:]
         gpc_mc = next((float(t[2:]) for t in gtoks[1:] if t.startswith("mc")), 2.0)
+        gpc_m2 = next((float(t[2:]) for t in gtoks[1:] if t.startswith("tm")), 1.25)
+        gpc_ng = next((int(t[2:]) for t in gtoks[1:] if t.startswith("ng")), None)
     gpc_rep = []
     viol_where = []
     rec = tc.Rec(len(ids))
@@ -296,9 +305,15 @@ def main():
             del Mc
         if a.save_words:
             np.savez(out / f"words_L{l:02d}.npz", **{k: Lw["w"][k] for k in ("wq", "wk", "wv", "wo", "wg_t", "wu_t", "wd_t")})
+        if mbits:
+            neww, mult, mrep = fl.apply_multipliers(Lw, Wreal, mbits)
+            Lw = {"w": neww, "c": Lw["c"], "manifest": Lw["manifest"]}
+            mult_rep.append({"layer": l, **mrep})
         M = fl.LayerModel(Lw, T, Wreal, frozenset(m for m in a.mods.split(",") if m))
+        if mbits:
+            M.mult = mult
         if stats is not None:
-            ej, eoj, tabs, sat, grep_ = fl.gate_groups(stats[l], gpc_min, mc=gpc_mc, sat=gpc_sat)
+            ej, eoj, tabs, sat, grep_ = fl.gate_groups(stats[l], gpc_min, mc=gpc_mc, m2=gpc_m2, sat=gpc_sat, ngroups=gpc_ng)
             M.gate_pc = (ej, eoj, tabs, sat)
             gpc_rep.append({"layer": l, **grep_})
         r = fl.RecPos(len(ids))
@@ -355,6 +370,7 @@ def main():
                "gptq": {"calibration": a.gptq, "damp": a.gptq_damp, "per_layer": gptq_rep} if a.gptq else None,
                "words_from": a.words_from or None, "mods": a.mods or None,
                "gate_pc": {"spec": a.gate_pc, "per_layer": gpc_rep} if a.gate_pc else None,
+               "mult_bits": {"spec": a.mult_bits, "per_layer": mult_rep} if a.mult_bits else None,
                "tool_sha256": {p: fl.sha_file(fl.HERE / p) for p in ("fp_lib.py", "fp_data.py", "fp_eval.py", "fp_gptq.py")},
                "scope": "fidelity data, not a proof, not a privacy claim; refusals clamped to continue (diagnostic)"}
     (out / "summary.json").write_text(json.dumps(summary, indent=1, default=lambda o: o.item() if hasattr(o, "item") else str(o)))

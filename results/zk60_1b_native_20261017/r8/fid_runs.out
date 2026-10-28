@@ -1,0 +1,71 @@
+verifier copy /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/verifier-exports/tinyllama_dg_rot1_T128 ['embedding_int16.bin', 'layer_00', 'layer_01', 'layer_02', 'layer_03', 'layer_04']
+[zk60-guard 08:11:44] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 08:12:44] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 08:13:44] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 08:14:44] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 08:15:44] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 08:16:45] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 08:17:45] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 08:18:45] waiting for /tmp/zk-heavy.lock (421s)
+[zk60-guard 08:19:45] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 08:20:45] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 08:21:45] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 08:22:45] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 08:23:45] waiting for /tmp/zk-heavy.lock (721s)
+[zk60-guard 08:24:45] waiting for /tmp/zk-heavy.lock (781s)
+[zk60-guard 08:25:45] waiting for /tmp/zk-heavy.lock (841s)
+[zk60-guard 08:26:45] waiting for /tmp/zk-heavy.lock (901s)
+[zk60-guard 08:27:45] waiting for /tmp/zk-heavy.lock (961s)
+[zk60-guard 08:28:45] waiting for /tmp/zk-heavy.lock (1021s)
+[zk60-guard 08:29:45] waiting for /tmp/zk-heavy.lock (1081s)
+[zk60-guard 08:30:46] waiting for /tmp/zk-heavy.lock (1141s)
+[zk60-guard 08:31:46] waiting for /tmp/zk-heavy.lock (1201s)
+[zk60-guard 08:32:46] waiting for /tmp/zk-heavy.lock (1262s)
+[zk60-guard 08:33:46] waiting for /tmp/zk-heavy.lock (1322s)
+[zk60-guard 08:34:46] waiting for /tmp/zk-heavy.lock (1382s)
+[zk60-guard 08:35:46] waiting for /tmp/zk-heavy.lock (1442s)
+[zk60-guard 08:36:46] waiting for /tmp/zk-heavy.lock (1502s)
+[zk60-guard 08:37:46] waiting for /tmp/zk-heavy.lock (1562s)
+[zk60-guard 08:38:46] waiting for /tmp/zk-heavy.lock (1622s)
+[zk60-guard 08:39:46] waiting for /tmp/zk-heavy.lock (1682s)
+[zk60-guard 08:40:46] waiting for /tmp/zk-heavy.lock (1742s)
+[zk60-guard 08:41:46] waiting for /tmp/zk-heavy.lock (1802s)
+[zk60-guard 08:42:46] waiting for /tmp/zk-heavy.lock (1862s)
+[zk60-guard 08:43:46] waiting for /tmp/zk-heavy.lock (1922s)
+[zk60-guard 08:44:47] waiting for /tmp/zk-heavy.lock (1982s)
+[zk60-guard 08:45:47] waiting for /tmp/zk-heavy.lock (2042s)
+[zk60-guard 08:46:47] waiting for /tmp/zk-heavy.lock (2103s)
+[zk60-guard 08:47:47] waiting for /tmp/zk-heavy.lock (2163s)
+[zk60-guard 08:48:47] waiting for /tmp/zk-heavy.lock (2223s)
+[zk60-guard 08:49:47] waiting for /tmp/zk-heavy.lock (2283s)
+[zk60-guard 08:50:47] waiting for /tmp/zk-heavy.lock (2343s)
+[zk60-guard 08:51:47] waiting for /tmp/zk-heavy.lock (2403s)
+[zk60-guard 08:52:47] waiting for /tmp/zk-heavy.lock (2463s)
+[zk60-guard 08:53:47] waiting for /tmp/zk-heavy.lock (2523s)
+[zk60-guard 08:54:47] waiting for /tmp/zk-heavy.lock (2583s)
+[zk60-guard 08:55:47] waiting for /tmp/zk-heavy.lock (2643s)
+[zk60-guard 08:56:47] waiting for /tmp/zk-heavy.lock (2703s)
+[zk60-guard 08:57:47] waiting for /tmp/zk-heavy.lock (2763s)
+[zk60-guard 08:58:47] waiting for /tmp/zk-heavy.lock (2823s)
+[zk60-guard 08:59:48] waiting for /tmp/zk-heavy.lock (2883s)
+[zk60-guard 08:59:51] START r8-stack-tinyllama_dg_rot1_T128 class=cpu need=5.5G cap=8G enforce=cgroup+watchdog waited=2886s run=f58a14aea12f
+[zk60-guard 09:02:54] END r8-stack-tinyllama_dg_rot1_T128 exit=0 child_wall=183s peak_rss=7.52G min_avail=3.84G
+[zk60-guard 09:02:54] START r8-stack-verify-tinyllama_dg_rot1_T128 class=cpu need=2.5G cap=8G enforce=cgroup+watchdog waited=0s run=c03bb61248df
+[zk60-guard 09:03:48] END r8-stack-verify-tinyllama_dg_rot1_T128 exit=0 child_wall=54s peak_rss=1.14G min_avail=11.33G
+stack-verify tinyllama_dg_rot1_T128 exit 0
+[zk60-guard 09:03:48] START r8-stack-recheck-tinyllama_dg_rot1_T128 class=cpu need=2.5G cap=8G enforce=cgroup+watchdog waited=0s run=23be5a4868ff
+[zk60-guard 09:04:03] END r8-stack-recheck-tinyllama_dg_rot1_T128 exit=0 child_wall=15s peak_rss=0.76G min_avail=11.66G
+stack-recheck tinyllama_dg_rot1_T128 exit 0
+tinyllama dg T128 script exit 0
+shared box [{'label': 'fp-L_vocab0_8b_voc0_T32', 'cls': 'light', 'start': '2026-10-19T15:48:20.657546Z', 'end': '2026-10-19T16:01:19Z', 'overlap_s': 88.49}] boundary ties: ['r8-stack-verify-tinyllama_dg_rot1_T128']
+verifier copy /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/verifier-exports/llama3_8b_pg_rot1_b7voc0_T128 ['LICENSE', 'NOTICE', 'USE_POLICY.md', 'layer_00', 'layer_01', 'layer_02']
+[zk60-guard 09:04:15] START r8-stack-llama3_8b_pg_rot1_b7voc0_T128 class=cpu need=7.5G cap=10.5G enforce=cgroup+watchdog waited=0s run=214e63c1af86
+[zk60-guard 09:12:13] END r8-stack-llama3_8b_pg_rot1_b7voc0_T128 exit=0 child_wall=479s peak_rss=6.69G min_avail=5.90G
+[zk60-guard 09:12:14] START r8-stack-verify-llama3_8b_pg_rot1_b7voc0_T128 class=cpu need=3G cap=8G enforce=cgroup+watchdog waited=0s run=6c3174e4d918
+[zk60-guard 09:15:00] END r8-stack-verify-llama3_8b_pg_rot1_b7voc0_T128 exit=0 child_wall=166s peak_rss=2.26G min_avail=9.28G
+stack-verify llama3_8b_pg_rot1_b7voc0_T128 exit 0
+[zk60-guard 09:15:00] START r8-stack-recheck-llama3_8b_pg_rot1_b7voc0_T128 class=cpu need=3G cap=8G enforce=cgroup+watchdog waited=0s run=5d17555e8f34
+[zk60-guard 09:15:45] END r8-stack-recheck-llama3_8b_pg_rot1_b7voc0_T128 exit=0 child_wall=45s peak_rss=1.88G min_avail=10.71G
+stack-recheck llama3_8b_pg_rot1_b7voc0_T128 exit 0
+8b b7voc0 T128 script exit 0
+quiet box [] boundary ties: []

@@ -1,0 +1,20 @@
+[
+  {
+    "local": "oracle/libkernels.so",
+    "original": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-shared-templates-20261019/libkernels.so",
+    "sha256": "f3a3635ce6a0f4ea2ba968f6f5a8f063afee0c81686034fde807d25e86233052",
+    "prior_manifest_sha256": "f3a3635ce6a0f4ea2ba968f6f5a8f063afee0c81686034fde807d25e86233052"
+  },
+  {
+    "local": "oracle/kernels.rs",
+    "original": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-shared-templates-20261019/kernels.rs",
+    "sha256": "a86b666db18540614e1810e75863b5ff87cdb2ba3cff31c51632fcf497d41ad6",
+    "prior_manifest_sha256": "a86b666db18540614e1810e75863b5ff87cdb2ba3cff31c51632fcf497d41ad6"
+  },
+  {
+    "local": "oracle/native-field.rs",
+    "original": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-shared-templates-20261019/native-field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "prior_manifest_sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+  }
+]

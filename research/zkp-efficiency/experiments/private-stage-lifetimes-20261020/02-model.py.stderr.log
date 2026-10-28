@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/private-stage-lifetimes-20261020/model.py", line 115, in <module>
+    if __name__=='__main__':main()
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/private-stage-lifetimes-20261020/model.py", line 101, in main
+    facts={tree:source_facts(tree) for tree in ['gpu','r8']};dump('source-facts.json',facts)
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/private-stage-lifetimes-20261020/model.py", line 101, in <dictcomp>
+    facts={tree:source_facts(tree) for tree in ['gpu','r8']};dump('source-facts.json',facts)
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/private-stage-lifetimes-20261020/model.py", line 34, in source_facts
+    assert s.count(anchor)==1,(tree,key,s.count(anchor))
+AssertionError: ('r8', 'core', 0)

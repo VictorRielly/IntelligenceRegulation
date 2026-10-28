@@ -1,0 +1,2158 @@
+[
+  [
+    "## Cycle 0001 \u2014 2026-09-22",
+    "| Baseline | [zkLLM's official CUDA implementation](https://github.com/jvhs0706/zkllm-ccs2024) links the CCS 2024 system. | Useful attention/lookup baseline; an older reference, not evidence of a newly achieved performance target. |"
+  ],
+  [
+    "## Cycle 0001 \u2014 2026-09-22",
+    "### Negative findings / limits that change the next action"
+  ],
+  [
+    "## Cycle 0002 \u2014 2026-09-24 \u2014 SC_SZC groups and GPU-memory triage",
+    "points, five detected negative controls, four zero-factor fallback rounds,"
+  ],
+  [
+    "## Cycle 0003 \u2014 2026-09-26 \u2014 hiding-row NTT layout and pad overlap",
+    "### Reproduced result and negative findings"
+  ],
+  [
+    "## Cycle 0003 \u2014 2026-09-26 \u2014 hiding-row NTT layout and pad overlap",
+    "Nine negative controls detect wrong order, inverse map, missing coset,"
+  ],
+  [
+    "## Cycle 0003 \u2014 2026-09-26 \u2014 hiding-row NTT layout and pad overlap",
+    "The data branch alone subtracts pads, dropping the negative contribution in"
+  ],
+  [
+    "## Cycle 0003 \u2014 2026-09-26 \u2014 hiding-row NTT layout and pad overlap",
+    "**Negative disposition:** the existing natural-output CUDA path has no such"
+  ],
+  [
+    "## Cycle 0004 \u2014 2026-09-26 \u2014 exact pair-table inverse cache",
+    "### Experiment and negative findings"
+  ],
+  [
+    "## Cycle 0004 \u2014 2026-09-26 \u2014 exact pair-table inverse cache",
+    "stage/refusal models and 11 negative controls pass**, seed 2026092604."
+  ],
+  [
+    "## Cycle 0004 \u2014 2026-09-26 \u2014 exact pair-table inverse cache",
+    "inversions vs one reference inversion. These negatives rule out a universal"
+  ],
+  [
+    "## Cycle 0004 \u2014 2026-09-26 \u2014 exact pair-table inverse cache",
+    "Controls detect index-only caching, negative/modulo index aliasing, stale"
+  ],
+  [
+    "## Cycle 0004 \u2014 2026-09-26 \u2014 exact pair-table inverse cache",
+    "and a wrong-quarter negative control. Then restore the SC_SZC groups only"
+  ],
+  [
+    "## Cycle 0005 \u2014 2026-09-26 \u2014 fuse fold and next-round sampling",
+    "only its reread and cannot claim that ceiling as a saving. Fold/read/cache"
+  ],
+  [
+    "## Cycle 0005 \u2014 2026-09-26 \u2014 fuse fold and next-round sampling",
+    "| Rank by expected usable end-to-end value | Hypothesis, prerequisites and cost | Exactness / privacy / falsification |"
+  ],
+  [
+    "## Cycle 0005 \u2014 2026-09-26 \u2014 fuse fold and next-round sampling",
+    "| 4, owner follow-up | Prior NTT pad-overlap correction and mapped-layout oracle. | Device parity remains owed; no existing restore-copy saving exists. Retain negative findings. |"
+  ],
+  [
+    "## Cycle 0006 \u2014 2026-09-26 \u2014 public-weight batching has a tiny phase ceiling",
+    "## Cycle 0006 \u2014 2026-09-26 \u2014 public-weight batching has a tiny phase ceiling"
+  ],
+  [
+    "## Cycle 0006 \u2014 2026-09-26 \u2014 public-weight batching has a tiny phase ceiling",
+    "timings demote this candidate: its three enclosing slots account for less"
+  ],
+  [
+    "## Cycle 0006 \u2014 2026-09-26 \u2014 public-weight batching has a tiny phase ceiling",
+    "| 4, tested and demoted | B public int8 weight contractions with independently supplied challenges. | Arithmetic exact; small kernel but substantial proof rendezvous/lifetime work. Current complete-slot ceiling <0.1% and whole-process RSS make scheduling work unattractive. Revisit only if larger-model phase attribution reverses this. |"
+  ],
+  [
+    "## Cycle 0006 \u2014 2026-09-26 \u2014 public-weight batching has a tiny phase ceiling",
+    "### Experiment and decisive negatives"
+  ],
+  [
+    "## Cycle 0006 \u2014 2026-09-26 \u2014 public-weight batching has a tiny phase ceiling",
+    "tiled independent baseline. Arithmetic remains unchanged; local accumulator"
+  ],
+  [
+    "## Cycle 0006 \u2014 2026-09-26 \u2014 public-weight batching has a tiny phase ceiling",
+    "GPU inference from CPU proving and labels larger separate-proof baselines as"
+  ],
+  [
+    "## Cycle 0007 \u2014 2026-09-26 \u2014 exact Fp2 multiplication and squaring",
+    "### Bottleneck, ranking and falsification"
+  ],
+  [
+    "## Cycle 0007 \u2014 2026-09-26 \u2014 exact Fp2 multiplication and squaring",
+    "| Deferred | Public-weight batching remains below 0.1% of known readiness; pair-inverse caching remains a tiny-phase optimization. | Previous positive arithmetic and negative cost evidence preserved. Do not reopen scheduling/preprocessing work without larger-shape measurements. |"
+  ],
+  [
+    "## Cycle 0007 \u2014 2026-09-26 \u2014 exact Fp2 multiplication and squaring",
+    "a global Fp2 ceiling. The base-field commitment encoder is not sped up merely"
+  ],
+  [
+    "## Cycle 0007 \u2014 2026-09-26 \u2014 exact Fp2 multiplication and squaring",
+    "by changing Fp2. Falsify this candidate with native release independent-array"
+  ],
+  [
+    "## Cycle 0007 \u2014 2026-09-26 \u2014 exact Fp2 multiplication and squaring",
+    "demote it if added instructions or dependencies erase the useful saving."
+  ],
+  [
+    "## Cycle 0007 \u2014 2026-09-26 \u2014 exact Fp2 multiplication and squaring",
+    "### Reproduced experiment and negative controls"
+  ],
+  [
+    "## Cycle 0008 \u2014 2026-09-26 \u2014 fractional LogUp tree and private binding",
+    "ceiling, never this candidate's saving. U8 helper preparation is 1.046/1.134 s,"
+  ],
+  [
+    "## Cycle 0008 \u2014 2026-09-26 \u2014 fractional LogUp tree and private binding",
+    "| Deferred | Public-weight batching, pair-inverse caching and binary-specific GKR. | Preserve prior negative ceilings; binary preprocessing is not valid for challenge-valued Fp2 helpers. Revisit only with changed bottleneck/provenance evidence. |"
+  ],
+  [
+    "## Cycle 0008 \u2014 2026-09-26 \u2014 fractional LogUp tree and private binding",
+    "### Experiment and falsification"
+  ],
+  [
+    "## Cycle 0008 \u2014 2026-09-26 \u2014 fractional LogUp tree and private binding",
+    "15 negative controls**, seed 2026092608, one CPU and under one second with"
+  ],
+  [
+    "## Cycle 0008 \u2014 2026-09-26 \u2014 fractional LogUp tree and private binding",
+    "The meaningful negatives are:"
+  ],
+  [
+    "## Cycle 0008 \u2014 2026-09-26 \u2014 fractional LogUp tree and private binding",
+    "falsify promotion. Remaining rotation: GPU NTT/commitments -> lookup/softmax"
+  ],
+  [
+    "## Cycle 0009 \u2014 2026-09-27 \u2014 grouped fold / next-round fusion",
+    "| Rank | Hypothesis and expected complete-proof relevance | Prerequisites, integration cost and falsification |"
+  ],
+  [
+    "## Cycle 0009 \u2014 2026-09-27 \u2014 grouped fold / next-round fusion",
+    "| 4, architectural queue | Masked fractional-GKR with streamed lifetimes could reduce H helper commitment costs. | High construction/PCS/composition cost. Preserve prior root-disclosure and tree-residency negatives; no net saving without new masks and original leaf links. |"
+  ],
+  [
+    "## Cycle 0009 \u2014 2026-09-27 \u2014 grouped fold / next-round fusion",
+    "Public-weight batching's <0.1% readiness ceiling and tiny-phase pair caching"
+  ],
+  [
+    "## Cycle 0009 \u2014 2026-09-27 \u2014 grouped fold / next-round fusion",
+    "remain demoted. Neither fusion nor Fp2 work affects base-field commitment"
+  ],
+  [
+    "## Cycle 0009 \u2014 2026-09-27 \u2014 grouped fold / next-round fusion",
+    "### Reproduced experiment and meaningful negative"
+  ],
+  [
+    "## Cycle 0009 \u2014 2026-09-27 \u2014 grouped fold / next-round fusion",
+    "255-bit synthesized/simulated accelerator work plus a Xeon software baseline,"
+  ],
+  [
+    "## Cycle 0009 \u2014 2026-09-27 \u2014 grouped fold / next-round fusion",
+    "negative control. Remaining rotation: lookup/softmax -> memory traffic ->"
+  ],
+  [
+    "## Cycle 0010 \u2014 2026-09-27 \u2014 NTT pad-load fusion loses locality",
+    "counts more sector requests, so direct load fusion is demoted.** Read durable"
+  ],
+  [
+    "## Cycle 0010 \u2014 2026-09-27 \u2014 NTT pad-load fusion loses locality",
+    "| Rank | Hypothesis and end-to-end relevance | Prerequisites, integration cost, exactness and falsification |"
+  ],
+  [
+    "## Cycle 0010 \u2014 2026-09-27 \u2014 NTT pad-load fusion loses locality",
+    "| 4, tested and demoted | Synthesize pad/coset values at k_ntt_p1's bit-reversed load. Removes compact coef2 materialization and one launch. | Exact scalar tests pass, but source-address sector requests rise at relevant large rows. Cache/SASS/occupancy and whole-encode timing required before native promotion. No whole-proof privacy or byte gate performed. |"
+  ],
+  [
+    "## Cycle 0010 \u2014 2026-09-27 \u2014 NTT pad-load fusion loses locality",
+    "disclosure/tree-residency negatives. Public-weight batching's <0.1% ceiling"
+  ],
+  [
+    "## Cycle 0010 \u2014 2026-09-27 \u2014 NTT pad-load fusion loses locality",
+    "and tiny-phase pair caching remain demoted; none is rediscovered as new work."
+  ],
+  [
+    "## Cycle 0010 \u2014 2026-09-27 \u2014 NTT pad-load fusion loses locality",
+    "This falsifies a claim of uniformly improved coalescing, not a measured runtime"
+  ],
+  [
+    "## Cycle 0010 \u2014 2026-09-27 \u2014 NTT pad-load fusion loses locality",
+    "The previous **q>n pad-overlap bug remains a negative control**. Successful"
+  ],
+  [
+    "## Cycle 0011 \u2014 2026-09-27 \u2014 Direct U8 helper planes: exact, small ceiling",
+    "## Cycle 0011 \u2014 2026-09-27 \u2014 Direct U8 helper planes: exact, small ceiling"
+  ],
+  [
+    "## Cycle 0011 \u2014 2026-09-27 \u2014 Direct U8 helper planes: exact, small ceiling",
+    "The fusion sketch is demoted. The keyed GPU commitment attempt 2 passes"
+  ],
+  [
+    "## Cycle 0011 \u2014 2026-09-27 \u2014 Direct U8 helper planes: exact, small ceiling",
+    "### Tested hypothesis and falsification"
+  ],
+  [
+    "## Cycle 0011 \u2014 2026-09-27 \u2014 Direct U8 helper planes: exact, small ceiling",
+    "two Fp planes. Baseline: **52,183,040** helper outputs in the 125M model;"
+  ],
+  [
+    "## Cycle 0011 \u2014 2026-09-27 \u2014 Direct U8 helper planes: exact, small ceiling",
+    "negative controls in **2.097 s**, **16,500 KiB** RSS, Intel Core Ultra 9 185H."
+  ],
+  [
+    "## Cycle 0011 \u2014 2026-09-27 \u2014 Direct U8 helper planes: exact, small ceiling",
+    "and preserves no-partial-write behavior. This partial-buffer negative is"
+  ],
+  [
+    "## Cycle 0011 \u2014 2026-09-27 \u2014 Direct U8 helper planes: exact, small ceiling",
+    "sums; the candidate retains most work. Its falsification gate is native exact"
+  ],
+  [
+    "## Cycle 0011 \u2014 2026-09-27 \u2014 Direct U8 helper planes: exact, small ceiling",
+    "with no lost parallelism or extra memory peak. A no-gain result demotes it."
+  ],
+  [
+    "## Cycle 0011 \u2014 2026-09-27 \u2014 Direct U8 helper planes: exact, small ceiling",
+    "| Rank | Question / expected complete-proof impact | Prerequisites, cost and falsifier |"
+  ],
+  [
+    "## Cycle 0011 \u2014 2026-09-27 \u2014 Direct U8 helper planes: exact, small ceiling",
+    "| 4, tested | Direct U8 H helper writer removes one-helper Vec/copy and 64-MiB largest modeled payload. | Small current end-to-end ceiling, source-level synthetic pass only. Native receipt/refusal/parallel gates and A/B required; may be valuable for host peak but insufficient alone for >=50 tokens/s. |"
+  ],
+  [
+    "## Cycle 0011 \u2014 2026-09-27 \u2014 Direct U8 helper planes: exact, small ceiling",
+    "fractional-GKR privacy/memory negatives visible."
+  ],
+  [
+    "## Cycle 0012 \u2014 2026-09-27 \u2014 Inverse-store hiding fusion, then a new GPU bottleneck",
+    "to the CPU polynomial: it drops the negative overlap term; that shape is a"
+  ],
+  [
+    "## Cycle 0012 \u2014 2026-09-27 \u2014 Inverse-store hiding fusion, then a new GPU bottleneck",
+    "Baseline for the tested hypothesis is inverse last store into `coef`,"
+  ],
+  [
+    "## Cycle 0012 \u2014 2026-09-27 \u2014 Inverse-store hiding fusion, then a new GPU bottleneck",
+    "improvement at about 40%; this narrower candidate's GPU/full-stack ceiling"
+  ],
+  [
+    "## Cycle 0012 \u2014 2026-09-27 \u2014 Inverse-store hiding fusion, then a new GPU bottleneck",
+    "falsification gates. It remains a lower-priority handoff, not a 50-token/s"
+  ],
+  [
+    "## Cycle 0012 \u2014 2026-09-27 \u2014 Inverse-store hiding fusion, then a new GPU bottleneck",
+    "lag, decode throughput and full-stack end-to-end ceiling remain unknown."
+  ],
+  [
+    "## Cycle 0012 \u2014 2026-09-27 \u2014 Inverse-store hiding fusion, then a new GPU bottleneck",
+    "   Native phase A/B and whole-proof clock falsify the gain; no numerical 8B"
+  ],
+  [
+    "## Cycle 0012 \u2014 2026-09-27 \u2014 Inverse-store hiding fusion, then a new GPU bottleneck",
+    "   ceiling without phase attribution."
+  ],
+  [
+    "## Cycle 0012 \u2014 2026-09-27 \u2014 Inverse-store hiding fusion, then a new GPU bottleneck",
+    "   above 20 ms per new position or memory overflow falsifies >=50 on that"
+  ],
+  [
+    "## Cycle 0012 \u2014 2026-09-27 \u2014 Inverse-store hiding fusion, then a new GPU bottleneck",
+    "   `hashline/src/gpu/{cuda.rs,kernels.cu}`; q>n repair separate. Demote if"
+  ],
+  [
+    "## Cycle 0012 \u2014 2026-09-27 \u2014 Inverse-store hiding fusion, then a new GPU bottleneck",
+    "   partial-private-write refusal negative and guarded preflight."
+  ],
+  [
+    "## Cycle 0013 \u2014 2026-09-27 \u2014 attention SC_SZC device-round boundary",
+    "3. **Inverse-final-store pad/coset fusion** \u2014 previous exact synthetic and lower counted interface traffic, moderate integration, but q>n correction, receipt/peak/phase A/B absent. Falsify if native q<=n parity or enclosing readiness fails. The previous first-forward-load sector regression and slower native softmax fusion remain negatives; do not repeat them."
+  ],
+  [
+    "## Cycle 0015 \u2014 2026-09-30 \u2014 bounded full-validation tile batches",
+    "All prior negative findings and handoffs are retained."
+  ],
+  [
+    "## Cycle 0015 \u2014 2026-09-30 \u2014 bounded full-validation tile batches",
+    "chunk crossing and ragged tails are included. Eight negative-control"
+  ],
+  [
+    "## Cycle 0015 \u2014 2026-09-30 \u2014 bounded full-validation tile batches",
+    "phase. This negative prevents promoting a hypothetical tiled baseline as a"
+  ],
+  [
+    "## Cycle 0015 \u2014 2026-09-30 \u2014 bounded full-validation tile batches",
+    "Falsify by byte/refusal mismatch, partial return, excess live memory, or no"
+  ],
+  [
+    "## Cycle 0015 \u2014 2026-09-30 \u2014 bounded full-validation tile batches",
+    "zero work. No numerical trained 8B ceiling or >=50-token/s estimate follows."
+  ],
+  [
+    "## Cycle 0015 \u2014 2026-09-30 \u2014 bounded full-validation tile batches",
+    "`results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json` now records"
+  ],
+  [
+    "## Cycle 0015 \u2014 2026-09-30 \u2014 bounded full-validation tile batches",
+    "| Rank | End-to-end question and expected scope | Prerequisites, integration cost, exactness/privacy and falsification |"
+  ],
+  [
+    "## Cycle 0015 \u2014 2026-09-30 \u2014 bounded full-validation tile batches",
+    "| 1, owner | Device actual SC_SZC and then device witness: highest measured recurring CPU proving/witness costs. | Native masked/transcript parity, source-pinned phase/transfer/peak A/B; high Rust/CUDA cost. Fresh masks and accepted relation unchanged. Falsify mismatch, memory overflow or no whole-proof gain. 8B ceiling unknown. |"
+  ],
+  [
+    "## Cycle 0015 \u2014 2026-09-30 \u2014 bounded full-validation tile batches",
+    "| 3 | Fixed-context resident complete-pass amortization, with reusable public model setup. | Measure actual setup, per-pass witness/proof/serialization, verifier, drain and peak. High workload-interface cost; masks/openings fresh per run. More than 20 ms complete-proof drain per new position falsifies 50/s steady regardless of pass count; long-context/decode differ. |"
+  ],
+  [
+    "## Cycle 0015 \u2014 2026-09-30 \u2014 bounded full-validation tile batches",
+    "| 4, tested conditional | Grouped full-validation raw tensor reads for a memory-bounded multi-tile caller. | Exact synthetic byte/refusal gates pass. Low additive Python integration; calibrated Rust consumer absent. Existing `read_bytes` may already remove all repeats. Whole-phase ceiling is import's measured fraction; startup-only benefit tends to zero in steady state. |"
+  ],
+  [
+    "## Cycle 0016 \u2014 2026-10-03 \u2014 bounded lossless suffix witness replay",
+    "[dated report](progress/20261003T220146Z-cf20886e.md). Prior findings/negative results preserved."
+  ],
+  [
+    "## Cycle 0016 \u2014 2026-10-03 \u2014 bounded lossless suffix witness replay",
+    "**Negative designs preserved:** initial synthetic fixture refused a score at"
+  ],
+  [
+    "## Cycle 0016 \u2014 2026-10-03 \u2014 bounded lossless suffix witness replay",
+    "**Ceiling:** saving = measured cached second-pass witness time Wc minus pack P"
+  ],
+  [
+    "## Cycle 0016 \u2014 2026-10-03 \u2014 bounded lossless suffix witness replay",
+    "Falsify native plane/refusal/byte/RNG mismatch, new cache-dependent leakage or"
+  ],
+  [
+    "## Cycle 0016 \u2014 2026-10-03 \u2014 bounded lossless suffix witness replay",
+    "| Rank | Expected end-to-end scope | Prerequisites/cost/obligations and falsification |"
+  ],
+  [
+    "## Cycle 0016 \u2014 2026-10-03 \u2014 bounded lossless suffix witness replay",
+    "| 1, owner | Actual GPU SC_SZC then witness, highest measured recurring costs. | High native CUDA/transcript integration; fresh masks and exact generic slot. Native parity, transfers/peak and whole-proof clocks needed. Do not duplicate owner lane; mismatch/overflow/no enclosing gain falsifies. |"
+  ],
+  [
+    "## Cycle 0016 \u2014 2026-10-03 \u2014 bounded lossless suffix witness replay",
+    "| 2, tested | Same-attempt suffix replay removes cached layers' second witness builds only. | Moderate caller/types work, retained private RAM/copies/checksums. No new refusals/public cache facts; native full-plane and proof-byte/RNG gates. Wc-P-U ceiling unknown; full memory cache demoted for long context. |"
+  ],
+  [
+    "## Cycle 0016 \u2014 2026-10-03 \u2014 bounded lossless suffix witness replay",
+    "| 4 | Resident fixed-context independent complete passes with reusable public setup. | Fresh private masks/openings and complete independent verification; setup/pass/drain/peak clocks. >20ms per newly completed position falsifies50/s steady for schedule. Long prefill/decode separate. |"
+  ],
+  [
+    "## Cycle 0016 \u2014 2026-10-03 \u2014 bounded lossless suffix witness replay",
+    "| 5 | Inverse-store pad/coset NTT fusion and later composition. | Native q<=n parity/phase/peak gates absent; q>n separate. No sharing completed-proof boundary openings under current D12/D11. Retain prior slower softmax and NTT sector regression negatives. |"
+  ],
+  [
+    "## Cycle 0017 \u2014 2026-10-03 \u2014 typed readers and lazy lookup preparation",
+    "changing integer semantics, invalid fallback or unused-table refusals? Baseline"
+  ],
+  [
+    "## Cycle 0017 \u2014 2026-10-03 \u2014 typed readers and lazy lookup preparation",
+    "fixtures,65816 independent helper limbs,20 zero-denominator refusals,99 negative"
+  ],
+  [
+    "## Cycle 0017 \u2014 2026-10-03 \u2014 typed readers and lazy lookup preparation",
+    "1348.277MiB. Unregistered Llama3 T512/1024/2048 baseline4888.766/13489.031/"
+  ],
+  [
+    "## Cycle 0017 \u2014 2026-10-03 \u2014 typed readers and lazy lookup preparation",
+    "could erase gain. Timing ceilingN/(T-M+C), removed measured preparationM,"
+  ],
+  [
+    "## Cycle 0017 \u2014 2026-10-03 \u2014 typed readers and lazy lookup preparation",
+    "**Negatives/obligations:** invalid signed inputs cannot be truncated, clamped,"
+  ],
+  [
+    "## Cycle 0017 \u2014 2026-10-03 \u2014 typed readers and lazy lookup preparation",
+    "Falsify on native exact/refusal/RNG mismatch, leakage/new refusal, pack-peak"
+  ],
+  [
+    "## Cycle 0017 \u2014 2026-10-03 \u2014 typed readers and lazy lookup preparation",
+    "| Rank | Expected end-to-end scope | Prerequisites/cost/exactness/privacy/falsification |"
+  ],
+  [
+    "## Cycle 0017 \u2014 2026-10-03 \u2014 typed readers and lazy lookup preparation",
+    "| 1, owner | Actual GPU SC_SZC then witness, highest measured recurring costs. | High CUDA/transcript work; native byte/RNG/refusal, transfer/peak and enclosing proof gates. No duplicate lane. Mismatch/overflow/no gain falsifies;8B ceiling unknown. |"
+  ],
+  [
+    "## Cycle 0017 \u2014 2026-10-03 \u2014 typed readers and lazy lookup preparation",
+    "| 3, tested | Typed active/cached plane readers avoid i64 expansion; follow public per-plane last reads. | Moderate/high owned Witness/StackSource signatures, output/chain binding, pack overlap and private metadata. No new narrowing refusal. Falsify no native byte/peak benefit or packing>=saved work. |"
+  ],
+  [
+    "## Cycle 0017 \u2014 2026-10-03 \u2014 typed readers and lazy lookup preparation",
+    "| 4, retained | Bounded suffix replay removes cached second witness builds only. | Wc-P-U ceiling unknown;1GiB retains2/0/0of32 atT512/1024/2048. Full long-context caching demoted; native privacy/byte/RNG gates owed. |"
+  ],
+  [
+    "## Cycle 0017 \u2014 2026-10-03 \u2014 typed readers and lazy lookup preparation",
+    "| 5 | Resident fixed-context complete independent passes. | Registered model/setup/pass/drain/peak clocks and fresh masks/openings/independent verification. >20ms/new completed position falsifies50/s steady for schedule; startup separately included for total. |"
+  ],
+  [
+    "## Cycle0019 \u2014 chunk-local opening gather ownership (2026-10-04)",
+    "4. Tested chunk-local opening stage: capacity candidate; moderate GPU plumbing,15 synthetic controls, added transfers and full native gates pending; speed ceiling above."
+  ],
+  [
+    "## Cycle 0020 \u2014 public A-row write coverage (2026-10-04)",
+    "2. Tested A assembly plus NEW conversion refinement: moderate assembly change, logical traffic potential but no capacity gain. Split native zero allocation from conversion/copy first. Next CPU question: can magnitude modulo be removed from signed-i64 conversion because abs(i64)<=2^63<P? Preserve i64MIN/MAX and every negative; compiler may already remove it. Actual end-to-end gain unknown."
+  ],
+  [
+    "## Cycle 0020 \u2014 public A-row write coverage (2026-10-04)",
+    "4. Resident fixed-context fresh complete passes: measure setup, recurring clocks, verification, lag/drain and peaks with a registered trained model. No masking/opening reuse; >20ms/new verified position falsifies50/s steady state for that schedule. Long prefill T\u00b2 and authenticated decode differ."
+  ],
+  [
+    "## Cycle 0020 \u2014 public A-row write coverage (2026-10-04)",
+    "Next: exact signed-i64 conversion oracle and negative controls; owner split allocation/conversion and native full-proof A/B before promoting assembly. Rotate sumcheck/GKR, batching/amortization, quantization/arithmetic, composition, GPU NTT/commitments."
+  ],
+  [
+    "## Cycle 0021 \u2014 exact signed-i64 conversion and a compiled negative (2026-10-04)",
+    "## Cycle 0021 \u2014 exact signed-i64 conversion and a compiled negative (2026-10-04)"
+  ],
+  [
+    "## Cycle 0021 \u2014 exact signed-i64 conversion and a compiled negative (2026-10-04)",
+    "Ranked queue after current measured negative:"
+  ],
+  [
+    "## Cycle 0021 \u2014 exact signed-i64 conversion and a compiled negative (2026-10-04)",
+    "| Rank | Hypothesis and expected end-to-end scope | Prerequisites, costs, exactness/privacy and falsification |"
+  ],
+  [
+    "## Cycle 0021 \u2014 exact signed-i64 conversion and a compiled negative (2026-10-04)",
+    "|5|Resident fixed-context complete fresh passes amortize actual public/model setup.|NTT already once per complete run, not per layer. Measure repeated-pass startup/slope/lag/drain/independent verification/peaks; fresh masks/openings, P3 review. >20ms/new verified position falsifies50/s for measured schedule.|"
+  ],
+  [
+    "## Cycle 0022 \u2014 exact int16 FFN-down and corrected run clock attribution (2026-10-04)",
+    "| Rank | Hypothesis / end-to-end scope | Prerequisites, costs and falsification |"
+  ],
+  [
+    "## Cycle 0022 \u2014 exact int16 FFN-down and corrected run clock attribution (2026-10-04)",
+    "|6|Resident fixed-context fresh complete passes amortize public model setup.|NTT already once/run, not/layer. Measure setup/slope/lag/drain/independent verify/peaks; preserve fresh randomness/P3 review. >20ms/new verified position falsifies50/s for tested schedule.|"
+  ],
+  [
+    "## Cycle 0023 \u2014 exact row-tiled down/requant (2026-10-04)",
+    "| Rank | Expected complete-proof scope | Prerequisites, added costs and falsification |"
+  ],
+  [
+    "## Cycle 0023 \u2014 exact row-tiled down/requant (2026-10-04)",
+    "|5|A write-once and exact conversion.|Compiled conversion has no division; unknown isolated allocation/conversion clocks, no full matrix capacity saving. Falsify already-eliminated stores/enclosing regression.|"
+  ],
+  [
+    "## Cycle 0023 \u2014 exact row-tiled down/requant (2026-10-04)",
+    "|7 new literature filter|Certified lower-MAC integer fast matmul/composition.|High kernel or protocol integration; full -128/int16 domain, exact fixed relation/privacy review. Authors' reported slow kernel and our call/traffic counts demote MAC-count-only arguments; no target inference.|"
+  ],
+  [
+    "## Cycle 0024 \u2014 public integer batch scheduling and a grouped-API negative (2026-10-04)",
+    "## Cycle 0024 \u2014 public integer batch scheduling and a grouped-API negative (2026-10-04)"
+  ],
+  [
+    "## Cycle 0024 \u2014 public integer batch scheduling and a grouped-API negative (2026-10-04)",
+    "|Rank|Expected end-to-end scope|Prerequisites/costs/falsification|"
+  ],
+  [
+    "## Cycle 0024 \u2014 public integer batch scheduling and a grouped-API negative (2026-10-04)",
+    "|6|Composition/commitment/lookup architecture.|High soundness/privacy/PCS integration; no replacement accepted. Revisit with measured full-stack phase ceiling; preserve incompatible/small-parent negatives.|"
+  ],
+  [
+    "## Cycle 0026 \u2014 canonical TN readers and bounded digest transpose (2026-10-04)",
+    "Run `20261004T080146Z-55b15f9d`, checkpoint 2026-10-04T08:18:12.165349+00:00. Required agenda/state/findings/source inventory/latest result and project CLAUDE/START_HERE/MVP/decisions/active coordination/target read; baseline/source prefixes pinned. Research-only writes excluding runtime; no native/GPU/proof/install/Git/external messages or production edits."
+  ],
+  [
+    "## Cycle 0026 \u2014 canonical TN readers and bounded digest transpose (2026-10-04)",
+    "|Rank|Hypothesis and expected enclosing impact|Prerequisites / cost / falsification|"
+  ],
+  [
+    "## Cycle 0029 \u2014 reconstruction tradeoff and symbolic equality storage (2026-10-04)",
+    "| Rank | Hypothesis and enclosing impact | Prerequisites, cost and falsification |"
+  ],
+  [
+    "## Cycle 0029 \u2014 reconstruction tradeoff and symbolic equality storage (2026-10-04)",
+    "| 1 | Owner GPU SC_SZC and recurring witness work; highest measured recurring scope. | High CUDA/representation/masked-boundary integration. Isolate both witness builds, down and SC_SZC clocks; exact native samples/finals/RNG/receipts and independently verified workloads. Existing slower fusion stays demoted; no duplicate owner job. |"
+  ],
+  [
+    "## Cycle 0029 \u2014 reconstruction tradeoff and symbolic equality storage (2026-10-04)",
+    "| 6, tested and demoted | Per-round source reconstruction plus bounded pair windows. | High native source-reader/retention integration; repeated weighted field arithmetic and source reads. Could enable capacity only if no duplicate sources/actual blocking peak is removed. Round/final/refusal/order/binding/mask mismatch or enclosing regression rejects. |"
+  ],
+  [
+    "## Cycle0030 \u2014 tagged equality storage and cubic contraction filter (2026-10-04)",
+    "| Rank | Hypothesis / enclosing impact | Prerequisites, costs, exactness and falsification |"
+  ],
+  [
+    "## Cycle0030 \u2014 tagged equality storage and cubic contraction filter (2026-10-04)",
+    "| 7, demoted | Simple per-round source reconstruction / hash prefix reuse. | Reconstruction adds many scans/multiplies; prefix hash leaves most FFN suffix and constructor scans. Prior negative results stand. Staged/RW architecture remains a separate high-cost privacy/storage/PCS question. |"
+  ],
+  [
+    "## Cycle0032 \u2014 actual SC_SZC clauses and weighting ceiling (2026-10-04)",
+    "## Cycle0032 \u2014 actual SC_SZC clauses and weighting ceiling (2026-10-04)"
+  ],
+  [
+    "## Cycle0032 \u2014 actual SC_SZC clauses and weighting ceiling (2026-10-04)",
+    "| Rank | Hypothesis / end-to-end scope | Prerequisites, added costs and falsification |"
+  ],
+  [
+    "## Cycle0032 \u2014 actual SC_SZC clauses and weighting ceiling (2026-10-04)",
+    "| 6 | Fresh resident-model complete-pass amortization. | Startup/slope, fixed context/pass count, pipeline lag/drain/independent verification and peaks required. Every recurring mask/commitment stays. Independent contexts are aggregate throughput; decode needs growing KV-state binding. Sustained recurring cost >20 ms/newly proved position falsifies >=50/s for that schedule. |"
+  ],
+  [
+    "## Cycle0032 \u2014 actual SC_SZC clauses and weighting ceiling (2026-10-04)",
+    "Baseline keeps data/brackets/folds/commitments; added weighting accumulators/branches/reset scratch. Complete ceilingN/(T-Cweight+Cnew) remains unmeasured; exact arithmetic, full checked relation, masks/RNG/transcript/refusal/extension/receipt/privacy/peak/enclosing gates required."
+  ],
+  [
+    "## Cycle0033 \u2014 compiled lookup denominators and explicit dispatch costs (2026-10-04)",
+    "| Rank | Hypothesis / expected complete-proof impact | Prerequisites, costs, exactness/privacy and falsification |"
+  ],
+  [
+    "## Cycle0033 \u2014 compiled lookup denominators and explicit dispatch costs (2026-10-04)",
+    "|7|Fresh fixed-context resident complete-pass workload.|Measure startup/slope, pass count/context, proof lag/drain, serialization and independent verification/peaks with fresh masks. Complete recurring cost>20ms/newly proved position falsifies50/s for that schedule. PrefillT\u00b2 and growing-context authenticated decode stay separate.|"
+  ],
+  [
+    "## Cycle0033 \u2014 compiled lookup denominators and explicit dispatch costs (2026-10-04)",
+    "|8 architecture|Newly assessed Fold-DCS/SWIRL domain/round composition.|High PIOP/PCS/transcript/mask/privacy/whole-proof soundness migration cost; fewer rounds/helpers alone supplies no speed ceiling. Deferred until costed relation-preserving comparison; no implementation permission inferred.|"
+  ],
+  [
+    "## Cycle0035 \u2014 recovered exact wide-accumulation result (reported 2026-10-12)",
+    "speed result. Wide accumulation demoted pending enclosing cost evidence."
+  ],
+  [
+    "## Cycle0036 \u2014 four-reduction Fp2 arithmetic and CUDA carry model (2026-10-12)",
+    "6,912 direct-MLE finals;368 recoveries,208 zero-factor fallbacks.19 negative"
+  ],
+  [
+    "## Cycle0036 \u2014 four-reduction Fp2 arithmetic and CUDA carry model (2026-10-12)",
+    "Baseline:canonical Goldilocks2,u\u00b2=7,FP2 product has5 reduce128 calls and2"
+  ],
+  [
+    "## Cycle0036 \u2014 four-reduction Fp2 arithmetic and CUDA carry model (2026-10-12)",
+    "Illustrative n23/ls3/padded/release nonzero-recovery,baselineafter cycle0033"
+  ],
+  [
+    "## Cycle0036 \u2014 four-reduction Fp2 arithmetic and CUDA carry model (2026-10-12)",
+    "Complete ceiling N/(T-Caffected+Cnew),ideal upper boundN/(T-Caffected),cannot"
+  ],
+  [
+    "## Cycle0036 \u2014 four-reduction Fp2 arithmetic and CUDA carry model (2026-10-12)",
+    "be numeric without accepted8B total/affected clocks. Falsify any canonical"
+  ],
+  [
+    "## Cycle0036 \u2014 four-reduction Fp2 arithmetic and CUDA carry model (2026-10-12)",
+    "LRU/hash-prefix/reconstruction/padding/privacy negatives all remain intact."
+  ],
+  [
+    "## Cycle0036 \u2014 four-reduction Fp2 arithmetic and CUDA carry model (2026-10-12)",
+    "| Rank | Hypothesis / expected end-to-end scope | Prerequisites, added costs and falsification |"
+  ],
+  [
+    "## Cycle0036 \u2014 four-reduction Fp2 arithmetic and CUDA carry model (2026-10-12)",
+    "|3 NEW refined/tested|Canonical residue+raw-product fusion acrossFP2mul;four reductions without wide persistent sums.|Low/moderate implementation,wide shared-field review. Four-reduction model passes;LLVM constant folding/carries/dependency/register effects and native masks/bytes unknown. No native enclosing gain demotes. Weighted-only0.6% reduction scope is secondary.|"
+  ],
+  [
+    "## Cycle0036 \u2014 four-reduction Fp2 arithmetic and CUDA carry model (2026-10-12)",
+    "|8 demoted|Wide accumulation and row stepping.|Retain carry/scratch/API cost negatives;lower reduction count alone is insufficient.|"
+  ],
+  [
+    "## Cycle 0037 \u2014 public causal-mask descriptor (2026-10-12)",
+    "|Rank|Hypothesis and end-to-end scope|Prerequisites, added costs and falsification|"
+  ],
+  [
+    "## Cycle 0037 \u2014 public causal-mask descriptor (2026-10-12)",
+    "|3 tested|Four-reduction canonical Fp2.|Prior18.79% counted reduction scope is not time. Canonical callers,LLVM constant folding,carry/register/occupancy and native masked/frozen bytes remain open; no enclosing gain demotes.|"
+  ],
+  [
+    "## Cycle 0038 \u2014 compact public support descriptors (2026-10-12)",
+    "|Rank|Hypothesis / end-to-end scope|Prerequisites, added cost and falsification|"
+  ],
+  [
+    "## Cycle 0038 \u2014 compact public support descriptors (2026-10-12)",
+    "|3 tested|Global four-reduction canonical Fp2.|Prior18.79% counted reduction scope is not time. Canonical callers, compiler/carry/register behavior and native masked/frozen bytes open; no enclosing gain demotes.|"
+  ],
+  [
+    "## Cycle 0038 \u2014 compact public support descriptors (2026-10-12)",
+    "|7 architecture, refined filter|Structured PCS/GPU NTT/composition; projective basis demoted pending native affected shares.|Field/layout/query/hiding/state/soundness migration and extra sumchecks. New enclosing-WHIR negative prevents adopting binding-only claims; original-cube final oracle required.|"
+  ],
+  [
+    "## Cycle 0039 \u2014 heterogeneous public/dense driver (2026-10-12)",
+    "retained separately and produced no result. All prior scientific negatives stand."
+  ],
+  [
+    "## Cycle 0039 \u2014 heterogeneous public/dense driver (2026-10-12)",
+    "Baseline: native dense public vectors and folds. At m125's 12 query / 4 KV /"
+  ],
+  [
+    "## Cycle 0039 \u2014 heterogeneous public/dense driver (2026-10-12)",
+    "Complete ceiling: `Nproved/(Ttotal-Cpublic_build_fold+Cnew)`; ideal upper bound"
+  ],
+  [
+    "## Cycle 0039 \u2014 heterogeneous public/dense driver (2026-10-12)",
+    "`Nproved/(Ttotal-Cpublic_build_fold)`. No numeric accepted 8B ceiling without"
+  ],
+  [
+    "## Cycle 0039 \u2014 heterogeneous public/dense driver (2026-10-12)",
+    "native total/affected clocks. Falsify any sample/final/cube/order/degree/support/"
+  ],
+  [
+    "## Cycle 0039 \u2014 heterogeneous public/dense driver (2026-10-12)",
+    "| Rank | Hypothesis / end-to-end scope | Prerequisites, added cost and falsification |"
+  ],
+  [
+    "## Cycle 0039 \u2014 heterogeneous public/dense driver (2026-10-12)",
+    "| 3 tested | Four-reduction canonical Fp2. | Prior 18.79% counted reduction scope is not time. Canonical callers, constant folding, carry/register/occupancy and native masked/receipt gates open. No enclosing gain demotes. |"
+  ],
+  [
+    "## Cycle 0039 \u2014 heterogeneous public/dense driver (2026-10-12)",
+    "| 8 retained | Structured PCS/GPU NTT/composition. | Retain Jagged indexing and projective enclosing-negative filters; author/kernel rates never imply model rate. No transcript/PCS/ruling migration authorized. |"
+  ],
+  [
+    "## Cycle 0040 \u2014 heterogeneous grouped public-table driver (2026-10-12)",
+    "failed. Prior scientific negatives, including slower native fusion, tiny phase"
+  ],
+  [
+    "## Cycle 0040 \u2014 heterogeneous grouped public-table driver (2026-10-12)",
+    "ceilings, compiler/cache/residency tradeoffs and privacy gaps, remain."
+  ],
+  [
+    "## Cycle 0040 \u2014 heterogeneous grouped public-table driver (2026-10-12)",
+    "Baseline is dense public storage WITH current grouped optimization. At n7"
+  ],
+  [
+    "## Cycle 0040 \u2014 heterogeneous grouped public-table driver (2026-10-12)",
+    "Complete ceiling:`Nproved/(Ttotal-Cpublic_build_fold+Cnew)`; ideal upper bound"
+  ],
+  [
+    "## Cycle 0040 \u2014 heterogeneous grouped public-table driver (2026-10-12)",
+    "removes only affected work. No accepted private8B numeric ceiling. Historical"
+  ],
+  [
+    "## Cycle 0040 \u2014 heterogeneous grouped public-table driver (2026-10-12)",
+    "complete-model throughput is derived. Falsify on any sample/subgroup/claim/"
+  ],
+  [
+    "## Cycle 0040 \u2014 heterogeneous grouped public-table driver (2026-10-12)",
+    "| Rank | Hypothesis / scope | Prerequisites, added costs and falsification |"
+  ],
+  [
+    "## Cycle 0040 \u2014 heterogeneous grouped public-table driver (2026-10-12)",
+    "|3 tested prior|Four-reduction canonical Fp2.|Counts not time; canonical provenance,carries/register/compiler/masked gates. No enclosing gain demotes.|"
+  ],
+  [
+    "## Cycle 0040 \u2014 heterogeneous grouped public-table driver (2026-10-12)",
+    "|8 retained|Compiled denominators, structured PCS, GPU NTT/composition.|No new basis/PCS/ruling authorized; preserve prior enclosing negatives. Author/kernel speeds do not imply full-model rate.|"
+  ],
+  [
+    "## Cycle 0041 \u2014 per-proof split equality suffix cache (2026-10-12)",
+    "pins still match; new mle.rs source pin. Prior findings and negatives retained."
+  ],
+  [
+    "## Cycle 0041 \u2014 per-proof split equality suffix cache (2026-10-12)",
+    "Baseline is existing grouped/split equality, with two eq_table_msb rebuilds"
+  ],
+  [
+    "## Cycle 0041 \u2014 per-proof split equality suffix cache (2026-10-12)",
+    "**Demoted as a major throughput lever.** Keep it as a small optional owner port."
+  ],
+  [
+    "## Cycle 0041 \u2014 per-proof split equality suffix cache (2026-10-12)",
+    "Complete ceiling:`Nproved/(Ttotal-Ceq_preparation+Ccache_build_read_free)`;"
+  ],
+  [
+    "## Cycle 0041 \u2014 per-proof split equality suffix cache (2026-10-12)",
+    "numeric accepted private8B ceiling unknown. Native affected-phase clocks are"
+  ],
+  [
+    "## Cycle 0041 \u2014 per-proof split equality suffix cache (2026-10-12)",
+    "Falsify on sample/claim/final/degree/support/order/zero/extension/refusal/mask/"
+  ],
+  [
+    "## Cycle 0041 \u2014 per-proof split equality suffix cache (2026-10-12)",
+    "compiler,cache/residency and privacy negatives remain."
+  ],
+  [
+    "## Cycle 0041 \u2014 per-proof split equality suffix cache (2026-10-12)",
+    "|7 NEW tested/demoted as main lever|Per-proof Eq suffix hierarchy.|Small sublinear construction savings,extra peak and different locality;native costs unknown, any mismatch/no enclosing gain rejects.|"
+  ],
+  [
+    "## Cycle 0042 \u2014 2026-10-12 \u2014 lifted Ht host multiplicity",
+    "Existing grouped baseline retained. At conditional m125 h_pad16/T512/n22/HtL13/"
+  ],
+  [
+    "## Cycle 0042 \u2014 2026-10-12 \u2014 lifted Ht host multiplicity",
+    "Complete ceiling Nproved/(Ttotal-Cht_round+Cnew); native Cht clock absent,"
+  ],
+  [
+    "## Cycle 0042 \u2014 2026-10-12 \u2014 lifted Ht host multiplicity",
+    "no accepted8B numeric ceiling. Historical shared synthetic one-block125M/T512/"
+  ],
+  [
+    "## Cycle 0042 \u2014 2026-10-12 \u2014 lifted Ht host multiplicity",
+    "native fusion and smaller-phase/compiler/residency/privacy negatives remain."
+  ],
+  [
+    "## Cycle 0042 \u2014 2026-10-12 \u2014 lifted Ht host multiplicity",
+    "Falsify on any source/cube/sample/degree/claim/order/final/extension/refusal/"
+  ],
+  [
+    "## Cycle 0042 \u2014 2026-10-12 \u2014 lifted Ht host multiplicity",
+    "| Rank | Hypothesis | Prerequisites, new costs and falsification |"
+  ],
+  [
+    "## Cycle 0043 \u2014 2026-10-13 \u2014 compact private leading planes through grouped softmax",
+    "96 compact/32 baseline schedules:2520 original-cube group samples,7560 sample/"
+  ],
+  [
+    "## Cycle 0043 \u2014 2026-10-13 \u2014 compact private leading planes through grouped softmax",
+    "End-to-end ceiling `Nproved/(Ttotal-Cmxsum_build_fold+Creader_integration)`;"
+  ],
+  [
+    "## Cycle 0043 \u2014 2026-10-13 \u2014 compact private leading planes through grouped softmax",
+    "no accepted private8B numeric ceiling. Historical shared synthetic one-block"
+  ],
+  [
+    "## Cycle 0043 \u2014 2026-10-13 \u2014 compact private leading planes through grouped softmax",
+    "Falsify on source/cube/sample/degree/group-claim/order/final/extension/refusal/"
+  ],
+  [
+    "## Cycle 0043 \u2014 2026-10-13 \u2014 compact private leading planes through grouped softmax",
+    "cache/residency and privacy negatives. No security ruling changed."
+  ],
+  [
+    "## Cycle 0043 \u2014 2026-10-13 \u2014 compact private leading planes through grouped softmax",
+    "|Rank|Hypothesis|Prerequisites, added costs and falsification|"
+  ],
+  [
+    "## Cycle0044 \u2014 2026-10-13 \u2014 symbolic equality in current mixed grouped SC_SZC",
+    "Negative cost obligation: generic three-Eq original-cube reads require"
+  ],
+  [
+    "## Cycle0044 \u2014 2026-10-13 \u2014 symbolic equality in current mixed grouped SC_SZC",
+    "Ceiling `Nproved/(Ttotal-Ceq_build_fold_scan+Csymbolic_and_integration)`;"
+  ],
+  [
+    "## Cycle0044 \u2014 2026-10-13 \u2014 symbolic equality in current mixed grouped SC_SZC",
+    "accepted private8B ceiling unknown, Eq native clocks absent. Historical"
+  ],
+  [
+    "## Cycle0044 \u2014 2026-10-13 \u2014 symbolic equality in current mixed grouped SC_SZC",
+    "Falsify any source/dependency/cube/sample/degree/final/order/extension/generic"
+  ],
+  [
+    "## Cycle0044 \u2014 2026-10-13 \u2014 symbolic equality in current mixed grouped SC_SZC",
+    "8lookup/GKR/composition/PCS. Detailed prerequisites/costs/ceilings/falsification"
+  ],
+  [
+    "## Cycle0044 \u2014 2026-10-13 \u2014 symbolic equality in current mixed grouped SC_SZC",
+    "Prior slower fusion/compiler/reconstruction/small-phase/cache/privacy negatives"
+  ],
+  [
+    "## Cycle0045 \u2014 2026-10-13 \u2014 actual native-root shift twiddles",
+    "source inventory read/scanned; latest3experiment results and retained baseline"
+  ],
+  [
+    "## Cycle0045 \u2014 2026-10-13 \u2014 actual native-root shift twiddles",
+    "exponents,1,280 larger samples per class,40 baseline/roundtrip fixtures,"
+  ],
+  [
+    "## Cycle0045 \u2014 2026-10-13 \u2014 actual native-root shift twiddles",
+    "Legacy q>n negative reconfirms an already repaired owner path, not a new bug."
+  ],
+  [
+    "## Cycle0045 \u2014 2026-10-13 \u2014 actual native-root shift twiddles",
+    "nonidentity5N/2-31 for L>=6. At L20:10,485,760 baseline and3,669,984 eligible"
+  ],
+  [
+    "## Cycle0045 \u2014 2026-10-13 \u2014 actual native-root shift twiddles",
+    "CeilingNproved/(Ttotal-Celigible_general+Cshift_dispatch+Cmetadata);no accepted"
+  ],
+  [
+    "## Cycle0045 \u2014 2026-10-13 \u2014 actual native-root shift twiddles",
+    "private8B numericceiling without actual affected clocks. Reject changed native"
+  ],
+  [
+    "## Cycle0045 \u2014 2026-10-13 \u2014 actual native-root shift twiddles",
+    "README records baseline/eliminated/added/ceiling/prerequisite/exactness/privacy/"
+  ],
+  [
+    "## Cycle0045 \u2014 2026-10-13 \u2014 actual native-root shift twiddles",
+    "falsification for each. Prior negatives remain. Next LOCAL:SC_SZC lookup/table"
+  ],
+  [
+    "## Cycle0046 \u2014 2026-10-13 \u2014 bounded exact-pair fallback and denominator census",
+    "Early STATE saved03:27:23UTC; previous findings and negatives preserved."
+  ],
+  [
+    "## Cycle0046 \u2014 2026-10-13 \u2014 bounded exact-pair fallback and denominator census",
+    "numeric ceiling: Nproved/(Ttotal-Cpair_old+Cplan+Creads+Cfallback+Cscatter)."
+  ],
+  [
+    "## Cycle0046 \u2014 2026-10-13 \u2014 bounded exact-pair fallback and denominator census",
+    "Ranked queue (full costs/prerequisites/exactness/privacy/falsification in README):"
+  ],
+  [
+    "## Cycle0046 \u2014 2026-10-13 \u2014 bounded exact-pair fallback and denominator census",
+    "8REFINED/DEMOTED bounded pair inverse fallback/directH;9MLE lookup/GKR/PCS."
+  ],
+  [
+    "## Cycle0046 \u2014 2026-10-13 \u2014 bounded exact-pair fallback and denominator census",
+    "actual peak failure or enclosing regression falsifies. Large architecture"
+  ],
+  [
+    "## Cycle 0047 \u2014 2026-10-13 \u2014 selective SC_SZC row coefficients",
+    "The baseline is cycle33's proof-definition-local compiled denominators."
+  ],
+  [
+    "## Cycle 0047 \u2014 2026-10-13 \u2014 selective SC_SZC row coefficients",
+    "unpadded profiles stay baseline. Policy and coefficient lengths are public"
+  ],
+  [
+    "## Cycle 0047 \u2014 2026-10-13 \u2014 selective SC_SZC row coefficients",
+    "not an integrated native baseline."
+  ],
+  [
+    "## Cycle 0047 \u2014 2026-10-13 \u2014 selective SC_SZC row coefficients",
+    "points,948 generic denominators (empty/multiple terms,aliases,zero/negative/"
+  ],
+  [
+    "## Cycle 0047 \u2014 2026-10-13 \u2014 selective SC_SZC row coefficients",
+    "runtime/instructions/DRAM/end-to-end ceilings. Both census arms retain native"
+  ],
+  [
+    "## Cycle 0047 \u2014 2026-10-13 \u2014 selective SC_SZC row coefficients",
+    "Useful negatives: initial all-coefficient version passes algebra but increases"
+  ],
+  [
+    "## Cycle 0047 \u2014 2026-10-13 \u2014 selective SC_SZC row coefficients",
+    "ceiling `N/(T-C_repeated_bracket+C_coefficients+C_horner+C_scratch+C_dispatch)`."
+  ],
+  [
+    "## Cycle 0047 \u2014 2026-10-13 \u2014 selective SC_SZC row coefficients",
+    "|6 workload|Fresh resident complete-pass startup/slope; measure context/pass/concurrency, lag/drain/serialization/verification and fresh masks. Recurring cost>20ms/new proved position falsifies50/s for that schedule.|"
+  ],
+  [
+    "## Cycle 0047 \u2014 2026-10-13 \u2014 selective SC_SZC row coefficients",
+    "|7 demoted|Bounded pair fallback remains a memory/robustness candidate with only0.716% prior phase-removal ceiling.|"
+  ],
+  [
+    "## Cycle0048 \u2014 2026-10-13 \u2014 suffix-weighted coefficients before samples",
+    "Earlier findings/negative results remain append-only and snapshotted."
+  ],
+  [
+    "## Cycle0048 \u2014 2026-10-13 \u2014 suffix-weighted coefficients before samples",
+    "**Synthetic candidate passes; no native proving time gain.** Baseline is"
+  ],
+  [
+    "## Cycle0048 \u2014 2026-10-13 \u2014 suffix-weighted coefficients before samples",
+    "Public half>=2/padded selection retains singleton/unpadded baseline."
+  ],
+  [
+    "## Cycle0048 \u2014 2026-10-13 \u2014 suffix-weighted coefficients before samples",
+    "Useful negative: unconditional singleton reduction has equal algebra but adds"
+  ],
+  [
+    "## Cycle0048 \u2014 2026-10-13 \u2014 suffix-weighted coefficients before samples",
+    "later CLI saved state does not imply liveness. Actual complete ceiling:"
+  ],
+  [
+    "## Cycle0048 \u2014 2026-10-13 \u2014 suffix-weighted coefficients before samples",
+    "|Rank|Hypothesis, costs, prerequisites and falsification|"
+  ],
+  [
+    "## Cycle0049 \u2014 recovered public-axis result, reported2026-10-14",
+    "Baseline cycle48 weighted coefficients. Public immutable mask/support axis"
+  ],
+  [
+    "## Cycle0049 \u2014 recovered public-axis result, reported2026-10-14",
+    "Five negative controls reject forced-constant causal mask,swappedHt/S axes,"
+  ],
+  [
+    "## Cycle0050 \u2014 2026-10-14 \u2014 fixed affine Karatsuba and an API-cost negative",
+    "## Cycle0050 \u2014 2026-10-14 \u2014 fixed affine Karatsuba and an API-cost negative"
+  ],
+  [
+    "## Cycle0050 \u2014 2026-10-14 \u2014 fixed affine Karatsuba and an API-cost negative",
+    "Ten current native/measurement pins match cycle49; earlier negative findings"
+  ],
+  [
+    "## Cycle0050 \u2014 2026-10-14 \u2014 fixed affine Karatsuba and an API-cost negative",
+    "Baseline cycle49 public-axis row factory. For public coefficient width2x2,"
+  ],
+  [
+    "## Cycle0050 \u2014 2026-10-14 \u2014 fixed affine Karatsuba and an API-cost negative",
+    "**Useful negative:** illustrative hp16/kv4/qh12/T512/3limb count drops"
+  ],
+  [
+    "## Cycle0050 \u2014 2026-10-14 \u2014 fixed affine Karatsuba and an API-cost negative",
+    "4.9514\u20135.1328%,API increase3.3342\u20133.4859%. Five-productFp2 baseline includes"
+  ],
+  [
+    "## Cycle0050 \u2014 2026-10-14 \u2014 fixed affine Karatsuba and an API-cost negative",
+    "complete ceiling `N/(T_complete-C_products+C_add_sub_dispatch_scratch)` is"
+  ],
+  [
+    "## Cycle0050 \u2014 2026-10-14 \u2014 fixed affine Karatsuba and an API-cost negative",
+    "|Rank|Expected end-to-end impact, cost/compatibility and falsification|"
+  ],
+  [
+    "## Cycle0050 \u2014 2026-10-14 \u2014 fixed affine Karatsuba and an API-cost negative",
+    "composition. Preserve earlier slower native fusion and denominator-count negatives."
+  ],
+  [
+    "## Cycle0051 \u2014 2026-10-17 \u2014 public static plans and blocked3x2 cost tradeoff",
+    "Baseline: cycle50 public-axis/suffix-weighted coefficient factory with fixed"
+  ],
+  [
+    "## Cycle0051 \u2014 2026-10-17 \u2014 public static plans and blocked3x2 cost tradeoff",
+    "**Useful negatives:** illustrative hp16/kv4/qh12/T512/3limb removes30,670,839"
+  ],
+  [
+    "## Cycle0051 \u2014 2026-10-17 \u2014 public static plans and blocked3x2 cost tradeoff",
+    "baseline226,492,362width tests become226,492,362plan cursor reads plus"
+  ],
+  [
+    "## Cycle0051 \u2014 2026-10-17 \u2014 public static plans and blocked3x2 cost tradeoff",
+    "ceiling `N/(T_complete - saved_product_time + added_arithmetic_schedule_time)`"
+  ],
+  [
+    "## Cycle0051 \u2014 2026-10-17 \u2014 public static plans and blocked3x2 cost tradeoff",
+    "The historical entireSC_SZC-removal ceiling28.317% is only an upper bound on"
+  ],
+  [
+    "## Cycle0051 \u2014 2026-10-17 \u2014 public static plans and blocked3x2 cost tradeoff",
+    "|Rank|Expected end-to-end impact, prerequisites/costs and falsifier|"
+  ],
+  [
+    "## Cycle 0052 \u2014 2026-10-17 \u2014 public row CSE: no multiplication saving",
+    "**Useful negative:** no Fp2mul or mul_base saved. At illustrative"
+  ],
+  [
+    "## Cycle 0052 \u2014 2026-10-17 \u2014 public row CSE: no multiplication saving",
+    "LLVM may already CSE. Demote a general whole-row graph implementation;"
+  ],
+  [
+    "## Cycle 0052 \u2014 2026-10-17 \u2014 public row CSE: no multiplication saving",
+    "fusion and extra-operation negatives remain. Falsify on oracle/schema/native"
+  ],
+  [
+    "## Cycle 0052 \u2014 2026-10-17 \u2014 public row CSE: no multiplication saving",
+    "Baseline clocks unchanged: one synthetic125M block,T512,onepass,RTX4070"
+  ],
+  [
+    "## Cycle 0052 \u2014 2026-10-17 \u2014 public row CSE: no multiplication saving",
+    "ceiling or a scale factor for this count saving. Synthetic12block/T512/"
+  ],
+  [
+    "## Cycle 0052 \u2014 2026-10-17 \u2014 public row CSE: no multiplication saving",
+    "Actual accepted8B ceiling `N/(T_complete-saved_add_sub_time+"
+  ],
+  [
+    "## Cycle 0052 \u2014 2026-10-17 \u2014 public row CSE: no multiplication saving",
+    "Ranked queue (expected end-to-end relevance, prerequisites/costs and falsifiers):"
+  ],
+  [
+    "## Cycle 0052 \u2014 2026-10-17 \u2014 public row CSE: no multiplication saving",
+    "|6 demoted tested|Whole-row CSE/directsquare:no multiplication saving,only~0.53\u20130.59%API and one more modeled liveword. General interpreter is unjustified; optional direct helper only if native compiler/enclosing evidence supports it.|"
+  ],
+  [
+    "## Cycle 0053 \u2014 2026-10-17 \u2014 correct optional supports before estimating gains",
+    "Baseline group0 evaluates4 samples on round0 and3 after nonzero-factor h1"
+  ],
+  [
+    "## Cycle 0053 \u2014 2026-10-17 \u2014 correct optional supports before estimating gains",
+    "End-to-end ceiling is unknown:"
+  ],
+  [
+    "## Cycle 0053 \u2014 2026-10-17 \u2014 correct optional supports before estimating gains",
+    "|Rank|Hypothesis, prerequisites and falsifier|"
+  ],
+  [
+    "## Cycle 0053 \u2014 2026-10-17 \u2014 correct optional supports before estimating gains",
+    "|6 demoted|General CSE graph saves no multiplication and only0.53\u20130.59% of old illustrative padded API operations;adds a live word and dispatch,compiler may already CSE. Model-changing sparsity/PoT or new PCS architecture needs exact relation,hiding and composition work.|"
+  ],
+  [
+    "## Cycle 0053 \u2014 2026-10-17 \u2014 correct optional supports before estimating gains",
+    "Baseline remains one synthetic125M block,T512,one pass,RTX4070 Laptop:"
+  ],
+  [
+    "## Cycle 0053 \u2014 2026-10-17 \u2014 correct optional supports before estimating gains",
+    "historical enclosing saving at28.317%;this is not an8B ceiling or a factor"
+  ],
+  [
+    "## Cycle 0053 \u2014 2026-10-17 \u2014 correct optional supports before estimating gains",
+    "fusion regression and all arithmetic/count/memory negatives."
+  ],
+  [
+    "## Cycle0054 \u2014 2026-10-17 \u2014 only round0 repays unpadded cubic construction",
+    "indexed for negative/next evidence. Latest three experiment results read."
+  ],
+  [
+    "## Cycle0054 \u2014 2026-10-17 \u2014 only round0 repays unpadded cubic construction",
+    "construction when native h1 recovery removes a scalar sample? Baseline group0"
+  ],
+  [
+    "## Cycle0054 \u2014 2026-10-17 \u2014 only round0 repays unpadded cubic construction",
+    "other work;the blanket policy is demoted. A public round-zero-only selection"
+  ],
+  [
+    "## Cycle0054 \u2014 2026-10-17 \u2014 only round0 repays unpadded cubic construction",
+    "|Rank|Hypothesis, baseline / eliminated work / added costs / falsifier|"
+  ],
+  [
+    "## Cycle0054 \u2014 2026-10-17 \u2014 only round0 repays unpadded cubic construction",
+    "|1 owner|Move dominant SC_SZC and both recurring witness paths to GPU. Baseline native synthetic measurements below; remove CPU recurrence, add CUDA transfers/device storage/dispatch. Require native exact/masked/final/RNG/PCS/refusal and fresh-verifier gates; reject mismatch,overflow,peak or enclosing-time regression. Full8B ceiling unknown.|"
+  ],
+  [
+    "## Cycle0054 \u2014 2026-10-17 \u2014 only round0 repays unpadded cubic construction",
+    "|4 owner|Exact full-K split-int16 FFN-down witness. Remove slow scalar products; add packing,two products,i64 recombination,exact requant/refusal,transfer and scratch. Require integer/native receipt parity and lower enclosing time; affected fraction/8B ceiling unknown.|"
+  ],
+  [
+    "## Cycle0054 \u2014 2026-10-17 \u2014 only round0 repays unpadded cubic construction",
+    "Historical measured baseline, not re-run: one synthetic125M block,T512,"
+  ],
+  [
+    "## Cycle0054 \u2014 2026-10-17 \u2014 only round0 repays unpadded cubic construction",
+    "imply that fraction of phase time. Complete8B ceiling remains"
+  ],
+  [
+    "## Cycle0054 \u2014 2026-10-17 \u2014 only round0 repays unpadded cubic construction",
+    "Reports do not imply delivery or liveness. Prior findings and negatives retained."
+  ],
+  [
+    "## Cycle 0055 \u2014 2026-10-17 \u2014 fixed unpadded round0 arithmetic and lifetimes",
+    "The complete8B ceiling remains `N/(T_complete - avoided_recurring_scalar_time + added_factory_dispatch_scratch_time)`, with native terms unmeasured. The first round recurs on every proof. Only generated public code can be reusable setup; no per-proof offsets, masks or openings are silently reused."
+  ],
+  [
+    "## Cycle 0055 \u2014 2026-10-17 \u2014 fixed unpadded round0 arithmetic and lifetimes",
+    "|Rank|Hypothesis and expected end-to-end impact|Prerequisites, integration costs, exactness/privacy, falsifier|"
+  ],
+  [
+    "## Cycle 0055 \u2014 2026-10-17 \u2014 fixed unpadded round0 arithmetic and lifetimes",
+    "|1 owner|Dominant GPU SC_SZC and both recurring witness paths; highest measured phase opportunity, complete8B ceiling unknown.|Native profile/privacy/refusal/masked/final/RNG/PCS and fresh-verifier gates. Add device storage, transfers, launch/scratch. Reject mismatch, overflow, peak or enclosing-time regression.|"
+  ],
+  [
+    "## Cycle 0055 \u2014 2026-10-17 \u2014 fixed unpadded round0 arithmetic and lifetimes",
+    "|4 owner|Exact full-K split-int16 FFN-down witness; enclosing affected fraction and8B ceiling unknown.|Add packing, two products, i64 recombination, exact requant/refusal, transfer/scratch. Integer/native receipt parity and lower enclosing elapsed are required.|"
+  ],
+  [
+    "## Cycle 0055 \u2014 2026-10-17 \u2014 fixed unpadded round0 arithmetic and lifetimes",
+    "|Demoted|Broad cubic evaluation after claim recovery adds22 Fp2mul/row (33 on moving-mask axes). Prior native fusion, CSE, twiddle, memory and table-cache negatives retained.|No padded-layout gain imported into unpadded8B. New table/field/PCS architecture needs full relation, hiding and composition review; no migration authorized.|"
+  ],
+  [
+    "## Cycle 0055 \u2014 2026-10-17 \u2014 fixed unpadded round0 arithmetic and lifetimes",
+    "[Experiment](experiments/fixed-round0-factory-20261017/README.md) and [handoff](handoffs/20261017-fixed-round0-factory.md). No production/runtime/Git/build/GPU/install/external action or merge. Reports do not establish delivery or liveness. Historical findings and negatives retained."
+  ],
+  [
+    "## Cycle 0056 \u2014 2026-10-17 \u2014 exact public DAG order reduces logical retention",
+    "|Rank|Hypothesis / end-to-end opportunity|Prerequisites, added costs and falsifier|"
+  ],
+  [
+    "## Cycle 0056 \u2014 2026-10-17 \u2014 exact public DAG order reduces logical retention",
+    "|1 owner|GPU SC_SZC plus both recurring witness paths. Largest measured phase opportunity; complete8B ceiling unknown.|Exact native profile/refusal/masked/RNG/finals/PCS/privacy and fresh-verifier gates. Charge device storage, transfers, launches, scratch and both witnesses; reject mismatch, overflow or enclosing regression.|"
+  ],
+  [
+    "## Cycle 0056 \u2014 2026-10-17 \u2014 exact public DAG order reduces logical retention",
+    "|Demoted|Broad later-round cubic, CSE, prior native fusion, twiddle/memory/table-cache negatives retained.|Do not credit padded savings to full-domain8B or treat table shrink as fewer queries. No reconstruction/spill optimization promoted without native measurement.|"
+  ],
+  [
+    "## Cycle0057 \u2014 2026-10-17 \u2014 native capture mapping without a per-row gather",
+    "|Rank|Hypothesis / expected complete-proof impact|Prerequisites, added costs and falsifier|"
+  ],
+  [
+    "## Cycle0057 \u2014 2026-10-17 \u2014 native capture mapping without a per-row gather",
+    "|1 owner|GPU SC_SZC plus BOTH recurring witness paths; dominant measured opportunity,8B ceiling unknown.|Exact native integer/profile/refusal/masked/RNG/final/PCS/privacy and fresh-verifier gates; charge transfers, scratch, launches and device memory. Reject mismatch or enclosing regression.|"
+  ],
+  [
+    "## Cycle0057 \u2014 2026-10-17 \u2014 native capture mapping without a per-row gather",
+    "|3 owner|Resident complete passes at fixed context may amortize public startup; actual slope unknown.|Fresh masks and accepted opening policy, all clocks, residency/peak memory, proof lag/drain and independent verification. Recurring complete cost>20ms/new proved position falsifies50/s for that schedule. Keep long-context prefill and decode with bound state separate.|"
+  ],
+  [
+    "## Cycle0057 \u2014 2026-10-17 \u2014 native capture mapping without a per-row gather",
+    "|Demoted|Broad later-round cubic, CSE, fusion, twiddle and table-cache negatives retained.|Do not repeat toy scheduling to lower a frontier or treat table shrink as fewer query helpers.|"
+  ],
+  [
+    "## Cycle 0058 \u2014 2026-10-17 \u2014 native public-axis selector prerequisite",
+    "|Rank|Hypothesis and baseline|Removed work / added cost / complete-proof limit|Prerequisites, exactness/privacy and falsification|"
+  ],
+  [
+    "## Cycle 0059 \u2014 2026-10-17 \u2014 trained witness and inclusive-clock audit",
+    "All previous findings/negatives and source bytes retained."
+  ],
+  [
+    "## Cycle 0059 \u2014 2026-10-17 \u2014 trained witness and inclusive-clock audit",
+    "**Baseline/eliminated work/added cost/ceiling:** accounting eliminates zero"
+  ],
+  [
+    "## Cycle 0059 \u2014 2026-10-17 \u2014 trained witness and inclusive-clock audit",
+    "retained sums only, eliminating all prove_run has a1.25504x ideal ceiling;"
+  ],
+  [
+    "## Cycle 0059 \u2014 2026-10-17 \u2014 trained witness and inclusive-clock audit",
+    "projections. Complete8B ceiling and genuine reusable startup remain unknown."
+  ],
+  [
+    "## Cycle 0059 \u2014 2026-10-17 \u2014 trained witness and inclusive-clock audit",
+    "|Rank|Hypothesis and expected end-to-end impact|Prerequisites, added costs, exactness/privacy and falsifier|"
+  ],
+  [
+    "## Cycle 0059 \u2014 2026-10-17 \u2014 trained witness and inclusive-clock audit",
+    "|2 OWNER|GPU native SC_SZC remains leading historical GPU-assisted proof-phase opportunity.|Original masked clauses/finals/hosted claims/transcript/RNG/PCS/fresh-verifier gates,transfers,scratch and occupancy. Old125M diagnostic deleting allSC_SZC only28.317%; not an8B ceiling.|"
+  ],
+  [
+    "## Cycle 0059 \u2014 2026-10-17 \u2014 trained witness and inclusive-clock audit",
+    "Prior fusion,CSE,cubic,twiddle/table-cache negative findings remain demoted and"
+  ],
+  [
+    "## Cycle0060 \u2014 exact witness projection census and new linked-stack accounting (20261017T102624Z-c13de864)",
+    "Original pinned round-2 baseline: seven native dense projection calls use i64 activations and"
+  ],
+  [
+    "## Cycle0060 \u2014 exact witness projection census and new linked-stack accounting (20261017T102624Z-c13de864)",
+    "Complete-workload ceiling is N/(Ttotal-Csix_native+Cnew_native); neither"
+  ],
+  [
+    "## Cycle0060 \u2014 exact witness projection census and new linked-stack accounting (20261017T102624Z-c13de864)",
+    "Csix_native nor Cnew_native is measured, so no numerical8B ceiling exists."
+  ],
+  [
+    "## Cycle0060 \u2014 exact witness projection census and new linked-stack accounting (20261017T102624Z-c13de864)",
+    "|Rank|Hypothesis / expected complete-proof opportunity|Prerequisites, added costs and falsifier|"
+  ],
+  [
+    "## Cycle0060 \u2014 exact witness projection census and new linked-stack accounting (20261017T102624Z-c13de864)",
+    "|5 OWNER, DEMOTED LOCAL|Prior public selector/factory candidates retain their existing scope; no new scheduling toys until native demand.|Actual constructor capture and native literal/fixed/scheduled comparison. No extra arithmetic gain this cycle; compiler may already achieve it. Native parity and enclosing benefit required.|"
+  ],
+  [
+    "## Cycle0060 \u2014 exact witness projection census and new linked-stack accounting (20261017T102624Z-c13de864)",
+    "plane generation/reconstruction; fewer products than its9-product baseline"
+  ],
+  [
+    "## Cycle0060 \u2014 exact witness projection census and new linked-stack accounting (20261017T102624Z-c13de864)",
+    "does not beat a native1-product baseline. No author runtime replicated."
+  ],
+  [
+    "## Cycle0060 \u2014 exact witness projection census and new linked-stack accounting (20261017T102624Z-c13de864)",
+    "and all previous negative results."
+  ],
+  [
+    "## Cycle0060 \u2014 exact witness projection census and new linked-stack accounting (20261017T102624Z-c13de864)",
+    "fusion/cubic/CSE/twiddle/table-cache and privacy negatives remain preserved."
+  ],
+  [
+    "## Cycle0061 \u2014 deferred witness planes after R3 moves the bottleneck (20261017T112624Z-88d6b64e)",
+    "appended,315total. Historical findings/negative prefixes preserved."
+  ],
+  [
+    "## Cycle0061 \u2014 deferred witness planes after R3 moves the bottleneck (20261017T112624Z-88d6b64e)",
+    "Baseline is pinned R3 initial plane construction. Eliminated work is46"
+  ],
+  [
+    "## Cycle0061 \u2014 deferred witness planes after R3 moves the bottleneck (20261017T112624Z-88d6b64e)",
+    "dispatch, unsafe reads, mask reuse or skipped constraint.8B ceiling remains"
+  ],
+  [
+    "## Cycle0061 \u2014 deferred witness planes after R3 moves the bottleneck (20261017T112624Z-88d6b64e)",
+    "N/(T_complete-saved_native_time+added_cost), all times unknown. Falsify any"
+  ],
+  [
+    "## Cycle0061 \u2014 deferred witness planes after R3 moves the bottleneck (20261017T112624Z-88d6b64e)",
+    "5. **Deferred architecture leads:** Oct14 HybridSpartan correction, new older sublinear-space paper and hc-stark SSD orchestration need substantial PCS/composition or adapter work. Charge scratchIO, masks/state binding and verification; no author performance reproduced. Invalid hierarchical TensorCore NTT remains rejected; old fusion/CSE/quantization negatives preserved."
+  ],
+  [
+    "## Cycle 0062 \u2014 2026-10-17 \u2014 borrowed lookup catalog; trained GPU phase correction",
+    "helper values and 11 negative controls pass; five extra generic expressions"
+  ],
+  [
+    "## Cycle 0062 \u2014 2026-10-17 \u2014 borrowed lookup catalog; trained GPU phase correction",
+    "work fixed. Borrowing keeps histogram/H arithmetic, so demote it for speed"
+  ],
+  [
+    "## Cycle 0062 \u2014 2026-10-17 \u2014 borrowed lookup catalog; trained GPU phase correction",
+    "census. Histogram deduplication is demoted because its measured parent is tiny."
+  ],
+  [
+    "## Cycle 0063 \u2014 2026-10-17 \u2014 F constants/support factoring; new 8B clocks",
+    "**negative preserved:**support-only0.990x unpadded despite fewer calls."
+  ],
+  [
+    "## Cycle 0063 \u2014 2026-10-17 \u2014 F constants/support factoring; new 8B clocks",
+    "for capacity, demoted for speed; every prior negative/privacy finding preserved."
+  ],
+  [
+    "## Cycle 0063 \u2014 2026-10-17 \u2014 F constants/support factoring; new 8B clocks",
+    "F-deletion ceiling on earlier1.1B T128 GPU diagnostic1.137x. New8B F subclock"
+  ],
+  [
+    "## Cycle0064 \u2014 current F three-bracket grouped arithmetic, 2026-10-17",
+    "padded. Current ClosureRounds.recover_one(None) baseline is retained and"
+  ],
+  [
+    "## Cycle0064 \u2014 current F three-bracket grouped arithmetic, 2026-10-17",
+    "Small N16 grouped is slower (baseline/grouped0.633/0.731). N256/4096/8192"
+  ],
+  [
+    "## Cycle0064 \u2014 current F three-bracket grouped arithmetic, 2026-10-17",
+    "negative;4NEW local audit of F-device logical-term bandwidth numerator versus"
+  ],
+  [
+    "## Cycle 0065 \u2014 F-device source traffic, 2026-10-17",
+    "representation/lifetime audit. Prior lookup privacy and small-phase negative"
+  ],
+  [
+    "## Cycle 0065 \u2014 F-device source traffic, 2026-10-17",
+    "findings retained. Whole earlier1.1B T128GPU maskedF deletion ceiling1.113184x;"
+  ],
+  [
+    "## Cycle 0066 \u2014 resident helper integer/field boundary, 2026-10-17",
+    "has8.844/161.857226s in allU8H: entire-parent deletion ceiling1.057799\u00d7;"
+  ],
+  [
+    "## Cycle 0066 \u2014 resident helper integer/field boundary, 2026-10-17",
+    "refusal negatives. Added GKR/PCS/masks/composition cost and exact displacement"
+  ],
+  [
+    "## Cycle 0066 \u2014 resident helper integer/field boundary, 2026-10-17",
+    "must precede any proposed H-row saving. All older negatives remain."
+  ],
+  [
+    "## Cycle 0066 \u2014 resident helper integer/field boundary, 2026-10-17",
+    "Owner functional8B T32 cold baseline carried, not rerun:32 linked blocks,"
+  ],
+  [
+    "## Cycle 0067 \u2014 private LogUp* pushforward boundary, 2026-10-17",
+    "New decisive negative: hiding Y's commitment alone does not hide a published"
+  ],
+  [
+    "## Cycle 0067 \u2014 private LogUp* pushforward boundary, 2026-10-17",
+    "ordering not replayed. Prior D/C,zero-zero,padding and integer-wrap negatives"
+  ],
+  [
+    "## Cycle 0067 \u2014 private LogUp* pushforward boundary, 2026-10-17",
+    "fixed-other-work effect at1.128224x. Not a full-architecture/5090 ceiling or"
+  ],
+  [
+    "## Cycle 0068 \u2014 lookup batching domains, 2026-10-17",
+    "New negative: sharing one scalar across seven column tensor coordinates gives"
+  ],
+  [
+    "## Cycle 0068 \u2014 lookup batching domains, 2026-10-17",
+    "negatives stand, including full-i64 wrapping and original ordered A links."
+  ],
+  [
+    "## Cycle 0068 \u2014 lookup batching domains, 2026-10-17",
+    "GPU phase remains 2.8\u00d7 its native baseline despite small device arithmetic time."
+  ],
+  [
+    "## Cycle 0069 \u2014 public padding and native MSB bit placement, 2026-10-17",
+    "NEW negative: zero Boolean products need not be zero off-cube: disjoint factor"
+  ],
+  [
+    "## Cycle 0069 \u2014 public padding and native MSB bit placement, 2026-10-17",
+    "negative findings stand. No mask reuse/privacy weakening authorized."
+  ],
+  [
+    "## Cycle 0069 \u2014 public padding and native MSB bit placement, 2026-10-17",
+    "Whole-architecture end-to-end ceiling remains unknown. Owner complete GPU"
+  ],
+  [
+    "## Cycle 0069 \u2014 public padding and native MSB bit placement, 2026-10-17",
+    "sparse baseline; new older sources are watchlist leads only. CFS arithmetic"
+  ],
+  [
+    "## Cycle 0070 \u2014 factorized distinct-column public equality, 2026-10-17",
+    "this probe's row-first baseline. 84 synthetic fixtures (30 prior), 1,788 round"
+  ],
+  [
+    "## Cycle 0070 \u2014 factorized distinct-column public equality, 2026-10-17",
+    "endpoint-history negatives remain. Probe is not a complete/minimal lookup"
+  ],
+  [
+    "## Cycle 0070 \u2014 factorized distinct-column public equality, 2026-10-17",
+    "a phase-set ceiling, not whole architecture/shared zero-check/GPU/5090."
+  ],
+  [
+    "## Cycle 0070 \u2014 factorized distinct-column public equality, 2026-10-17",
+    "gain. Full new-architecture end-to-end ceiling unknown. Owner workload/device"
+  ],
+  [
+    "## Cycle 0071 \u2014 pending previous fold plus next weighted round, 2026-10-18",
+    "Full ceiling unknown without native Caffected/Cadded. Large census groups"
+  ],
+  [
+    "## Cycle 0071 \u2014 pending previous fold plus next weighted round, 2026-10-18",
+    "negative overturned. Only fixed PUBLIC shape support, never hidden prompt/"
+  ],
+  [
+    "## Cycle 0071 \u2014 pending previous fold plus next weighted round, 2026-10-18",
+    "remains demoted."
+  ],
+  [
+    "## Cycle 0072 \u2014 native order-64 late-root compression, 2026-10-18",
+    "original524,288 despite1,536 root words: cost-demoted, no GPU ratio inferred."
+  ],
+  [
+    "## Cycle 0072 \u2014 native order-64 late-root compression, 2026-10-18",
+    "handoffs/20261018-native-root-compression.md. Ceiling remains"
+  ],
+  [
+    "## Cycle 0072 \u2014 native order-64 late-root compression, 2026-10-18",
+    "negatives and avoid owned implementation duplication. Read owner enclosing"
+  ],
+  [
+    "## Cycle 0072 \u2014 native order-64 late-root compression, 2026-10-18",
+    "scope cannot transfer. CurrentCUDArepo source/cache/release negatives,"
+  ],
+  [
+    "## Cycle 0072 \u2014 native order-64 late-root compression, 2026-10-18",
+    "establish delivery. All previous negativefindings preserved."
+  ],
+  [
+    "## Cycle0073 \u2014 base-aware derived construction, 2026-10-18",
+    "Main PASS120fixtures,4,644baseline+4,644candidate values,6,966fold values,"
+  ],
+  [
+    "## Cycle0073 \u2014 base-aware derived construction, 2026-10-18",
+    "subset. Actual derive time and8B ceiling unknown. Newdefault phases:"
+  ],
+  [
+    "## Cycle0073 \u2014 base-aware derived construction, 2026-10-18",
+    "fixedcontext fresh-pass slopes;3new tested base-awarederive lowceiling;"
+  ],
+  [
+    "## Cycle0073 \u2014 base-aware derived construction, 2026-10-18",
+    "lookupjointmask/offcube/singleton/D-C/wrapping/history andslowerfusionnegatives."
+  ],
+  [
+    "## Cycle0073 \u2014 base-aware derived construction, 2026-10-18",
+    "`gpu/fzc_kernels.cu`. Captured round3 baseline/test hashes remain intact."
+  ],
+  [
+    "## Cycle0073 \u2014 base-aware derived construction, 2026-10-18",
+    "round4 moves arithmetic into round0, so it is not a universal ceiling for"
+  ],
+  [
+    "## Cycle0074 \u2014 D affine aggregate, 2026-10-18",
+    "Baseline seam is owner `private_block/argument.rs::SC_DZC`, slot14;"
+  ],
+  [
+    "## Cycle0074 \u2014 D affine aggregate, 2026-10-18",
+    "seven negative controls. Controls cover coefficient swap, missing constant,"
+  ],
+  [
+    "## Cycle0074 \u2014 D affine aggregate, 2026-10-18",
+    "changes only the clause subset. Actual clause timing and8B ceiling unknown:"
+  ],
+  [
+    "## Cycle0074 \u2014 D affine aggregate, 2026-10-18",
+    "may erase the counted benefit. Falsify on polynomial/final/refusal/byte/RNG/"
+  ],
+  [
+    "## Cycle0074 \u2014 D affine aggregate, 2026-10-18",
+    "| Rank | Hypothesis and expected impact | Cost/prerequisites, exactness/privacy and falsifier |"
+  ],
+  [
+    "## Cycle0074 \u2014 D affine aggregate, 2026-10-18",
+    "|4 TESTED PRIOR|Root compression/F constructor; capacity or small-phase opportunities only|Cached roots still need provenance/dispatch and added shifts; F ownerR4 now inline. Actual affected timing and enclosing gain required; prior genericOT/small-N negatives retained.|"
+  ],
+  [
+    "## Cycle0075 \u2014 actual D catalog and a memory negative, 2026-10-18",
+    "## Cycle0075 \u2014 actual D catalog and a memory negative, 2026-10-18"
+  ],
+  [
+    "## Cycle0075 \u2014 actual D catalog and a memory negative, 2026-10-18",
+    "**Negative for memory.** Both current trained T128 public catalog descriptors"
+  ],
+  [
+    "## Cycle0075 \u2014 actual D catalog and a memory negative, 2026-10-18",
+    "Baseline: retained TinyLlama T128/22blocks/onepass RTX4070Laptop run174.052s"
+  ],
+  [
+    "## Cycle0075 \u2014 actual D catalog and a memory negative, 2026-10-18",
+    "Measured D clause share and8B ceiling unknown. Arithmetic result survives;"
+  ],
+  [
+    "## Cycle0075 \u2014 actual D catalog and a memory negative, 2026-10-18",
+    "   transcript/final and fresh-mask requirements unchanged. Falsify if all"
+  ],
+  [
+    "## Cycle0075 \u2014 actual D catalog and a memory negative, 2026-10-18",
+    "4. Cycle74 affine L: retain useful arithmetic identity; demote memory claim"
+  ],
+  [
+    "## Cycle0075 \u2014 actual D catalog and a memory negative, 2026-10-18",
+    "   after this negative. Measure actual clause share before any device port."
+  ],
+  [
+    "## Cycle0075 \u2014 actual D catalog and a memory negative, 2026-10-18",
+    "   cubic/CSE/fusion/wrapping/offcube/jointmask negatives rather than retrying."
+  ],
+  [
+    "## Cycle0075 \u2014 actual D catalog and a memory negative, 2026-10-18",
+    "The negative local experiment proceeded independently of network failures."
+  ],
+  [
+    "## Cycle0075 \u2014 actual D catalog and a memory negative, 2026-10-18",
+    "Carried baseline remains R5b8B T128/32blocks/onecoldCPU pass/16threads/GPUoff,"
+  ],
+  [
+    "## Cycle0075 \u2014 actual D catalog and a memory negative, 2026-10-18",
+    "All other baseline and owner R4 evidence retained in cycle74/startup STATE."
+  ],
+  [
+    "## Cycle0076 \u2014 D endpoint coefficient schedule, 2026-10-18",
+    "The baseline is the current host-slot schedule: full first round, then"
+  ],
+  [
+    "## Cycle0076 \u2014 D endpoint coefficient schedule, 2026-10-18",
+    "D work and integration costs. Actual D arithmetic share and8B ceiling are"
+  ],
+  [
+    "## Cycle0076 \u2014 D endpoint coefficient schedule, 2026-10-18",
+    "   originals. Moderate fixed-array/adapter cost. Falsify on any mismatch,"
+  ],
+  [
+    "## Cycle0076 \u2014 D endpoint coefficient schedule, 2026-10-18",
+    "   openings per pass; falsify on stale identity, backlog or no slope gain."
+  ],
+  [
+    "## Cycle0076 \u2014 D endpoint coefficient schedule, 2026-10-18",
+    "4. Affine aggregate: retain its identity, demote memory claim. Alternative"
+  ],
+  [
+    "## Cycle0076 \u2014 D endpoint coefficient schedule, 2026-10-18",
+    "   whole-run soundness review. Prior negative findings remain preserved."
+  ],
+  [
+    "## Cycle0076 \u2014 D endpoint coefficient schedule, 2026-10-18",
+    "confirms recovery/incremental points are baseline techniques and ZK uses"
+  ],
+  [
+    "## Cycle0076 \u2014 D endpoint coefficient schedule, 2026-10-18",
+    "Carried baseline clocks, shared-host n1 diagnostics, not new acceptance:"
+  ],
+  [
+    "## Cycle0077 \u2014 D helper streaming: complete-lifetime negative, 2026-10-19",
+    "## Cycle0077 \u2014 D helper streaming: complete-lifetime negative, 2026-10-19"
+  ],
+  [
+    "## Cycle0077 \u2014 D helper streaming: complete-lifetime negative, 2026-10-19",
+    "not apply to actual unpadded T128; odd unpadded129\u2192129 is another negative."
+  ],
+  [
+    "## Cycle0077 \u2014 D helper streaming: complete-lifetime negative, 2026-10-19",
+    "Baseline/eliminated/added: versus cycle76, replace all-denominator retention"
+  ],
+  [
+    "## Cycle0077 \u2014 D helper streaming: complete-lifetime negative, 2026-10-19",
+    "8B affected D time/end-to-end ceiling unknown: total-old affected D+new D+"
+  ],
+  [
+    "## Cycle0077 \u2014 D helper streaming: complete-lifetime negative, 2026-10-19",
+    "retention hypothesis is demoted; cycle76 arithmetic identity remains useful."
+  ],
+  [
+    "## Cycle0077 \u2014 D helper streaming: complete-lifetime negative, 2026-10-19",
+    "4. Pair streaming alone is demoted; alternate lookup/GKR/PCS composition"
+  ],
+  [
+    "## Cycle 0078 \u2014 Lazy D endpoint construction, 2026-10-19",
+    "release. No original full table is removed. Cycle 77's 130\u2192129 negative remains"
+  ],
+  [
+    "## Cycle 0078 \u2014 Lazy D endpoint construction, 2026-10-19",
+    "Baseline, eliminated work and added costs: remove early endpoint lifetimes"
+  ],
+  [
+    "## Cycle 0078 \u2014 Lazy D endpoint construction, 2026-10-19",
+    "Native 8B D share and end-to-end ceiling are unknown:"
+  ],
+  [
+    "## Cycle 0078 \u2014 Lazy D endpoint construction, 2026-10-19",
+    "Falsify on any sample, final, degree, transcript, RNG, refusal or privacy"
+  ],
+  [
+    "## Cycle 0078 \u2014 Lazy D endpoint construction, 2026-10-19",
+    "Negative controls constrain the port: keeping endpoints until the end gives"
+  ],
+  [
+    "## Cycle 0078 \u2014 Lazy D endpoint construction, 2026-10-19",
+    "saved metadata shadowing (`ll` reused by a baseline-lifetime loop); corrected"
+  ],
+  [
+    "## Cycle 0078 \u2014 Lazy D endpoint construction, 2026-10-19",
+    "   Baseline 77 words; 54 endpoint words remain live at peak. Accumulate each"
+  ],
+  [
+    "## Cycle 0078 \u2014 Lazy D endpoint construction, 2026-10-19",
+    "   host work needs it. Moderate adapter cost, unknown 8B ceiling. Charge every"
+  ],
+  [
+    "## Cycle 0078 \u2014 Lazy D endpoint construction, 2026-10-19",
+    "   accumulator/read/difference. Falsify duplicate/missing terms, extra uncharged"
+  ],
+  [
+    "## Cycle0079 \u2014 use-driven D affine lifetimes and actual8B ceiling, 2026-10-19",
+    "## Cycle0079 \u2014 use-driven D affine lifetimes and actual8B ceiling, 2026-10-19"
+  ],
+  [
+    "## Cycle0079 \u2014 use-driven D affine lifetimes and actual8B ceiling, 2026-10-19",
+    "Baseline is the previous unintegrated coefficient prototype, not the installed"
+  ],
+  [
+    "## Cycle0079 \u2014 use-driven D affine lifetimes and actual8B ceiling, 2026-10-19",
+    "raises reads118\u2192138/differences59\u219269. Prior negatives preserved."
+  ],
+  [
+    "## Cycle0079 \u2014 use-driven D affine lifetimes and actual8B ceiling, 2026-10-19",
+    "**1.105058\u00d7/0.299944 diagnostic positions/s**, versus0.271428 baseline."
+  ],
+  [
+    "## Cycle0079 \u2014 use-driven D affine lifetimes and actual8B ceiling, 2026-10-19",
+    "   Falsify on enclosing regression, growing proof backlog or privacy mismatch."
+  ],
+  [
+    "## Cycle0079 \u2014 use-driven D affine lifetimes and actual8B ceiling, 2026-10-19",
+    "   Baseline77-word affine-first lazy prototype; eliminate early endpoint"
+  ],
+  [
+    "## Cycle0079 \u2014 use-driven D affine lifetimes and actual8B ceiling, 2026-10-19",
+    "   ceiling unknown; CPU R6 delete-ALL-D bound above is deliberately broader."
+  ],
+  [
+    "## Cycle0079 \u2014 use-driven D affine lifetimes and actual8B ceiling, 2026-10-19",
+    "   Falsify on any semantic/RNG/refusal/privacy mismatch, uncharged rereads,"
+  ],
+  [
+    "## Cycle0079 \u2014 use-driven D affine lifetimes and actual8B ceiling, 2026-10-19",
+    "   Falsify stale identities, reused private openings/masks, extra traffic,"
+  ],
+  [
+    "## Cycle0080 \u2014 2026-10-19: static D runtime parameters and compiler boundaries",
+    "and verifieddrain gates;4OWNER D30/architecturecomparisons. For2,baseline"
+  ],
+  [
+    "## Cycle0080 \u2014 2026-10-19: static D runtime parameters and compiler boundaries",
+    "incremental integration cost;candidate ceilingunknown. Falsify any differential,"
+  ],
+  [
+    "## Cycle0080 \u2014 2026-10-19: static D runtime parameters and compiler boundaries",
+    "accounting constraints;known compiler/runtimekernel and NTTnegatives refreshed."
+  ],
+  [
+    "## Cycle 0081 \u2014 2026-10-19 \u2014 generic helper grouping is a negative result",
+    "## Cycle 0081 \u2014 2026-10-19 \u2014 generic helper grouping is a negative result"
+  ],
+  [
+    "## Cycle 0081 \u2014 2026-10-19 \u2014 generic helper grouping is a negative result",
+    "**6.208298\u21926.525496us** (grouped5.109%higher); seven pairs favor baseline."
+  ],
+  [
+    "## Cycle 0081 \u2014 2026-10-19 \u2014 generic helper grouping is a negative result",
+    "One shared CoreUltra9 185H CPU0,nice19; baseline has artificial noinline field"
+  ],
+  [
+    "## Cycle 0081 \u2014 2026-10-19 \u2014 generic helper grouping is a negative result",
+    "unique-group fusion is demoted; preserve this finding rather than promoting"
+  ],
+  [
+    "## Cycle 0081 \u2014 2026-10-19 \u2014 generic helper grouping is a negative result",
+    "[negative handoff](handoffs/20261019-dzc-helper-groups-negative.md)."
+  ],
+  [
+    "## Cycle 0081 \u2014 2026-10-19 \u2014 generic helper grouping is a negative result",
+    "failure,noresource benefit or enclosing regression. This follows the negative"
+  ],
+  [
+    "## Cycle 0081 \u2014 2026-10-19 \u2014 generic helper grouping is a negative result",
+    "Baseline/eliminated/added/ceiling: baseline current use-driven coefficient"
+  ],
+  [
+    "## Cycle 0081 \u2014 2026-10-19 \u2014 generic helper grouping is a negative result",
+    "1.105058x/0.299944diagnosticpositions/s vs0.271428baseline. No GPU or"
+  ],
+  [
+    "## Cycle 0082 \u2014 2026-10-19 \u2014 shared helper code shrinks; no speed gain",
+    "504 bytes versus scalar baseline 424. Logical row bytes rise 8,528\u21929,162,"
+  ],
+  [
+    "## Cycle 0082 \u2014 2026-10-19 \u2014 shared helper code shrinks; no speed gain",
+    "noinline scalar baseline; no native sampler, whole-D, GPU, quiesced/p95 or"
+  ],
+  [
+    "## Cycle 0082 \u2014 2026-10-19 \u2014 shared helper code shrinks; no speed gain",
+    "The runtime hypothesis is demoted; preserve the code-size finding."
+  ],
+  [
+    "## Cycle 0082 \u2014 2026-10-19 \u2014 shared helper code shrinks; no speed gain",
+    "Baseline/eliminated/added/ceiling: compared with unique groups, eliminate"
+  ],
+  [
+    "## Cycle 0082 \u2014 2026-10-19 \u2014 shared helper code shrinks; no speed gain",
+    "falsification criteria are in hypotheses.json. D32 float fidelity stands."
+  ],
+  [
+    "## Cycle 0083 \u2014 2026-10-19 \u2014 single raw-pointer translation falsified",
+    "## Cycle 0083 \u2014 2026-10-19 \u2014 single raw-pointer translation falsified"
+  ],
+  [
+    "## Cycle 0083 \u2014 2026-10-19 \u2014 single raw-pointer translation falsified",
+    "Previous negative grouped CPU timing stands; partial option is low priority."
+  ],
+  [
+    "## Cycle 0083 \u2014 2026-10-19 \u2014 single raw-pointer translation falsified",
+    "Baseline/eliminated/added/ceiling: shared maps versus99 fewer index requests,"
+  ],
+  [
+    "## Cycle 0083 \u2014 2026-10-19 \u2014 single raw-pointer translation falsified",
+    "sealing101.279,D44.833,receipt922711264B. Delete-all-D ceiling1.105058\u00d7,"
+  ],
+  [
+    "## Cycle 0083 \u2014 2026-10-19 \u2014 single raw-pointer translation falsified",
+    "privacy/falsification criteria in hypotheses.json. D32 fidelity direction"
+  ],
+  [
+    "## Cycle0084 \u2014 2026-10-19 \u2014 public setup lifetime and partial-LRU negatives",
+    "## Cycle0084 \u2014 2026-10-19 \u2014 public setup lifetime and partial-LRU negatives"
+  ],
+  [
+    "## Cycle0084 \u2014 2026-10-19 \u2014 public setup lifetime and partial-LRU negatives",
+    "Baseline/eliminated/added/ceiling: remove only truly avoided immutable public"
+  ],
+  [
+    "## Cycle0084 \u2014 2026-10-19 \u2014 public setup lifetime and partial-LRU negatives",
+    "Candidate ceiling T/(T-s+a),s/a unisolated. Deleting all reported load tasks"
+  ],
+  [
+    "## Cycle0084 \u2014 2026-10-19 \u2014 public setup lifetime and partial-LRU negatives",
+    "Falsify stale identity/calibration/site,private dependence,gate mismatch,"
+  ],
+  [
+    "## Cycle0084 \u2014 2026-10-19 \u2014 public setup lifetime and partial-LRU negatives",
+    "(5)CPU NTT/layout residency demoted;(6)stale keys/partialLRU eliminated."
+  ],
+  [
+    "## Cycle0085 \u2014 2026-10-19: public owner freshness and live leases",
+    "Baseline is current separate ownership. Removed work: only authenticated"
+  ],
+  [
+    "## Cycle0085 \u2014 2026-10-19: public owner freshness and live leases",
+    "ceiling T/(T-s+a), saved exclusive wall s and extra a, is unknown. Do not use"
+  ],
+  [
+    "## Cycle0085 \u2014 2026-10-19: public owner freshness and live leases",
+    "to this guard. Falsify if native refusal/receipt/privacy behavior changes,"
+  ],
+  [
+    "## Cycle0085 \u2014 2026-10-19: public owner freshness and live leases",
+    "Prior-findings check before final checkpoint: cycle0027 already tested full public digest streaming/cache and no per-stage model rescan. It remains completed/demoted. The next local task was redirected to raw/padded/owned constructor overlap, which this cycle explicitly excludes."
+  ],
+  [
+    "## Cycle0086 \u2014 2026-10-19: checked public constructor transfer",
+    "Baseline and eliminated work: native Array objects keep eleven raw source"
+  ],
+  [
+    "## Cycle0086 \u2014 2026-10-19: checked public constructor transfer",
+    "No high-end GPU ceiling is known."
+  ],
+  [
+    "## Cycle0086 \u2014 2026-10-19: checked public constructor transfer",
+    "Falsification: any native byte, first refusal or gate mismatch; allocations"
+  ],
+  [
+    "## Cycle0086 \u2014 2026-10-19: checked public constructor transfer",
+    "Negative findings retained: one KV group has tail-only head padding, so a"
+  ],
+  [
+    "## Cycle0086 \u2014 2026-10-19: checked public constructor transfer",
+    "and repeated public digest claims remain rejected/demoted from prior cycles."
+  ],
+  [
+    "## Cycle0087 \u2014 2026-10-19: direct signed-byte padding",
+    "Decisive negative: every full-sealing public-payload envelope in the prior"
+  ],
+  [
+    "## Cycle0087 \u2014 2026-10-19: direct signed-byte padding",
+    "an optimistic1.103104x /0.294937 positions/s CPU diagnostic ceiling. This is"
+  ],
+  [
+    "## Cycle0087 \u2014 2026-10-19: direct signed-byte padding",
+    "No high-end GPU end-to-end ceiling can be inferred."
+  ],
+  [
+    "## Cycle0087 \u2014 2026-10-19: direct signed-byte padding",
+    "Falsify if native bytes/records/first refusal/receipt change,any decode Vec"
+  ],
+  [
+    "## Cycle0087 \u2014 2026-10-19: direct signed-byte padding",
+    "4.Tested direct-byte padding,demoted for unchanged full-loader envelope."
+  ],
+  [
+    "## Cycle0088 \u2014 2026-10-19: public raw-array last use",
+    "Decisive negative: every reload envelope has0B peak reduction. It skips record"
+  ],
+  [
+    "## Cycle0088 \u2014 2026-10-19: public raw-array last use",
+    "Baseline/eliminated work/added costs: R8 retains all11 raw Array values"
+  ],
+  [
+    "## Cycle0088 \u2014 2026-10-19: public raw-array last use",
+    "Falsify if native bytes/records/first refusal/receipt change,a live borrow"
+  ],
+  [
+    "## Cycle0088 \u2014 2026-10-19: public raw-array last use",
+    "Ranked queue (costs,prerequisites,exactness/privacy/falsifiers in hypotheses.json):"
+  ],
+  [
+    "## Cycle0088 \u2014 2026-10-19: public raw-array last use",
+    "5.Direct-byte padding alone,demoted for0B full-loader peak change."
+  ],
+  [
+    "## Cycle0088 \u2014 2026-10-19: public raw-array last use",
+    "CS and H-1 checks. This addresses the reload/constructor negative."
+  ],
+  [
+    "## Cycle0090 \u2014 separate public decode statement scopes",
+    "negative extends lifetimes and reaches1872B. These are observable wrapper"
+  ],
+  [
+    "## Cycle0090 \u2014 separate public decode statement scopes",
+    "Baseline/eliminated work/added costs: frozen R8 aw/fw arrays contain5/4"
+  ],
+  [
+    "## Cycle0090 \u2014 separate public decode statement scopes",
+    "Falsify on original Vec allocation elision,changed native bytes/first refusal/"
+  ],
+  [
+    "## Cycle0090 \u2014 separate public decode statement scopes",
+    "probe. Costs,prerequisites,exactness,privacy/soundness and falsifiers retained."
+  ],
+  [
+    "## Cycle0091 \u2014 original Vec allocation-scope evidence",
+    "| Reference-binding negative |460288|213248|36|482848|"
+  ],
+  [
+    "## Cycle0091 \u2014 original Vec allocation-scope evidence",
+    "| Separate results plus clone negative |475648|57344|45|720672|"
+  ],
+  [
+    "## Cycle0091 \u2014 original Vec allocation-scope evidence",
+    "Baseline/eliminated work/added costs:grouped native5+4 argument temporaries"
+  ],
+  [
+    "## Cycle0091 \u2014 original Vec allocation-scope evidence",
+    "or target-size measurements. Falsify promotion on native bytes/first-refusal/"
+  ],
+  [
+    "## Cycle0091 \u2014 original Vec allocation-scope evidence",
+    "Queue:hypotheses.json retains prior negatives.1 owner whole-prover GPU and"
+  ],
+  [
+    "## Cycle0092 \u2014 public request pool retention, 2026-10-20",
+    "exact/min requests rather than clearing all idle buffers. Baseline already"
+  ],
+  [
+    "## Cycle0092 \u2014 public request pool retention, 2026-10-20",
+    "full/no drains but fresh5->20. Negative finding:indiscriminate extra draining"
+  ],
+  [
+    "## Cycle0092 \u2014 public request pool retention, 2026-10-20",
+    "not VRAM. Device-time/fit gain is unknown. End-to-end ceiling has no numeric"
+  ],
+  [
+    "## Cycle0092 \u2014 public request pool retention, 2026-10-20",
+    "Falsify on absent avoidable idle,incorrect public horizon,stream/stale-value"
+  ],
+  [
+    "## Cycle0093 \u2014 allocation coverage and host-backed staging,2026-10-20",
+    "The baseline is source-derived, not a runtime trace. `prove_run_with` starts"
+  ],
+  [
+    "## Cycle0093 \u2014 allocation coverage and host-backed staging,2026-10-20",
+    "330 negative controls**,6 traces with1/2/3/4/8/32 BLOCKS,"
+  ],
+  [
+    "## Cycle0093 \u2014 allocation coverage and host-backed staging,2026-10-20",
+    "**demoted**, with no native patch recommended. At T128,32blocks,row2^14:"
+  ],
+  [
+    "## Cycle0093 \u2014 allocation coverage and host-backed staging,2026-10-20",
+    "time benefit is unknown and can be negative. Initial seal or scratch peaks can"
+  ],
+  [
+    "## Cycle0093 \u2014 allocation coverage and host-backed staging,2026-10-20",
+    "The experiment retains the R8 baseline; no R9 production/source edit occurred."
+  ],
+  [
+    "## Cycle0093 \u2014 allocation coverage and host-backed staging,2026-10-20",
+    "Rankings and baseline/eliminated work/added costs/ceilings/falsifiers are in"
+  ],
+  [
+    "## Cycle0093 \u2014 allocation coverage and host-backed staging,2026-10-20",
+    "| Commitment mode | Baseline backing MiB | Mixed backing MiB | Saving MiB |"
+  ],
+  [
+    "## Cycle0093 \u2014 allocation coverage and host-backed staging,2026-10-20",
+    "baseline reservation nor the logical owner lifetime. Earlier release-only,"
+  ],
+  [
+    "## Cycle0093 \u2014 allocation coverage and host-backed staging,2026-10-20",
+    "OUT-only eviction and all-resident host staging remain negative/demoted."
+  ],
+  [
+    "## Cycle0093 \u2014 allocation coverage and host-backed staging,2026-10-20",
+    "end-to-end time ceiling is justified without exclusive native phase costs."
+  ],
+  [
+    "## Cycle0093 \u2014 allocation coverage and host-backed staging,2026-10-20",
+    "allocation route; no>=50/sprojection. Falsify on native out-of-bounds/uninitialized"
+  ],
+  [
+    "## Cycle0093 \u2014 allocation coverage and host-backed staging,2026-10-20",
+    "6OUTevictiondemoted;7earlyrelease rejected;8NTTcomposition;9publicmetadata."
+  ],
+  [
+    "## Cycle 0096 \u2014 FZC arena algebra and implicit affine tables (2026-10-20T04:33:40.848204+00:00)",
+    "checkpoint preceded the experiment; prior findings and negative results remain."
+  ],
+  [
+    "## Cycle 0096 \u2014 FZC arena algebra and implicit affine tables (2026-10-20T04:33:40.848204+00:00)",
+    "Eleven negative controls reject unchanged full constructor slices and uniform"
+  ],
+  [
+    "## Cycle 0096 \u2014 FZC arena algebra and implicit affine tables (2026-10-20T04:33:40.848204+00:00)",
+    "versus baseline L, adding L-2 evaluations, shared work and a later chunk"
+  ],
+  [
+    "## Cycle 0096 \u2014 FZC arena algebra and implicit affine tables (2026-10-20T04:33:40.848204+00:00)",
+    "resident-pool negative finding therefore remains a strong promotion filter."
+  ],
+  [
+    "## Cycle 0096 \u2014 FZC arena algebra and implicit affine tables (2026-10-20T04:33:40.848204+00:00)",
+    " eviction demoted; (7) early release rejected; (8) NTT/public constants;"
+  ],
+  [
+    "## Cycle 0096 \u2014 FZC arena algebra and implicit affine tables (2026-10-20T04:33:40.848204+00:00)",
+    "(9) prepared public metadata. Full baseline, eliminated work, added costs,"
+  ],
+  [
+    "## Cycle 0096 \u2014 FZC arena algebra and implicit affine tables (2026-10-20T04:33:40.848204+00:00)",
+    "prerequisites, compatibility, exactness/privacy obligations, unknown ceiling"
+  ],
+  [
+    "## Cycle 0096 \u2014 FZC arena algebra and implicit affine tables (2026-10-20T04:33:40.848204+00:00)",
+    "and falsification are recorded in hypotheses.json. The tested local candidate"
+  ],
+  [
+    "## Cycle 0096 \u2014 FZC arena algebra and implicit affine tables (2026-10-20T04:33:40.848204+00:00)",
+    "falsifies promotion. Next local: coefficient-aware operation/shared/barrier"
+  ],
+  [
+    "## Cycle 0096 \u2014 FZC arena algebra and implicit affine tables (2026-10-20T04:33:40.848204+00:00)",
+    "filtered by different field/FP64 arithmetic and its consumer large-N negative;"
+  ],
+  [
+    "## Cycle 0097 \u2014 paired affine derivation and rematerialization cost",
+    "and seven negative controls**. Fixtures have 8/16/32 entries per table,"
+  ],
+  [
+    "## Cycle 0097 \u2014 paired affine derivation and rematerialization cost",
+    "The round-zero candidate's end-to-end ceiling is unknown. If the exclusive"
+  ],
+  [
+    "## Cycle 0097 \u2014 paired affine derivation and rematerialization cost",
+    "50 complete proved positions/s. Falsify the candidate on any round, high-store,"
+  ],
+  [
+    "## Cycle 0097 \u2014 paired affine derivation and rematerialization cost",
+    "Carried owner baseline, not rerun/reverified here: complete 8B stack,"
+  ],
+  [
+    "## Cycle 0098 \u2014 BASE paired affine derivation and an upstream negative",
+    "## Cycle 0098 \u2014 BASE paired affine derivation and an upstream negative"
+  ],
+  [
+    "## Cycle 0098 \u2014 BASE paired affine derivation and an upstream negative",
+    "checks pass **36 fixtures, 144 rounds, 1,669 checks, 18 negative controls**,"
+  ],
+  [
+    "## Cycle 0098 \u2014 BASE paired affine derivation and an upstream negative",
+    "pair; public loader; capacity-gated mixed arena/implicit tables; demoted OUT"
+  ],
+  [
+    "## Cycle 0098 \u2014 BASE paired affine derivation and an upstream negative",
+    "upstream carry negative; NEW older packed-protocol filter. Each records"
+  ],
+  [
+    "## Cycle 0098 \u2014 BASE paired affine derivation and an upstream negative",
+    "baseline, removed work, costs, prerequisites/integration, exactness, privacy/"
+  ],
+  [
+    "## Cycle 0098 \u2014 BASE paired affine derivation and an upstream negative",
+    "soundness, compatibility, ceiling and falsification. Prior negative findings"
+  ],
+  [
+    "## Cycle 0098 \u2014 BASE paired affine derivation and an upstream negative",
+    "Preserve that negative and require compiler/register/occupancy measurements."
+  ],
+  [
+    "## Cycle 0099 \u2014 host-free BASE GL-only derivation (2026-10-20)",
+    "checks pass: 36 fixtures, 144 rounds, 2,372 checks, 15 negative controls and"
+  ],
+  [
+    "## Cycle 0099 \u2014 host-free BASE GL-only derivation (2026-10-20)",
+    "Fourteen ranked hypotheses retain the earlier negative findings. First:"
+  ],
+  [
+    "## Cycle 0100 \u2014 reachable public pad weights and affine dispatch (2026-10-20)",
+    "46 negative controls,eight zero-zeta refusals. Ten public geometry fixtures"
+  ],
+  [
+    "## Cycle 0100 \u2014 reachable public pad weights and affine dispatch (2026-10-20)",
+    "occupancy and exclusive f remain unknown; even full-phase deletion ceiling"
+  ],
+  [
+    "## Cycle 0100 \u2014 reachable public pad weights and affine dispatch (2026-10-20)",
+    "regression. Prior negative findings are preserved."
+  ],
+  [
+    "## Cycle 0100 \u2014 reachable public pad weights and affine dispatch (2026-10-20)",
+    "capacity-gated arena;demoted OUT and rejected premature release/arithmetic."
+  ],
+  [
+    "## Cycle 0101 \u2014 fused NTT sector requests and ownership limit (2026-10-20)",
+    "and an older GNTT direct-float64 negative. Exact dates/license/commit scope"
+  ],
+  [
+    "## Cycle 0101 \u2014 fused NTT sector requests and ownership limit (2026-10-20)",
+    "The existing CPU non-DD baseline is carried, not rerun/reverified:8B"
+  ],
+  [
+    "## Cycle 0101 \u2014 fused NTT sector requests and ownership limit (2026-10-20)",
+    "Baseline: native fused bit-reversed gather, no standalone reorder. Eliminated"
+  ],
+  [
+    "## Cycle 0101 \u2014 fused NTT sector requests and ownership limit (2026-10-20)",
+    "occupancy effects. End-to-end deletion ceiling1/(1-f) needs the unknown"
+  ],
+  [
+    "## Cycle 0101 \u2014 fused NTT sector requests and ownership limit (2026-10-20)",
+    "Falsification: large-N request gain disproved at unchanged tile ownership;"
+  ],
+  [
+    "## Cycle 0101 \u2014 fused NTT sector requests and ownership limit (2026-10-20)",
+    "arena; retained OUT/early-release negatives; tested NTT scope; public GKR"
+  ],
+  [
+    "## Cycle 0101 \u2014 fused NTT sector requests and ownership limit (2026-10-20)",
+    "metadata; carry/packed-sumcheck negatives; dynamic lookup/composition/Pico;"
+  ],
+  [
+    "## Cycle 0101 \u2014 fused NTT sector requests and ownership limit (2026-10-20)",
+    "new direct-float GNTT negative and memory-placement methodology. Each keeps"
+  ],
+  [
+    "## Cycle 0101 \u2014 fused NTT sector requests and ownership limit (2026-10-20)",
+    "prerequisites,added costs,exactness/privacy and falsification."
+  ],
+  [
+    "## Cycle 0101 \u2014 fused NTT sector requests and ownership limit (2026-10-20)",
+    "local p-2->p-1 cast negative; no upstream implementation run. NVIDIA13.4 and"
+  ],
+  [
+    "## Cycle 0102 \u2014 private PCS small-transform incidence (2026-10-20)",
+    "negative and fixed16-lane shared-bank1->2 concern are preserved."
+  ],
+  [
+    "## Cycle 0102 \u2014 private PCS small-transform incidence (2026-10-20)",
+    "verification/current gates owed. Delete-all-load ceiling<=1/(1-f),f unknown;"
+  ],
+  [
+    "## Cycle 0103 \u2014 recurring private U8 helpers versus fraction-tree storage (2026-10-20)",
+    "Useful negative: full global fraction tree about 4 GiB at T128; exact column"
+  ],
+  [
+    "## Cycle 0103 \u2014 recurring private U8 helpers versus fraction-tree storage (2026-10-20)",
+    "and weak-leaf negatives remain binding. Unknown exclusive affected time"
+  ],
+  [
+    "## Cycle 0103 \u2014 recurring private U8 helpers versus fraction-tree storage (2026-10-20)",
+    "fraction f gives free-deletion ceiling <=1/(1-f); byte shares do not give f."
+  ],
+  [
+    "## Cycle 0103 \u2014 recurring private U8 helpers versus fraction-tree storage (2026-10-20)",
+    "natural-width/unroll and capture negatives refreshed; author timings not"
+  ],
+  [
+    "## Cycle 0104 \u2014 private fraction-forest lifetime and recomputation (2026-10-20)",
+    "can a mixed-height forest avoid the prior materialized-storage negative"
+  ],
+  [
+    "## Cycle 0104 \u2014 private fraction-forest lifetime and recomputation (2026-10-20)",
+    "leaf binding. Prior unmasked-root and weak-binding negatives remain binding."
+  ],
+  [
+    "## Cycle 0104 \u2014 private fraction-forest lifetime and recomputation (2026-10-20)",
+    "Baseline: recurring original U8 helpers. Hypothetically eliminated work is"
+  ],
+  [
+    "## Cycle 0104 \u2014 private fraction-forest lifetime and recomputation (2026-10-20)",
+    "has ceiling <=1/(1-f). Counts cannot supply f or a GPU rate. Falsify on changed"
+  ],
+  [
+    "## Cycle 0105 \u2014 explicit lookup layer-consumer capacity (2026-10-20)",
+    "The useful negative is that cycle0104's arithmetic-only schedule explicitly"
+  ],
+  [
+    "## Cycle 0105 \u2014 explicit lookup layer-consumer capacity (2026-10-20)",
+    "The baseline remains frozen R9 normwindow32/fE9/cap32, excluding the newer"
+  ],
+  [
+    "## Cycle 0105 \u2014 explicit lookup layer-consumer capacity (2026-10-20)",
+    "Baseline potentially removed: only recurring original U8 helper data and"
+  ],
+  [
+    "## Cycle 0105 \u2014 explicit lookup layer-consumer capacity (2026-10-20)",
+    "CFS/PCS, whole-run soundness and terminal binding. A free-deletion ceiling"
+  ],
+  [
+    "## Cycle 0105 \u2014 explicit lookup layer-consumer capacity (2026-10-20)",
+    "the candidate adds work. No numeric high-end GPU throughput ceiling follows."
+  ],
+  [
+    "## Cycle 0105 \u2014 explicit lookup layer-consumer capacity (2026-10-20)",
+    "complete workload elapsed time. A smaller budget falsifies this chosen"
+  ],
+  [
+    "## Cycle 0105 \u2014 explicit lookup layer-consumer capacity (2026-10-20)",
+    "is an author scheduling negative; no timings reproduced. The"
+  ],
+  [
+    "## Cycle 0105 \u2014 explicit lookup layer-consumer capacity (2026-10-20)",
+    "consumer negative and reconstruction cost. The rotating queue retains NTT/"
+  ],
+  [
+    "## Cycle 0105 \u2014 explicit lookup layer-consumer capacity (2026-10-20)",
+    "steady slope unknown. This baseline is not a high-end GPU result."
+  ],
+  [
+    "## Cycle 0106 \u2014 owned lookup-layer buffers and factorized equality (2026-10-20)",
+    "Baseline potentially removed is recurring original U8 helper data/processing"
+  ],
+  [
+    "## Cycle 0106 \u2014 owned lookup-layer buffers and factorized equality (2026-10-20)",
+    "deletion has ceiling<=1/(1-f); no numeric complete GPU rate follows."
+  ],
+  [
+    "## Cycle 0106 \u2014 owned lookup-layer buffers and factorized equality (2026-10-20)",
+    "Falsify on any original binding/exactness/refusal/privacy/soundness failure,"
+  ],
+  [
+    "## Cycle 0106 \u2014 owned lookup-layer buffers and factorized equality (2026-10-20)",
+    "the selected model falsifies its contract accounting, not every GKR schedule."
+  ],
+  [
+    "## Cycle 0107 \u2014 budget-adaptive tiled lookup prefix (2026-10-20)",
+    "Baseline potentially removed is only selected recurring U8 helper work after"
+  ],
+  [
+    "## Cycle 0107 \u2014 budget-adaptive tiled lookup prefix (2026-10-20)",
+    "affected time fraction, even free deletion has speed ceiling<=1/(1-f), before"
+  ],
+  [
+    "## Cycle 0107 \u2014 budget-adaptive tiled lookup prefix (2026-10-20)",
+    "these new costs. No numeric complete high-end GPU rate follows. Falsify on"
+  ],
+  [
+    "## Cycle 0108 \u2014 native Fp2 ordered U8 consumer prerequisite (2026-10-20)",
+    "Useful negatives: the256-entry reciprocal cache ALREADY exists per attempt."
+  ],
+  [
+    "## Cycle 0108 \u2014 native Fp2 ordered U8 consumer prerequisite (2026-10-20)",
+    "affected time, free-deletion ceiling<=1/(1-f) before all new costs. Falsify on"
+  ],
+  [
+    "## Cycle 0109 \u2014 ordered fraction-tree sites and native point mapping (2026-10-20)",
+    "The baseline is frozen R9 U8 helper data, carried as420.25MiB nonDD /"
+  ],
+  [
+    "## Cycle 0109 \u2014 ordered fraction-tree sites and native point mapping (2026-10-20)",
+    "fraction, even free deletion has speed ceiling<=1/(1-f), before added costs."
+  ],
+  [
+    "## Cycle 0109 \u2014 ordered fraction-tree sites and native point mapping (2026-10-20)",
+    "There is no numeric complete-GPU throughput prediction. Falsify on original"
+  ],
+  [
+    "## Cycle 0109 \u2014 ordered fraction-tree sites and native point mapping (2026-10-20)",
+    "by this mask-budget negative; rank21 adds reversible storage with inverse and"
+  ],
+  [
+    "## Cycle0110 \u2014 reversible fraction tree: exact, full-column capacity negative (2026-10-20)",
+    "## Cycle0110 \u2014 reversible fraction tree: exact, full-column capacity negative (2026-10-20)"
+  ],
+  [
+    "## Cycle0110 \u2014 reversible fraction tree: exact, full-column capacity negative (2026-10-20)",
+    "Baseline: frozenR9 U8 helper data420.25/390.25MiB(nonDD/DD) at8B T128;"
+  ],
+  [
+    "## Cycle0110 \u2014 reversible fraction tree: exact, full-column capacity negative (2026-10-20)",
+    "36.022MiB; even64MiB tree alone does. This demotes the whole-column plan at that"
+  ],
+  [
+    "## Cycle0110 \u2014 reversible fraction tree: exact, full-column capacity negative (2026-10-20)",
+    "is baseline work, not a new saving. Native array/profile/full-proof benefit"
+  ],
+  [
+    "## Cycle0110 \u2014 reversible fraction tree: exact, full-column capacity negative (2026-10-20)",
+    "unknown. Unknown exclusive affected fraction f gives free-deletion ceiling"
+  ],
+  [
+    "## Cycle0110 \u2014 reversible fraction tree: exact, full-column capacity negative (2026-10-20)",
+    "<=1/(1-f) before added costs. Falsify on binding/field/refusal/order drift,"
+  ],
+  [
+    "## Cycle0110 \u2014 reversible fraction tree: exact, full-column capacity negative (2026-10-20)",
+    "redesign. Rank21 refined by exact reconstruction and selected-budget negative;"
+  ],
+  [
+    "## Cycle0110 \u2014 reversible fraction tree: exact, full-column capacity negative (2026-10-20)",
+    "per-intermediate-mask negatives; do not claim a new private protocol."
+  ],
+  [
+    "## Cycle0111 \u2014 disposable reversible tiles: matched-budget cost negative (2026-10-20)",
+    "## Cycle0111 \u2014 disposable reversible tiles: matched-budget cost negative (2026-10-20)"
+  ],
+  [
+    "## Cycle0111 \u2014 disposable reversible tiles: matched-budget cost negative (2026-10-20)",
+    "peak as direct subtree reduction, with extra build/recovery arithmetic. Demote"
+  ],
+  [
+    "## Cycle0111 \u2014 disposable reversible tiles: matched-budget cost negative (2026-10-20)",
+    "this schedule. This is a bounded operation/payload negative, not a universal"
+  ],
+  [
+    "## Cycle0111 \u2014 disposable reversible tiles: matched-budget cost negative (2026-10-20)",
+    "The baseline is frozenR9 U8 helper payload420.25MiB non-DD /390.25MiB DD for one"
+  ],
+  [
+    "## Cycle0111 \u2014 disposable reversible tiles: matched-budget cost negative (2026-10-20)",
+    "proving has ceiling1/(1-f); this candidate adds costs and removes no measured"
+  ],
+  [
+    "## Cycle0111 \u2014 disposable reversible tiles: matched-budget cost negative (2026-10-20)",
+    "native work. There is no numerical complete high-endGPU forecast. Falsification"
+  ],
+  [
+    "## Cycle0111 \u2014 disposable reversible tiles: matched-budget cost negative (2026-10-20)",
+    "and63negative controls. U8 affine leaves, table-style multiplicities including0,"
+  ],
+  [
+    "## Cycle0111 \u2014 disposable reversible tiles: matched-budget cost negative (2026-10-20)",
+    "disposable-tile negative; rank23 adds exact D32/DD public-cardinality work."
+  ],
+  [
+    "## Cycle 0112 \u2014 2026-10-20 \u2014 exact S12/DD cardinality and larger public caps",
+    "Two initial accounting assertions failed: first omitted removed S U8 helper pairs and understated claim sites; second omitted S12's score-lookup effect on helper ceilings. Both code/logs retained; corrected identities pass. An initial startup snapshot referenced an absent prior audit-result filename and was corrected without altering prior evidence. No permission boundary was bypassed."
+  ]
+]

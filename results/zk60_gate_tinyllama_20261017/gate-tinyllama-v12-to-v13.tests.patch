@@ -1,0 +1,49 @@
+diff -ruN -x __pycache__ frozen_v12/tests/test_v4_status_g10.py frozen_v13/tests/test_v4_status_g10.py
+--- frozen_v12/tests/test_v4_status_g10.py	2026-10-19 17:46:20.019208928 -0700
++++ frozen_v13/tests/test_v4_status_g10.py	2026-10-19 18:50:55.627984870 -0700
+@@ -890,3 +890,45 @@
+         self.assertEqual(f["layers"], [0])
+         self.assertTrue(f["export"].endswith("pg_rot1_b4_T32_cal128"))
+ 
++
++class TokenR9Pins(unittest.TestCase):
++    """[v13, gate round 10] the round-9 readings: each digest is the CLI-path
++    capture's pin, each base is frozen-r7's file; the capture's pins pass the
++    token pin check and the terminal port's; a moved digest is refused"""
++
++    CLI9 = "/home/victor/zk60-artifacts/token-io/captures/tinyllama-t32-L2-dense-pt1-cli-r9"
++    FR7 = "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r7/hashline"
++
++    @unittest.skipUnless(os.path.isdir(CLI9) and os.path.isdir(FR7), "the CLI capture or frozen-r7 is not on disk")
++    def test_readings_and_pin_checks(self):
++        import hashlib
++        import types
++        import zk60_native_rg_tokenio_r9_pins as R9
++        import zk60_native_rg_tokengate as TG
++        import zk60_native_rg_tokenterminals as TT
++        with open(os.path.join(self.CLI9, "manifest.json")) as fh:
++            man = json.load(fh)
++        pins = {p["file"]: p["sha256"] for p in man["source_pins"]}
++        for f, rd in R9.TOKEN_R9_READINGS.items():
++            (d, r), = rd.items()
++            self.assertEqual(pins[f], d, f)
++            with open(os.path.join(self.FR7, f), "rb") as fh:
++                self.assertEqual(hashlib.sha256(fh.read()).hexdigest(), r["base"], f)
++            self.assertIs(r["moves_a_receipt_byte"], False)
++        out = TG.token_pins(man)
++        self.assertTrue(out["ok"], out["refusals"])
++        self.assertEqual(out["read_as_token_r9"], 6)
++        tt = TT.check_source_pins(types.SimpleNamespace(manifest=man))
++        self.assertTrue(tt["ok"], tt)
++        self.assertEqual(len(tt["accepted_by_a_round_9_reading"]), 2)
++        bad = copy.deepcopy(man)
++        for p in bad["source_pins"]:
++            if p["file"] == "src/private_block/token_io/run.rs":
++                p["sha256"] = "1" * 64
++        self.assertFalse(TG.token_pins(bad)["ok"])
++        bad2 = copy.deepcopy(man)
++        for p in bad2["source_pins"]:
++            if p["file"] == "src/private_block/token_io/stage_in.rs":
++                p["sha256"] = "2" * 64
++        self.assertFalse(TT.check_source_pins(types.SimpleNamespace(manifest=bad2))["ok"])
++

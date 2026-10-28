@@ -1,0 +1,141 @@
+[
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T10:27:29.755283+00:00",
+    "cycle": "0102",
+    "run_id": "20261020T101854Z-5d2a545a",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; web text treated as untrusted data",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "NEW older MLE-compatible lookup preprocessing screen (mu-seek)",
+    "url": "https://eprint.iacr.org/2024/1058",
+    "published": "2024-06-28",
+    "updated": "2024-12-06",
+    "date_evidence": "Primary ePrint history received2024-06-28,last of2revisions2024-12-06. Publisher version-of-record publication2025-01-09 (not third-party February date).",
+    "publisher_publication": "2025-01-09",
+    "inspected_urls": [
+      "https://link.springer.com/article/10.1007/s00145-024-09535-0",
+      "https://eprint.iacr.org/2024/1058.pdf"
+    ],
+    "implementation_license": null,
+    "paper_license": "ePrint CC BY label; publisher rights differ.",
+    "inspected_commit_id": null,
+    "assessment": "Authors claim cq-inspired lookup with MLE compatibility and prover cost independent of table size after preprocessing. Abstract-only architecture lead; this does not establish Ligero/Goldilocks/masking compatibility. Native256entryU8 inverse caching already exists, so next census must count recurring helper words rather than assume large-table savings.",
+    "access_issues": [
+      "PDF open/click returned Internal Error; no full protocol or implementation inspected."
+    ]
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T10:27:29.755283+00:00",
+    "cycle": "0102",
+    "run_id": "20261020T101854Z-5d2a545a",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; web text treated as untrusted data",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "LogUp-GKR helper-commitment reduction and revision date refreshed",
+    "url": "https://eprint.iacr.org/2023/1284",
+    "published": "2023-08-27",
+    "updated": "2025-02-20",
+    "date_evidence": "Primary history: received2023-08-27,last of3revisions2025-02-20.",
+    "implementation_license": null,
+    "paper_license": "CC BY label",
+    "inspected_commit_id": null,
+    "assessment": "Author abstract claims only multiplicity extra column for M lookup columns. Candidate targets native recurring H helper commitments but requires additional GKR rounds/final claims and new masking/joint-view analysis. No direct production substitution or reproduced timing.",
+    "access_issues": [
+      "PDF returned Internal Error; current abstract and history inspected."
+    ]
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T10:27:29.755283+00:00",
+    "cycle": "0102",
+    "run_id": "20261020T101854Z-5d2a545a",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; web text treated as untrusted data",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "cq cached preprocessing primary date and PCS boundary refreshed",
+    "url": "https://eprint.iacr.org/2022/1763",
+    "published": "2022-12-25",
+    "updated": "2024-07-05",
+    "date_evidence": "Primary history received2022-12-25,last of5revisions2024-07-05.",
+    "implementation_license": null,
+    "paper_license": "CC0 label",
+    "inspected_commit_id": null,
+    "assessment": "Public table preprocessing versus per-query proof work remains the relevant distinction. KZG/group/SRS construction in indexed primary paper is not a byte-preserving native Ligero optimization. No cache of private openings/masks authorized."
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T10:27:29.755283+00:00",
+    "cycle": "0102",
+    "run_id": "20261020T101854Z-5d2a545a",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; web text treated as untrusted data",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "October zkLLMPoT v2 operator scope and date refreshed",
+    "url": "https://arxiv.org/abs/2610.08258",
+    "published": "2026-10-06",
+    "updated": "2026-10-11",
+    "date_evidence": "Primary submission history v1Oct6 12:35:49UTC,v2Oct11 04:45:08UTC.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "assessment": "Authors report covered-operator sumcheck/lookup timings. Public audit sequences/private checkpoint threat model and operator clocks do not establish complete hidden-input native8B target or resident/decode throughput. No author speed reproduced."
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T10:27:29.755283+00:00",
+    "cycle": "0102",
+    "run_id": "20261020T101854Z-5d2a545a",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; web text treated as untrusted data",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "DeepProve current history/release metadata and implementation license",
+    "url": "https://github.com/Lagrange-Labs/deep-prove",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Primary commit history observedMay26,2026 licensing commit; May15release:v2.0.1 commit title. This dates metadata, not current rootREADME update. Releases page has no listed release; mutable branch freshness not established.",
+    "inspected_commit_id": "9d1a53e2ef49ffa2c902b8689cd3c58057a4e662",
+    "inspected_urls": [
+      "https://github.com/Lagrange-Labs/deep-prove/commits/master/",
+      "https://github.com/Lagrange-Labs/deep-prove/commit/9d1a53e2ef49ffa2c902b8689cd3c58057a4e662",
+      "https://github.com/Lagrange-Labs/deep-prove/blob/master/LICENSE",
+      "https://github.com/Lagrange-Labs/deep-prove/releases"
+    ],
+    "implementation_license": "Lagrange License text inspected: limited internal testing/evaluation and unmodified Platform use; derivative/distribution restrictions; not presumed permissive.",
+    "assessment": "Root claims fullLLM sumcheck/LogUp-GKR support; standalone server benchmarks are author evidence. No source imported/executed or throughput transferred. Cached/full inference discrepancy fix is a lead for parity requirements, not reviewed implementation.",
+    "access_issues": [
+      "May15release commit9d57100afbedc8d0bf14e2ed02cedb37c550d651 and Feb24cached/full fix commit fetch returned Cache miss; not inspected commit bodies."
+    ]
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T10:27:29.755283+00:00",
+    "cycle": "0102",
+    "run_id": "20261020T101854Z-5d2a545a",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; web text treated as untrusted data",
+    "external_execution": false,
+    "reproduced_performance": false,
+    "title": "Expander current release inventory and primary license screen",
+    "url": "https://github.com/PolyhedraZK/Expander",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Primary release inventory testdata-v1 assets dated2026-01-21T04:59:13Z. v1.2.0 release displayedJune23 without year in inspected output; not assigned a year/current code update date.",
+    "implementation_license": "AGPL-3.0 LICENSE text inspected; no code imported.",
+    "inspected_commit_id": null,
+    "linked_commit_not_inspected": "86c7167 (testdata-v1 short identifier only)",
+    "inspected_urls": [
+      "https://github.com/PolyhedraZK/Expander/releases",
+      "https://github.com/PolyhedraZK/Expander/blob/main/LICENSE"
+    ],
+    "assessment": "GKR backend with Goldilocks/Orion metadata is an architecture comparison; does not inherit native private masking/transcript/whole-model coverage. Test data release is not a new prover performance release.",
+    "access_issues": [
+      "Testdata commit link returned Internal Error; immutable full commit not inspected."
+    ]
+  }
+]

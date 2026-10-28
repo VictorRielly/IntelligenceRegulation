@@ -121,8 +121,8 @@ pub(crate) fn encoded_len(lay: &Layout) -> usize {
     let sh = lay.shape();
     let (bd, ed) = (Dim::block(lay), Dim::endpoint(lay));
     let sl = lay.slots();
-    let slots: usize = (0..N_SLOTS).map(|s| (1 + (sl[s].0 + sl[s].1) * (sl[s].2 + 1) + lay.slot_terms(s)) * 16).sum();
-    let mask = 2 * MASK_VEC * 16 + bd.checks * (8 + M_ROWS * 8 + 32 + MASK_PATH * 32);
+    let slots: usize = (0..lay.n_slots()).map(|s| (1 + (sl[s].0 + sl[s].1) * (sl[s].2 + 1) + lay.slot_terms(s)) * 16).sum();
+    let mask = 2 * MASK_VEC * 16 + bd.checks * (8 + lay.m_rows() * 8 + 32 + MASK_PATH * 32);
     HEADER + 3 * 32 + slots + mask + bd.opening_len(sh.a_groups(), lay.a_rows) + bd.opening_len(sh.h_groups(), lay.h_rows) + 2 * ed.opening_len(1, sh.endpoint_rows)
 }
 
@@ -130,7 +130,7 @@ pub(crate) fn encoded_len(lay: &Layout) -> usize {
 pub(crate) fn validate(r: &Receipt, lay: &Layout) -> Result<(), String> {
     let sh = lay.shape();
     let (bd, ed) = (Dim::block(lay), Dim::endpoint(lay));
-    if r.slots.len() != N_SLOTS {
+    if r.slots.len() != lay.n_slots() {
         return Err("private block wire: slot count".into());
     }
     for (s, sp) in r.slots.iter().enumerate() {
@@ -143,7 +143,7 @@ pub(crate) fn validate(r: &Receipt, lay: &Layout) -> Result<(), String> {
     if m.q.len() != MASK_VEC
         || m.prox.len() != MASK_VEC
         || m.columns.len() != bd.checks
-        || m.columns.iter().any(|(j, c, _, p)| *j >= MASK_DOM || c.len() != M_ROWS || p.len() != MASK_PATH)
+        || m.columns.iter().any(|(j, c, _, p)| *j >= MASK_DOM || c.len() != lay.m_rows() || p.len() != MASK_PATH)
         || !bd.hiding_ok(&r.a_open, sh.a_groups(), lay.a_rows)
         || !bd.hiding_ok(&r.h_open, sh.h_groups(), lay.h_rows)
         || r.io_open.iter().any(|o| !ed.hiding_ok(o, 1, sh.endpoint_rows))
@@ -240,8 +240,8 @@ pub(crate) fn decode(bytes: &[u8], binding: &Digest, lay: &Layout) -> Result<Rec
         return Err("private block wire: expected statement mismatch".into());
     }
     let (a_root, h_root, mask_root) = (r.take::<32>()?, r.take::<32>()?, r.take::<32>()?);
-    let mut slots = Vec::with_capacity(N_SLOTS);
-    for s in 0..N_SLOTS {
+    let mut slots = Vec::with_capacity(lay.n_slots());
+    for s in 0..lay.n_slots() {
         let (n, e, d) = lay.slots()[s];
         let scalar = r.fp2()?;
         let rounds = (0..n + e).map(|_| r.fp2_vec(d + 1)).collect::<Result<Vec<_>, String>>()?;
@@ -250,7 +250,7 @@ pub(crate) fn decode(bytes: &[u8], binding: &Digest, lay: &Layout) -> Result<Rec
     }
     let q = r.fp2_vec(MASK_VEC)?;
     let prox = r.fp2_vec(MASK_VEC)?;
-    let columns = (0..bd.checks).map(|_| r.column(M_ROWS, MASK_DOM, MASK_PATH)).collect::<Result<Vec<_>, String>>()?;
+    let columns = (0..bd.checks).map(|_| r.column(lay.m_rows(), MASK_DOM, MASK_PATH)).collect::<Result<Vec<_>, String>>()?;
     let mask_open = MaskOpening { q, prox, columns };
     let a_open = r.hiding(bd, sh.a_groups(), lay.a_rows)?;
     let h_open = r.hiding(bd, sh.h_groups(), lay.h_rows)?;
@@ -341,8 +341,8 @@ pub(crate) fn segment_len(lay: &Layout, g: SegGeom) -> usize {
     let sh = lay.shape();
     let (bd, ed) = (Dim::block(lay), Dim::endpoint(lay));
     let sl = lay.slots();
-    let slots: usize = (0..N_SLOTS).map(|s| (1 + (sl[s].0 + sl[s].1) * (sl[s].2 + 1) + lay.slot_terms(s)) * 16).sum();
-    let mask = 2 * MASK_VEC * 16 + bd.checks * (8 + M_ROWS * 8 + 32 + MASK_PATH * 32);
+    let slots: usize = (0..lay.n_slots()).map(|s| (1 + (sl[s].0 + sl[s].1) * (sl[s].2 + 1) + lay.slot_terms(s)) * 16).sum();
+    let mask = 2 * MASK_VEC * 16 + bd.checks * (8 + lay.m_rows() * 8 + 32 + MASK_PATH * 32);
     let (gi, ri) = g.incoming(sh.endpoint_rows);
     RUN_HEADER
         + usize::from(g.commits_boundary()) * 32
@@ -361,7 +361,7 @@ pub(crate) fn segment_len(lay: &Layout, g: SegGeom) -> usize {
 fn validate_segment(s: &Segment, lay: &Layout, g: SegGeom) -> Result<(), String> {
     let sh = lay.shape();
     let (bd, ed) = (Dim::block(lay), Dim::endpoint(lay));
-    if s.slots.len() != N_SLOTS {
+    if s.slots.len() != lay.n_slots() {
         return Err("private run wire: slot count".into());
     }
     for (i, sp) in s.slots.iter().enumerate() {
@@ -378,7 +378,7 @@ fn validate_segment(s: &Segment, lay: &Layout, g: SegGeom) -> Result<(), String>
     if m.q.len() != MASK_VEC
         || m.prox.len() != MASK_VEC
         || m.columns.len() != bd.checks
-        || m.columns.iter().any(|(j, c, _, p)| *j >= MASK_DOM || c.len() != M_ROWS || p.len() != MASK_PATH)
+        || m.columns.iter().any(|(j, c, _, p)| *j >= MASK_DOM || c.len() != lay.m_rows() || p.len() != MASK_PATH)
         || !bd.hiding_ok(&s.a_open, sh.a_groups(), lay.a_rows)
         || !bd.hiding_ok(&s.h_open, sh.h_groups(), lay.h_rows)
         || !ed.hiding_ok(&s.in_open, gi, ri)
@@ -456,8 +456,8 @@ pub(crate) fn decode_segment(bytes: &[u8], lay: &Layout, g: SegGeom, binding: &D
     }
     let b_root = if g.commits_boundary() { Some(r.take::<32>()?) } else { None };
     let (a_root, h_root, mask_root) = (r.take::<32>()?, r.take::<32>()?, r.take::<32>()?);
-    let mut slots = Vec::with_capacity(N_SLOTS);
-    for s in 0..N_SLOTS {
+    let mut slots = Vec::with_capacity(lay.n_slots());
+    for s in 0..lay.n_slots() {
         let (n, e, d) = lay.slots()[s];
         let scalar = r.fp2()?;
         let rounds = (0..n + e).map(|_| r.fp2_vec(d + 1)).collect::<Result<Vec<_>, String>>()?;
@@ -466,7 +466,7 @@ pub(crate) fn decode_segment(bytes: &[u8], lay: &Layout, g: SegGeom, binding: &D
     }
     let q = r.fp2_vec(MASK_VEC)?;
     let prox = r.fp2_vec(MASK_VEC)?;
-    let columns = (0..bd.checks).map(|_| r.column(M_ROWS, MASK_DOM, MASK_PATH)).collect::<Result<Vec<_>, String>>()?;
+    let columns = (0..bd.checks).map(|_| r.column(lay.m_rows(), MASK_DOM, MASK_PATH)).collect::<Result<Vec<_>, String>>()?;
     let mask_open = MaskOpening { q, prox, columns };
     let a_open = r.hiding(bd, sh.a_groups(), lay.a_rows)?;
     let h_open = r.hiding(bd, sh.h_groups(), lay.h_rows)?;

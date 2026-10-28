@@ -1,0 +1,52 @@
+[
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md",
+    "snapshot": "experiments/public-setup-lifetimes-20261019/startup/AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md",
+    "snapshot": "experiments/public-setup-lifetimes-20261019/startup/STATE.md",
+    "sha256": "2bf09dce3ee69c9ea4ef44fba44ad01907ad93d9c5526c0082201d70df75a81c"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md",
+    "snapshot": "experiments/public-setup-lifetimes-20261019/startup/FINDINGS.md",
+    "sha256": "3d087265b8d9dca1e8bd898a317bd67ba2ee93cab6fd29b5d4581610343f4395"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl",
+    "snapshot": "experiments/public-setup-lifetimes-20261019/startup/sources.jsonl",
+    "sha256": "0a7cd3f5d33e74d539f35748e70c3de50863aebba3308dfba70910c9fa79aefe"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md",
+    "snapshot": "experiments/public-setup-lifetimes-20261019/startup/PROGRESS.md",
+    "sha256": "7f1d8ae6384e0c0fd1712b11f2af2db3dfeb080ead305955d7a24d0c2dd4066d"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+    "snapshot": "experiments/public-setup-lifetimes-20261019/startup/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+    "snapshot": "experiments/public-setup-lifetimes-20261019/startup/MVP_STATUS.md",
+    "sha256": "c20e16c06a191b316f2b04a8823446b954ab741fa2a83cc36dd73cc4edcd0a10"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "snapshot": "experiments/public-setup-lifetimes-20261019/startup/ZK60_DECISIONS.md",
+    "sha256": "6145d9d0cf3e83d8c9be4b178a5e8e583e510e1ad4a98ad92f2955c501b34e56"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+    "snapshot": "experiments/public-setup-lifetimes-20261019/startup/ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f"
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+    "snapshot": "experiments/public-setup-lifetimes-20261019/startup/ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53"
+  }
+]

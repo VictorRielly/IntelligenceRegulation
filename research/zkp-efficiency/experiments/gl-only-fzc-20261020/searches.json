@@ -1,0 +1,28 @@
+{
+  "accessed_at": "2026-10-20T07:29:31.437251+00:00",
+  "queries": [
+    "GPU sumcheck lookup softmax zero knowledge LLM October 2026 github",
+    "zero knowledge private attention lookup softmax 2026 eprint",
+    "GPU sumcheck memory traffic base field extension field github 2026",
+    "site.eprint.iacr.org 2026 October lookup sumcheck GPU",
+    "site.github.com sumcheck release October 2026 lookup softmax",
+    "TenseUp Pappas",
+    "TenseUp github",
+    "Sumcheck-based zkSNARKs are Non-Malleable github"
+  ],
+  "supplementary_checks": [
+    "https://eprint.iacr.org/2025/507",
+    "https://arxiv.org/abs/2606.16146",
+    "https://eprint.iacr.org/2026/2494",
+    "https://eprint.iacr.org/2026/1750"
+  ],
+  "limits": "Some broad searches returned irrelevant results; these were not used. Older507 and hardware paper already assessed; no new contribution claimed.2494 direct InternalError; index dateOct15 reconfirmed, binary-field protocol not compatible.1750 unrelated and discarded.",
+  "rotation_next": [
+    "GPU commitments/NTT",
+    "memory traffic and resident batches",
+    "quantization/exact arithmetic",
+    "private KV/proof composition",
+    "sumcheck/GKR",
+    "lookup/softmax"
+  ]
+}

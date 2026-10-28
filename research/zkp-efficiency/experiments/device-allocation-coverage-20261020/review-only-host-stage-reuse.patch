@@ -1,0 +1,60 @@
+--- a/hashline/src/gpu/cuda.rs
++++ b/hashline/src/gpu/cuda.rs
+@@ -4328,6 +4328,11 @@
+         let f_fp2 = dev.get_func(MODULE, "k_tab_from_fp2").ok_or("k_tab_from_fp2 missing")?;
+         let f_exp = dev.get_func(MODULE, "k_fzc_expand").ok_or("k_fzc_expand missing")?;
+         let mut keep: Vec<CudaSlice<u64>> = Vec::new();
++        // RESEARCH REVIEW CANDIDATE: reuse storage only, never private values.
++        // cudarc 0.13.9 copy_into uses this device's stream and synchronizes;
++        // each upload therefore follows the preceding table consumer.
++        // Lazy allocation: fully resident sources allocate no staging here.
++        let mut host_stage: Vec<CudaSlice<u64>> = Vec::new();
+         for (t, sp) in srcs.iter().enumerate() {
+             let mut dst = tabs.get_mut().slice_mut(t * l * 2..(t + 1) * l * 2);
+             let cfg = LaunchConfig::for_num_elems(l as u32);
+@@ -4348,9 +4353,12 @@
+                             }
+                         }
+                         None => {
+-                            let d_src = dev.htod_sync_copy(as_u64s(&host[*off..*off + l])).map_err(|e| format!("fzc upload: {e}"))?;
+-                            unsafe { f_fp.clone().launch(cfg, (&d_src, &mut dst, l as i32)) }.map_err(|e| format!("k_tab_from_fp: {e}"))?;
+-                            keep.push(d_src);
++                            if host_stage.is_empty() {
++                                let b = unsafe { dev.alloc::<u64>(l) }.map_err(|e| format!("fzc upload: {e}"))?;
++                                host_stage.push(b);
++                            }
++                            dev.htod_sync_copy_into(as_u64s(&host[*off..*off + l]), &mut host_stage[0]).map_err(|e| format!("fzc upload: {e}"))?;
++                            unsafe { f_fp.clone().launch(cfg, (&host_stage[0], &mut dst, l as i32)) }.map_err(|e| format!("k_tab_from_fp: {e}"))?;
+                             st.bytes_h2d += 8 * l as u64;
+                         }
+                     }
+@@ -4378,11 +4386,16 @@
+                             }
+                         }
+                         None => {
+-                            let d_re = dev.htod_sync_copy(as_u64s(&host[*re..*re + l])).map_err(|e| format!("fzc upload: {e}"))?;
+-                            let d_im = dev.htod_sync_copy(as_u64s(&host[*im..*im + l])).map_err(|e| format!("fzc upload: {e}"))?;
+-                            unsafe { f_fp2.clone().launch(cfg, (&d_re, &d_im, &mut dst, l as i32)) }.map_err(|e| format!("k_tab_from_fp2: {e}"))?;
+-                            keep.push(d_re);
+-                            keep.push(d_im);
++                            while host_stage.len() < 2 {
++                                let b = unsafe { dev.alloc::<u64>(l) }.map_err(|e| format!("fzc upload: {e}"))?;
++                                host_stage.push(b);
++                            }
++                            let (left, right) = host_stage.split_at_mut(1);
++                            let d_re = &mut left[0];
++                            let d_im = &mut right[0];
++                            dev.htod_sync_copy_into(as_u64s(&host[*re..*re + l]), d_re).map_err(|e| format!("fzc upload: {e}"))?;
++                            dev.htod_sync_copy_into(as_u64s(&host[*im..*im + l]), d_im).map_err(|e| format!("fzc upload: {e}"))?;
++                            unsafe { f_fp2.clone().launch(cfg, (&*d_re, &*d_im, &mut dst, l as i32)) }.map_err(|e| format!("k_tab_from_fp2: {e}"))?;
+                             st.bytes_h2d += 16 * l as u64;
+                         }
+                     }
+@@ -4492,6 +4505,7 @@
+         };
+         dev.synchronize().map_err(|e| format!("fzc build: {e}"))?;
+         drop(keep);
++        drop(host_stage); // the existing build synchronize has completed every consumer
+         note_vram(&g);
+         st.secs_build = t0.elapsed().as_secs_f64();
+         if verbose() {

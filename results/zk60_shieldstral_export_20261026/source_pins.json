@@ -1,0 +1,7 @@
+{
+  "build_spec": {
+    "path": "results/zk60_fidelity_parity_20261019/S2_BUILD_SPEC.json",
+    "sha256": "06f6173b604ea70fc1d6470ca0749ebaefb001bc8b6640e3ae628927f8e5ad1a"
+  },
+  "status": "Implementation input only; no Shieldstral export or fidelity measurement yet"
+}

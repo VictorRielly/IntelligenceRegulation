@@ -1,0 +1,33 @@
+{
+  "native_live_search": true,
+  "queries": [
+    "site.eprint.iacr.org 2025 2026 one hot lookup arguments Lasso Shout Twist",
+    "site.github.com a16z jolt shout twist lookup release 2026",
+    "site.eprint.iacr.org lookup arguments small tables LogUp 2025 2026",
+    "site.jolt.a16zcrypto.com one-hot Shout booleanity",
+    "site.github.com/a16z/jolt \"one_hot\" \"booleanity\" \"shout\"",
+    "site.github.com/a16z/jolt/releases \"Twist and Shout initial release\"",
+    "site.github.com/a16z/jolt \"shout\" \"crates/jolt-prover\"",
+    "site.eprint.iacr.org 2026 lookup argument October GPU sumcheck",
+    "site.github.com Ingonyama icicle releases October 2026 NTT"
+  ],
+  "query_count": 9,
+  "records": 13,
+  "source_urls": [
+    "https://eprint.iacr.org/2025/105",
+    "https://jolt.a16zcrypto.com/how/twist-shout.html",
+    "https://jolt.a16zcrypto.com/how/architecture/opening-proof.html",
+    "https://jolt.a16zcrypto.com/how/blindfold.html",
+    "https://github.com/a16z/jolt/releases/tag/v0.2.0-alpha",
+    "https://raw.githubusercontent.com/a16z/jolt/main/LICENSE-MIT",
+    "https://a16zcrypto.com/posts/article/lattice-snarks-jolt-post-quantum-faster/",
+    "https://arxiv.org/abs/2602.17452",
+    "https://eprint.iacr.org/2025/946",
+    "https://eprint.iacr.org/2024/1058",
+    "https://eprint.iacr.org/2026/1388",
+    "https://arxiv.org/abs/2606.16146",
+    "https://github.com/ingonyama-zk/icicle/releases"
+  ],
+  "untrusted_instructions_ignored": true,
+  "downloaded_code_executed": false
+}

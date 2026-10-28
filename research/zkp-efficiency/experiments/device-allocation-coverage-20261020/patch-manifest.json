@@ -1,0 +1,7 @@
+{
+  "status": "UNBUILT_UNAPPLIED_REVIEW_ONLY",
+  "source_sha256": "dcc0e4bcd76c009827d30d8b1547e043118619948f59e63e75b132c5e6a38629",
+  "candidate_sha256": "85d23c070a8c1845f9271587d615afe171bf198a46dfe586537fa87be73cb319",
+  "patch_sha256": "82ae8e0c52e90093c498adc0426287f3a1a3d21cceac0e840735de1134b633e8",
+  "scope": "host-backed Base/Pair only; same requested-length raw storage; no production edits"
+}

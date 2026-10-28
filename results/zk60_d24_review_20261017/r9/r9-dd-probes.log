@@ -1,0 +1,13 @@
+probe verifier-tl-T32 prove exit=1 dir=no OK :: DD (D30) is registered only at TinyLlama T128, Llama-3-8B T128 and the DD development rung, not at TinyLlama(32)
+probe verifier-tl-T32 verify exit=1 dir=no BAD :: {"event":"rejected","error":"`00` is not a 64-hex-digit SHA-256"}
+probe verifier-tl-T32 stack-prove exit=1 dir=no OK :: DD (D30) is registered only at TinyLlama T128, Llama-3-8B T128 and the DD development rung, not at TinyLlama(32)
+probe verifier-tl-T32 stack-verify exit=1 dir=no BAD :: {"event":"rejected","error":"--expect-statement is required"}
+probe verifier-8b-T32 prove exit=1 dir=no OK :: DD (D30) is registered only at TinyLlama T128, Llama-3-8B T128 and the DD development rung, not at Llama3_8B(32)
+probe verifier-8b-T32 verify exit=1 dir=no BAD :: {"event":"rejected","error":"`00` is not a 64-hex-digit SHA-256"}
+probe verifier-8b-T32 stack-prove exit=1 dir=no OK :: DD (D30) is registered only at TinyLlama T128, Llama-3-8B T128 and the DD development rung, not at Llama3_8B(32)
+probe verifier-8b-T32 stack-verify exit=1 dir=no BAD :: {"event":"rejected","error":"--expect-statement is required"}
+probe verifier-8b-b7-T64 prove exit=1 dir=no OK :: DD (D30) is registered only at TinyLlama T128, Llama-3-8B T128 and the DD development rung, not at Llama3_8B(64)
+probe verifier-8b-b7-T64 verify exit=1 dir=no BAD :: {"event":"rejected","error":"`00` is not a 64-hex-digit SHA-256"}
+probe verifier-8b-b7-T64 stack-prove exit=1 dir=no OK :: DD (D30) is registered only at TinyLlama T128, Llama-3-8B T128 and the DD development rung, not at Llama3_8B(64)
+probe verifier-8b-b7-T64 stack-verify exit=1 dir=no BAD :: {"event":"rejected","error":"--expect-statement is required"}
+probes 12 bad 6

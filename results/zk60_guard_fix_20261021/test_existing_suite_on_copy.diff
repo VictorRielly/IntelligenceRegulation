@@ -1,0 +1,160 @@
+--- /home/victor/IntelligenceRegulation/tests/test_zk60_resource_guard.py	2026-09-29 18:24:07.304357516 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_guard_fix_20261021/test_existing_suite_on_copy.py	2026-10-20 23:12:07.915959021 -0700
+@@ -3,8 +3,22 @@
+ Every case runs the guard as a subprocess against a private state dir, private
+ lock files, a fake /proc/meminfo and a fake nvidia-smi, so nothing here touches
+ the shared box's real locks, history or GPU.
++
++GUARD-FIX LANE COPY (results/zk60_guard_fix_20261021): the live suite
++(tests/test_zk60_resource_guard.py, sha256 8f854a2d...) with only these changes:
++  * GUARD is $GUARD_UNDER_TEST (default: zk60_resource_guard.py.new beside this
++    file), loaded with SourceFileLoader because of the .new/.orig suffix;
++  * memory-cap cases allocate 64 MiB under a 0.03 GiB cap instead of 400/700 MiB
++    under 0.15/0.2 GiB (the lane brief asks for tiny test jobs);
++  * the five cases in which the TEST ITSELF sends a signal (SIGTERM/SIGKILL to a
++    guard or a sentinel) run only with RUN_SIGNAL_CASES=1 (coordinator permission
++    2026-10-21: signals only to processes the test spawned on its private paths).
++    Every raw os.kill goes through own_kill(), which refuses a pid whose command
++    line lacks the test's private temp dir (or the sentinel's unique sleep
++    argument); Popen.send_signal only reaches the test's own unreaped children.
+ """
+ import fcntl
++import importlib.machinery
+ import importlib.util
+ import json
+ import os
+@@ -17,11 +31,30 @@
+ from pathlib import Path
+ from unittest import mock
+ 
+-GUARD = Path(__file__).resolve().parents[1] / "scripts" / "zk60_resource_guard.py"
+-_spec = importlib.util.spec_from_file_location("zk60_resource_guard_under_test", GUARD)
++sys.dont_write_bytecode = True
++GUARD = Path(os.environ.get("GUARD_UNDER_TEST",
++                            Path(__file__).resolve().parent / "zk60_resource_guard.py.new"))
++_loader = importlib.machinery.SourceFileLoader("zk60_resource_guard_under_test", str(GUARD))
++_spec = importlib.util.spec_from_loader(_loader.name, _loader)
+ guard = importlib.util.module_from_spec(_spec)
+-_spec.loader.exec_module(guard)
++_loader.exec_module(guard)
+ GIB_KB = 1024 * 1024
++RUN_SIGNAL_CASES = os.environ.get("RUN_SIGNAL_CASES") == "1"
++NO_SIGNALS = "signal cases are opt-in: RUN_SIGNAL_CASES=1 (they signal only this test's own processes)"
++
++
++def own_kill(pid, sig, marker):
++    """Signal `pid` only if it is one of this test's own processes: its command line
++    must contain `marker` (the test's private temp dir, or the sentinel's unique
++    argument).  Anything else raises AssertionError and is never signalled."""
++    try:
++        with open(f"/proc/{pid}/cmdline", "rb") as f:
++            cmd = f.read().replace(b"\0", b" ").decode("utf-8", "replace")
++    except OSError:
++        return  # already gone
++    if marker not in cmd:
++        raise AssertionError(f"refusing to signal pid {pid}: {cmd[:120]!r} lacks {marker!r}")
++    os.kill(pid, sig)
+ 
+ HAVE_SCOPE = (os.path.exists("/usr/bin/systemd-run") and subprocess.run(
+     ["systemd-run", "--user", "--scope", "--quiet", "true"],
+@@ -143,9 +176,9 @@
+ 
+     def test_rss_cap_kills_the_job(self):
+         t0 = time.time()
+-        r = self.guard("run", "--class", "light", "--cap-gib", "0.15", "--no-cgroup",
++        r = self.guard("run", "--class", "light", "--cap-gib", "0.03", "--no-cgroup",
+                        "--", sys.executable, "-c",
+-                       "import time; x = bytearray(400*1024*1024)\n"
++                       "import time; x = bytearray(64*1024*1024)\n"
+                        "for i in range(0, len(x), 4096): x[i] = 1\n"
+                        "time.sleep(60)")
+         self.assertEqual(r.returncode, 75, r.stderr)
+@@ -181,15 +214,16 @@
+ 
+     @unittest.skipUnless(HAVE_SCOPE, "no systemd user scope on this host")
+     def test_kernel_memory_cap_stops_a_runaway(self):
+-        r = self.guard("run", "--class", "light", "--cap-gib", "0.2",
++        r = self.guard("run", "--class", "light", "--cap-gib", "0.03",
+                        "--", sys.executable, "-c",
+-                       "x = bytearray(700*1024*1024)\n"
++                       "x = bytearray(64*1024*1024)\n"
+                        "for i in range(0, len(x), 4096): x[i] = 1\n")
+         self.assertIn(r.returncode, (75, 137), r.stderr)  # watchdog or the kernel, both fine
+         self.assertEqual(self.records()[-1]["enforcement"], "cgroup+watchdog")
+ 
+ 
+ class TestSignals(GuardCase):
++    @unittest.skipUnless(RUN_SIGNAL_CASES, NO_SIGNALS)
+     def test_sigterm_kills_a_child_that_ignores_sigterm_then_releases_the_lock(self):
+         pidfile = Path(self.tmp.name) / "job.pid"
+         res = Path(self.tmp.name) / "res.json"
+@@ -209,6 +243,7 @@
+         self.assertIn("signal", json.loads(res.read_text())["guard_killed"])
+         self.assertTrue(self.lock_is_free())
+ 
++    @unittest.skipUnless(RUN_SIGNAL_CASES, NO_SIGNALS)
+     def test_sigterm_while_queued_publishes_a_refusal(self):
+         fd = os.open(self.heavy, os.O_RDWR | os.O_CREAT)
+         fcntl.flock(fd, fcntl.LOCK_EX)  # something else holds the heavy lock
+@@ -224,9 +259,11 @@
+         finally:
+             os.close(fd)
+ 
++    @unittest.skipUnless(RUN_SIGNAL_CASES, NO_SIGNALS)
+     def test_locks_stay_held_if_the_guard_itself_is_sigkilled(self):
+         self._sigkill_case(["--no-cgroup"])
+ 
++    @unittest.skipUnless(RUN_SIGNAL_CASES, NO_SIGNALS)
+     @unittest.skipUnless(HAVE_SCOPE, "no systemd user scope on this host")
+     def test_locks_stay_held_if_the_guard_is_sigkilled_in_cgroup_mode(self):
+         self._sigkill_case([])
+@@ -237,10 +274,10 @@
+             "run", "--class", "cpu", *extra, "--", sys.executable, "-c",
+             f"import os,time; open({str(pidfile)!r},'w').write(str(os.getpid())); time.sleep(30)")
+         job_pid = int(wait_for_file(pidfile))
+-        os.kill(g.pid, 9)          # the guard dies (session death, OOM kill, ...)
++        own_kill(g.pid, 9, self.tmp.name)  # the guard dies (session death, OOM kill, ...)
+         g.wait(timeout=10)         # not communicate(): the surviving job still holds its pipes
+         self.assertFalse(self.lock_is_free(), "job lost the lock when its guard died")
+-        os.kill(job_pid, 9)
++        own_kill(job_pid, 9, self.tmp.name)
+         deadline = time.time() + 10
+         while time.time() < deadline and not self.lock_is_free():
+             time.sleep(0.2)
+@@ -379,10 +416,10 @@
+     def test_setsid_child_is_counted_and_killed_without_cgroups(self):
+         pidfile = Path(self.tmp.name) / "child.pid"
+         code = ("import os,time; open(%r,'w').write(str(os.getpid()))\n"
+-                "x = bytearray(400*1024*1024)\n"
++                "x = bytearray(64*1024*1024)\n"
+                 "for i in range(0, len(x), 4096): x[i] = 1\n"
+                 "time.sleep(60)" % str(pidfile))
+-        r = self.guard("run", "--class", "light", "--cap-gib", "0.15", "--no-cgroup", "--",
++        r = self.guard("run", "--class", "light", "--cap-gib", "0.03", "--no-cgroup", "--",
+                        "sh", "-c", f'setsid {sys.executable} -c "$0" & wait', code)
+         self.assertEqual(r.returncode, 75, r.stderr)
+         pid = int(wait_for_file(pidfile))
+@@ -497,11 +534,13 @@
+         self.assertEqual(t.cg, cg / rel)
+         self.assertEqual(t.pids({}), {555})
+ 
++    @unittest.skipUnless(RUN_SIGNAL_CASES, NO_SIGNALS)
+     @unittest.skipUnless(HAVE_SCOPE, "no systemd user scope on this host")
+     def test_a_guard_started_inside_a_scope_leaves_that_scope_alone(self):
+         t = Path(self.tmp.name)
+         sentinel, rcf = t / "sentinel.pid", t / "rc"
+-        script = (f"sleep 300 >/dev/null 2>&1 & echo $! > {sentinel}; "
++        tag = f"300.{os.getpid() % 100000:05d}{int(time.time()) % 1000:03d}"  # unique sleep arg
++        script = (f"sleep {tag} >/dev/null 2>&1 & echo $! > {sentinel}; "
+                   f"{sys.executable} {GUARD} run --class light --max-secs 1 -- sleep 60; "
+                   f"echo $? > {rcf}")
+         subprocess.run(["systemd-run", "--user", "--scope", "--quiet", "--", "sh", "-c", script],
+@@ -516,7 +555,7 @@
+             self.assertEqual(rec["foreign_cgroups_refused"], [])
+         finally:
+             try:
+-                os.kill(pid, 9)
++                own_kill(pid, 9, f"sleep {tag}")
+             except OSError:
+                 pass
+ 

@@ -1,0 +1,28 @@
+[07:20:15Z] fp_eval tinyllama export tinyllama_dg_rot1_T128 T 128 corpora lambada:250@500 relax [] threads 4
+[07:20:15Z] corpora built: (250, 128), {'lambada': {'n': 250, 'offset': 500, 'source': '/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/data/lambada_openai/en_test.parquet', 'sha256_expected': '99d8a9e54cda761c6340ddd4fa6feda7f846ffb0e716afa52968dea75495eea7', 'truncated_items': 5}} (0s)
+[07:20:15Z] float final residual from cache float_T128_e15a4fb99dff.npy
+[07:21:00Z] L00 violations 0 refused so far 0 (43s)
+[07:21:40Z] L01 violations 0 refused so far 0 (40s)
+[07:22:22Z] L02 violations 0 refused so far 0 (42s)
+[07:23:05Z] L03 violations 0 refused so far 0 (42s)
+[07:23:47Z] L04 violations 0 refused so far 0 (43s)
+[07:24:29Z] L05 violations 0 refused so far 0 (41s)
+[07:25:08Z] L06 violations 0 refused so far 0 (40s)
+[07:25:50Z] L07 violations 0 refused so far 0 (42s)
+[07:26:32Z] L08 violations 0 refused so far 0 (42s)
+[07:27:15Z] L09 violations 0 refused so far 0 (43s)
+[07:27:58Z] L10 violations 0 refused so far 0 (43s)
+[07:28:40Z] L11 violations 0 refused so far 0 (42s)
+[07:29:23Z] L12 violations 0 refused so far 0 (42s)
+[07:30:04Z] L13 violations 0 refused so far 0 (41s)
+[07:30:45Z] L14 violations 0 refused so far 0 (41s)
+[07:31:23Z] L15 violations 0 refused so far 0 (38s)
+[07:32:06Z] L16 violations 0 refused so far 0 (43s)
+[07:32:49Z] L17 violations 0 refused so far 0 (43s)
+[07:33:31Z] L18 violations 0 refused so far 0 (42s)
+[07:34:14Z] L19 violations 0 refused so far 0 (43s)
+[07:34:53Z] L20 violations 0 refused so far 0 (40s)
+[07:35:36Z] L21 violations 0 refused so far 0 (43s)
+[07:35:38Z] lambada: acc float 0.5880 int 0.5760 diff -0.0120 CI [-0.03801182999326256, 0.014011829993262559] top1 0.954 refused 0
+[07:35:38Z] done (923s) -> /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/runs/tinyllama/t_LOWv6_lam500
+[07:35:38Z] ALREADY DONE: runs/tinyllama/t_LOWv6_lam500/summary.json exists (set FP_RERUN=1 to recompute)

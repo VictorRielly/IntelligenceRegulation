@@ -1,0 +1,37 @@
+
+running 9 tests
+test private_block::review_r12_tests::review_r12_a_existing_profiles_keep_their_axes_tables_and_records ... REVIEW-R12 A: 15 existing shapes keep q_pad == d_pad, q_width == width, the frozen RoPE generator, no transform, no tie
+ok
+test private_block::review_r12_tests::review_r12_b_yarn_tables_equal_my_reference_and_the_door_refuses_other_transforms ... REVIEW-R12 B near miss no truncation: 6501 of 65536 T512 entries differ
+REVIEW-R12 B near miss 4.48.1's correction range (max_pos 262144): 19601 of 65536 T512 entries differ
+REVIEW-R12 B near miss factor 8: 12034 of 65536 T512 entries differ
+REVIEW-R12 B near miss unscaled: 22650 of 65536 T512 entries differ
+REVIEW-R12 B: Rust YaRN tables = my reference at T128/256/512/2048 and at the four profiles; near misses differ; the door refuses other declarations
+ok
+test private_block::review_r12_tests::review_r12_c_rope_from_export_proves_other_tables_under_the_pinned_record ... REVIEW-R12 C: --rope-from-export proves tables off the generator (the EXPORT's tables, which differ from the native generator at theta 10000 in 1 entries (caller opted in)); the statement records base 10000 and transform none
+ok
+test private_block::review_r12_tests::review_r12_d2_the_token_table_reads_follow_links_and_block_on_a_fifo ... REVIEW-R12 D2: a linked table outside token_io/ is hashed through the link; a FIFO table blocked the loader for 2 s until released (token_io/head_mult12.bin: SHA-256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 is not its manifest's)
+ok
+test private_block::review_r12_tests::review_r12_d_the_tied_record_binds_declared_sources_not_derived_tables ... REVIEW-R12 D: tied_of accepted 7/5/3-byte tables and a swapped head under the pinned tensor language_model.model.embed_tokens.weight (67a138c1c483b89874526ef523f5f0c30f161808076561730193d1de2093dd19); only the record's table digests change
+ok
+test private_block::review_r12_tests::review_r12_e_a_nonzero_pad_lane_is_rejected_at_the_decoupled_rung ... REVIEW-R12 E norm_a output Y at a padded model lane: rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+REVIEW-R12 E FFN product H16 at a padded hidden lane: rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+REVIEW-R12 E block output X2 at a padded model lane: rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+ok
+test private_block::review_r12_tests::review_r12_f_the_logup_term_and_refusal_distances_at_shieldstral ... REVIEW-R12 F Shieldstral T128 (2^14): U8 51937280 N 54558720 T_DD 0: per block 2^-102.30, per 26-block run 2^-97.60 (97.60 bits); refusal distance (D34 + D30(4)) 2^-112.69
+REVIEW-R12 F Shieldstral T128 DD (2^14): U8 48398336 N 51544064 T_DD 131072: per block 2^-102.37, per 26-block run 2^-97.67 (97.67 bits); refusal distance (D34 + D30(4)) 2^-105.29
+REVIEW-R12 F Shieldstral T256 (2^15): U8 121700352 N 127991808 T_DD 0: per block 2^-101.07, per 26-block run 2^-96.37 (96.37 bits); refusal distance (D34 + D30(4)) 2^-112.68
+REVIEW-R12 F Shieldstral T256 DD (2^15): U8 101515264 N 109903872 T_DD 262144: per block 2^-101.27, per 26-block run 2^-96.57 (96.57 bits); refusal distance (D34 + D30(4)) 2^-104.30
+REVIEW-R12 F Shieldstral T512 (2^15, counted only): U8 306249728 N 323026944 T_DD 0: per block 2^-99.73, per 26-block run 2^-95.03 (95.03 bits); refusal distance (D34 + D30(4)) 2^-112.66
+REVIEW-R12 F Shieldstral T512 DD (2^15, counted only): U8 219742208 N 244908032 T_DD 524288: per block 2^-100.12, per 26-block run 2^-95.42 (95.42 bits); refusal distance (D34 + D30(4)) 2^-103.30
+ok
+test private_block::review_r12_tests::review_r12_g_an_edited_shieldstral_shape_is_refused_by_the_registry ... REVIEW-R12 G: 28 edited Shieldstral shapes refused by CS-7
+ok
+test private_block::review_r12_tests::review_r12_h_the_pad_indicators_are_the_true_lanes ... REVIEW-R12 H hashline-zk-mr1/private-block-rung-hd-t32-dev/1: supp_D = 192 of 256 lanes per token ([(0, NotAllOne([6, 7]))]), supp_F = 384 of 512, supp_Q = 16384 lanes
+REVIEW-R12 H hashline-zk-mr1/private-block-shieldstral-3b-t128-trained-block/1: supp_D = 3072 of 4096 lanes per token ([(0, NotAllOne([10, 11]))]), supp_F = 9216 of 16384, supp_Q = 524288 lanes
+REVIEW-R12 H hashline-zk-mr1/private-block-shieldstral-3b-t128-trained-ddict/1: supp_D = 3072 of 4096 lanes per token ([(0, NotAllOne([10, 11]))]), supp_F = 9216 of 16384, supp_Q = 524288 lanes
+REVIEW-R12 H hashline-zk-mr1/private-block-shieldstral-3b-t256-trained-block/1: supp_D = 3072 of 4096 lanes per token ([(0, NotAllOne([10, 11]))]), supp_F = 9216 of 16384, supp_Q = 1048576 lanes
+ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 630 filtered out; finished in 6.56s
+

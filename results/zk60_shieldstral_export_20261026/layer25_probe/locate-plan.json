@@ -1,0 +1,25 @@
+{
+  "schema": "zk60-shieldstral-layer25-probe/1",
+  "mode": "locate",
+  "sources": {
+    "evaluation_export.py": "16e9e97892a1f3a8fd238fea7ce6b3d4f84d6400096d6bfb6d58605e300fa778",
+    "accuracy_stack.py": "7265fe982789bac5efb0f9607539d7a2814b43964575b49d4ed44de58cfccad2",
+    "shieldstral_geometry.py": "cf3b543def0546cc5d4de744ab341d1b4d973ee81b53b0f9f466045a97cd7ee3",
+    "shieldstral_weights.py": "a93541078c296d952e70a71bbf81b6771d98178d73cc48d7d4eeac07ada1622f",
+    "calibration_port.py": "e47e9e34151476ede530a43d0d7c9da2485285dae2d4d22c5b33f1e6a743892d",
+    "signed_word_domain.py": "2ff6c9d43d9b1dfee08e3512fe95a828c0a41505a64303bf286db2fb7ba893eb",
+    "S2_DOMAIN_AMENDMENT.json": "0b33175e0345a7c13593002ffc089b5b65470ffdfaab419b9af2cc6962c27dbf",
+    "vendor/b3_ladder.py": "d2e07ab43131298b2552d61ff215b2c7a0e11521d237d2c0721242870849eea7",
+    "vendor/b3calib.py": "656049c85d932133e2f6e70c6886af35f5f0d4c5d94000c11879b66001ddf511",
+    "vendor/fp_lib.py": "e990f904d1696d69080d177aeb4c2deb5da6e50123923bf28ebeac6cc2f71cf6",
+    "vendor/tlcalib.py": "2441cc4072c0d4b4cf3f07779a3323ad066ced9eaa6aa31eeb757e0362d94738",
+    "probe_layer25.py": "a3ba287c10f74c4f61ab777b2f11430624dfb10015c181473159e10c3ac1656a",
+    "build_token_io.py": "ed5a5fc07483968172f17a844567596b84a610540ed2d3aeb35bb307125d0fa0"
+  },
+  "calibration_input_sha256": "316bb334ed964dd5c8d24716a6f093e12cff8a848408d2633179fc7ce1ac75e7",
+  "channels": [
+    2181,
+    8853
+  ],
+  "float_input_sha256": "64fa46b37601a735f40b09998b3b3078c7542212c93787a48ea57f962dd3b7b8"
+}

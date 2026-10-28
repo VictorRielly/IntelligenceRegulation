@@ -556,8 +556,9 @@ fn the_shape_driven_layout_reproduces_the_toy_exactly() {
     check_against_model(&sh, &MODEL_TOY);
     let lay = Layout::new();
     assert_eq!((lay.a_data_rows, lay.a_rows, lay.h_data_rows, lay.h_rows), (A_DATA_ROWS, A_ROWS, H_DATA_ROWS, H_ROWS));
-    assert_eq!(sh.claim_sites(), (A_SITES, H_SITES));
-    assert_eq!(sh.slots(), SLOTS);
+    let (a_s, h_s) = sh.claim_sites();
+    assert_eq!((&a_s[..N_SLOTS], &h_s[..N_SLOTS]), (&A_SITES[..], &H_SITES[..]));
+    assert_eq!(&sh.slots()[..N_SLOTS], &SLOTS[..]);
     assert_eq!(sh.profile, std::str::from_utf8(PROFILE).unwrap(), "the toy shape's profile id is this module's");
     // the two statements of the row rule agree at the toy
     for dom in ALL_DOMS {
@@ -656,9 +657,12 @@ fn the_integer_windows_come_from_the_shape() {
 #[test]
 fn an_inexpressible_shape_is_refused_at_construction_by_name() {
     let mk = |t, d, f, h, dh, kv| Shape::new("probe", "probe/1", t, d, f, h, dh, kv, 8, 8, 9, 7, None, None, None, None);
-    // the Q/D coincidence: the padded head slots must tile the padded width
-    let err = mk(32, 16, 16, 2, 4, 1).expect_err("d_pad != h_pad * head_dim must be refused");
-    assert_eq!(err, "private block shape: d_pad differs from h_pad * head_dim");
+    // NATIVE R12 (F2): the Q/D coincidence is no longer a refusal (the query
+    // axis has its own padded width, `q_pad`); this probe (query axis 8,
+    // model axis 16) is still refused, by the bilinear slots' rule on a
+    // P-3-lifted Kv domain
+    let err = mk(32, 16, 16, 2, 4, 1).expect_err("this probe must still be refused");
+    assert_eq!(err, "private block shape: the bilinear attention slots cannot serve a shape whose Kv domain is lifted by P-3 (natural log 7, lifted to the row width 8)");
     // T-8: the RoPE partner bit is addressed as `log - log2(head_dim)`
     let err = mk(32, 48, 16, 2, 24, 1).expect_err("a non-power-of-two head dimension must be refused");
     assert_eq!(err, "private block shape: the head dimension is not an even power of two");
@@ -781,13 +785,15 @@ pub(super) fn pad_matrix(w: &[i8], to: usize, ti: usize, po: usize, pi: usize, o
 /// sizes `(d, d)`, `(kvw, d)`, `(kvw, d)`, `(d, d)`, `(d)`.
 pub(super) fn pad_attention_weights(s: &Shape, wq: &[i8], wk: &[i8], wv: &[i8], wo: &[i8], gamma_a: &[i8]) -> [Vec<i8>; 5] {
     let (d, dp, kvw) = (s.width, s.d_pad, s.kv_heads * s.head_dim);
+    // NATIVE R12 (F2): `Wq` (query, model), `Wo` (model, query)
+    let (qw, qp) = (s.q_width(), s.q_pad());
     let id = |i: usize| i;
     let q = |j: usize| q_axis_index(s, j);
     [
-        pad_matrix(wq, d, d, dp, dp, &q, &id),
+        pad_matrix(wq, qw, d, qp, dp, &q, &id),
         pad_matrix(wk, kvw, d, kvw, dp, &id, &id),
         pad_matrix(wv, kvw, d, kvw, dp, &id, &id),
-        pad_matrix(wo, d, d, dp, dp, &id, &q),
+        pad_matrix(wo, d, qw, dp, qp, &id, &q),
         pad_matrix(gamma_a, 1, d, 1, dp, &id, &id),
     ]
 }
@@ -816,7 +822,9 @@ pub(super) fn tame_case(s: &Shape) -> (AttentionPublic, FeedForwardPublic, Vec<i
     assert_eq!(cos.len(), s.tokens * half);
     let (exp, _) = crate::tables_attn::exp_member(0, s.head_dim, s.f_e);
     let (act, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, -3, -11).expect("frozen SiLU int16-out member");
-    let aw = pad_attention_weights(s, &diag(d, d), &diag(kvw, d), &diag(kvw, d), &diag(d, d), &gamma);
+    // NATIVE R12 (F2): `Wq` (query, model), `Wo` (model, query)
+    let qw = s.q_width();
+    let aw = pad_attention_weights(s, &diag(qw, d), &diag(kvw, d), &diag(kvw, d), &diag(d, qw), &gamma);
     let fw = pad_ff_weights(s, &gamma, &diag(d, f), &diag(d, f), &diag(f, d));
     let public = AttentionPublic::new_shaped(s, &aw[0], &aw[1], &aw[2], &aw[3], &aw[4], &cos, &sin, &exp).expect("statement");
     let ff = FeedForwardPublic::new_shaped(s, &fw[0], &fw[1], &fw[2], &fw[3], &act).expect("feed-forward statement");
@@ -1282,6 +1290,7 @@ fn the_slot_definitions_are_built_from_the_shape() {
             g_u8: Fp2::from_u64(13),
             g_exp: Fp2::from_u64(17),
             g_act: Fp2::from_u64(19),
+            g_dd: Fp2::from_u64(23),
         };
         let mut tr = crate::transcript::Transcript::new(sh.profile.as_bytes());
         let mut pts = Points::default();
@@ -1372,7 +1381,7 @@ fn the_slot_definitions_are_built_from_the_shape() {
         match pub_toy {
             None => {
                 // the TOY carries no pad machinery at all (finding S9-F1)
-                assert_eq!(super::pad::indicator_tables_per_slot(&sh), [0usize; N_SLOTS], "the frozen toy profile declares an indicator table");
+                assert_eq!(super::pad::indicator_tables_per_slot(&sh), [0usize; MAX_SLOTS], "the frozen toy profile declares an indicator table");
                 pub_toy = Some(pubs);
             }
             Some(toy_pubs) => {

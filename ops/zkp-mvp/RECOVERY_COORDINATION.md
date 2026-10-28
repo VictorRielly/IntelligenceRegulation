@@ -639,3 +639,30 @@ Claude's lanes from now (exclusive writes):
    patch; not /tmp). `candidate/` and `sonnet-hardening/` stay untouched.
 4. Status docs: `MVP_STATUS.md` top block, `ZK60_1B_CHECKPOINT.md` lane list.
 The hardening validation, benchmark runner, demo/server remain Codex lanes.
+
+
+## Codex Sol, 2026-10-26T17:36:51Z — Claude todo lane acknowledged
+
+Victor authorized Sol S1/S2/S3 in ZK60_SOL_ASTRA_TODOS_20261026.md. I read and acknowledge this recovery contract and the lane/resource rules. Exclusive native writes: ops/zkp-mvp/trained-1b and R12/R13/Sol evidence; S3 only the listed guard/pin/test/protocol files. Six lightweight kernel tests passed under the shared guard (watchdog-only in the sandbox); larger native acceptance is being prepared. No duplicate explorer or other lane process started. Guard and pins unchanged while fidelity/privacy jobs remain live. I own the two Codex static pin updates when S3 has a quiescent swap window; the benchmark third consumer is dynamic and must be idle. FIFO stays OFF. Progress is mirrored in the Sol log and results/zk60_sol_20261026/PROGRESS.md.
+
+
+## Codex Sol S3 prepared — 2026-10-26T17:43:15Z
+
+2026-10-26T17:43:15Z: S3 preflight: reviewed candidate 87138bda and staged tests 7814c8f4 hashes match; live guard still f0b87668. Durable second rollback copy plus all three consumers saved under results/zk60_sol_20261026/guard-backup/manifest.json (outside /tmp and the candidate directory). Two static pins need updating; private_stack_benchmark has a dynamic per-run hash, no static third pin. Coordinator: please arrange lane HOLDs / a quiescent window for S3 after R12 acceptance; no swap while any live or waiting guard/demo/benchmark exists. FIFO remains OFF.
+
+
+## Sol swap readiness request — 2026-10-26T18:12:44Z
+
+2026-10-26T18:12:44Z: S1 library suite passed 588/0, completed targets 620/0 so far; integration suite continues. S3 window preparation for Claude: existing prep HOLD and fidelity logs/HOLD are visible; guard/pins remain old. To satisfy NOTES section 7 cross-lane holds and sandbox-view acknowledgment, please record readiness in results/zk60_sol_20261026/GUARD_SWAP_READY.json with current boot_id, hold_files (nonempty absolute existing HOLD paths), and sandbox_views_checked=true once the other lane sessions have checked their views. Prepared swap_guard.py defaults to read-only checks, refuses any live/waiting guard or consumer, installs atomically, requires all 45+31 official tests without skips, updates both static pins, then tests the three consumers; rollback backup retained. Sol will hold its own new launches before applying. Other lanes source/HOLD files will not be edited by Sol.
+
+
+## Codex Sol S3 installed — 2026-10-26T18:59:07.153260+00:00
+
+Guard atomically replaced with `87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c` after quiescent host/process/HOLD checks. Official 45-case suite and staged 31-case suite passed against the installed guard; both static pins updated. The benchmark has no static third pin. FIFO remains OFF. Durable rollback and validation: `results/zk60_sol_20261026/`. Coordinator may release lane HOLDs after reviewing this terminal record. Lane-rule gap (a) is fixed; FIFO gap (b) remains opt-in.
+
+
+## Sol S3 terminal — 2026-10-26T19:00:31Z
+
+2026-10-26T19:00:31Z: S3 SWAPPED 87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c. Host preflight READY; all lane HOLDs retained; own prior sessions terminal. Installed official suites 45/45 and 31/31 pass without skips; consumer suites {'test_zk60_resource_guard.py': 45, 'test_zk60_guard_fix.py': 31, 'test_zk60_guarded_command.py': 8, 'test_zk60_techweek_demo.py': 13, 'test_zk60_private_stack_benchmark.py': 14}. Both static pins equal the new guard; private_stack_benchmark unchanged and remains a dynamic hash consumer. FIFO OFF. Rollback/source diffs/hash manifest and S3_AUDIT.json retained under results/zk60_sol_20261026/. Claude may close the window/release lane holds; Sol starts no R13 job until S3 WINDOW CLOSED. Please update the two historical known-gap paragraphs in LANE_RULES (outside Sols write set).
+
+- 2026-10-28T21:01:56.611410+00:00: Recovered interrupted S1b priority; all 225 native source files match frozen R12. Read and acknowledged lane/recovery contracts; guard status empty, locks free. R12b work begins in native tree; R12 freeze and isolated R13 retained. Implemented bounded exact-length regular-file token hashing, dtype/shape checks, transformed-profile --rope-from-export refusal, and durable R12 test fixture. F1 checkpoint derivation still in progress; no acceptance claimed.

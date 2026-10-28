@@ -1,0 +1,125 @@
+{
+ "tinyllama_T128": {
+  "baseline": {
+   "committed_elems": 68403200,
+   "u8": 28999680,
+   "receipt": 23049192,
+   "block_proof_s_cpu_law": 6.316545454545454,
+   "S_A_planes": 11,
+   "ls": 2,
+   "lp": 2,
+   "wrho_s": 16,
+   "committed_delta_pct": 0.0,
+   "proof_delta_pct": 0.0,
+   "receipt_delta_pct": 0.0
+  },
+  "W1 two-byte remainders at qkv/g/z (= dg_w16)": {
+   "committed_elems": 70860800,
+   "u8": 30638080,
+   "receipt": 23356504,
+   "block_proof_s_cpu_law": 6.554068196023078,
+   "S_A_planes": 11,
+   "ls": 2,
+   "lp": 2,
+   "wrho_s": 16,
+   "committed_delta_pct": 3.592814371257491,
+   "proof_delta_pct": 3.760326640358458,
+   "receipt_delta_pct": 1.3332875182783033
+  },
+  "W2 int12/int16 weights: two-byte remainders at qkv, ao, g, z + new 2-limb remainder at up [MODEL]": {
+   "committed_elems": 75448320,
+   "u8": 32997376,
+   "receipt": 23930008,
+   "block_proof_s_cpu_law": 6.880960409399174,
+   "S_A_planes": 11,
+   "ls": 2,
+   "lp": 2,
+   "wrho_s": 16,
+   "committed_delta_pct": 10.299401197604796,
+   "proof_delta_pct": 8.935500566176735,
+   "receipt_delta_pct": 3.82146150719731
+  }
+ },
+ "llama3-8b_T128": {
+  "baseline": {
+   "committed_elems": 117882880,
+   "u8": 51937280,
+   "receipt": 29300856,
+   "block_proof_s_cpu_law": 10.598917180438352,
+   "S_A_planes": 11,
+   "ls": 2,
+   "lp": 2,
+   "wrho_s": 16,
+   "committed_delta_pct": 0.0,
+   "proof_delta_pct": 0.0,
+   "receipt_delta_pct": 0.0
+  },
+  "W1 two-byte remainders at qkv/g/z (= dg_w16)": {
+   "committed_elems": 122830848,
+   "u8": 55345152,
+   "receipt": 29919464,
+   "block_proof_s_cpu_law": 11.063751023174095,
+   "S_A_planes": 11,
+   "ls": 2,
+   "lp": 2,
+   "wrho_s": 16,
+   "committed_delta_pct": 4.197359277275892,
+   "proof_delta_pct": 4.385672940191032,
+   "receipt_delta_pct": 2.1112284228146816
+  },
+  "W2 int12/int16 weights: two-byte remainders at qkv, ao, g, z + new 2-limb remainder at up [MODEL]": {
+   "committed_elems": 131874816,
+   "u8": 60063744,
+   "receipt": 31050024,
+   "block_proof_s_cpu_law": 11.69134820475387,
+   "S_A_planes": 11,
+   "ls": 2,
+   "lp": 2,
+   "wrho_s": 16,
+   "committed_delta_pct": 11.869353717859621,
+   "proof_delta_pct": 10.307005948982573,
+   "receipt_delta_pct": 5.969682250921271
+  }
+ },
+ "llama3-8b_T512": {
+  "baseline": {
+   "committed_elems": 663257088,
+   "u8": 306249728,
+   "receipt": 69554440,
+   "block_proof_s_cpu_law": 51.97759290238243,
+   "S_A_planes": 13,
+   "ls": 3,
+   "lp": 2,
+   "wrho_s": 18,
+   "committed_delta_pct": 0.0,
+   "proof_delta_pct": 0.0,
+   "receipt_delta_pct": 0.0
+  },
+  "W1 two-byte remainders at qkv/g/z (= dg_w16)": {
+   "committed_elems": 682590208,
+   "u8": 319881216,
+   "receipt": 70762872,
+   "block_proof_s_cpu_law": 53.745374041892575,
+   "S_A_planes": 13,
+   "ls": 3,
+   "lp": 2,
+   "wrho_s": 18,
+   "committed_delta_pct": 2.914875747245693,
+   "proof_delta_pct": 3.4010446440452924,
+   "receipt_delta_pct": 1.7373901651713375
+  },
+  "W2 int12/int16 weights: two-byte remainders at qkv, ao, g, z + new 2-limb remainder at up [MODEL]": {
+   "committed_elems": 718503936,
+   "u8": 338755584,
+   "receipt": 73007544,
+   "block_proof_s_cpu_law": 56.20338827786683,
+   "S_A_planes": 13,
+   "ls": 3,
+   "lp": 2,
+   "wrho_s": 18,
+   "committed_delta_pct": 8.329627982807164,
+   "proof_delta_pct": 8.130032845924084,
+   "receipt_delta_pct": 4.964606141606498
+  }
+ }
+}

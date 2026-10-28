@@ -1,0 +1,4576 @@
+{
+ "blocks": 1,
+ "bundle": "tinyllama-trained-tk9-capture-dense-l1",
+ "bundle_dir": "/home/victor/zk60-artifacts/tinyllama-trained-tk9-capture-dense-l1",
+ "gate": "zk60-native-run-gate, staged at the shape 'TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads)'",
+ "hash_rule": {
+  "block_profile": "hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1",
+  "contexts_compared": 4,
+  "contexts_pinned_in_this_tool": {
+   "column": "hashline-zk-mr1 2026-09-20 pcs column digest",
+   "leaf": "hashline-zk-mr1 2026-09-20 pcs salted merkle leaf",
+   "node": "hashline-zk-mr1 2026-09-20 pcs merkle inner node",
+   "transcript": "hashline-zk-mr1 2026-09-20 fiat-shamir transcript"
+  },
+  "declared": {
+   "contexts": {
+    "column": "hashline-zk-mr1 2026-09-20 pcs column digest",
+    "leaf": "hashline-zk-mr1 2026-09-20 pcs salted merkle leaf",
+    "node": "hashline-zk-mr1 2026-09-20 pcs merkle inner node",
+    "transcript": "hashline-zk-mr1 2026-09-20 fiat-shamir transcript"
+   },
+   "keys_hex": {
+    "column": "e9b7d4a1972b9a046f146f74cec684cadd5bfc9f48a627c5b60310c98ef0b2e7",
+    "leaf": "9671bbd87ce393ff51b3e765c8cdcf47d2d81b116f90e3a6d8ccdb229f6bd086",
+    "node": "6ea2749c2301c61ee8b88fcb0ad4e3a298be82883ae9edceffde36637361880f",
+    "transcript": "246fc9c5d187f2273430bd7d5b1352f1ca9f2374a1a183ce9a4738132d644059"
+   },
+   "profile": "hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1",
+   "rule": "blake3-keyed/1"
+  },
+  "derived_keys_hex": {
+   "column": "e9b7d4a1972b9a046f146f74cec684cadd5bfc9f48a627c5b60310c98ef0b2e7",
+   "leaf": "9671bbd87ce393ff51b3e765c8cdcf47d2d81b116f90e3a6d8ccdb229f6bd086",
+   "node": "6ea2749c2301c61ee8b88fcb0ad4e3a298be82883ae9edceffde36637361880f",
+   "transcript": "246fc9c5d187f2273430bd7d5b1352f1ca9f2374a1a183ce9a4738132d644059"
+  },
+  "derived_rule": "blake3-keyed/1",
+  "era": "tagged-schema",
+  "findings": [],
+  "keys_compared": 4,
+  "legacy_profiles_pinned_in_this_tool": [
+   "hashline-zk-mr1/private-block-t32-poc/1",
+   "hashline-zk-mr1/private-block-rung-t24-dev/1"
+  ],
+  "refusals": [],
+  "run_profile": "hashline-zk-mr1/private-run-tinyllama-1.1b-t32-trained-statement/1",
+  "superseded": false,
+  "what": "the hash rule, DERIVED here from the profile the bundle's shape names and then compared with the bundle's declared hash_tag (ruling T-7: re-derive, never consume)"
+ },
+ "ok": false,
+ "peak_rss_mb": 158,
+ "prediction": {
+  "a_groups": 36,
+  "blocks": 1,
+  "cols": 4096,
+  "corrections_and_geometry": {
+   "correction_c6": {
+    "d_helper_planes_declared": 17,
+    "d_helper_planes_equal": true,
+    "d_helper_planes_predicted": 17,
+    "d_max": 1482910,
+    "d_max_declared": 1482910,
+    "d_max_equal": true,
+    "lookups_dropped": 4,
+    "norm_ceps": 91255,
+    "norm_tn": 10,
+    "norm_top_is_full_byte": true,
+    "norm_wrho_declared": 32,
+    "norm_wrho_derived": 32,
+    "norm_wrho_equal": true,
+    "slot14_terminals_declared": 54,
+    "slot14_terminals_equal": true,
+    "slot14_terminals_predicted": 54,
+    "why": "the window is tn + 1 + bit_length(D_max) (D24) and C-6 applies exactly when that is a multiple of 8",
+    "window_rule": "D24 trained: isqrt(Ceps + width * 32768^2), tn + 1 + bit_length(D_max)"
+   },
+   "endpoint": {
+    "column_digest_bytes_of_the_largest_commitment": 14384,
+    "commitment_rows_declared_by_the_shape": 21,
+    "commitment_rows_equal": true,
+    "commitment_rows_predicted": 21,
+    "cube_words": 65536,
+    "data_rows_predicted": 16,
+    "endpoint_log_n": 12,
+    "external_endpoints_declared": [
+     [
+      16,
+      21
+     ]
+    ],
+    "external_endpoints_equal": true,
+    "internal_boundaries_declared": [],
+    "internal_boundaries_equal": true,
+    "internal_boundary_rows_predicted": 22,
+    "why": "the endpoint commits the padded Dom::D cube in rows of 2^endpoint_log_n, plus MASK_ROWS = 5; an internal boundary has one more, the run layer's second reserved IO-tab row"
+   },
+   "tab_lift": {
+    "domain_log_declared": 12,
+    "domain_log_equal": true,
+    "domain_log_predicted": 12,
+    "lift_factor": 16,
+    "natural_log": 8,
+    "why": "ruling P-3 serves the byte table at the row width"
+   },
+   "what_this_is_not": "a check of the prover.  These are three statements about the SHAPE, derived from its own seven numbers, and compared with what the capture declares about itself"
+  },
+  "encoded_cols": 16384,
+  "h_groups": 9,
+  "hash_layer": {
+   "column_bytes": 7411712,
+   "columns": 1280,
+   "largest_column_bytes": 14384,
+   "openings": 5,
+   "tree_depth": 14
+  },
+  "head_dim": 64,
+  "hidden": 5632,
+  "joint": {
+   "identified_row_pairs": 32,
+   "sum_of_the_parts": 2,
+   "whole_run_generators": 104,
+   "whole_run_joint": 2
+  },
+  "kv_heads": 4,
+  "lkv": 2,
+  "masking": {
+   "coefficient_unknowns_fp": 1958,
+   "functionals": 34,
+   "largest_L": 97,
+   "largest_L_slot": 18,
+   "mask_msg": 512,
+   "mask_q": 256,
+   "q_entries_per_stage": 1024,
+   "rows": 50,
+   "ruling_C4_headroom": 159,
+   "slot_lengths": [
+    53,
+    53,
+    20,
+    54,
+    50,
+    26,
+    26,
+    26,
+    32,
+    29,
+    26,
+    26,
+    26,
+    30,
+    70,
+    70,
+    58,
+    66,
+    97,
+    41,
+    28,
+    36,
+    36
+   ]
+  },
+  "n_slots": 23,
+  "opened_cols": 256,
+  "pad_rule": {
+   "all_derived_counts_equal_the_capture": true,
+   "disagreements": [],
+   "domains": [
+    {
+     "domain": "D",
+     "domain_log": 16,
+     "host_slot": 14,
+     "padded_size": 65536,
+     "pads": false,
+     "true_size": 65536
+    },
+    {
+     "domain": "F",
+     "domain_log": 18,
+     "host_slot": 18,
+     "padded_size": 262144,
+     "pads": true,
+     "true_size": 180224
+    },
+    {
+     "domain": "Ht",
+     "domain_log": 10,
+     "host_slot": 17,
+     "padded_size": 1024,
+     "pads": false,
+     "true_size": 1024
+    },
+    {
+     "domain": "Kv",
+     "domain_log": 13,
+     "host_slot": 16,
+     "padded_size": 8192,
+     "pads": false,
+     "true_size": 8192
+    },
+    {
+     "domain": "L",
+     "domain_log": 12,
+     "host_slot": 3,
+     "padded_size": 4096,
+     "pads": true,
+     "true_size": 288
+    },
+    {
+     "domain": "Q",
+     "domain_log": 16,
+     "host_slot": 15,
+     "padded_size": 65536,
+     "pads": false,
+     "true_size": 65536
+    },
+    {
+     "domain": "S",
+     "domain_log": 15,
+     "host_slot": 17,
+     "padded_size": 32768,
+     "pads": false,
+     "true_size": 32768
+    },
+    {
+     "domain": "T",
+     "domain_log": 5,
+     "host_slot": 2,
+     "padded_size": 32,
+     "pads": false,
+     "true_size": 32
+    },
+    {
+     "domain": "Tab",
+     "domain_log": 12,
+     "host_slot": 19,
+     "padded_size": 4096,
+     "pads": true,
+     "true_size": 256
+    }
+   ],
+   "domains_that_do_not_pad": [
+    "D",
+    "Ht",
+    "Kv",
+    "Q",
+    "S",
+    "T"
+   ],
+   "domains_that_pad": [
+    "F",
+    "L",
+    "Tab"
+   ],
+   "per_zero_check_slot": [
+    {
+     "declared_by_the_capture": 13,
+     "equal": true,
+     "helpers_in_mu": 0,
+     "hosts": [
+      "T"
+     ],
+     "mu_base": 6,
+     "n_pad": 0,
+     "name": "SC_TZC",
+     "nu": 2,
+     "pad_on": false,
+     "predicted_definition_draws": 13,
+     "slot": 2,
+     "tau_domain": "T",
+     "tau_draws": 5,
+     "zeta": 0
+    },
+    {
+     "declared_by_the_capture": 14,
+     "equal": true,
+     "helpers_in_mu": 0,
+     "hosts": [
+      "L"
+     ],
+     "mu_base": 0,
+     "n_pad": 1,
+     "name": "SC_LZC",
+     "nu": 0,
+     "pad_on": true,
+     "predicted_definition_draws": 14,
+     "slot": 3,
+     "tau_domain": "L",
+     "tau_draws": 12,
+     "zeta": 1
+    },
+    {
+     "declared_by_the_capture": 46,
+     "equal": true,
+     "helpers_in_mu": 17,
+     "hosts": [
+      "D"
+     ],
+     "mu_base": 28,
+     "n_pad": 0,
+     "name": "SC_DZC",
+     "nu": 2,
+     "pad_on": false,
+     "predicted_definition_draws": 46,
+     "slot": 14,
+     "tau_domain": "D",
+     "tau_draws": 16,
+     "zeta": 0
+    },
+    {
+     "declared_by_the_capture": 26,
+     "equal": true,
+     "helpers_in_mu": 7,
+     "hosts": [
+      "Q"
+     ],
+     "mu_base": 8,
+     "n_pad": 0,
+     "name": "SC_QZC",
+     "nu": 2,
+     "pad_on": false,
+     "predicted_definition_draws": 26,
+     "slot": 15,
+     "tau_domain": "Q",
+     "tau_draws": 16,
+     "zeta": 0
+    },
+    {
+     "declared_by_the_capture": 22,
+     "equal": true,
+     "helpers_in_mu": 6,
+     "hosts": [
+      "Kv"
+     ],
+     "mu_base": 7,
+     "n_pad": 0,
+     "name": "SC_KVZC",
+     "nu": 2,
+     "pad_on": false,
+     "predicted_definition_draws": 22,
+     "slot": 16,
+     "tau_domain": "Kv",
+     "tau_draws": 13,
+     "zeta": 0
+    },
+    {
+     "declared_by_the_capture": 30,
+     "equal": true,
+     "helpers_in_mu": 7,
+     "hosts": [
+      "Ht",
+      "S"
+     ],
+     "mu_base": 13,
+     "n_pad": 0,
+     "name": "SC_SZC",
+     "nu": 2,
+     "pad_on": false,
+     "predicted_definition_draws": 30,
+     "slot": 17,
+     "tau_domain": "S",
+     "tau_draws": 15,
+     "zeta": 0
+    },
+    {
+     "declared_by_the_capture": 31,
+     "equal": true,
+     "helpers_in_mu": 5,
+     "hosts": [
+      "F"
+     ],
+     "mu_base": 9,
+     "n_pad": 1,
+     "name": "SC_FZC",
+     "nu": 2,
+     "pad_on": true,
+     "predicted_definition_draws": 31,
+     "slot": 18,
+     "tau_domain": "F",
+     "tau_draws": 18,
+     "zeta": 1
+    },
+    {
+     "declared_by_the_capture": 17,
+     "equal": true,
+     "helpers_in_mu": 0,
+     "hosts": [
+      "Tab"
+     ],
+     "mu_base": 3,
+     "n_pad": 1,
+     "name": "SC_TAB",
+     "nu": 0,
+     "pad_on": true,
+     "predicted_definition_draws": 17,
+     "slot": 19,
+     "tau_domain": "Tab",
+     "tau_draws": 12,
+     "zeta": 1
+    }
+   ],
+   "slots_whose_draw_count_is_derived_here": [
+    2,
+    3,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+   ],
+   "the_rule": "tau(log dom) + mu(base + n_pad) + nu + zeta(n_pad), with pad_on = any(Shape::pads(d)) over the domains the slot hosts (argument.rs:936, pad.rs:361-369)",
+   "what_this_is_not": "a check of the prover: the capture's declared count is an INPUT.  What it predicts is that the port will consume exactly this many, and the gate's own confirmation is that the slot's terminal identity holds -- `Ctx.pad_draws` refuses BY NAME on any mismatch, which is finding M-F1's repair"
+  },
+  "per_commitment": [
+   {
+    "claims": 120,
+    "data_rows_declared": 1487,
+    "groups": 36,
+    "key": "A@0",
+    "kind": "block",
+    "non_data_rows_by_row_roles": 242,
+    "non_data_rows_match": true,
+    "predicted_disclosed_dimension": 0,
+    "predicted_generators": 74,
+    "predicted_non_data_rows": 242,
+    "rows": 1729,
+    "spare_mask_rows": 0,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
+   },
+   {
+    "claims": 50,
+    "data_rows_declared": 1698,
+    "groups": 9,
+    "key": "H@0",
+    "kind": "block",
+    "non_data_rows_by_row_roles": 102,
+    "non_data_rows_match": true,
+    "predicted_disclosed_dimension": 2,
+    "predicted_generators": 20,
+    "predicted_non_data_rows": 102,
+    "rows": 1798,
+    "spare_mask_rows": 0,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
+   },
+   {
+    "claims": 1,
+    "data_rows_declared": 16,
+    "groups": 1,
+    "key": "E-Input",
+    "kind": "external-endpoint",
+    "non_data_rows_by_row_roles": 5,
+    "non_data_rows_match": true,
+    "predicted_disclosed_dimension": 0,
+    "predicted_generators": 4,
+    "predicted_non_data_rows": 5,
+    "rows": 21,
+    "spare_mask_rows": 1,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
+   },
+   {
+    "claims": 1,
+    "data_rows_declared": 16,
+    "groups": 1,
+    "key": "E-Output",
+    "kind": "external-endpoint",
+    "non_data_rows_by_row_roles": 5,
+    "non_data_rows_match": true,
+    "predicted_disclosed_dimension": 0,
+    "predicted_generators": 4,
+    "predicted_non_data_rows": 5,
+    "rows": 21,
+    "spare_mask_rows": 1,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
+   }
+  ],
+  "q_heads": 32,
+  "receipt": {
+   "bytes_per_round_per_degree": 16,
+   "degrees": [
+    3,
+    3,
+    3,
+    4,
+    3,
+    2,
+    2,
+    2,
+    3,
+    3,
+    2,
+    2,
+    2,
+    2,
+    4,
+    4,
+    4,
+    4,
+    5,
+    3,
+    2,
+    2,
+    2
+   ],
+   "endpoint_rows": 21,
+   "rounds_of_slots_16_and_18": 33,
+   "segment_bytes_declared": [
+    11627288
+   ],
+   "sumcheck_rounds_per_slot": [
+    17,
+    17,
+    6,
+    13,
+    16,
+    12,
+    12,
+    12,
+    10,
+    9,
+    12,
+    12,
+    12,
+    14,
+    17,
+    17,
+    14,
+    16,
+    19,
+    13,
+    13,
+    17,
+    17
+   ],
+   "the_law": "a stage of a shape whose slots 16 and 18 have one degree less sends 528 bytes less per stage, everything else being equal",
+   "total_segment_bytes": 11627288
+  },
+  "replay": {
+   "bilinear_definition_draws_derived_and_compared": [
+    {
+     "captured": 15,
+     "derived": 15,
+     "slot": 8
+    },
+    {
+     "captured": 16,
+     "derived": 16,
+     "slot": 9
+    }
+   ],
+   "challenges_checked": 4511,
+   "definition_draws_are_read_from_the_capture": true,
+   "definition_draws_derived_for": [
+    2,
+    3,
+    8,
+    9,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+   ],
+   "definition_draws_per_stage": 378,
+   "definition_draws_still_read_from_the_capture": [
+    0,
+    1,
+    4,
+    5,
+    6,
+    7,
+    10,
+    11,
+    12,
+    13,
+    20,
+    21,
+    22
+   ],
+   "m_proximity_rhos_per_stage": [
+    48
+   ],
+   "positions_checked": 127,
+   "segment_position_tags": 2,
+   "sumcheck_rounds_per_stage": 317
+  },
+  "shape": "TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads)",
+  "shape_independent": {
+   "a_disclosed": 0,
+   "a_groups": 36,
+   "boundary_disclosed": 0,
+   "boundary_reserved_rank": 6,
+   "channels": 28,
+   "endpoint_disclosed": 0,
+   "h_disclosed": 2,
+   "h_groups": 9,
+   "m_disclosed": 0,
+   "m_functionals": 34,
+   "m_rows": 50,
+   "n_slots": 23,
+   "three_role_generators": 154
+  },
+  "shape_independent_why": {
+   "a_disclosed": "A commits witness data under 36 opening groups whose blinding block is 246 rows at every shape so far; the disclosed dimension is a rank of the BLINDING structure, not of the data",
+   "a_groups": "read from the shape, not assumed -- but equal at all three shapes so far",
+   "boundary_disclosed": "ruling M-8's figure on the reserved rows",
+   "boundary_reserved_rank": "2*sites + 2 = 6 reserved columns over 2(G+1) = 6 generators, full rank",
+   "channels": "the channel array is a property of the gate, not of the shape",
+   "endpoint_disclosed": "one singleton group, 2(G+1) = 4 generators",
+   "h_disclosed": "the public LogUp identity, and the gate checks that it IS that identity rather than assuming it",
+   "h_groups": "likewise",
+   "m_disclosed": "M commits no witness data, so its part over the commitments' coordinates is 0",
+   "m_functionals": "layout.rs: N_FUNCTIONALS = 34, likewise",
+   "m_rows": "layout.rs: M_ROWS = 2 * N_SLOTS + 4, a constant of the slot table and not of the shape",
+   "n_slots": "the block's slot table",
+   "three_role_generators": "74 + 6 + 74: A's 2(36+1), the boundary's 2(2+1) and A's again"
+  },
+  "terminals": {
+   "slot_checks_expected": 23,
+   "why": "public_tables_included is True, so every slot's tables are carried and all 23 can be evaluated"
+  },
+  "tokens": 32,
+  "what_this_is": "a PREDICTION, computed from run.json[\"shape\"] and the capture's declared per-opening geometry, before the gate was run at this shape.  Every figure the gate reports that this does not name, or names wrongly, is the round's headline",
+  "what_this_is_not": "a privacy statement, and not a check: nothing here reads a published value",
+  "width": 2048
+ },
+ "privacy_acceptance": false,
+ "privacy_property_established": false,
+ "round": 9,
+ "run_layer_source_pins": {
+  "files_checked": [
+   "src/private_block/boundary.rs",
+   "src/private_block/run.rs",
+   "src/private_block/run_capture.rs"
+  ],
+  "ok": false,
+  "on_the_run_layer_but_not_pinnable_from_a_bundle": {
+   "src/private_block/endpoint_g.rs": "the external endpoint commitment.  (a) The gate reads the endpoint's row count from `run.json[\"shape\"][\"endpoint_rows\"]` and which rows are non-data from the capture's own `row_roles`; `endpoint_g::MASK_ROWS` is not transcribed anywhere in the run gate (the TOY gate's analogue, `private_seam.rs`, is pinned by `zk60_native_mask_commit.PATH_PINS`).  (b) The writer does not pin it",
+   "src/private_block/hash_domain.rs": "the C-H4 / T-3 / T-4 hash-length guards.  (a) The one guard the gate computes is the path-length check, and it is ported from `pcs::verify_zk_tagged` (pcs.rs:1188) against the commitment's own encoded width, not from this file; no other guard has a Python counterpart.  (b) The writer does not pin it",
+   "src/private_block/run_sink.rs": "the segment writer (a run's bytes to a directory).  (a) No port reads a segment file; `HL_RUN_CAPTURE_SEGMENTS` is off in every committed bundle and no bundle in scope carries a `segments/` directory.  (b) The writer does not pin it",
+   "src/private_block/wire.rs": "the segment codec.  (a) No port decodes a segment: the gate reads the bundle's JSON, and a stage's `segment_bytes` / `segment_sha256` are REPORTED sizes, never inputs to a check.  The start and end tags the frame binds are re-derived from the transcript and compared with the ones the capture recorded, so the comparison is against `run::position_tag`, not against the frame.  (b) The writer does not pin it, so no bundle carries a digest to compare"
+  },
+  "per_file": [
+   {
+    "bundles_written_at_them": [
+     "m125-capture-dense-l2",
+     "m125-capture-zero-l2",
+     "run-k-dense-p2",
+     "run-l-zero-p2",
+     "run-m-dense-c6",
+     "run-n-zero-c6",
+     "run-o-dense-w14",
+     "run-p-zero-w14",
+     "run-q-dense-e32",
+     "run-r-zero-e32",
+     "run-s-dense-k8",
+     "run-t-zero-k8",
+     "m125-capture-dense-l12",
+     "m125-capture-zero-l12"
+    ],
+    "bytes": 36123,
+    "declared": "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581",
+    "file": "src/private_block/boundary.rs",
+    "git_blob": "c2d57a37f4f442c65edc3ba9237f2d21118b09e9",
+    "lane_commits": [
+     "f4697f9ccad82304c56dee8c53da3bf107d98b1e",
+     "4ccbad1b1da0a23449ac06461740750a6818c6e8",
+     "3e106e192bc32701378ca3ce34bb0a8be8d2b7d5",
+     "11703c94df428c3e53dbc6c37eac835e348f5bf9",
+     "4505ddfa24fc99ff57fa086be8c73dae8117875c",
+     "99a8de832a6322c94bf951f0f443b96e1dc63cb8",
+     "17830dcc9f24b0d19e212b0344476e299cfd9be0"
+    ],
+    "read": true,
+    "reading": "`git diff 3247a89 f4697f9`: **44 added, 6 removed, 9 hunks**, split **production +22 / -0** and `#[cfg(test)] mod tests` **+22 / -6**.  STAGE 26 again.  In production: one accessor, `index() -> u64` (the boundary's own index, a PUBLIC word of the run statement), and a 16-line doc comment saying that a boundary is the one commitment on the path with no generator of its own -- it is handed the run's single stream -- and naming the domain it WOULD use (`hash_domain::boundary_seed_domain(index, spec.digest())`) without calling it.  In the tests: a `test_generator(spec)` helper and six call sites that now seed from that domain instead of the module's `DOMAIN` label.  **Not one geometry accessor moved**: `data_rows`, `commitment_rows`, `site_rows`, `prox_row`, `mask_row`, `MAX_SITES` and ruling M-1's refusal are byte-identical, and the ports read only those"
+   },
+   {
+    "bundles_written_at_them": [
+     "tinyllama-trained-tk9-capture-dense-l1",
+     "tinyllama-trained-tk9-capture-zero-l1",
+     "tinyllama-trained-tk9-capture-dense-l2",
+     "tinyllama-trained-tk9-capture-zero-l2",
+     "tinyllama-trained-tk9-capture-dense-l22",
+     "tinyllama-trained-tk9-capture-zero-l22"
+    ],
+    "bytes": 81468,
+    "declared": "cc2c420498b114273c4e67874c500b0f0fb3a0256e6ccef0a171f438ba0f3226",
+    "file": "src/private_block/run.rs",
+    "git_blob": "09647b5657441d82a0d0945650177d7fe4b5bda1",
+    "lane_commits": [
+     "uncommitted:ops/zkp-mvp/trained-1b-gate-tk9 (the token lane's frozen round-9 tree b666a991 = frozen-r7 + round 8/9 token-run code, + the privacy-gate lane's capture patch and stage-47 module; sources manifest 597b2204)"
+    ],
+    "read": true,
+    "reading": "[TINYLLAMA PORT v15, gate round 10: the frozen-r9 re-pin] read against 2c158dc9 (frozen-r7 = tk7), `diff -u` +16 / -1 in two hunks (round 8).  Hunk 1 (after `RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32`): two new `pub(crate) const` token-I/O run profile strings, `RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128` and `RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T128`, with their doc comments, and `TOKEN_IO_RUN_PROFILES` grown from `[&str; 3]` to `[&str; 5]` by appending them.  Hunk 2 (`registered_block_shape`): two new arms keyed by those two strings, `Shape::tinyllama_trained(128, ..)` and `Shape::llama3_8b_trained(128, ..)`.  On this profile's path: the match is by string equality and the two new strings differ from every block profile (stage 25's W-2 census), so `RUN_PROFILE_TINYLLAMA_T32_TRAINED` selects the arm it selected before; `TOKEN_IO_RUN_PROFILES` is read in two places, `RunStatement::new_bound_from_digests` (a blocks-only run statement refuses a token-I/O profile: two more strings refused, none of them a block profile) and `token_io::run` (a token run must carry one).  The header, `run_shape_words`, the stage order, the boundary absorb, the position tags, the opening order, `stage_shape`, `stage_cal` and the schedule lines are outside both hunks and byte-identical, so every block profile builds what it built.  The token r9 reading (v13), verbatim: ADDITIVE: two new token-I/O run profile strings for T128 (`RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128`, `..._LLAMA3_8B_T128`, round 8), their two `run_shape` arms, and `TOKEN_IO_RUN_PROFILES` grown from 3 to 5 entries (so a blocks-only run statement also refuses the two T128 token profiles).  Every other arm, the header, the stage order, the boundary absorb, the position tags, the opening order, `stage_shape`, `stage_cal` and the schedule lines are byte-identical: the T32 token profiles and every block profile build what they built"
+   },
+   {
+    "bundles_written_at_them": [
+     "tinyllama-trained-tk7-capture-dense-l1",
+     "tinyllama-trained-tk7-capture-zero-l1",
+     "tinyllama-trained-tk7-capture-dense-l2",
+     "tinyllama-trained-tk7-capture-zero-l2",
+     "tinyllama-trained-tk7-capture-dense-l22",
+     "tinyllama-trained-tk7-capture-zero-l22"
+    ],
+    "bytes": 135196,
+    "declared": "f47e28bf791aa225c9a0c19dd7f2662b2326846f847dcbc0041dac86be527289",
+    "file": "src/private_block/run_capture.rs",
+    "git_blob": "d674f0130d6d3074da36bb06020bc5d6713c80df",
+    "lane_commits": [
+     "uncommitted:ops/zkp-mvp/trained-1b-gate-tk7 (the token lane's frozen round-7 tree eb912dd5 = native R8 + token files, + the privacy-gate lane's capture patch and stage-47 module; sources manifest d356e7aa)"
+    ],
+    "read": true,
+    "reading": "[TINYLLAMA PORT v11, round 8] read against `aaff4e6e` (the token r7c writer, read in round 7: the native writer 1d43d68c plus the token capture hooks, no-ops when no capture is active).  `diff -u` is +/- 47 lines in three hunks (offsets 590 / 824 / 885).  They are line for line the gate's R5b capture patch (`r5b/trained-1b-gate-r5b-vs-frozen-r5b.v1.patch`, checked by diffing the two hunk sets): the trained-calibration `shape` keys (`trained_calibration`, the norm and shift constants, `d_max`), their allow-list entries, and the README sentence.  No field, kind, label or order a loader reads moved, apart from those keys returning.  The token writer inserts its six files into `OWN_SOURCE_FILES` at positions 16-21, so pins are matched by name (the gate always has).  SHARED_SOURCE_FILES pins G-2's and N-r4-d's three each"
+   }
+  ],
+  "pinned_elsewhere": {
+   "src/private_block/plane_index.rs": "zk60_native_rg_terminals.PORTED_FROM (one digest, 9de8320a8477...); a moved pin makes every slot of every stage NOT CHECKED"
+  },
+  "pins_at_a_read_digest": [
+   "src/private_block/boundary.rs: 5b1c85feefac -- read at f4697f9, 4ccbad1, 3e106e1, 11703c9, 4505ddf, 99a8de8, 17830dc",
+   "src/private_block/run.rs: cc2c420498b1 -- read at uncommi",
+   "src/private_block/run_capture.rs: f47e28bf791a -- read at uncommi"
+  ],
+  "pins_missing_from_the_bundle": [],
+  "pins_that_moved": [],
+  "shared_files": {
+   "at_a_digest_this_gate_read": 22,
+   "depended_on_by_a_port": [
+    "../zkp-core/src/field.rs",
+    "../zkp-core/src/merkle.rs",
+    "../zkp-core/src/ntt.rs",
+    "../zkp-core/src/pcs.rs",
+    "../zkp-core/src/rng.rs",
+    "../zkp-core/src/sumcheck.rs",
+    "../zkp-core/src/transcript.rs",
+    "src/zk.rs"
+   ],
+   "equal_to_the_bytes_round_8_read": [
+    "../zkp-core/src/field.rs",
+    "../zkp-core/src/merkle.rs",
+    "../zkp-core/src/ntt.rs",
+    "../zkp-core/src/rng.rs",
+    "../zkp-core/src/transcript.rs"
+   ],
+   "files_pinned": 23,
+   "g2_prover_path_files": [
+    {
+     "declared": "3c01433d84507cddadcf5c1387c08948fd3efe853a066d74690c0a6e1ce3dd70",
+     "depended_on_by": "no port transcribes it; the blinding reproduction and the hash layer re-check the encoding by COMPUTATION on every opened column",
+     "file": "../zkp-core/src/pcs/encode_buffer.rs",
+     "read": true,
+     "reading": "[TINYLLAMA PORT v5, round 4; finding G-2] read in round 1 (the same bytes, now pinned): `encode_rows`, per row, inverse-NTTs the message, writes `(coeff_i - pad_i) * pow_i` for i < Q, the pad row `pad_i - pad_{n+i}` (n+i < Q) else `pad_i` times `pow_{n+i}`, zeros, then forward-NTTs -- term for term `encode_row_zk`'s arithmetic.  It READS pads the caller (`zkp-core/src/pcs.rs`, pinned) drew before any branch; it draws nothing and absorbs nothing",
+     "sha256": "3c01433d84507cddadcf5c1387c08948fd3efe853a066d74690c0a6e1ce3dd70"
+    },
+    {
+     "declared": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b",
+     "depended_on_by": "no port; slot 17's verifier polynomial is read in argument.rs (ARGUMENT_DEFINITIONS)",
+     "file": "../zkp-core/src/sumcheck/grouped.rs",
+     "read": true,
+     "reading": "[TINYLLAMA PORT v5, round 4; finding G-2] the grouped equality evaluator (`EqualityGroup`, `GroupedEqRounds`) slot 17's prover uses; round 1 read that the verifier's polynomial is the same function as the old closure.  A prover-side evaluator: it publishes nothing of its own",
+     "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b"
+    },
+    {
+     "declared": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df",
+     "depended_on_by": "no port; the replay re-derives every challenge from the PUBLISHED rounds",
+     "file": "../zkp-core/src/sumcheck/rounds.rs",
+     "read": true,
+     "reading": "[TINYLLAMA PORT v5, round 4; finding G-2] a prover-side round EVALUATOR (`prove_rounds`, `SumcheckRounds`, `ClosureRounds`): it computes the round polynomials the existing `CfsMasker` masks and publishes (`zk.rs::masked_prove_rounds`, pinned); the published rounds and their absorbs are the masker's, which the mask port and the replay check",
+     "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df"
+    }
+   ],
+   "newly_pinned_own_files": {
+    "src/private_block.rs": "the module root; nothing is transcribed",
+    "src/private_block/endpoint_g.rs": "no port transcribes MASK_ROWS (unchanged).  Its stage-26 diff is the generator-domain change: `EndpointRole`, `seed_domain(spec, role)` and `prepare` taking the role, so the endpoint's OS-seeded blinding stream is separated by its bytes and not only by its entropy read.  Nothing absorbed moves",
+    "src/private_block/hash_domain.rs": "the one guard the gate computes, the path length, is ported from `pcs::verify_zk_tagged` (unchanged).  Its stage-25/26 diff adds `RunFacts`, the four seed-domain builders and the role bytes -- refusal sets and generator domains, neither of them a published byte",
+    "src/private_block/pad.rs": "the pad rule, read by `zk60_native_rg_terminals.ALSO_READ` as a digest and transcribed nowhere",
+    "src/private_block/run_sink.rs": "no port reads a segment file (unchanged)",
+    "src/private_block/wire.rs": "no port decodes a segment (reason (a) of NOT_PINNABLE_FROM_A_BUNDLE, unchanged)",
+    "src/private_block/witness.rs": "read by no port -- a capture carries no witness, which is the whole reason this gate exists"
+   },
+   "nr4d_files": [
+    {
+     "declared": "8cc95bc8b576907a99f24755cd9d16ea8904cd9ccc514f32f471a95ca8f13e50",
+     "depended_on_by": "no port; the trained door admits only an `act` equal to a member of this registry (review P-15's enforcement claim)",
+     "file": "../zkp-core/src/tables.rs",
+     "read": true,
+     "reading": "[TINYLLAMA PORT v6, round 5; N-r4-d] read whole: the frozen int16-out activation families (`silu-int16out-table-v3`, 9 members; gelu, 6), each 256 rows over g = -128..=127, S[g] = clamp(round_half_up(f(g 2^e_in) / 2^e_out)), regenerated from that formula and CHECKED against frozen spec digests before use (a platform libm drift is a hard stop).  Row 128 is g = 0 and silu(0) = 0, so every SiLU member has act[128] = 0 -- the fact P-15's GS-12 enforcement rests on.  The gate measures act[128] per stage (E4) independently",
+     "sha256": "8cc95bc8b576907a99f24755cd9d16ea8904cd9ccc514f32f471a95ca8f13e50"
+    },
+    {
+     "declared": "d651be2ccf8f19ff75fe6bca5ad42f4b773b569d0ae2017306f0bf819c51b283",
+     "depended_on_by": "no port transcribes it; it decides which backend every commitment's columns go through",
+     "file": "src/gpu/mod.rs",
+     "read": true,
+     "reading": "[TINYLLAMA PORT v6, round 5; N-r4-d] read whole for the CPU build: without `gpu-cuda` the module is the constant-false stub -- `mod cuda` is `#[cfg(feature = \"gpu-cuda\")]` (:19-20), the non-feature `seam::backend()` returns `zkp_core::pcs::Cpu` (never takes over) and `DevStore` is `NoExternal`, `enabled()` is the constant false and `label()` the fixed off string a trained statement records (P-7).  `required` / `declines` / `declined` / `require_live` count and refuse GPU CLAIMS only (fail closed); none touches a field value.  The CUDA bodies (`cuda.rs`, `kernels.cu`) are not compiled into a CPU binary and are not pinned (section 5a)",
+     "sha256": "d651be2ccf8f19ff75fe6bca5ad42f4b773b569d0ae2017306f0bf819c51b283"
+    },
+    {
+     "declared": "726c9355f9e663ef1a43dc9efe17cb2c85aa3583977d0c794dad4cf21a24715d",
+     "depended_on_by": "no port; the trained door's SiLU registry check",
+     "file": "src/tables_v3.rs",
+     "read": true,
+     "reading": "[TINYLLAMA PORT v6, round 5; N-r4-d] three lines: a compatibility adapter, `pub use zkp_core::tables::*;`",
+     "sha256": "726c9355f9e663ef1a43dc9efe17cb2c85aa3583977d0c794dad4cf21a24715d"
+    }
+   ],
+   "of": 23,
+   "ok": false,
+   "per_file": [
+    {
+     "declared": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+     "depended_on_by": "every port, through zk60_native_jv_field (P, the nonresidue 7, the byte encodings)",
+     "file": "../zkp-core/src/field.rs",
+     "same_as_the_mask_port_read": true,
+     "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+    },
+    {
+     "declared": "71bf33150a296c2ce4da49d189c6d84a9f741b9ada1ef2488711938cffd6b651",
+     "depended_on_by": null,
+     "file": "../zkp-core/src/hashtag.rs",
+     "same_as_the_mask_port_read": null,
+     "sha256": "71bf33150a296c2ce4da49d189c6d84a9f741b9ada1ef2488711938cffd6b651"
+    },
+    {
+     "declared": "388f012fbb535617bc5a105de8640c84b5572544284cb4947a4ad7606e891164",
+     "depended_on_by": null,
+     "file": "../zkp-core/src/lib.rs",
+     "same_as_the_mask_port_read": null,
+     "sha256": "388f012fbb535617bc5a105de8640c84b5572544284cb4947a4ad7606e891164"
+    },
+    {
+     "declared": "6e7817bd767a883985bfcd62b7a387d0c5f4c361010c4c5db37f5087d965744a",
+     "depended_on_by": "zk60_native_rg_hashlayer (the leaf salting and the inner-node fold that every opened column is re-authenticated along)",
+     "file": "../zkp-core/src/merkle.rs",
+     "same_as_the_mask_port_read": true,
+     "sha256": "6e7817bd767a883985bfcd62b7a387d0c5f4c361010c4c5db37f5087d965744a"
+    },
+    {
+     "declared": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e",
+     "depended_on_by": null,
+     "file": "../zkp-core/src/mle.rs",
+     "same_as_the_mask_port_read": null,
+     "sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e"
+    },
+    {
+     "declared": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890",
+     "depended_on_by": "zk60_native_rg_mask (the forward / inverse convention the coset encoding rests on)",
+     "file": "../zkp-core/src/ntt.rs",
+     "same_as_the_mask_port_read": true,
+     "sha256": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890"
+    },
+    {
+     "accepted_second_digest": "[TINYLLAMA PORT 2026-10-17] read against `6b8d1bfa`: **+41 / -23, six hunks**.  Production: (i) a TAGGED commitment now offers its columns to `Backend::try_commit_zk_keyed` (a new hook whose DEFAULT declines; the CPU backend these bundles were made with does not override it, so the CPU body runs as before); (ii) the CPU body's encoding moves to `encode_buffer::encode_rows` -- a NEW, UNPINNED file, read here: per row it inverse-NTTs the message, writes `(coeff_i - pad_i) * pow_i` for i < Q, the pad row `pad_i - pad_{n+i}` (n+i < Q) else `pad_i` times `pow_{n+i}`, zeros, then forward-NTTs -- term for term `encode_row_zk`'s arithmetic, with the same pads and salts drawn in the same order before any branch.  `coset_powers`, `hash_column` / `salt_leaf` and their keyed forms and `verify_zk_tagged`'s path-length rule (what `zk60_native_rg_pcs` and `zk60_native_rg_hashlayer` transcribe) are outside every hunk.  The rest is a test rename and a new test.  The hash layer and the blinding reproduction re-check the encoding by COMPUTATION on every opened column",
+     "declared": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495",
+     "depended_on_by": "zk60_native_rg_pcs and zk60_native_rg_hashlayer (`coset_powers`, `hash_column` / `salt_leaf` and their keyed forms, and `verify_zk_tagged`'s path-length rule)",
+     "file": "../zkp-core/src/pcs.rs",
+     "same_as_the_mask_port_read": true,
+     "sha256": "6b8d1bfa1a69293e0ea82df46a8b231d896043577e62ab3a837d3fbf743db81a"
+    },
+    {
+     "accepted_second_digest": "[TINYLLAMA PORT 2026-10-17] read against `1734c03c`: **+8 / -0, one hunk** -- the default `try_commit_zk_keyed` that declines.  No run-gate port depends on it",
+     "declared": "ff2cb5c1806b34653f8a44ad82f54201fb5d9f6ba2602afe5efeae4d104e0103",
+     "depended_on_by": null,
+     "file": "../zkp-core/src/pcs/backend.rs",
+     "same_as_the_mask_port_read": null,
+     "sha256": "1734c03ce6897e784e8ac443581190a00f30f6a91c16479aa7a7a65e00617499"
+    },
+    {
+     "declared": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb",
+     "depended_on_by": "zk60_native_rg_mask (the DRAW ORDER of every pad, mask row and salt of M)",
+     "file": "../zkp-core/src/rng.rs",
+     "same_as_the_mask_port_read": true,
+     "sha256": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb"
+    },
+    {
+     "accepted_second_digest": "[TINYLLAMA PORT 2026-10-17] read against `56dbb8c7`: **+5 / -0, one hunk** -- `mod rounds; mod grouped;` and their re-exports (`prove_rounds`, `ClosureRounds`, `SumcheckRounds`, `EqualityGroup`, `GroupedEqRounds`), two NEW, UNPINNED prover-side round evaluators.  `CfsMask::len / sum_weights / eval_weights / round` (the mask port) and the round absorbs (the replay) are byte-identical; the replay re-derives every challenge from the published rounds",
+     "declared": "fc7374bbd5e5cc4ede62e8a21d325eb62acff9b9dcc786d12eae39efbdfdbb95",
+     "depended_on_by": "zk60_native_rg_mask (`CfsMask::len / sum_weights / eval_weights / round`) and zk60_native_rg_replay (the sumcheck round absorbs)",
+     "file": "../zkp-core/src/sumcheck.rs",
+     "same_as_the_mask_port_read": true,
+     "sha256": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19"
+    },
+    {
+     "declared": "cc9752d0ef9bcd6d7b20e94e611ff26748593a2ea1a4f55b63d8c221715f1967",
+     "depended_on_by": "zk60_native_rg_replay and zk60_native_rg_hashrule (absorb, squeeze and the keyed form D19 selects)",
+     "file": "../zkp-core/src/transcript.rs",
+     "same_as_the_mask_port_read": true,
+     "sha256": "cc9752d0ef9bcd6d7b20e94e611ff26748593a2ea1a4f55b63d8c221715f1967"
+    },
+    {
+     "declared": "758bd3401cc726dd621ff0b04b9d7b09a50decc773f03f4a21ddbc031921d85a",
+     "depended_on_by": null,
+     "file": "src/causal_oracle.rs",
+     "same_as_the_mask_port_read": null,
+     "sha256": "758bd3401cc726dd621ff0b04b9d7b09a50decc773f03f4a21ddbc031921d85a"
+    },
+    {
+     "declared": "e0394ab4113d150336ee91353d7ba26589d5e4dffcb3cb7d2ad0fea833842acb",
+     "depended_on_by": null,
+     "file": "src/export_v3.rs",
+     "same_as_the_mask_port_read": null,
+     "sha256": "e0394ab4113d150336ee91353d7ba26589d5e4dffcb3cb7d2ad0fea833842acb"
+    },
+    {
+     "declared": "1dc6c53b9d3b014b8cabfb784c15dcbddde31bc58e6d7216101c6a4fbbf45669",
+     "depended_on_by": null,
+     "file": "src/field.rs",
+     "same_as_the_mask_port_read": null,
+     "sha256": "1dc6c53b9d3b014b8cabfb784c15dcbddde31bc58e6d7216101c6a4fbbf45669"
+    },
+    {
+     "declared": "06fd5f0bd725599d601dacb1b8aac1e797914c7ca8c344c0a52a412260b47eee",
+     "depended_on_by": null,
+     "file": "src/merkle.rs",
+     "same_as_the_mask_port_read": null,
+     "sha256": "06fd5f0bd725599d601dacb1b8aac1e797914c7ca8c344c0a52a412260b47eee"
+    },
+    {
+     "declared": "0000000000000000000000000000000000000000000000000000000000000000",
+     "depended_on_by": null,
+     "file": "src/mle.rs",
+     "same_as_the_mask_port_read": null,
+     "sha256": "bffe83fb5636f445f3a5a3b85141c374bdfeb4e4716c386eec30d10f5ed33741"
+    },
+    {
+     "declared": "a7f7ac0b838747c4de59e8226213500a41c047356ddd8bcdb3ab906818843c7c",
+     "depended_on_by": null,
+     "file": "src/ntt.rs",
+     "same_as_the_mask_port_read": null,
+     "sha256": "a7f7ac0b838747c4de59e8226213500a41c047356ddd8bcdb3ab906818843c7c"
+    },
+    {
+     "accepted_second_digest": "[TINYLLAMA PORT 2026-10-17] read against `f1693267`: **+50 / -9, two hunks** -- `commit_planes` (a gpu-cuda-feature W-plane commit for the v3 FFN, `None` without the feature) and a rewritten doc comment on `commit_zk_owned_tagged`, whose body is unchanged.  No run-gate port depends on this adapter",
+     "declared": "8b14096b66f6597e3cdfe239a7359457dd17dfd475c2a5d0f4e112a41342127f",
+     "depended_on_by": null,
+     "file": "src/pcs.rs",
+     "same_as_the_mask_port_read": null,
+     "sha256": "f16932674e49dcf9d2426b89978aa33be9d71665b19f47c527ca4183cdad8789"
+    },
+    {
+     "declared": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5",
+     "depended_on_by": null,
+     "file": "src/private_seam.rs",
+     "same_as_the_mask_port_read": null,
+     "sha256": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5"
+    },
+    {
+     "declared": "f097dd71fab7888e95e61a29ab035b13153313d068e7547d91acbfd20c7bc566",
+     "depended_on_by": null,
+     "file": "src/sumcheck.rs",
+     "same_as_the_mask_port_read": null,
+     "sha256": "f097dd71fab7888e95e61a29ab035b13153313d068e7547d91acbfd20c7bc566"
+    },
+    {
+     "declared": "5a874788e20581010b492d50ccc5e662255115c65b9eebcf2f88314733b121e3",
+     "depended_on_by": null,
+     "file": "src/tables_attn.rs",
+     "same_as_the_mask_port_read": null,
+     "sha256": "5a874788e20581010b492d50ccc5e662255115c65b9eebcf2f88314733b121e3"
+    },
+    {
+     "declared": "4850b2b4dc80317659fd643908e307ca58923c98e98baf32c4c1623ba239fd78",
+     "depended_on_by": null,
+     "file": "src/transcript.rs",
+     "same_as_the_mask_port_read": null,
+     "sha256": "4850b2b4dc80317659fd643908e307ca58923c98e98baf32c4c1623ba239fd78"
+    },
+    {
+     "accepted_second_digest": "[TINYLLAMA PORT 2026-10-17] read against `d4280962` (the bytes round 8 read): `diff -u` is **+404 / -20, 18 hunks, the first at line 1058**.  Every function the mask port transcribes -- `MASK_LOG_MSG` / `MASK_LOG_DOM` / `MASK_Q` (:373-375), `encode_coeffs_coset` (:424), `mask_commit` (:430), `mask_commit_tagged` (:481), `combined_weights` (:521), `weight_polys` (:541), `poly_mul_512` (:550), `mask_open` (:563), `mask_verify` (:603), `mask_verify_tagged` (:648) -- lies before the first hunk and is byte-identical.  The hunks: GPU-decline messages routed through `gpu::declined`; the additive `masked_prove_rounds` (a prover entry over a round EVALUATOR that publishes only the existing `CfsMasker`'s rounds; `masked_prove` is kept as the oracle) and its test module; and the v3 FEED-FORWARD prover's host staging pool, int8 block fold and `mr1` probe, which the private block never calls",
+     "declared": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32",
+     "depended_on_by": "zk60_native_rg_mask (the mask row model: `mask_commit`, `encode_coeffs_coset`, `combined_weights`, `weight_polys`, `poly_mul_512`, `mask_open`, `mask_verify` and the three constants), through the imported `zk60_native_mask_commit`",
+     "file": "src/zk.rs",
+     "same_as_the_mask_port_read": true,
+     "sha256": "d4280962af3a89b61b3af69f35650d21f79dc9f51600dcf130442e44a50f1849"
+    }
+   ],
+   "pinned": true,
+   "pins_at_an_accepted_second_digest": [
+    "../zkp-core/src/pcs.rs",
+    "../zkp-core/src/pcs/backend.rs",
+    "../zkp-core/src/sumcheck.rs",
+    "src/pcs.rs",
+    "src/zk.rs"
+   ],
+   "pins_that_moved": [
+    "src/mle.rs: the bundle pins 000000000000, this gate read bffe83fb5636 -- no run-gate port depends on it"
+   ],
+   "stages_not_checked": {},
+   "what": "the 23 SHARED files stage 27 added to a bundle's source_pins, the writer-side ask of R6.8 item 1 and R8.9 item 4",
+   "what_this_is_not": "a pin is a statement about which bytes this gate has read, not that the Rust is right, and a shared file's pin suspends no stage: the ports that depend on these eight were already checked against them by READING in round 8, and this makes the reading checkable from the bundle",
+   "writer_side_ask_granted": {
+    "applies_to": [
+     "m125-capture-dense-l2",
+     "m125-capture-zero-l2"
+    ],
+    "what": "`source_pins` grew from 15 entries to 38: `OWN_SOURCE_FILES` (15 `private_block` files, up from 8 -- `wire.rs`, `run_sink.rs`, `endpoint_g.rs`, `hash_domain.rs`, `private_block.rs`, `witness.rs` and `pad.rs` joined) and `SHARED_SOURCE_FILES` (23: `hashline/src/zk.rs`, `tables_attn.rs`, `causal_oracle.rs`, `private_seam.rs`, `export_v3.rs`, the seven one-line re-export adapters, and the eleven `zkp-core` modules behind them).  `timing.rs` is named in `NOT_ON_THE_RUNS_PATH` with its reason rather than left absent",
+    "what_it_does_not_change": "no port's DEPENDS list grows because a file became pinnable; a pin is added here only after the file is read, and reason (a) of `NOT_PINNABLE_FROM_A_BUNDLE` -- that no run-gate port transcribes these four -- is unchanged",
+    "when": "2026-09-21, lane stage 27, commit f4697f9",
+    "which_asks": [
+     "R6.8 item 1 (round 6)",
+     "R8.9 item 4 (round 8)"
+    ]
+   }
+  },
+  "stages_not_checked": {},
+  "what": "the three RUN-LAYER files a bundle pins -- the capture writer, the run's own geometry and transcript, and the internal boundary -- against the digests this gate has READ (finding K4-F2, closed 2026-09-21)"
+ },
+ "schema": "hashline-native-capture/5-run",
+ "shape_name": "TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads)",
+ "stage10_bilinear_group_factor": {
+  "controls": {
+   "ok": false,
+   "skipped": "controls not requested"
+  },
+  "group_factor": {
+   "bilinear_slots_per_stage": 2,
+   "bundle": "tinyllama-trained-tk9-capture-dense-l1",
+   "counts": {
+    "coordinate_entries_compared": 57,
+    "coordinate_lists_rederived_and_compared": 4,
+    "definition_challenge_counts_compared": 2,
+    "dimension_sets_derived_and_compared": 2,
+    "fixed_coordinates_compared_with_a_rederived_challenge": 27,
+    "group_point_entries_compared": 4,
+    "group_points_derived_and_compared": 2,
+    "slots_examined": 2
+   },
+   "definition_in_force": "repaired",
+   "definition_reason": "[TINYLLAMA PORT v5, round 4] read against `9b26bda8` (round 1, the repaired definition at the trained constants): **+5 / -3, one hunk**, inside `argument()`'s slot loop: the phase clock's `ph.slot(slot, cube, \"cube\")` becomes `ph.slot_work(slot, cube * n_tabs)` with `n_tabs = def.tabs.len()` read from the slot's definition AFTER `define` returns.  `ph` is write-only and returns on its first line without HL_PB_TIMING (the module's own STAGE-11 note), so no definition, challenge, table or terminal depends on it.  Every slot closure, the trained constants round 1 ported, the bilinear arms, the push order of every private table, `run_slot`, the M-functional block and the `N_FUNCTIONALS` guard are byte-identical -- stage 20's repaired definition",
+   "definition_selected_by": "the bundle's own source pin of argument.rs (02df55ebec4d)",
+   "failures": [],
+   "finding": "S19-F1 (ZK60_BLOCK125M_S19F1_DISPOSITION.md)",
+   "geometry": {
+    "h_pad": 32,
+    "head_dim": 64,
+    "kv_heads": 4,
+    "ldh = lg(head_dim)": 6,
+    "lh = lg(h_pad)": 5,
+    "lkv = clog2(kv_heads)": 2,
+    "lt = lg(t_pad)": 5,
+    "q_heads": 32,
+    "t_pad": 32
+   },
+   "group_point_derived_from": "the transcript replay's own re-derived definition challenges",
+   "ok": true,
+   "per_slot": [
+    {
+     "declared": [
+      8,
+      2,
+      3
+     ],
+     "declared_definition_draws": 15,
+     "definition": "repaired",
+     "derived_definition_draws": 15,
+     "derived_main_extension_degree": [
+      8,
+      2,
+      3
+     ],
+     "derived_point_len": 2,
+     "factors": [
+      {
+       "declared_len": 16,
+       "derived_len": 16,
+       "extension_round": 0,
+       "factor": "A_QR8",
+       "matches": true,
+       "push_index": 0
+      },
+      {
+       "declared_len": 13,
+       "derived_len": 13,
+       "extension_round": 1,
+       "factor": "A_KR8",
+       "matches": true,
+       "push_index": 1
+      }
+     ],
+     "group_point_matches_the_rederived_r_g": true,
+     "group_table_expected": true,
+     "group_table_index": 0,
+     "group_tables_declared": 1,
+     "name": "SC_SCORE",
+     "slot": 8,
+     "stage": 0,
+     "start": 0,
+     "the_shapes_own_slots_entry": [
+      8,
+      2,
+      3
+     ]
+    },
+    {
+     "declared": [
+      7,
+      2,
+      3
+     ],
+     "declared_definition_draws": 16,
+     "definition": "repaired",
+     "derived_definition_draws": 16,
+     "derived_main_extension_degree": [
+      7,
+      2,
+      3
+     ],
+     "derived_point_len": 2,
+     "factors": [
+      {
+       "declared_len": 15,
+       "derived_len": 15,
+       "extension_round": 0,
+       "factor": "A_P",
+       "matches": true,
+       "push_index": 0
+      },
+      {
+       "declared_len": 13,
+       "derived_len": 13,
+       "extension_round": 1,
+       "factor": "A_V8",
+       "matches": true,
+       "push_index": 1
+      }
+     ],
+     "group_point_matches_the_rederived_r_g": true,
+     "group_table_expected": true,
+     "group_table_index": 0,
+     "group_tables_declared": 1,
+     "name": "SC_PV",
+     "slot": 9,
+     "stage": 0,
+     "start": 0,
+     "the_shapes_own_slots_entry": [
+      7,
+      2,
+      3
+     ]
+    }
+   ],
+   "refusals": [],
+   "slot_instances": 2,
+   "slots_with_a_derived_group_point": 2,
+   "stages": 1,
+   "superseded": false,
+   "superseded_note": null,
+   "what": "the two bilinear attention slots' GROUP FACTOR: lkv, the slot dimensions, the point r_g = r_h[..lkv] and both private factors' coordinate lists, all DERIVED from the shape and the replayed transcript and then compared with what the bundle declares.  The derived point is what the terminal identity evaluates; the declared one is only ever compared",
+   "what_this_does_not_establish": "that the private factors are the quantised query, key, probability and value planes of the statement.  No bundle carries a witness.  What is established is that the claim POINT and the slot's SCHEDULE are the ones the repaired construction derives from this shape, and that the group factor the verifier multiplies in is the one this tool computed for itself"
+  },
+  "ok": true
+ },
+ "stage11_full_preimage": {
+  "consequence": "the three channels round 1 left OPEN for A and H -- their vectors, the pad half and the opened column values -- stay OPEN with round 1's reason, and stage 5's message-half construction for the singleton-group commitments is unaffected",
+  "ok": true,
+  "requested": false,
+  "what": "the FULL zero-data preimage -- A and H included, both halves, every opened column and the salted leaves of the opened columns",
+  "why_off": "it is minutes of exact Fp arithmetic per bundle, not seconds, so it is opt-in (`--full-preimage`); the default gate stays a ~10 s tool and every figure of rounds 1-6 is taken at the same cost as before"
+ },
+ "stage12_mask_and_cfs": {
+  "consequence": "the masked round messages and the three channels of M's own opening -- its q, its proximity vector and its 256 opened columns -- stay OPEN, with round 1's reason plus a sentence saying round 8 removed the assumption behind it",
+  "ok": true,
+  "requested": false,
+  "what": "the masking commitment M and the masked-sumcheck (CFS) channel at this run's shape: M's linear view, ONE coefficient vector that meets every slot's masked rounds and scalar AND M's whole opening, M's opened columns re-hashed and re-authenticated, and the pad budget",
+  "why_off": "it is seconds per stage of exact Fp arithmetic and the controls are twenty more, so it is opt-in (`--mask-cfs`) exactly as round 7's arm is; the default gate keeps its cost and every figure of rounds 1-7 is taken as before"
+ },
+ "stage13_joint_run_preimage": {
+  "consequence": "the channel 'the preimage construction for a RUN' stays OPEN, with the reason the two arms leave it",
+  "ok": true,
+  "requested": false,
+  "what": "one assignment reproducing the WHOLE run's linear view at once",
+  "why_off": "it is the union of round 7's arm and round 8's arm, so it is computed only when BOTH are on (`--full-preimage --mask-cfs`)"
+ },
+ "stage1_integrity": {
+  "any_root_opened_twice": false,
+  "array_store": {
+   "bytes": 20661736,
+   "bytes_verified_by_sha256": 20661736,
+   "distinct_arrays_verified_by_sha256": 581,
+   "file": "arrays.bin",
+   "ok": true,
+   "references_resolved": 589,
+   "references_resolved_in_run_json": 0,
+   "references_resolved_per_stage": {
+    "stage-00.json": 589
+   },
+   "refusals": [],
+   "what_is_checked": "per reference: exactly the five defined keys, elem in {fp, fp2}, bytes == len * width, the range inside the file, the sha256 of exactly those bytes, and every decoded u64 reduced mod the Goldilocks prime"
+  },
+  "block_profile": "hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1",
+  "blocks": 1,
+  "boundaries": 0,
+  "bundle": "tinyllama-trained-tk9-capture-dense-l1",
+  "coverage": "native-run-all-stages-v1",
+  "dir": "/home/victor/zk60-artifacts/tinyllama-trained-tk9-capture-dense-l1",
+  "distinct_roots_opened": 4,
+  "findings": [],
+  "fully_verified": true,
+  "hash_rule": {
+   "block_profile": "hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1",
+   "contexts_compared": 4,
+   "contexts_pinned_in_this_tool": {
+    "column": "hashline-zk-mr1 2026-09-20 pcs column digest",
+    "leaf": "hashline-zk-mr1 2026-09-20 pcs salted merkle leaf",
+    "node": "hashline-zk-mr1 2026-09-20 pcs merkle inner node",
+    "transcript": "hashline-zk-mr1 2026-09-20 fiat-shamir transcript"
+   },
+   "declared": {
+    "contexts": {
+     "column": "hashline-zk-mr1 2026-09-20 pcs column digest",
+     "leaf": "hashline-zk-mr1 2026-09-20 pcs salted merkle leaf",
+     "node": "hashline-zk-mr1 2026-09-20 pcs merkle inner node",
+     "transcript": "hashline-zk-mr1 2026-09-20 fiat-shamir transcript"
+    },
+    "keys_hex": {
+     "column": "e9b7d4a1972b9a046f146f74cec684cadd5bfc9f48a627c5b60310c98ef0b2e7",
+     "leaf": "9671bbd87ce393ff51b3e765c8cdcf47d2d81b116f90e3a6d8ccdb229f6bd086",
+     "node": "6ea2749c2301c61ee8b88fcb0ad4e3a298be82883ae9edceffde36637361880f",
+     "transcript": "246fc9c5d187f2273430bd7d5b1352f1ca9f2374a1a183ce9a4738132d644059"
+    },
+    "profile": "hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1",
+    "rule": "blake3-keyed/1"
+   },
+   "derived_keys_hex": {
+    "column": "e9b7d4a1972b9a046f146f74cec684cadd5bfc9f48a627c5b60310c98ef0b2e7",
+    "leaf": "9671bbd87ce393ff51b3e765c8cdcf47d2d81b116f90e3a6d8ccdb229f6bd086",
+    "node": "6ea2749c2301c61ee8b88fcb0ad4e3a298be82883ae9edceffde36637361880f",
+    "transcript": "246fc9c5d187f2273430bd7d5b1352f1ca9f2374a1a183ce9a4738132d644059"
+   },
+   "derived_rule": "blake3-keyed/1",
+   "era": "tagged-schema",
+   "findings": [],
+   "keys_compared": 4,
+   "legacy_profiles_pinned_in_this_tool": [
+    "hashline-zk-mr1/private-block-t32-poc/1",
+    "hashline-zk-mr1/private-block-rung-t24-dev/1"
+   ],
+   "refusals": [],
+   "run_profile": "hashline-zk-mr1/private-run-tinyllama-1.1b-t32-trained-statement/1",
+   "superseded": false,
+   "what": "the hash rule, DERIVED here from the profile the bundle's shape names and then compared with the bundle's declared hash_tag (ruling T-7: re-derive, never consume)"
+  },
+  "kind": "zk60-run-verifier-observations",
+  "manifest_files_checked": 4,
+  "manifest_total_bytes": 25004001,
+  "mask_domain": {
+   "columns": 256,
+   "log_dom": 12
+  },
+  "ok": true,
+  "privacy_review_complete": false,
+  "profile": "hashline-zk-mr1/private-run-tinyllama-1.1b-t32-trained-statement/1",
+  "public_tables_included": true,
+  "schema": "hashline-native-capture/5-run",
+  "shape": {
+   "a_groups": 36,
+   "cols": 4096,
+   "d_max": 1482910,
+   "d_pad": 2048,
+   "endpoint_general": true,
+   "endpoint_inv_rate": 4,
+   "endpoint_log_n": 12,
+   "endpoint_rows": 21,
+   "f_e": 9,
+   "f_pad": 8192,
+   "h_groups": 9,
+   "h_pad": 32,
+   "head_dim": 64,
+   "hidden": 5632,
+   "inv_rate": 4,
+   "kv_heads": 4,
+   "log_cols": 12,
+   "n_slots": 23,
+   "name": "TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads)",
+   "norm_ceps": 91255,
+   "norm_cn_a": 3999,
+   "norm_cn_m": 3122,
+   "norm_tn": 10,
+   "norm_wrho": 32,
+   "opened_cols": 256,
+   "profile": "hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1",
+   "q_heads": 32,
+   "sh_ao": 3,
+   "sh_g": 8,
+   "sh_h": 14,
+   "sh_o": 9,
+   "sh_qkv": 8,
+   "sh_s": 6,
+   "sh_z": 5,
+   "slots": [
+    [
+     16,
+     1,
+     3
+    ],
+    [
+     16,
+     1,
+     3
+    ],
+    [
+     5,
+     1,
+     3
+    ],
+    [
+     12,
+     1,
+     4
+    ],
+    [
+     15,
+     1,
+     3
+    ],
+    [
+     11,
+     1,
+     2
+    ],
+    [
+     11,
+     1,
+     2
+    ],
+    [
+     11,
+     1,
+     2
+    ],
+    [
+     8,
+     2,
+     3
+    ],
+    [
+     7,
+     2,
+     3
+    ],
+    [
+     11,
+     1,
+     2
+    ],
+    [
+     11,
+     1,
+     2
+    ],
+    [
+     11,
+     1,
+     2
+    ],
+    [
+     13,
+     1,
+     2
+    ],
+    [
+     16,
+     1,
+     4
+    ],
+    [
+     16,
+     1,
+     4
+    ],
+    [
+     13,
+     1,
+     4
+    ],
+    [
+     15,
+     1,
+     4
+    ],
+    [
+     18,
+     1,
+     5
+    ],
+    [
+     12,
+     1,
+     3
+    ],
+    [
+     12,
+     1,
+     2
+    ],
+    [
+     16,
+     1,
+     2
+    ],
+    [
+     16,
+     1,
+     2
+    ]
+   ],
+   "t_pad": 32,
+   "tokens": 32,
+   "trained_calibration": true,
+   "width": 2048,
+   "wrho_s": 14
+  },
+  "source_commit": "trained-1b-gate-tk9-sources-v1-597b2204",
+  "source_pins": [
+   {
+    "file": "src/private_block/run_capture.rs",
+    "sha256": "f47e28bf791aa225c9a0c19dd7f2662b2326846f847dcbc0041dac86be527289"
+   },
+   {
+    "file": "src/private_block/run.rs",
+    "sha256": "cc2c420498b114273c4e67874c500b0f0fb3a0256e6ccef0a171f438ba0f3226"
+   },
+   {
+    "file": "src/private_block/boundary.rs",
+    "sha256": "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581"
+   },
+   {
+    "file": "src/private_block/protocol.rs",
+    "sha256": "85ca893173c4bfc0d8c88be69dbd0834831d4aec4ec9783c66e0b61d614615f6"
+   },
+   {
+    "file": "src/private_block/argument.rs",
+    "sha256": "02df55ebec4da046d5522dfc14bf17a691c1fca851f014ba50a759502804e3b5"
+   },
+   {
+    "file": "src/private_block/layout.rs",
+    "sha256": "ee871fff7eed377cafcb05ec0438df95a70695ae8fdcd5b5822f5f40663b0ee9"
+   },
+   {
+    "file": "src/private_block/plane_index.rs",
+    "sha256": "13a7dd6ff1f9178dd640e3d38309a5581a39cf13c9c61238c41ceba83420afbf"
+   },
+   {
+    "file": "src/private_block/shape.rs",
+    "sha256": "8c62519c98e36ae966b7f9480e1d47884c57526c2ccf0288deb1286ca1a0fb34"
+   },
+   {
+    "file": "src/private_block/wire.rs",
+    "sha256": "c8c13033f341ed40bd524091cfe870be3cb54433de566a6d9f4078c15cac374f"
+   },
+   {
+    "file": "src/private_block/run_sink.rs",
+    "sha256": "005bac239d8dd616a46573f948c30ce1e2c540e02cf97035d3c457717c32921d"
+   },
+   {
+    "file": "src/private_block/endpoint_g.rs",
+    "sha256": "6e3691d0bfa1c1fb1f66b9be8ae5438597492c62dc00451d6f25dbff90ab84ce"
+   },
+   {
+    "file": "src/private_block/hash_domain.rs",
+    "sha256": "da61c1d97ca1cd6d35071e3917cfdb900a2039c5abd213cdfe2f0ccc251ed3cd"
+   },
+   {
+    "file": "src/private_block.rs",
+    "sha256": "45286ae8f3be17da7f0938cec7ed0d689ba80f2ffda1d73d3b9329b3b25c3130"
+   },
+   {
+    "file": "src/private_block/witness.rs",
+    "sha256": "130f6301ba1118a9dd90f852d8bd5adf076ef4222fb58eb0e1b17a3c0a83de94"
+   },
+   {
+    "file": "src/private_block/pad.rs",
+    "sha256": "4f0c11c50503dd8cb4fb38d2b5be5e4f08ec310ee916b83a357f0283ede9eb42"
+   },
+   {
+    "file": "src/private_block/trained_statement.rs",
+    "sha256": "e623c2278042a42ef55d005236f0509a27b57f1baf368eee52eec05ea9125a13"
+   },
+   {
+    "file": "src/private_block/token_io.rs",
+    "sha256": "602597ad50d0978d4ea82385011084e2ff4f3678ecbffedc3f192b69d8fe5d9f"
+   },
+   {
+    "file": "src/private_block/token_io/stage_in.rs",
+    "sha256": "e4609b1acc8c9306c200321f1e80c13fa9ffdfa2b28e50dce88611b2be12eecd"
+   },
+   {
+    "file": "src/private_block/token_io/stage_out.rs",
+    "sha256": "69abed433fd751bf12b30fca40174ca21638230fd9e39af69ea07b987d03e8ca"
+   },
+   {
+    "file": "src/private_block/token_io/run.rs",
+    "sha256": "4671d03edea02468403066bbc33e0a117f5d3cbe6cfd142110718bb48f7fcfca"
+   },
+   {
+    "file": "src/private_block/token_io/load.rs",
+    "sha256": "8c0417214a15ed45afafe89a345609dedfd622fe45fb9b007a8782ed4344935e"
+   },
+   {
+    "file": "src/private_block/token_io/cli.rs",
+    "sha256": "b9079130204b49f5f73d38d8f5d531fcfa388d3a8d57c84ff87142eb57b655e9"
+   },
+   {
+    "file": "src/private_block/trained_block.rs",
+    "sha256": "0943baded99b1fb1a887a8a18d5d17d35b22a64a8f0b78f77e3062efa63d7846"
+   },
+   {
+    "file": "src/zk.rs",
+    "sha256": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32"
+   },
+   {
+    "file": "src/tables_attn.rs",
+    "sha256": "5a874788e20581010b492d50ccc5e662255115c65b9eebcf2f88314733b121e3"
+   },
+   {
+    "file": "src/causal_oracle.rs",
+    "sha256": "758bd3401cc726dd621ff0b04b9d7b09a50decc773f03f4a21ddbc031921d85a"
+   },
+   {
+    "file": "src/private_seam.rs",
+    "sha256": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5"
+   },
+   {
+    "file": "src/export_v3.rs",
+    "sha256": "e0394ab4113d150336ee91353d7ba26589d5e4dffcb3cb7d2ad0fea833842acb"
+   },
+   {
+    "file": "src/field.rs",
+    "sha256": "1dc6c53b9d3b014b8cabfb784c15dcbddde31bc58e6d7216101c6a4fbbf45669"
+   },
+   {
+    "file": "src/merkle.rs",
+    "sha256": "06fd5f0bd725599d601dacb1b8aac1e797914c7ca8c344c0a52a412260b47eee"
+   },
+   {
+    "file": "src/mle.rs",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+   },
+   {
+    "file": "src/ntt.rs",
+    "sha256": "a7f7ac0b838747c4de59e8226213500a41c047356ddd8bcdb3ab906818843c7c"
+   },
+   {
+    "file": "src/pcs.rs",
+    "sha256": "8b14096b66f6597e3cdfe239a7359457dd17dfd475c2a5d0f4e112a41342127f"
+   },
+   {
+    "file": "src/sumcheck.rs",
+    "sha256": "f097dd71fab7888e95e61a29ab035b13153313d068e7547d91acbfd20c7bc566"
+   },
+   {
+    "file": "src/transcript.rs",
+    "sha256": "4850b2b4dc80317659fd643908e307ca58923c98e98baf32c4c1623ba239fd78"
+   },
+   {
+    "file": "../zkp-core/src/lib.rs",
+    "sha256": "388f012fbb535617bc5a105de8640c84b5572544284cb4947a4ad7606e891164"
+   },
+   {
+    "file": "../zkp-core/src/field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+   },
+   {
+    "file": "../zkp-core/src/hashtag.rs",
+    "sha256": "71bf33150a296c2ce4da49d189c6d84a9f741b9ada1ef2488711938cffd6b651"
+   },
+   {
+    "file": "../zkp-core/src/merkle.rs",
+    "sha256": "6e7817bd767a883985bfcd62b7a387d0c5f4c361010c4c5db37f5087d965744a"
+   },
+   {
+    "file": "../zkp-core/src/mle.rs",
+    "sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e"
+   },
+   {
+    "file": "../zkp-core/src/ntt.rs",
+    "sha256": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890"
+   },
+   {
+    "file": "../zkp-core/src/pcs.rs",
+    "sha256": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495"
+   },
+   {
+    "file": "../zkp-core/src/pcs/backend.rs",
+    "sha256": "ff2cb5c1806b34653f8a44ad82f54201fb5d9f6ba2602afe5efeae4d104e0103"
+   },
+   {
+    "file": "../zkp-core/src/rng.rs",
+    "sha256": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb"
+   },
+   {
+    "file": "../zkp-core/src/sumcheck.rs",
+    "sha256": "fc7374bbd5e5cc4ede62e8a21d325eb62acff9b9dcc786d12eae39efbdfdbb95"
+   },
+   {
+    "file": "../zkp-core/src/transcript.rs",
+    "sha256": "cc9752d0ef9bcd6d7b20e94e611ff26748593a2ea1a4f55b63d8c221715f1967"
+   },
+   {
+    "file": "../zkp-core/src/pcs/encode_buffer.rs",
+    "sha256": "3c01433d84507cddadcf5c1387c08948fd3efe853a066d74690c0a6e1ce3dd70"
+   },
+   {
+    "file": "../zkp-core/src/sumcheck/rounds.rs",
+    "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df"
+   },
+   {
+    "file": "../zkp-core/src/sumcheck/grouped.rs",
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b"
+   },
+   {
+    "file": "src/gpu/mod.rs",
+    "sha256": "d651be2ccf8f19ff75fe6bca5ad42f4b773b569d0ae2017306f0bf819c51b283"
+   },
+   {
+    "file": "src/tables_v3.rs",
+    "sha256": "726c9355f9e663ef1a43dc9efe17cb2c85aa3583977d0c794dad4cf21a24715d"
+   },
+   {
+    "file": "../zkp-core/src/tables.rs",
+    "sha256": "8cc95bc8b576907a99f24755cd9d16ea8904cd9ccc514f32f471a95ca8f13e50"
+   }
+  ],
+  "weight_policy": "public-statement"
+ },
+ "stage2_transcript_replay": {
+  "bundle": "tinyllama-trained-tk9-capture-dense-l1",
+  "challenges_checked": 4511,
+  "failures": [],
+  "final_counter": 4831,
+  "hash_rule": "blake3-keyed/1",
+  "not_rederived": [],
+  "ok": true,
+  "positions_checked": 127,
+  "profile": "hashline-zk-mr1/private-run-tinyllama-1.1b-t32-trained-statement/1",
+  "run_binding_reproduced": true,
+  "segment_position_tags": [
+   {
+    "end_tag_ok": true,
+    "stage": 0,
+    "start_tag_ok": true
+   }
+  ],
+  "stages": 1
+ },
+ "stage3_per_commitment": {
+  "exclusivity_controls": {
+   "all_fire": true,
+   "clauses": [
+    {
+     "id": "EX-1",
+     "name": "geometry",
+     "source": "protocol.rs:233-235 (audit_claims: the proximity pair is the last two rows, an even number of reserved rows) and :356-370 (endpoint_geometry)",
+     "what": "A / H / boundary: the proximity pair is the last two rows, the reserved (non-data, non-proximity, non-zero-sum) rows are exactly the declared site rows and there is an even number of them, and H's zero-sum rows are its declared sum rows; an external endpoint: (rows, rows - 5, rows - 3), sites [d, d+1], proximity [d+2, d+3], one spare row d+4"
+    },
+    {
+     "id": "EX-2",
+     "name": "no claim reaches the proximity pair",
+     "source": "protocol.rs:242-244 (first half)",
+     "what": "no part's rows end past the first proximity row (A / H / boundary), and no claim puts weight on a proximity row (every kind)"
+    },
+    {
+     "id": "EX-3",
+     "name": "no claim part leaves the commitment",
+     "source": "protocol.rs:242-244 (second half)",
+     "what": "every part's rows lie inside the commitment"
+    },
+    {
+     "id": "EX-4",
+     "name": "a part on a site row has a nonzero coefficient",
+     "source": "protocol.rs:246-248 ('zero terminal mask coefficient')",
+     "what": "every part that covers a site row carries a nonzero coefficient"
+    },
+    {
+     "id": "EX-5",
+     "name": "an evaluation claim carries exactly two adjacent site rows",
+     "source": "protocol.rs:258-262",
+     "what": "every claim that is not point-free puts nonzero weight on exactly two site rows, and they are adjacent"
+    },
+    {
+     "id": "EX-6",
+     "name": "the pair sits at an even offset",
+     "source": "protocol.rs:259 ((touched[0] - site_rows[0]) % 2)",
+     "what": "the first site row a claim touches is an even number of rows past the first site row"
+    },
+    {
+     "id": "EX-7",
+     "name": "no weight on a spare reserved row",
+     "source": "the reduction's hypothesis (X); protocol.rs:379-384 for the endpoint",
+     "what": "no claim puts weight on a reserved row that is no site row (the endpoint's row d+4)"
+    },
+    {
+     "id": "EX-8",
+     "name": "the sum claim is masked by the zero-sum pair alone",
+     "source": "protocol.rs:252-257",
+     "what": "the point-free LAST claim of a commitment with sum rows touches no site row and covers both zero-sum rows with nonzero coefficients"
+    },
+    {
+     "id": "EX-9",
+     "name": "no unexpected sum claim",
+     "source": "protocol.rs:263 ('unexpected sum claim')",
+     "what": "no point-free claim before the last one, and none on a commitment without sum rows"
+    },
+    {
+     "id": "EX-10",
+     "name": "pairs are disjoint",
+     "source": "protocol.rs:268-270 (uses[r] != 1: the 'shared' face)",
+     "what": "no site row carries weight from two claims -- the OVERLAP refusal of finding F-4"
+    },
+    {
+     "id": "EX-11",
+     "name": "every reserved row is used",
+     "source": "protocol.rs:268-270 (uses[r] != 1: the 'unused' face)",
+     "what": "every site row carries weight from some claim"
+    },
+    {
+     "id": "EX-12",
+     "name": "the pair basis",
+     "source": "not in audit_claims; argument.rs:382-384 (build_claim's (cm, cm*U))",
+     "what": "a claim's two site-row weights are an Fp-basis of Fp2"
+    },
+    {
+     "id": "EX-13",
+     "name": "one column key per claim",
+     "source": "protocol.rs:203-205 (opening_groups_at)",
+     "what": "every part of a claim has the same column-weight key"
+    },
+    {
+     "id": "EX-14",
+     "name": "the group count is the schedule's",
+     "source": "protocol.rs:321-324 (check_opening) and :389 (the endpoint's one group)",
+     "what": "the first-occurrence groups number a_groups on A, h_groups on H, the boundary's sites on a boundary, and 1 on an endpoint"
+    },
+    {
+     "id": "EX-15",
+     "name": "the endpoint claim's shape",
+     "source": "protocol.rs:379-384 (check_endpoint_opening)",
+     "what": "an endpoint opens exactly one claim of three parts on rows 0..d, d and d+1, every coefficient nonzero"
+    },
+    {
+     "id": "EX-16",
+     "name": "every group coefficient is nonzero",
+     "source": "protocol.rs:296-301 (check_opening_challenges: 'zero group member coefficient')",
+     "what": "every replayed lambda is nonzero"
+    }
+   ],
+   "clauses_exercised": [
+    "EX-1",
+    "EX-2",
+    "EX-3",
+    "EX-4",
+    "EX-5",
+    "EX-6",
+    "EX-7",
+    "EX-8",
+    "EX-9",
+    "EX-10",
+    "EX-11",
+    "EX-12",
+    "EX-13",
+    "EX-14",
+    "EX-15",
+    "EX-16"
+   ],
+   "clauses_not_exercised": [],
+   "control_names": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X02_A_claim_part_on_the_proximity_row",
+    "X03_A_claim_part_outside_the_commitment",
+    "X04_A_zero_mask_coefficient",
+    "X05a_A_evaluation_claim_with_no_site_row",
+    "X05b_A_evaluation_claim_with_one_site_row",
+    "X05c_A_evaluation_claim_with_three_site_rows",
+    "X05d_A_non_adjacent_pair",
+    "X06_A_pair_shifted_one_row",
+    "X07_endpoint_mask_part_on_the_spare_row",
+    "X08a_H_sum_claim_touches_a_site_row",
+    "X08b_H_sum_claim_misses_the_second_zero_sum_row",
+    "X09a_H_sum_claim_first",
+    "X09b_H_sum_claim_appended_to_A",
+    "X10a_A_overlapping_pairs",
+    "X10b_A_one_pair_shared_by_two_claims",
+    "X11_A_last_claim_dropped",
+    "X12_A_pair_weights_Fp_dependent",
+    "X13_A_parts_with_different_column_weights",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X15a_endpoint_two_claims",
+    "X15b_endpoint_zero_coefficient",
+    "X16_A_zero_group_coefficient"
+   ],
+   "controls": {
+    "X01_A_last_reserved_pair_declared_spare": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-1",
+       "EX-5",
+       "EX-7"
+      ],
+      "finding": "2 reserved row(s) that are no site row, first 1725",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-1",
+     "target_clause_name": "geometry",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [],
+      "h_pair": true
+     },
+     "what": "A@0: its last reserved pair, rows [1725, 1726], declared spare -- two reserved rows that are no site row"
+    },
+    "X02_A_claim_part_on_the_proximity_row": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-2",
+       "EX-5",
+       "EX-11"
+      ],
+      "finding": "claim 0: a part reaches row 1727 or beyond",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-2",
+     "target_clause_name": "no claim reaches the proximity pair",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 0 touches the proximity pair",
+       "A@0: claim 0 carries 2 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 0's second mask part moved onto the proximity row 1727"
+    },
+    "X03_A_claim_part_outside_the_commitment": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-2",
+       "EX-3",
+       "EX-11"
+      ],
+      "finding": "claim 0: a part leaves the commitment's 1729 rows",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-3",
+     "target_clause_name": "no claim part leaves the commitment",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": false,
+      "why": "a claim's row weights cannot be built, so the weight-level check has nothing to read"
+     },
+     "what": "A@0: claim 0's second mask part moved three rows past the last row"
+    },
+    "X04_A_zero_mask_coefficient": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-4",
+       "EX-5",
+       "EX-6",
+       "EX-11"
+      ],
+      "finding": "claim 0: a zero coefficient on a site row",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-4",
+     "target_clause_name": "a part on a site row has a nonzero coefficient",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 0 carries 1 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 0's first mask coefficient set to zero"
+    },
+    "X05a_A_evaluation_claim_with_no_site_row": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-5",
+       "EX-11"
+      ],
+      "finding": "claim 0: site rows [], not one adjacent pair",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-5",
+     "target_clause_name": "an evaluation claim carries exactly two adjacent site rows",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 0 carries 0 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 0's two mask parts removed (0 site rows)"
+    },
+    "X05b_A_evaluation_claim_with_one_site_row": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-5",
+       "EX-11"
+      ],
+      "finding": "claim 0: site rows [1487], not one adjacent pair",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-5",
+     "target_clause_name": "an evaluation claim carries exactly two adjacent site rows",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 0 carries 1 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 0's second mask part removed (1 site row)"
+    },
+    "X05c_A_evaluation_claim_with_three_site_rows": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-5",
+       "EX-10"
+      ],
+      "finding": "claim 0: site rows [1487, 1488, 1489], not one adjacent pair",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-5",
+     "target_clause_name": "an evaluation claim carries exactly two adjacent site rows",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 0 carries 3 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 0 given a third mask part, on claim 1's first site row (3 site rows)"
+    },
+    "X05d_A_non_adjacent_pair": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-5",
+       "EX-10",
+       "EX-11"
+      ],
+      "finding": "claim 0: site rows [1487, 1490], not one adjacent pair",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-5",
+     "target_clause_name": "an evaluation claim carries exactly two adjacent site rows",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 0 carries 2 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 0's second mask part moved onto claim 1's second row (a non-adjacent pair)"
+    },
+    "X06_A_pair_shifted_one_row": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-6",
+       "EX-10",
+       "EX-11"
+      ],
+      "finding": "claim 0: its pair starts at row 1488, an odd offset from 1487",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-6",
+     "target_clause_name": "the pair sits at an even offset",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [],
+      "h_pair": true
+     },
+     "what": "A@0: claim 0's pair shifted down one row (an odd offset)"
+    },
+    "X07_endpoint_mask_part_on_the_spare_row": {
+     "commitment": "E-Input",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-5",
+       "EX-7",
+       "EX-11",
+       "EX-15"
+      ],
+      "finding": "claim 0: weight on spare row 20",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-7",
+     "target_clause_name": "no weight on a spare reserved row",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "E-Input: claim 0 carries 2 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "E-Input: its claim's second mask part moved onto the spare row"
+    },
+    "X08a_H_sum_claim_touches_a_site_row": {
+     "commitment": "H@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-8",
+       "EX-10"
+      ],
+      "finding": "claim 49 (the sum claim) touches site row 1698",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-8",
+     "target_clause_name": "the sum claim is masked by the zero-sum pair alone",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "H@0: claim 49 carries 1 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "H@0: the sum claim given a point-free part on the first site row"
+    },
+    "X08b_H_sum_claim_misses_the_second_zero_sum_row": {
+     "commitment": "H@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-8"
+      ],
+      "finding": "claim 49 (the sum claim) does not cover zero-sum row 1697",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-8",
+     "target_clause_name": "the sum claim is masked by the zero-sum pair alone",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "H@0: claim 49 carries 0 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "H@0: the sum claim's parts on zero-sum row 1697 removed"
+    },
+    "X09a_H_sum_claim_first": {
+     "commitment": "H@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-9"
+      ],
+      "finding": "claim 0: a point-free claim before the last",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-9",
+     "target_clause_name": "no unexpected sum claim",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [],
+      "h_pair": true
+     },
+     "what": "H@0: the sum claim moved to the front of the claim list"
+    },
+    "X09b_H_sum_claim_appended_to_A": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-9",
+       "EX-10",
+       "EX-14"
+      ],
+      "finding": "claim 120: a point-free claim on a commitment without sum rows",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-9",
+     "target_clause_name": "no unexpected sum claim",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 120 carries 211 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: H@0's sum claim appended (A has no sum rows)"
+    },
+    "X10a_A_overlapping_pairs": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-6",
+       "EX-10",
+       "EX-11"
+      ],
+      "finding": "1 site row(s) carry two claims, first row 1488 (claims [0, 1])",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-10",
+     "target_clause_name": "pairs are disjoint",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [],
+      "h_pair": true
+     },
+     "what": "A@0: claim 1's pair moved to (s0+1, s0+2), overlapping claim 0's (s0, s0+1) in one row -- finding F-4's case on real bytes"
+    },
+    "X10b_A_one_pair_shared_by_two_claims": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-10",
+       "EX-11"
+      ],
+      "finding": "2 site row(s) carry two claims, first row 1487 (claims [0, 1])",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-10",
+     "target_clause_name": "pairs are disjoint",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 1 shares its reserved pair with claim 0"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 1's pair moved onto claim 0's pair"
+    },
+    "X11_A_last_claim_dropped": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-11",
+       "EX-14"
+      ],
+      "finding": "2 site row(s) carry no claim, first row 1725",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-11",
+     "target_clause_name": "every reserved row is used",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [],
+      "h_pair": true
+     },
+     "what": "A@0: its last claim dropped -- one reserved pair unused, nothing shared"
+    },
+    "X12_A_pair_weights_Fp_dependent": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-12"
+      ],
+      "finding": "claim 0: its pair's weights are Fp-dependent",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-12",
+     "target_clause_name": "the pair basis",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 0: its pair's two coefficients are not an Fp-basis of Fp2"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 0's second mask coefficient set to twice the first (an Fp-dependent pair)"
+    },
+    "X13_A_parts_with_different_column_weights": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-11",
+       "EX-13"
+      ],
+      "finding": "claim 0: parts with different column weights",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-13",
+     "target_clause_name": "one column key per claim",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": false,
+      "why": "a claim's row weights cannot be built, so the weight-level check has nothing to read"
+     },
+     "what": "A@0: the last coordinate of claim 0's last part's point changed"
+    },
+    "X14_A_singleton_group_rekeyed_into_group_0": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-14"
+      ],
+      "finding": "35 opening groups, the schedule declares 36",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-14",
+     "target_clause_name": "the group count is the schedule's",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [],
+      "h_pair": true
+     },
+     "what": "A@0: the first singleton group's claim given group 0's column key (its row weights unchanged) -- one group fewer than the schedule's"
+    },
+    "X15a_endpoint_two_claims": {
+     "commitment": "E-Input",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-10",
+       "EX-15"
+      ],
+      "finding": "2 claim(s); the endpoint opens one claim of three parts on rows 0..16, 16, 17, every coefficient nonzero",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-15",
+     "target_clause_name": "the endpoint claim's shape",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "E-Input: claim 1 shares its reserved pair with claim 0"
+      ],
+      "h_pair": false
+     },
+     "what": "E-Input: its one claim opened twice"
+    },
+    "X15b_endpoint_zero_coefficient": {
+     "commitment": "E-Input",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-4",
+       "EX-5",
+       "EX-6",
+       "EX-11",
+       "EX-15"
+      ],
+      "finding": "1 claim(s); the endpoint opens one claim of three parts on rows 0..16, 16, 17, every coefficient nonzero",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-15",
+     "target_clause_name": "the endpoint claim's shape",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "E-Input: claim 0 carries 1 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "E-Input: its claim's first mask coefficient set to zero"
+    },
+    "X16_A_zero_group_coefficient": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-16"
+      ],
+      "finding": "group 0 member 0: lambda is zero",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-16",
+     "target_clause_name": "every group coefficient is nonzero",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [],
+      "h_pair": true
+     },
+     "what": "A@0: group 0's first replayed lambda set to zero"
+    }
+   },
+   "every_clause_exercised": true,
+   "ok": true,
+   "the_old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "what": "one negative control per clause of exclusivity (ruling GC-2, finding F-6): each perturbs an in-memory COPY of one opening's claim list (or its declared geometry, or one replayed lambda), fires iff its target clause holds on the honest opening and fails on the perturbed one, and records every clause the perturbation broke and what the OLD weight-level H-pair check made of the same weights"
+  },
+  "expected": {
+   "A": 0,
+   "H": 2,
+   "M": 0,
+   "external-endpoint": 0,
+   "internal-boundary": 0
+  },
+  "masking_commitments": [
+   {
+    "batched_value": "the theta-batched functional of the slots' mask evaluations; M commits no witness data, so its part over the commitments' coordinates is 0 and that is computed here, not argued",
+    "commitment": "M@0",
+    "commits_witness_data": false,
+    "data_rows": 0,
+    "disclosed_dimension": 0,
+    "expected_disclosed_dimension": 0,
+    "meets_expectation": true,
+    "opened_columns": 256,
+    "rows": 50,
+    "specs": 23
+   }
+  ],
+  "ok": true,
+  "pad_block_exact_rank_cross_check": {
+   "commitment": "E-Input",
+   "distinct_columns": 254,
+   "exact_rank_of_the_pad_block": 254,
+   "full_rank": true,
+   "pad_positions": 256,
+   "seconds": 15.0,
+   "what": "H-pad, computed rather than assumed: the pad block of the {E_j} over the distinct sampled columns has rank equal to their number, so no functional of the opened columns is supported on the message positions"
+  },
+  "per_commitment": [
+   {
+    "boundary": null,
+    "certifying_minor": {
+     "G": 36,
+     "determinant": 8901870943407913029,
+     "determinant_nonzero": true,
+     "full_row_rank": true,
+     "g": 74,
+     "generator_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73
+     ],
+     "generators": "the real and imaginary parts of the G group vectors and of the proximity vector",
+     "non_data_row_indices": [
+      1487,
+      1488,
+      1489,
+      1490,
+      1491,
+      1492,
+      1493,
+      1494,
+      1497,
+      1498,
+      1499,
+      1500,
+      1501,
+      1502,
+      1503,
+      1504,
+      1505,
+      1506,
+      1507,
+      1508,
+      1509,
+      1510,
+      1511,
+      1512,
+      1535,
+      1536,
+      1539,
+      1540,
+      1543,
+      1544,
+      1545,
+      1546,
+      1547,
+      1548,
+      1549,
+      1550,
+      1551,
+      1552,
+      1553,
+      1554,
+      1555,
+      1556,
+      1557,
+      1558,
+      1559,
+      1560,
+      1561,
+      1562,
+      1563,
+      1564,
+      1565,
+      1566,
+      1635,
+      1636,
+      1639,
+      1640,
+      1653,
+      1654,
+      1655,
+      1656,
+      1667,
+      1668,
+      1669,
+      1670,
+      1691,
+      1692,
+      1695,
+      1696,
+      1717,
+      1718,
+      1723,
+      1724,
+      1725,
+      1726
+     ],
+     "rank_on_non_data_rows": 74
+    },
+    "claims": 120,
+    "claims_evaluating_u_rows": 0,
+    "column_identity_checked": 28,
+    "column_identity_failures": 0,
+    "commitment_kind": "block",
+    "coset_nodes_distinct": true,
+    "data_rows": 1487,
+    "disclosed_dimension": 0,
+    "distinct_columns": 251,
+    "distinct_opened_columns": 251,
+    "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 120,
+     "failing": [],
+     "groups": 36,
+     "groups_the_schedule_declares": 36,
+     "ok": true,
+     "site_rows": 240,
+     "site_rows_used_exactly_once": 240,
+     "sum_claims": 0
+    },
+    "expected_disclosed_dimension": 0,
+    "findings": [],
+    "group_claim_identities_checked": 36,
+    "group_claim_identity_failures": 0,
+    "groups": 36,
+    "k0": 0,
+    "meets_expectation": true,
+    "non_data_rows": 242,
+    "pad_count": 256,
+    "pad_margin": 5,
+    "proximity_pair_determinant_nonzero": true,
+    "q_pad": 256,
+    "rank_P1": 74,
+    "rank_P1_on_non_data_rows": 74,
+    "reduction_hypotheses": {
+     "H-pad": true,
+     "H-pair": true,
+     "H-prox": true
+    },
+    "reserved_mask_rows": 240,
+    "reserved_pairs_used": 120,
+    "role": "A@0",
+    "rows": 1729,
+    "sampled_columns": 256,
+    "site_role": "A",
+    "spare_mask_rows": [],
+    "stage": 0,
+    "sum_claims_on_u_rows": 0,
+    "u_rows": [],
+    "vanishing_Zn_nodes": 0
+   },
+   {
+    "boundary": null,
+    "certifying_minor": {
+     "G": 9,
+     "determinant": 17281191662281151384,
+     "determinant_nonzero": true,
+     "full_row_rank": true,
+     "g": 20,
+     "generator_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+     ],
+     "generators": "the real and imaginary parts of the G group vectors and of the proximity vector",
+     "non_data_row_indices": [
+      1696,
+      1697,
+      1698,
+      1699,
+      1700,
+      1701,
+      1702,
+      1703,
+      1734,
+      1735,
+      1748,
+      1749,
+      1760,
+      1761,
+      1776,
+      1777,
+      1788,
+      1789,
+      1794,
+      1795
+     ],
+     "rank_on_non_data_rows": 20
+    },
+    "claims": 50,
+    "claims_evaluating_u_rows": 2,
+    "column_identity_checked": 28,
+    "column_identity_failures": 0,
+    "commitment_kind": "block",
+    "coset_nodes_distinct": true,
+    "data_rows": 1696,
+    "declared_data_rows_vs_row_roles": {
+     "declared": 1698,
+     "difference_is_the_zero_sum_rows": true,
+     "kind_data": 1696
+    },
+    "disclosed_dimension": 2,
+    "distinct_columns": 254,
+    "distinct_opened_columns": 254,
+    "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 49,
+     "failing": [],
+     "groups": 9,
+     "groups_the_schedule_declares": 9,
+     "ok": true,
+     "site_rows": 98,
+     "site_rows_used_exactly_once": 98,
+     "sum_claims": 1
+    },
+    "expected_disclosed_dimension": 2,
+    "findings": [],
+    "group_claim_identities_checked": 9,
+    "group_claim_identity_failures": 0,
+    "groups": 9,
+    "k0": 0,
+    "meets_expectation": true,
+    "non_data_rows": 102,
+    "pad_count": 256,
+    "pad_margin": 2,
+    "proximity_pair_determinant_nonzero": true,
+    "q_pad": 256,
+    "rank_P1": 20,
+    "rank_P1_on_non_data_rows": 20,
+    "reduction_hypotheses": {
+     "H-pad": true,
+     "H-pair": true,
+     "H-prox": true
+    },
+    "reserved_mask_rows": 98,
+    "reserved_pairs_used": 50,
+    "role": "H@0",
+    "rows": 1798,
+    "sampled_columns": 256,
+    "site_role": "H",
+    "spare_mask_rows": [],
+    "stage": 0,
+    "sum_claims_on_u_rows": 1,
+    "u_row_term": {
+     "equals_public_logup_identity": true,
+     "exact_form": "u* = rank \u0393_{D\u222aN'} \u2212 rank \u0393_{N'} \u2212 k0, \u0393 the real and imaginary parts of the group and proximity row-combinations, D the data rows, N' the non-data rows that are not zero-sum rows (ruling GC-2, finding F-3; the draft's \u00a72.2.3 derives it)",
+     "extra_dimension_beyond_k0": 2,
+     "per_indicator_equals_exact": true,
+     "per_indicator_term": 2,
+     "rank_gamma_on_data_and_n_prime": 20,
+     "rank_gamma_on_n_prime": 18,
+     "u_row_indicators_admissible": 2,
+     "xi_row_weights_nonzero": [
+      848,
+      848
+     ]
+    },
+    "u_rows": [
+     1696,
+     1697
+    ],
+    "vanishing_Zn_nodes": 0
+   },
+   {
+    "boundary": null,
+    "certifying_minor": {
+     "G": 1,
+     "determinant": 4869700297761693621,
+     "determinant_nonzero": true,
+     "full_row_rank": true,
+     "g": 4,
+     "generator_indices": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "generators": "the real and imaginary parts of the G group vectors and of the proximity vector",
+     "non_data_row_indices": [
+      16,
+      17,
+      18,
+      19
+     ],
+     "rank_on_non_data_rows": 4
+    },
+    "claims": 1,
+    "claims_evaluating_u_rows": 0,
+    "column_identity_checked": 14,
+    "column_identity_failures": 0,
+    "commitment_kind": "external-endpoint",
+    "coset_nodes_distinct": true,
+    "data_rows": 16,
+    "disclosed_dimension": 0,
+    "distinct_columns": 254,
+    "distinct_opened_columns": 254,
+    "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 1,
+     "failing": [],
+     "groups": 1,
+     "groups_the_schedule_declares": 1,
+     "ok": true,
+     "site_rows": 2,
+     "site_rows_used_exactly_once": 2,
+     "sum_claims": 0
+    },
+    "expected_disclosed_dimension": 0,
+    "findings": [],
+    "group_claim_identities_checked": 1,
+    "group_claim_identity_failures": 0,
+    "groups": 1,
+    "k0": 0,
+    "meets_expectation": true,
+    "non_data_rows": 5,
+    "pad_count": 256,
+    "pad_margin": 2,
+    "proximity_pair_determinant_nonzero": true,
+    "q_pad": 256,
+    "rank_P1": 4,
+    "rank_P1_on_non_data_rows": 4,
+    "reduction_hypotheses": {
+     "H-pad": true,
+     "H-pair": true,
+     "H-prox": true
+    },
+    "reserved_mask_rows": 3,
+    "reserved_pairs_used": 1,
+    "role": "E-Input",
+    "rows": 21,
+    "sampled_columns": 256,
+    "site_role": "Input",
+    "spare_mask_rows": [
+     20
+    ],
+    "stage": 0,
+    "sum_claims_on_u_rows": 0,
+    "u_rows": [],
+    "vanishing_Zn_nodes": 0
+   },
+   {
+    "boundary": null,
+    "certifying_minor": {
+     "G": 1,
+     "determinant": 743252643084112053,
+     "determinant_nonzero": true,
+     "full_row_rank": true,
+     "g": 4,
+     "generator_indices": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "generators": "the real and imaginary parts of the G group vectors and of the proximity vector",
+     "non_data_row_indices": [
+      16,
+      17,
+      18,
+      19
+     ],
+     "rank_on_non_data_rows": 4
+    },
+    "claims": 1,
+    "claims_evaluating_u_rows": 0,
+    "column_identity_checked": 14,
+    "column_identity_failures": 0,
+    "commitment_kind": "external-endpoint",
+    "coset_nodes_distinct": true,
+    "data_rows": 16,
+    "disclosed_dimension": 0,
+    "distinct_columns": 255,
+    "distinct_opened_columns": 255,
+    "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 1,
+     "failing": [],
+     "groups": 1,
+     "groups_the_schedule_declares": 1,
+     "ok": true,
+     "site_rows": 2,
+     "site_rows_used_exactly_once": 2,
+     "sum_claims": 0
+    },
+    "expected_disclosed_dimension": 0,
+    "findings": [],
+    "group_claim_identities_checked": 1,
+    "group_claim_identity_failures": 0,
+    "groups": 1,
+    "k0": 0,
+    "meets_expectation": true,
+    "non_data_rows": 5,
+    "pad_count": 256,
+    "pad_margin": 1,
+    "proximity_pair_determinant_nonzero": true,
+    "q_pad": 256,
+    "rank_P1": 4,
+    "rank_P1_on_non_data_rows": 4,
+    "reduction_hypotheses": {
+     "H-pad": true,
+     "H-pair": true,
+     "H-prox": true
+    },
+    "reserved_mask_rows": 3,
+    "reserved_pairs_used": 1,
+    "role": "E-Output",
+    "rows": 21,
+    "sampled_columns": 256,
+    "site_role": "Output",
+    "spare_mask_rows": [
+     20
+    ],
+    "stage": 0,
+    "sum_claims_on_u_rows": 0,
+    "u_rows": [],
+    "vanishing_Zn_nodes": 0
+   }
+  ],
+  "per_slot_terminal_check": {
+   "bilinear_group_factor": {
+    "definition_in_force": "repaired",
+    "definition_selected_by": "the bundle's own source pin of argument.rs (02df55ebec4d)",
+    "failures": [],
+    "ok": true,
+    "refusals": [],
+    "slots_with_a_derived_group_point": 2,
+    "superseded": false
+   },
+   "captured_public_tables": [
+    "fold_cols_i8 of the public down weight matrix (argument.rs:1110)",
+    "fold_cols_i8 of the public gate weight matrix (argument.rs:1110)",
+    "fold_cols_i8 of the public up weight matrix (argument.rs:1110)",
+    "fold_rows_i8 of the public key weight matrix (argument.rs:1048)",
+    "fold_rows_i8 of the public output-projection matrix (argument.rs:1048)",
+    "fold_rows_i8 of the public query weight matrix at the round's point (argument.rs:1048)",
+    "fold_rows_i8 of the public value weight matrix (argument.rs:1048)",
+    "the RoPE cos table at this domain (rope_tables_at, argument.rs:790)",
+    "the RoPE sin table at this domain (rope_tables_at, argument.rs:790)",
+    "the activation lookup table's public rows i + beta*act[i] + g_act (table_values_act_at, argument.rs:854)",
+    "the exp lookup table's public rows i + beta*exp[i] + g_exp (table_values_exp_at, argument.rs:843)",
+    "the padded attention norm gain vector (argument.rs:1132)",
+    "the padded feed-forward norm gain vector (argument.rs:1133)"
+   ],
+   "checked": true,
+   "covered_slot_names": [
+    "SC_SS",
+    "SC_SSM",
+    "SC_TZC",
+    "SC_LZC",
+    "SC_RS",
+    "SC_QMM",
+    "SC_KMM",
+    "SC_VMM",
+    "SC_SCORE",
+    "SC_PV",
+    "SC_WO",
+    "SC_GMM",
+    "SC_UMM",
+    "SC_DMM",
+    "SC_DZC",
+    "SC_QZC",
+    "SC_KVZC",
+    "SC_SZC",
+    "SC_FZC",
+    "SC_TAB",
+    "SC_ZS",
+    "SC_IO_IN",
+    "SC_IO_OUT"
+   ],
+   "covered_slots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22
+   ],
+   "derived_group_points_used_and_compared": 2,
+   "findings": [],
+   "ok": true,
+   "open_slots": [],
+   "per_stage": [
+    {
+     "checked": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22
+     ],
+     "equal": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22
+     ],
+     "not_checked": [],
+     "stage": 0
+    }
+   ],
+   "public_table_digest_failures": [],
+   "public_table_structure_checks": 15,
+   "public_table_structure_detail": {
+    "act_values": [
+     {
+      "act_128": 0,
+      "act_128_is_zero": true,
+      "recovered_entries": 256,
+      "recovered_sha256": "d511d98599c7c4dc6e35eb2b0d8ba2285b3765384b08f350ef4fe0f491091cce"
+     }
+    ],
+    "exp_values": [
+     {
+      "exp_0": 512,
+      "recovered_entries": 256,
+      "recovered_sha256": "e2c75007d5587eb899da7444dd8d699cb614680cd0919cf16be3af656ab4bc29"
+     }
+    ],
+    "fold(w_d)": [
+     {
+      "live_positions": 5632,
+      "nonzero_positions": 5632,
+      "runs": [
+       [
+        0,
+        5631
+       ]
+      ],
+      "support": "hidden"
+     }
+    ],
+    "fold(w_g)": [
+     {
+      "live_positions": 2048,
+      "nonzero_positions": 2048,
+      "runs": [
+       [
+        0,
+        2047
+       ]
+      ],
+      "support": "width"
+     }
+    ],
+    "fold(w_k)": [
+     {
+      "live_positions": 2048,
+      "nonzero_positions": 2048,
+      "runs": [
+       [
+        0,
+        2047
+       ]
+      ],
+      "support": "width"
+     }
+    ],
+    "fold(w_o)": [
+     {
+      "live_positions": 2048,
+      "nonzero_positions": 2048,
+      "runs": [
+       [
+        0,
+        2047
+       ]
+      ],
+      "support": "heads"
+     }
+    ],
+    "fold(w_q)": [
+     {
+      "live_positions": 2048,
+      "nonzero_positions": 2048,
+      "runs": [
+       [
+        0,
+        2047
+       ]
+      ],
+      "support": "width"
+     }
+    ],
+    "fold(w_u)": [
+     {
+      "live_positions": 2048,
+      "nonzero_positions": 2048,
+      "runs": [
+       [
+        0,
+        2047
+       ]
+      ],
+      "support": "width"
+     }
+    ],
+    "fold(w_v)": [
+     {
+      "live_positions": 2048,
+      "nonzero_positions": 2048,
+      "runs": [
+       [
+        0,
+        2047
+       ]
+      ],
+      "support": "width"
+     }
+    ],
+    "rope_cos": [
+     {
+      "dead_positions": 0,
+      "partner_pairs": 32768
+     },
+     {
+      "dead_positions": 0,
+      "partner_pairs": 4096
+     }
+    ],
+    "rope_sin": [
+     {
+      "dead_positions": 0,
+      "partner_pairs": 32768
+     },
+     {
+      "dead_positions": 0,
+      "partner_pairs": 4096
+     }
+    ]
+   },
+   "public_table_structure_failures": [],
+   "public_tables_rebuilt_and_digest_matched": 7,
+   "public_tables_taken_from_the_capture": 15,
+   "rebuilt_public_tables": [
+    "causal_mask_at",
+    "supp(F)",
+    "supp(L)",
+    "supp(Tab)",
+    "table_values_u8_at",
+    "the all-ones Dom::Tab vector"
+   ],
+   "slot_checks_attempted": 23,
+   "slot_checks_equal": 23,
+   "slot_checks_expected": 23,
+   "slot_checks_matching_the_stored_terminal_polynomial": 23,
+   "source_pins": {
+    "also_read_not_pinned_by_a_bundle": {
+     "src/private_block/pad.rs": "7b6a990be900ad56e890660e9e3587c19fefc69f434a9bb3d4eab817f603d1ff",
+     "src/private_block/shape.rs": "144012d5d960446784a64a451b01ada2d4d6bdd9493ede51e4142e90d28942e0",
+     "src/private_block/witness.rs": "b9b66c024e7ca68d2a0ae4ba46241eb2abbccc8c8d94fe828041abbc710850ad"
+    },
+    "argument_definitions_this_port_implements": {
+     "02df55ebec4d": "repaired",
+     "2cee0a2253d6": "repaired",
+     "909670c96562": "pre-repair",
+     "9b26bda8105c": "repaired",
+     "dd8469cb0279": "repaired",
+     "ec3f97443245": "repaired",
+     "f7fa2ad4213d": "repaired"
+    },
+    "bilinear_definition_reason": "[TINYLLAMA PORT v5, round 4] read against `9b26bda8` (round 1, the repaired definition at the trained constants): **+5 / -3, one hunk**, inside `argument()`'s slot loop: the phase clock's `ph.slot(slot, cube, \"cube\")` becomes `ph.slot_work(slot, cube * n_tabs)` with `n_tabs = def.tabs.len()` read from the slot's definition AFTER `define` returns.  `ph` is write-only and returns on its first line without HL_PB_TIMING (the module's own STAGE-11 note), so no definition, challenge, table or terminal depends on it.  Every slot closure, the trained constants round 1 ported, the bilinear arms, the push order of every private table, `run_slot`, the M-functional block and the `N_FUNCTIONALS` guard are byte-identical -- stage 20's repaired definition",
+    "bilinear_definition_selected_by_the_argument_pin": "repaired",
+    "ok": true,
+    "pins_at_an_accepted_second_digest": [
+     "src/private_block/argument.rs: 02df55ebec4d -- [TINYLLAMA PORT v5, round 4] read against `9b26bda8` (round 1, the repaired definition at the trained constants): **+5 / -3, one hunk**, inside `argument()`'s slot loop: the phase clock's `ph.slot(slot, cube, \"cube\")` becomes `ph.slot_work(slot, cube * n_tabs)` with `n_tabs = def.tabs.len()` read from the slot's definition AFTER `define` returns.  `ph` is write-only and returns on its first line without HL_PB_TIMING (the module's own STAGE-11 note), so no definition, challenge, table or terminal depends on it.  Every slot closure, the trained constants round 1 ported, the bilinear arms, the push order of every private table, `run_slot`, the M-functional block and the `N_FUNCTIONALS` guard are byte-identical -- stage 20's repaired definition",
+     "src/private_block/layout.rs: ee871fff7eed -- [TINYLLAMA PORT v5, round 4] read against `bfd3677b` (round 1): **+42 / -0, two hunks, ADDITIONS ONLY, both refusals**: ruling CS-8's `Layout::check_is_for_shape` (the ten row fields against `Layout::for_shape(sh)`; absorbs nothing, draws nothing) and, in `Layout::for_shape`, re-review R2-a's refusals (a trained-calibration profile string without the trained door's flag; `Shape::check_softmax_window`).  `lookups_at` (and the trained top-limb coefficients round 1 ported), `N_SLOTS`, `N_FUNCTIONALS`, `M_ROWS`, every plane order and row count, `domain_log_at` and the `(beta, gamma, alpha)` draw are outside both hunks",
+     "src/private_block/protocol.rs: 85ca893173c4 -- [TINYLLAMA PORT v8, round 6] read against `7cf6e486` (R5 = R5b, read in round 4): +52 / -16, two hunks, NATIVE R6.  (1) NEW `exp_histogram` and `act_histogram`, whose loop bodies are character for character the two loops `prove_core` had (hit test, miss count, the miss filed in entry 0).  NEW `check_lookup_misses(sh, lay, blk, wit)`: CS-8's `check_is_for_shape`, CS-1/4's `check_for_shape`, the same three counts and the same named refusal `refuse_lookup_misses`, called by the trained sealing pass on a witness before any proof exists (review N-r5-a).  It draws nothing and absorbs nothing.  (2) In `prove_core` the two loops become calls to those helpers, and `exp_deltas(&lay, ..)` becomes `exp_deltas(lay, ..)` (the same reference).  The histograms committed into A are therefore the same values.  `transcript()`'s absorbs, `check_opening_challenges`, the slot loop, the `(beta, gamma, alpha)` draw, the A / H / M commitment calls, the CS-3 refusal's place (after the three histograms, before the first A mask draw) and every row count are outside both hunks",
+     "src/private_block/plane_index.rs: 13a7dd6ff1f9 -- [TINYLLAMA PORT 2026-10-17] read against `9de8320a` (the port's own `PORTED_FROM`): **+6 / -0, one hunk** -- `a_plane_names(sh)`, a NEW read-only helper over the unchanged `a_segments` / `expand` (the D16 item-5 audit names planes with it).  `build`, `render`, `locate` and every segment table are byte-identical",
+     "src/private_block/shape.rs: 8c62519c98e3 -- [TINYLLAMA PORT v11, round 8] the token r7c reading (frozen-r7's shape.rs = native R8's): [TOKEN-IO R7c] [READ] read against `7b0c9742` (R7, read in round 6): +37 / -12, one hunk; the file is byte-identical to the native R8 freeze's (`8c62519c`). `with_score_shift(sh_s)` is now `with_layer_calibration(&NormCalibration { sh_s, ..self.norm_calibration() })` (:1481-1483) and has no production caller left (its callers are test modules) [READ grep]. NEW `with_layer_calibration(cal)` (:1496-1523): refused unless trained_calibration; `cal.derive_at_width(self.width)` (:238: width class, tn class, cn_a / cn_m <= 2^20, ceps <= 2^40, sh_ao <= 8, the six shift windows, D_max in three byte limbs, the remainder window exactly four limbs); clones and sets the eleven constants plus the derived norm_wrho and d_max; `check_constructed` and `check_trained_class`; then rebuilds `Ids` / `HIds` and refuses unless n_a, (ln, ls, lp) and n_h equal this shape's (the plane list unmoved). It is called only for a record with own constants (run.rs:382, trained_statement.rs:647, trained_block.rs:938-941 and :2066, token_io/run.rs:231 and :258), which no record of the pg_rot1 TinyLlama T32 exports has. The trained geometry table and its TinyLlama T32 entry (`trained_geometry`, :367), ruling C-4 (:306, :817-849), `hash_tag` (:1810), `true_size` (:1860), `pads` (:1885), `Shape::slots` (:2008) and the calibration validator itself are outside the hunk. At these exports no shape value and no byte moves.",
+     "src/private_block/pad.rs: 4f0c11c50503 -- [TINYLLAMA PORT 2026-10-17] read against `f8b1f6c2` (READ in round 9b): **+3 / -1, one hunk, inside `#[cfg(test)] fn every_checkable_relation_holds`** (the norm epsilon is the shape's).  Not one production line moved: `BitForm::of`, `closed_form_indicator`, `support_indicator`, `indicator_table`, `zero_rule_a_planes`, `pad_zero_host` and the exempt-plane rule are byte-identical"
+    ],
+    "pins_missing_from_the_bundle": [],
+    "pins_that_moved": [],
+    "ported_from": {
+     "src/private_block/argument.rs": "909670c96562e7ff99b7ad37f6c3aae027574f3c0e9ab74f01a27e45058bf675",
+     "src/private_block/layout.rs": "fec2e6476f165e1e3be7871a3dfbdef56a4619f5b2e7560eb98ff2c97587a99f",
+     "src/private_block/plane_index.rs": "9de8320a84770560d2b998c514b0e9745a8f6c9f0c1d0cdefda8164137107611",
+     "src/private_block/protocol.rs": "4e916c693ad8e6c62e8774ddb3d829f5e1c116932e74bb1c6088d62ab4aee449"
+    }
+   },
+   "status": "derived",
+   "what": "fin_s == c_s * mask_eval_s + poly_s(vals_s), the verifier's own final check (argument.rs:381), recomputed from the published terminals and compared with the capture's `terminal_polynomial` (= fin - c*mask_eval)",
+   "what_a_captured_table_does_not_establish": "that a folded weight table is the fold of the weight matrix the statement names.  No bundle carries a weight, so the port checks the capture's own length and SHA-256, the structure ruling P-2 gives the fold, and the identity at the run's real challenges -- and no more.  The tables that ARE functions of the shape are rebuilt here instead and never taken"
+  }
+ },
+ "stage4_the_boundary": {
+  "adjacent_stage_pairs": [],
+  "ok": true,
+  "per_boundary": [],
+  "ruling": "M-8: three blocks at the development rung, all three roles of each boundary plane ranked jointly, the shared-pair and single-proximity-row controls included",
+  "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
+  "shared_planes": {
+   "equality_slots": [
+    {
+     "a_rows": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23
+     ],
+     "boundary": null,
+     "claim_index_in_the_opening": 0,
+     "commitment": "E-Input",
+     "commitment_kind": "external-endpoint",
+     "commitment_rows": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+     ],
+     "log_size": 16,
+     "name": "IO-in endpoint equality",
+     "opened_at_stage": 0,
+     "reserved_pair_first_row": 16,
+     "rows": 16,
+     "same_evaluation_point": true,
+     "site_role": "Input",
+     "slot": 21,
+     "stage": 0,
+     "table_claim_field": 0
+    },
+    {
+     "a_rows": [
+      472,
+      473,
+      474,
+      475,
+      476,
+      477,
+      478,
+      479,
+      480,
+      481,
+      482,
+      483,
+      484,
+      485,
+      486,
+      487
+     ],
+     "boundary": null,
+     "claim_index_in_the_opening": 0,
+     "commitment": "E-Output",
+     "commitment_kind": "external-endpoint",
+     "commitment_rows": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+     ],
+     "log_size": 16,
+     "name": "IO-out endpoint equality",
+     "opened_at_stage": 0,
+     "reserved_pair_first_row": 16,
+     "rows": 16,
+     "same_evaluation_point": true,
+     "site_role": "Output",
+     "slot": 22,
+     "stage": 0,
+     "table_claim_field": 0
+    }
+   ],
+   "findings": [],
+   "identified_row_pairs": 32,
+   "source_facts": [
+    "private_block/argument.rs: the two endpoint-equality slots run eq(tau) * (A_plane - IO_plane) over log_size variables",
+    "private_block/layout.rs SLOT_KINDS marks them Standalone, so the sum they prove is zero and the published scalar is the CFS mask term alone; the capture carries the kind as data",
+    "the commitment behind an IO SITE is named by claim_sources, never by the site's role name (run-capture format finding U-8)"
+   ]
+  },
+  "whole_run": {
+   "classes_shared_between_roles_data": 32,
+   "classes_shared_between_roles_non_data": 0,
+   "commitments": [
+    "A@0",
+    "H@0",
+    "E-Input",
+    "E-Output",
+    "M@0"
+   ],
+   "coordinate_classes": 3587,
+   "findings": [],
+   "generators": 104,
+   "identified_rows": 32,
+   "joint_detail": {
+    "coordinate_classes": 3587,
+    "data_classes": 3183,
+    "disclosed_fp": 2,
+    "free_fp": 0,
+    "generators": 104,
+    "k0": 0,
+    "non_data_classes": 404,
+    "rank_all": 104,
+    "rank_on_non_data": 104,
+    "u_row_detail": {
+     "exact_form": "u* = rank \u0393_{D\u222aN'} \u2212 rank \u0393_{N'} \u2212 k0, \u0393 the real and imaginary parts of the group and proximity row-combinations, D the data rows, N' the non-data rows that are not zero-sum rows (ruling GC-2, finding F-3; the draft's \u00a72.2.3 derives it)",
+     "extra_dimension_beyond_k0": 2,
+     "indicators_admissible": 2,
+     "per_indicator_equals_exact": true,
+     "per_indicator_term_fp": 2,
+     "rank_gamma_on_data_and_n_prime": 104,
+     "rank_gamma_on_n_prime": 102,
+     "u_class_owners": [
+      "H@0[1696]",
+      "H@0[1697]"
+     ],
+     "u_classes": 2
+    },
+    "u_row_term_fp": 2
+   },
+   "joint_equals_sum_of_parts": true,
+   "joint_fp": 2,
+   "label": "whole run",
+   "matrix": "104 x 3587",
+   "non_data_block_is_block_diagonal_by_role": true,
+   "ok": true,
+   "parts_fp": {
+    "A@0": 0,
+    "E-Input": 0,
+    "E-Output": 0,
+    "H@0": 2,
+    "M@0": 0
+   },
+   "rows_total": 3619,
+   "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
+   "seconds": 0.3,
+   "sum_of_parts_fp": 2
+  }
+ },
+ "stage5_zero_data_preimage": {
+  "attempted": [
+   "E-Input",
+   "E-Output"
+  ],
+  "fixed_input": "all zero",
+  "half": "message only",
+  "ok": true,
+  "per_commitment": [
+   {
+    "boundary": null,
+    "commitment": "E-Input",
+    "commitment_kind": "external-endpoint",
+    "data_rows": 16,
+    "every_group_is_a_singleton": true,
+    "fibre_free_fp": 4096,
+    "findings": [],
+    "fixed_input": "all zero",
+    "free_fp_per_position": 1,
+    "full_row_rank": true,
+    "generators": 4,
+    "message_positions": 4096,
+    "non_data_rows": 5,
+    "positions_without_a_solution": 0,
+    "preimage_exhibited": true,
+    "randomness_digest": "54d2d5b3a0b72adcbceadb68540deb29903ffb87631627e96048f79b552466a0",
+    "rank_of_the_non_data_block": 4,
+    "rows": 21,
+    "verification": {
+     "all_entries_equal": true,
+     "channels_not_verified": [
+      "the pad half of every published vector",
+      "the opened column values",
+      "the Merkle root, the leaf salts and the authentication paths"
+     ],
+     "channels_verified": [
+      "every opening group's vector, message half",
+      "the proximity vector, message half",
+      "every claim value"
+     ],
+     "claim_values_checked": 1,
+     "claim_values_differing": 0,
+     "message_entries_checked": 8192,
+     "message_entries_differing": 0
+    }
+   },
+   {
+    "boundary": null,
+    "commitment": "E-Output",
+    "commitment_kind": "external-endpoint",
+    "data_rows": 16,
+    "every_group_is_a_singleton": true,
+    "fibre_free_fp": 4096,
+    "findings": [],
+    "fixed_input": "all zero",
+    "free_fp_per_position": 1,
+    "full_row_rank": true,
+    "generators": 4,
+    "message_positions": 4096,
+    "non_data_rows": 5,
+    "positions_without_a_solution": 0,
+    "preimage_exhibited": true,
+    "randomness_digest": "c43f5cc49c06b715aa254f4f6817d6d4e31c524d384b8a960d9424cb4a669f9e",
+    "rank_of_the_non_data_block": 4,
+    "rows": 21,
+    "verification": {
+     "all_entries_equal": true,
+     "channels_not_verified": [
+      "the pad half of every published vector",
+      "the opened column values",
+      "the Merkle root, the leaf salts and the authentication paths"
+     ],
+     "channels_verified": [
+      "every opening group's vector, message half",
+      "the proximity vector, message half",
+      "every claim value"
+     ],
+     "claim_values_checked": 1,
+     "claim_values_differing": 0,
+     "message_entries_checked": 8192,
+     "message_entries_differing": 0
+    }
+   }
+  ],
+  "skipped": []
+ },
+ "stage7_channels": {
+  "channels": [
+   {
+    "assumption": null,
+    "channel": "opening-group and proximity vectors, message half (the internal boundaries and the two external endpoints)",
+    "commitments": [
+     "E-Input",
+     "E-Output"
+    ],
+    "how": "every group of these commitments is a singleton, so at each of the 1,024 message positions the view is one 2(G+1) x (non-data rows) system over Fp; with the hidden data fixed to zero it is solved exactly and the view recomputed entry by entry",
+    "preimage_exhibited": true,
+    "section": "run 2.1",
+    "status": "constructed"
+   },
+   {
+    "assumption": null,
+    "channel": "claim values (the internal boundaries and the two external endpoints)",
+    "how": "recomputed from the exhibited zero-data randomness and compared with the capture",
+    "preimage_exhibited": true,
+    "section": "run 2.1",
+    "status": "constructed"
+   },
+   {
+    "assumption": null,
+    "channel": "opening-group and proximity vectors of A and H",
+    "commitments": [],
+    "how": null,
+    "preimage_exhibited": false,
+    "reason": "their opening groups have several members, so each claim's own published value is an extra constraint; the correction step that handles it is in zk60_native_pg_pcs, whose MSG == PAD == 256 does not hold at this shape (1,024 message positions against 256 pads).  ROUND 7 removed that assumption; it is minutes of exact Fp arithmetic per bundle, not seconds, so it is opt-in (`--full-preimage`); the default gate stays a ~10 s tool and every figure of rounds 1-6 is taken at the same cost as before",
+    "section": "run 2.1",
+    "status": "open",
+    "what_is_computed_instead": {
+     "disclosed_dimension_by_exact_rank": {
+      "A@0": 0,
+      "H@0": 2
+     },
+     "note": "A discloses 0 and H discloses 2, the public LogUp identity, with a certifying minor; that is a rank, not a preimage"
+    }
+   },
+   {
+    "assumption": null,
+    "channel": "the pad half of every published vector",
+    "excluded": "the masking commitment M's own opening, which is the separate CFS channel below",
+    "how": null,
+    "preimage_exhibited": false,
+    "reason": "constructing it needs the Lagrange interpolation through the distinct sampled nodes and the Z_S divisibility test of zk60_native_pg_pcs, which assumes MSG == PAD; what IS computed is H-pad, the exact rank of the pad block over the distinct opened columns.  ROUND 7 removed that assumption; it is minutes of exact Fp arithmetic per bundle, not seconds, so it is opt-in (`--full-preimage`); the default gate stays a ~10 s tool and every figure of rounds 1-6 is taken at the same cost as before",
+    "section": "run 2.1",
+    "status": "open"
+   },
+   {
+    "assumption": null,
+    "channel": "opened column values",
+    "entries_recomputed_and_compared": null,
+    "how": null,
+    "identities_reproduced": 84,
+    "identity_failures": 0,
+    "preimage_exhibited": false,
+    "reason": "they are a function of the pads, which are not constructed here; the verifier's own column identity IS reproduced from the model on a sample of columns of every commitment, with no failures.  ROUND 7 constructs them; it is minutes of exact Fp arithmetic per bundle, not seconds, so it is opt-in (`--full-preimage`); the default gate stays a ~10 s tool and every figure of rounds 1-6 is taken at the same cost as before",
+    "salted_leaves_authenticated": null,
+    "section": "run 2.1",
+    "status": "open",
+    "unopened_leaves": "NOT reproducible from any preimage and not claimed: an unopened leaf is a salted digest, its hiding is M-2 / M-3, and that channel stays ARGUED"
+   },
+   {
+    "assumption": null,
+    "channel": "column indices (PCS and M)",
+    "function": "Transcript::challenge_indices over the public prefix; the gate's stage 2 re-derives every index of every opening of every stage",
+    "preimage_exhibited": null,
+    "recomputed": true,
+    "section": "run 2.1",
+    "status": "derived"
+   },
+   {
+    "assumption": null,
+    "challenges_rederived": 4511,
+    "channel": "every Fiat-Shamir challenge of the run (definition draws, the slot challenges c, the sumcheck rhos, theta, the M proximity rhos, the opening lambdas and proximity coefficients)",
+    "function": "re-derived with BLAKE3 from the bundle's public data",
+    "positions_compared": 127,
+    "preimage_exhibited": null,
+    "section": "run 2.1",
+    "status": "derived"
+   },
+   {
+    "assumption": null,
+    "channel": "the masked sumcheck round messages and the published scalars",
+    "entries_recomputed_and_compared": null,
+    "how": null,
+    "joint_note": "the masking commitment IS carried in the joint system as a block with 2S+4 rows and no data row, and its part over the commitments' coordinates is computed as 0",
+    "preimage_exhibited": false,
+    "reason": "it is seconds per stage of exact Fp arithmetic and the controls are twenty more, so it is opt-in (`--mask-cfs`) exactly as round 7's arm is; the default gate keeps its cost and every figure of rounds 1-7 is taken as before",
+    "section": "run 2.1",
+    "status": "open",
+    "the_fixed_data_is_not_the_zero_witness_s_transcript": null
+   },
+   {
+    "assumption": null,
+    "channel": "the masking commitment M's opening: the product polynomial q and the one batched functional value it pins",
+    "disclosed_fp_computed": null,
+    "how": null,
+    "preimage_exhibited": false,
+    "reason": "it is seconds per stage of exact Fp arithmetic and the controls are twenty more, so it is opt-in (`--mask-cfs`) exactly as round 7's arm is; the default gate keeps its cost and every figure of rounds 1-7 is taken as before",
+    "section": "run 2.1 (NEW)",
+    "status": "open"
+   },
+   {
+    "assumption": null,
+    "channel": "the masking commitment M's proximity vector",
+    "how": null,
+    "preimage_exhibited": false,
+    "reason": "it is seconds per stage of exact Fp arithmetic and the controls are twenty more, so it is opt-in (`--mask-cfs`) exactly as round 7's arm is; the default gate keeps its cost and every figure of rounds 1-7 is taken as before",
+    "section": "run 2.1 (NEW)",
+    "status": "open"
+   },
+   {
+    "assumption": null,
+    "channel": "the masking commitment M's own opened columns (and their salted leaves)",
+    "entries_recomputed_and_compared": null,
+    "how": null,
+    "preimage_exhibited": false,
+    "reason": "it is seconds per stage of exact Fp arithmetic and the controls are twenty more, so it is opt-in (`--mask-cfs`) exactly as round 7's arm is; the default gate keeps its cost and every figure of rounds 1-7 is taken as before",
+    "salted_leaves_authenticated": null,
+    "section": "run 2.1 (NEW)",
+    "status": "open",
+    "unopened_leaves": "NOT reproducible from any preimage and not claimed: M-2 / M-3, and that channel stays ARGUED"
+   },
+   {
+    "assumption": null,
+    "channel": "the derived mask evaluation per slot (the terminal identity) -- the slots whose composition polynomial this gate recomputes",
+    "derivation": "fin_s == c_s*mask_eval_s + poly_s(vals_s), recomputed from the PUBLISHED terminals at the run's real challenges and compared with the capture's own terminal_polynomial, in every stage.  The plane index table (run.json[plane_index], stage 15) says which plane each terminal is an evaluation of; the public tables that are a function of the shape are rebuilt and checked against the capture's SHA-256",
+    "of": 23,
+    "preimage_exhibited": false,
+    "reason": null,
+    "section": "run 2.1",
+    "slot_checks": 23,
+    "slots": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22
+    ],
+    "status": "derived"
+   },
+   {
+    "assumption": null,
+    "channel": "the derived mask evaluation per slot (the terminal identity) -- the slots whose public tables the bundle does not carry",
+    "derivation": "this bundle carries `public_tables_included: true`, so the eleven slots that read a fold of the public weights, the norm gains, the RoPE pair or a lookup table's values ARE evaluated: each table is checked against the capture's own length and SHA-256 and against the structure its builder gives it, and the identity holds at the run's real challenges in every stage",
+    "is_it_public": "yes -- every such table is a function of the PUBLIC statement (the weights, the norm gains, the RoPE constants, the exp and activation tables), so carrying it publishes nothing new",
+    "preimage_exhibited": false,
+    "reason": null,
+    "section": "run 2.1 (NEW)",
+    "slots": [],
+    "status": "derived"
+   },
+   {
+    "assumption": null,
+    "caveat": null,
+    "channel": "the hash RULE of the run: which BLAKE3 made every byte, and the four keys of a tagged profile",
+    "columns_authenticated": 1280,
+    "derivation": "the four context strings and the list of legacy profiles are pinned in the gate's own source, the key set is DERIVED from the profile the bundle's shape names (the port of Shape::hash_tag) and compared with the bundle's declared hash_tag member by member -- re-derive, never consume (ruling T-7).  The bytes are then shown to be under that rule: the whole transcript replays, and every opened column re-hashes and re-authenticates, only under it",
+    "keys_are_public": "yes -- each key is blake3.derive_key(<public context>, <public profile>), so publishing them discloses nothing; they are never an INPUT",
+    "of": 1280,
+    "preimage_exhibited": false,
+    "reason": null,
+    "rule": "blake3-keyed/1",
+    "section": "run 2.3 (NEW)",
+    "status": "derived"
+   },
+   {
+    "assumption": "M-2",
+    "channel": "the Merkle roots (A, H, M per stage, the L-1 boundary roots, the two endpoint roots)",
+    "model_assumption": "the roots are generated by the prover itself (ruling D18) and indistinguishability rests on M-2, the hiding of unopened salted leaves in the random-oracle model.  A boundary root is an observed commitment and NOT part of the run statement",
+    "preimage_exhibited": null,
+    "roots_this_run": 5,
+    "section": "run 2.1",
+    "status": "argued",
+    "what_stage_9_adds_and_what_it_does_not": "stage 9 re-hashes every OPENED column and folds its path to the root under the rule, so the root is COMPUTED from the opened data rather than read -- a soundness-side check.  The channel stays ARGUED because what it is about is HIDING: what an unopened leaf reveals is M-2's assumption either way"
+   },
+   {
+    "assumption": "M-3",
+    "channel": "leaf salts",
+    "counts": {
+     "openings": 5,
+     "per_opening": 256
+    },
+    "model_assumption": "fresh uniform bytes in both worlds; equality of the two laws rests on M-3, the assumption that the whole output stream of ZkRng is indistinguishable from uniform",
+    "preimage_exhibited": null,
+    "section": "run 2.1",
+    "status": "argued"
+   },
+   {
+    "assumption": "M-2",
+    "channel": "authentication paths",
+    "levels": {
+     "mask": 12,
+     "pcs": 14
+    },
+    "model_assumption": "the paths are genuine hashes of the same world's own columns; hiding of the unopened leaf digests rests on M-2.  That they ARE genuine hashes of this run's own columns is now computed, not assumed (stage 9), including each path's LENGTH against the tree depth -- the check that stops an inner node being presented as a salted leaf",
+    "preimage_exhibited": null,
+    "section": "run 2.1",
+    "status": "argued"
+   },
+   {
+    "assumption": "shape facts + ruling M-6",
+    "channel": "the sequencing surface: the number of segments, their byte lengths and their position tags",
+    "model_assumption": "L is a public word of the run statement (absorbed under run-shape) and a segment's length is a function of the shape and of the stage's position, not of the witness; the position tags are squeezed from a DISCARDED transcript clone, compared by the verifier and never absorbed (ruling M-6), so they are a public function of public transcript data.  EVIDENCE, not proof: the two bundles are independent runs on different hidden inputs and their three segment lengths agree exactly",
+    "position_tags_rederived": [
+     {
+      "end_tag_ok": true,
+      "stage": 0,
+      "start_tag_ok": true
+     }
+    ],
+    "preimage_exhibited": null,
+    "section": "run 2.2 (NEW)",
+    "segments": [
+     {
+      "bytes": 11627288,
+      "sha256": "36727da3af5ce702",
+      "stage": 0
+     }
+    ],
+    "status": "argued"
+   },
+   {
+    "assumption": null,
+    "channel": "the cross-block joint law beyond the linear rank",
+    "corrected": "2026-09-23 (round 9j, ZK60_SHAPED_PRIVACY_PATH_STATUS.md section 4 row 28): until this date the reason read 'a composition argument for a run, which is unwritten' and ended with ruling R-3's 'is to be machine-asserted elsewhere'; Theorem B was written and accepted as a reduction on 2026-09-20 and the draw accounting is asserted on single blocks since lane stage 36.  Grade unchanged: OPEN",
+    "preimage_exhibited": null,
+    "reason": "obligation O-R3: what is computed here is a RANK of a linear model over the run's commitments.  The joint LAW of a run is Theorem B -- the toy theorem per stage plus one factorisation over stages, whose key hypothesis (no run-wide masking commitment; every slot of block k masked by block k's own M) is a fact of the code -- WRITTEN and ACCEPTED AS A REDUCTION (ZK60_JOINT_LAW_COMPOSITION_RUN_DISPOSITION.md, 2026-09-20 17:58, section 1), conditional on G-R1, G-R2 and G-R4.  The draw accounting ruling R-3 asked for is machine-asserted on single-block proofs (lane stage 36), not at run scope and not at 125M.  The check's OMITTED CONDITION 7 -- that the gate must rank the two A commitments that hold the same plane, not the boundary alone -- IS met by stage 4(b)",
+    "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
+    "ruling_R3_as_of_2026_09_23": "2026-09-23 (round 9j): the draw-accounting test ruling R-3 asked for EXISTS -- lane stage 36, the seven assertions of ZK60_JOINT_SENTENCE_AND_QUERY_CLASSES.md section 3.1, MEASURED on single-block proofs at six shapes (toy, rung-K4, rung-P2, rung-C6, rung-W14, rung-E32).  Not at 125M, where the per-block draw total is a count, and not at run scope (J-5's widened assertion 2 over 11L + 3(L-1) segments is unmeasured).  `joint == sum` in this gate remains a consistency check of the model, as the ruling says",
+    "section": "run 2.2 (NEW)",
+    "status": "open"
+   },
+   {
+    "assumption": null,
+    "channel": "the preimage construction for a RUN (one randomness reproducing the whole run's view under a fixed input)",
+    "constructed_so_far": [
+     "E-Input",
+     "E-Output"
+    ],
+    "how": null,
+    "joint": null,
+    "per_commitment_not_joint": true,
+    "preimage_exhibited": false,
+    "reason": "exhibited here per commitment, message half only, for the 2 singleton-group commitments of the run.  A RUN preimage is a joint object: it must reproduce every stage's view at once with the boundary planes shared between three commitments, and it needs the pad half and the CFS channel first",
+    "section": "run 2.2 (NEW)",
+    "status": "open",
+    "still_not_shown": null
+   },
+   {
+    "assumption": "D12b(3) as built (ruling R-5) + ruling M-4",
+    "boundary_scales": [],
+    "channel": "the boundary scale tags and the one calibration identity",
+    "corrected": "2026-09-23 (round 9j, ZK60_SHAPED_PRIVACY_PATH_STATUS.md section 4 row 26): until this date this channel was graded OPEN on check A7.5 -- 'nothing in the run's privacy section covers the boundary's scale/calibration binding, and D12 item 5 records that a tag equality check would pass on a factor-of-8 mismatch'.  D12b(3) closed that BY CONSTRUCTION at lane stage 21 (2026-09-20), so the grade was stale",
+    "model_assumption": "a boundary's scale pair is a CONSTANT of the approved calibration and so carries nothing about the hidden input: RunStatement::new refuses any interior scale pair but ENDPOINT_SCALES (ruling R-5, register D12b item 3; built at lane stage 21 item 3, 71c6509, 2026-09-20; run.rs at every capture commit since 0426ad2 -- zk60_native_rg_runpins READINGS on 65d55d25 -- and at f4697f9 run.rs:143-169), and the scales are then bound through the ONE calibration identity the run header absorbs (ruling M-4).  The gate reads the declared scales as public constants and checks that the run declares one calibration identity; it does NOT re-run R-5's refusal, which is a code fact the run.rs pin covers",
+    "one_calibration_identity": true,
+    "preimage_exhibited": null,
+    "section": "run 2.2 (NEW)",
+    "status": "argued"
+   },
+   {
+    "assumption": null,
+    "channel": "whether a proof attempt produced a receipt (refusal events)",
+    "corrected": "2026-09-23 (round 9j, ZK60_SHAPED_PRIVACY_PATH_STATUS.md section 4 row 27): until this date the reason read 'with 49 commitments a run makes 23 more ZkRng::from_os calls, and from_os fails closed -- now possibly in stage 12, minutes in (A7.2)', the design's one-generator-per-commitment recommendation, which ruling R-2 withdrew on 2026-09-20.  Grade unchanged: OPEN",
+    "preimage_exhibited": null,
+    "reason": "the refusal channel is inside the game (ruling C-2); a capture exists only when the run was accepted.  Its ENTROPY side is one fail-closed read per generator and THREE generators per run, accepted as built (ruling R-2 of ZK60_JOINT_LAW_COMPOSITION_RUN_DISPOSITION.md; J-2; run memo section 6.3): prove_run makes ONE ZkRng::from_os(run_seed_domain(profile)) before the run header is absorbed and before stage 0 (run.rs:523 at f4697f9), every boundary is drawn from that stream, and the two external endpoints read once each (endpoint_g.rs:269); boundary.rs's own from_os is in its test module.  A run's other refusals (a witness the builder refuses, a lookup miss under CS-3) can still fire inside stage k and name the stage: rule M-9 / D12b(1) governs who may see that reason",
+    "section": "run 2.2",
+    "status": "open"
+   },
+   {
+    "assumption": null,
+    "channel": "rejected-but-emitted receipts",
+    "preimage_exhibited": null,
+    "reason": "history item H8, a procedural condition on the deployment",
+    "section": "run 2.2",
+    "status": "open"
+   },
+   {
+    "assumption": null,
+    "channel": "retained captures",
+    "preimage_exhibited": null,
+    "reason": "history item H9: a retained capture is a published opening.  This bundle's hidden input is REAL held-out calibration data of the trained export (or the all-zero plane), which the export itself stores in the repository (seq_*/x_in_L*.bin), so retaining it publishes nothing new; a capture of a NON-public input would be a published opening of a real input and falls under D21.  The writer is behind #[cfg(test)]",
+    "section": "run 2.2",
+    "status": "open"
+   },
+   {
+    "assumption": null,
+    "channel": "timing, memory, power",
+    "preimage_exhibited": null,
+    "reason": "declared out of scope for the first MVP (M-5, ruling C-2).  A run adds per-stage wall-clock and a per-stage high-water mark to what an observer could time; no field of the capture bears on it",
+    "section": "run 2.2",
+    "status": "open"
+   },
+   {
+    "assumption": null,
+    "channel": "prior proofs by the same prover",
+    "preimage_exhibited": null,
+    "reason": "open item U-3b; this gate analyses one run at a time",
+    "section": "run 2.2",
+    "status": "open"
+   },
+   {
+    "assumption": null,
+    "channel": "the integer-range facts the statement implies",
+    "preimage_exhibited": null,
+    "reason": "chain item 20: the statement implies the hidden values are in range, which is information about them that no preimage argument removes",
+    "section": "run 2.2",
+    "status": "open"
+   },
+   {
+    "assumption": null,
+    "channel": "any nonlinear functional of the joint view",
+    "preimage_exhibited": null,
+    "reason": "chain item 21: the terminal identity links the commitment and masking channels with degree up to 4 in the terminals, and stage 8 now EVALUATES that identity for the covered slots -- but the DISCLOSURE model of stages 3 and 4 is still a rank over a linear model, so a nonlinear functional of the joint view is outside it",
+    "section": "run 2.2",
+    "status": "open"
+   }
+  ],
+  "counts": {
+   "argued": 5,
+   "constructed": 2,
+   "derived": 5,
+   "open": 16
+  },
+  "grading_failures": [],
+  "new_for_a_run": [
+   "the masking commitment M's opening: the product polynomial q and the one batched functional value it pins",
+   "the masking commitment M's proximity vector",
+   "the masking commitment M's own opened columns (and their salted leaves)",
+   "the derived mask evaluation per slot (the terminal identity) -- the slots whose public tables the bundle does not carry",
+   "the hash RULE of the run: which BLAKE3 made every byte, and the four keys of a tagged profile",
+   "the sequencing surface: the number of segments, their byte lengths and their position tags",
+   "the cross-block joint law beyond the linear rank",
+   "the preimage construction for a RUN (one randomness reproducing the whole run's view under a fixed input)",
+   "the boundary scale tags and the one calibration identity"
+  ],
+  "ok": true,
+  "total": 28
+ },
+ "stage8_plane_index_and_terminals": {
+  "carried_public_tables": {
+   "bundle": "tinyllama-trained-tk9-capture-dense-l1",
+   "digest_checked": 22,
+   "findings": [],
+   "length_checked": 22,
+   "ok": true,
+   "per_stage": [
+    {
+     "digest_checked": 22,
+     "length_checked": 22,
+     "public_tables": 22,
+     "stage": 0,
+     "with_values": 22
+    }
+   ],
+   "public_tables": 22,
+   "public_tables_included": true,
+   "what": "each carried public table's values against the capture's own len and SHA-256 (the 16-byte little-endian Fp2 encoding, run_capture.rs:788)",
+   "with_values": 22
+  },
+  "channel_status": "derived",
+  "controls": {
+   "ok": false,
+   "skipped": "controls not requested"
+  },
+  "ok": true,
+  "plane_index": {
+   "a_data_rows": 1487,
+   "a_planes": 81,
+   "a_planes_tile_exactly": true,
+   "domain_logs": {
+    "D": 16,
+    "F": 18,
+    "Ht": 10,
+    "Kv": 13,
+    "L": 12,
+    "Q": 16,
+    "S": 15,
+    "T": 5,
+    "Tab": 12
+   },
+   "every_plane_is_read_by_a_slot": true,
+   "findings": [],
+   "h_data_rows": 1698,
+   "h_plane_halves_tile_exactly": true,
+   "h_planes": 49,
+   "ok": true,
+   "per_stage": [
+    {
+     "private_tables": 171,
+     "slice_offsets_checked": 218,
+     "slice_offsets_inside_the_plane": 218,
+     "slots": 23,
+     "stage": 0,
+     "terminals": 171
+    }
+   ],
+   "present": true,
+   "slots": 23,
+   "what_it_is_not": "the table says WHERE a plane lives and what it is called; it carries no plane content and is a function of the public shape alone"
+  },
+  "terminal_identity": {
+   "bilinear_group_factor": {
+    "definition_in_force": "repaired",
+    "definition_selected_by": "the bundle's own source pin of argument.rs (02df55ebec4d)",
+    "failures": [],
+    "ok": true,
+    "refusals": [],
+    "slots_with_a_derived_group_point": 2,
+    "superseded": false
+   },
+   "captured_public_tables": [
+    "fold_cols_i8 of the public down weight matrix (argument.rs:1110)",
+    "fold_cols_i8 of the public gate weight matrix (argument.rs:1110)",
+    "fold_cols_i8 of the public up weight matrix (argument.rs:1110)",
+    "fold_rows_i8 of the public key weight matrix (argument.rs:1048)",
+    "fold_rows_i8 of the public output-projection matrix (argument.rs:1048)",
+    "fold_rows_i8 of the public query weight matrix at the round's point (argument.rs:1048)",
+    "fold_rows_i8 of the public value weight matrix (argument.rs:1048)",
+    "the RoPE cos table at this domain (rope_tables_at, argument.rs:790)",
+    "the RoPE sin table at this domain (rope_tables_at, argument.rs:790)",
+    "the activation lookup table's public rows i + beta*act[i] + g_act (table_values_act_at, argument.rs:854)",
+    "the exp lookup table's public rows i + beta*exp[i] + g_exp (table_values_exp_at, argument.rs:843)",
+    "the padded attention norm gain vector (argument.rs:1132)",
+    "the padded feed-forward norm gain vector (argument.rs:1133)"
+   ],
+   "checked": true,
+   "covered_slot_names": [
+    "SC_SS",
+    "SC_SSM",
+    "SC_TZC",
+    "SC_LZC",
+    "SC_RS",
+    "SC_QMM",
+    "SC_KMM",
+    "SC_VMM",
+    "SC_SCORE",
+    "SC_PV",
+    "SC_WO",
+    "SC_GMM",
+    "SC_UMM",
+    "SC_DMM",
+    "SC_DZC",
+    "SC_QZC",
+    "SC_KVZC",
+    "SC_SZC",
+    "SC_FZC",
+    "SC_TAB",
+    "SC_ZS",
+    "SC_IO_IN",
+    "SC_IO_OUT"
+   ],
+   "covered_slots": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22
+   ],
+   "derived_group_points_used_and_compared": 2,
+   "findings": [],
+   "ok": true,
+   "open_slots": [],
+   "per_stage": [
+    {
+     "checked": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22
+     ],
+     "equal": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22
+     ],
+     "not_checked": [],
+     "stage": 0
+    }
+   ],
+   "public_table_digest_failures": [],
+   "public_table_structure_checks": 15,
+   "public_table_structure_detail": {
+    "act_values": [
+     {
+      "act_128": 0,
+      "act_128_is_zero": true,
+      "recovered_entries": 256,
+      "recovered_sha256": "d511d98599c7c4dc6e35eb2b0d8ba2285b3765384b08f350ef4fe0f491091cce"
+     }
+    ],
+    "exp_values": [
+     {
+      "exp_0": 512,
+      "recovered_entries": 256,
+      "recovered_sha256": "e2c75007d5587eb899da7444dd8d699cb614680cd0919cf16be3af656ab4bc29"
+     }
+    ],
+    "fold(w_d)": [
+     {
+      "live_positions": 5632,
+      "nonzero_positions": 5632,
+      "runs": [
+       [
+        0,
+        5631
+       ]
+      ],
+      "support": "hidden"
+     }
+    ],
+    "fold(w_g)": [
+     {
+      "live_positions": 2048,
+      "nonzero_positions": 2048,
+      "runs": [
+       [
+        0,
+        2047
+       ]
+      ],
+      "support": "width"
+     }
+    ],
+    "fold(w_k)": [
+     {
+      "live_positions": 2048,
+      "nonzero_positions": 2048,
+      "runs": [
+       [
+        0,
+        2047
+       ]
+      ],
+      "support": "width"
+     }
+    ],
+    "fold(w_o)": [
+     {
+      "live_positions": 2048,
+      "nonzero_positions": 2048,
+      "runs": [
+       [
+        0,
+        2047
+       ]
+      ],
+      "support": "heads"
+     }
+    ],
+    "fold(w_q)": [
+     {
+      "live_positions": 2048,
+      "nonzero_positions": 2048,
+      "runs": [
+       [
+        0,
+        2047
+       ]
+      ],
+      "support": "width"
+     }
+    ],
+    "fold(w_u)": [
+     {
+      "live_positions": 2048,
+      "nonzero_positions": 2048,
+      "runs": [
+       [
+        0,
+        2047
+       ]
+      ],
+      "support": "width"
+     }
+    ],
+    "fold(w_v)": [
+     {
+      "live_positions": 2048,
+      "nonzero_positions": 2048,
+      "runs": [
+       [
+        0,
+        2047
+       ]
+      ],
+      "support": "width"
+     }
+    ],
+    "rope_cos": [
+     {
+      "dead_positions": 0,
+      "partner_pairs": 32768
+     },
+     {
+      "dead_positions": 0,
+      "partner_pairs": 4096
+     }
+    ],
+    "rope_sin": [
+     {
+      "dead_positions": 0,
+      "partner_pairs": 32768
+     },
+     {
+      "dead_positions": 0,
+      "partner_pairs": 4096
+     }
+    ]
+   },
+   "public_table_structure_failures": [],
+   "public_tables_rebuilt_and_digest_matched": 7,
+   "public_tables_taken_from_the_capture": 15,
+   "rebuilt_public_tables": [
+    "causal_mask_at",
+    "supp(F)",
+    "supp(L)",
+    "supp(Tab)",
+    "table_values_u8_at",
+    "the all-ones Dom::Tab vector"
+   ],
+   "slot_checks_attempted": 23,
+   "slot_checks_equal": 23,
+   "slot_checks_expected": 23,
+   "slot_checks_matching_the_stored_terminal_polynomial": 23,
+   "source_pins": {
+    "also_read_not_pinned_by_a_bundle": {
+     "src/private_block/pad.rs": "7b6a990be900ad56e890660e9e3587c19fefc69f434a9bb3d4eab817f603d1ff",
+     "src/private_block/shape.rs": "144012d5d960446784a64a451b01ada2d4d6bdd9493ede51e4142e90d28942e0",
+     "src/private_block/witness.rs": "b9b66c024e7ca68d2a0ae4ba46241eb2abbccc8c8d94fe828041abbc710850ad"
+    },
+    "argument_definitions_this_port_implements": {
+     "02df55ebec4d": "repaired",
+     "2cee0a2253d6": "repaired",
+     "909670c96562": "pre-repair",
+     "9b26bda8105c": "repaired",
+     "dd8469cb0279": "repaired",
+     "ec3f97443245": "repaired",
+     "f7fa2ad4213d": "repaired"
+    },
+    "bilinear_definition_reason": "[TINYLLAMA PORT v5, round 4] read against `9b26bda8` (round 1, the repaired definition at the trained constants): **+5 / -3, one hunk**, inside `argument()`'s slot loop: the phase clock's `ph.slot(slot, cube, \"cube\")` becomes `ph.slot_work(slot, cube * n_tabs)` with `n_tabs = def.tabs.len()` read from the slot's definition AFTER `define` returns.  `ph` is write-only and returns on its first line without HL_PB_TIMING (the module's own STAGE-11 note), so no definition, challenge, table or terminal depends on it.  Every slot closure, the trained constants round 1 ported, the bilinear arms, the push order of every private table, `run_slot`, the M-functional block and the `N_FUNCTIONALS` guard are byte-identical -- stage 20's repaired definition",
+    "bilinear_definition_selected_by_the_argument_pin": "repaired",
+    "ok": true,
+    "pins_at_an_accepted_second_digest": [
+     "src/private_block/argument.rs: 02df55ebec4d -- [TINYLLAMA PORT v5, round 4] read against `9b26bda8` (round 1, the repaired definition at the trained constants): **+5 / -3, one hunk**, inside `argument()`'s slot loop: the phase clock's `ph.slot(slot, cube, \"cube\")` becomes `ph.slot_work(slot, cube * n_tabs)` with `n_tabs = def.tabs.len()` read from the slot's definition AFTER `define` returns.  `ph` is write-only and returns on its first line without HL_PB_TIMING (the module's own STAGE-11 note), so no definition, challenge, table or terminal depends on it.  Every slot closure, the trained constants round 1 ported, the bilinear arms, the push order of every private table, `run_slot`, the M-functional block and the `N_FUNCTIONALS` guard are byte-identical -- stage 20's repaired definition",
+     "src/private_block/layout.rs: ee871fff7eed -- [TINYLLAMA PORT v5, round 4] read against `bfd3677b` (round 1): **+42 / -0, two hunks, ADDITIONS ONLY, both refusals**: ruling CS-8's `Layout::check_is_for_shape` (the ten row fields against `Layout::for_shape(sh)`; absorbs nothing, draws nothing) and, in `Layout::for_shape`, re-review R2-a's refusals (a trained-calibration profile string without the trained door's flag; `Shape::check_softmax_window`).  `lookups_at` (and the trained top-limb coefficients round 1 ported), `N_SLOTS`, `N_FUNCTIONALS`, `M_ROWS`, every plane order and row count, `domain_log_at` and the `(beta, gamma, alpha)` draw are outside both hunks",
+     "src/private_block/protocol.rs: 85ca893173c4 -- [TINYLLAMA PORT v8, round 6] read against `7cf6e486` (R5 = R5b, read in round 4): +52 / -16, two hunks, NATIVE R6.  (1) NEW `exp_histogram` and `act_histogram`, whose loop bodies are character for character the two loops `prove_core` had (hit test, miss count, the miss filed in entry 0).  NEW `check_lookup_misses(sh, lay, blk, wit)`: CS-8's `check_is_for_shape`, CS-1/4's `check_for_shape`, the same three counts and the same named refusal `refuse_lookup_misses`, called by the trained sealing pass on a witness before any proof exists (review N-r5-a).  It draws nothing and absorbs nothing.  (2) In `prove_core` the two loops become calls to those helpers, and `exp_deltas(&lay, ..)` becomes `exp_deltas(lay, ..)` (the same reference).  The histograms committed into A are therefore the same values.  `transcript()`'s absorbs, `check_opening_challenges`, the slot loop, the `(beta, gamma, alpha)` draw, the A / H / M commitment calls, the CS-3 refusal's place (after the three histograms, before the first A mask draw) and every row count are outside both hunks",
+     "src/private_block/plane_index.rs: 13a7dd6ff1f9 -- [TINYLLAMA PORT 2026-10-17] read against `9de8320a` (the port's own `PORTED_FROM`): **+6 / -0, one hunk** -- `a_plane_names(sh)`, a NEW read-only helper over the unchanged `a_segments` / `expand` (the D16 item-5 audit names planes with it).  `build`, `render`, `locate` and every segment table are byte-identical",
+     "src/private_block/shape.rs: 8c62519c98e3 -- [TINYLLAMA PORT v11, round 8] the token r7c reading (frozen-r7's shape.rs = native R8's): [TOKEN-IO R7c] [READ] read against `7b0c9742` (R7, read in round 6): +37 / -12, one hunk; the file is byte-identical to the native R8 freeze's (`8c62519c`). `with_score_shift(sh_s)` is now `with_layer_calibration(&NormCalibration { sh_s, ..self.norm_calibration() })` (:1481-1483) and has no production caller left (its callers are test modules) [READ grep]. NEW `with_layer_calibration(cal)` (:1496-1523): refused unless trained_calibration; `cal.derive_at_width(self.width)` (:238: width class, tn class, cn_a / cn_m <= 2^20, ceps <= 2^40, sh_ao <= 8, the six shift windows, D_max in three byte limbs, the remainder window exactly four limbs); clones and sets the eleven constants plus the derived norm_wrho and d_max; `check_constructed` and `check_trained_class`; then rebuilds `Ids` / `HIds` and refuses unless n_a, (ln, ls, lp) and n_h equal this shape's (the plane list unmoved). It is called only for a record with own constants (run.rs:382, trained_statement.rs:647, trained_block.rs:938-941 and :2066, token_io/run.rs:231 and :258), which no record of the pg_rot1 TinyLlama T32 exports has. The trained geometry table and its TinyLlama T32 entry (`trained_geometry`, :367), ruling C-4 (:306, :817-849), `hash_tag` (:1810), `true_size` (:1860), `pads` (:1885), `Shape::slots` (:2008) and the calibration validator itself are outside the hunk. At these exports no shape value and no byte moves.",
+     "src/private_block/pad.rs: 4f0c11c50503 -- [TINYLLAMA PORT 2026-10-17] read against `f8b1f6c2` (READ in round 9b): **+3 / -1, one hunk, inside `#[cfg(test)] fn every_checkable_relation_holds`** (the norm epsilon is the shape's).  Not one production line moved: `BitForm::of`, `closed_form_indicator`, `support_indicator`, `indicator_table`, `zero_rule_a_planes`, `pad_zero_host` and the exempt-plane rule are byte-identical"
+    ],
+    "pins_missing_from_the_bundle": [],
+    "pins_that_moved": [],
+    "ported_from": {
+     "src/private_block/argument.rs": "909670c96562e7ff99b7ad37f6c3aae027574f3c0e9ab74f01a27e45058bf675",
+     "src/private_block/layout.rs": "fec2e6476f165e1e3be7871a3dfbdef56a4619f5b2e7560eb98ff2c97587a99f",
+     "src/private_block/plane_index.rs": "9de8320a84770560d2b998c514b0e9745a8f6c9f0c1d0cdefda8164137107611",
+     "src/private_block/protocol.rs": "4e916c693ad8e6c62e8774ddb3d829f5e1c116932e74bb1c6088d62ab4aee449"
+    }
+   },
+   "what": "fin_s == c_s * mask_eval_s + poly_s(vals_s), the verifier's own final check (argument.rs:381), recomputed from the published terminals and compared with the capture's `terminal_polynomial` (= fin - c*mask_eval)",
+   "what_a_captured_table_does_not_establish": "that a folded weight table is the fold of the weight matrix the statement names.  No bundle carries a weight, so the port checks the capture's own length and SHA-256, the structure ruling P-2 gives the fold, and the identity at the run's real challenges -- and no more.  The tables that ARE functions of the shape are rebuilt here instead and never taken"
+  }
+ },
+ "stage9_hash_layer": {
+  "bundle": "tinyllama-trained-tk9-capture-dense-l1",
+  "bytes_hashed": 7411712,
+  "columns_authenticated": 1280,
+  "columns_checked": 1280,
+  "cross_rule_probe": {
+   "column": {
+    "index": 6256,
+    "opening": "A",
+    "stage": 0
+   },
+   "derived_rule": "blake3-keyed/1",
+   "findings": [],
+   "honest": true,
+   "ok": true,
+   "what": "one opened column folded under the derived rule and under every wrong rule: only the derived one may reach the root",
+   "wrong_rules_that_reached_the_root": [],
+   "wrong_rules_tried": 4
+  },
+  "distinct_salted_leaves": 1263,
+  "findings": [],
+  "hash_rule": "blake3-keyed/1",
+  "ok": true,
+  "openings": 5,
+  "path_depth_checked": 1280,
+  "per_stage": [
+   {
+    "authenticated": 1280,
+    "columns": 1280,
+    "openings": [
+     {
+      "authenticated": 256,
+      "depth": 12,
+      "encoded_columns": 4096,
+      "kind": "masking",
+      "opened": 256,
+      "opening": "M",
+      "root": "755d9cd4b1416a96",
+      "rows": 50
+     },
+     {
+      "authenticated": 256,
+      "depth": 14,
+      "encoded_columns": 16384,
+      "kind": "block",
+      "opened": 256,
+      "opening": "A",
+      "root": "e000a35a61b8931d",
+      "rows": 1729
+     },
+     {
+      "authenticated": 256,
+      "depth": 14,
+      "encoded_columns": 16384,
+      "kind": "block",
+      "opened": 256,
+      "opening": "H",
+      "root": "c40c32831f19ca5b",
+      "rows": 1798
+     },
+     {
+      "authenticated": 256,
+      "depth": 14,
+      "encoded_columns": 16384,
+      "kind": "external-endpoint",
+      "opened": 256,
+      "opening": "Input",
+      "root": "909680860ed6f944",
+      "rows": 21
+     },
+     {
+      "authenticated": 256,
+      "depth": 14,
+      "encoded_columns": 16384,
+      "kind": "external-endpoint",
+      "opened": 256,
+      "opening": "Output",
+      "root": "c67aa6d3d54854a3",
+      "rows": 21
+     }
+    ],
+    "stage": 0
+   }
+  ],
+  "what": "every opened column re-hashed and its Merkle path re-folded: leaf = H_column(column bytes), salted = H_leaf(leaf||salt), root = fold H_node(left||right) -- pcs.rs:148/:691, merkle.rs:28"
+ },
+ "stages_run": [
+  "stage10_bilinear_group_factor",
+  "stage11_full_preimage",
+  "stage12_mask_and_cfs",
+  "stage13_joint_run_preimage",
+  "stage1_integrity",
+  "stage2_transcript_replay",
+  "stage3_per_commitment",
+  "stage4_the_boundary",
+  "stage5_zero_data_preimage",
+  "stage7_channels",
+  "stage8_plane_index_and_terminals",
+  "stage9_hash_layer"
+ ],
+ "timings": [
+  {
+   "peak_rss_mb_after": 158,
+   "peak_rss_mb_before": 158,
+   "raised": null,
+   "seconds": 0.3,
+   "stage": "load"
+  },
+  {
+   "peak_rss_mb_after": 158,
+   "peak_rss_mb_before": 158,
+   "raised": null,
+   "seconds": 0.2,
+   "stage": "replay"
+  },
+  {
+   "peak_rss_mb_after": 158,
+   "peak_rss_mb_before": 158,
+   "raised": null,
+   "seconds": 0.2,
+   "stage": "hash"
+  },
+  {
+   "peak_rss_mb_after": 158,
+   "peak_rss_mb_before": 158,
+   "raised": null,
+   "seconds": 2.2,
+   "stage": "terminals"
+  },
+  {
+   "peak_rss_mb_after": 158,
+   "peak_rss_mb_before": 158,
+   "raised": null,
+   "seconds": 17.9,
+   "stage": "commitments"
+  },
+  {
+   "peak_rss_mb_after": 158,
+   "peak_rss_mb_before": 158,
+   "raised": null,
+   "seconds": 0.3,
+   "stage": "boundary"
+  },
+  {
+   "peak_rss_mb_after": 158,
+   "peak_rss_mb_before": 158,
+   "raised": null,
+   "seconds": 0.2,
+   "stage": "preimage"
+  },
+  {
+   "peak_rss_mb_after": 158,
+   "peak_rss_mb_before": 158,
+   "raised": null,
+   "seconds": 0.0,
+   "stage": "channels"
+  }
+ ],
+ "tool_sha256": {
+  "zk60_native_jv_capture.py": "11f598d1472eac3cdffd69555452ae112c9c9841e8cd74bed97e2165f2e6e904",
+  "zk60_native_jv_cfs.py": "2338e6a7966793c0c5ee69d4e4c2bbed08ca739ee583985799b1c0023b0ea2cb",
+  "zk60_native_jv_field.py": "ecd5ad199d31b55f88e0728368d7df1ae313c022d1b723b49a34ee9c9140b2bf",
+  "zk60_native_jv_joint.py": "544bfcc6412a861993091fb4c7b54345ac1612a20069acf991ac37549d52b907",
+  "zk60_native_jv_pcs.py": "cdaeebe7df60de0eba22136186c36df20bba9a66e7dfd32fe33043594acda89a",
+  "zk60_native_jv_replay.py": "7f69839b5e72344447ee516564e0472a329dd5bae996f7f995eb4ff8b01b3d70",
+  "zk60_native_manifest_pins.py": "1b08589ae22b842f09fc6e600d4710c6cd760cd278908ee5ffa778a73ca2d9e6",
+  "zk60_native_mask_commit.py": "fae15b4927b76f47a380050a66acdce245746db779b03b7f96d66061920334f1",
+  "zk60_native_pg_cfs.py": "4ee924228f3248f965dc8dce5c5f88fac0131b11ee4ede5ec72b2c3dac7d8302",
+  "zk60_native_pg_pcs.py": "9d37dd078bbbcf50d82a08db4b44d9556798ddd7371240e9cb457712f5d91c50",
+  "zk60_native_privacy_gate.py": "040891a757fc6efb991a57a02d4c713a31059ff0dcbe70b754df2ce4b31a7f98",
+  "zk60_native_profile_pins.py": "3689bbb3c6e4f55bb14260282124ef4bd73250107825c9cfba6dedd41de2c6ec",
+  "zk60_native_rg_ahcontrols.py": "d10e5168bd383a38edd86bf88140a2e9141db470d4b5bf004cd69b734e7468c2",
+  "zk60_native_rg_ahpreimage.py": "7113266cf720f16da95bf0ca46af272f9dc641ee59d025d46292fbd9b545eef2",
+  "zk60_native_rg_arrays.py": "0f0d167d4c4e0089b8c3687c73433b55a8ad9ccc2e6bdcfb7e252cbcf05aa63f",
+  "zk60_native_rg_block.py": "89fdfd8519563f6da928b90f00d2130759b3b5d728ecb8641f34cd4ba60b689b",
+  "zk60_native_rg_bundle.py": "1bb93a90dde772cd6314317b7c746269cb8fe4a4e0e664709aa834564f4d454c",
+  "zk60_native_rg_controls.py": "9a7197350109d8bfef6b13f32d40ccbfa7f196cbb1785c4af1a6d3cd19a10f9d",
+  "zk60_native_rg_exclusivity.py": "caf3e1fd17aff4a04deca5f6ff5c35841c3031daa7458e04bc0b8b4f9cd3d070",
+  "zk60_native_rg_exportcheck.py": "67e7fad75016230880bc79aa75cff7f7e5c05f70375533eb4553e59f31af719c",
+  "zk60_native_rg_g10controls.py": "81727bbd674ebd533af7d7142735e1433a5d7d30c1ad3f90bbb447273bcf2f80",
+  "zk60_native_rg_gcontrols.py": "785f8a695912c9580c41da65d5f28883b47637147dcd9a5470bc191c582bfe85",
+  "zk60_native_rg_gqa.py": "14499b5dfdbb574da6aac91ba51cd9ee39ead6672a2872060ee427979fd934f1",
+  "zk60_native_rg_hashlayer.py": "c9ceb75dbad369f0142e13714fc06f3fc60ff304b83419039a6acb80e479e572",
+  "zk60_native_rg_hashrule.py": "1dd46effc79ec22ec7471ba67e1fbfbc19bff7c3d5078051b868571af49b2233",
+  "zk60_native_rg_hcontrols.py": "0ca766b561707eeca44f424a2fef628cd7a22da4fd4e756dad92cfaae5d3f048",
+  "zk60_native_rg_joint.py": "d8007a395094fde7d0a02eee163e0edc2cf91e610e2c23f2a01ad64186a02e1a",
+  "zk60_native_rg_m125.py": "b64799b32e8d5fc3a3fea0d67ab28e49bfc167439d96fd8d561d12ad644f3ce9",
+  "zk60_native_rg_m125controls.py": "f46691f320385aada985c1ebdea47481714b2b5fa9b0702be7ac919e29657fd6",
+  "zk60_native_rg_mask.py": "5fc645a0cefac78732f23d1d3c7ab7b56fc6cfcdb2149a1c57d56d124a1cfff2",
+  "zk60_native_rg_mcontrols.py": "a555fca540b5f12e43906ff5d9d52a8184d522646c8c61b6acaf579589af96cd",
+  "zk60_native_rg_mjoint.py": "9a22097d89358c63faa0adeb07c8a263292d6d3fa7acb9ef53cfeb37652bf19c",
+  "zk60_native_rg_pcs.py": "b51ae706e42ab2d0e69517a7f39f808dcfcf5b065addfef4f7d750707c3f51ab",
+  "zk60_native_rg_pincontrols.py": "63902d150f3a8ff8ee295e34e27db2ef850c13d344108b79d444e10080608def",
+  "zk60_native_rg_planes.py": "990173caf4026852fddb7a21d635594af5493ddae50d41a052e7ed347e922944",
+  "zk60_native_rg_predict.py": "54fdcdf8e16248eb9b23b34945c82e1fa627350ed4a51dddc3c711333edae0af",
+  "zk60_native_rg_preimage.py": "48bdd7c48a8c85f0ac1839704e1eaf78cc1f3a523436e208b563ff2917a804f6",
+  "zk60_native_rg_replay.py": "6852cd94ab0fcaa7780ce5f92ad3d9ebdb20614d43787e629015eeb97e141360",
+  "zk60_native_rg_runpins.py": "46b3dcc951f763dba1b83ac3a6383a54b33595e421e1cc671f0f0bc097d6f943",
+  "zk60_native_rg_schema.py": "0ce637279da750897b6c4487f8f662e1918e749c0bdefb2a14f1d69afea5f6eb",
+  "zk60_native_rg_status.py": "0578430f50f03020db26cc7c27b66fcc8b501e602cfec7ad4c9f8ec612376992",
+  "zk60_native_rg_tcontrols.py": "6bae086acd81e6dcdd46957e78fde6ddba469c520582414e87cb0c16688187a8",
+  "zk60_native_rg_terminals.py": "44347753604b226a3b9bc42a0eb3b747ae020708ddfc5227806a6ee047264da9",
+  "zk60_native_rg_tinyllama_pins.py": "f26085d5c5b3abe1a06ffa5cf7426d365e58203d2c2341f3b4ffa8f8bc25ef78",
+  "zk60_native_rg_tinyllama_r5_pins.py": "f49a85a1dd3ac8e0fd67c9a5adda7a63caeea6dfc0187ea97ee28dde46f6d3c8",
+  "zk60_native_rg_tinyllama_r5b_pins.py": "4f88125aa6a8948fc2cf69dde585e576045cc6bc29e5d232191185521401a37c",
+  "zk60_native_rg_tinyllama_r7_pins.py": "bf18e73efb16e4d068ec78451f8c8ea4540b44b1698038cdf1aeb7109e4ae197",
+  "zk60_native_rg_tinyllama_tk7_pins.py": "0ac3ae3b86ae7a3350e4c1d002af249e7d27422f04da7d58c0337d523ae75d57",
+  "zk60_native_rg_tinyllama_tk9_pins.py": "4122cd42ab2eaba3f074760f1e6f29527ae597b7997a7b5506db639524bfc17a",
+  "zk60_native_rg_tlcontrols.py": "afb4d2d1be4461c0728b396a61288f40461bff9a09f2fbe42b6be27291b2efb9",
+  "zk60_native_rg_tokenblocks.py": "b5fdee30032498a57335521f57b284c5600222785f3c87f910a14aa92fb4096e",
+  "zk60_native_rg_tokencal.py": "082d59972c088c713f64b27ea664db37b2cb0045f4096d9d18574f45c3c02fdb",
+  "zk60_native_rg_tokengate.py": "bd2f0cf4b59b3afe1c3877469cd5a8578157f3079ffbdfc52bd9f54ef2f960be",
+  "zk60_native_rg_tokenio.py": "89927d28a6eb01c4ffd132f188e6f71d3d45d18c549b0f76ecf247461c4e44e4",
+  "zk60_native_rg_tokenio_r7c_pins.py": "f6c2cc546052faba9d100cc286fa5c01a19ddb601ecffd33e6a733048b2162ed",
+  "zk60_native_rg_tokenio_r9_pins.py": "5aaf61c5e381d46187c5ff9e384f7e2b8cf24cacdcd3b26348b277966f3aa4e9",
+  "zk60_native_rg_tokennl.py": "c5047cf0eec180a067435de2f76b5ab714dce5eae90fd1ee3174d18407f52f21",
+  "zk60_native_rg_tokenterminals.py": "de0ded235bcde55c3c304e33c9dc84bcc3e9458328a2bbdda2089111ca85e662",
+  "zk60_native_rg_tokents.py": "16cbc5d072c55043292262fc83ca80bc3f21bad51792abd7fe1f8f705df026fc",
+  "zk60_native_run_gate.py": "bfe116bb0d7709f30e7edfee60bf4ecb323caafc094c280815ad0caf4221ef3f"
+ },
+ "total_seconds": 21.3,
+ "trained_calibration": {
+  "norm_ceps": 91255,
+  "norm_cn_a": 3999,
+  "norm_cn_m": 3122,
+  "norm_tn": 10,
+  "sh_ao": 3,
+  "sh_g": 8,
+  "sh_h": 14,
+  "sh_o": 9,
+  "sh_qkv": 8,
+  "sh_s": 6,
+  "sh_z": 5,
+  "trained": true
+ },
+ "what_it_does_not_show": [
+  "linear channels of ONE captured 1-block run at the shape 'TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads)', at that run's real challenges.  One run is not a distribution, and a dense and an all-zero run are two witnesses, not the space of witnesses",
+  "the hash layer's HIDING is still ARGUED: every OPENED column is re-hashed and re-authenticated, which says nothing about what an unopened leaf hides (M-2, M-3)",
+  "the joint LAW (Theorem B) is a reduction accepted on paper, conditional on G-R1 / G-R2 / G-R4, not a computation of this gate: what is computed is a rank",
+  "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
+  "NOT a privacy acceptance and NOT a privacy property"
+ ],
+ "what_this_is": "the linear channels of ONE captured private run at the shape 'TinyLlama-1.1B block geometry, trained calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads)', at that run's real challenges, stage by stage with each stage's wall clock and the process's peak resident set"
+}

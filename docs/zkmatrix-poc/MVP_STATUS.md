@@ -1,5 +1,232 @@
 # Where the MVP stands, in plain words
 
+**2026-10-28 21:25 UTC — back after a two-day stop; the classifier proof
+passes the privacy gate on all seven test captures; funding is now the top
+priority (D43).**
+- **The stop:** the coordinator session stopped answering on 10-26 at about
+  20:26 UTC, and the laptop then shut down cleanly at 20:33 (a normal power-off,
+  not a freeze). Nothing ran until today's boot at 20:56. Every job queued on
+  10-26 had already finished; nothing was lost. Sol and Astra resumed at 20:59.
+- **Privacy gate, round 17:** all 7 test proofs of the classifier verdict stage
+  (1- and 2-block models; verdict yes, no and a tie; one item split into 2
+  chunks) pass: no commitment reveals more than expected, all 11 tamper checks
+  fire, and the yes / no / tie runs look identical apart from the public verdict
+  bit [MEASURED, n=1, shared box]. These are small test models, and this is not
+  a privacy acceptance.
+- **Classifier verdict stage on the new prover (token lane):** rebased onto
+  native R12 and the full suite is green (819 passed, 0 failed). It now waits
+  for Sol's R12b, the fix that makes the prover check that the classifier's
+  tables really come from the model's pinned weights.
+- **Now running:** Sol on R12b, Astra on the Shieldstral benchmark report and
+  the integer export (the one open range question: two layer-25 channels).
+- **New direction (D43):** finding funding as fast as possible comes first. A
+  paper with the demo follows once the PoC works. Three research agents are
+  surveying government grants, philanthropic and ZK-ecosystem grants, and
+  investors / accelerators / venues. The ranked plan goes to Victor next.
+
+**2026-10-26 18:05 UTC — the work is split with GPT Sol and Astra; the
+prover's Shieldstral features pass their golden and dense proofs; the
+accuracy stack is chosen.**
+- **Team:** after the weekly usage stop (10-21 06:30 → 10-26), Sol (prover)
+  and Astra (models, app) took over lanes; split and live logs in
+  `docs/zkmatrix-poc/ZK60_SOL_ASTRA_TODOS_20261026.md`.
+- **Prover features for Shieldstral (native R12, Sol):** build, 207 focused
+  tests, golden proof (41.6 s, 6.18 GiB) and dense proof (153.5 s, 6.59 GiB)
+  all pass [MEASURED, n=1, shared box]. **Update 20:10 UTC:** frozen and
+  independently reviewed — accepted with fixes on soundness (about 97.6 bits
+  at T128, 95.0–95.4 at T512; existing proofs unchanged). One medium fix
+  matters for the classifier: the prover must check that the output head is
+  really the model's tied embedding, not just trust the export's declaration
+  (fix in R12b, Sol). Not a privacy acceptance.
+- **Resource guard fix installed (D42, 19:00 UTC):** jobs no longer block the
+  shared lock while waiting for memory.
+- **Accuracy (fidelity lane, final):** 8B uses **LOW + 24-bit h**: perplexity
+  1.011x / 1.009x of float, LAMBADA 0.80 vs float 0.78, and the 2 refusals
+  are fixed at no proof cost. It costs **+22.8% committed proof at 8B T128**
+  (+24.9% against today's DD prover at T512). TinyLlama needs only LOW. One
+  confirmation re-run with the two fixes is still owed. Report:
+  `results/zk60_fidelity_parity_20261019/REPORT.md`; build spec for the next
+  prover round R13: `S2_BUILD_SPEC.json` beside it.
+- **Classifier verdict stage (token R-C1, Claude):** registry tests green;
+  the freeze waits for one full suite run.
+- **App (Astra):** canonical integer image preprocessing in (42/42 app
+  tests); Base Sepolia (testnet) publisher wired up, nothing broadcast yet;
+  Shieldstral strict-policy benchmarks continuing.
+
+**2026-10-21 05:00 UTC — the media app runs end to end (on a stand-in prover).**
+- `apps/proven-media/` (FastAPI + SQLite + plain JS; README has a 3-minute demo
+  script; served locally at http://127.0.0.1:8765 on the laptop): compose
+  text or image posts; each post is chunked (D41), labelled per category
+  (explicit / violence / hate, D37), proved once at creation, verified in a
+  fresh process, published to a content-addressed store, anchored in a
+  hash-chained local "chain" (stand-in for Base), and served with an
+  app-signed proof manifest; viewers set an audience (adult / minor) and
+  restricted items are hidden with the reason; a "re-verify" button and an
+  offline verify command check everything. Fail-closed per category.
+- **Honest label:** today each post gets a real zero-knowledge proof of the
+  TinyLlama next-token run as a stand-in; the labels come from a placeholder
+  and are not yet bound by the proof. The real Shieldstral classifier proof
+  (native R12 + token R-C1, in progress) swaps in through one interface.
+- First stand-in post: prove 104 s, verify 19 s, 255 MB bundle; 36/36 app
+  tests [MEASURED, shared box].
+
+**2026-10-21 02:40 UTC — the full MVP is now a proven-safe media app (D37, D38).**
+- **Direction (Victor):** the first application is safety classification: a
+  media app whose posts carry public proofs that they passed a
+  harmful-content classifier. **Model (D38):** Mistral's open classifier
+  Shieldstral-1.0-3B (Apache 2.0), text only; the proof states that its
+  yes-score beat its no-score by a public threshold; only the verdict, model
+  and policy are public, the content stays hidden. Survey:
+  `results/zk60_classifier_survey_20261021/REPORT.md`.
+- **Lanes started:** model import + float reference + benchmark F1
+  (calibration prep); prover features for Shieldstral's shapes (decoupled
+  head size, YaRN rotary table, tied embedding; native R12); the classifier
+  verdict stage with a public verdict bit (token round 12, design first);
+  the media app with proof badges (`apps/proven-media/`, stub prover first).
+- **Privacy:** D33 and D36 extended to frozen-r11 — both now cover the
+  demo's exact binaries. DD passed the privacy gate on its first 8
+  captures (gate evidence).
+- **Fidelity:** 8B meets the amended bar (≤1.02x, zero refusals) with the
+  LOW + 12-bit-score stack (1.011x / 1.010x); TinyLlama with LOW (1.009x /
+  1.010x); cheapest DD-compatible 8B stack being measured; the chosen stack
+  becomes the native build spec.
+
+**2026-10-21 00:20 UTC — privacy accepted for a whole AI answer (D36); D33
+extended to the current code.** Victor accepted both in the console:
+- **D36, the next-token privacy statement:** a verifier who checks a proof
+  of TinyLlama's next word (prompt lookup → all 22 trained layers → final
+  norm → head → word choice, one proof) is never given the prompt, the
+  activations, the scores or the word itself, and learns essentially nothing
+  about them (~1 in 2^70 per run). Scope: TinyLlama, 32 tokens, calibration
+  b4, public prompt length, CPU, round-9 code and its named binary
+  `b56f1b71…`. Text: `docs/zkmatrix-poc/ZK60_PRIVACY_STATEMENT_NEXT_TOKEN_TINYLLAMA_T32.md`.
+- **D33 extended** to the round-9 code (same claim and limits).
+- **Next:** a short re-pin reading so both name the demo's current round-11
+  binary; the 8B and the accuracy-fix profiles need their own gate and
+  statement later.
+- **Fidelity:** the 8B now meets the perplexity bar with the HIGH stack
+  (1.0045x / 1.0034x, 1 refusal from a calibration bound) at about +29% proof
+  size; a cheaper stack (~+23%) is being measured; TinyLlama passes
+  perplexity and LAMBADA (refusal fixes queued, no proof cost).
+
+**2026-10-20 07:40 UTC — first configuration inside the fidelity bar (TinyLlama,
+perplexity); the price of parity is now counted.**
+- **Fidelity (D32 bar: perplexity <= 1.01x float, LAMBADA >= 99%, 0 refusals):**
+  TinyLlama with the "LOW" stack — per-channel weight multipliers, per-group
+  SiLU tables, 16-bit norm outputs, 12-bit softmax precision, 16-bit
+  attention words — measures **1.006x / 1.008x** (FineWeb / WikiText) with 1
+  refusal (a calibration bound, fix queued, no proof cost); LAMBADA not yet
+  measured [MEASURED in the fidelity replica, 48+48 sequences; not yet a
+  built proof profile]. 8B: the weight multipliers alone take it from 1.28x
+  to 1.16x; the full stacks are being measured now.
+- **What parity costs in proof size** (native count, exact against R9's
+  layout): weight multipliers alone +10% (8B T128) / +7% (8B T512); the full
+  stacks +22% to +29% (8B T128, prove time about +15% to +19%) and +18% to
+  +26% (8B T512); TinyLlama LOW +21%. Softmax precision to 12 bits and the
+  per-group SiLU tables cost nothing. Any such profile needs a soundness
+  re-review and is outside today's privacy statements
+  (`results/zk60_1b_native_20261017/r10/WEIGHT_RANGE_COST.md`, `r11/ACTIVATION_COST.md`).
+- **Division dictionary (DD) accepted on soundness** (D24 review r9); privacy
+  gate on DD captures in progress. Measured effect at 128 tokens: none
+  visible (counted −3.9% committed at 8B); its payoff is at 512 tokens.
+- **Demo kit measured on its final binary** (token round 11, `0c9f247c…`,
+  frozen; REVIEW6 items closed): 8B 32-token demo prove 296 s with loading,
+  verify 50 s; 8B 128-token demo prove 569 s, verify 55 s; both open token 11
+  [MEASURED, n=1]. The presenter page now labels every speed ratio: the whole
+  next-word proof is ~140–190x plain 8-bit inference at 32 tokens, ~80–100x
+  at 128.
+- **Waiting on Victor (console):** "extend D33 to frozen-r9" and "accept the
+  next-token privacy statement" (both independently reviewed: yes / ready).
+
+**2026-10-20 03:49 UTC — presenter demo kit ready; next-token prover hardened.**
+- **Demo kit for presentations:** `results/zk60_token_io_r1_20261017/tools/demo_present.sh`
+  (one command, narrates each step in plain words; options 8B 32-token,
+  TinyLlama, 8B 128-token) and the one-page script
+  `results/zk60_token_io_r1_20261017/DEMO_PRESENTER.md` (what is shown, what
+  each step proves and hides, honest numbers, what NOT to claim, five Q&As).
+  TinyLlama dry run: ~130 s of work end to end, token decoded for the owner
+  [MEASURED]. Quiet the box before showing it.
+- **Next-token prover round 9** (named CPU binary `b56f1b71…`): every refusal
+  now happens before anything is written (privacy review PR4-4); the prompt is
+  read from a protected file, never the command line; owner files live in
+  `~/zk60-owner-private/`. Independent code review (REVIEW5): demo-fit, nothing
+  affecting soundness; forged next-token proofs are rejected by the verifier
+  in every tested case (8 of 8 on the old code, 4 of 4 on the new).
+- **Privacy:** D33 re-pin onto the newer code reviewed YES — awaiting Victor's
+  word ("extend D33 to frozen-r7"); next-token statement draft: 7 review items,
+  most now closed (gate round 10 finishing the rest); D34 records the tiny
+  input-dependent refusal term (~2^-117).
+
+**2026-10-19 23:25 UTC — the next-token stages pass the privacy gate; first
+128-token next-token proof.**
+- **Privacy gate on the next-token stages** (prompt lookup, final norm + head
+  + token choice, token endpoints; gate tools v10,
+  `results/zk60_gate_tinyllama_20261017/token_io/TOKEN_GATE_REPORT_T32_v10.md`):
+  all 10 captures PASS — TinyLlama T32 at 1, 2 and 22 layers and Llama-3-8B
+  T32 at 1 and 2 layers, each with a real and a fixed prompt. The new
+  commitments disclose nothing beyond the public lookup identity; the joint
+  view across the shared planes is computed (0); full preimage on every
+  commitment, 0 entries differing; 36 tamper controls fire on every capture
+  [MEASURED, n=1]. Gate evidence, not a privacy acceptance: a next-token
+  privacy statement is being drafted, then an independent review, then
+  Victor. Not covered: the hidden-length variant, the GPU path.
+- **First private next-token proof of a 128-token prompt:** TinyLlama
+  (per-layer calibration), prove 192 s, about 0.67 prompt tokens/s (0.38 at
+  32 tokens), integer and float references agree on the token (491, "by")
+  [MEASURED, shared box]. **Llama-3-8B, 128-token prompt (01:12 UTC):** two
+  exports proved end to end — b7voc0 501.6 s total (3.9 s per prompt token;
+  8.3 s at 32 tokens) and the per-layer dg export 529.2 s; verify ~57 s;
+  receipt 928 MB; whole-run floor 96 bits; owner decommits token 11 = integer
+  and float references on both [MEASURED, shared box, n=1]. In tokens/s on
+  the laptop CPU: 8B ~0.26 prompt tokens/s at 128 (0.12 at 32); TinyLlama
+  ~0.67.
+- **Fidelity, 8B with per-layer constants (dg):** perplexity 1.28x float (was
+  1.63x / 1.77x), LAMBADA 0.69 vs float 0.78 (was 0.54) — about half the gap
+  closed; bar (D32) is 1.01x and 99%. On TinyLlama the remaining loss is
+  mainly the int8 weights (~1.5–2%); wider or better-rounded weights are
+  being costed.
+- **D33 re-pin** onto the tree the demo runs (R8 + token code): every pass at
+  1 and 2 layers clean; 22-layer passes pending.
+
+**2026-10-19 16:57 UTC — first privacy acceptance at a trained model's size
+(D33).** Victor accepted the trained TinyLlama-1.1B T32 privacy statement in
+the console. In plain words: a verifier who checks a proof of the 22-layer
+trained TinyLlama stack learns nothing about the hidden prompt, activations or
+output, except with odds around 1 in 2^70 per run (about 1 in 2^40 over a
+billion runs). Scope is narrow on purpose: calibration pg_rot1, 32 tokens, the
+CPU binary from native R7. Not covered yet: the per-layer recalibrations, the
+next-token stages (gate round 7 running), Llama-3-8B, the GPU path; native R8
+changed pinned files, so R8 needs a gate re-pin before it inherits this.
+Text: `docs/zkmatrix-poc/ZK60_PRIVACY_STATEMENT_TRAINED_TINYLLAMA_T32.md`.
+- **Fidelity threshold ruled (D32, ~17:00 UTC):** integer perplexity <= 1.01x
+  float (FineWeb and WikiText), LAMBADA >= 99% of float, zero refusals. Today
+  [MEASURED]: TinyLlama b4 1.23x / 1.29x, LAMBADA 0.512 vs 0.628 (82% of
+  float); 8B b7 LAMBADA 0.54 vs 0.78 on 100 items (69%). Far from the bar;
+  the per-layer (dg) and GPTQ levers are being measured.
+- **Same afternoon:** the 8B next-token demo ran end to end on native R8 with
+  the recalibrated export (b7voc0: no layer-0 refusals over the whole
+  vocabulary): prove 265 s, verify 81 s, owner reads token 11 = the integer
+  and float references; token suite 748 passed / 0 failed [MEASURED, n=1].
+
+**2026-10-19 16:18 UTC — the prover now carries the fidelity fixes.**
+- **Both recalibrated stacks proved on native R8** (per-layer values for every
+  calibration constant), bit-exact against the integer reference at every
+  layer, verified in a fresh process from a verifier's copy, 11/11 controls
+  refused [MEASURED, n=1]: TinyLlama `dg` T128 (every layer at its own
+  constants) prove 183 s, receipt 498 MB; Llama-3-8B `b7voc0` T128 (b7 + the
+  layer-0 vocabulary recalibration) prove 479 s quiet box, receipt 923 MB,
+  verify 43 s. Receipt sizes are unchanged: the fixes cost no proof size.
+- **The 8B layer-0 refusals are gone:** the recalibrated layer 0 accepts all
+  128,256 vocabulary tokens (it refused " ." and "Tags" before) [MEASURED,
+  exhaustive]. On the demo prompt, integer and float agree on the next token
+  (11, margins 9.5 / 7.0 logits).
+- **Fidelity is still far from parity** [MEASURED]: 8B b7 LAMBADA first 100
+  items 0.54 vs float 0.78 (−24 points); TinyLlama b4 perplexity 1.23x / 1.29x.
+  The `dg` per-layer calibration and the 8B dg build are being measured next.
+- **Token lane round 6 done** (owner-directory race fixed, the demo reads its
+  pins from an approval record, 8B demo passed end to end, full suite 740/0);
+  round 7 moves it onto R8 and runs the demo on the recalibrated 8B export.
+
 **2026-10-19 13:38 UTC — demo-ready CLI, honest baselines, fidelity target set.**
 - **Demo flow for the trained 8B next-token proof** (`results/zk60_token_io_r1_20261017/tools/r4_cli_demo.sh`):
   `prove` 227 s (laptop CPU; 471 MB) -> `verify` 90 s (pinned to the trained

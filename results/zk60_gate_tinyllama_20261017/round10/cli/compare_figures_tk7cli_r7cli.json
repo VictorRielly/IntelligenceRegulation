@@ -1,0 +1,175 @@
+{
+ "what": "[gate round 10, the frozen-r9 re-pin] The DETERMINISTIC figures of two gate",
+ "privacy_acceptance": false,
+ "every_pair_equal": true,
+ "pairs": [
+  {
+   "new": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round10/cli/tk7-cli-l2-dense-a.json",
+   "old": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/r7/cli/r7-cli-l2-dense-a.json",
+   "figures_new": {
+    "replay_challenges": 9002,
+    "replay_positions": 251,
+    "run_binding_reproduced": true,
+    "hash_columns_checked": 2304,
+    "hash_columns_authenticated": 2304,
+    "hash_bytes": 14782464,
+    "commitments": [
+     [
+      "A@0",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@0",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "E-Input",
+      0,
+      21,
+      1,
+      1
+     ],
+     [
+      "A@1",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@1",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B0",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "E-Output",
+      0,
+      21,
+      1,
+      1
+     ]
+    ],
+    "terminal_slot_checks": [
+     46,
+     46
+    ],
+    "channels": {
+     "argued": 5,
+     "constructed": 2,
+     "derived": 5,
+     "open": 16
+    },
+    "mask_entries_recomputed": null,
+    "mask_entries_differing": null,
+    "full_preimage_differing": null,
+    "joint_couplings_respected": null,
+    "whole_run_joint_fp": 4,
+    "whole_run_joint_equals_sum_of_parts": true,
+    "E3_identity_equal": null,
+    "E3_statement_sha256": "5b7acd4da2736aec3b5fff349a27eeeccacb1aa1271d9a9d0f62c35c31d13bfd",
+    "export_ok": true
+   },
+   "differing": {},
+   "equal": true
+  },
+  {
+   "new": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round10/cli/tk7-cli-l2-dense-everything.json",
+   "old": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/r7/cli/r7-cli-l2-dense-everything.json",
+   "figures_new": {
+    "replay_challenges": 9002,
+    "replay_positions": 251,
+    "run_binding_reproduced": true,
+    "hash_columns_checked": 2304,
+    "hash_columns_authenticated": 2304,
+    "hash_bytes": 14782464,
+    "commitments": [
+     [
+      "A@0",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@0",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "E-Input",
+      0,
+      21,
+      1,
+      1
+     ],
+     [
+      "A@1",
+      0,
+      1729,
+      120,
+      36
+     ],
+     [
+      "H@1",
+      2,
+      1798,
+      50,
+      9
+     ],
+     [
+      "B0",
+      0,
+      22,
+      2,
+      2
+     ],
+     [
+      "E-Output",
+      0,
+      21,
+      1,
+      1
+     ]
+    ],
+    "terminal_slot_checks": [
+     46,
+     46
+    ],
+    "channels": {
+     "argued": 5,
+     "constructed": 10,
+     "derived": 5,
+     "open": 8
+    },
+    "mask_entries_recomputed": 32310,
+    "mask_entries_differing": 0,
+    "full_preimage_differing": 0,
+    "joint_couplings_respected": true,
+    "whole_run_joint_fp": 4,
+    "whole_run_joint_equals_sum_of_parts": true,
+    "E3_identity_equal": null,
+    "E3_statement_sha256": "5b7acd4da2736aec3b5fff349a27eeeccacb1aa1271d9a9d0f62c35c31d13bfd",
+    "export_ok": true
+   },
+   "differing": {},
+   "equal": true
+  }
+ ]
+}

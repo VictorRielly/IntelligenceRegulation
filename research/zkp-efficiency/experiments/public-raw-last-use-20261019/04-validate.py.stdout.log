@@ -1,0 +1,1 @@
+{"checks": 261, "finished_utc": "2026-10-19T20:28:11.594280+00:00", "patch_hunks_checked_in_memory": 2, "prior_findings_and_sources_preserved": true, "r8_manifest_matches": 14, "rss_kib": 19340, "source_pins": 18, "status": "PASS", "threads": 1, "wall_seconds": 0.007942776996060275}

@@ -1,0 +1,51 @@
+{
+ "model": "tinyllama",
+ "runs": [
+  "full_lam0",
+  "full_lam250",
+  "full_lam500"
+ ],
+ "items": 750,
+ "chunks": [
+  {
+   "n": 250,
+   "offset": 0,
+   "source": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/data/lambada_openai/en_test.parquet",
+   "sha256_expected": "99d8a9e54cda761c6340ddd4fa6feda7f846ffb0e716afa52968dea75495eea7",
+   "truncated_items": 4
+  },
+  {
+   "n": 250,
+   "offset": 250,
+   "source": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/data/lambada_openai/en_test.parquet",
+   "sha256_expected": "99d8a9e54cda761c6340ddd4fa6feda7f846ffb0e716afa52968dea75495eea7",
+   "truncated_items": 8
+  },
+  {
+   "n": 250,
+   "offset": 500,
+   "source": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/data/lambada_openai/en_test.parquet",
+   "sha256_expected": "99d8a9e54cda761c6340ddd4fa6feda7f846ffb0e716afa52968dea75495eea7",
+   "truncated_items": 5
+  }
+ ],
+ "acc_float": 0.6013333333333334,
+ "acc_float_ci95": [
+  0.5662680167512895,
+  0.6363986499153773
+ ],
+ "acc_int": 0.528,
+ "acc_diff": -0.07333333333333333,
+ "acc_diff_ci95": [
+  -0.10185646307790647,
+  -0.0448102035887602
+ ],
+ "acc_ratio_int_over_float": 0.8780487804878049,
+ "discordant": {
+  "int_only": 34,
+  "float_only": 89
+ },
+ "target_nll_float": 1.8106608843549024,
+ "target_nll_int": 2.344275041026766,
+ "refused_sequences": 6
+}

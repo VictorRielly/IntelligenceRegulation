@@ -1,0 +1,2 @@
+# Optional Base Sepolia signing support. Core app defaults to the local publisher.
+eth-account==0.13.7

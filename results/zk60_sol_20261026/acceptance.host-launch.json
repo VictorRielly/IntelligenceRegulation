@@ -1,0 +1,12 @@
+{
+  "pid": 865085,
+  "written_utc": "2026-10-26T17:40:04.693699+00:00",
+  "pid_ns": "pid:[4026532216]",
+  "starttime_ticks": 21400501,
+  "boot_id": "9d3a66e4-7664-4344-a046-38a0c53a53f3",
+  "command": [
+    "python3",
+    "-u",
+    "/home/victor/IntelligenceRegulation/results/zk60_sol_20261026/accept_r12.py"
+  ]
+}

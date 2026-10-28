@@ -1,0 +1,135 @@
+[12:00:24Z] pass 1: stats from cache b5_stats_T128_n30_r1_L32.pkl
+[12:00:24Z] variant l8_dg_aex: Variant(name='dg', norm_cn='layer', tables='layer', residual='global', shifts='free', rotate=1, margin=0.5, margin_ch=3.0, margin_pow2=0.25, tn=9, cn_max=1048576, shapes=('range', 'smooth', 'gamma'), o16=False, s16=False, f_e=9, f_p=9); qkv window (1, 16); stats b5_stats_T128_n30_r1_L32.pkl; sh_s overrides {}
+[12:00:24Z] FFN up bound: margin 3.0, per-channel multiplier None (other sites unchanged)
+[12:24:58Z] extra calibration maxima merged: {'sequences': 67, 'layers_with_raised_maxima': 32}
+[12:26:46Z] vocab0: layer-0 maxima merged {'xa_max': [5.17817497253418, 5.5318098068237305], 'q_pair': [14.363375353024653, 15.949927960369623], 'k_pair': [15.080891541137476, 18.155017108809965], 'v_max': [0.5623829364776611, 0.726884126663208]}
+[12:27:55Z] prepass-1 L00 cn 3949/2535 shape gamma/range noise 0.045/0.009 e_s 2 silu [-4, -12] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 8, 'g': 13, 'u': 0, 'h': 16, 'z': 10} (69s)
+[12:29:12Z] prepass-1 L01 cn 4049/603 shape range/gamma noise 0.067/0.000 e_s 2 silu [-2, -11] shifts {'qkv': 11, 'rope': 7, 's': 7, 'o': 9, 'ao': 7, 'g': 13, 'u': 0, 'h': 16, 'z': 7} (146s)
+[12:30:27Z] prepass-1 L02 cn 3857/1947 shape smooth/gamma noise 0.144/0.066 e_s 2 silu [-3, -12] shifts {'qkv': 11, 'rope': 7, 's': 7, 'o': 9, 'ao': 6, 'g': 13, 'u': 0, 'h': 14, 'z': 12} (221s)
+[12:31:33Z] prepass-1 L03 cn 3539/1949 shape gamma/gamma noise 0.176/0.020 e_s 2 silu [-4, -12] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 6, 'g': 12, 'u': 0, 'h': 14, 'z': 12} (287s)
+[12:32:40Z] prepass-1 L04 cn 3982/1959 shape gamma/gamma noise 0.123/0.016 e_s 2 silu [-4, -12] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 6, 'g': 12, 'u': 0, 'h': 14, 'z': 12} (354s)
+[12:33:45Z] prepass-1 L05 cn 3753/1899 shape gamma/gamma noise 0.083/0.015 e_s 2 silu [-4, -12] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 6, 'g': 12, 'u': 0, 'h': 14, 'z': 12} (419s)
+[12:34:56Z] prepass-1 L06 cn 3851/1708 shape gamma/gamma noise 0.078/0.035 e_s 2 silu [-3, -12] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 6, 'g': 12, 'u': 0, 'h': 14, 'z': 12} (490s)
+[12:36:02Z] prepass-1 L07 cn 3879/1891 shape gamma/gamma noise 0.056/0.015 e_s 2 silu [-4, -12] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 6, 'g': 11, 'u': 0, 'h': 14, 'z': 12} (555s)
+[12:37:05Z] prepass-1 L08 cn 3964/1702 shape gamma/gamma noise 0.068/0.016 e_s 2 silu [-4, -12] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 6, 'g': 11, 'u': 0, 'h': 14, 'z': 12} (619s)
+[12:38:08Z] prepass-1 L09 cn 3891/1603 shape smooth/gamma noise 0.110/0.017 e_s 2 silu [-4, -12] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 5, 'g': 11, 'u': 0, 'h': 14, 'z': 11} (682s)
+[12:39:17Z] prepass-1 L10 cn 3961/1882 shape gamma/gamma noise 0.067/0.037 e_s 2 silu [-3, -12] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 6, 'g': 12, 'u': 0, 'h': 14, 'z': 12} (751s)
+[12:40:23Z] prepass-1 L11 cn 3858/1638 shape smooth/gamma noise 0.078/0.017 e_s 2 silu [-4, -12] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 6, 'g': 11, 'u': 0, 'h': 15, 'z': 10} (817s)
+[12:41:31Z] prepass-1 L12 cn 3874/1860 shape range/gamma noise 0.065/0.038 e_s 2 silu [-3, -12] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 6, 'g': 12, 'u': 0, 'h': 14, 'z': 11} (884s)
+[12:42:35Z] prepass-1 L13 cn 3915/2543 shape smooth/range noise 0.066/0.039 e_s 1 silu [-3, -12] shifts {'qkv': 11, 'rope': 7, 's': 5, 'o': 9, 'ao': 6, 'g': 12, 'u': 0, 'h': 14, 'z': 11} (948s)
+[12:43:39Z] prepass-1 L14 cn 3871/1825 shape range/gamma noise 0.060/0.031 e_s 2 silu [-3, -11] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 6, 'g': 11, 'u': 0, 'h': 13, 'z': 11} (1013s)
+[12:44:50Z] prepass-1 L15 cn 3765/2034 shape gamma/gamma noise 0.067/0.026 e_s 2 silu [-3, -11] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 6, 'g': 12, 'u': 0, 'h': 14, 'z': 10} (1084s)
+[12:45:53Z] prepass-1 L16 cn 4018/2381 shape gamma/range noise 0.047/0.024 e_s 2 silu [-3, -11] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 6, 'g': 12, 'u': 0, 'h': 14, 'z': 10} (1147s)
+[12:47:03Z] prepass-1 L17 cn 3954/1645 shape range/gamma noise 0.070/0.023 e_s 2 silu [-3, -11] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 6, 'g': 11, 'u': 0, 'h': 14, 'z': 10} (1217s)
+[12:48:11Z] prepass-1 L18 cn 3951/1996 shape gamma/gamma noise 0.093/0.022 e_s 2 silu [-3, -11] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 5, 'g': 12, 'u': 0, 'h': 14, 'z': 10} (1285s)
+[12:49:21Z] prepass-1 L19 cn 3927/1954 shape smooth/gamma noise 0.129/0.022 e_s 2 silu [-3, -11] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 6, 'g': 12, 'u': 0, 'h': 14, 'z': 10} (1355s)
+[12:50:28Z] prepass-1 L20 cn 3984/1988 shape gamma/gamma noise 0.136/0.023 e_s 2 silu [-3, -11] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 6, 'g': 12, 'u': 0, 'h': 14, 'z': 10} (1421s)
+[12:51:40Z] prepass-1 L21 cn 4061/2350 shape gamma/gamma noise 0.083/0.022 e_s 2 silu [-3, -11] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 6, 'g': 12, 'u': 0, 'h': 14, 'z': 10} (1493s)
+[12:52:45Z] prepass-1 L22 cn 4009/2337 shape gamma/gamma noise 0.146/0.022 e_s 1 silu [-3, -11] shifts {'qkv': 11, 'rope': 7, 's': 5, 'o': 9, 'ao': 5, 'g': 12, 'u': 0, 'h': 14, 'z': 10} (1558s)
+[12:53:57Z] prepass-1 L23 cn 3956/2350 shape smooth/gamma noise 0.135/0.059 e_s 2 silu [-2, -11] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 6, 'g': 13, 'u': 0, 'h': 15, 'z': 9} (1631s)
+[12:54:59Z] prepass-1 L24 cn 3923/2747 shape gamma/range noise 0.223/0.022 e_s 2 silu [-3, -11] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 5, 'g': 11, 'u': 0, 'h': 15, 'z': 9} (1692s)
+[12:56:10Z] prepass-1 L25 cn 3940/2308 shape range/gamma noise 0.152/0.022 e_s 2 silu [-3, -11] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 5, 'g': 12, 'u': 0, 'h': 15, 'z': 9} (1763s)
+[12:57:16Z] prepass-1 L26 cn 3826/1952 shape gamma/gamma noise 0.088/0.022 e_s 2 silu [-3, -11] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 5, 'g': 11, 'u': 0, 'h': 14, 'z': 10} (1830s)
+[12:58:24Z] prepass-1 L27 cn 3829/2311 shape gamma/gamma noise 0.116/0.020 e_s 2 silu [-3, -11] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 5, 'g': 11, 'u': 0, 'h': 14, 'z': 10} (1898s)
+[12:59:35Z] prepass-1 L28 cn 3878/2007 shape gamma/gamma noise 0.074/0.048 e_s 2 silu [-2, -11] shifts {'qkv': 11, 'rope': 7, 's': 6, 'o': 9, 'ao': 5, 'g': 12, 'u': 0, 'h': 15, 'z': 9} (1969s)
+[13:00:45Z] prepass-1 L29 cn 4049/2023 shape gamma/gamma noise 0.074/0.043 e_s 2 silu [-2, -11] shifts {'qkv': 11, 'rope': 7, 's': 5, 'o': 9, 'ao': 5, 'g': 12, 'u': 0, 'h': 15, 'z': 8} (2039s)
+[13:01:53Z] prepass-1 L30 cn 3937/2886 shape smooth/smooth noise 0.064/0.029 e_s 1 silu [-2, -11] shifts {'qkv': 11, 'rope': 7, 's': 5, 'o': 9, 'ao': 4, 'g': 12, 'u': 0, 'h': 15, 'z': 8} (2107s)
+[13:03:05Z] prepass-1 L31 cn 3932/1473 shape gamma/gamma noise 0.034/0.021 e_s 4 silu [-1, -10] shifts {'qkv': 12, 'rope': 7, 's': 7, 'o': 9, 'ao': 4, 'g': 12, 'u': 0, 'h': 16, 'z': 5} (2179s)
+[13:03:39Z] prepass-2 L00 e_s 2 range in/out 3.53e-06/2.49e-05 floors ao 3.65e-06 z 1.62e-06 (2212s)
+[13:04:09Z] prepass-2 L01 e_s 2 range in/out 2.5e-05/0.000557 floors ao 6.76e-06 z 1.85e-05 (2243s)
+[13:04:48Z] prepass-2 L02 e_s 2 range in/out 0.000535/0.000533 floors ao 1.22e-05 z 3.8e-07 (2282s)
+[13:05:20Z] prepass-2 L03 e_s 2 range in/out 0.000534/0.000532 floors ao 1.53e-05 z 6.46e-07 (2314s)
+[13:05:55Z] prepass-2 L04 e_s 2 range in/out 0.000533/0.000533 floors ao 1.53e-05 z 5.21e-07 (2349s)
+[13:06:25Z] prepass-2 L05 e_s 2 range in/out 0.000533/0.000532 floors ao 1.7e-05 z 5.59e-07 (2379s)
+[13:07:04Z] prepass-2 L06 e_s 2 range in/out 0.000534/0.000534 floors ao 1.82e-05 z 5.19e-07 (2418s)
+[13:07:37Z] prepass-2 L07 e_s 2 range in/out 0.000536/0.000534 floors ao 1.24e-05 z 6.31e-07 (2451s)
+[13:08:10Z] prepass-2 L08 e_s 2 range in/out 0.000536/0.000536 floors ao 1.35e-05 z 5.95e-07 (2484s)
+[13:08:41Z] prepass-2 L09 e_s 2 range in/out 0.000538/0.000537 floors ao 2.29e-05 z 7.89e-07 (2514s)
+[13:09:15Z] prepass-2 L10 e_s 2 range in/out 0.000537/0.000537 floors ao 1.29e-05 z 6.47e-07 (2548s)
+[13:09:49Z] prepass-2 L11 e_s 2 range in/out 0.000538/0.000536 floors ao 1.54e-05 z 1.7e-06 (2582s)
+[13:10:24Z] prepass-2 L12 e_s 2 range in/out 0.000536/0.000535 floors ao 1.33e-05 z 7.87e-07 (2617s)
+[13:10:55Z] prepass-2 L13 e_s 1 range in/out 0.000536/0.000534 floors ao 1.39e-05 z 8.58e-07 (2649s)
+[13:11:32Z] prepass-2 L14 e_s 2 range in/out 0.000534/0.000533 floors ao 1.53e-05 z 8e-07 (2685s)
+[13:12:03Z] prepass-2 L15 e_s 2 range in/out 0.000534/0.000533 floors ao 1.93e-05 z 1.44e-06 (2717s)
+[13:12:34Z] prepass-2 L16 e_s 2 range in/out 0.000534/0.000532 floors ao 1.64e-05 z 1.6e-06 (2748s)
+[13:13:07Z] prepass-2 L17 e_s 2 range in/out 0.000532/0.000531 floors ao 1.93e-05 z 1.46e-06 (2781s)
+[13:13:41Z] prepass-2 L18 e_s 2 range in/out 0.000531/0.000529 floors ao 2.31e-05 z 1.52e-06 (2815s)
+[13:14:12Z] prepass-2 L19 e_s 2 range in/out 0.000529/0.000527 floors ao 1.84e-05 z 1.47e-06 (2846s)
+[13:14:44Z] prepass-2 L20 e_s 2 range in/out 0.000527/0.000526 floors ao 1.76e-05 z 1.59e-06 (2878s)
+[13:15:20Z] prepass-2 L21 e_s 2 range in/out 0.000526/0.000526 floors ao 1.94e-05 z 1.68e-06 (2913s)
+[13:15:52Z] prepass-2 L22 e_s 1 range in/out 0.000526/0.000525 floors ao 2.78e-05 z 1.97e-06 (2946s)
+[13:16:30Z] prepass-2 L23 e_s 2 range in/out 0.000526/0.000524 floors ao 1.88e-05 z 3.6e-06 (2984s)
+[13:17:01Z] prepass-2 L24 e_s 2 range in/out 0.000524/0.000523 floors ao 3.49e-05 z 3.56e-06 (3014s)
+[13:17:40Z] prepass-2 L25 e_s 2 range in/out 0.000524/0.000523 floors ao 2.79e-05 z 4.01e-06 (3053s)
+[13:18:14Z] prepass-2 L26 e_s 2 range in/out 0.000525/0.000525 floors ao 2.61e-05 z 1.8e-06 (3087s)
+[13:18:47Z] prepass-2 L27 e_s 2 range in/out 0.000526/0.000526 floors ao 2.91e-05 z 1.73e-06 (3121s)
+[13:19:20Z] prepass-2 L28 e_s 2 range in/out 0.000527/0.000528 floors ao 3.65e-05 z 4.9e-06 (3154s)
+[13:19:53Z] prepass-2 L29 e_s 2 range in/out 0.000531/0.00054 floors ao 4.19e-05 z 8.18e-06 (3187s)
+[13:20:24Z] prepass-2 L30 e_s 1 range in/out 0.000545/0.000558 floors ao 4.84e-05 z 1.03e-05 (3218s)
+[13:20:55Z] prepass-2 L31 e_s 4 range in/out 0.000558/0.00139 floors ao 5.52e-05 z 7.62e-05 (3249s)
+[13:20:55Z] profile: cn None/None e_s None silu None shifts None s_x 0.00139195 (4853s)
+[13:21:17Z]   L00 up remainder: sh_u 1
+[13:21:17Z] L00 {'norm_tn': 9, 'norm_cn_a': 3949, 'norm_cn_m': 2535, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 8, 'sh_g': 13, 'sh_u': 1, 'sh_h': 16, 'sh_z': 10, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-4, -12], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 21892} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (4875s)
+[13:21:51Z]   L01 up remainder: sh_u 3
+[13:21:52Z] L01 {'norm_tn': 9, 'norm_cn_a': 4049, 'norm_cn_m': 603, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 7, 'sh_o': 9, 'sh_ao': 7, 'sh_g': 13, 'sh_u': 3, 'sh_h': 16, 'sh_z': 7, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-2, -11], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 8080} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (4909s)
+[13:22:34Z]   L02 up remainder: sh_u 1
+[13:22:35Z] L02 {'norm_tn': 9, 'norm_cn_a': 3857, 'norm_cn_m': 1947, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 7, 'sh_o': 9, 'sh_ao': 6, 'sh_g': 13, 'sh_u': 1, 'sh_h': 14, 'sh_z': 12, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-3, -12], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 1606} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (4952s)
+[13:23:10Z]   L03 up remainder: sh_u 1
+[13:23:10Z] L03 {'norm_tn': 9, 'norm_cn_a': 3539, 'norm_cn_m': 1949, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 6, 'sh_g': 12, 'sh_u': 1, 'sh_h': 14, 'sh_z': 12, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-4, -12], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 7817} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (4988s)
+[13:23:44Z]   L04 up remainder: sh_u 1
+[13:23:45Z] L04 {'norm_tn': 9, 'norm_cn_a': 3982, 'norm_cn_m': 1959, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 6, 'sh_g': 12, 'sh_u': 1, 'sh_h': 14, 'sh_z': 12, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-4, -12], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 25341} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (5022s)
+[13:24:21Z]   L05 up remainder: sh_u 1
+[13:24:21Z] L05 {'norm_tn': 9, 'norm_cn_a': 3753, 'norm_cn_m': 1899, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 6, 'sh_g': 12, 'sh_u': 1, 'sh_h': 14, 'sh_z': 12, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-4, -12], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 50730} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (5059s)
+[13:24:54Z]   L06 up remainder: sh_u 1
+[13:24:54Z] L06 {'norm_tn': 9, 'norm_cn_a': 3851, 'norm_cn_m': 1708, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 6, 'sh_g': 12, 'sh_u': 1, 'sh_h': 14, 'sh_z': 12, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-3, -12], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 570} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (5092s)
+[13:25:29Z]   L07 up remainder: sh_u 1
+[13:25:29Z] L07 {'norm_tn': 9, 'norm_cn_a': 3879, 'norm_cn_m': 1891, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 6, 'sh_g': 11, 'sh_u': 1, 'sh_h': 14, 'sh_z': 12, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-4, -12], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 82} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (5126s)
+[13:26:00Z]   L08 up remainder: sh_u 1
+[13:26:00Z] L08 {'norm_tn': 9, 'norm_cn_a': 3964, 'norm_cn_m': 1702, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 6, 'sh_g': 11, 'sh_u': 1, 'sh_h': 14, 'sh_z': 12, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-4, -12], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 257} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (5158s)
+[13:26:33Z]   L09 up remainder: sh_u 1
+[13:26:33Z] L09 {'norm_tn': 9, 'norm_cn_a': 3891, 'norm_cn_m': 1603, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 5, 'sh_g': 11, 'sh_u': 1, 'sh_h': 14, 'sh_z': 11, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-4, -12], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 1566} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (5191s)
+[13:27:08Z]   L10 up remainder: sh_u 1
+[13:27:08Z] L10 {'norm_tn': 9, 'norm_cn_a': 3961, 'norm_cn_m': 1882, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 6, 'sh_g': 12, 'sh_u': 1, 'sh_h': 14, 'sh_z': 12, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-3, -12], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 170} words equal to llama3_8b_pg_rot1_b7_T128: 3 / 13 (5226s)
+[13:27:34Z]   L11 up remainder: sh_u 1
+[13:27:35Z] L11 {'norm_tn': 9, 'norm_cn_a': 3858, 'norm_cn_m': 1638, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 6, 'sh_g': 11, 'sh_u': 1, 'sh_h': 15, 'sh_z': 10, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-4, -12], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 1694} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (5252s)
+[13:28:07Z]   L12 up remainder: sh_u 1
+[13:28:07Z] L12 {'norm_tn': 9, 'norm_cn_a': 3874, 'norm_cn_m': 1860, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 6, 'sh_g': 12, 'sh_u': 1, 'sh_h': 14, 'sh_z': 11, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-3, -12], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 337} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (5285s)
+[13:28:37Z]   L13 up remainder: sh_u 1
+[13:28:37Z] L13 {'norm_tn': 9, 'norm_cn_a': 3915, 'norm_cn_m': 2543, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 5, 'sh_o': 9, 'sh_ao': 6, 'sh_g': 12, 'sh_u': 1, 'sh_h': 14, 'sh_z': 11, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-3, -12], 'exp_e_s': 1, 'rope_theta': 500000.0} clip {'wg': 900} words equal to llama3_8b_pg_rot1_b7_T128: 3 / 13 (5314s)
+[13:29:09Z]   L14 up remainder: sh_u 1
+[13:29:09Z] L14 {'norm_tn': 9, 'norm_cn_a': 3871, 'norm_cn_m': 1825, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 6, 'sh_g': 11, 'sh_u': 1, 'sh_h': 13, 'sh_z': 11, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-3, -11], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 5} words equal to llama3_8b_pg_rot1_b7_T128: 3 / 13 (5347s)
+[13:29:41Z]   L15 up remainder: sh_u 1
+[13:29:41Z] L15 {'norm_tn': 9, 'norm_cn_a': 3765, 'norm_cn_m': 2034, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 6, 'sh_g': 12, 'sh_u': 1, 'sh_h': 14, 'sh_z': 10, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-3, -11], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 3489} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (5379s)
+[13:30:10Z]   L16 up remainder: sh_u 1
+[13:30:10Z] L16 {'norm_tn': 9, 'norm_cn_a': 4018, 'norm_cn_m': 2381, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 6, 'sh_g': 12, 'sh_u': 1, 'sh_h': 14, 'sh_z': 10, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-3, -11], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 8464} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (5407s)
+[13:30:43Z]   L17 up remainder: sh_u 1
+[13:30:44Z] L17 {'norm_tn': 9, 'norm_cn_a': 3954, 'norm_cn_m': 1645, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 6, 'sh_g': 11, 'sh_u': 1, 'sh_h': 14, 'sh_z': 10, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-3, -11], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 32} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (5441s)
+[13:31:25Z]   L18 up remainder: sh_u 1
+[13:31:25Z] L18 {'norm_tn': 9, 'norm_cn_a': 3951, 'norm_cn_m': 1996, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 5, 'sh_g': 12, 'sh_u': 1, 'sh_h': 14, 'sh_z': 10, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-3, -11], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 5754} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (5483s)
+[13:32:00Z]   L19 up remainder: sh_u 1
+[13:32:00Z] L19 {'norm_tn': 9, 'norm_cn_a': 3927, 'norm_cn_m': 1954, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 6, 'sh_g': 12, 'sh_u': 1, 'sh_h': 14, 'sh_z': 10, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-3, -11], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 8685} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (5518s)
+[13:32:36Z]   L20 up remainder: sh_u 1
+[13:32:36Z] L20 {'norm_tn': 9, 'norm_cn_a': 3984, 'norm_cn_m': 1988, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 6, 'sh_g': 12, 'sh_u': 1, 'sh_h': 14, 'sh_z': 10, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-3, -11], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 8359} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (5554s)
+[13:33:12Z]   L21 up remainder: sh_u 2
+[13:33:12Z] L21 {'norm_tn': 9, 'norm_cn_a': 4061, 'norm_cn_m': 2350, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 6, 'sh_g': 12, 'sh_u': 2, 'sh_h': 14, 'sh_z': 10, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-3, -11], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 3234} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (5590s)
+[13:33:45Z]   L22 up remainder: sh_u 2
+[13:33:46Z] L22 {'norm_tn': 9, 'norm_cn_a': 4009, 'norm_cn_m': 2337, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 5, 'sh_o': 9, 'sh_ao': 5, 'sh_g': 12, 'sh_u': 2, 'sh_h': 14, 'sh_z': 10, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-3, -11], 'exp_e_s': 1, 'rope_theta': 500000.0} clip {'wg': 2861} words equal to llama3_8b_pg_rot1_b7_T128: 3 / 13 (5623s)
+[13:34:21Z]   L23 up remainder: sh_u 2
+[13:34:22Z] L23 {'norm_tn': 9, 'norm_cn_a': 3956, 'norm_cn_m': 2350, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 6, 'sh_g': 13, 'sh_u': 2, 'sh_h': 15, 'sh_z': 9, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-2, -11], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 2960} words equal to llama3_8b_pg_rot1_b7_T128: 3 / 13 (5659s)
+[13:34:57Z]   L24 up remainder: sh_u 1
+[13:34:57Z] L24 {'norm_tn': 9, 'norm_cn_a': 3923, 'norm_cn_m': 2747, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 5, 'sh_g': 11, 'sh_u': 1, 'sh_h': 15, 'sh_z': 9, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-3, -11], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 5} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (5695s)
+[13:35:33Z]   L25 up remainder: sh_u 1
+[13:35:33Z] L25 {'norm_tn': 9, 'norm_cn_a': 3940, 'norm_cn_m': 2308, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 5, 'sh_g': 12, 'sh_u': 1, 'sh_h': 15, 'sh_z': 9, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-3, -11], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 8625} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (5731s)
+[13:36:07Z]   L26 up remainder: sh_u 1
+[13:36:07Z] L26 {'norm_tn': 9, 'norm_cn_a': 3826, 'norm_cn_m': 1952, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 5, 'sh_g': 11, 'sh_u': 1, 'sh_h': 14, 'sh_z': 10, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-3, -11], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 44} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (5765s)
+[13:36:48Z]   L27 up remainder: sh_u 1
+[13:36:48Z] L27 {'norm_tn': 9, 'norm_cn_a': 3829, 'norm_cn_m': 2311, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 5, 'sh_g': 11, 'sh_u': 1, 'sh_h': 14, 'sh_z': 10, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-3, -11], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 4} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (5806s)
+[13:37:24Z]   L28 up remainder: sh_u 1
+[13:37:25Z] L28 {'norm_tn': 9, 'norm_cn_a': 3878, 'norm_cn_m': 2007, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 6, 'sh_o': 9, 'sh_ao': 5, 'sh_g': 12, 'sh_u': 1, 'sh_h': 15, 'sh_z': 9, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-2, -11], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 170} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (5842s)
+[13:38:01Z]   L29 up remainder: sh_u 1
+[13:38:02Z] L29 {'norm_tn': 9, 'norm_cn_a': 4049, 'norm_cn_m': 2023, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 5, 'sh_o': 9, 'sh_ao': 5, 'sh_g': 12, 'sh_u': 1, 'sh_h': 15, 'sh_z': 8, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-2, -11], 'exp_e_s': 2, 'rope_theta': 500000.0} clip {'wg': 406} words equal to llama3_8b_pg_rot1_b7_T128: 3 / 13 (5879s)
+[13:38:43Z]   L30 up remainder: sh_u 1
+[13:38:43Z] L30 {'norm_tn': 9, 'norm_cn_a': 3937, 'norm_cn_m': 2886, 'norm_ceps': 21140, 'sh_qkv': 11, 'sh_rope': 7, 'sh_s': 5, 'sh_o': 9, 'sh_ao': 4, 'sh_g': 12, 'sh_u': 1, 'sh_h': 15, 'sh_z': 8, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-2, -11], 'exp_e_s': 1, 'rope_theta': 500000.0} clip {'wg': 28} words equal to llama3_8b_pg_rot1_b7_T128: 3 / 13 (5921s)
+[13:39:24Z]   L31 up remainder: sh_u 2
+[13:39:25Z] L31 {'norm_tn': 9, 'norm_cn_a': 3932, 'norm_cn_m': 1473, 'norm_ceps': 21140, 'sh_qkv': 12, 'sh_rope': 7, 'sh_s': 7, 'sh_o': 9, 'sh_ao': 4, 'sh_g': 12, 'sh_u': 2, 'sh_h': 16, 'sh_z': 5, 'f_e': 9, 'f_p': 9, 'f_ro': 7, 'sh_r2': 0, 'silu_member': [-1, -10], 'exp_e_s': 4, 'rope_theta': 500000.0} clip {'wg': 397} words equal to llama3_8b_pg_rot1_b7_T128: 4 / 13 (5962s)
+[13:39:25Z] done (5962s) -> /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/l8_dg_aex

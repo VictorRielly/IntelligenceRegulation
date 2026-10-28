@@ -1,0 +1,21 @@
+--- a/hashline/src/private_block/trained_block.rs
++++ b/hashline/src/private_block/trained_block.rs
+@@ -1045,6 +1045,10 @@
+         let public = AttentionPublic::new_shaped(sh, &aw[0], &aw[1], &aw[2], &aw[3], &aw[4], &cos, &sin, &exp.i64s()).map_err(ctx)?;
+         let ff = FeedForwardPublic::new_shaped(sh, &fw[0], &fw[1], &fw[2], &fw[3], &act.i16s()).map_err(ctx)?;
+         let blk = BlockPublic::new(public, ff);
++        // All raw PUBLIC arrays have passed their checks and been copied
++        // into the owned block. End their lifetime before record hashing.
++        let _ = (wq.sha256, exp.sha256);
++        drop((wq, wk, wv, wo, ga, gm, wg, wu, wd, exp, act));
+         // the source tensors the manifest names, if it names any
+         let mut source_tensors: Vec<(String, [u8; 32])> = Vec::new();
+         if let Some(st) = m.opt("source_tensors") {
+@@ -1058,7 +1062,6 @@
+         record.silu_member = tk.silu;
+         record.exp_e_s = tk.exp_e_s;
+         record.own = own;
+-        let _ = (wq.sha256, exp.sha256);
+         Ok(TrainedLayer { index, manifest_sha256, blk, record, rope_note })
+     }
+ 

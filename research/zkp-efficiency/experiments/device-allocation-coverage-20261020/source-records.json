@@ -1,0 +1,157 @@
+[
+  {
+    "title": "Bits Under ZK-LLM: quantization cost and measurement-scope refresh",
+    "url": "https://arxiv.org/abs/2609.36437",
+    "inspected_urls": [
+      "https://arxiv.org/html/2609.36437v1"
+    ],
+    "published": "2026-09-29",
+    "updated": null,
+    "date_evidence": "arXiv v1 submission history: 2026-09-29 00:54:35 UTC.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "author_claim": "Precision and lookup-table reductions need not reduce total proving time; operator utility varies.",
+    "assessment": "Known source refined: small-GPT2 context tests exclude graph preparation, inference and verification; large float projection totals are extrapolations. Supports recurring-work accounting, not changing native integer/refusal or D32 fidelity requirements. No author performance reproduced.",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "cycle": "0093",
+    "run_id": "20261020T011854Z-224b9b69",
+    "evidence_kind": "Native LIVE search/open/find/click; primary sources; external text treated as untrusted",
+    "reproduced_performance": false,
+    "external_execution": false
+  },
+  {
+    "title": "Efficient Sumcheck: strategy/order/composition scope refresh",
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/docs/design.md",
+    "inspected_urls": [
+      "https://github.com/compsec-epfl/efficient-sumcheck",
+      "https://github.com/compsec-epfl/efficient-sumcheck/commits/main/"
+    ],
+    "published": null,
+    "updated": null,
+    "date_evidence": "Visible repository history includes June 24, 2026; exact inspected docs revision date not exposed. Crawl age not used.",
+    "implementation_license": "Repository metadata advertises MIT OR Apache-2.0; license text fetch failed this cycle.",
+    "inspected_commit_id": null,
+    "resolved_commit_id": "9e55dc3a020fe9e94a7617628587685eb39b32ce",
+    "commit_scope": "History/link identity only; commit detail failed, no implementation diff inspected.",
+    "assessment": "Known source: memory strategy and variable order are independent choices. Design prose does not establish deployed streaming/GPU implementation or native masked driver compatibility; terminal oracle binding remains caller duty.",
+    "access_issues": [
+      "commit detail Internal Error",
+      "LICENSE-MIT Internal Error"
+    ],
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "cycle": "0093",
+    "run_id": "20261020T011854Z-224b9b69",
+    "evidence_kind": "Native LIVE search/open/find/click; primary sources; external text treated as untrusted",
+    "reproduced_performance": false,
+    "external_execution": false
+  },
+  {
+    "title": "NEW October gnark v0.16.4 release: batching changes proof schedule",
+    "url": "https://github.com/Consensys-Incorporated/gnark/releases/tag/v0.16.4",
+    "published": "2026-10-07",
+    "updated": null,
+    "date_evidence": "Primary release displays 07 Oct 10:17; primary Go package search result dates v0.16.4 Oct7,2026.",
+    "implementation_license": "Primary Go package index metadata Apache-2.0; license text not successfully fetched this cycle.",
+    "inspected_commit_id": null,
+    "visible_short_commit": "e974abb",
+    "assessment": "Release makes native GKR API public and batches same-degree zero-checks, but changes final-evaluation Fiat-Shamir binding and proof compatibility. Architectural queue lead only; cannot batch native slots by degree alone or import its timings.",
+    "access_issues": [
+      "release commit detail Internal Error",
+      "LICENSE and LICENSE-APACHE Internal Error",
+      "Go package open Internal Error after indexed primary result"
+    ],
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "cycle": "0093",
+    "run_id": "20261020T011854Z-224b9b69",
+    "evidence_kind": "Native LIVE search/open/find/click; primary sources; external text treated as untrusted",
+    "reproduced_performance": false,
+    "external_execution": false
+  },
+  {
+    "title": "NEW gnark scheduler PR: batching and multi-source final binding",
+    "url": "https://github.com/Consensys-Incorporated/gnark/pull/1828",
+    "published": "2026-09-21",
+    "updated": "2026-09-23",
+    "date_evidence": "Primary PR conversation created Sep21, merged Sep23,2026; two constituent commits dated Sep17.",
+    "implementation_license": "Same repository Apache-2.0 metadata; no code adopted.",
+    "inspected_commit_id": null,
+    "resolved_commit_id": "29c52c13fd5f05051c8908e601b5a3e247420727",
+    "commit_scope": "Resolved PR-head URL; fetch and files diff failed. PR metadata/maintainer description inspected only.",
+    "assessment": "Contiguous same-degree batching also repairs source-claim binding. Native slot/domain/mask/terminal dependencies need a separate composition proof and versioned review; no direct patch or speed claim.",
+    "access_issues": [
+      "files diff Cache miss",
+      "head commit Cache miss"
+    ],
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "cycle": "0093",
+    "run_id": "20261020T011854Z-224b9b69",
+    "evidence_kind": "Native LIVE search/open/find/click; primary sources; external text treated as untrusted",
+    "reproduced_performance": false,
+    "external_execution": false
+  },
+  {
+    "title": "cudarc0.13.9 pinned synchronous copy semantics",
+    "url": "https://github.com/chelsea0x3b/cudarc/blob/v0.13.9/src/driver/safe/alloc.rs",
+    "inspected_urls": [
+      "https://github.com/chelsea0x3b/cudarc/releases/tag/v0.13.9",
+      "https://github.com/chelsea0x3b/cudarc/commit/e12b2d96877d0bae7266c01df14f257e95bb0020"
+    ],
+    "published": null,
+    "updated": null,
+    "date_evidence": "Release page displays27Feb16:26 without a year; full publication date not verified. No date inferred from local mtimes.",
+    "implementation_license": "MIT OR Apache-2.0; local registry Cargo.toml and both license texts inspected and pinned.",
+    "inspected_commit_id": "e12b2d96877d0bae7266c01df14f257e95bb0020",
+    "commit_scope": "Full release commit inspected: Cargo version0.13.8->0.13.9 only. Allocation source inspected at release tag and local package matching .cargo_vcs_info sha, not attributed as that commit's change.",
+    "assessment": "htod_sync_copy allocates then invokes htod_sync_copy_into; copy_into uses device stream and synchronizes, with exact destination-length assertion. This permits testing staging-storage reuse without added explicit barriers in a same-stream model. No dependency code executed.",
+    "access_issues": [
+      "docs.rs0.12.1 probe inaccessible (wrong version; not used)",
+      "docs.rs0.13.9 source/crate inaccessible",
+      "GitHub MIT license fetch failed; local exact package license available"
+    ],
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "cycle": "0093",
+    "run_id": "20261020T011854Z-224b9b69",
+    "evidence_kind": "Native LIVE search/open/find/click; primary sources; external text treated as untrusted",
+    "reproduced_performance": false,
+    "external_execution": false
+  },
+  {
+    "title": "NEW older source: CUDA7 stream ordering and concurrency",
+    "url": "https://developer.nvidia.com/blog/gpu-pro-tip-cuda-7-streams-simplify-concurrency/",
+    "published": "2015-01-22",
+    "updated": null,
+    "date_evidence": "Primary article headerJan22,2015; original prose inspected, not generated summary.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "assessment": "Same-stream command order supports buffer reuse after previous consumers; different streams require explicit dependencies. No per-thread-default-stream change is proposed. Native device mutex and pinned cudarc stream contract, not this article alone, determine candidate safety. No example code executed.",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "cycle": "0093",
+    "run_id": "20261020T011854Z-224b9b69",
+    "evidence_kind": "Native LIVE search/open/find/click; primary sources; external text treated as untrusted",
+    "reproduced_performance": false,
+    "external_execution": false
+  },
+  {
+    "title": "SumCATS scratch/setup regression refresh",
+    "url": "https://tanvirarafin.github.io/assets/pdf/DATE_2026.pdf",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Inspected PDF has no explicit publication date in extracted text; DATE_2026 filename and search crawl ages are not a verified date.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "assessment": "Known binary-tower-field source reports small low-degree cases regressing from CPU setup and large cases improving. Supports complete-clock charging, not native Goldilocks2 arithmetic equivalence or a5090/8B forecast. No implementation inspected or author performance reproduced.",
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "cycle": "0093",
+    "run_id": "20261020T011854Z-224b9b69",
+    "evidence_kind": "Native LIVE search/open/find/click; primary sources; external text treated as untrusted",
+    "reproduced_performance": false,
+    "external_execution": false
+  }
+]

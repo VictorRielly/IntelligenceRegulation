@@ -1,0 +1,90 @@
+[
+  {
+    "leaf": "probe.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/gl-only-fzc-20261020/probe.py"
+    ],
+    "started_at": "2026-10-20T07:24:24.972704+00:00",
+    "exit_code": 0,
+    "wall_seconds": 2.6239167989988346,
+    "maxrss_kib": 17668,
+    "sha256": "735b71dd2d396af34d45ab9b77062607f046c14142290a2089c105c9d6b19ec5",
+    "stdout": "00-probe.py.stdout.log",
+    "stderr": "00-probe.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "validate.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/gl-only-fzc-20261020/validate.py"
+    ],
+    "started_at": "2026-10-20T07:27:05.097226+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.04610159400908742,
+    "maxrss_kib": 14852,
+    "sha256": "a3dcc97c77d78e0770b2c32f7a82da615840ca8ed9bc8e5f1d74fe0277de1d11",
+    "stdout": "01-validate.py.stdout.log",
+    "stderr": "01-validate.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "probe.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/gl-only-fzc-20261020/probe.py"
+    ],
+    "started_at": "2026-10-20T07:28:29.504297+00:00",
+    "exit_code": 0,
+    "wall_seconds": 2.479413396999007,
+    "maxrss_kib": 17748,
+    "sha256": "4f7948d06ef63f7a82cbd08b44ab47f63bcaefad63c1329fbf41bc730ded31a9",
+    "stdout": "02-probe.py.stdout.log",
+    "stderr": "02-probe.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "validate.py",
+    "command": [
+      "python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/gl-only-fzc-20261020/validate.py"
+    ],
+    "started_at": "2026-10-20T07:28:32.034091+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.03836865098855924,
+    "maxrss_kib": 17748,
+    "sha256": "a3dcc97c77d78e0770b2c32f7a82da615840ca8ed9bc8e5f1d74fe0277de1d11",
+    "stdout": "03-validate.py.stdout.log",
+    "stderr": "03-validate.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  }
+]

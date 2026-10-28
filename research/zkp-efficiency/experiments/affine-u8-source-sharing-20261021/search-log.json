@@ -1,0 +1,17 @@
+{
+  "native_live": true,
+  "queries": [
+    "site.eprint.iacr.org 2026 range check lookup bit decomposition shared affine",
+    "site.github.com Plonky3 range check signed decomposition lookup",
+    "site.eprint.iacr.org 2026 GPU sumcheck October",
+    "site.github.com/Plonky3/Plonky3 \"reduce shifted operands to one Boolean opening\"",
+    "site.eprint.iacr.org \"Speeding up Sumcheck using Algebraic Geometry\"",
+    "site.github.com rangecheck plonky3 brian seong 2024",
+    "site.eprint.iacr.org \"lookup\" \"October\" \"2026\" range",
+    "site.github.com/Plonky3/Plonky3 \"range\" \"shift\" \"2226\"",
+    "site.eprint.iacr.org \"2026/2494\" Dalal"
+  ],
+  "primary_records": 9,
+  "no_downloaded_code_executed": true,
+  "embedded_web_instructions_ignored": true
+}

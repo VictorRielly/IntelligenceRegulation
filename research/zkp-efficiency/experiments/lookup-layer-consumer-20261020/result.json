@@ -1,0 +1,39 @@
+{
+  "seed": 20261020105,
+  "checks": 1515,
+  "fixtures": 10,
+  "tiny_column_cases": 51,
+  "tiny_layer_consumers": 183,
+  "negative_controls": [
+    "wrong_site_permutation_preserves_fraction_root",
+    "ordered_leaf_digest_detects_permutation",
+    "zero_denominator_refused_even_zero_multiplicity",
+    "fresh_challenges_prevent_denominator_reuse",
+    "omitting_fold_capacity_understates_peak",
+    "per_column_cache_has_cost_not_free_reuse",
+    "altered_cubic_sample_rejected",
+    "altered_terminal_rejected",
+    "wrong_equality_point_changes_claim",
+    "duplicated_global_histogram_rejected",
+    "altered_multiplicity_changes_root_value",
+    "native_field_and_privacy_not_certified"
+  ],
+  "elapsed_s": 3.6650336319871712,
+  "maxrss_KiB": 20808,
+  "scope": "Explicit chosen immutable-child/five-plane consumer. Symbolic Fp2 bytes plus tiny F65537 cubic fold arithmetic, not native GKR or proof.",
+  "full_stack": {
+    "proofs": 0,
+    "passes": 0,
+    "positions": 0,
+    "context_length": null,
+    "device": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "startup_s": null,
+    "startup_fraction": null,
+    "steady_rate": null,
+    "total_rate": null
+  }
+}

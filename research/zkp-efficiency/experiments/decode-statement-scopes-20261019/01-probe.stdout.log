@@ -1,0 +1,1 @@
+{"status":"PASS","baseline_visits":[256, 320, 384, 640, 656, 16, 416, 816, 1216],"candidate_visits":[256, 64, 64, 256, 16, 16, 400, 400, 400],"negative_visits":[656, 656, 656, 656, 656, 1872, 1872, 1872, 1872],"baseline_peak_decode_bytes":1216,"candidate_peak_decode_bytes":400,"negative_peak_decode_bytes":1872,"outputs_equal":true}

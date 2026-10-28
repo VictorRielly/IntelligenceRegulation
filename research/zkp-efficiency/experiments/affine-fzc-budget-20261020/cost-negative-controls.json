@@ -1,0 +1,9 @@
+[
+  "zero_baseline_global_write_bytes",
+  "zero_implicit_pair_extra_chunk_barriers",
+  "zero_raw_pair_logical_shared_read_bytes",
+  "generic_fold_mistaken_for_karatsuba",
+  "request_saving_mistaken_for_backing_saving",
+  "all_chunk_barriers_mistaken_for_round_count",
+  "omit_high_endpoint_reconstruction_for_global_store"
+]

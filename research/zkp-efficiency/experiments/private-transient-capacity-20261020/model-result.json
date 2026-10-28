@@ -1,0 +1,38 @@
+{
+  "affinity": [
+    0
+  ],
+  "cases": 72,
+  "events": 23094,
+  "excluded": [
+    "other slots including CPU DZC",
+    "opening scratch",
+    "preceding owner commit history",
+    "H helper construction",
+    "failure retries",
+    "twiddles",
+    "multiple/evicted public caches",
+    "host/pinned/mapped buffers",
+    "CUDA granularity,modules,driver"
+  ],
+  "full_stack": {
+    "context_length": null,
+    "device": "CPU accounting only; no accelerator",
+    "passes": 0,
+    "positions": 0,
+    "proof_s": null,
+    "proofs": 0,
+    "serialization_s": null,
+    "startup_fraction": null,
+    "steady_rate": null,
+    "total_rate": null,
+    "verification_s": null,
+    "witness_s": null
+  },
+  "rss_kib": 98652,
+  "scope": "Partial public allocation schedule; no timing/VRAM/native proof; R8 geometry/GPU allocator are separate versions",
+  "seed": 2026102095,
+  "status": "GENERATED",
+  "threads": 1,
+  "wall_seconds": 0.44822807400487363
+}

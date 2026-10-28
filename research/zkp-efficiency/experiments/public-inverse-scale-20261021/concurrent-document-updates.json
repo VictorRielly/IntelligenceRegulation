@@ -1,0 +1,9 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "start_sha256": "7896c4a28103bb6672319853112c65369b9a8bbeb91cd04f4bd08f7b588aa1ed",
+    "end_sha256": "71520b4461591e2622f22ca95a39baffbd707bc6b9a9d332c2a5d9d27941afa3",
+    "copy": "experiments/public-inverse-scale-20261021/end-read/docs__zkmatrix-poc__ZK60_DECISIONS.md",
+    "classification": "concurrent external update observed; research lane wrote only copies"
+  }
+]

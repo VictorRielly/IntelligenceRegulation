@@ -1,0 +1,1 @@
+smoke3-tinyllama-t32-L1-dense: status PASS-NO-CONTROLS; false parts []; equal 23 of 23; per stage [(1, 23, 23)]; controls None; 2.4 s; peak 172 MB; record /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/token_io/blockterm_dev/smoke3-tinyllama-t32-L1-dense.json

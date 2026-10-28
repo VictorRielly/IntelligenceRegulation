@@ -1,0 +1,15 @@
+
+running 1 test
+test private_block::run_capture_tests::capture_a_tinyllama_t128_dd_run ... 
+thread 'private_block::run_capture_tests::capture_a_tinyllama_t128_dd_run' (719555) panicked at src/private_block/run_capture_tests.rs:115:6:
+the honest run proves: "private block: ruling CS-3 — the witness looks up a value that is not a row of its table; the table family that missed: the byte table (the class of the miss only, never a count — ruling K-2). It is refused before this block's A mask rows are drawn, its A commitment is made or any challenge of it is drawn. What precedes the refusal: in a single block, the transcript header's absorbs; inside a run, the run header, every earlier stage, this stage's header absorbs and, below the last block, the boundary B_k to the next block, drawn from the run's stream, committed and absorbed (ruling M-9)."
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    private_block::run_capture_tests::capture_a_tinyllama_t128_dd_run
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 607 filtered out; finished in 10.03s
+

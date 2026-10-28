@@ -1,0 +1,148 @@
+diff -ruN -x __pycache__ frozen_v17/scripts/zk60_native_rg_tokengate.py frozen_v18/scripts/zk60_native_rg_tokengate.py
+--- frozen_v17/scripts/zk60_native_rg_tokengate.py	2026-10-19 19:10:41.979583567 -0700
++++ frozen_v18/scripts/zk60_native_rg_tokengate.py	2026-10-20 17:46:45.797849051 -0700
+@@ -448,6 +448,7 @@
+     an unread pin: every figure of the record is then NOT a pass)."""
+     import zk60_native_rg_tokenio_r7c_pins as TP
+     import zk60_native_rg_tokenio_r9_pins as R9
++    import zk60_native_rg_tokenio_r11_pins as R11
+     pins = {p["file"]: p["sha256"] for p in manifest.get("source_pins", [])}
+     expected = set(TP.R7_PINS_READ_IN_V8) | set(TP.TOKEN_R7C_READINGS)
+     per, refused = [], []
+@@ -463,6 +464,11 @@
+         # again (`zk60_native_rg_tokenio_r9_pins`, pre-freeze)
+         elif got in R9.TOKEN_R9_READINGS.get(f, {}):
+             per.append({"file": f, "sha256": got, "status": "read (token r9 reading)"})
++        # [v18, gate round 15] the token lane's frozen round-11 tree: two
++        # files read again (`zk60_native_rg_tokenio_r11_pins`), each against
++        # its frozen-r9 digest, which the r9 readings read in turn
++        elif got in R11.TOKEN_R11_READINGS.get(f, {}):
++            per.append({"file": f, "sha256": got, "status": "read (token r11 reading)"})
+         elif TP.R7_PINS_READ_IN_V8.get(f) == got:
+             per.append({"file": f, "sha256": got, "status": "read (the R7 pin, v8)"})
+         else:
+@@ -472,6 +478,7 @@
+             "read_as_R7": sum(1 for x in per if x["status"] == "read (the R7 pin, v8)"),
+             "read_as_token_r7c": sum(1 for x in per if x["status"] == "read (token r7c reading)"),
+             "read_as_token_r9": sum(1 for x in per if x["status"] == "read (token r9 reading)"),
++            "read_as_token_r11": sum(1 for x in per if x["status"] == "read (token r11 reading)"),
+             "ok": not refused}
+ 
+ 
+diff -ruN -x __pycache__ frozen_v17/scripts/zk60_native_rg_tokenio_r11_pins.py frozen_v18/scripts/zk60_native_rg_tokenio_r11_pins.py
+--- frozen_v17/scripts/zk60_native_rg_tokenio_r11_pins.py	1969-12-31 16:00:00.000000000 -0800
++++ frozen_v18/scripts/zk60_native_rg_tokenio_r11_pins.py	2026-10-20 17:46:28.553421256 -0700
+@@ -0,0 +1,65 @@
++#!/usr/bin/env python3
++"""[GATE ROUND 15, tools v18, 2026-10-21] The READINGS of the two pinned
++files the token lane's ROUND 11 moved relative to frozen-r9
++(`results/zk60_token_io_r1_20261017/frozen-r9/`, manifest
++`manifest_final_r9.sha256`, list b666a991...), on the frozen round-11 tree
++(`results/zk60_token_io_r1_20261017/frozen-r11/`, 237 files =
++`manifest_final_r11.sha256`, list d8075d76...), which the named round-11 CPU
++binary `cli/zk60_token_io.r11.release.bin` (0c9f247c...) was built from.
++
++READ 2026-10-21 about 00:20 UTC by the privacy gate lane, with `diff -u`
++between the two frozen copies.  Round 11 changes four files and adds one:
++the example's doc header (`examples/zk60_token_io.rs`, not pinned), the new
++`token_io/r11_tests.rs` (`#[cfg(test)]`, not pinned), `token_io/cli_tests.rs`
++(not pinned), and the two PINNED files read here.  No block or run file
++changed since frozen-r9.
++
++Each reading's `base` is the frozen-r9 digest it was read against.  That
++digest is itself read in `zk60_native_rg_tokenio_r9_pins` against frozen-r7,
++so a gate that accepts a pin by reading walks the chain back to the digest
++it was ported at, and every step must say `moves_a_receipt_byte: False`.
++
++NOTHING HERE IS A PRIVACY STATEMENT.
++"""
++
++from __future__ import annotations
++
++TOKEN_R11_READINGS = {
++    "src/private_block/token_io.rs": {
++        "7730c8d01bd85b916be81a176f3aeb4238d426748a99aef7075f3630e0a00fb4": {
++            "base": "602597ad50d0978d4ea82385011084e2ff4f3678ecbffedc3f192b69d8fe5d9f",
++            "diff_stat": "+4 / -0, 1 hunk against 602597ad (frozen-r9)",
++            "moves_a_receipt_byte": False,
++            "moves_a_block_stage_byte": False,
++            "reading": "TEST-ONLY: one `#[cfg(test)] mod r11_tests;` declaration with its "
++                       "two-line comment (review REVIEW6 TR7-5: the CLI's stage-shape "
++                       "derivation pinned to the library's at every registered profile).  "
++                       "No production item changes",
++        },
++    },
++    "src/private_block/token_io/cli.rs": {
++        "3eaaacdbafdcd2a7863a52294a7f762898f70f0837eaa06eb34cb7560751fabc": {
++            "base": "b9079130204b49f5f73d38d8f5d531fcfa388d3a8d57c84ff87142eb57b655e9",
++            "diff_stat": "+75 / -10, 7 hunks against b9079130 (frozen-r9)",
++            "moves_a_receipt_byte": False,
++            "moves_a_block_stage_byte": False,
++            "reading": "THE CLI ONLY (a caller of the token run).  TR7-5: `seal_chain`'s inline "
++                       "stage-shape derivation moved into `cli_stage_shape(sh, own)`, the same "
++                       "expression (the run shape when the layer's calibration equals the "
++                       "run's, else `Shape::with_layer_calibration(apply_own(base, own))`), "
++                       "pinned to `TokenRunStatement::stage_shape` by the test-only "
++                       "`r11_tests`.  TR7-6: `owner_inner` refuses an existing `--token-out` "
++                       "path BEFORE the full re-verification (it was refused after it, by "
++                       "`write_private`'s create-new, which still closes the race); a "
++                       "test-only counter of `check_run` calls.  TR7-7: the owners' default "
++                       "base and its per-user level are tightened to 0700 on use "
++                       "(`tighten_to_0700`), with a stdout event naming the path and its old "
++                       "mode only; a non-directory base is refused.  Doc comments for TR7-6 / "
++                       "TR7-7.  The statement, the run directory, the verifier's reading of "
++                       "it, the transcript, every draw and every opening are those of the "
++                       "shared prover / verifier, unchanged",
++        },
++    },
++}
++
++READ_AT = "2026-10-21 ~00:20 UTC, frozen-r11 (manifest_final_r11 d8075d76...) against frozen-r9"
+diff -ruN -x __pycache__ frozen_v17/scripts/zk60_native_rg_tokenterminals.py frozen_v18/scripts/zk60_native_rg_tokenterminals.py
+--- frozen_v17/scripts/zk60_native_rg_tokenterminals.py	2026-10-19 18:50:55.627184679 -0700
++++ frozen_v18/scripts/zk60_native_rg_tokenterminals.py	2026-10-20 17:46:45.798149176 -0700
+@@ -958,14 +958,29 @@
+     read it AGAINST that very digest and say no receipt byte moves; anything
+     else is refused before any slot is evaluated, as before"""
+     import zk60_native_rg_tokenio_r9_pins as R9
++    import zk60_native_rg_tokenio_r11_pins as R11
+     pins = {p["file"]: p["sha256"] for p in bundle.manifest.get("source_pins", [])}
+     moved, also = [], []
+     for f, d in PORTED_FROM.items():
+         if f not in pins or pins[f] == d:
+             continue
+-        r = R9.TOKEN_R9_READINGS.get(f, {}).get(pins[f])
+-        if r is not None and r.get("base") == d and r.get("moves_a_receipt_byte") is False:
+-            also.append(f"{f}: {pins[f][:12]} (round-9 reading against {d[:12]}: no receipt byte moves)")
++        # [v18, gate round 15] walk the readings back to the port's digest:
++        # round 11 reads against frozen-r9's digest, round 9 against
++        # frozen-r7's (= the port's); every step must move no receipt byte
++        chain, cur, ok = [], pins[f], False
++        for _ in range(4):
++            r, rnd = R11.TOKEN_R11_READINGS.get(f, {}).get(cur), "round-11"
++            if r is None:
++                r, rnd = R9.TOKEN_R9_READINGS.get(f, {}).get(cur), "round-9"
++            if r is None or r.get("moves_a_receipt_byte") is not False:
++                break
++            chain.append(f"{rnd} reading {cur[:12]} against {r['base'][:12]}")
++            cur = r["base"]
++            if cur == d:
++                ok = True
++                break
++        if ok:
++            also.append(f"{f}: {pins[f][:12]} ({'; '.join(chain)}: no receipt byte moves)")
+         else:
+             moved.append(f"{f}: bundle {pins[f][:12]}, port read at {d[:12]}")
+     missing = [f for f in PORTED_FROM if f not in pins]
+diff -ruN -x __pycache__ frozen_v17/scripts/zk60_native_run_gate.py frozen_v18/scripts/zk60_native_run_gate.py
+--- frozen_v17/scripts/zk60_native_run_gate.py	2026-10-20 17:15:27.759437048 -0700
++++ frozen_v18/scripts/zk60_native_run_gate.py	2026-10-20 17:46:56.941773404 -0700
+@@ -220,6 +220,8 @@
+     # [v17, gate round 14] each stage's calibration (native R8 / R9
+     # `stage_shape`), imported by the terminals port and the export check
+     "zk60_native_rg_stagecal.py",
++    # [v18, gate round 15] the readings of the token lane's frozen round-11 files
++    "zk60_native_rg_tokenio_r11_pins.py",
+ ]
+ 
+ EXPECTED_DISCLOSED = {

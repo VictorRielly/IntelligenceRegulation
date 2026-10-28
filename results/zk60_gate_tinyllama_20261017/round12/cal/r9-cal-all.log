@@ -1,0 +1,11 @@
+tinyllama-t32-L1-dense-pt1 ok []
+tinyllama-t32-L1-fixed-pt1 ok []
+tinyllama-t32-L2-dense-pt1 ok []
+tinyllama-t32-L2-fixed-pt1 ok []
+tinyllama-t32-L22-dense-pt1 ok []
+tinyllama-t32-L22-fixed-pt1 ok []
+llama3-8b-t32-L1-dense-pt1 ok []
+llama3-8b-t32-L1-fixed-pt1 ok []
+llama3-8b-t32-L2-dense-pt1 ok []
+llama3-8b-t32-L2-fixed-pt1 ok []
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round12/cal/r9-cal-all.json  status PASS

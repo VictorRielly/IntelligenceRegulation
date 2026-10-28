@@ -1,0 +1,26 @@
+{
+  "mode": "native LIVE web tool",
+  "queries": [
+    "sumcheck streaming prover tiled partial folding memory 2026 github",
+    "site.eprint.iacr.org 2026 GKR streaming memory lookup October",
+    "site.github.com sumcheck prefix streaming LSB efficient-sumcheck",
+    "site.github.com/Plonky3/Plonky3 \"fused\" \"sumcheck\" \"2026\"",
+    "site.github.com/Plonky3/Plonky3/releases \"p3-sumcheck-v0.9.0-rc.2\"",
+    "site.eprint.iacr.org \"2026\" \"October\" \"streaming\" \"prover\"",
+    "\"streaming\" \"sumcheck\" \"2013\" Thaler time optimal interactive proofs circuit evaluation",
+    "\"GKR\" \"checkpointing\" \"prover\" memory recomputation",
+    "site.eprint.iacr.org \"sumcheck\" \"2026\" \"October\" streaming",
+    "\"Verifiable Computation with Massively Parallel Interactive Proofs\" arxiv",
+    "\"Practical Verified Computation with Streaming Interactive Proofs\" arxiv"
+  ],
+  "primary_record_count": 8,
+  "access_date": "2026-10-20",
+  "fetch_limits": [
+    "PR2036 and files Cache miss",
+    "PR2268 Internal Error",
+    "strategy history Internal Error",
+    "pinned strategy Internal Error",
+    ".cargo_vcs_info Internal Error"
+  ],
+  "external_execution": false
+}

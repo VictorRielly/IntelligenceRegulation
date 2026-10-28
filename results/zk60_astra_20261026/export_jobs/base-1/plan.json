@@ -1,0 +1,10 @@
+{
+  "stage": "base",
+  "attempt": 1,
+  "probe": true,
+  "dependency": "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/stats_t256/complete.json",
+  "need_gib": 3.2,
+  "cap_gib": 5.0,
+  "threads": 2,
+  "scope": "n=1 shared host"
+}

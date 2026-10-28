@@ -1,0 +1,11 @@
+production files moved: [] sources moved from v2: []
+[zk60-guard 17:02:18] START gate-r14-build-gate-v2 class=build need=2.6G cap=5G enforce=cgroup+watchdog waited=0s run=65c465775cfd
+[zk60-guard 17:04:39] END gate-r14-build-gate-v2 exit=0 child_wall=141s peak_rss=1.81G min_avail=12.27G
+[zk60-guard 17:04:39] START gate-r14-planeindex-v2 class=cpu need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=1443b3ab1bb8
+[zk60-guard 17:04:39] END gate-r14-planeindex-v2 exit=0 child_wall=0s peak_rss=0.00G min_avail=14.04G
+[zk60-guard 17:04:39] START gate-r14-capture-suite-v2 class=cpu need=2G cap=3.5G enforce=cgroup+watchdog waited=0s run=7eab6c79ba5e
+[zk60-guard 17:05:09] END gate-r14-capture-suite-v2 exit=0 child_wall=30s peak_rss=0.16G min_avail=13.91G
+[zk60-guard 17:05:09] START gate-cap-tl128dd-l2-dense class=cpu need=4.5G cap=7G enforce=cgroup+watchdog waited=0s run=058fb968e42d
+[zk60-guard 17:05:28] END gate-cap-tl128dd-l2-dense exit=0 child_wall=19s peak_rss=3.38G min_avail=10.59G
+[zk60-guard 17:05:28] START gate-cap-tl128dd-l2-zero class=cpu need=4.5G cap=7G enforce=cgroup+watchdog waited=0s run=3ccdc2beab80
+[zk60-guard 17:05:46] END gate-cap-tl128dd-l2-zero exit=0 child_wall=18s peak_rss=3.35G min_avail=10.63G

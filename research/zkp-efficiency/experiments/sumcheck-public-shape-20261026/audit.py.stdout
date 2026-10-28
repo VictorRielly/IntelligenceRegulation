@@ -1,0 +1,72 @@
+{
+  "status": "PASS_SOURCE_AND_COUNT_AUDIT_ONLY",
+  "checks": 66,
+  "source_pins": 16,
+  "counts": [
+    {
+      "geometry": "frozen toy",
+      "cost": {
+        "interpolation_calls": 184,
+        "base_inv_removed": 721,
+        "ext_mul_removed": 2424,
+        "ext_sub_added": 1120,
+        "scope": "one honest block verifier; not full verifier time, prover count or hardware instructions",
+        "base_products_inside_removed_source_inversions": 91567
+      }
+    },
+    {
+      "geometry": "R12 base 8B T32 nonDD",
+      "log_cols": 13,
+      "cost": {
+        "interpolation_calls": 339,
+        "base_inv_removed": 1335,
+        "ext_mul_removed": 4565,
+        "ext_sub_added": 2113,
+        "scope": "one honest block verifier; not full verifier time, prover count or hardware instructions",
+        "base_products_inside_removed_source_inversions": 169545
+      },
+      "scope_limit": "excludes R13 LOW+h24 changes, endpoint/token stages; source-counted, no native execution"
+    },
+    {
+      "geometry": "R12 base 8B T64 nonDD",
+      "log_cols": 13,
+      "cost": {
+        "interpolation_calls": 353,
+        "base_inv_removed": 1396,
+        "ext_mul_removed": 4793,
+        "ext_sub_added": 2220,
+        "scope": "one honest block verifier; not full verifier time, prover count or hardware instructions",
+        "base_products_inside_removed_source_inversions": 177292
+      },
+      "scope_limit": "excludes R13 LOW+h24 changes, endpoint/token stages; source-counted, no native execution"
+    },
+    {
+      "geometry": "R12 base 8B T128 nonDD",
+      "log_cols": 14,
+      "cost": {
+        "interpolation_calls": 370,
+        "base_inv_removed": 1469,
+        "ext_mul_removed": 5062,
+        "ext_sub_added": 2346,
+        "scope": "one honest block verifier; not full verifier time, prover count or hardware instructions",
+        "base_products_inside_removed_source_inversions": 186563
+      },
+      "scope_limit": "excludes R13 LOW+h24 changes, endpoint/token stages; source-counted, no native execution"
+    },
+    {
+      "geometry": "R12 base 8B T128 DD32",
+      "log_cols": 14,
+      "cost": {
+        "interpolation_calls": 388,
+        "base_inv_removed": 1559,
+        "ext_mul_removed": 5440,
+        "ext_sub_added": 2526,
+        "scope": "one honest block verifier; not full verifier time, prover count or hardware instructions",
+        "base_products_inside_removed_source_inversions": 197993
+      },
+      "scope_limit": "excludes R13 LOW+h24 changes, endpoint/token stages; source-counted, no native execution"
+    }
+  ],
+  "elapsed_seconds": 0.0046633809979539365,
+  "max_rss_kib": 17332
+}

@@ -2,7 +2,7 @@
 
 Opened 2026-09-30 UTC by Claude with both Codex sessions, after the box froze
 on 2026-09-29 at 17:40 PDT. Tool: `scripts/zk60_resource_guard.py`. Tests:
-`tests/test_zk60_resource_guard.py` (45 pass). Shared acknowledgment channel:
+`tests/test_zk60_resource_guard.py` (45 cases) and `tests/test_zk60_guard_fix.py` (31 cases). Shared acknowledgment channel:
 `ops/zkp-mvp/RECOVERY_COORDINATION.md`.
 
 ## What happened, in plain words
@@ -81,7 +81,7 @@ python3 .../zk60_resource_guard.py check --class gpu   # dry run
 
 Detached (survives session death): wrap it exactly like the old protocol,
 `setsid nohup bash -c '<guard run ...>; echo $? > run.done' &`. The guard
-already queues on the lock, so enqueue follow-ups immediately.
+queues on admission before acquiring the heavy/build locks, then rechecks and registers under the locks. Failed rechecks release the locks before waiting again.
 
 Exit codes: the command's own code; **70** refused (would never fit, wait
 expired, bad number, nested call, SIGTERM while queued); **71** the guard's
@@ -156,3 +156,8 @@ mid-run. Announce a change in `ops/zkp-mvp/RECOVERY_COORDINATION.md` first,
 never edit it while a guarded run is live, and rerun
 `python3 -m unittest discover -s tests -p test_zk60_resource_guard.py`.
 Owner: Claude (main session).
+
+
+## Guard admission update, 2026-10-26 (S3)
+
+The reviewed guard is SHA-256 `87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c`. Waiting jobs hold no heavy/build lock until the advisory admission check passes. Admission is rechecked and registration remains atomic under the admission lock. Both static Codex pins name this release; the private-stack benchmark still pins dynamically per run. FIFO is OFF by default; `/tmp/zk-guard/fifo.on` or `ZK60_GUARD_FIFO=1` enables it and requires a separate announced decision. A reboot clears the file. Evidence and rollback backup: `results/zk60_sol_20261026/`. The older lane-rule pre-check requirement can remain in callers; it is conservative.

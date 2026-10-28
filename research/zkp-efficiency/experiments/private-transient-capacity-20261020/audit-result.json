@@ -1,0 +1,17 @@
+{
+  "affinity": [
+    0
+  ],
+  "capacity_traces": 72,
+  "checks": 646591,
+  "negative_controls": 441,
+  "oversize_cases": 1,
+  "pool_limit_cases": 1,
+  "random_traces": 80,
+  "rss_kib": 48928,
+  "scope": "Authored independent interval oracle; no native arithmetic,transcripts,security review or proof verification",
+  "seed": 2026102095,
+  "status": "PASS",
+  "threads": 1,
+  "wall_seconds": 0.9788001660053851
+}

@@ -1,0 +1,18 @@
+{
+  "preserved_prior_entries": 37,
+  "refined_ranks": [
+    36,
+    37
+  ],
+  "added_ranks": [
+    38
+  ],
+  "owner_priority_ranks": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "selection": "Rank38 is the most useful bounded local continuation given the earlier next action; owner whole-prover/FZC measurements remain higher expected end-to-end impact.",
+  "source_ranking": "No author performance reproduced; prefer measured full-path bottlenecks over kernel speedups."
+}

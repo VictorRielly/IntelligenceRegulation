@@ -1,0 +1,41 @@
+{
+  "status": "PASS_CPU_SALTED_MERKLE_MODEL_ONLY",
+  "seed": 202610260125,
+  "checks": 19952,
+  "fixtures": 120,
+  "path_positions": 3825,
+  "control_types": 17,
+  "controls": [
+    "parent_flag",
+    "no_root",
+    "no_key_flag",
+    "big_endian",
+    "leaf_uses_node_key",
+    "node_uses_leaf_key",
+    "salt_first",
+    "reverse_children",
+    "drop_leaf_level",
+    "legacy",
+    "wrong_profile",
+    "roles_swapped",
+    "zero",
+    "non_power_two",
+    "short_salts",
+    "short_digest",
+    "short_message"
+  ],
+  "diagnostic_wall_seconds": 1.1973462159803603,
+  "rss_kib": 16240,
+  "threads": 1,
+  "new_verified_full_stack_proofs": 0,
+  "new_verified_passes": 0,
+  "new_verified_positions": 0,
+  "actual_model_context": null,
+  "native_build": false,
+  "gpu_executed": false,
+  "independent_reference": "installed Python blake3, max_threads=1; reference tree/path authored separately by same researcher",
+  "limits": [
+    "Synthetic hashes; no witness/encoding/PCS algebra/transcript/receipt proof",
+    "No concurrency, allocator, GPU completion, native refusal or privacy acceptance tested"
+  ]
+}

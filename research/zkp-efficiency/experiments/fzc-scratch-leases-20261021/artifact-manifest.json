@@ -1,0 +1,252 @@
+[
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/README.md",
+    "sha256": "d69ef8658549138fbbe82d2c2b9f5ef8c709b91fa66a071518eb933cbc2c7678",
+    "bytes": 8597
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/artifact_audit.py",
+    "sha256": "dd1c0750e718db864e28af4757817d24ace1d9401e3ae96cb5bbabd6bd854333",
+    "bytes": 4013
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/audit/README.md",
+    "sha256": "f8d2a4016e519d9e2c0cf4e5b9939998e90de57d3a391b0179227bc41d30bbcb",
+    "bytes": 3856
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/audit/independent_audit.json",
+    "sha256": "b0c9d3f2773d1b963c6a01a92df7c9172a53f32eb3755b5129eeb55bb2dea99f",
+    "bytes": 5949
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/audit/independent_audit.py",
+    "sha256": "c2217df1ebf331286ad4f7ef6a52e5e4b847fc5e83180902d414aedd95df8aa1",
+    "bytes": 9932
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/census-result.json",
+    "sha256": "a9e5a8b1b92c1ee415ae1ff333b241a5848c09adf45ed6bdbc5e425ed1d5aaf0",
+    "bytes": 3588
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/census.py",
+    "sha256": "5940aa54f70950f9c1fe7beab6f80ec605cae72d18cdb87e31d3376f50847661",
+    "bytes": 4493
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/census.py.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/census.py.stdout",
+    "sha256": "ecfb993f294a4bf6271ad1fe27084e893df00a282f9fe48adb35c8ffa9753432",
+    "bytes": 2826
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/checkpoint-updates.json",
+    "sha256": "5af2e1cd143c9b8b7050717c9143ff38e02363de48827c6ab6ba5af5c7539b26",
+    "bytes": 629
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/commands.jsonl",
+    "sha256": "2ee38177da3eb8c6b10f6b59431b2f5f55d237e2e5d21b13cace6252db1a353c",
+    "bytes": 2957
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/hypotheses.json",
+    "sha256": "56bac606d5cd6ade0a362f675df19bce044f2bb267b3bdd2733a3c41520a1571",
+    "bytes": 58438
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/hypothesis-changes.json",
+    "sha256": "f36b3953cff2f1c4d490889984e1d8de000363d951efa921c267ed2582425c03",
+    "bytes": 699
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/lease_model.py",
+    "sha256": "e22e8fd716290711e8fdfe13a3ee9e66f3a11a3a2c53aa7da605eca6e2193941",
+    "bytes": 5294
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/probe.py",
+    "sha256": "a1edb979b666fa2c3c3d59917aa2111439e3ea2abf4e3795ae4dcc03c116a11f",
+    "bytes": 7906
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/probe.py.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/probe.py.stdout",
+    "sha256": "2b74c2620f8b10bb9fdde71b4742da8352ac8512d03698a170e7d40182bb93bd",
+    "bytes": 3008
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/reference.py",
+    "sha256": "f40964c1c23e1b1354d7a838c2ca33472dc180b4e39b96d8d233c4e74ad52b7f",
+    "bytes": 1240
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/result.json",
+    "sha256": "bc5b9a693f8be6fdd1b1c3ec46272a8b079f7f1f773f61c29b19bc828197a3b9",
+    "bytes": 3752
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/run_bounded.py",
+    "sha256": "299ef17f91aa2f80a86f1dbd975d65fafa67be6fe9668c27e94409c8ee615f21",
+    "bytes": 1360
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/search-log.json",
+    "sha256": "1ea0dd0d7fd63edf434ad94da2a54441c68b55e32868035128685da92ab657c3",
+    "bytes": 806
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/source/cudarc-0.13.9-alloc.rs",
+    "sha256": "47876a4ff5a5dc96395f5034e73131a03c49be8d7c3c9cd5878c76f51eb06bc6",
+    "bytes": 22762
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/source/hashline__src__gpu__cuda.rs",
+    "sha256": "a0ed0b3af7e38bd9a842cc0c024f9c12cc988c81fa586d2e4a67d5c7c5c11e9d",
+    "bytes": 202179
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/source/hashline__src__gpu__kernels.cu",
+    "sha256": "bd00229fd61e86ae2bc0e037d5fa9cd90acc8a8a0f0fbf5583d501d2caf7b6aa",
+    "bytes": 74107
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/source/ops__zkp-mvp__gpu-zerocheck__hashline__src__gpu__cuda.rs",
+    "sha256": "dcc0e4bcd76c009827d30d8b1547e043118619948f59e63e75b132c5e6a38629",
+    "bytes": 258588
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/source/ops__zkp-mvp__gpu-zerocheck__hashline__src__gpu__fzc.rs",
+    "sha256": "af3cd6ac97f85347ed95ebac732c920a18ab921013be3ec31657e28cfb35ecc1",
+    "bytes": 15913
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/source/ops__zkp-mvp__gpu-zerocheck__hashline__src__gpu__fzc_kernels.cu",
+    "sha256": "7109e9cbba958876db03f538715258d07d2976c12b3959a293d2371c64bf356e",
+    "bytes": 50114
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/source/ops__zkp-mvp__gpu-zerocheck__hashline__src__gpu__kernels.cu",
+    "sha256": "4b27e23f2a880a7d67597d7cd2de59799b1c0068a52b2ce9abdbfa8108b0dc2a",
+    "bytes": 79413
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/source/ops__zkp-mvp__gpu-zerocheck__zkp-core__src__field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/source/ops__zkp-mvp__gpu-zerocheck__zkp-core__src__sumcheck__rounds.rs",
+    "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df",
+    "bytes": 7092
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/source/zkp-core__src__field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/source-pins.json",
+    "sha256": "f8ab7fb930e9e8e18330975b22b4207eac596c6bd694118f905760937d5e8a90",
+    "bytes": 3016
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/source-records.jsonl",
+    "sha256": "8f529afecd5a28712f7b0532ebfb95ec408715f5bc699ad3fd3ab1e25678538c",
+    "bytes": 7531
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/startup/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/startup/checkpoint__MVP_STATUS.md",
+    "sha256": "884691e96f323438e1fb8b360365c4fdd24ff5805d94ecf7f94e726e2f980775",
+    "bytes": 87223
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/startup/checkpoint__MVP_STATUS.md.diff",
+    "sha256": "0e0b9f52ed7ff3a14bf6fef9249cbdfb337fdc847cf5a73c0a31aeb1f45486d7",
+    "bytes": 1637
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/startup/checkpoint__ZK60_DECISIONS.md",
+    "sha256": "7428fa83bb04cb3cc711384190a88770a05ebac69909e83f9ca09eed93794c53",
+    "bytes": 109103
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/startup/checkpoint__ZK60_DECISIONS.md.diff",
+    "sha256": "1114f7857dbbb52649d0f4634663a34b8036ee5a8b4bf86531b1f05e61fd8982",
+    "bytes": 25500
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/startup/docs__zkmatrix-poc__MVP_STATUS.md",
+    "sha256": "a194e1ece91f8d99a8fe25e6c3cac11f288c0882e783a07bacf1506b3eb240fd",
+    "bytes": 85866
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/startup/docs__zkmatrix-poc__START_HERE.md",
+    "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d",
+    "bytes": 42025
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/startup/docs__zkmatrix-poc__ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/startup/docs__zkmatrix-poc__ZK60_DECISIONS.md",
+    "sha256": "71520b4461591e2622f22ca95a39baffbd707bc6b9a9d332c2a5d9d27941afa3",
+    "bytes": 107528
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/startup/docs__zkmatrix-poc__ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/startup/read-index.json",
+    "sha256": "2a67cbf834926edf105b642755d907faae1cf25d745460dfb87946eff494a2b1",
+    "bytes": 29388
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/startup/research__zkp-efficiency__AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/startup/research__zkp-efficiency__FINDINGS.md",
+    "sha256": "258f26383a16b9e3e903f69aa4f5406f1e3355f0946e16ad9aa6e94562cc50ed",
+    "bytes": 854492
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/startup/research__zkp-efficiency__PROGRESS.md",
+    "sha256": "b20f80fe46cc6d0897f8633aa18ae4560bcf94bd1b7810d52fc8828f27c832f3",
+    "bytes": 1997
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/startup/research__zkp-efficiency__STATE.md",
+    "sha256": "9c43c287a42897255860f668ee4db2c66f2b11941b16bb0f0ca3c4c5cf1280c2",
+    "bytes": 4501
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/startup/research__zkp-efficiency__sources.jsonl",
+    "sha256": "23f3412d820f7ba51fdffb42ef5f12063e2368d19a27fec2a74d86e892d1bc03",
+    "bytes": 913619
+  },
+  {
+    "path": "experiments/fzc-scratch-leases-20261021/startup/source-ledger-index.json",
+    "sha256": "5c3127ab405423cb45d296bee957a1b2144367d38d5394c556824bc0676c058a",
+    "bytes": 434340
+  }
+]

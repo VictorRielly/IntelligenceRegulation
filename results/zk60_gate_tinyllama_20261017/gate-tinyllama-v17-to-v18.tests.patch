@@ -1,0 +1,76 @@
+diff -ruN -x __pycache__ frozen_v17/tests/test_v4_status_g10.py frozen_v18/tests/test_v4_status_g10.py
+--- frozen_v17/tests/test_v4_status_g10.py	2026-10-20 17:13:57.336975994 -0700
++++ frozen_v18/tests/test_v4_status_g10.py	2026-10-20 17:47:16.269078421 -0700
+@@ -1278,3 +1278,72 @@
+         rows = TL.tl6_stage_line_refusals(b)
+         self.assertEqual(sorted(r["expected_code"] for r in rows), ["SC-1", "SC-2", "SC-3", "SC-4", "SC-5"])
+         self.assertTrue(all(r["ok"] for r in rows), rows)
++
++
++class TokenR11Pins(unittest.TestCase):
++    """[v18, gate round 15] the round-11 readings: each digest is frozen-r11's
++    file, each base is frozen-r9's (which the round-9 readings read against
++    frozen-r7); the round-9 CLI capture's pins with the two round-11 digests
++    pass the token pin check and the terminal port's chain; without the
++    round-11 readings (v17) both are refused by name; a broken chain is
++    refused; and (when on disk) the round-11 CLI-path capture's own pins pass"""
++
++    CLI9 = "/home/victor/zk60-artifacts/token-io/captures/tinyllama-t32-L2-dense-pt1-cli-r9"
++    CLI11 = "/home/victor/zk60-artifacts/token-io-r11-gate/captures/tinyllama-t32-L2-dense-pt1-cli-r11"
++    FR9 = "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r9/hashline"
++    FR11 = "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r11/hashline"
++
++    @unittest.skipUnless(os.path.isdir(CLI9) and os.path.isdir(FR9) and os.path.isdir(FR11),
++                         "the r9 CLI capture, frozen-r9 or frozen-r11 is not on disk")
++    def test_readings_chain_and_failing_first(self):
++        import hashlib
++        import types
++        from unittest import mock
++        import zk60_native_rg_tokenio_r11_pins as R11
++        import zk60_native_rg_tokengate as TG
++        import zk60_native_rg_tokenterminals as TT
++        for f, rd in R11.TOKEN_R11_READINGS.items():
++            (d, r), = rd.items()
++            for root, want in ((self.FR11, d), (self.FR9, r["base"])):
++                with open(os.path.join(root, f), "rb") as fh:
++                    self.assertEqual(hashlib.sha256(fh.read()).hexdigest(), want, (root, f))
++            self.assertIs(r["moves_a_receipt_byte"], False)
++        with open(os.path.join(self.CLI9, "manifest.json")) as fh:
++            man = json.load(fh)
++        m11 = copy.deepcopy(man)
++        for p in m11["source_pins"]:
++            rd = R11.TOKEN_R11_READINGS.get(p["file"])
++            if rd:
++                p["sha256"] = next(iter(rd))
++        out = TG.token_pins(m11)
++        self.assertTrue(out["ok"], out["refusals"])
++        self.assertEqual((out["read_as_token_r9"], out["read_as_token_r11"]), (4, 2))
++        tt = TT.check_source_pins(types.SimpleNamespace(manifest=m11))
++        self.assertTrue(tt["ok"], tt)
++        chained = [x for x in tt["accepted_by_a_round_9_reading"] if "round-11" in x]
++        self.assertEqual(len(chained), 1)
++        self.assertIn("round-9 reading 602597ad50d0 against 396daba1a494", chained[0])
++        # failing first: the v17 state (no round-11 readings) refuses both by name
++        with mock.patch.object(R11, "TOKEN_R11_READINGS", {}):
++            o17 = TG.token_pins(m11)
++            self.assertFalse(o17["ok"])
++            self.assertEqual(sorted(x.split(":")[0] for x in o17["refusals"]),
++                             ["src/private_block/token_io.rs", "src/private_block/token_io/cli.rs"])
++            self.assertFalse(TT.check_source_pins(types.SimpleNamespace(manifest=m11))["ok"])
++        # a broken chain: a round-11 reading whose base no round-9 reading reads
++        broken = {f: {d: dict(r, base="3" * 64) for d, r in rd.items()}
++                  for f, rd in R11.TOKEN_R11_READINGS.items()}
++        with mock.patch.object(R11, "TOKEN_R11_READINGS", broken):
++            self.assertFalse(TT.check_source_pins(types.SimpleNamespace(manifest=m11))["ok"])
++
++    @unittest.skipUnless(os.path.isdir(CLI11), "the round-11 CLI-path capture is not on disk")
++    def test_the_r11_cli_capture_pins(self):
++        import types
++        import zk60_native_rg_tokengate as TG
++        import zk60_native_rg_tokenterminals as TT
++        with open(os.path.join(self.CLI11, "manifest.json")) as fh:
++            man = json.load(fh)
++        out = TG.token_pins(man)
++        self.assertTrue(out["ok"], out["refusals"])
++        self.assertEqual(out["read_as_token_r11"], 2)
++        self.assertTrue(TT.check_source_pins(types.SimpleNamespace(manifest=man))["ok"])

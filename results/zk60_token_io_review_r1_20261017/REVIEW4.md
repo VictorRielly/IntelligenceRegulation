@@ -270,3 +270,242 @@ files. Nothing in the lane's directories was written.
   `ops/zkp-mvp/token-io-review-r4-scratch/`.
 * Logs `results/zk60_token_io_review_r1_20261017/logs4/`.
 * Ledger `results/zk60_token_io_review_r1_20261017/PROGRESS.md` (ROUND 4).
+
+---
+
+## ROUND 5 (2026-10-19, 13:39–14:27 UTC): confirmation of the TR4 fixes
+
+**Verdict (one line): yes, the token CLI is demo-fit now.** All four TR4
+fixes hold, both in the tiny reproductions and on the 8B artefacts through
+my own binary, and the layer-0 pre-check refuses by name and claims nothing
+it lacks. One new LOW, TR5-1: two proves sharing an owner directory can
+delete the winning run's decommitments. Until it is fixed, run demo proves
+one at a time with distinct run names. No privacy acceptance and no ruling
+is made here.
+
+**Object.**
+* `ops/zkp-mvp/token-io/` at
+  `results/zk60_token_io_r1_20261017/manifest_final_r5.sha256` (file sha256
+  `5f7d155e…`).
+* Frozen at 13:39 UTC into `ops/zkp-mvp/token-io-review-r5/`, manifest
+  `ops/zkp-mvp/token-io-review-r5.sha256`: 232 entries, list sha256
+  `1366de3c…`.
+* All 231 entries of `manifest_final_r5.sha256` match. They were re-checked
+  at 14:25 with 0 mismatches.
+* Changed against r4: `token_io/cli.rs`, `cli_tests.rs`, `load.rs`,
+  `src/private_block.rs`, `examples/zk60_token_io.rs`.
+
+**My binary** (sha256 `51269365…`) is built from my scratch copy: the frozen
+r5 tree plus one `#[cfg(test)] mod review_tests;` line, which the example
+binary does not contain. The lane's r5 binary is `da48f6d4…`; the two differ
+by the embedded build path.
+
+### R5.1 The TR4 fixes, item by item
+
+**TR4-1: closed.** `owner` and the new `input-owner` now run `check_run`
+before printing anything. `check_run` does all of the following:
+* pins the identity;
+* pins the token profile;
+* checks the statement is canonical;
+* re-verifies every segment;
+* requires `segments.json` to equal the hashes this process saw;
+* reads only a statement a verifier published.
+
+Round-4 reproductions, now refused:
+* **Owner over a tampered copy.**
+  * Tiny run: RV5-1e/f, `stage OUT A: pcs zk`.
+  * 8B: c1 (owner) and c2 (input-owner) on `art-tamper`, segment 020
+    flipped, both refused with `block 19: A: pcs zk: Merkle path for column
+    2123 fails`.
+  * In round 4 the owner printed token 11 here.
+* **Owner over a `statement/` the prover wrote**, i.e. the canonical
+  statement text with its own `segments.json`. Refused with "not the hashes
+  of the bytes this verifier verified":
+  * tiny: RV5-1g;
+  * 8B: c4.
+* **Owner with no verifier-published statement**, only the prover's
+  unverified one. Refused with "no statement a verifier published; run
+  `zk60_token_io verify` first":
+  * tiny: RV5-1a;
+  * 8B: c3.
+
+Honest paths and controls:
+* Honest runs pass:
+  * tiny: RV5-1b/c;
+  * 8B: c9 owner gives token 11, c10 input-owner gives `input-checked`;
+  * the lane's r5 demo run, re-checked from a hard-linked copy: c12
+    statement-checked, c13 token 11, c14 input-checked.
+* A wrong prompt is refused: RV5-1d and c11, "the sealed input plane is not
+  the owner's prompt".
+* The round-4 run's decommitment over the r5 run is refused (c15, "does not
+  rebuild the receipt's root").
+* The printed line now says what it was checked against: "the published
+  statement, re-verified against every segment in this process". Each
+  owner command costs one full verification (about 98 s at 8B, peak RSS
+  2.8 GiB) [MEASURED].
+
+**TR4-2: closed.** `--expect-token-profile` is required on verify, owner
+and input-owner. Without it the command is refused: RV5-2c and c6,
+"--expect-token-profile is required". The pin is compared with
+`TokenProfile::digest_under(profile)`, which the command rebuilds from the
+tables, BOS and final norm it was handed.
+* **Tiny, round-4 reproduction.** A run proved with another head (every
+  multiplier changed) or with half the Cn is refused under the approved pin
+  (RV5-2a/b), and nothing is published. The same runs are accepted only
+  under their own tables' pin. That is by design: the pin is the verifier's
+  choice.
+* **8B, my binary.**
+  * `profile` on the prover's export and on the verifier copy both give
+    `e8238cf1…7132`, equal to the lane's `token_profile_pin_b7_T32.txt`
+    (p1/p2).
+  * A wrong pin is refused (c5).
+  * The verifier's tables with one head multiplier changed (row 0, 2086 to
+    2087, with the manifest SHA updated) give profile `8b4a8b1e…`. Under the
+    approved pin they are refused by the pin (c7). Under their own pin they
+    are refused because the published statement is not canonical for those
+    tables (c8).
+
+**TR4-3: closed, edges below.**
+* The default owner directory is
+  `$HOME/zk60-artifacts/token-io/<run name>.owner-private`, with the base
+  created 0700.
+* An owner directory whose canonical parent lies under the run's canonical
+  parent is refused. Tested:
+  * the run's parent itself (RV5-3a);
+  * an existing subdirectory of it (RV5-3b);
+  * a symlink to it (RV5-3c).
+* The directory is 0700 and its files 0600 (RV5-3; on disk for both 8B
+  runs).
+* No owner material remains under `results/`: the old
+  `cli/run-b7_T32-ho00.owner-private` has moved to the default location.
+
+**TR4-4: closed.**
+* Table files are lstat-checked as regular files, opened
+  `O_NOFOLLOW|O_NONBLOCK`, and re-checked by fstat. A symlinked
+  `embedding_int16.bin` is refused before it is opened (p4).
+* `prove` writes the owner files and the unverified statement before the
+  final rename.
+
+### R5.2 Findings
+
+#### TR5-1 — LOW — prove's error path removes an owner directory it did not create
+
+**Location.** `token_io/cli.rs`, `prove_inner`:
+* The `written` closure begins with `create_private_dir(&owners_dir)?`.
+* Its error branch runs `let _ = std::fs::remove_dir_all(&owners_dir);`.
+* The existence check on the owner directory runs at the start, minutes
+  before the directory is created.
+
+**What goes wrong.** Suppose another prove creates the same directory in
+that window. This prove's `create_private_dir` fails with EEXIST, and its
+cleanup then deletes the other run's `input.dec` and `output.dec`. The other
+run has already printed `proved` and exited 0. Its blinding is OS-seeded,
+so the decommitments cannot be recovered.
+
+**When it triggers.** Two concurrent proves with:
+* the same `--owner-dir`; or
+* the same run base name in different directories under the default,
+  because the default is keyed by base name only.
+
+**Reproduction.** RV5-3 collision, two threads, `p1/same` and `p2/same`
+sharing one owner directory [MEASURED]: one returns exit 0, the other "File
+exists (os error 17)", and the owner directory is **GONE** afterwards.
+
+**Not affected.** The same `--out` twice: the early `incomplete` check and
+the plain `create_dir(&incomplete)?` keep that case clean.
+
+**Minimal fix.** Claim the owner directory atomically at the start: call
+`create_private_dir` in place of the `symlink_metadata` check. Then remove
+it on error only because this process created it. Or move
+`create_private_dir` out of the closure whose failure triggers the cleanup.
+Treat `create_dir(&unverified)` the same way.
+
+#### TR5-2 — INFO — the layer-0 pre-check: wording at its edges, no coverage claimed that it lacks
+
+Tested (light Python, logs `logs5/precheck/`):
+* The lane's 4 unit tests pass.
+* The b7_T32 ho00 prompt gives `clear`, exit 0, by `--prompt` and by
+  `--seq`.
+* 662 and 16309 give exit 2, each named with id, text, positions, site V and
+  the fix.
+* b7_T64, and b6_T64 with the b7 embedding, match the b7 fingerprint and
+  refuse by name. This is legitimate: their layer_00 weights and their
+  manifest without RoPE are byte-identical to b7's.
+* These give `not-covered` ("nothing claimed"), exit 0:
+  * the non-b7 8B T32 export;
+  * TinyLlama 1B;
+  * the fidelity lane's voc0 variant.
+* These give exit 1:
+  * a missing `token_io/` embedding;
+  * a malformed prompt.
+* Fingerprint coverage is complete for the scanned sites: the embedding,
+  gamma_a, wq/wk/wv, and the layer_00 constants (norm_cn_a, sh_qkv, f_ro,
+  …).
+
+Edges:
+* **(a) "clear" does not print its scope.**
+  * The scan covers only the layer-0 norm_a / Q / K / V / RoPE sites.
+  * It does not cover layer-0 scores (the loose bound is 588 against class
+    127) or anything after attention.
+  * The tool's docstring line "Layer-0 values depend on the token only"
+    overstates this.
+  * A "clear" prompt can still be refused by the prover, which is safe.
+  * Fix: put the entry's `scan_scope` and "scores and later layers not
+    covered" in the clear line.
+* **(b) `check` never reads the export's RoPE tables.** `record` checks
+  their prefix only for `--also-export`. With QR/KR bounds of 66/67 against
+  127, taken as a max over unit-norm rotations, no real RoPE table changes
+  the answer. A prefix check in `check` would make it exact.
+* **(c) "not-covered" exits 0**, the same as "clear", so the demo proceeds.
+  It is labelled and claims nothing; that is acceptable.
+* **(d) A refusal names the prompt's tokens and positions.** That is fine on
+  the prover's side. But the demo writes `d0-precheck.log` into the
+  repository's `logs/`, so treat it as prover-private for any
+  non-calibration prompt.
+
+#### TR5-3 — INFO — owner-directory and pin edges
+
+* **(a)** An explicit `--owner-dir` anywhere outside the run's parent is
+  accepted, including elsewhere inside the repository (for example beside
+  the export). "Outside the repository" holds for the default only.
+* **(b)** With `--out` directly under `$HOME`, the default owner directory
+  is refused: the run's parent is an ancestor of
+  `$HOME/zk60-artifacts/token-io`. Such runs need an explicit
+  `--owner-dir`.
+* **(c)** The demo derives its token-profile pin by running `profile` on
+  the prover's export with the binary under test.
+  * The digest is reproducible: my binary gives the same value from the
+    verifier copy.
+  * But a verifier given another head's own pin accepts a run proved with
+    that head (RV5-2 note).
+  * So the approved pin must come from the calibration lane's approval
+    record, never from the prover's files.
+
+### R5.3 Tests run (round 5)
+
+| id | what | result |
+|---|---|---|
+| t1 | `cargo test --release --lib token_io` (cpu-guarded, 188 s, peak 2.50 GiB) | 39 passed / 0 failed / 6 ignored (the lane's 36 incl. tr4_1..3 + my 3); 78 AS PREDICTED, 0 NOT |
+| p1 / p2 | `profile`, prover export / verifier copy | both `e8238cf1…7132` = the lane's pin file |
+| p3 / p4 | `profile`, one-multiplier tables / symlinked embedding | `8b4a8b1e…` / refused, not a regular file |
+| c1 / c2 | owner / input-owner over `art-tamper` | refused, block 19 pcs |
+| c3 / c4 | owner, unverified-only / prover-written `statement/` | refused / refused |
+| c5 / c6 | verify, wrong / no token-profile pin | refused / refused |
+| c7 / c8 | verify with one-multiplier tables, approved / own pin | refused (pin) / refused (statement not canonical) |
+| c9 / c10 / c11 | owner / input-owner / wrong prompt on `art-recheck` | token 11 / input-checked / refused |
+| c12 / c13 / c14 | the lane's r5 run: verify / owner / input-owner | statement-checked / token 11 / input-checked |
+| c15 | the r5 run with the round-4 run's output.dec | refused, root not rebuilt |
+
+### R5.4 Files (round 5)
+
+* Frozen copy `ops/zkp-mvp/token-io-review-r5/` (+ `.sha256`).
+* `ops/zkp-mvp/token-io-review-r5-scratch/`:
+  * `tree/.../token_io/cli/review_tests.rs`;
+  * `prep_b8_r5.py`;
+  * `launch_r5.sh`;
+  * `b8/` (hard links, a one-multiplier table copy, a symlinked-embedding
+    table copy).
+* Logs `results/zk60_token_io_review_r1_20261017/logs5/`.
+* Ledger `PROGRESS.md` (ROUND 5).
+* Nothing of mine is pending (no `trv5-*` job in the guard status;
+  `logs5/launch_r5.done` = 0).

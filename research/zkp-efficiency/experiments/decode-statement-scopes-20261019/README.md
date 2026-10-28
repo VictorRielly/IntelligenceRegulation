@@ -1,0 +1,133 @@
+# Cycle0090 — separate public decode statement scopes
+
+Run `20261019T221854Z-a20c7a9f` — 2026-10-19 UTC.
+
+**No speed improvement measured.** A small authored Rust1.90/edition2021
+Drop probe confirms grouped borrowed argument temporaries coexist until the
+statement ends. Owning each padded result in a separate statement reduces
+tracked decode payload1216->400B,with identical outputs. The reference-binding
+negative extends lifetimes and reaches1872B. These are observable wrapper
+lifetimes,not original Vec allocator/RSS or production-loader measurements.
+Compile/probe process walls0.744154/0.002000s; one CPU affinity,nice19,
+one codegen unit,no dependencies. Compiler helper-thread count was not observed.
+
+The deterministic Python schedule experiment passes48 inherited synthetic
+fixtures and compares all9 padded vectors with78 prior accepted full/reload
+paths. 480 new controls cover premature release and every injected pad-error
+position; these are modeled errors,not native constructor/CS refusals.
+Independent destination-indexed signed-byte oracle passes2411 checks,
+432 output corruptions and432 first-error expectations. Main 898
+checks. Main/audit wall0.607961/0.141210s,
+peaks39836/35980KiB,one Python thread,nice19 CPU0,
+CoreUltra9 185H,Python3.10.12,WSL2. Every launched experiment leaf has59s
+CPU/wall and512MiB AS limits. Fixtures inherit seed2026101989; schedule/probe
+use no RNG. No target-size arrays allocated.
+
+[MODEL] At8B T128(d4096,f14336,dp4096,fp16384,kv1024,hd128),per-call
+scopes reduce the conservative padding payload envelope638116864->520672256B:
+117444608B(**112.003906MiB**). This removes overlapping lifetimes,not any of
+the218112000 decoded bytes,9 allocations,padding copies or proof operations.
+Other phases determine the actual modeled loader peak:
+
+| Composition,16 hash workers | Sealing peak saving | Reload peak saving |
+|---|---:|---:|
+| Original borrowed constructors | 0B | 0B |
+| Prior split raw release | 0B | 117444608B |
+| Prior checked moves + postconstructor release | 117444608B | 117444608B |
+
+With checked moves+post release,current+next+four distinct pinned public
+blocks change1.727765560->1.618386745GiB. All compositions are unintegrated
+proposals. Across48 full/reload/constructor/hash-worker/pin/release rows,
+20 have0B and28 positive saving. Background includes a conservative two
+RoPE-pair allowance. Allocator/capacity slack,page cache,JSON,thread stacks,
+private witness,proof,serialization,GPU buffers and extra evicted live leases
+are excluded. This is no RSS/VRAM,complete-model fit or elapsed claim.
+Direct-byte+move+release remains the prior lower1.586862GiB model;
+statement scopes do not remove decode allocations. Savings are not additive.
+
+Baseline/eliminated work/added costs: frozen R8 aw/fw arrays contain5/4
+borrowed i8s calls. The review-only one-method diff gives each pad result its
+own let binding and moves results into the same arrays,in the same order.
+All surrounding validation,table/record construction,source freshness,reload
+digest gate,CS and H-1 remain unchanged by source comparison. Same decoding,
+copies and destructors,earlier frees; native optimizer and allocator costs
+remain unknown. Even deleting ALL load task time from the carried CPU
+diagnostic leaves433.991s,at most1.103104x and0.294937 positions/s; this is
+an overbroad bound,not the candidate's saving or a high-end GPU prediction.
+Falsify on original Vec allocation elision,changed native bytes/first refusal/
+record/receipt,a live read after drop,other phases erasing composed capacity
+savings,or enclosing elapsed regression. The local Drop wrapper makes its
+own lifetime observable and does not settle original Vec allocation behavior.
+
+Seam: `TrainedExport::load_layer_mode`,frozen native R8
+`hashline/src/private_block/trained_block.rs` aw/fw initializers (~1037).
+Actual read-only tree is `ops/zkp-mvp/trained-1b-review-r8/`;18 source/evidence
+pins match copied inputs,14 marked matches to the frozen R8 manifest.
+`review-only-statement-scopes.patch` is **UNBUILT/UNAPPLIED** for the production
+loader. Only the standalone authored probe was compiled. No merge/integration.
+Owner must review and use shared build/heavy locks for native full/reload
+malformed/paired-first-refusal/record/receipt/CS/H-1 gates,and exclusive
+allocation/HWM/enclosing clocks,alone and composed with ownership/release.
+
+Carried owner R8 diagnostic only:trained8B T128,32 blocks,one16-thread CPU
+pass,GPU off,n=1,total478.737s =>0.267370 positions/s diagnostic.
+Prove_run393.785s contains witness98.348s,including17.595s block-load tasks.
+Sealing wall84.824s contains overlapping load/witness27.151/80.897s.
+Do not add these nested/overlapping clocks or call sealing pure startup.
+Commit121.32s(31.0% of summed391.9s block walls) and witness dominate loader
+micro-work. Receipt922711264B;fresh verify42.709s plus13.681s initial load,
+recheck34.395s plus10.739s load;guard165.982s includes controls.
+Researcher did not independently reverify this receipt. Startup fraction,
+steady slope and isolated serialization remain unmeasured.
+
+New independently verified full-stack proofs/passes/positions: **0/0/0**;
+device/context none. New witness/proof/serialization/verification clocks,
+steady-state and total-workload proved rates,startup fraction: unmeasured.
+Synthetic fixtures are not proof passes. No long-context prefill,resident
+proof series or decode ran. Larger workloads remain allowed;dense attention
+can grow quadratically with context. Complete private8B >=50 proved
+positions/s on one RTX5090 or a named high-end GPU remains unachieved.
+No masks,private commitments or openings reused;no weaker privacy authorized.
+
+Ranked queue in hypotheses.json:1 owner whole-prover GPU and independently
+verified fixed-context resident1/2/4/8;2 checked public constructor transfer;
+3 tested statement scopes;4 split raw release;5 postconstructor release;
+6 direct-byte padding;7 guarded public owner;8 NEW original-Vec allocation
+probe. Costs,prerequisites,exactness,privacy/soundness and falsifiers retained.
+Next local: a bounded original Vec/global-allocator probe with preallocated
+logs and scalar pad analogue; compare counted live allocations to the scope
+prediction without a custom Drop wrapper. Native Rayon loader measurement
+and complete-proof resident sweeps remain owner work.
+
+Eight LIVE primary records appended499->507. Newly assessed older Rust
+2021 eager-drop discussion and SP1 rolled-GKR issue55 reinforce explicit
+lifetime/cross-phase accounting;the latter corrects its own diagnosis and
+later records composed-chain OOM despite standalone fit. Recent HERMES
+(Oct18 received,Oct19 approved) proves no public ZKP relation;AG skip
+(Oct15) uses binary fields and is not a Goldilocks drop-in. Chimera's Oct16
+revision retains whole-prover residency priority;ICICLE old v4 release,
+actual MIT root terms and version-only commit were inspected,without
+assuming backend licensing. Efficient-sumcheck ownership/order history
+refreshed. Exact dates,URLs,commit scope and access blockers are in
+source-records.json/search-log.md. No author performance reproduced or
+foreign code executed. Next search rotation: GPU commitments/NTT and
+sumcheck/GKR;retain lookup/softmax,memory,batching,quantization/arithmetic,
+proof composition. Avoid paper-list-only cycles.
+
+D33 remains trained TinyLlama T32 pg_rot1 CPU R7 only;R8/8B/GPU/new-file
+changes need review/re-pin. D27 whole-run soundness,D32 fidelity threshold
+and D30 unbuilt construction remain binding. Public lifetime proposals
+authorize no P3/private-opening cache. Only research written;runtime/,
+production,Git,receipts,calibration,safety,instructions and reviewer files
+untouched. No production build,GPU job,installation,downloaded code
+execution,external write/message,purchase or escalation. Saved reports do
+not establish message delivery. Checkpoint 2026-10-19T22:26:11.629637+00:00.
+
+Commands (exact argv,source SHA256,exit/stdout/stderr retained in commands.json):
+`python3 experiments/decode-statement-scopes-20261019/run_bounded.py compile`
+then `probe`, `experiment.py`, `audit.py` and `validate.py` through that runner.
+Toolchain identity and probe binary SHA256 in toolchain.json. Initial passing
+result/source before correcting the inherited seed label are preserved in
+before-seed-label-refinement/. All current values above use the corrected label.
+
+Final provenance/consistency gate PASS: 229 checks,18 unchanged source/evidence pins,14 frozen-R8 marked matches,one patch hunk replayed in memory only. Direction documents unchanged during cycle. No native production compile/proof. Final checkpoint 2026-10-19T22:28:07.326234+00:00.

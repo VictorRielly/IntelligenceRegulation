@@ -1,0 +1,17 @@
+
+running 12 tests
+test accuracy::tests::group_scale_precedes_product_rounding ... ok
+test accuracy::tests::grouped_products_match_independent_rational_vectors ... ok
+test accuracy::tests::invalid_shifts_multipliers_and_overflow_are_refused ... ok
+test accuracy::tests::negative_half_ties_round_toward_positive_infinity ... ok
+test accuracy::tests::requantization_matches_independent_rational_vectors ... ok
+test accuracy_groups::tests::common_denominators_preserve_every_rounding_and_remainder ... ok
+test accuracy_groups::tests::folding_matches_the_independent_block_fixture_constants ... ok
+test accuracy_groups::tests::malformed_and_noncanonical_group_data_is_refused ... ok
+test accuracy_groups::tests::the_product_window_grows_when_exact_group_scaling_needs_it ... ok
+test accuracy_tables::tests::every_int12_silu_word_matches_the_independent_reference ... ok
+test accuracy_tables::tests::unsupported_members_and_precisions_are_refused ... ok
+test accuracy_tables::tests::zero_and_signed_index_are_unambiguous ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

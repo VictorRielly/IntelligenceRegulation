@@ -1,0 +1,3088 @@
+{
+  "scope": "lexical allocation sites only; no execution/reachability/peak inferred",
+  "trees": {
+    "r8": {
+      "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/gpu/cuda.rs",
+      "snapshot": "r8__cuda.rs",
+      "sha256": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9",
+      "sites": [
+        {
+          "line": 450,
+          "function": "pool_take",
+          "function_line": 441,
+          "kind": "pool-backing",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "len",
+          "statement": "let b = unsafe { dev.alloc::<u64>(len) }.map_err(|e| format!(\"cuMemAlloc({} MB): {e}\", len * 8 >> 20))?;"
+        },
+        {
+          "line": 483,
+          "function": "pool_take_min",
+          "function_line": 465,
+          "kind": "pool-backing",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "len",
+          "statement": "let b = unsafe { dev.alloc::<u64>(len) }.map_err(|e| format!(\"cuMemAlloc({} MB): {e}\", len * 8 >> 20))?;"
+        },
+        {
+          "line": 725,
+          "function": "probe",
+          "function_line": 699,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&a",
+          "statement": "let da = dev.htod_sync_copy(&a).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 726,
+          "function": "probe",
+          "function_line": 699,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&b",
+          "statement": "let db = dev.htod_sync_copy(&b).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 727,
+          "function": "probe",
+          "function_line": 699,
+          "kind": "device-raw",
+          "operation": "alloc_zeros",
+          "dtype": "u64",
+          "args": "n",
+          "statement": "let mut om = dev.alloc_zeros::<u64>(n).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 728,
+          "function": "probe",
+          "function_line": 699,
+          "kind": "device-raw",
+          "operation": "alloc_zeros",
+          "dtype": "u64",
+          "args": "n",
+          "statement": "let mut oa = dev.alloc_zeros::<u64>(n).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 729,
+          "function": "probe",
+          "function_line": 699,
+          "kind": "device-raw",
+          "operation": "alloc_zeros",
+          "dtype": "u64",
+          "args": "n",
+          "statement": "let mut os = dev.alloc_zeros::<u64>(n).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 774,
+          "function": "new",
+          "function_line": 770,
+          "kind": "host-pinned",
+          "operation": "malloc_host",
+          "dtype": null,
+          "args": "len * 8, flags",
+          "statement": "let p = unsafe { cu::malloc_host(len * 8, flags) }.map_err(|e| format!(\"cuMemHostAlloc({} MB): {e}\", len * 8 >> 20))?;"
+        },
+        {
+          "line": 1077,
+          "function": "upload_narrow",
+          "function_line": 1073,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, (len * w + 7) / 8",
+          "statement": "let mut d_pack = Pooled::take_min(&dev, (len * w + 7) / 8)?;"
+        },
+        {
+          "line": 1169,
+          "function": "h2d_bench",
+          "function_line": 1165,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "n",
+          "statement": "let mut d = match unsafe { dev.alloc::<u64>(n) } {"
+        },
+        {
+          "line": 1281,
+          "function": "reenc_bench_at",
+          "function_line": 1252,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * n",
+          "statement": "let mut d_data = match Pooled::take(&dev, rows * n) {"
+        },
+        {
+          "line": 1314,
+          "function": "reenc_bench_at",
+          "function_line": 1252,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * n",
+          "statement": "let (mut d_coef, mut d_enc) = match (Pooled::take_min(&dev, rmax * n), Pooled::take_min(&dev, rmax * nn)) {"
+        },
+        {
+          "line": 1314,
+          "function": "reenc_bench_at",
+          "function_line": 1252,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * nn",
+          "statement": "let (mut d_coef, mut d_enc) = match (Pooled::take_min(&dev, rmax * n), Pooled::take_min(&dev, rmax * nn)) {"
+        },
+        {
+          "line": 1327,
+          "function": "reenc_bench_at",
+          "function_line": 1252,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&p.sel",
+          "statement": "let d_sel = dev.htod_sync_copy(&p.sel).unwrap();"
+        },
+        {
+          "line": 1328,
+          "function": "reenc_bench_at",
+          "function_line": 1252,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&p.idx32",
+          "statement": "let d_idx = dev.htod_sync_copy(&p.idx32).unwrap();"
+        },
+        {
+          "line": 1338,
+          "function": "reenc_bench_at",
+          "function_line": 1252,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&qs",
+          "statement": "let d_ql = dev.htod_sync_copy(&qs).unwrap();"
+        },
+        {
+          "line": 1339,
+          "function": "reenc_bench_at",
+          "function_line": 1252,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "rows * q",
+          "statement": "let mut d_out = unsafe { dev.alloc::<u64>(rows * q) }.unwrap();"
+        },
+        {
+          "line": 1669,
+          "function": "ensure_twiddles",
+          "function_line": 1659,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&stage_major(f, ml)",
+          "statement": "let df = self.dev.htod_sync_copy(&stage_major(f, ml)).map_err(|e| format!(\"twiddle upload: {e}\"))?;"
+        },
+        {
+          "line": 1670,
+          "function": "ensure_twiddles",
+          "function_line": 1659,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&stage_major(i, ml)",
+          "statement": "let di = self.dev.htod_sync_copy(&stage_major(i, ml)).map_err(|e| format!(\"twiddle upload: {e}\"))?;"
+        },
+        {
+          "line": 1828,
+          "function": "commit_zk_chunked",
+          "function_line": 1817,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * n",
+          "statement": "let mut d_coef = Pooled::take_min(&dev, rmax * n)?;"
+        },
+        {
+          "line": 1829,
+          "function": "commit_zk_chunked",
+          "function_line": 1817,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * pw",
+          "statement": "let mut d_coef2 = Pooled::take_min(&dev, rmax * pw)?;"
+        },
+        {
+          "line": 1830,
+          "function": "commit_zk_chunked",
+          "function_line": 1817,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * nn",
+          "statement": "let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;"
+        },
+        {
+          "line": 1832,
+          "function": "commit_zk_chunked",
+          "function_line": 1817,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, (state_words + 1) / 2",
+          "statement": "let mut d_state = Pooled::take_min(&dev, (state_words + 1) / 2)?;"
+        },
+        {
+          "line": 1834,
+          "function": "commit_zk_chunked",
+          "function_line": 1817,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u32",
+          "args": "nn * 8",
+          "statement": "let mut d_leaves = unsafe { dev.alloc::<u32>(nn * 8) }.map_err(|e| format!(\"leaves alloc: {e}\"))?;"
+        },
+        {
+          "line": 1836,
+          "function": "commit_zk_chunked",
+          "function_line": 1817,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&key_words(k)",
+          "statement": "let d_key = key.map(|k| dev.htod_sync_copy(&key_words(k)).map_err(|e| format!(\"hash key upload: {e}\"))).transpose()?;"
+        },
+        {
+          "line": 1912,
+          "function": "columns_chunked_zk",
+          "function_line": 1881,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * n",
+          "statement": "let mut d_coef = Pooled::take_min(&dev, rmax * n)?;"
+        },
+        {
+          "line": 1913,
+          "function": "columns_chunked_zk",
+          "function_line": 1881,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * pw",
+          "statement": "let mut d_coef2 = Pooled::take_min(&dev, rmax * pw)?;"
+        },
+        {
+          "line": 1914,
+          "function": "columns_chunked_zk",
+          "function_line": 1881,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * nn",
+          "statement": "let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;"
+        },
+        {
+          "line": 1915,
+          "function": "columns_chunked_zk",
+          "function_line": 1881,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "p.device_index_list()",
+          "statement": "let d_idx = dev.htod_sync_copy(p.device_index_list()).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 1920,
+          "function": "columns_chunked_zk",
+          "function_line": 1881,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "qs",
+          "statement": "let b = dev.htod_sync_copy(qs).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 1927,
+          "function": "columns_chunked_zk",
+          "function_line": 1881,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "rows * cols_out",
+          "statement": "let mut d_out = unsafe { dev.alloc::<u64>(rows * cols_out) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 2010,
+          "function": "dev_commit_src",
+          "function_line": 1993,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, len",
+          "statement": "let mut d_data = Pooled::take(&dev, len)?;"
+        },
+        {
+          "line": 2020,
+          "function": "dev_commit_src",
+          "function_line": 1993,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, len",
+          "statement": "let mut d_data = Pooled::take(&dev, len)?;"
+        },
+        {
+          "line": 2044,
+          "function": "dev_encode_only",
+          "function_line": 2032,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, data.len()",
+          "statement": "let mut d_data = Pooled::take(&dev, data.len())?;"
+        },
+        {
+          "line": 2051,
+          "function": "dev_encode_only",
+          "function_line": 2032,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * n",
+          "statement": "let mut d_coef = Pooled::take(&dev, rows * n)?;"
+        },
+        {
+          "line": 2052,
+          "function": "dev_encode_only",
+          "function_line": 2032,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * nn",
+          "statement": "let mut d_enc = match Pooled::take(&dev, rows * nn) {"
+        },
+        {
+          "line": 2277,
+          "function": "commit_chunked",
+          "function_line": 2270,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * n",
+          "statement": "let mut d_coef = Pooled::take_min(&dev, rmax * n)?;"
+        },
+        {
+          "line": 2278,
+          "function": "commit_chunked",
+          "function_line": 2270,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * nn",
+          "statement": "let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;"
+        },
+        {
+          "line": 2281,
+          "function": "commit_chunked",
+          "function_line": 2270,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, (state_words + 1) / 2",
+          "statement": "let mut d_state = Pooled::take_min(&dev, (state_words + 1) / 2)?;"
+        },
+        {
+          "line": 2283,
+          "function": "commit_chunked",
+          "function_line": 2270,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u32",
+          "args": "nn * 8",
+          "statement": "let mut d_leaves = unsafe { dev.alloc::<u32>(nn * 8) }.map_err(|e| format!(\"leaves alloc: {e}\"))?;"
+        },
+        {
+          "line": 2330,
+          "function": "commit_chunked_upload",
+          "function_line": 2323,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * n",
+          "statement": "let mut d_coef = Pooled::take_min(&dev, rmax * n)?;"
+        },
+        {
+          "line": 2331,
+          "function": "commit_chunked_upload",
+          "function_line": 2323,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * nn",
+          "statement": "let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;"
+        },
+        {
+          "line": 2333,
+          "function": "commit_chunked_upload",
+          "function_line": 2323,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, (state_words + 1) / 2",
+          "statement": "let mut d_state = Pooled::take_min(&dev, (state_words + 1) / 2)?;"
+        },
+        {
+          "line": 2335,
+          "function": "commit_chunked_upload",
+          "function_line": 2323,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u32",
+          "args": "nn * 8",
+          "statement": "let mut d_leaves = unsafe { dev.alloc::<u32>(nn * 8) }.map_err(|e| format!(\"leaves alloc: {e}\"))?;"
+        },
+        {
+          "line": 2350,
+          "function": "commit_chunked_upload",
+          "function_line": 2323,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, (host.len() * w + 7) / 8",
+          "statement": "match Pooled::take_min(&dev, (host.len() * w + 7) / 8) {"
+        },
+        {
+          "line": 2477,
+          "function": "columns_chunked",
+          "function_line": 2450,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * n",
+          "statement": "let mut d_coef = Pooled::take_min(&dev, rmax * n)?;"
+        },
+        {
+          "line": 2478,
+          "function": "columns_chunked",
+          "function_line": 2450,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * nn",
+          "statement": "let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;"
+        },
+        {
+          "line": 2479,
+          "function": "columns_chunked",
+          "function_line": 2450,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "p.device_index_list()",
+          "statement": "let d_idx = dev.htod_sync_copy(p.device_index_list()).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 2485,
+          "function": "columns_chunked",
+          "function_line": 2450,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "qs",
+          "statement": "let b = dev.htod_sync_copy(qs).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 2492,
+          "function": "columns_chunked",
+          "function_line": 2450,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "rows * cols_out",
+          "statement": "let mut d_out = unsafe { dev.alloc::<u64>(rows * cols_out) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 2618,
+          "function": "dev_commit_open_probe",
+          "function_line": 2595,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, data.len()",
+          "statement": "let mut d_data = Pooled::take(&dev, data.len())?;"
+        },
+        {
+          "line": 2695,
+          "function": "dev_commit_zk_open_probe",
+          "function_line": 2668,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, data.len()",
+          "statement": "let mut d_data = Pooled::take(&dev, data.len())?;"
+        },
+        {
+          "line": 2697,
+          "function": "dev_commit_zk_open_probe",
+          "function_line": 2668,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(&pads)",
+          "statement": "let d_pads = dev.htod_sync_copy(as_u64s(&pads)).map_err(|e| format!(\"pads upload: {e}\"))?;"
+        },
+        {
+          "line": 2699,
+          "function": "dev_commit_zk_open_probe",
+          "function_line": 2668,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(&pows)",
+          "statement": "let d_pows = dev.htod_sync_copy(as_u64s(&pows)).map_err(|e| format!(\"pows upload: {e}\"))?;"
+        },
+        {
+          "line": 2760,
+          "function": "dev_commit_zk_check_interleaved",
+          "function_line": 2733,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, data.len()",
+          "statement": "let mut d_data = Pooled::take(&dev, data.len())?;"
+        },
+        {
+          "line": 2762,
+          "function": "dev_commit_zk_check_interleaved",
+          "function_line": 2733,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(&pads)",
+          "statement": "let d_pads = dev.htod_sync_copy(as_u64s(&pads)).map_err(|e| format!(\"pads upload: {e}\"))?;"
+        },
+        {
+          "line": 2764,
+          "function": "dev_commit_zk_check_interleaved",
+          "function_line": 2733,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(&pows)",
+          "statement": "let d_pows = dev.htod_sync_copy(as_u64s(&pows)).map_err(|e| format!(\"pows upload: {e}\"))?;"
+        },
+        {
+          "line": 2813,
+          "function": "dev_commit_zk_from_probe",
+          "function_line": 2798,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, data.len()",
+          "statement": "let mut d = Pooled::take(&dev, data.len())?;"
+        },
+        {
+          "line": 2870,
+          "function": "dev_commit_from",
+          "function_line": 2855,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * n",
+          "statement": "match (Pooled::take(&dev, rows * n), Pooled::take(&dev, rows * nn)) {"
+        },
+        {
+          "line": 2870,
+          "function": "dev_commit_from",
+          "function_line": 2855,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * nn",
+          "statement": "match (Pooled::take(&dev, rows * n), Pooled::take(&dev, rows * nn)) {"
+        },
+        {
+          "line": 2930,
+          "function": "hash_cols",
+          "function_line": 2928,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u32",
+          "args": "nn * 8",
+          "statement": "let mut d_leaves = unsafe { self.dev.alloc::<u32>(nn * 8) }.map_err(|e| format!(\"leaves alloc: {e}\"))?;"
+        },
+        {
+          "line": 2945,
+          "function": "hash_cols_keyed",
+          "function_line": 2943,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&key_words(key)",
+          "statement": "let d_key = self.dev.htod_sync_copy(&key_words(key)).map_err(|e| format!(\"hash key upload: {e}\"))?;"
+        },
+        {
+          "line": 2946,
+          "function": "hash_cols_keyed",
+          "function_line": 2943,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u32",
+          "args": "nn * 8",
+          "statement": "let mut d_leaves = unsafe { self.dev.alloc::<u32>(nn * 8) }.map_err(|e| format!(\"leaves alloc: {e}\"))?;"
+        },
+        {
+          "line": 2973,
+          "function": "dev_hash_check",
+          "function_line": 2962,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(&enc)",
+          "statement": "let d_enc = g.dev.htod_sync_copy(as_u64s(&enc)).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3009,
+          "function": "dev_columns",
+          "function_line": 2980,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&idx32",
+          "statement": "let d_idx = dev.htod_sync_copy(&idx32).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3011,
+          "function": "dev_columns",
+          "function_line": 2980,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "rows * q",
+          "statement": "let mut d_out = unsafe { dev.alloc::<u64>(rows * q) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3120,
+          "function": "dev_reserve",
+          "function_line": 3114,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, len",
+          "statement": "held.push(Pooled::take(&dev, len)?);"
+        },
+        {
+          "line": 3208,
+          "function": "zerocheck_impl",
+          "function_line": 3196,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, k * l * 2",
+          "statement": "let mut tabs_p = Pooled::take(&dev, k * l * 2)?;"
+        },
+        {
+          "line": 3257,
+          "function": "zerocheck_impl",
+          "function_line": 3196,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&prm32",
+          "statement": "let d_prm = dev.htod_sync_copy(&prm32).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3258,
+          "function": "zerocheck_impl",
+          "function_line": 3196,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "SC_MAX_BLOCKS as usize * 5 * 2",
+          "statement": "let mut d_part = unsafe { dev.alloc::<u64>(SC_MAX_BLOCKS as usize * 5 * 2) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3259,
+          "function": "zerocheck_impl",
+          "function_line": 3196,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "5 * 2",
+          "statement": "let mut d_sums = unsafe { dev.alloc::<u64>(5 * 2) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3360,
+          "function": "dev_tab_zerocheck",
+          "function_line": 3338,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, k * l * 2",
+          "statement": "let mut tabs_p = Pooled::take(&dev, k * l * 2)?;"
+        },
+        {
+          "line": 3396,
+          "function": "dev_tab_zerocheck",
+          "function_line": 3338,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&prm.to_vec()",
+          "statement": "let d_prm = dev.htod_sync_copy(&prm.to_vec()).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3397,
+          "function": "dev_tab_zerocheck",
+          "function_line": 3338,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "SC_MAX_BLOCKS as usize * NV * 2",
+          "statement": "let mut d_part = unsafe { dev.alloc::<u64>(SC_MAX_BLOCKS as usize * NV * 2) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3398,
+          "function": "dev_tab_zerocheck",
+          "function_line": 3338,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "NV * 2",
+          "statement": "let mut d_sums = unsafe { dev.alloc::<u64>(NV * 2) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3451,
+          "function": "dev_fold_rows",
+          "function_line": 3437,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&flat",
+          "statement": "let d_rho = dev.htod_sync_copy(&flat).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3452,
+          "function": "dev_fold_rows",
+          "function_line": 3437,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "k * n * 2",
+          "statement": "let mut d_out = unsafe { dev.alloc::<u64>(k * n * 2) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3483,
+          "function": "dev_helpers",
+          "function_line": 3478,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, h_len",
+          "statement": "let mut d_h = Pooled::take(&dev, h_len)?;"
+        },
+        {
+          "line": 3487,
+          "function": "dev_helpers",
+          "function_line": 3478,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "1024",
+          "statement": "let mut d_part = unsafe { dev.alloc::<u64>(1024) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3490,
+          "function": "dev_helpers",
+          "function_line": 3478,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&prm",
+          "statement": "let d_prm = dev.htod_sync_copy(&prm).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3523,
+          "function": "eq_table_into",
+          "function_line": 3518,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&as_u64s_f2(r)",
+          "statement": "let d_r = self.dev.htod_sync_copy(&as_u64s_f2(r)).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3530,
+          "function": "eq_table_into",
+          "function_line": 3518,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&as_u64s_f2(&r[..hi_bits])",
+          "statement": "let d_hi_r = self.dev.htod_sync_copy(&as_u64s_f2(&r[..hi_bits])).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3531,
+          "function": "eq_table_into",
+          "function_line": 3518,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&as_u64s_f2(&r[hi_bits..])",
+          "statement": "let d_lo_r = self.dev.htod_sync_copy(&as_u64s_f2(&r[hi_bits..])).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3532,
+          "function": "eq_table_into",
+          "function_line": 3518,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "2 << hi_bits",
+          "statement": "let mut d_hi = unsafe { self.dev.alloc::<u64>(2 << hi_bits) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3533,
+          "function": "eq_table_into",
+          "function_line": 3518,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "2 << lo_bits",
+          "statement": "let mut d_lo = unsafe { self.dev.alloc::<u64>(2 << lo_bits) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3552,
+          "function": "dev_eval_many",
+          "function_line": 3545,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "2 * n",
+          "statement": "let mut d_eq = unsafe { dev.alloc::<u64>(2 * n) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3555,
+          "function": "dev_eval_many",
+          "function_line": 3545,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&offs32",
+          "statement": "let d_offs = dev.htod_sync_copy(&offs32).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3557,
+          "function": "dev_eval_many",
+          "function_line": 3545,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "blocks as usize * m * 2",
+          "statement": "let mut d_part = unsafe { dev.alloc::<u64>(blocks as usize * m * 2) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3670,
+          "function": "dev_commit_zk_from_inner",
+          "function_line": 3638,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(pads)",
+          "statement": "let d_pads = dev.htod_sync_copy(as_u64s(pads)).map_err(|e| format!(\"pads upload: {e}\"))?;"
+        },
+        {
+          "line": 3672,
+          "function": "dev_commit_zk_from_inner",
+          "function_line": 3638,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(pows)",
+          "statement": "let d_pows = dev.htod_sync_copy(as_u64s(pows)).map_err(|e| format!(\"pows upload: {e}\"))?;"
+        },
+        {
+          "line": 3693,
+          "function": "dev_commit_zk_from_inner",
+          "function_line": 3638,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * n",
+          "statement": "match (Pooled::take(&dev, rows * n), Pooled::take(&dev, rows * nn)) {"
+        },
+        {
+          "line": 3693,
+          "function": "dev_commit_zk_from_inner",
+          "function_line": 3638,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * nn",
+          "statement": "match (Pooled::take(&dev, rows * n), Pooled::take(&dev, rows * nn)) {"
+        },
+        {
+          "line": 3747,
+          "function": "dev_commit_zk_from_inner",
+          "function_line": 3638,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * nn",
+          "statement": "let mut d_enc = match Pooled::take(&dev, rows * nn) {"
+        },
+        {
+          "line": 3803,
+          "function": "dev_commit_zk_uploaded",
+          "function_line": 3795,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, data.len()",
+          "statement": "let mut d_data = Pooled::take(&dev, data.len())?;"
+        }
+      ]
+    },
+    "gpu": {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/cuda.rs",
+      "snapshot": "gpu__cuda.rs",
+      "sha256": "dcc0e4bcd76c009827d30d8b1547e043118619948f59e63e75b132c5e6a38629",
+      "sites": [
+        {
+          "line": 453,
+          "function": "pool_take",
+          "function_line": 444,
+          "kind": "pool-backing",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "len",
+          "statement": "let b = unsafe { dev.alloc::<u64>(len) }.map_err(|e| format!(\"cuMemAlloc({} MB): {e}\", len * 8 >> 20))?;"
+        },
+        {
+          "line": 486,
+          "function": "pool_take_min",
+          "function_line": 468,
+          "kind": "pool-backing",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "len",
+          "statement": "let b = unsafe { dev.alloc::<u64>(len) }.map_err(|e| format!(\"cuMemAlloc({} MB): {e}\", len * 8 >> 20))?;"
+        },
+        {
+          "line": 728,
+          "function": "probe",
+          "function_line": 702,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&a",
+          "statement": "let da = dev.htod_sync_copy(&a).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 729,
+          "function": "probe",
+          "function_line": 702,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&b",
+          "statement": "let db = dev.htod_sync_copy(&b).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 730,
+          "function": "probe",
+          "function_line": 702,
+          "kind": "device-raw",
+          "operation": "alloc_zeros",
+          "dtype": "u64",
+          "args": "n",
+          "statement": "let mut om = dev.alloc_zeros::<u64>(n).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 731,
+          "function": "probe",
+          "function_line": 702,
+          "kind": "device-raw",
+          "operation": "alloc_zeros",
+          "dtype": "u64",
+          "args": "n",
+          "statement": "let mut oa = dev.alloc_zeros::<u64>(n).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 732,
+          "function": "probe",
+          "function_line": 702,
+          "kind": "device-raw",
+          "operation": "alloc_zeros",
+          "dtype": "u64",
+          "args": "n",
+          "statement": "let mut os = dev.alloc_zeros::<u64>(n).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 777,
+          "function": "new",
+          "function_line": 773,
+          "kind": "host-pinned",
+          "operation": "malloc_host",
+          "dtype": null,
+          "args": "len * 8, flags",
+          "statement": "let p = unsafe { cu::malloc_host(len * 8, flags) }.map_err(|e| format!(\"cuMemHostAlloc({} MB): {e}\", len * 8 >> 20))?;"
+        },
+        {
+          "line": 785,
+          "function": "new_read",
+          "function_line": 783,
+          "kind": "host-pinned",
+          "operation": "malloc_host",
+          "dtype": null,
+          "args": "len.max(1) * 8, 0",
+          "statement": "let p = unsafe { cu::malloc_host(len.max(1) * 8, 0) }.map_err(|e| format!(\"cuMemHostAlloc({} B): {e}\", len * 8))?;"
+        },
+        {
+          "line": 1088,
+          "function": "upload_narrow",
+          "function_line": 1084,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, (len * w + 7) / 8",
+          "statement": "let mut d_pack = Pooled::take_min(&dev, (len * w + 7) / 8)?;"
+        },
+        {
+          "line": 1180,
+          "function": "h2d_bench",
+          "function_line": 1176,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "n",
+          "statement": "let mut d = match unsafe { dev.alloc::<u64>(n) } {"
+        },
+        {
+          "line": 1292,
+          "function": "reenc_bench_at",
+          "function_line": 1263,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * n",
+          "statement": "let mut d_data = match Pooled::take(&dev, rows * n) {"
+        },
+        {
+          "line": 1325,
+          "function": "reenc_bench_at",
+          "function_line": 1263,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * n",
+          "statement": "let (mut d_coef, mut d_enc) = match (Pooled::take_min(&dev, rmax * n), Pooled::take_min(&dev, rmax * nn)) {"
+        },
+        {
+          "line": 1325,
+          "function": "reenc_bench_at",
+          "function_line": 1263,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * nn",
+          "statement": "let (mut d_coef, mut d_enc) = match (Pooled::take_min(&dev, rmax * n), Pooled::take_min(&dev, rmax * nn)) {"
+        },
+        {
+          "line": 1338,
+          "function": "reenc_bench_at",
+          "function_line": 1263,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&p.sel",
+          "statement": "let d_sel = dev.htod_sync_copy(&p.sel).unwrap();"
+        },
+        {
+          "line": 1339,
+          "function": "reenc_bench_at",
+          "function_line": 1263,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&p.idx32",
+          "statement": "let d_idx = dev.htod_sync_copy(&p.idx32).unwrap();"
+        },
+        {
+          "line": 1349,
+          "function": "reenc_bench_at",
+          "function_line": 1263,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&qs",
+          "statement": "let d_ql = dev.htod_sync_copy(&qs).unwrap();"
+        },
+        {
+          "line": 1350,
+          "function": "reenc_bench_at",
+          "function_line": 1263,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "rows * q",
+          "statement": "let mut d_out = unsafe { dev.alloc::<u64>(rows * q) }.unwrap();"
+        },
+        {
+          "line": 1680,
+          "function": "ensure_twiddles",
+          "function_line": 1670,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&stage_major(f, ml)",
+          "statement": "let df = self.dev.htod_sync_copy(&stage_major(f, ml)).map_err(|e| format!(\"twiddle upload: {e}\"))?;"
+        },
+        {
+          "line": 1681,
+          "function": "ensure_twiddles",
+          "function_line": 1670,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&stage_major(i, ml)",
+          "statement": "let di = self.dev.htod_sync_copy(&stage_major(i, ml)).map_err(|e| format!(\"twiddle upload: {e}\"))?;"
+        },
+        {
+          "line": 1839,
+          "function": "commit_zk_chunked",
+          "function_line": 1828,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * n",
+          "statement": "let mut d_coef = Pooled::take_min(&dev, rmax * n)?;"
+        },
+        {
+          "line": 1840,
+          "function": "commit_zk_chunked",
+          "function_line": 1828,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * pw",
+          "statement": "let mut d_coef2 = Pooled::take_min(&dev, rmax * pw)?;"
+        },
+        {
+          "line": 1841,
+          "function": "commit_zk_chunked",
+          "function_line": 1828,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * nn",
+          "statement": "let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;"
+        },
+        {
+          "line": 1843,
+          "function": "commit_zk_chunked",
+          "function_line": 1828,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, (state_words + 1) / 2",
+          "statement": "let mut d_state = Pooled::take_min(&dev, (state_words + 1) / 2)?;"
+        },
+        {
+          "line": 1845,
+          "function": "commit_zk_chunked",
+          "function_line": 1828,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u32",
+          "args": "nn * 8",
+          "statement": "let mut d_leaves = unsafe { dev.alloc::<u32>(nn * 8) }.map_err(|e| format!(\"leaves alloc: {e}\"))?;"
+        },
+        {
+          "line": 1847,
+          "function": "commit_zk_chunked",
+          "function_line": 1828,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&key_words(k)",
+          "statement": "let d_key = key.map(|k| dev.htod_sync_copy(&key_words(k)).map_err(|e| format!(\"hash key upload: {e}\"))).transpose()?;"
+        },
+        {
+          "line": 1923,
+          "function": "columns_chunked_zk",
+          "function_line": 1892,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * n",
+          "statement": "let mut d_coef = Pooled::take_min(&dev, rmax * n)?;"
+        },
+        {
+          "line": 1924,
+          "function": "columns_chunked_zk",
+          "function_line": 1892,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * pw",
+          "statement": "let mut d_coef2 = Pooled::take_min(&dev, rmax * pw)?;"
+        },
+        {
+          "line": 1925,
+          "function": "columns_chunked_zk",
+          "function_line": 1892,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * nn",
+          "statement": "let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;"
+        },
+        {
+          "line": 1926,
+          "function": "columns_chunked_zk",
+          "function_line": 1892,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "p.device_index_list()",
+          "statement": "let d_idx = dev.htod_sync_copy(p.device_index_list()).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 1931,
+          "function": "columns_chunked_zk",
+          "function_line": 1892,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "qs",
+          "statement": "let b = dev.htod_sync_copy(qs).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 1938,
+          "function": "columns_chunked_zk",
+          "function_line": 1892,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "rows * cols_out",
+          "statement": "let mut d_out = unsafe { dev.alloc::<u64>(rows * cols_out) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 2021,
+          "function": "dev_commit_src",
+          "function_line": 2004,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, len",
+          "statement": "let mut d_data = Pooled::take(&dev, len)?;"
+        },
+        {
+          "line": 2031,
+          "function": "dev_commit_src",
+          "function_line": 2004,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, len",
+          "statement": "let mut d_data = Pooled::take(&dev, len)?;"
+        },
+        {
+          "line": 2055,
+          "function": "dev_encode_only",
+          "function_line": 2043,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, data.len()",
+          "statement": "let mut d_data = Pooled::take(&dev, data.len())?;"
+        },
+        {
+          "line": 2062,
+          "function": "dev_encode_only",
+          "function_line": 2043,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * n",
+          "statement": "let mut d_coef = Pooled::take(&dev, rows * n)?;"
+        },
+        {
+          "line": 2063,
+          "function": "dev_encode_only",
+          "function_line": 2043,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * nn",
+          "statement": "let mut d_enc = match Pooled::take(&dev, rows * nn) {"
+        },
+        {
+          "line": 2288,
+          "function": "commit_chunked",
+          "function_line": 2281,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * n",
+          "statement": "let mut d_coef = Pooled::take_min(&dev, rmax * n)?;"
+        },
+        {
+          "line": 2289,
+          "function": "commit_chunked",
+          "function_line": 2281,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * nn",
+          "statement": "let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;"
+        },
+        {
+          "line": 2292,
+          "function": "commit_chunked",
+          "function_line": 2281,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, (state_words + 1) / 2",
+          "statement": "let mut d_state = Pooled::take_min(&dev, (state_words + 1) / 2)?;"
+        },
+        {
+          "line": 2294,
+          "function": "commit_chunked",
+          "function_line": 2281,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u32",
+          "args": "nn * 8",
+          "statement": "let mut d_leaves = unsafe { dev.alloc::<u32>(nn * 8) }.map_err(|e| format!(\"leaves alloc: {e}\"))?;"
+        },
+        {
+          "line": 2341,
+          "function": "commit_chunked_upload",
+          "function_line": 2334,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * n",
+          "statement": "let mut d_coef = Pooled::take_min(&dev, rmax * n)?;"
+        },
+        {
+          "line": 2342,
+          "function": "commit_chunked_upload",
+          "function_line": 2334,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * nn",
+          "statement": "let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;"
+        },
+        {
+          "line": 2344,
+          "function": "commit_chunked_upload",
+          "function_line": 2334,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, (state_words + 1) / 2",
+          "statement": "let mut d_state = Pooled::take_min(&dev, (state_words + 1) / 2)?;"
+        },
+        {
+          "line": 2346,
+          "function": "commit_chunked_upload",
+          "function_line": 2334,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u32",
+          "args": "nn * 8",
+          "statement": "let mut d_leaves = unsafe { dev.alloc::<u32>(nn * 8) }.map_err(|e| format!(\"leaves alloc: {e}\"))?;"
+        },
+        {
+          "line": 2361,
+          "function": "commit_chunked_upload",
+          "function_line": 2334,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, (host.len() * w + 7) / 8",
+          "statement": "match Pooled::take_min(&dev, (host.len() * w + 7) / 8) {"
+        },
+        {
+          "line": 2488,
+          "function": "columns_chunked",
+          "function_line": 2461,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * n",
+          "statement": "let mut d_coef = Pooled::take_min(&dev, rmax * n)?;"
+        },
+        {
+          "line": 2489,
+          "function": "columns_chunked",
+          "function_line": 2461,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * nn",
+          "statement": "let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;"
+        },
+        {
+          "line": 2490,
+          "function": "columns_chunked",
+          "function_line": 2461,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "p.device_index_list()",
+          "statement": "let d_idx = dev.htod_sync_copy(p.device_index_list()).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 2496,
+          "function": "columns_chunked",
+          "function_line": 2461,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "qs",
+          "statement": "let b = dev.htod_sync_copy(qs).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 2503,
+          "function": "columns_chunked",
+          "function_line": 2461,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "rows * cols_out",
+          "statement": "let mut d_out = unsafe { dev.alloc::<u64>(rows * cols_out) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 2629,
+          "function": "dev_commit_open_probe",
+          "function_line": 2606,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, data.len()",
+          "statement": "let mut d_data = Pooled::take(&dev, data.len())?;"
+        },
+        {
+          "line": 2706,
+          "function": "dev_commit_zk_open_probe",
+          "function_line": 2679,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, data.len()",
+          "statement": "let mut d_data = Pooled::take(&dev, data.len())?;"
+        },
+        {
+          "line": 2708,
+          "function": "dev_commit_zk_open_probe",
+          "function_line": 2679,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(&pads)",
+          "statement": "let d_pads = dev.htod_sync_copy(as_u64s(&pads)).map_err(|e| format!(\"pads upload: {e}\"))?;"
+        },
+        {
+          "line": 2710,
+          "function": "dev_commit_zk_open_probe",
+          "function_line": 2679,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(&pows)",
+          "statement": "let d_pows = dev.htod_sync_copy(as_u64s(&pows)).map_err(|e| format!(\"pows upload: {e}\"))?;"
+        },
+        {
+          "line": 2771,
+          "function": "dev_commit_zk_check_interleaved",
+          "function_line": 2744,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, data.len()",
+          "statement": "let mut d_data = Pooled::take(&dev, data.len())?;"
+        },
+        {
+          "line": 2773,
+          "function": "dev_commit_zk_check_interleaved",
+          "function_line": 2744,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(&pads)",
+          "statement": "let d_pads = dev.htod_sync_copy(as_u64s(&pads)).map_err(|e| format!(\"pads upload: {e}\"))?;"
+        },
+        {
+          "line": 2775,
+          "function": "dev_commit_zk_check_interleaved",
+          "function_line": 2744,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(&pows)",
+          "statement": "let d_pows = dev.htod_sync_copy(as_u64s(&pows)).map_err(|e| format!(\"pows upload: {e}\"))?;"
+        },
+        {
+          "line": 2824,
+          "function": "dev_commit_zk_from_probe",
+          "function_line": 2809,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, data.len()",
+          "statement": "let mut d = Pooled::take(&dev, data.len())?;"
+        },
+        {
+          "line": 2881,
+          "function": "dev_commit_from",
+          "function_line": 2866,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * n",
+          "statement": "match (Pooled::take(&dev, rows * n), Pooled::take(&dev, rows * nn)) {"
+        },
+        {
+          "line": 2881,
+          "function": "dev_commit_from",
+          "function_line": 2866,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * nn",
+          "statement": "match (Pooled::take(&dev, rows * n), Pooled::take(&dev, rows * nn)) {"
+        },
+        {
+          "line": 2941,
+          "function": "hash_cols",
+          "function_line": 2939,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u32",
+          "args": "nn * 8",
+          "statement": "let mut d_leaves = unsafe { self.dev.alloc::<u32>(nn * 8) }.map_err(|e| format!(\"leaves alloc: {e}\"))?;"
+        },
+        {
+          "line": 2956,
+          "function": "hash_cols_keyed",
+          "function_line": 2954,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&key_words(key)",
+          "statement": "let d_key = self.dev.htod_sync_copy(&key_words(key)).map_err(|e| format!(\"hash key upload: {e}\"))?;"
+        },
+        {
+          "line": 2957,
+          "function": "hash_cols_keyed",
+          "function_line": 2954,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u32",
+          "args": "nn * 8",
+          "statement": "let mut d_leaves = unsafe { self.dev.alloc::<u32>(nn * 8) }.map_err(|e| format!(\"leaves alloc: {e}\"))?;"
+        },
+        {
+          "line": 2984,
+          "function": "dev_hash_check",
+          "function_line": 2973,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(&enc)",
+          "statement": "let d_enc = g.dev.htod_sync_copy(as_u64s(&enc)).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3020,
+          "function": "dev_columns",
+          "function_line": 2991,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&idx32",
+          "statement": "let d_idx = dev.htod_sync_copy(&idx32).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3022,
+          "function": "dev_columns",
+          "function_line": 2991,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "rows * q",
+          "statement": "let mut d_out = unsafe { dev.alloc::<u64>(rows * q) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3131,
+          "function": "dev_reserve",
+          "function_line": 3125,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, len",
+          "statement": "held.push(Pooled::take(&dev, len)?);"
+        },
+        {
+          "line": 3219,
+          "function": "zerocheck_impl",
+          "function_line": 3207,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, k * l * 2",
+          "statement": "let mut tabs_p = Pooled::take(&dev, k * l * 2)?;"
+        },
+        {
+          "line": 3268,
+          "function": "zerocheck_impl",
+          "function_line": 3207,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&prm32",
+          "statement": "let d_prm = dev.htod_sync_copy(&prm32).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3269,
+          "function": "zerocheck_impl",
+          "function_line": 3207,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "SC_MAX_BLOCKS as usize * 5 * 2",
+          "statement": "let mut d_part = unsafe { dev.alloc::<u64>(SC_MAX_BLOCKS as usize * 5 * 2) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3270,
+          "function": "zerocheck_impl",
+          "function_line": 3207,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "5 * 2",
+          "statement": "let mut d_sums = unsafe { dev.alloc::<u64>(5 * 2) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3371,
+          "function": "dev_tab_zerocheck",
+          "function_line": 3349,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, k * l * 2",
+          "statement": "let mut tabs_p = Pooled::take(&dev, k * l * 2)?;"
+        },
+        {
+          "line": 3407,
+          "function": "dev_tab_zerocheck",
+          "function_line": 3349,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&prm.to_vec()",
+          "statement": "let d_prm = dev.htod_sync_copy(&prm.to_vec()).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3408,
+          "function": "dev_tab_zerocheck",
+          "function_line": 3349,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "SC_MAX_BLOCKS as usize * NV * 2",
+          "statement": "let mut d_part = unsafe { dev.alloc::<u64>(SC_MAX_BLOCKS as usize * NV * 2) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3409,
+          "function": "dev_tab_zerocheck",
+          "function_line": 3349,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "NV * 2",
+          "statement": "let mut d_sums = unsafe { dev.alloc::<u64>(NV * 2) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3462,
+          "function": "dev_fold_rows",
+          "function_line": 3448,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&flat",
+          "statement": "let d_rho = dev.htod_sync_copy(&flat).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3463,
+          "function": "dev_fold_rows",
+          "function_line": 3448,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "k * n * 2",
+          "statement": "let mut d_out = unsafe { dev.alloc::<u64>(k * n * 2) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3494,
+          "function": "dev_helpers",
+          "function_line": 3489,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, h_len",
+          "statement": "let mut d_h = Pooled::take(&dev, h_len)?;"
+        },
+        {
+          "line": 3498,
+          "function": "dev_helpers",
+          "function_line": 3489,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "1024",
+          "statement": "let mut d_part = unsafe { dev.alloc::<u64>(1024) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3501,
+          "function": "dev_helpers",
+          "function_line": 3489,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&prm",
+          "statement": "let d_prm = dev.htod_sync_copy(&prm).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3534,
+          "function": "eq_table_into",
+          "function_line": 3529,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&as_u64s_f2(r)",
+          "statement": "let d_r = self.dev.htod_sync_copy(&as_u64s_f2(r)).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3541,
+          "function": "eq_table_into",
+          "function_line": 3529,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&as_u64s_f2(&r[..hi_bits])",
+          "statement": "let d_hi_r = self.dev.htod_sync_copy(&as_u64s_f2(&r[..hi_bits])).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3542,
+          "function": "eq_table_into",
+          "function_line": 3529,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&as_u64s_f2(&r[hi_bits..])",
+          "statement": "let d_lo_r = self.dev.htod_sync_copy(&as_u64s_f2(&r[hi_bits..])).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3543,
+          "function": "eq_table_into",
+          "function_line": 3529,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "2 << hi_bits",
+          "statement": "let mut d_hi = unsafe { self.dev.alloc::<u64>(2 << hi_bits) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3544,
+          "function": "eq_table_into",
+          "function_line": 3529,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "2 << lo_bits",
+          "statement": "let mut d_lo = unsafe { self.dev.alloc::<u64>(2 << lo_bits) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3563,
+          "function": "dev_eval_many",
+          "function_line": 3556,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "2 * n",
+          "statement": "let mut d_eq = unsafe { dev.alloc::<u64>(2 * n) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3566,
+          "function": "dev_eval_many",
+          "function_line": 3556,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&offs32",
+          "statement": "let d_offs = dev.htod_sync_copy(&offs32).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3568,
+          "function": "dev_eval_many",
+          "function_line": 3556,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "blocks as usize * m * 2",
+          "statement": "let mut d_part = unsafe { dev.alloc::<u64>(blocks as usize * m * 2) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3681,
+          "function": "dev_commit_zk_from_inner",
+          "function_line": 3649,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(pads)",
+          "statement": "let d_pads = dev.htod_sync_copy(as_u64s(pads)).map_err(|e| format!(\"pads upload: {e}\"))?;"
+        },
+        {
+          "line": 3683,
+          "function": "dev_commit_zk_from_inner",
+          "function_line": 3649,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(pows)",
+          "statement": "let d_pows = dev.htod_sync_copy(as_u64s(pows)).map_err(|e| format!(\"pows upload: {e}\"))?;"
+        },
+        {
+          "line": 3704,
+          "function": "dev_commit_zk_from_inner",
+          "function_line": 3649,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * n",
+          "statement": "match (Pooled::take(&dev, rows * n), Pooled::take(&dev, rows * nn)) {"
+        },
+        {
+          "line": 3704,
+          "function": "dev_commit_zk_from_inner",
+          "function_line": 3649,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * nn",
+          "statement": "match (Pooled::take(&dev, rows * n), Pooled::take(&dev, rows * nn)) {"
+        },
+        {
+          "line": 3758,
+          "function": "dev_commit_zk_from_inner",
+          "function_line": 3649,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * nn",
+          "statement": "let mut d_enc = match Pooled::take(&dev, rows * nn) {"
+        },
+        {
+          "line": 3814,
+          "function": "dev_commit_zk_uploaded",
+          "function_line": 3806,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, data.len()",
+          "statement": "let mut d_data = Pooled::take(&dev, data.len())?;"
+        },
+        {
+          "line": 4132,
+          "function": "new",
+          "function_line": 4130,
+          "kind": "host-pinned",
+          "operation": "malloc_host",
+          "dtype": null,
+          "args": "len * 8, sys::CU_MEMHOSTALLOC_DEVICEMAP",
+          "statement": "let p = unsafe { cu::malloc_host(len * 8, sys::CU_MEMHOSTALLOC_DEVICEMAP) }.map_err(|e| format!(\"cuMemHostAlloc(DEVICEMAP): {e}\"))?;"
+        },
+        {
+          "line": 4268,
+          "function": "new",
+          "function_line": 4242,
+          "kind": "device-raw",
+          "operation": "alloc_zeros",
+          "dtype": "u64",
+          "args": "1",
+          "statement": "let mut d_out = dev.alloc_zeros::<u64>(1).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 4326,
+          "function": "new",
+          "function_line": 4242,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, kd * l * 2",
+          "statement": "let mut tabs = Pooled::take_min(&dev, kd * l * 2)?;"
+        },
+        {
+          "line": 4351,
+          "function": "new",
+          "function_line": 4242,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(&host[*off..*off + l])",
+          "statement": "let d_src = dev.htod_sync_copy(as_u64s(&host[*off..*off + l])).map_err(|e| format!(\"fzc upload: {e}\"))?;"
+        },
+        {
+          "line": 4381,
+          "function": "new",
+          "function_line": 4242,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(&host[*re..*re + l])",
+          "statement": "let d_re = dev.htod_sync_copy(as_u64s(&host[*re..*re + l])).map_err(|e| format!(\"fzc upload: {e}\"))?;"
+        },
+        {
+          "line": 4382,
+          "function": "new",
+          "function_line": 4242,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(&host[*im..*im + l])",
+          "statement": "let d_im = dev.htod_sync_copy(as_u64s(&host[*im..*im + l])).map_err(|e| format!(\"fzc upload: {e}\"))?;"
+        },
+        {
+          "line": 4405,
+          "function": "new",
+          "function_line": 4242,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "2 * m",
+          "statement": "let mut d_e = unsafe { dev.alloc::<u64>(2 * m) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 4435,
+          "function": "new",
+          "function_line": 4242,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&as_u64s_f2(v)",
+          "statement": "let data = dev.htod_sync_copy(&as_u64s_f2(v)).map_err(|e| format!(\"fzc public upload: {e}\"))?;"
+        },
+        {
+          "line": 4455,
+          "function": "new",
+          "function_line": 4242,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "prm",
+          "statement": "let d_prm = dev.htod_sync_copy(prm).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 4473,
+          "function": "new",
+          "function_line": 4242,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "blocks_cap as usize * nv * 2",
+          "statement": "let d_part = unsafe { dev.alloc::<u64>(blocks_cap as usize * nv * 2) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 4474,
+          "function": "new",
+          "function_line": 4242,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "nv * 2",
+          "statement": "let d_sums = unsafe { dev.alloc::<u64>(nv * 2) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 4475,
+          "function": "new",
+          "function_line": 4242,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "k * 2",
+          "statement": "let d_fin = unsafe { dev.alloc::<u64>(k * 2) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 4476,
+          "function": "new",
+          "function_line": 4242,
+          "kind": "device-raw",
+          "operation": "alloc_zeros",
+          "dtype": "u32",
+          "args": "1",
+          "statement": "let d_cnt = dev.alloc_zeros::<u32>(1).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 4480,
+          "function": "new",
+          "function_line": 4242,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&src_desc",
+          "statement": "let d_src = dev.htod_sync_copy(&src_desc).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 4770,
+          "function": "try_fold",
+          "function_line": 4726,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "n_words",
+          "statement": "let mut d_pack = unsafe { self.dev.alloc::<u64>(n_words) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 4818,
+          "function": "dev_resident_rows",
+          "function_line": 4810,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, data.len()",
+          "statement": "let mut d_data = Pooled::take(&dev, data.len())?;"
+        },
+        {
+          "line": 4830,
+          "function": "dev_copy_bandwidth",
+          "function_line": 4826,
+          "kind": "device-raw",
+          "operation": "alloc_zeros",
+          "dtype": "u64",
+          "args": "n",
+          "statement": "let src = dev.alloc_zeros::<u64>(n).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 4831,
+          "function": "dev_copy_bandwidth",
+          "function_line": 4826,
+          "kind": "device-raw",
+          "operation": "alloc_zeros",
+          "dtype": "u64",
+          "args": "n",
+          "statement": "let mut dst = dev.alloc_zeros::<u64>(n).map_err(|e| e.to_string())?;"
+        }
+      ]
+    },
+    "root": {
+      "path": "/home/victor/IntelligenceRegulation/hashline/src/gpu/cuda.rs",
+      "snapshot": "root__cuda.rs",
+      "sha256": "a0ed0b3af7e38bd9a842cc0c024f9c12cc988c81fa586d2e4a67d5c7c5c11e9d",
+      "sites": [
+        {
+          "line": 446,
+          "function": "pool_take",
+          "function_line": 437,
+          "kind": "pool-backing",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "len",
+          "statement": "let b = unsafe { dev.alloc::<u64>(len) }.map_err(|e| format!(\"cuMemAlloc({} MB): {e}\", len * 8 >> 20))?;"
+        },
+        {
+          "line": 479,
+          "function": "pool_take_min",
+          "function_line": 461,
+          "kind": "pool-backing",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "len",
+          "statement": "let b = unsafe { dev.alloc::<u64>(len) }.map_err(|e| format!(\"cuMemAlloc({} MB): {e}\", len * 8 >> 20))?;"
+        },
+        {
+          "line": 721,
+          "function": "probe",
+          "function_line": 695,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&a",
+          "statement": "let da = dev.htod_sync_copy(&a).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 722,
+          "function": "probe",
+          "function_line": 695,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&b",
+          "statement": "let db = dev.htod_sync_copy(&b).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 723,
+          "function": "probe",
+          "function_line": 695,
+          "kind": "device-raw",
+          "operation": "alloc_zeros",
+          "dtype": "u64",
+          "args": "n",
+          "statement": "let mut om = dev.alloc_zeros::<u64>(n).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 724,
+          "function": "probe",
+          "function_line": 695,
+          "kind": "device-raw",
+          "operation": "alloc_zeros",
+          "dtype": "u64",
+          "args": "n",
+          "statement": "let mut oa = dev.alloc_zeros::<u64>(n).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 725,
+          "function": "probe",
+          "function_line": 695,
+          "kind": "device-raw",
+          "operation": "alloc_zeros",
+          "dtype": "u64",
+          "args": "n",
+          "statement": "let mut os = dev.alloc_zeros::<u64>(n).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 770,
+          "function": "new",
+          "function_line": 766,
+          "kind": "host-pinned",
+          "operation": "malloc_host",
+          "dtype": null,
+          "args": "len * 8, flags",
+          "statement": "let p = unsafe { cu::malloc_host(len * 8, flags) }.map_err(|e| format!(\"cuMemHostAlloc({} MB): {e}\", len * 8 >> 20))?;"
+        },
+        {
+          "line": 1073,
+          "function": "upload_narrow",
+          "function_line": 1069,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, (len * w + 7) / 8",
+          "statement": "let mut d_pack = Pooled::take_min(&dev, (len * w + 7) / 8)?;"
+        },
+        {
+          "line": 1165,
+          "function": "h2d_bench",
+          "function_line": 1161,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "n",
+          "statement": "let mut d = match unsafe { dev.alloc::<u64>(n) } {"
+        },
+        {
+          "line": 1277,
+          "function": "reenc_bench_at",
+          "function_line": 1248,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * n",
+          "statement": "let mut d_data = match Pooled::take(&dev, rows * n) {"
+        },
+        {
+          "line": 1310,
+          "function": "reenc_bench_at",
+          "function_line": 1248,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * n",
+          "statement": "let (mut d_coef, mut d_enc) = match (Pooled::take_min(&dev, rmax * n), Pooled::take_min(&dev, rmax * nn)) {"
+        },
+        {
+          "line": 1310,
+          "function": "reenc_bench_at",
+          "function_line": 1248,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * nn",
+          "statement": "let (mut d_coef, mut d_enc) = match (Pooled::take_min(&dev, rmax * n), Pooled::take_min(&dev, rmax * nn)) {"
+        },
+        {
+          "line": 1323,
+          "function": "reenc_bench_at",
+          "function_line": 1248,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&p.sel",
+          "statement": "let d_sel = dev.htod_sync_copy(&p.sel).unwrap();"
+        },
+        {
+          "line": 1324,
+          "function": "reenc_bench_at",
+          "function_line": 1248,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&p.idx32",
+          "statement": "let d_idx = dev.htod_sync_copy(&p.idx32).unwrap();"
+        },
+        {
+          "line": 1334,
+          "function": "reenc_bench_at",
+          "function_line": 1248,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&qs",
+          "statement": "let d_ql = dev.htod_sync_copy(&qs).unwrap();"
+        },
+        {
+          "line": 1335,
+          "function": "reenc_bench_at",
+          "function_line": 1248,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "rows * q",
+          "statement": "let mut d_out = unsafe { dev.alloc::<u64>(rows * q) }.unwrap();"
+        },
+        {
+          "line": 1665,
+          "function": "ensure_twiddles",
+          "function_line": 1655,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&stage_major(f, ml)",
+          "statement": "let df = self.dev.htod_sync_copy(&stage_major(f, ml)).map_err(|e| format!(\"twiddle upload: {e}\"))?;"
+        },
+        {
+          "line": 1666,
+          "function": "ensure_twiddles",
+          "function_line": 1655,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&stage_major(i, ml)",
+          "statement": "let di = self.dev.htod_sync_copy(&stage_major(i, ml)).map_err(|e| format!(\"twiddle upload: {e}\"))?;"
+        },
+        {
+          "line": 1824,
+          "function": "commit_zk_chunked",
+          "function_line": 1813,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * n",
+          "statement": "let mut d_coef = Pooled::take_min(&dev, rmax * n)?;"
+        },
+        {
+          "line": 1825,
+          "function": "commit_zk_chunked",
+          "function_line": 1813,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * pw",
+          "statement": "let mut d_coef2 = Pooled::take_min(&dev, rmax * pw)?;"
+        },
+        {
+          "line": 1826,
+          "function": "commit_zk_chunked",
+          "function_line": 1813,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * nn",
+          "statement": "let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;"
+        },
+        {
+          "line": 1828,
+          "function": "commit_zk_chunked",
+          "function_line": 1813,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, (state_words + 1) / 2",
+          "statement": "let mut d_state = Pooled::take_min(&dev, (state_words + 1) / 2)?;"
+        },
+        {
+          "line": 1830,
+          "function": "commit_zk_chunked",
+          "function_line": 1813,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u32",
+          "args": "nn * 8",
+          "statement": "let mut d_leaves = unsafe { dev.alloc::<u32>(nn * 8) }.map_err(|e| format!(\"leaves alloc: {e}\"))?;"
+        },
+        {
+          "line": 1894,
+          "function": "columns_chunked_zk",
+          "function_line": 1863,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * n",
+          "statement": "let mut d_coef = Pooled::take_min(&dev, rmax * n)?;"
+        },
+        {
+          "line": 1895,
+          "function": "columns_chunked_zk",
+          "function_line": 1863,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * pw",
+          "statement": "let mut d_coef2 = Pooled::take_min(&dev, rmax * pw)?;"
+        },
+        {
+          "line": 1896,
+          "function": "columns_chunked_zk",
+          "function_line": 1863,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * nn",
+          "statement": "let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;"
+        },
+        {
+          "line": 1897,
+          "function": "columns_chunked_zk",
+          "function_line": 1863,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "p.device_index_list()",
+          "statement": "let d_idx = dev.htod_sync_copy(p.device_index_list()).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 1902,
+          "function": "columns_chunked_zk",
+          "function_line": 1863,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "qs",
+          "statement": "let b = dev.htod_sync_copy(qs).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 1909,
+          "function": "columns_chunked_zk",
+          "function_line": 1863,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "rows * cols_out",
+          "statement": "let mut d_out = unsafe { dev.alloc::<u64>(rows * cols_out) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 1992,
+          "function": "dev_commit_src",
+          "function_line": 1975,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, len",
+          "statement": "let mut d_data = Pooled::take(&dev, len)?;"
+        },
+        {
+          "line": 2002,
+          "function": "dev_commit_src",
+          "function_line": 1975,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, len",
+          "statement": "let mut d_data = Pooled::take(&dev, len)?;"
+        },
+        {
+          "line": 2026,
+          "function": "dev_encode_only",
+          "function_line": 2014,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, data.len()",
+          "statement": "let mut d_data = Pooled::take(&dev, data.len())?;"
+        },
+        {
+          "line": 2033,
+          "function": "dev_encode_only",
+          "function_line": 2014,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * n",
+          "statement": "let mut d_coef = Pooled::take(&dev, rows * n)?;"
+        },
+        {
+          "line": 2034,
+          "function": "dev_encode_only",
+          "function_line": 2014,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * nn",
+          "statement": "let mut d_enc = match Pooled::take(&dev, rows * nn) {"
+        },
+        {
+          "line": 2259,
+          "function": "commit_chunked",
+          "function_line": 2252,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * n",
+          "statement": "let mut d_coef = Pooled::take_min(&dev, rmax * n)?;"
+        },
+        {
+          "line": 2260,
+          "function": "commit_chunked",
+          "function_line": 2252,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * nn",
+          "statement": "let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;"
+        },
+        {
+          "line": 2263,
+          "function": "commit_chunked",
+          "function_line": 2252,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, (state_words + 1) / 2",
+          "statement": "let mut d_state = Pooled::take_min(&dev, (state_words + 1) / 2)?;"
+        },
+        {
+          "line": 2265,
+          "function": "commit_chunked",
+          "function_line": 2252,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u32",
+          "args": "nn * 8",
+          "statement": "let mut d_leaves = unsafe { dev.alloc::<u32>(nn * 8) }.map_err(|e| format!(\"leaves alloc: {e}\"))?;"
+        },
+        {
+          "line": 2312,
+          "function": "commit_chunked_upload",
+          "function_line": 2305,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * n",
+          "statement": "let mut d_coef = Pooled::take_min(&dev, rmax * n)?;"
+        },
+        {
+          "line": 2313,
+          "function": "commit_chunked_upload",
+          "function_line": 2305,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * nn",
+          "statement": "let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;"
+        },
+        {
+          "line": 2315,
+          "function": "commit_chunked_upload",
+          "function_line": 2305,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, (state_words + 1) / 2",
+          "statement": "let mut d_state = Pooled::take_min(&dev, (state_words + 1) / 2)?;"
+        },
+        {
+          "line": 2317,
+          "function": "commit_chunked_upload",
+          "function_line": 2305,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u32",
+          "args": "nn * 8",
+          "statement": "let mut d_leaves = unsafe { dev.alloc::<u32>(nn * 8) }.map_err(|e| format!(\"leaves alloc: {e}\"))?;"
+        },
+        {
+          "line": 2332,
+          "function": "commit_chunked_upload",
+          "function_line": 2305,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, (host.len() * w + 7) / 8",
+          "statement": "match Pooled::take_min(&dev, (host.len() * w + 7) / 8) {"
+        },
+        {
+          "line": 2459,
+          "function": "columns_chunked",
+          "function_line": 2432,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * n",
+          "statement": "let mut d_coef = Pooled::take_min(&dev, rmax * n)?;"
+        },
+        {
+          "line": 2460,
+          "function": "columns_chunked",
+          "function_line": 2432,
+          "kind": "pooled-request",
+          "operation": "take_min",
+          "dtype": null,
+          "args": "&dev, rmax * nn",
+          "statement": "let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;"
+        },
+        {
+          "line": 2461,
+          "function": "columns_chunked",
+          "function_line": 2432,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "p.device_index_list()",
+          "statement": "let d_idx = dev.htod_sync_copy(p.device_index_list()).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 2467,
+          "function": "columns_chunked",
+          "function_line": 2432,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "qs",
+          "statement": "let b = dev.htod_sync_copy(qs).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 2474,
+          "function": "columns_chunked",
+          "function_line": 2432,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "rows * cols_out",
+          "statement": "let mut d_out = unsafe { dev.alloc::<u64>(rows * cols_out) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 2600,
+          "function": "dev_commit_open_probe",
+          "function_line": 2577,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, data.len()",
+          "statement": "let mut d_data = Pooled::take(&dev, data.len())?;"
+        },
+        {
+          "line": 2677,
+          "function": "dev_commit_zk_open_probe",
+          "function_line": 2650,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, data.len()",
+          "statement": "let mut d_data = Pooled::take(&dev, data.len())?;"
+        },
+        {
+          "line": 2679,
+          "function": "dev_commit_zk_open_probe",
+          "function_line": 2650,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(&pads)",
+          "statement": "let d_pads = dev.htod_sync_copy(as_u64s(&pads)).map_err(|e| format!(\"pads upload: {e}\"))?;"
+        },
+        {
+          "line": 2681,
+          "function": "dev_commit_zk_open_probe",
+          "function_line": 2650,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(&pows)",
+          "statement": "let d_pows = dev.htod_sync_copy(as_u64s(&pows)).map_err(|e| format!(\"pows upload: {e}\"))?;"
+        },
+        {
+          "line": 2742,
+          "function": "dev_commit_zk_check_interleaved",
+          "function_line": 2715,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, data.len()",
+          "statement": "let mut d_data = Pooled::take(&dev, data.len())?;"
+        },
+        {
+          "line": 2744,
+          "function": "dev_commit_zk_check_interleaved",
+          "function_line": 2715,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(&pads)",
+          "statement": "let d_pads = dev.htod_sync_copy(as_u64s(&pads)).map_err(|e| format!(\"pads upload: {e}\"))?;"
+        },
+        {
+          "line": 2746,
+          "function": "dev_commit_zk_check_interleaved",
+          "function_line": 2715,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(&pows)",
+          "statement": "let d_pows = dev.htod_sync_copy(as_u64s(&pows)).map_err(|e| format!(\"pows upload: {e}\"))?;"
+        },
+        {
+          "line": 2795,
+          "function": "dev_commit_zk_from_probe",
+          "function_line": 2780,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, data.len()",
+          "statement": "let mut d = Pooled::take(&dev, data.len())?;"
+        },
+        {
+          "line": 2852,
+          "function": "dev_commit_from",
+          "function_line": 2837,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * n",
+          "statement": "match (Pooled::take(&dev, rows * n), Pooled::take(&dev, rows * nn)) {"
+        },
+        {
+          "line": 2852,
+          "function": "dev_commit_from",
+          "function_line": 2837,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * nn",
+          "statement": "match (Pooled::take(&dev, rows * n), Pooled::take(&dev, rows * nn)) {"
+        },
+        {
+          "line": 2912,
+          "function": "hash_cols",
+          "function_line": 2910,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u32",
+          "args": "nn * 8",
+          "statement": "let mut d_leaves = unsafe { self.dev.alloc::<u32>(nn * 8) }.map_err(|e| format!(\"leaves alloc: {e}\"))?;"
+        },
+        {
+          "line": 2941,
+          "function": "dev_hash_check",
+          "function_line": 2930,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(&enc)",
+          "statement": "let d_enc = g.dev.htod_sync_copy(as_u64s(&enc)).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 2977,
+          "function": "dev_columns",
+          "function_line": 2948,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&idx32",
+          "statement": "let d_idx = dev.htod_sync_copy(&idx32).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 2979,
+          "function": "dev_columns",
+          "function_line": 2948,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "rows * q",
+          "statement": "let mut d_out = unsafe { dev.alloc::<u64>(rows * q) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3088,
+          "function": "dev_reserve",
+          "function_line": 3082,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, len",
+          "statement": "held.push(Pooled::take(&dev, len)?);"
+        },
+        {
+          "line": 3176,
+          "function": "zerocheck_impl",
+          "function_line": 3164,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, k * l * 2",
+          "statement": "let mut tabs_p = Pooled::take(&dev, k * l * 2)?;"
+        },
+        {
+          "line": 3225,
+          "function": "zerocheck_impl",
+          "function_line": 3164,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&prm32",
+          "statement": "let d_prm = dev.htod_sync_copy(&prm32).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3226,
+          "function": "zerocheck_impl",
+          "function_line": 3164,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "SC_MAX_BLOCKS as usize * 5 * 2",
+          "statement": "let mut d_part = unsafe { dev.alloc::<u64>(SC_MAX_BLOCKS as usize * 5 * 2) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3227,
+          "function": "zerocheck_impl",
+          "function_line": 3164,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "5 * 2",
+          "statement": "let mut d_sums = unsafe { dev.alloc::<u64>(5 * 2) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3328,
+          "function": "dev_tab_zerocheck",
+          "function_line": 3306,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, k * l * 2",
+          "statement": "let mut tabs_p = Pooled::take(&dev, k * l * 2)?;"
+        },
+        {
+          "line": 3364,
+          "function": "dev_tab_zerocheck",
+          "function_line": 3306,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&prm.to_vec()",
+          "statement": "let d_prm = dev.htod_sync_copy(&prm.to_vec()).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3365,
+          "function": "dev_tab_zerocheck",
+          "function_line": 3306,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "SC_MAX_BLOCKS as usize * NV * 2",
+          "statement": "let mut d_part = unsafe { dev.alloc::<u64>(SC_MAX_BLOCKS as usize * NV * 2) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3366,
+          "function": "dev_tab_zerocheck",
+          "function_line": 3306,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "NV * 2",
+          "statement": "let mut d_sums = unsafe { dev.alloc::<u64>(NV * 2) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3419,
+          "function": "dev_fold_rows",
+          "function_line": 3405,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&flat",
+          "statement": "let d_rho = dev.htod_sync_copy(&flat).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3420,
+          "function": "dev_fold_rows",
+          "function_line": 3405,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "k * n * 2",
+          "statement": "let mut d_out = unsafe { dev.alloc::<u64>(k * n * 2) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3451,
+          "function": "dev_helpers",
+          "function_line": 3446,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, h_len",
+          "statement": "let mut d_h = Pooled::take(&dev, h_len)?;"
+        },
+        {
+          "line": 3455,
+          "function": "dev_helpers",
+          "function_line": 3446,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "1024",
+          "statement": "let mut d_part = unsafe { dev.alloc::<u64>(1024) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3458,
+          "function": "dev_helpers",
+          "function_line": 3446,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&prm",
+          "statement": "let d_prm = dev.htod_sync_copy(&prm).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3491,
+          "function": "eq_table_into",
+          "function_line": 3486,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&as_u64s_f2(r)",
+          "statement": "let d_r = self.dev.htod_sync_copy(&as_u64s_f2(r)).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3498,
+          "function": "eq_table_into",
+          "function_line": 3486,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&as_u64s_f2(&r[..hi_bits])",
+          "statement": "let d_hi_r = self.dev.htod_sync_copy(&as_u64s_f2(&r[..hi_bits])).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3499,
+          "function": "eq_table_into",
+          "function_line": 3486,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&as_u64s_f2(&r[hi_bits..])",
+          "statement": "let d_lo_r = self.dev.htod_sync_copy(&as_u64s_f2(&r[hi_bits..])).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3500,
+          "function": "eq_table_into",
+          "function_line": 3486,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "2 << hi_bits",
+          "statement": "let mut d_hi = unsafe { self.dev.alloc::<u64>(2 << hi_bits) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3501,
+          "function": "eq_table_into",
+          "function_line": 3486,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "2 << lo_bits",
+          "statement": "let mut d_lo = unsafe { self.dev.alloc::<u64>(2 << lo_bits) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3520,
+          "function": "dev_eval_many",
+          "function_line": 3513,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "2 * n",
+          "statement": "let mut d_eq = unsafe { dev.alloc::<u64>(2 * n) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3523,
+          "function": "dev_eval_many",
+          "function_line": 3513,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "&offs32",
+          "statement": "let d_offs = dev.htod_sync_copy(&offs32).map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3525,
+          "function": "dev_eval_many",
+          "function_line": 3513,
+          "kind": "device-raw",
+          "operation": "alloc",
+          "dtype": "u64",
+          "args": "blocks as usize * m * 2",
+          "statement": "let mut d_part = unsafe { dev.alloc::<u64>(blocks as usize * m * 2) }.map_err(|e| e.to_string())?;"
+        },
+        {
+          "line": 3634,
+          "function": "dev_commit_zk_from",
+          "function_line": 3602,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(pads)",
+          "statement": "let d_pads = dev.htod_sync_copy(as_u64s(pads)).map_err(|e| format!(\"pads upload: {e}\"))?;"
+        },
+        {
+          "line": 3636,
+          "function": "dev_commit_zk_from",
+          "function_line": 3602,
+          "kind": "device-raw",
+          "operation": "htod_sync_copy",
+          "dtype": null,
+          "args": "as_u64s(pows)",
+          "statement": "let d_pows = dev.htod_sync_copy(as_u64s(pows)).map_err(|e| format!(\"pows upload: {e}\"))?;"
+        },
+        {
+          "line": 3657,
+          "function": "dev_commit_zk_from",
+          "function_line": 3602,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * n",
+          "statement": "match (Pooled::take(&dev, rows * n), Pooled::take(&dev, rows * nn)) {"
+        },
+        {
+          "line": 3657,
+          "function": "dev_commit_zk_from",
+          "function_line": 3602,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * nn",
+          "statement": "match (Pooled::take(&dev, rows * n), Pooled::take(&dev, rows * nn)) {"
+        },
+        {
+          "line": 3711,
+          "function": "dev_commit_zk_from",
+          "function_line": 3602,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, rows * nn",
+          "statement": "let mut d_enc = match Pooled::take(&dev, rows * nn) {"
+        },
+        {
+          "line": 3759,
+          "function": "dev_commit_zk",
+          "function_line": 3751,
+          "kind": "pooled-request",
+          "operation": "take",
+          "dtype": null,
+          "args": "&dev, data.len()",
+          "statement": "let mut d_data = Pooled::take(&dev, data.len())?;"
+        }
+      ]
+    }
+  },
+  "callers": [
+    {
+      "tree": "r8",
+      "path": "layer.rs",
+      "line": 1510,
+      "symbol": "dev_reserve",
+      "function": "prove_layer_v3",
+      "test_named": false
+    },
+    {
+      "tree": "r8",
+      "path": "zk.rs",
+      "line": 2790,
+      "symbol": "dev_pool_drain",
+      "function": "prepare_layer_zk_v3_inner",
+      "test_named": false
+    },
+    {
+      "tree": "r8",
+      "path": "zk.rs",
+      "line": 2990,
+      "symbol": "dev_reserve_hard",
+      "function": "prepare_layer_zk_v3_inner",
+      "test_named": false
+    },
+    {
+      "tree": "gpu",
+      "path": "layer.rs",
+      "line": 1510,
+      "symbol": "dev_reserve",
+      "function": "prove_layer_v3",
+      "test_named": false
+    },
+    {
+      "tree": "gpu",
+      "path": "private_block/gpu_zc_tests.rs",
+      "line": 104,
+      "symbol": "dev_pool_drain",
+      "function": "drain_device_pool",
+      "test_named": true
+    },
+    {
+      "tree": "gpu",
+      "path": "zk.rs",
+      "line": 2790,
+      "symbol": "dev_pool_drain",
+      "function": "prepare_layer_zk_v3_inner",
+      "test_named": false
+    },
+    {
+      "tree": "gpu",
+      "path": "zk.rs",
+      "line": 2990,
+      "symbol": "dev_reserve_hard",
+      "function": "prepare_layer_zk_v3_inner",
+      "test_named": false
+    },
+    {
+      "tree": "root",
+      "path": "layer.rs",
+      "line": 1510,
+      "symbol": "dev_reserve",
+      "function": "prove_layer_v3",
+      "test_named": false
+    },
+    {
+      "tree": "root",
+      "path": "zk.rs",
+      "line": 2666,
+      "symbol": "dev_pool_drain",
+      "function": "prepare_layer_zk_v3_inner",
+      "test_named": false
+    },
+    {
+      "tree": "root",
+      "path": "zk.rs",
+      "line": 2866,
+      "symbol": "dev_reserve_hard",
+      "function": "prepare_layer_zk_v3_inner",
+      "test_named": false
+    }
+  ]
+}

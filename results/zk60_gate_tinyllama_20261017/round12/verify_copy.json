@@ -1,0 +1,9 @@
+{
+ "copy": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-gate-r9/",
+ "manifest": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/manifest_final_r9.sha256",
+ "listed": 236,
+ "moved": [],
+ "files_on_disk": 236,
+ "patched": false,
+ "what": "an unmodified rsync of frozen-r9 (no gate patch), so its token captures pin exactly frozen-r9 files"
+}

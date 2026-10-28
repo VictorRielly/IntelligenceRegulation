@@ -1,0 +1,13 @@
+{
+  "status": "PASS_FINAL_RESEARCH_CHECKPOINT_AUDIT",
+  "checks": 49,
+  "source_records": 585,
+  "new_records": 8,
+  "source_pins": 13,
+  "code_pins": 5,
+  "hypotheses": 15,
+  "startup_project_documents_changed": [],
+  "at_utc": "2026-10-20T08:33:36.727224+00:00",
+  "new_verified_full_stack_positions": 0,
+  "limits": "read-only source/hash/link checks only;one process;no native/GPU or Git"
+}

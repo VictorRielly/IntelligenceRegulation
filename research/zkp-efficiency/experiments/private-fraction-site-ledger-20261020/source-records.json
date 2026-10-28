@@ -1,0 +1,257 @@
+[
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T17:30:43.223177+00:00",
+    "cycle": "0109",
+    "run_id": "20261020T171854Z-0041295d",
+    "url": "https://github.com/openvm-org/stark-backend/blob/main/docs/cuda-backend/gkr-prover.md",
+    "title": "NEW implementation screen: SWIRL fractional GKR CUDA memory/point contract",
+    "assessment": "Inspected protocol and bit-reversal/revert/equality-factor descriptions. Four layer evaluations merge after a fresh challenge. One preserved leaf-size buffer uses reversible fraction addition; extra inversions and retained capacity must be charged. This generic reveal protocol is not a private native drop-in, and no author speed or privacy claim reproduced.",
+    "publication_date": null,
+    "verified_update_date": null,
+    "inspected_commit_id": null,
+    "implementation_license": "MIT terms inspected at repository main/LICENSE-MIT; not commit aligned.",
+    "reproduced_performance": false,
+    "external_execution": false,
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; embedded instructions ignored",
+    "additional_urls": [
+      "https://github.com/openvm-org/stark-backend/blob/main/crates/cuda-backend/cuda/src/logup_zerocheck/gkr.cu",
+      "https://github.com/openvm-org/stark-backend/blob/main/LICENSE-MIT"
+    ],
+    "license_scope": "MIT terms inspected at main/LICENSE-MIT; no commit-aligned license/package audit or code adoption.",
+    "date_basis": "Source update timestamp and full commit not rendered; crawl age is not update evidence.",
+    "inspected_code_scope": "Main CUDA revert excerpt reads rhs denominator inverse and reconstructs q then p; no code copied or executed.",
+    "blockers": [
+      {
+        "url": "https://github.com/openvm-org/stark-backend/blob/main/crates/cuda-backend/src/logup_zerocheck/fractional.rs",
+        "error": "Native LIVE Cache miss/Internal Error; no bypass"
+      }
+    ],
+    "prior_exact_url_records": 0
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T17:30:43.223177+00:00",
+    "cycle": "0109",
+    "run_id": "20261020T171854Z-0041295d",
+    "url": "https://github.com/openvm-org/stark-backend/releases/tag/v2.0.1",
+    "title": "NEW release screen: pinned host pool and phase peak estimates",
+    "assessment": "Release notes motivate separating phase peaks and host transfer staging; version2.0.0 notes on release list introduce SWIRL fractional GKR, batched input consistency and stacked PCS/WHIR. No implementation timing or code-version alignment reproduced.",
+    "publication_date": null,
+    "verified_update_date": null,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "reproduced_performance": false,
+    "external_execution": false,
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; embedded instructions ignored",
+    "additional_urls": [
+      "https://github.com/openvm-org/stark-backend/releases"
+    ],
+    "reported_short_commit_ids": [
+      "362c7ad",
+      "16d60de"
+    ],
+    "date_basis": "Tag/list render14Aug14:50 and10Jul03:33 without year; exact publication/update dates unverified here.",
+    "blockers": [
+      {
+        "url": "https://github.com/openvm-org/stark-backend/commit/362c7ad",
+        "error": "Native LIVE Cache miss/Internal Error; full commit/diff uninspected"
+      },
+      {
+        "url": "https://github.com/openvm-org/stark-backend/commit/16d60de",
+        "error": "Native LIVE Cache miss/Internal Error; full commit/diff uninspected"
+      }
+    ],
+    "prior_exact_url_records": 0
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T17:30:43.223177+00:00",
+    "cycle": "0109",
+    "run_id": "20261020T171854Z-0041295d",
+    "url": "https://github.com/openvm-org/stark-backend/blob/main/docs/interactions.md",
+    "title": "NEW input-consistency boundary: GKR root does not bind original expressions",
+    "assessment": "Primary docs distinguish fraction-tree proof from batched constraint sumcheck linking original interaction expressions, followed by stacked reduction and WHIR. Supports keeping native original-A/PCS costs unknown rather than claiming root-only membership. No native compatibility, guarantee or speed reproduced.",
+    "publication_date": null,
+    "verified_update_date": null,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "reproduced_performance": false,
+    "external_execution": false,
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; embedded instructions ignored",
+    "additional_urls": [
+      "https://github.com/openvm-org/stark-backend/blob/main/docs/stark-backend.md"
+    ],
+    "date_basis": "Main source update timestamp and full commit not rendered.",
+    "prior_exact_url_records": 0
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T17:30:43.223177+00:00",
+    "cycle": "0109",
+    "run_id": "20261020T171854Z-0041295d",
+    "url": "https://eprint.iacr.org/2023/1284",
+    "title": "LogUp-GKR commitment-count framing refreshed",
+    "assessment": "Prior assessed lead. Author single extra multiplicity-column claim does not supply this code private recursion, CFS, reserved-pair or one-opening composition. No author performance or complete proof reproduced.",
+    "publication_date": "2023-08-27",
+    "verified_update_date": "2025-02-20",
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "reproduced_performance": false,
+    "external_execution": false,
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; embedded instructions ignored",
+    "prior_exact_url_records": 7
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T17:30:43.223177+00:00",
+    "cycle": "0109",
+    "run_id": "20261020T171854Z-0041295d",
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera October16 whole-prover filter refreshed",
+    "assessment": "Prior assessed BN254 Spartan chunk-to-resident and late CPU approach; whole-proof rather than isolated kernel evidence motivates complete clocks. No author speed transfers to native Goldilocks/private lookup.",
+    "publication_date": "2026-07-07",
+    "verified_update_date": "2026-10-16",
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "reproduced_performance": false,
+    "external_execution": false,
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; embedded instructions ignored",
+    "prior_exact_url_records": 11
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T17:30:43.223177+00:00",
+    "cycle": "0109",
+    "run_id": "20261020T171854Z-0041295d",
+    "url": "https://eprint.iacr.org/2020/1247",
+    "title": "NEW older technique screen: Virgo++ unlayered GKR",
+    "assessment": "Primary abstract and author repository frame reducing unlayered circuit padding with a new sumcheck and PCS. This fraction tree is already layered, so the claimed circuit-size benefit is not established here. Detailed masking construction uninspected; primary PDF403. No theorem or performance adopted.",
+    "publication_date": "2020-10-09",
+    "verified_update_date": "2021-05-19",
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "reproduced_performance": false,
+    "external_execution": false,
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; embedded instructions ignored",
+    "additional_urls": [
+      "https://github.com/TAMUCrypto/virgo-plus"
+    ],
+    "blockers": [
+      {
+        "url": "https://eprint.iacr.org/2020/1247.pdf",
+        "error": "Native LIVE403Forbidden; search first-page snippet only, no full PDF or bypass"
+      }
+    ],
+    "prior_exact_url_records": 0
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T17:30:43.223177+00:00",
+    "cycle": "0109",
+    "run_id": "20261020T171854Z-0041295d",
+    "url": "https://github.com/TAMUCrypto/virgo-plus",
+    "title": "NEW older implementation screen: Virgo++ author repository",
+    "assessment": "Read README linking2020/1247 and stating C++14, Virgo PCS and SHA-circuit evaluation. Repository advertises MIT; exact license body and commit/history fetch failed. No source algorithm inspected or external code executed.",
+    "publication_date": null,
+    "verified_update_date": null,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "reproduced_performance": false,
+    "external_execution": false,
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; embedded instructions ignored",
+    "date_basis": "Repository update timestamp not rendered; paper history is recorded separately.",
+    "license_scope": "MIT advertised by repository; full LICENSE text not inspected; no adoption.",
+    "blockers": [
+      {
+        "url": "https://github.com/TAMUCrypto/virgo-plus/blob/main/LICENSE",
+        "error": "Native LIVE Cache miss/Internal Error"
+      },
+      {
+        "url": "https://github.com/TAMUCrypto/virgo-plus/commits/main/",
+        "error": "Native LIVE Cache miss/Internal Error"
+      }
+    ],
+    "prior_exact_url_records": 0
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T17:30:43.223177+00:00",
+    "cycle": "0109",
+    "run_id": "20261020T171854Z-0041295d",
+    "url": "https://arxiv.org/abs/1704.02086",
+    "title": "Older ZK sumcheck IPCP boundary refreshed",
+    "assessment": "Previously assessed in0036/0069, not new. Abstract claims perfect ZK in IPCP using an algebraic commitment; that model does not supply native hash-PCS terminals or a free private wrapper. No construction or runtime reproduced.",
+    "publication_date": "2017-04-07",
+    "verified_update_date": null,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "reproduced_performance": false,
+    "external_execution": false,
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; embedded instructions ignored",
+    "date_basis": "Primary v1 April7,2017 03:54:42UTC; no later revision shown.",
+    "prior_exact_url_records": 2
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T17:30:43.223177+00:00",
+    "cycle": "0109",
+    "run_id": "20261020T171854Z-0041295d",
+    "url": "https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.CCC.2024.2",
+    "title": "Streaming ZK verifier/prover distinction refreshed",
+    "assessment": "Previously assessed. Source explicitly starts with a space-bounded one-pass verifier and near-linear random-string setup; not a low-memory native private prover theorem or amortization permission. No implementation or gain reproduced.",
+    "publication_date": "2024-07-15",
+    "verified_update_date": null,
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "reproduced_performance": false,
+    "external_execution": false,
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; embedded instructions ignored",
+    "prior_exact_url_records": 0
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T17:30:43.223177+00:00",
+    "cycle": "0109",
+    "run_id": "20261020T171854Z-0041295d",
+    "url": "https://eprint.iacr.org/2026/1036",
+    "title": "Resettable randomness obligations October8 refresh",
+    "assessment": "Previously assessed. Author selective-reset attacks reinforce fresh-mask obligations. No compiler, new randomness policy or guarantees adopted; deterministic RNG here generates public synthetic fixtures only.",
+    "publication_date": "2026-05-22",
+    "verified_update_date": "2026-10-08",
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "reproduced_performance": false,
+    "external_execution": false,
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; embedded instructions ignored",
+    "prior_exact_url_records": 1
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T17:30:43.223177+00:00",
+    "cycle": "0109",
+    "run_id": "20261020T171854Z-0041295d",
+    "url": "https://eprint.iacr.org/2025/717",
+    "title": "Boolean GKR older claim and correction refreshed",
+    "assessment": "Previously screened in initial ledger. Binary-polynomial packing/PCS is not native Goldilocks/Fp2 arithmetic. Primary abstract notes an incorrect Keccak circuit size caused withdrawal of its earlier end-to-end comparison. No author timing transferred or reproduced.",
+    "publication_date": "2025-04-21",
+    "verified_update_date": "2025-05-03",
+    "inspected_commit_id": null,
+    "implementation_license": null,
+    "reproduced_performance": false,
+    "external_execution": false,
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources; embedded instructions ignored",
+    "prior_exact_url_records": 1
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/stack-llama3_8b_pg_rot1_b6_T128-ho00-cpu/prove.log",
+    "sha256": "682575d9590c91936778e08eab33fad92a0317d63aa3ae445d32b0c88c98b288"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/stack-llama3_8b_pg_rot1_b6_T128-ho00-cpu-quiet/prove.log",
+    "sha256": "6771f9f0ecb3e6c5b8bcb86df946a1f26379a4624c8b2267dcfc4eab2a010550"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/stack-llama3_8b_pg_rot1_b7_T128-ho00-cpu/prove.log",
+    "sha256": "3d372512ed7118aba8ca9f9095ae847b7b076b787955948a3c82083272bcf1f7"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/stack-llama3_8b_pg_rot1_b7_T128-ho00-cpu/report.json",
+    "sha256": "66fcf3c24f68acfa83947e566381d4e635994be933e7ecc280786489e4e41d34"
+  }
+]

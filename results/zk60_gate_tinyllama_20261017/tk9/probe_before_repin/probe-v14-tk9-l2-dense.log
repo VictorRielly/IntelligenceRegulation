@@ -1,0 +1,9 @@
+[load          ]      0.6 s   peak RSS      99 MB   FAIL
+[replay        ]      --- NOT RUN (pins / inputs not checked)
+[hash          ]      --- NOT RUN (pins / inputs not checked)
+[terminals     ]      --- NOT RUN (pins / inputs not checked)
+[commitments   ]      --- NOT RUN (pins / inputs not checked)
+[boundary      ]      --- NOT RUN (pins / inputs not checked)
+[preimage      ]      --- NOT RUN (pins / inputs not checked)
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/probe_before_repin/probe-v14-tk9-l2-dense.json   total 0.6 s   peak RSS 99 MB   ok=False
+status: NOT-OK   unexplained false leaves 9   -> /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk9/probe_before_repin/probe-v14-tk9-l2-dense.status.json

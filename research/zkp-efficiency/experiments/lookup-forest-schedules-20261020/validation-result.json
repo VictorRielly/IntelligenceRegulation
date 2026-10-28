@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "checks": 5641,
+  "cost_mutation_controls": 1500,
+  "tiny_column_services": 1000,
+  "mixed_height_root_checks": 30,
+  "source_pins": 5,
+  "elapsed_s": 0.16596910697990097,
+  "maxrss_KiB": 14980,
+  "scope": "Independent small topology/lifetime and direct-inverse arithmetic, altered cost rejection, unchanged native-source pins. Not native protocol validation."
+}

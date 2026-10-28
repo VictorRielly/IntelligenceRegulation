@@ -1,0 +1,36 @@
+diff -ruN -x __pycache__ frozen_v13/scripts/zk60_native_rg_tokengate.py frozen_v14/scripts/zk60_native_rg_tokengate.py
+--- frozen_v13/scripts/zk60_native_rg_tokengate.py	2026-10-19 18:50:55.626719407 -0700
++++ frozen_v14/scripts/zk60_native_rg_tokengate.py	2026-10-19 19:10:41.979583567 -0700
+@@ -996,7 +996,10 @@
+ 
+ 
+ # ------------------------------------------------------------------ driver
+-def gate(directory: str, controls=True, full_preimage=True) -> dict:
++def gate(directory: str, controls=True, full_preimage=True, export_dir=None) -> dict:
++    """[v14] `export_dir` overrides the export the block-stage terminal check
++    takes from the capture's README (a capture whose README names no export
++    directory, e.g. the CLI path's, whose export is a prover-side VIEW)"""
+     import time
+     t0 = time.time()
+     rec = {"what": "the privacy gate's token items (DESIGN 4.2 G-1..G-7) on ONE token-I/O run capture; "
+@@ -1055,7 +1058,8 @@
+     tick("terminals_new_slots_and_NL1", t)
+     t = time.time()
+     from zk60_native_rg_tokenblocks import token_block_terminals
+-    rec["terminals_block_stages"] = token_block_terminals(b, rp)
++    rec["terminals_block_stages"] = token_block_terminals(b, rp, export_dir=export_dir)
++    rec["export_override"] = export_dir
+     tick("terminals_block_stages", t)
+     # [v10] the per-commitment full preimage (zero data) on EVERY commitment,
+     # and one joint assignment for the whole run
+@@ -1127,8 +1131,9 @@
+     ap.add_argument("--name", required=True)
+     ap.add_argument("--no-controls", action="store_true")
+     ap.add_argument("--no-full-preimage", action="store_true")
++    ap.add_argument("--export", default=None, help="[v14] override the export the block-stage terminals read")
+     a = ap.parse_args(argv)
+-    rec = gate(a.bundle, controls=not a.no_controls, full_preimage=not a.no_full_preimage)
++    rec = gate(a.bundle, controls=not a.no_controls, full_preimage=not a.no_full_preimage, export_dir=a.export)
+     os.makedirs(a.evidence, exist_ok=True)
+     path = os.path.join(a.evidence, f"{a.name}.json")
+     with open(path, "w") as fh:

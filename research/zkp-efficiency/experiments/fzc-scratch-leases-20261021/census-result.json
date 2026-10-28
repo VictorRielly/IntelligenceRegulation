@@ -1,0 +1,141 @@
+{
+  "status": "PASS_SOURCE_AND_INTERLEAVING_MODEL_ONLY",
+  "checks": 24,
+  "source_pin_count": 10,
+  "schedule_families": [
+    {
+      "old_degree": 4,
+      "new_degree": 4,
+      "clear_after_sync": false,
+      "same_stream": false,
+      "valid_interleavings": 12,
+      "stale_or_wrong_observations": 4
+    },
+    {
+      "old_degree": 4,
+      "new_degree": 4,
+      "clear_after_sync": false,
+      "same_stream": true,
+      "valid_interleavings": 4,
+      "stale_or_wrong_observations": 1
+    },
+    {
+      "old_degree": 4,
+      "new_degree": 4,
+      "clear_after_sync": true,
+      "same_stream": false,
+      "valid_interleavings": 12,
+      "stale_or_wrong_observations": 3
+    },
+    {
+      "old_degree": 4,
+      "new_degree": 4,
+      "clear_after_sync": true,
+      "same_stream": true,
+      "valid_interleavings": 2,
+      "stale_or_wrong_observations": 0
+    },
+    {
+      "old_degree": 4,
+      "new_degree": 5,
+      "clear_after_sync": false,
+      "same_stream": false,
+      "valid_interleavings": 12,
+      "stale_or_wrong_observations": 1
+    },
+    {
+      "old_degree": 4,
+      "new_degree": 5,
+      "clear_after_sync": false,
+      "same_stream": true,
+      "valid_interleavings": 4,
+      "stale_or_wrong_observations": 0
+    },
+    {
+      "old_degree": 4,
+      "new_degree": 5,
+      "clear_after_sync": true,
+      "same_stream": false,
+      "valid_interleavings": 12,
+      "stale_or_wrong_observations": 1
+    },
+    {
+      "old_degree": 4,
+      "new_degree": 5,
+      "clear_after_sync": true,
+      "same_stream": true,
+      "valid_interleavings": 2,
+      "stale_or_wrong_observations": 0
+    },
+    {
+      "old_degree": 5,
+      "new_degree": 4,
+      "clear_after_sync": false,
+      "same_stream": false,
+      "valid_interleavings": 12,
+      "stale_or_wrong_observations": 4
+    },
+    {
+      "old_degree": 5,
+      "new_degree": 4,
+      "clear_after_sync": false,
+      "same_stream": true,
+      "valid_interleavings": 4,
+      "stale_or_wrong_observations": 1
+    },
+    {
+      "old_degree": 5,
+      "new_degree": 4,
+      "clear_after_sync": true,
+      "same_stream": false,
+      "valid_interleavings": 12,
+      "stale_or_wrong_observations": 3
+    },
+    {
+      "old_degree": 5,
+      "new_degree": 4,
+      "clear_after_sync": true,
+      "same_stream": true,
+      "valid_interleavings": 2,
+      "stale_or_wrong_observations": 0
+    },
+    {
+      "old_degree": 5,
+      "new_degree": 5,
+      "clear_after_sync": false,
+      "same_stream": false,
+      "valid_interleavings": 12,
+      "stale_or_wrong_observations": 4
+    },
+    {
+      "old_degree": 5,
+      "new_degree": 5,
+      "clear_after_sync": false,
+      "same_stream": true,
+      "valid_interleavings": 4,
+      "stale_or_wrong_observations": 1
+    },
+    {
+      "old_degree": 5,
+      "new_degree": 5,
+      "clear_after_sync": true,
+      "same_stream": false,
+      "valid_interleavings": 12,
+      "stale_or_wrong_observations": 3
+    },
+    {
+      "old_degree": 5,
+      "new_degree": 5,
+      "clear_after_sync": true,
+      "same_stream": true,
+      "valid_interleavings": 2,
+      "stale_or_wrong_observations": 0
+    }
+  ],
+  "total_interleavings": 120,
+  "safe_same_stream_post_sync_interleavings": 8,
+  "same_stream_post_sync_failures": 0,
+  "wall_seconds": 0.01985988300293684,
+  "rss_kib": 14712,
+  "scope": "Logical publication and stream-order assumptions only. No real driver, atomics, event, timeout, kernel or proof ran. Existing timeout drops mapping before explicit sync: review risk, not confirmed native use-after-free."
+}

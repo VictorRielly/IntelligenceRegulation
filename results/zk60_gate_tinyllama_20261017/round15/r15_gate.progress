@@ -1,0 +1,5 @@
+01:45:46 gate/ff-v17-tokengate-cli11 exit 1
+02:02:01 gate/v18-tokengate-cli11 exit 0
+02:02:13 gate/v18-nl-cli11 exit 0
+02:14:18 gate/v18-ts-cli11 exit 0
+02:15:04 gate/unittests-v18 exit 0

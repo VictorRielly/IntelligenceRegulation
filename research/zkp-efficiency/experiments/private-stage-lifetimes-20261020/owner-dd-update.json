@@ -1,0 +1,18 @@
+{
+  "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/r9-check.log",
+  "sha256": "a32c1d2a725e2260d3b36e8d0cc898efda97afce6073f81591eb4267a911b3fc",
+  "observed_lines": [
+    "test private_block::r9_tests::a_dd_shape_that_pads_is_refused_by_name ... ok",
+    "test private_block::r9_tests::a_non_dd_profile_has_no_24th_slot_and_its_strings_are_unchanged ... ok",
+    "test private_block::r9_tests::an_over_cap_block_is_refused_before_any_header ... ok",
+    "test private_block::r9_tests::a_generic_honest_witness_proves_and_verifies_under_dd ... ok",
+    "test private_block::r9_tests::d3_an_unconstrained_slot_is_caught ... ok",
+    "test private_block::r9_tests::the_cap_admits_32_and_refuses_33_by_name ... ok",
+    "test private_block::r9_tests::d4_a_dropped_row_key_is_caught ... ok",
+    "test private_block::r9_tests::the_t128_dd_shapes_build_and_lay_out ... ok",
+    "test private_block::r9_tests::d8_multiplicities_after_alpha_are_caught ... ok",
+    "test private_block::r9_tests::the_dictionary_helpers_out_of_the_sum_claim_is_caught ... ok",
+    "test result: ok. 85 passed; 0 failed; 1 ignored; 0 measured; 519 filtered out; finished in 46.79s"
+  ],
+  "scope": "Read-only owner report; not rerun or independent verification. Counted DD shapes/tests exist; no native DD full-stack receipt or accepted privacy inferred."
+}

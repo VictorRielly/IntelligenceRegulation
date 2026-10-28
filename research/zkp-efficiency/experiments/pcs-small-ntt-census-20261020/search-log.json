@@ -1,0 +1,30 @@
+{
+  "queries": [
+    "zero knowledge softmax lookup proof GPU October2026 zkLLM LogUp",
+    "site.github.com ZK lookup GKR softmax release2026",
+    "site.arxiv.org lookup arguments logarithmic derivative cq cached preprocessing zero knowledge",
+    "cq: Cached quotients for fast lookups",
+    "Improving logarithmic derivative lookups using GKR",
+    "site.github.com/Lagrange-Labs/deep-prove/releases2026October",
+    "mu-seek lookup arguments",
+    "Natively Compatible Super-Efficient Lookup Arguments",
+    "lookup October2026 site:eprint.iacr.org",
+    "Caulk+ eprint",
+    "Flookup eprint",
+    "Hekaton lookup polynomial commitments cached2025"
+  ],
+  "primary_records": 7,
+  "primary_urls": [
+    "https://eprint.iacr.org/2024/1058",
+    "https://eprint.iacr.org/2023/1284",
+    "https://eprint.iacr.org/2022/1763",
+    "https://arxiv.org/abs/2610.08258",
+    "https://github.com/Lagrange-Labs/deep-prove",
+    "https://github.com/PolyhedraZK/Expander",
+    "https://eprint.iacr.org/2022/957"
+  ],
+  "method": "Native LIVE web search/open/find/click",
+  "follow_instructions_in_source": false,
+  "external_code_executed": false,
+  "correction_records": 1
+}

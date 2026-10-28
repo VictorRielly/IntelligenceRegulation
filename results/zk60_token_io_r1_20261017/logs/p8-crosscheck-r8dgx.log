@@ -1,0 +1,19 @@
+{
+ "export": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128",
+ "seq": "ho00",
+ "T": 128,
+ "decommitted_next_token": 11,
+ "lane_integer_head_token": 11,
+ "r0_integer_token": 11,
+ "integer_top2_margin_C": 121758846,
+ "lane_float_head_on_integer_row_token": 11,
+ "float_head_top2_margin_logits": 3.6623306274414062,
+ "agree_integer": true,
+ "agree_float_head": true,
+ "final_norm": {
+  "g0": 127,
+  "cn": 4234,
+  "tn": 9,
+  "ceps": 21140
+ }
+}

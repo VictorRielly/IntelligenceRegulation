@@ -1,0 +1,4 @@
+[zk60-guard 17:50:18] START tio-p8-crosscheck-r8x class=light need=3.5G cap=5G enforce=cgroup+watchdog waited=0s run=2bbca1011c8a
+[zk60-guard 17:50:46] END tio-p8-crosscheck-r8x exit=0 child_wall=28s peak_rss=2.31G min_avail=9.37G
+[zk60-guard 18:12:20] START tio-p8-crosscheck-r8dgx class=light need=3.5G cap=5G enforce=cgroup+watchdog waited=0s run=b5b291cb6331
+[zk60-guard 18:12:49] END tio-p8-crosscheck-r8dgx exit=0 child_wall=29s peak_rss=2.37G min_avail=8.79G

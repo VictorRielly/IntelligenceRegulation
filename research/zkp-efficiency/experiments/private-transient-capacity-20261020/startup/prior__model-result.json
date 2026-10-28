@@ -1,0 +1,32 @@
+{
+  "affinity": [
+    0
+  ],
+  "capacity_cases": 36,
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "device": "CPU only",
+  "full_stack": {
+    "context_length": null,
+    "independently_verified_proofs": 0,
+    "passes": 0,
+    "positions": 0,
+    "proof_s": null,
+    "serialization_s": null,
+    "startup_fraction": null,
+    "steady_positions_per_s": null,
+    "total_positions_per_s": null,
+    "verification_s": null,
+    "witness_s": null
+  },
+  "rss_kib": 27744,
+  "scope": "Source-derived dependency and requested persistent-owner count; no native/GPU/full proof",
+  "seed": 2026102094,
+  "source_trees": [
+    "gpu",
+    "r8"
+  ],
+  "status": "GENERATED",
+  "threads": 1,
+  "traces": 6,
+  "wall_seconds": 0.08696865699312184
+}

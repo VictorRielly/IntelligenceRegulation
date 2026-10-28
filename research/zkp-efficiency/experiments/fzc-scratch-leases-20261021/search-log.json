@@ -1,0 +1,23 @@
+{
+  "native_live_queries": 5,
+  "queries": [
+    "site.developer.nvidia.com/blog CUDA pinned memory allocation reuse mapped memory synchronization",
+    "site.github.com ingonyama-zk icicle releases sumcheck 2026",
+    "site.eprint.iacr.org 2026 GPU sumcheck Chimera",
+    "site.github.com NVIDIA cuda-samples simpleZeroCopy LICENSE",
+    "site.eprint.iacr.org 2026 GPU zero knowledge sumcheck October memory"
+  ],
+  "source_records": 7,
+  "rotation_this_cycle": [
+    "memory traffic and host allocation",
+    "batching/amortization",
+    "sumcheck/GKR",
+    "GPU implementation releases"
+  ],
+  "next_rotation": [
+    "lookup arguments and softmax",
+    "quantization/arithmetic",
+    "proof composition"
+  ],
+  "scope": "Primary sources only used for factual assessment; no code downloaded/executed."
+}

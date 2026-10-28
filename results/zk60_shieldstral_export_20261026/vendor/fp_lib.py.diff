@@ -1,0 +1,40 @@
+--- results/zk60_fidelity_parity_20261019/fp_lib.py
++++ results/zk60_shieldstral_export_20261026/vendor/fp_lib.py
+@@ -39,7 +39,7 @@
+ import numpy as np  # noqa: E402
+ 
+ REPO = Path("/home/victor/IntelligenceRegulation")
+-CAL = REPO / "results" / "zk60_1b_calibration_20260929"
++CAL = Path(__file__).resolve().parent
+ C8 = REPO / "results" / "zk60_8b_calibration_20261017"
+ HERE = Path(__file__).resolve().parent
+ sys.path.insert(0, str(CAL))
+@@ -49,7 +49,7 @@
+ GEO = tc.GEO
+ MODEL = tc.MODEL_NAME
+ IS8B = MODEL == "llama3-8b"
+-BOS = 128000 if IS8B else 1
++BOS = 1
+ MASK = -127
+ 
+ 
+@@ -176,9 +176,7 @@
+     process (TensorRef.read_tile hashes the whole tensor; only 2 bytes are kept), then the
+     bytes are mapped instead of copied (the 8B embedding / head are 1 GB each)."""
+     if name not in _MM:
+-        ref = checkpoint().refs[name]
+-        ref.read_tile(0, 2)
+-        _MM[name] = np.memmap(ref.shard, dtype="<u2", mode="r", offset=ref.data_start + ref.start, shape=tuple(ref.shape))
++        _MM[name] = checkpoint().refs[name].bf16_rows()
+     return _MM[name]
+ 
+ 
+@@ -484,7 +482,7 @@
+     vg = v.reshape(N, T, g.KV, g.dh).transpose(0, 2, 1, 3)[:, :, None]
+     oacc = p @ vg                                                       # (N,KV,G,T,dh)
+     o = _chk(rec, "O", rq(oacc, sh_o, E("o")), -LA, LA, seq0, E("o"))
+-    o8 = o.transpose(0, 3, 1, 2, 4).reshape(N, T, d)
++    o8 = o.transpose(0, 3, 1, 2, 4).reshape(N, T, g.H * g.dh)
+     ao = _chk(rec, "AO", mm_rq(M, "o", o8, E("w_o"), c["sh_ao"] + kf, E("ao")), *I16, seq0, E("ao"))
+     x1 = x + ao
+     if E("ao") and E("emb"):

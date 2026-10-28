@@ -1,0 +1,12 @@
+[
+  "compact stride incorrectly uses nn",
+  "zero bound incorrectly drops q pads",
+  "omit global bit reversal",
+  "reverse tile bits instead of whole-domain bits",
+  "source view offset one word wrong",
+  "permute source without matching logical shared index",
+  "count unique sectors as requested sectors",
+  "assume reordered shared stores remain bank-free",
+  "mistake eight-byte elements for four-byte sectors",
+  "large-transform no-sector-gain control"
+]

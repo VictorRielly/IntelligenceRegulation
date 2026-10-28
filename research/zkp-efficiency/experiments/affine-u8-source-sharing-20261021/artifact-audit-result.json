@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "checks": 1453,
+  "immutable_artifacts": 54,
+  "native_source_pins": 6,
+  "prior_sources_preserved": 773,
+  "appended_sources": 9,
+  "prior_findings_lines_preserved": 10447,
+  "prior_hypotheses_preserved": 34,
+  "final_hypotheses": 35,
+  "measured_script_seconds": 0.029056316008791327,
+  "rss_kib": 19100
+}

@@ -1,0 +1,212 @@
+[
+  {
+    "path": "README.md",
+    "bytes": 7623,
+    "sha256": "7e937e4684790a422464e4441d571cd17ea088bfb412f57122757ba4451f4da4"
+  },
+  {
+    "path": "address-families.json",
+    "bytes": 11560,
+    "sha256": "c2ab99dfb660bce0aa6f1f74c9824dfc398657658784977ab4363859620c7b01"
+  },
+  {
+    "path": "audit-result.json",
+    "bytes": 837,
+    "sha256": "ae8c915f3cfbb4dec6e625fa55aadde573443030b9d89020bcd048afe384dd3b"
+  },
+  {
+    "path": "audit.log",
+    "bytes": 837,
+    "sha256": "ae8c915f3cfbb4dec6e625fa55aadde573443030b9d89020bcd048afe384dd3b"
+  },
+  {
+    "path": "audit.py",
+    "bytes": 7423,
+    "sha256": "212f001dc5625bf60bfe9d7ebc9e988e8b2040f7b00952635e3dfe7e87f6f541"
+  },
+  {
+    "path": "carried-D-evidence-pins.json",
+    "bytes": 921,
+    "sha256": "c0d52a33f42b49a43c090afc33284bb51afb0c25aa982c4f0c65176fafa07d37"
+  },
+  {
+    "path": "checkpoint.py",
+    "bytes": 23434,
+    "sha256": "92adbc29feca893b2d8b3d329a1993b05c4dae1f205d93174e9eeb573ce04a17"
+  },
+  {
+    "path": "execution-notes.json",
+    "bytes": 1377,
+    "sha256": "7893f49da9536d181634b9833ea14c56329f21228993c7dba2d992cd652ef1e8"
+  },
+  {
+    "path": "final-state.md",
+    "bytes": 4938,
+    "sha256": "2bf09dce3ee69c9ea4ef44fba44ad01907ad93d9c5526c0082201d70df75a81c"
+  },
+  {
+    "path": "group-plan.json",
+    "bytes": 87372,
+    "sha256": "13b4501a676a723e57d45160928c7efc2bce704f1ebbd95f0c9e5237256f86de"
+  },
+  {
+    "path": "hypotheses.json",
+    "bytes": 5183,
+    "sha256": "829ee7e2e6600121b56f9e3ad1b11ea8204ee9108823449a93c7cebc042228f0"
+  },
+  {
+    "path": "initial-harness-failure.txt",
+    "bytes": 984,
+    "sha256": "23b5cf96df4276a53436d3d2c1f835f924bc3a7e6d1cc2a35bb63b6a7f46a418"
+  },
+  {
+    "path": "input-pins.json",
+    "bytes": 1625,
+    "sha256": "f3d1e58e1b3b4c7ed7b7230763e3cf28585b09dbeba2dec96235b5eec17df132"
+  },
+  {
+    "path": "oracle/kernels.rs",
+    "bytes": 105171,
+    "sha256": "a86b666db18540614e1810e75863b5ff87cdb2ba3cff31c51632fcf497d41ad6"
+  },
+  {
+    "path": "oracle/libkernels.so",
+    "bytes": 4576832,
+    "sha256": "f3a3635ce6a0f4ea2ba968f6f5a8f063afee0c81686034fde807d25e86233052"
+  },
+  {
+    "path": "oracle/native-field.rs",
+    "bytes": 11065,
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+  },
+  {
+    "path": "oracle-pins.json",
+    "bytes": 1078,
+    "sha256": "a20d1c121a0c8a94110ec10408d47e499c9b2de4c2bb692d0777f9449bf6ded6"
+  },
+  {
+    "path": "owner-evidence-pins.json",
+    "bytes": 1032,
+    "sha256": "b7272075d15506a488cb7c89f1001f6815d321823f570ab4a69ab53b80600af9"
+  },
+  {
+    "path": "partial-address-plan.json",
+    "bytes": 90583,
+    "sha256": "60b339f2910705cfa3baafa1b2e60a83e979da9da68be0cf29427eeae0f241a3"
+  },
+  {
+    "path": "pin-recheck.json",
+    "bytes": 5505,
+    "sha256": "8c97d52c7c01e0ede20cf81ab47bffb6c52aa98ea958ae9f3800429bf0860740"
+  },
+  {
+    "path": "prior-target-accounting.json",
+    "bytes": 9356,
+    "sha256": "11c80dd9ac8995226322fcc910a4b3c4918d14a8b76ceb0eb1a030859838a404"
+  },
+  {
+    "path": "record_sources.py",
+    "bytes": 8864,
+    "sha256": "ee23faf863d3bf6a8d6e96f6a4690b20b0c73fa858809ca7a2151c52a7f900dc"
+  },
+  {
+    "path": "result.json",
+    "bytes": 2739,
+    "sha256": "b4b7f8762fb6ce428cb8b5c9e264552cfbd542d5ca177fbf73fff8e8945c34af"
+  },
+  {
+    "path": "run.log",
+    "bytes": 2739,
+    "sha256": "b4b7f8762fb6ce428cb8b5c9e264552cfbd542d5ca177fbf73fff8e8945c34af"
+  },
+  {
+    "path": "run.py",
+    "bytes": 13574,
+    "sha256": "2df3a327b3ffc3a78164ca2a12865d3629e8d6b92f04152bd2fc63a875d72198"
+  },
+  {
+    "path": "scalar-dags.json",
+    "bytes": 351373,
+    "sha256": "dbedcca0a3dce4752581235a3403380017c8423f135c8241feb7cdf5607503f7"
+  },
+  {
+    "path": "search-notes.md",
+    "bytes": 3146,
+    "sha256": "522ccb07f5b7a84cca22ee95dc72e53228981a245fed9c6f96ca040d12dcc53c"
+  },
+  {
+    "path": "source-pins.json",
+    "bytes": 2330,
+    "sha256": "debb2707feeac2f0bb51a60dce77c917f8e6a401dd3df6428378bd9bc2367483"
+  },
+  {
+    "path": "source-records.json",
+    "bytes": 10472,
+    "sha256": "0a22e917b6cc9118537baaaa58ae8843cbfbbd4c57c0e3ba2a9d7d0589a04eae"
+  },
+  {
+    "path": "startup/AGENDA.md",
+    "bytes": 5603,
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139"
+  },
+  {
+    "path": "startup/CLAUDE.md",
+    "bytes": 14089,
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6"
+  },
+  {
+    "path": "startup/FINDINGS.md",
+    "bytes": 593548,
+    "sha256": "9e918d3aa258a41ce2b8591dde3e59c289f70381d1abf00681850e62bf81e40c"
+  },
+  {
+    "path": "startup/PROGRESS.md",
+    "bytes": 2519,
+    "sha256": "75b0466e1044c9204eeb042135494b798a7d4621329585c859ea82719d780885"
+  },
+  {
+    "path": "startup/STATE.md",
+    "bytes": 6314,
+    "sha256": "e7bbdb3d792ce04f8fd75494593e67554f38127772093d2c71a776e803f7b724"
+  },
+  {
+    "path": "startup/docs__zkmatrix-poc__MVP_STATUS.md",
+    "bytes": 76555,
+    "sha256": "ec32d93db5434131395a887f4c03ee8c4892070d443f755db04d815724b4a2ef"
+  },
+  {
+    "path": "startup/docs__zkmatrix-poc__ZK60_CODEX_FABLE_COORDINATION.md",
+    "bytes": 64889,
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f"
+  },
+  {
+    "path": "startup/docs__zkmatrix-poc__ZK60_DECISIONS.md",
+    "bytes": 93857,
+    "sha256": "6145d9d0cf3e83d8c9be4b178a5e8e583e510e1ad4a98ad92f2955c501b34e56"
+  },
+  {
+    "path": "startup/docs__zkmatrix-poc__ZK60_THROUGHPUT_TARGET.md",
+    "bytes": 4941,
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53"
+  },
+  {
+    "path": "startup/sources.jsonl",
+    "bytes": 581874,
+    "sha256": "84b9c82c0d10fbe2a4b844e13f366f4d848e6910779d8dca4c6044a70f86c013"
+  },
+  {
+    "path": "startup-pins.json",
+    "bytes": 1961,
+    "sha256": "65af674501690485bf0e6a0bdcab262fb778fa8ad4eb0919299a696b18a92e08"
+  },
+  {
+    "path": "target-accounting.json",
+    "bytes": 8233,
+    "sha256": "42543f0493c642f5725f954c3a1574501922f0fdb0cbe4c29cc5bf5f828d2b31"
+  },
+  {
+    "path": "validate.py",
+    "bytes": 7581,
+    "sha256": "fd938ea8ed9c5080dedef13c197c0add6311bea140d206fb32302e08beffcd7d"
+  }
+]

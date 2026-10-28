@@ -1,0 +1,74 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/cuda.rs",
+    "sha256": "dcc0e4bcd76c009827d30d8b1547e043118619948f59e63e75b132c5e6a38629",
+    "bytes": 258588,
+    "same_as_cycle0096": true,
+    "prior_snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/affine-fzc-budget-20261020/source/hashline__src__gpu__cuda.rs",
+    "same_as_cycle0097": true,
+    "same_as_cycle0098": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/fzc.rs",
+    "sha256": "af3cd6ac97f85347ed95ebac732c920a18ab921013be3ec31657e28cfb35ecc1",
+    "bytes": 15913,
+    "same_as_cycle0096": true,
+    "prior_snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/affine-fzc-budget-20261020/source/hashline__src__gpu__fzc.rs",
+    "same_as_cycle0097": true,
+    "same_as_cycle0098": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/fzc_kernels.cu",
+    "sha256": "7109e9cbba958876db03f538715258d07d2976c12b3959a293d2371c64bf356e",
+    "bytes": 50114,
+    "same_as_cycle0096": true,
+    "prior_snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/affine-fzc-budget-20261020/source/hashline__src__gpu__fzc_kernels.cu",
+    "same_as_cycle0097": true,
+    "same_as_cycle0098": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/gpu/kernels.cu",
+    "sha256": "4b27e23f2a880a7d67597d7cd2de59799b1c0068a52b2ce9abdbfa8108b0dc2a",
+    "bytes": 79413,
+    "same_as_cycle0096": true,
+    "prior_snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/affine-fzc-budget-20261020/source/hashline__src__gpu__kernels.cu",
+    "same_as_cycle0097": true,
+    "same_as_cycle0098": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/hashline/src/private_block/argument.rs",
+    "sha256": "9e70bbe558d7771b16f2a6f7f526ad3e548895d32ed0f6b897b85d0dd48b29b5",
+    "bytes": 109208,
+    "same_as_cycle0096": true,
+    "prior_snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/affine-fzc-budget-20261020/source/hashline__src__private_block__argument.rs",
+    "same_as_cycle0097": true,
+    "same_as_cycle0098": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065,
+    "same_as_cycle0096": true,
+    "prior_snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/affine-fzc-budget-20261020/source/zkp-core__src__field.rs",
+    "same_as_cycle0097": true,
+    "same_as_cycle0098": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/sumcheck.rs",
+    "sha256": "fc7374bbd5e5cc4ede62e8a21d325eb62acff9b9dcc786d12eae39efbdfdbb95",
+    "bytes": 22023,
+    "same_as_cycle0096": true,
+    "prior_snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/affine-fzc-budget-20261020/source/zkp-core__src__sumcheck.rs",
+    "same_as_cycle0097": true,
+    "same_as_cycle0098": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-zerocheck/zkp-core/src/mle.rs",
+    "sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e",
+    "bytes": 15255,
+    "same_as_cycle0096": true,
+    "prior_snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/affine-fzc-budget-20261020/source/zkp-core__src__mle.rs",
+    "same_as_cycle0097": true,
+    "same_as_cycle0098": true
+  }
+]

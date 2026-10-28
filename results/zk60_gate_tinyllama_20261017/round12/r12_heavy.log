@@ -1,0 +1,53 @@
+moved []
+[zk60-guard 22:23:24] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 22:24:24] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 22:25:24] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 22:26:24] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 22:27:24] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 22:28:24] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 22:29:24] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 22:30:24] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 22:31:24] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 22:32:24] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 22:33:24] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 22:34:24] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 22:35:24] waiting for /tmp/zk-heavy.lock (721s)
+[zk60-guard 22:36:24] waiting for /tmp/zk-heavy.lock (781s)
+[zk60-guard 22:37:24] waiting for /tmp/zk-heavy.lock (841s)
+[zk60-guard 22:38:25] waiting for /tmp/zk-heavy.lock (901s)
+[zk60-guard 22:39:25] waiting for /tmp/zk-heavy.lock (961s)
+[zk60-guard 22:40:25] waiting for /tmp/zk-heavy.lock (1021s)
+[zk60-guard 22:41:25] waiting for /tmp/zk-heavy.lock (1081s)
+[zk60-guard 22:41:41] START gate-r12-build class=build need=2.6G cap=5G enforce=cgroup+watchdog waited=1097s run=bf9076eec3f4
+[zk60-guard 22:45:19] END gate-r12-build exit=0 child_wall=218s peak_rss=2.02G min_avail=10.51G
+[zk60-guard 22:45:19] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 22:46:19] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 22:47:19] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 22:48:19] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 22:49:19] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 22:50:20] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 22:51:13] START gate-cap-tinyllama-t32-L1-dense-pt1 class=cpu need=1.6G cap=2.5G enforce=cgroup+watchdog waited=354s run=1d18547bf689
+[zk60-guard 22:51:24] END gate-cap-tinyllama-t32-L1-dense-pt1 exit=0 child_wall=11s peak_rss=1.02G min_avail=9.85G
+[zk60-guard 22:51:24] START gate-cap-tinyllama-t32-L1-fixed-pt1 class=cpu need=1.6G cap=2.5G enforce=cgroup+watchdog waited=0s run=34d3160a9b5f
+[zk60-guard 22:51:33] END gate-cap-tinyllama-t32-L1-fixed-pt1 exit=0 child_wall=9s peak_rss=0.98G min_avail=9.84G
+[zk60-guard 22:51:33] START gate-cap-tinyllama-t32-L2-dense-pt1 class=cpu need=1.6G cap=2.5G enforce=cgroup+watchdog waited=0s run=c838864d3a78
+[zk60-guard 22:51:46] END gate-cap-tinyllama-t32-L2-dense-pt1 exit=0 child_wall=13s peak_rss=1.14G min_avail=10.39G
+[zk60-guard 22:51:47] START gate-cap-tinyllama-t32-L2-fixed-pt1 class=cpu need=1.6G cap=2.5G enforce=cgroup+watchdog waited=0s run=2b084e0c607f
+[zk60-guard 22:52:00] END gate-cap-tinyllama-t32-L2-fixed-pt1 exit=0 child_wall=14s peak_rss=1.14G min_avail=9.69G
+[zk60-guard 22:52:01] START gate-cap-tinyllama-t32-L22-dense-pt1 class=cpu need=4G cap=5G enforce=cgroup+watchdog waited=0s run=968c8a6b182e
+[zk60-guard 22:53:36] END gate-cap-tinyllama-t32-L22-dense-pt1 exit=0 child_wall=95s peak_rss=3.01G min_avail=7.93G
+[zk60-guard 22:53:36] START gate-cap-tinyllama-t32-L22-fixed-pt1 class=cpu need=4G cap=5G enforce=cgroup+watchdog waited=0s run=874c2587db64
+[zk60-guard 22:55:10] END gate-cap-tinyllama-t32-L22-fixed-pt1 exit=0 child_wall=94s peak_rss=3.02G min_avail=7.61G
+[zk60-guard 22:55:10] START gate-cap-llama3-8b-t32-L1-dense-pt1 class=cpu need=4.2G cap=5.5G enforce=cgroup+watchdog waited=0s run=39bf3d203a08
+[zk60-guard 22:55:58] END gate-cap-llama3-8b-t32-L1-dense-pt1 exit=0 child_wall=49s peak_rss=3.20G min_avail=6.88G
+[zk60-guard 22:55:58] START gate-cap-llama3-8b-t32-L1-fixed-pt1 class=cpu need=4.2G cap=5.5G enforce=cgroup+watchdog waited=0s run=1eda8d748496
+[zk60-guard 22:56:52] END gate-cap-llama3-8b-t32-L1-fixed-pt1 exit=0 child_wall=53s peak_rss=3.19G min_avail=7.49G
+[zk60-guard 22:56:52] START gate-cap-llama3-8b-t32-L2-dense-pt1 class=cpu need=4.2G cap=5.5G enforce=cgroup+watchdog waited=0s run=39a2aed308ce
+[zk60-guard 22:57:50] END gate-cap-llama3-8b-t32-L2-dense-pt1 exit=0 child_wall=58s peak_rss=3.49G min_avail=7.10G
+[zk60-guard 22:57:50] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 22:58:07] admission waiting: budget: 8.2+4.2 GiB > 11.9 GiB with live [gate-r9-tokengate-tinyllama-t32-L22-dense-pt1(light,2.2G), gate-r9-tokengate-tinyllama-t32-L1-dense-pt1(light,1G), fp-L_e8_c2_dg(light,5G)]
+[zk60-guard 22:59:07] admission waiting: budget: 8.2+4.2 GiB > 11.9 GiB with live [gate-r9-tokengate-tinyllama-t32-L22-dense-pt1(light,2.2G), gate-r9-tokengate-tinyllama-t32-L1-dense-pt1(light,1G), fp-L_e8_c2_dg(light,5G)]
+[zk60-guard 23:00:07] admission waiting: budget: 8.2+4.2 GiB > 11.9 GiB with live [gate-r9-tokengate-tinyllama-t32-L22-dense-pt1(light,2.2G), gate-r9-tokengate-tinyllama-t32-L1-dense-pt1(light,1G), fp-L_e8_c2_dg(light,5G)]
+[zk60-guard 23:01:07] admission waiting: budget: 8.2+4.2 GiB > 11.9 GiB with live [gate-r9-tokengate-tinyllama-t32-L22-dense-pt1(light,2.2G), gate-r9-tokengate-tinyllama-t32-L1-dense-pt1(light,1G), fp-L_e8_c2_dg(light,5G)]
+[zk60-guard 23:01:42] START gate-cap-llama3-8b-t32-L2-fixed-pt1 class=cpu need=4.2G cap=5.5G enforce=cgroup+watchdog waited=233s run=fef222c0bfd2
+[zk60-guard 23:02:42] END gate-cap-llama3-8b-t32-L2-fixed-pt1 exit=0 child_wall=59s peak_rss=3.48G min_avail=6.41G

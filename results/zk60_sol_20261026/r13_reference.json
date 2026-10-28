@@ -1,0 +1,17 @@
+{
+  "scope": "COUNTED exact public scalar vectors; not a proof or fidelity claim",
+  "requant_vectors": 324,
+  "product_vectors": 216,
+  "group_scale_rounding_counterexample": {
+    "a": 1,
+    "up": 16,
+    "shift_h": 5,
+    "output_exponent_delta": -1,
+    "common_units_rounded_product": 0,
+    "scale_applied_after_product_rounding": "1/2"
+  },
+  "sha256": {
+    "r13_requant_vectors.tsv": "fb64e09c1f3047b8b2b0fd16959bb3629bc2b570da90a054007748173d316b90",
+    "r13_product_vectors.tsv": "8c2711df65f028f8e538c45754a491b3e2e72c438de7dfdecb620c33aec0327a"
+  }
+}

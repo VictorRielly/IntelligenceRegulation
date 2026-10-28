@@ -1,0 +1,81 @@
+{
+ "A": "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/crosscheck/ref_hf_yarn.npz",
+ "B": "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/crosscheck/hf_transformers.npz",
+ "labelA": "numpy_ref",
+ "labelB": "hf_transformers",
+ "n": 5,
+ "max_abs_logit_diff_over_all": 7.62939453125e-06,
+ "max_abs_margin_diff": 5.7220458984375e-06,
+ "rows": [
+  {
+   "name": "cb_safe",
+   "max_abs_logit_diff": 3.814697265625e-06,
+   "mean_abs_logit_diff": 5.700698153532358e-07,
+   "argmax_token_of_max_diff": 2097,
+   "abs_diff_yes": 3.814697265625e-06,
+   "abs_diff_no": 0.0,
+   "margin_numpy_ref": -16.803237915039062,
+   "margin_hf_transformers": -16.803234100341797,
+   "margin_diff": -3.814697265625e-06,
+   "logit_scale_max_abs": 41.22972869873047,
+   "argmax_equal": true,
+   "top20_equal": true
+  },
+  {
+   "name": "cb_unsafe",
+   "max_abs_logit_diff": 4.76837158203125e-06,
+   "mean_abs_logit_diff": 5.761459078712505e-07,
+   "argmax_token_of_max_diff": 1366,
+   "abs_diff_yes": 0.0,
+   "abs_diff_no": 0.0,
+   "margin_numpy_ref": 5.893085479736328,
+   "margin_hf_transformers": 5.893085479736328,
+   "margin_diff": 0.0,
+   "logit_scale_max_abs": 32.727474212646484,
+   "argmax_equal": true,
+   "top20_equal": true
+  },
+  {
+   "name": "cb_borderline",
+   "max_abs_logit_diff": 6.67572021484375e-06,
+   "mean_abs_logit_diff": 6.563386278912731e-07,
+   "argmax_token_of_max_diff": 1286,
+   "abs_diff_yes": 1.9073486328125e-06,
+   "abs_diff_no": 0.0,
+   "margin_numpy_ref": 0.06950569152832031,
+   "margin_hf_transformers": 0.0695037841796875,
+   "margin_diff": 1.9073486328125e-06,
+   "logit_scale_max_abs": 27.109800338745117,
+   "argmax_equal": true,
+   "top20_equal": true
+  },
+  {
+   "name": "card_benign",
+   "max_abs_logit_diff": 4.76837158203125e-06,
+   "mean_abs_logit_diff": 6.016752305271211e-07,
+   "argmax_token_of_max_diff": 1770,
+   "abs_diff_yes": 1.9073486328125e-06,
+   "abs_diff_no": 3.814697265625e-06,
+   "margin_numpy_ref": -7.10597038269043,
+   "margin_hf_transformers": -7.1059722900390625,
+   "margin_diff": 1.9073486328125e-06,
+   "logit_scale_max_abs": 33.93582534790039,
+   "argmax_equal": true,
+   "top20_equal": true
+  },
+  {
+   "name": "card_toxic",
+   "max_abs_logit_diff": 7.62939453125e-06,
+   "mean_abs_logit_diff": 6.188324945810564e-07,
+   "argmax_token_of_max_diff": 13059,
+   "abs_diff_yes": 7.62939453125e-06,
+   "abs_diff_no": 1.9073486328125e-06,
+   "margin_numpy_ref": 11.744176864624023,
+   "margin_hf_transformers": 11.744171142578125,
+   "margin_diff": 5.7220458984375e-06,
+   "logit_scale_max_abs": 39.76005172729492,
+   "argmax_equal": true,
+   "top20_equal": true
+  }
+ ]
+}

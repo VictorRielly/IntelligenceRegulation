@@ -1,0 +1,93 @@
+stage-00.json A-in: groups 3, surjective 3, disclosed 0 {}, joint [] (1.9 s)
+stage-00.json H-in: groups 4, surjective 3, disclosed 2 {'3': 2}, joint [([2, 3], 2)] (33.8 s)
+stage-00.json E-token-in: groups 1, surjective 1, disclosed 0 {}, joint [] (33.9 s)
+stage-03.json A-out: groups 18, surjective 18, disclosed 0 {}, joint [] (60.8 s)
+stage-03.json H-out: groups 6, surjective 5, disclosed 2 {'5': 2}, joint [([4, 5], 2)] (116.9 s)
+stage-03.json B-out: groups 2, surjective 2, disclosed 0 {}, joint [] (118.7 s)
+stage-03.json E-token-out: groups 1, surjective 1, disclosed 0 {}, joint [] (118.7 s)
+{
+ "IN:A-in": {
+  "groups": 3,
+  "surjective": 3,
+  "disclosed_Fp": 0,
+  "disclosed_by_group": {},
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "IN:H-in": {
+  "groups": 4,
+  "surjective": 3,
+  "disclosed_Fp": 2,
+  "disclosed_by_group": {
+   "3": 2
+  },
+  "joint": [
+   [
+    [
+     2,
+     3
+    ],
+    2
+   ]
+  ],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "IN:E-token-in": {
+  "groups": 1,
+  "surjective": 1,
+  "disclosed_Fp": 0,
+  "disclosed_by_group": {},
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "OUT:A-out": {
+  "groups": 18,
+  "surjective": 18,
+  "disclosed_Fp": 0,
+  "disclosed_by_group": {},
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "OUT:H-out": {
+  "groups": 6,
+  "surjective": 5,
+  "disclosed_Fp": 2,
+  "disclosed_by_group": {
+   "5": 2
+  },
+  "joint": [
+   [
+    [
+     4,
+     5
+    ],
+    2
+   ]
+  ],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "OUT:B-out": {
+  "groups": 2,
+  "surjective": 2,
+  "disclosed_Fp": 0,
+  "disclosed_by_group": {},
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "OUT:E-token-out": {
+  "groups": 1,
+  "surjective": 1,
+  "disclosed_Fp": 0,
+  "disclosed_by_group": {},
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ }
+}
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round10/ts/ts-llama3-8b-t32-L2-dense-pt1.json

@@ -87,7 +87,11 @@ fn statement(sh: &Shape, blocks: &[BlockPublic], own: &[Option<u32>]) -> Result<
     let mut prov = Provenance::recipe("native/r6", 1.0 / 512.0, [5; 32], [6; 32]);
     prov.rope_theta = super::shape::trained_rope_theta(sh.profile).unwrap_or(prov.rope_theta);
     let cal = IntegerCalibration::as_the_code_proves(sh, &prov);
-    let recs = blocks.iter().enumerate().map(|(k, b)| LayerRecord { sh_s: own[k], ..LayerRecord::of_block(k as u32, b, vec![]) }).collect();
+    let recs = blocks.iter().enumerate().map(|(k, b)| {
+        let mut o = [None; 11];
+        o[0] = own[k].map(i64::from);
+        LayerRecord { own: o, ..LayerRecord::of_block(k as u32, b, vec![]) }
+    }).collect();
     let rp = super::trained_calib_tests::run_shape_for(sh, blocks.len()).profile();
     TrainedModelStatement::new_synthetic_at_trained_profile_for_tests(sh, rp, source(blocks.len()), cal, recs)
 }

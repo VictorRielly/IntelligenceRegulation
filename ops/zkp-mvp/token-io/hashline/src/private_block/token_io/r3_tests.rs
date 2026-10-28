@@ -163,7 +163,7 @@ fn r3_a_layer_with_its_own_score_shift_is_proved_at_its_stage_shape() {
     let ssh1 = fx.sh.with_score_shift(own).expect("the layer's own score shift is admissible at the rung");
     let shapes = vec![fx.sh.clone(), ssh1];
     let mut recs: Vec<LayerRecord> = fx.blocks.iter().enumerate().map(|(k, b)| LayerRecord::of_block(k as u32, b, vec![])).collect();
-    recs[1].sh_s = Some(own);
+    recs[1].own[0] = Some(i64::from(own));
     let model = model_with_records(&fx.sh, recs, super::super::run::RUN_PROFILE_TOKEN_IO_RUNG_TC);
     let mut pipe = honest_pipeline_at(&shapes, &tp, &fx.tables, &fx.blocks, &fx.tokens).expect("the per-layer pipeline");
     let wide = honest(&fx, &tp);
@@ -203,6 +203,87 @@ fn r3_a_layer_with_its_own_score_shift_is_proved_at_its_stage_shape() {
     }
     let e = verify_token_run(&st2, &fx.blocks, &fx.tables, &segs2, R1_DEV_POLICY_R3).err().expect("A BLOCK WITNESSED AT THE WRONG SCORE SHIFT VERIFIED");
     record("R3-10", "block 1 witnessed at the run-wide score shift under a per-layer statement", &[Site::Block], &e);
+}
+
+/// **ROUND 7 (the native R8 rebase), FAILING FIRST: a layer with its own
+/// NORM and SHIFT constants is proved and verified at its stage shape.**
+/// R8 lets a layer record carry any of the eleven export-chosen calibration
+/// constants as its own (`LayerRecord::own`, D32), not only `sh_s`. The
+/// token run must read each block stage's WHOLE calibration from its record:
+/// the stage shape is the layer's calibration, its schedule line names each
+/// own constant (R8's labels), the per-layer receipt verifies, and it is
+/// refused under the run-wide statement; a cheating prover witnessing block
+/// 1 at the run-wide calibration under the per-layer statement is refused.
+/// (The final norm and head keep the token profile's own constants.)
+#[test]
+fn r7_a_layer_with_its_own_norm_and_shift_constants_is_proved_at_its_stage_shape() {
+    use super::super::shape::NormCalibration;
+    use super::super::trained_statement::{cal_field, own_of, OWN_FIELDS};
+    let fx = fx_generic();
+    let tp = profile(&fx);
+    let base = fx.sh.norm_calibration();
+    let wide = honest(&fx, &tp);
+    // candidates, the most per-layer first: R8's all-eleven calibration at the
+    // rung (r8_tests), the four norm constants alone, cn_a alone; the first
+    // whose honest pipeline exists and moves block 1's output is used
+    let all = NormCalibration { tn: 9, cn_a: 700, cn_m: 1100, ceps: 16_777_259, sh_ao: 7, sh_qkv: 7, sh_s: 6, sh_o: 11, sh_g: 7, sh_h: 14, sh_z: 6 };
+    let norm_only = NormCalibration { tn: 9, cn_a: 700, cn_m: 1100, ceps: 16_777_259, ..base };
+    let cn_a_only = NormCalibration { cn_a: 700, ..base };
+    let mut chosen = None;
+    for cal in [all, norm_only, cn_a_only] {
+        let Ok(s1) = fx.sh.with_layer_calibration(&cal) else { continue };
+        let Ok(p) = honest_pipeline_at(&[fx.sh.clone(), s1], &tp, &fx.tables, &fx.blocks, &fx.tokens) else { continue };
+        if p.planes[1] != wide.planes[1] {
+            chosen = Some((cal, p));
+            break;
+        }
+    }
+    let (cal, mut pipe) = chosen.expect("no per-layer calibration gives an honest pipeline that moves block 1 at the rung");
+    let own = own_of(&base, &cal);
+    assert!(own[1..].iter().any(|v| v.is_some()), "the chosen calibration has no own constant besides sh_s: the test would not exercise R8");
+    let mut recs: Vec<LayerRecord> = fx.blocks.iter().enumerate().map(|(k, b)| LayerRecord::of_block(k as u32, b, vec![])).collect();
+    recs[1].own = own;
+    let model = model_with_records(&fx.sh, recs, super::super::run::RUN_PROFILE_TOKEN_IO_RUNG_TC);
+    let (ins, outs) = endpoint_specs(&fx.sh, ctx(), &tp).unwrap();
+    let digests: Vec<Digest> = fx.blocks.iter().map(|b| b.digest()).collect();
+    let mk = |roots: (Digest, Digest), m: &TrainedModelStatement| TokenRunStatement::new(RunShape::new(fx.sh.clone(), 2, super::super::run::RUN_PROFILE_TOKEN_IO_RUNG_TC).unwrap(), ctx(), digests.clone(), m, &fx.tables, fx.bos, fx.norm, SelectorVariant::PublicRow, Tier::R1_MVP, roots);
+    let (roots, owners) = seal_endpoints(&ins, &outs, &pipe.in_plane, &pipe.out_plane, &fx.sh.hash_tag()).unwrap();
+    let st = mk(roots, &model).expect("the per-layer statement");
+    assert_eq!(st.stage_shape(0).unwrap().norm_calibration(), base, "block stage 0 is at the run's calibration");
+    assert_eq!(st.stage_shape(1).unwrap().norm_calibration(), cal, "ROUND 7: block stage 1 is not proved at its layer's own calibration (only sh_s was read)");
+    let lines = st.stage_lines().unwrap();
+    for (i, v) in own.iter().enumerate() {
+        if let Some(v) = v {
+            let want = format!("; {} {v} (the layer's own; the run's is {})", OWN_FIELDS[i].2, cal_field(&base, i));
+            assert!(lines[2].contains(&want), "ROUND 7: stage 1's schedule line does not name its own {}: {}", OWN_FIELDS[i].0, lines[2]);
+        }
+    }
+    assert!(!lines[1].contains("the layer's own"), "{}", lines[1]);
+    let mut segs = Vec::new();
+    prove_token_run(&st, &fx.blocks, &fx.tables, &mut PipelineSource(&mut pipe), owners, &mut |_, b| {
+        segs.push(b);
+        Ok(())
+    })
+    .unwrap_or_else(|e| panic!("the per-layer run did not prove: {e}"));
+    verify_token_run(&st, &fx.blocks, &fx.tables, &segs, R1_DEV_POLICY_R3).unwrap_or_else(|e| panic!("the per-layer run did not verify: {e}"));
+    let e = verify_token_run(&mk(roots, &fx.model).unwrap(), &fx.blocks, &fx.tables, &segs, R1_DEV_POLICY_R3).unwrap_err();
+    record("R7-1", "a receipt with block 1 at its own norm/shift constants read under the run-wide statement", &[Site::Binding], &e);
+    let mut cheat = honest(&fx, &tp);
+    let (roots2, owners2) = seal_endpoints(&ins, &outs, &cheat.in_plane, &cheat.out_plane, &fx.sh.hash_tag()).unwrap();
+    let st2 = mk(roots2, &model).unwrap();
+    let mut segs2 = Vec::new();
+    {
+        let _c = super::super::protocol::CheatingProver::on();
+        prove_token_run(&st2, &fx.blocks, &fx.tables, &mut PipelineSource(&mut cheat), owners2, &mut |_, b| {
+            segs2.push(b);
+            Ok(())
+        })
+        .unwrap_or_else(|e| panic!("the cheating prover did not produce a receipt: {e}"));
+    }
+    let e = verify_token_run(&st2, &fx.blocks, &fx.tables, &segs2, R1_DEV_POLICY_R3).err().expect("A BLOCK WITNESSED AT THE RUN-WIDE CALIBRATION VERIFIED UNDER A PER-LAYER STATEMENT");
+    record("R7-2", "block 1 witnessed at the run-wide calibration under a per-layer (norm/shift) statement", &[Site::Block], &e);
+    let named: Vec<&str> = own.iter().enumerate().filter(|(_, v)| v.is_some()).map(|(i, _)| OWN_FIELDS[i].0).collect();
+    eprintln!("TOKEN-IO ROUND 7 | block 1 at its own {named:?}: proved and verified at its stage shape; refused under the run-wide statement; the run-wide witness refused");
 }
 
 /// **REVIEW TR3-1, FAILING FIRST: a wrong block at a LATER stage is refused
@@ -662,6 +743,12 @@ impl TokenRunSource for R3Source<'_> {
     }
     fn stage_out(&mut self) -> Result<StageOutWitness, String> {
         self.stage_out.take().ok_or_else(|| "R3: stage OUT asked twice".to_string())
+    }
+    fn seal_check(&mut self, k: usize, blk: &BlockPublic, ssh: &Shape, check: &mut dyn FnMut(&super::super::witness::Witness) -> Result<(), String>) -> Result<(), String> {
+        let sh = &self.p.sh;
+        let x = if k == 0 { self.p.ex.load_seq(sh, &self.seq, self.p.layers[0])?.0 } else { self.p.ex.load_seq(sh, &self.seq, self.p.layers[k - 1])?.1 };
+        let w = super::super::witness::build_shaped(ssh, blk.attention(), blk.feed_forward(), &x)?;
+        check(&w)
     }
 }
 

@@ -1,0 +1,32 @@
+{
+ "ts_end": "2026-10-26T17:37:50Z",
+ "run_id": "5dcc8df37cca",
+ "label": "sol-r12-build",
+ "class": "build",
+ "cmd": [
+  "/home/victor/.cargo/bin/cargo",
+  "test",
+  "--release",
+  "--offline",
+  "--locked",
+  "-j2",
+  "--manifest-path",
+  "ops/zkp-mvp/trained-1b/hashline/Cargo.toml"
+ ],
+ "need_gib": 2.5,
+ "cap_gib": 5.0,
+ "exit": 70,
+ "child_rc": null,
+ "guard_killed": null,
+ "child_wall_seconds": null,
+ "refused": "could not take /tmp/zk-heavy.lock within 30s",
+ "guard_error": null,
+ "guard_pid": 2,
+ "boot_id": "9d3a66e4-7664-4344-a046-38a0c53a53f3",
+ "pid_ns": "pid:[4026532299]",
+ "guard_starttime_ticks": 21384059,
+ "lock_ids": {
+  "heavy": "2096:36955",
+  "build": "2096:37006"
+ }
+}

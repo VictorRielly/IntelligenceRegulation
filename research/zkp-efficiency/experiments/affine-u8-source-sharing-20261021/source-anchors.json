@@ -1,0 +1,87 @@
+[
+  {
+    "file": "layout.rs",
+    "line": 696,
+    "fragment": "fn sym(p: usize) -> [Lk; 2]"
+  },
+  {
+    "file": "layout.rs",
+    "line": 697,
+    "fragment": "Lk { terms: vec![(p, -1)], cst: 127 }"
+  },
+  {
+    "file": "layout.rs",
+    "line": 800,
+    "fragment": "let sigma_scale = 1i64 << (8 * ls as u32 - sh.wrho_s);"
+  },
+  {
+    "file": "layout.rs",
+    "line": 875,
+    "fragment": "v.push(scaled(ids.sg(ls - 1), sigma_scale));"
+  },
+  {
+    "file": "shape.rs",
+    "line": 2022,
+    "fragment": "self.lookups_per_position(dom).div_ceil(2)"
+  },
+  {
+    "file": "shape.rs",
+    "line": 2216,
+    "fragment": "h_rows: h_data_rows + 2 * h_sites + 2,"
+  },
+  {
+    "file": "shape.rs",
+    "line": 2080,
+    "fragment": "h[SC_SZC] = self.helpers(Dom::S) + 1 + usize::from(self.dd_cap > 0);"
+  },
+  {
+    "file": "shape.rs",
+    "line": 2095,
+    "fragment": "h[SC_DD] = self.helpers(Dom::Dd) + 1;"
+  },
+  {
+    "file": "shape.rs",
+    "line": 2206,
+    "fragment": "let h_data_rows: usize = self.h_plane_doms().iter().map(|d| 2 * self.rows_of(*d)).sum();"
+  },
+  {
+    "file": "argument.rs",
+    "line": 943,
+    "fragment": "h.mul(d1).mul(d2).sub(d1.add(d2))"
+  },
+  {
+    "file": "argument.rs",
+    "line": 945,
+    "fragment": "None => h.mul(d1).sub(Fp2::ONE),"
+  },
+  {
+    "file": "protocol.rs",
+    "line": 584,
+    "fragment": "let lookup_words: u64 = looked.iter().map(|(d, cols)| (cols.len() * sh.size(*d)) as u64).sum();"
+  },
+  {
+    "file": "protocol.rs",
+    "line": 1067,
+    "fragment": "let mut m_u8 = byte_histogram_at(&looked, lookup_words, HISTOGRAM_PAR_MIN);"
+  },
+  {
+    "file": "protocol.rs",
+    "line": 1132,
+    "fragment": "tr.absorb(b\"M\", &mask_root);"
+  },
+  {
+    "file": "protocol.rs",
+    "line": 1140,
+    "fragment": "let alpha = tr.challenge_fp2();"
+  },
+  {
+    "file": "core-pcs.rs",
+    "line": 727,
+    "fragment": "let pads = rng.fp_vec(rows * q);"
+  },
+  {
+    "file": "core-pcs.rs",
+    "line": 728,
+    "fragment": "let salts: Vec<[u8; 32]> = (0..nn).map(|_| rng.bytes32()).collect();"
+  }
+]

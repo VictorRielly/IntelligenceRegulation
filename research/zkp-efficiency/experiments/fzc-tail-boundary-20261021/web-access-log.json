@@ -1,0 +1,196 @@
+[
+  {
+    "call": "tail_web_search",
+    "raw_characters": 31237,
+    "sha256_note": "Original live outputs retained in tool history; only access/error metadata saved here",
+    "urls": [
+      "https://github.com/ingonyama-zk/icicle",
+      "https://github.com/ingonyama-zk/icicle.git",
+      "https://github.com/ingonyama-zk/icicle/releases",
+      "https://github.com/ingonyama-zk/icicle/blob/main/wrappers/rust/icicle-core/src/sumcheck/mod.rs",
+      "https://www.ingonyama.com/post/sumcheck-201",
+      "https://github.com/ingonyama-zk/papers/blob/main/sumcheck_201_chapter_1.pdf",
+      "https://www.ingonyama.com/oldblogs/icicle-v3-5-sumcheck-with-lambda-functions",
+      "https://github.com/fractalyze/sp1-zorch/issues/55",
+      "https://deepwiki.com/ingonyama-zk/icicle",
+      "https://medium.com/%40ingonyama/icicle-goes-metal-v3-6-163fa7bbfa44",
+      "https://hackmd.io/%40Ingonyama/Hardware-Friendliness-HyperPlonk-Part2",
+      "https://medium.com/@ingonyama/icicle-v3-5-sumcheck-with-lambda-functions-5f17d88910cb",
+      "https://github.com/ingonyama-zk/icicle/blob/main/wrappers/rust/icicle-core/src/sumcheck/tests.rs",
+      "https://dev.ingonyama.com/3.8.0/icicle/integrations",
+      "https://arxiv.org/abs/2604.18529",
+      "https://dev.ingonyama.com/1.10.1/icicle/overview",
+      "https://tanvirarafin.github.io/assets/pdf/DATE_2026.pdf",
+      "https://github.com/SPIRE-GMU/sum",
+      "https://arxiv.org/abs/2406.10728",
+      "https://arxiv.org/abs/2504.05897",
+      "https://arxiv.org/abs/2001.02514",
+      "https://etheses.durham.ac.uk/id/eprint/12292/1/thesistex.pdf",
+      "https://www.researchgate.net/publication/335292390",
+      "https://shraiysh.github.io/pdf/2019_JSA_MittalVaishay_Survey_DeepLearningOnGPUs.pdf",
+      "https://openreview.net/pdf/0c737a261cb21c3b0fd476a9539f61744c19747f.pdf",
+      "https://www.reddit.com/r/LocalLLaMA/comments/1veow4b/deepseek_v4flash_284b_moe_at_33_toks_single_68/",
+      "https://openreview.net/pdf?id=LP8Mx7fEOa",
+      "https://escholarship.org/content/qt1k57t6kt/qt1k57t6kt_noSplash_334b8698044d0b5385c0866936e7c4df.pdf"
+    ],
+    "errors": []
+  },
+  {
+    "call": "tail_web_open",
+    "raw_characters": 27888,
+    "sha256_note": "Original live outputs retained in tool history; only access/error metadata saved here",
+    "urls": [
+      "https://www.cs.cmu.edu/~csd-phd-blog/2026/sumcheck-proving/",
+      "https://developer.nvidia.com/blog/building-faster-cryptography-with-carryless-multiplication-in-nvidia-cuda-13-3/",
+      "https://github.com/ingonyama-zk/icicle/releases/latest",
+      "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0;",
+      "https://github.com/compsec-epfl/efficient-sumcheck",
+      "https://arxiv.org/abs/2606.16146",
+      "https://doi.org/10.48550/arXiv.2606.16146†doi.org",
+      "https://eprint.iacr.org/2024/524",
+      "https://ia.cr/2024/524†ia.cr",
+      "https://eprint.iacr.org/2024/524}"
+    ],
+    "errors": []
+  },
+  {
+    "call": "tail_web_detail",
+    "raw_characters": 26104,
+    "sha256_note": "Original live outputs retained in tool history; only access/error metadata saved here",
+    "urls": [
+      "https://www.cs.cmu.edu/~csd-phd-blog/2026/sumcheck-proving/",
+      "https://github.com/compsec-epfl/efficient-sumcheck",
+      "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+      "https://github.com/ingonyama-zk/icicle/commit/6c77775961b0e4dc2be359feec1ac11536c18043"
+    ],
+    "errors": []
+  },
+  {
+    "call": "tail_web_licenses",
+    "raw_characters": 8383,
+    "sha256_note": "Original live outputs retained in tool history; only access/error metadata saved here",
+    "urls": [
+      "https://raw.githubusercontent.com/compsec-epfl/efficient-sumcheck/main/LICENSE-MIT",
+      "https://raw.githubusercontent.com/compsec-epfl/efficient-sumcheck/main/LICENSE-MIT:",
+      "https://raw.githubusercontent.com/compsec-epfl/efficient-sumcheck/main/CHANGELOG.md",
+      "https://raw.githubusercontent.com/compsec-epfl/efficient-sumcheck/main/CHANGELOG.md:",
+      "https://raw.githubusercontent.com/ingonyama-zk/icicle/6c77775961b0e4dc2be359feec1ac11536c18043/LICENSE",
+      "https://raw.githubusercontent.com/ingonyama-zk/icicle/6c77775961b0e4dc2be359feec1ac11536c18043/LICENSE:",
+      "https://arxiv.org/abs/2502.21235",
+      "https://doi.org/10.48550/arXiv.2502.21235†doi.org"
+    ],
+    "errors": [
+      "Internal Error ()",
+      "L0: Failed to fetch https://raw.githubusercontent.com/compsec-epfl/efficient-sumcheck/main/LICENSE-MIT: Cache miss",
+      "Internal Error ()",
+      "L0: Failed to fetch https://raw.githubusercontent.com/compsec-epfl/efficient-sumcheck/main/CHANGELOG.md: Cache miss",
+      "Internal Error ()",
+      "L0: Failed to fetch https://raw.githubusercontent.com/ingonyama-zk/icicle/6c77775961b0e4dc2be359feec1ac11536c18043/LICENSE: Cache miss"
+    ]
+  },
+  {
+    "call": "tail_web_last",
+    "raw_characters": 31278,
+    "sha256_note": "Original live outputs retained in tool history; only access/error metadata saved here",
+    "urls": [
+      "https://github.com/compsec-epfl/efficient-sumcheck",
+      "https://eprint.iacr.org/2024/524.pdf",
+      "https://dblp.org/rec/journals/iacr/ChiesaFFZ24",
+      "https://tanvirarafin.github.io/assets/pdf/DATE_2026.pdf",
+      "https://github.com/SPIRE-GMU/sum",
+      "https://eprint.iacr.asia/days/7",
+      "https://eprint-classic.github.io/2026.html",
+      "https://eprint.iacr.asia/2026",
+      "https://gist.github.com/MdSadiqMd/9f3f5b22d04b08bb50528234b67181fe",
+      "https://github.com/amit0365/gkr/blob/main/README.md",
+      "https://eprint.iacr.org/2024/325",
+      "https://blog.ethereum.org/2024/06/25/zk-grants-round-announce",
+      "https://github.com/han0110/plonkish.--------------------------------------------------------------------------------",
+      "https://patents.google.com/patent/CN122020723B/en",
+      "https://developer.nvidia.com/blog/?p=119649",
+      "https://github.com/Lagrange-Labs/deep-prove/issues/108",
+      "https://www.paperpeel.com/paper/2610.05335",
+      "https://www.irreducible.com/posts/slicing-up-binary-towers",
+      "https://arxiv.org/abs/1910.11333",
+      "https://www.nature.com/articles/s41586-019-1666-5.Summary",
+      "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/CHANGELOG.md",
+      "https://elaineshi.com/"
+    ],
+    "errors": [
+      "Internal Error ()",
+      "Internal Error ()"
+    ]
+  },
+  {
+    "call": "tail_web_final",
+    "raw_characters": 24654,
+    "sha256_note": "Original live outputs retained in tool history; only access/error metadata saved here",
+    "urls": [
+      "https://eprint.iacr.org/2026/1388",
+      "https://ia.cr/2026/1388†ia.cr",
+      "https://eprint.iacr.org/2026/1388}",
+      "https://eprint.iacr.org/2025/1117",
+      "https://ia.cr/2025/1117†ia.cr",
+      "https://eprint.iacr.org/2025/1117}",
+      "https://www.cs.utexas.edu/pepper/pepper-oakland13.pdf",
+      "https://github.com/ingonyama-zk/icicle/blob/6c77775961b0e4dc2be359feec1ac11536c18043/LICENSE",
+      "https://github.com/ingonyama-zk/icicle/blob/6c77775961b0e4dc2be359feec1ac11536c18043/LICENSE:",
+      "https://github.com/compsec-epfl/efficient-sumcheck/commits/main/"
+    ],
+    "errors": [
+      "Internal Error ()",
+      "L0: URL https://www.cs.utexas.edu/pepper/pepper-oakland13.pdf is not accessible via this tool.",
+      "Internal Error ()",
+      "L0: Failed to fetch https://github.com/ingonyama-zk/icicle/blob/6c77775961b0e4dc2be359feec1ac11536c18043/LICENSE: Cache miss",
+      "L429: "
+    ]
+  },
+  {
+    "call": "tail_web_metadata",
+    "raw_characters": 23829,
+    "sha256_note": "Original live outputs retained in tool history; only access/error metadata saved here",
+    "urls": [
+      "https://www.microsoft.com/en-us/research/publication/a-hybrid-architecture-for-interactive-verifiable-computation/",
+      "https://github.com/ingonyama-zk/icicle/blob/main/LICENSE",
+      "https://github.com/compsec-epfl/efficient-sumcheck/commit/9e55dc3a020fe9e94a7617628587685eb39b32ce:",
+      "https://github.com/ingonyama-zk/icicle/commit/6c77775961b0e4dc2be359feec1ac11536c18043",
+      "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/CHANGELOG.md",
+      "https://www.cs.cmu.edu/~csd-phd-blog/2026/sumcheck-proving/"
+    ],
+    "errors": [
+      "Internal Error ()",
+      "L0: Failed to fetch https://github.com/compsec-epfl/efficient-sumcheck/commit/9e55dc3a020fe9e94a7617628587685eb39b32ce: (429) Too Many Requests"
+    ]
+  },
+  {
+    "call": "tail_web_older",
+    "raw_characters": 34029,
+    "sha256_note": "Original live outputs retained in tool history; only access/error metadata saved here",
+    "urls": [
+      "https://developer.nvidia.com/blog/cuda-graphs/",
+      "https://forums.developer.nvidia.com/t/nvidia-nsight-compute-2019-5-is-now-available/107230",
+      "https://developer.nvidia.com/nsight-compute-2019_5-new-features",
+      "https://forums.developer.nvidia.com/t/launch-kernel-in-advance/72947",
+      "https://forums.developer.nvidia.com/t/cuda-graphs-using-host-node-for-optix-prime-or-thrust/79940",
+      "https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html#group__CUDART__GRAPH_1g30e16d2715f09683f0aa8ac2b870cf71",
+      "https://devtalk.nvidia.com/default/board/254/optix/",
+      "https://forums.developer.nvidia.com/t/cuda-graph-traversal/107061",
+      "https://developer.download.nvidia.com/video/gputechconf/gtc/2019/presentation/s9956-best-practices-when-benchmarking-cuda-applications_V2.pdf",
+      "https://developer.nvidia.com/blog/?p=28905",
+      "https://developer.nvidia.com/docs/drive/drive-os/7.0.3/public/nsight/nsight-systems/UserGuide/index.html",
+      "https://developer.nvidia.com/nsight-systems",
+      "https://developer.nvidia.com/blog/?p=72424",
+      "https://hihat.opencommons.org/HiHAT_Presentations",
+      "https://www.nvidia.com/en-us/on-demand/session/gtc26-s82065/",
+      "https://eprint.iacr.org/2024/1245.pdf",
+      "https://upcommons.upc.edu/server/api/core/bitstreams/0a6c8446-b091-4049-aa61-895ec0704f9f/content",
+      "https://developer.nvidia.com/blog/cuda-graphs/.",
+      "https://developer.nvidia.com/blog/rewrite-apache-spark-udfs-gpu-acceleration-ai-agents/",
+      "https://mediatum.ub.tum.de/doc/1726231/fmn8ps2ehx36eu7aum6ia8o94.GR_CUDA_SS23_AhmedFouad.pdf",
+      "https://developer.nvidia.com/blog/cuda-graphs/,",
+      "https://openreview.net/pdf?id=EZfDHprhZM",
+      "https://www.reddit.com/r/CUDA/comments/bn45aq"
+    ],
+    "errors": []
+  }
+]

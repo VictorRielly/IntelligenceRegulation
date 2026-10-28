@@ -1,0 +1,14 @@
+{
+  "current": "GPU commitments / memory traffic / amortization census",
+  "next": "Sumcheck/GKR public role phase accounting; inspect existing reversed-fraction-tree and cold/warm clocks before selecting a different seam",
+  "rotation": [
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "lookup/softmax",
+    "memory traffic",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proof composition"
+  ],
+  "parked": "Further hash frontier/count/fusion micro-optimizations until measured native incidence and exclusive critical-path clocks."
+}

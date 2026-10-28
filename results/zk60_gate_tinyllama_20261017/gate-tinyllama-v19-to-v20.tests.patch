@@ -1,0 +1,63 @@
+diff -ruN -x __pycache__ frozen_v19/tests/test_v4_status_g10.py frozen_v20/tests/test_v4_status_g10.py
+--- frozen_v19/tests/test_v4_status_g10.py	2026-10-20 22:50:28.647946906 -0700
++++ frozen_v20/tests/test_v4_status_g10.py	2026-10-26 12:44:19.078831104 -0700
+@@ -1451,3 +1451,59 @@
+         r = CT.check_classify_terminals(types.SimpleNamespace(manifest={"schema": "hashline-native-capture/6-token-run"}))
+         self.assertFalse(r["ok"])
+         self.assertFalse(r["checked"])
++
++
++class ClassifierV20(unittest.TestCase):
++    """[v20, gate round 17] the classifier capture reader on the R-C1 rung
++    captures: the 56 pins read (the hooked tree), the replay with the
++    classifier header (the verdict and the chunk bound), the 12 slots'
++    terminal identity with every public table rebuilt (one public bit) and
++    B-3, NL-1, D41; and failing-first: v19's capture reader refuses the
++    bundle, a flipped verdict breaks the binding and LZC, a moved chunk
++    breaks the binding and D41"""
++
++    CAP = "/home/victor/zk60-artifacts/token-io/captures"
++
++    @unittest.skipUnless(os.path.isdir(os.path.join(CAP, "classify-rung-L1-v1")), "the classifier rung capture is not on disk")
++    def test_reader_replay_terminals_and_controls(self):
++        import zk60_native_rg_classgate as CG
++        import zk60_native_rg_classterminals as CT
++        b = CG.load(os.path.join(self.CAP, "classify-rung-L1-v1"))
++        i = CG.class_integrity(b)
++        self.assertTrue(i["ok"], i["findings"])
++        self.assertEqual(i["source_pins"]["pins"], 56)
++        rp = CG.ClassRunReplay(b).run()
++        self.assertTrue(rp.summary()["ok"], rp.summary()["failures"][:3])
++        tc = CT.check_classify_terminals(b, rp)
++        self.assertTrue(tc["ok"], tc["findings"][:3])
++        self.assertEqual((tc["slots_equal"], tc["slots_checked"]), (12, 12))
++        self.assertTrue(tc["B3_margin_vector"]["ok"])
++        self.assertEqual(tc["one_public_bit"]["taken_tables"], ["captured tau_tab_c", "margin vector w_Delta"])
++        self.assertTrue(CT.nl1_classify_slots(b, rp)["ok"])
++        # failing first: a flipped verdict breaks the binding and exactly LZC
++        b2 = copy.copy(b)
++        b2.run = copy.deepcopy(b.run)
++        b2.run["classify"]["verdict"] = 1 - b.run["classify"]["verdict"]
++        self.assertFalse(CG.ClassRunReplay(b2).run().summary()["run_binding_reproduced"])
++        t1 = CT.check_classify_terminals(b, rp, facts_override={"verdict": 1 - b.run["classify"]["verdict"]})
++        self.assertEqual(sorted({(r["stage"], r["slot"]) for r in t1["slots"] if not r["equal"]}), [("OUT-C", 4)])
++        # [v20] the stage-line reader leaves a classifier run to the per-block shim
++        import zk60_native_rg_stagecal as SC
++        self.assertEqual(SC.stage_shapes(b.run)[0], [])
++        r = CG.class_block_terminals(b, rp)
++        self.assertTrue(r["ok"], [p["port_findings"] for p in r["per_stage"]])
++        self.assertTrue(r["controls"]["NC-1_constant_moved"]["fires"])
++        # and v19's reader refused any classifier capture
++        import types
++        self.assertTrue(CT.check_classify_terminals(types.SimpleNamespace(manifest={"schema": "x"}))["ok"] is False)
++
++    @unittest.skipUnless(os.path.isdir(os.path.join(CAP, "classify-rung-L2-v1-chunk1o27")), "the D41 chunk capture is not on disk")
++    def test_d41_chunk(self):
++        import zk60_native_rg_classgate as CG
++        b = CG.load(os.path.join(self.CAP, "classify-rung-L2-v1-chunk1o27"))
++        i = CG.class_integrity(b)
++        self.assertTrue(i["D41_chunk"]["ok"])
++        self.assertEqual((b.run["classify"]["chunk"]["a"], b.run["classify"]["chunk"]["b"]), (4, 27))
++        r = CG.d41_item_check([b])
++        self.assertEqual(r["label"], 1)
++        self.assertIn("chunks [0] have no accepted proof", r["fail_closed_reasons"])

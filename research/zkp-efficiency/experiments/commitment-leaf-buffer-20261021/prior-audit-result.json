@@ -1,0 +1,12 @@
+{
+  "status": "PASS_INDEPENDENT_SOURCE_AND_COST_AUDIT",
+  "checks": 219,
+  "pinned_native_files": 6,
+  "exact_source_families": 244,
+  "count_preserving_source_mutations": 2,
+  "measured_script_seconds": 0.17375814300612547,
+  "rss_kib": 17548,
+  "source_reference": "Restricted native source interpreter plus original affine table set intersection",
+  "native_proof": false,
+  "external_review": false
+}

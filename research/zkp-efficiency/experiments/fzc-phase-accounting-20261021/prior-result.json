@@ -1,0 +1,471 @@
+{
+  "status": "PASS_SYNTHETIC_RETIREMENT_ONLY",
+  "seed": 202610210119,
+  "checks": 5037,
+  "differential_cases": 4800,
+  "decision_counts": {
+    "retire": 42,
+    "hold": 2979,
+    "quarantine": 1779
+  },
+  "topological_interleavings": 105,
+  "unsafe_control_schedules": {
+    "timeout_drop": 67,
+    "published_flag": 46,
+    "a_sync_only": 1
+  },
+  "counterexamples": {
+    "timeout_drop": [
+      "b_done",
+      "b_sync",
+      "cleanup",
+      "publish",
+      "kernel_done",
+      "copy_done",
+      "a_sync"
+    ],
+    "published_flag": [
+      "b_done",
+      "b_sync",
+      "publish",
+      "cleanup",
+      "kernel_done",
+      "copy_done",
+      "a_sync"
+    ],
+    "a_sync_only": [
+      "publish",
+      "kernel_done",
+      "copy_done",
+      "a_sync",
+      "cleanup",
+      "b_done",
+      "b_sync"
+    ]
+  },
+  "controls": [
+    "earlier_event_does_not_cover_later_copy",
+    "unrecorded_event_query_success_ignored",
+    "failed_event_record_query_success_ignored",
+    "wrong_generation_ignored",
+    "wrong_context_ignored",
+    "failed_sync_does_not_retire",
+    "late_successful_sync_can_retire_after_copy_error",
+    "cleanup_does_not_turn_failed_attempt_into_proof",
+    "poisoned_context_remains_quarantined",
+    "submission_after_close_refused",
+    "admit_reserved_0",
+    "admit_reserved_1",
+    "admit_reserved_2",
+    "quarantine_budget_admission_refused",
+    "failed_free_remains_charged",
+    "ambiguous_free_is_never_blindly_retried",
+    "successful_free_releases_reservation",
+    "readmission_after_release",
+    "pending_owner_admitted",
+    "reservation_cannot_release_unrelated_empty_lease",
+    "same_lease_double_reservation_refused",
+    "poison_stops_context_readmission",
+    "poison_blocks_release_even_with_fence"
+  ],
+  "admission_trace": [
+    {
+      "attempt": 0,
+      "size": 88,
+      "admitted": true,
+      "held": 88
+    },
+    {
+      "attempt": 1,
+      "size": 2048,
+      "admitted": true,
+      "held": 88
+    },
+    {
+      "attempt": 2,
+      "size": 104,
+      "admitted": true,
+      "held": 192
+    },
+    {
+      "attempt": 3,
+      "size": 96,
+      "admitted": true,
+      "held": 288
+    },
+    {
+      "attempt": 4,
+      "size": 104,
+      "admitted": true,
+      "held": 392
+    },
+    {
+      "attempt": 5,
+      "size": 2048,
+      "admitted": true,
+      "held": 392
+    },
+    {
+      "attempt": 6,
+      "size": 104,
+      "admitted": true,
+      "held": 392
+    },
+    {
+      "attempt": 7,
+      "size": 80,
+      "admitted": true,
+      "held": 472
+    },
+    {
+      "attempt": 8,
+      "size": 1024,
+      "admitted": true,
+      "held": 1496
+    },
+    {
+      "attempt": 9,
+      "size": 88,
+      "admitted": true,
+      "held": 1584
+    },
+    {
+      "attempt": 10,
+      "size": 2048,
+      "admitted": true,
+      "held": 1584
+    },
+    {
+      "attempt": 11,
+      "size": 1024,
+      "admitted": true,
+      "held": 2608
+    },
+    {
+      "attempt": 12,
+      "size": 88,
+      "admitted": true,
+      "held": 2696
+    },
+    {
+      "attempt": 13,
+      "size": 96,
+      "admitted": true,
+      "held": 2792
+    },
+    {
+      "attempt": 14,
+      "size": 88,
+      "admitted": true,
+      "held": 2880
+    },
+    {
+      "attempt": 15,
+      "size": 1024,
+      "admitted": true,
+      "held": 3904
+    },
+    {
+      "attempt": 16,
+      "size": 104,
+      "admitted": true,
+      "held": 4008
+    },
+    {
+      "attempt": 17,
+      "size": 88,
+      "admitted": true,
+      "held": 4008
+    },
+    {
+      "attempt": 18,
+      "size": 96,
+      "admitted": false,
+      "held": 4008
+    },
+    {
+      "attempt": 19,
+      "size": 80,
+      "admitted": true,
+      "held": 4008
+    },
+    {
+      "attempt": 20,
+      "size": 1024,
+      "admitted": false,
+      "held": 4008
+    },
+    {
+      "attempt": 21,
+      "size": 88,
+      "admitted": true,
+      "held": 4096
+    },
+    {
+      "attempt": 22,
+      "size": 96,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 23,
+      "size": 1024,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 24,
+      "size": 1024,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 25,
+      "size": 88,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 26,
+      "size": 88,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 27,
+      "size": 1024,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 28,
+      "size": 1024,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 29,
+      "size": 88,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 30,
+      "size": 88,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 31,
+      "size": 88,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 32,
+      "size": 104,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 33,
+      "size": 80,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 34,
+      "size": 96,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 35,
+      "size": 104,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 36,
+      "size": 104,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 37,
+      "size": 96,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 38,
+      "size": 104,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 39,
+      "size": 88,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 40,
+      "size": 104,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 41,
+      "size": 104,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 42,
+      "size": 104,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 43,
+      "size": 2048,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 44,
+      "size": 80,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 45,
+      "size": 1024,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 46,
+      "size": 2048,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 47,
+      "size": 88,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 48,
+      "size": 96,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 49,
+      "size": 88,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 50,
+      "size": 104,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 51,
+      "size": 1024,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 52,
+      "size": 80,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 53,
+      "size": 80,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 54,
+      "size": 1024,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 55,
+      "size": 96,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 56,
+      "size": 80,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 57,
+      "size": 88,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 58,
+      "size": 88,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 59,
+      "size": 104,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 60,
+      "size": 88,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 61,
+      "size": 104,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 62,
+      "size": 88,
+      "admitted": false,
+      "held": 4096
+    },
+    {
+      "attempt": 63,
+      "size": 1024,
+      "admitted": false,
+      "held": 4096
+    }
+  ],
+  "wall_seconds": 0.03948346900870092,
+  "rss_kib": 16024,
+  "estimated_memory_mib": 32,
+  "threads": 1,
+  "native_cuda_executed": false,
+  "new_verified_full_stack_proofs": 0,
+  "limitations": [
+    "trusted native fence adapter not implemented",
+    "not a CUDA memory-order model",
+    "operation completion is a conservative last-use upper bound, not confirmed post-flag memory access",
+    "error may enqueue assumptions are conservative",
+    "poisoned-context release not established",
+    "no proof/transcript/native timing"
+  ]
+}

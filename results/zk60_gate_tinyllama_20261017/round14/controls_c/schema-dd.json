@@ -1,0 +1,470 @@
+{
+ "allowed_keys": 228,
+ "bundles": [
+  {
+   "bundle": "dd-rung-l1-dense",
+   "controls": {
+    "all_fire": true,
+    "controls": [
+     {
+      "control": "SC-1",
+      "findings_naming_it": [
+       "S1: stage-00.json carries field(s) not on the capture allow-list: ['extra_private_field']"
+      ],
+      "fires": true,
+      "what": "an unlisted key added to stage-00.json"
+     },
+     {
+      "control": "SC-2",
+      "findings_naming_it": [
+       "S1: run.json carries field(s) not on the capture allow-list: ['hidden_debug']"
+      ],
+      "fires": true,
+      "what": "an unlisted key nested in run.json's shape"
+     },
+     {
+      "control": "SC-3",
+      "findings_naming_it": [
+       "S2: stage-00.json contains the forbidden word 'seed'"
+      ],
+      "fires": true,
+      "what": "the word 'seed' appended to stage-00.json's bytes"
+     },
+     {
+      "control": "SC-4",
+      "findings_naming_it": [
+       "S3: 1 byte range(s) of arrays.bin no reference covers (first [5821256, 5821264])"
+      ],
+      "fires": true,
+      "what": "arrays.bin eight bytes longer than every reference covers"
+     }
+    ],
+    "ok": true
+   },
+   "coverage": {
+    "arrays_bin_bytes": 5821256,
+    "bytes_past_the_end": 0,
+    "covered_exactly": true,
+    "gap_count": 0,
+    "gaps": [],
+    "references": 592
+   },
+   "files": [
+    "run.json",
+    "stage-00.json",
+    "manifest.json"
+   ],
+   "findings": [],
+   "keys_checked": 24589,
+   "ok": true
+  },
+  {
+   "bundle": "dd-rung-l1-zero",
+   "controls": {
+    "all_fire": true,
+    "controls": [
+     {
+      "control": "SC-1",
+      "findings_naming_it": [
+       "S1: stage-00.json carries field(s) not on the capture allow-list: ['extra_private_field']"
+      ],
+      "fires": true,
+      "what": "an unlisted key added to stage-00.json"
+     },
+     {
+      "control": "SC-2",
+      "findings_naming_it": [
+       "S1: run.json carries field(s) not on the capture allow-list: ['hidden_debug']"
+      ],
+      "fires": true,
+      "what": "an unlisted key nested in run.json's shape"
+     },
+     {
+      "control": "SC-3",
+      "findings_naming_it": [
+       "S2: stage-00.json contains the forbidden word 'seed'"
+      ],
+      "fires": true,
+      "what": "the word 'seed' appended to stage-00.json's bytes"
+     },
+     {
+      "control": "SC-4",
+      "findings_naming_it": [
+       "S3: 1 byte range(s) of arrays.bin no reference covers (first [5806072, 5806080])"
+      ],
+      "fires": true,
+      "what": "arrays.bin eight bytes longer than every reference covers"
+     }
+    ],
+    "ok": true
+   },
+   "coverage": {
+    "arrays_bin_bytes": 5806072,
+    "bytes_past_the_end": 0,
+    "covered_exactly": true,
+    "gap_count": 0,
+    "gaps": [],
+    "references": 592
+   },
+   "files": [
+    "run.json",
+    "stage-00.json",
+    "manifest.json"
+   ],
+   "findings": [],
+   "keys_checked": 24589,
+   "ok": true
+  },
+  {
+   "bundle": "dd-rung-l2-dense",
+   "controls": {
+    "all_fire": true,
+    "controls": [
+     {
+      "control": "SC-1",
+      "findings_naming_it": [
+       "S1: stage-00.json carries field(s) not on the capture allow-list: ['extra_private_field']"
+      ],
+      "fires": true,
+      "what": "an unlisted key added to stage-00.json"
+     },
+     {
+      "control": "SC-2",
+      "findings_naming_it": [
+       "S1: run.json carries field(s) not on the capture allow-list: ['hidden_debug']"
+      ],
+      "fires": true,
+      "what": "an unlisted key nested in run.json's shape"
+     },
+     {
+      "control": "SC-3",
+      "findings_naming_it": [
+       "S2: stage-00.json contains the forbidden word 'seed'"
+      ],
+      "fires": true,
+      "what": "the word 'seed' appended to stage-00.json's bytes"
+     },
+     {
+      "control": "SC-4",
+      "findings_naming_it": [
+       "S3: 1 byte range(s) of arrays.bin no reference covers (first [10815368, 10815376])"
+      ],
+      "fires": true,
+      "what": "arrays.bin eight bytes longer than every reference covers"
+     }
+    ],
+    "ok": true
+   },
+   "coverage": {
+    "arrays_bin_bytes": 10815368,
+    "bytes_past_the_end": 0,
+    "covered_exactly": true,
+    "gap_count": 0,
+    "gaps": [],
+    "references": 1183
+   },
+   "files": [
+    "run.json",
+    "stage-00.json",
+    "stage-01.json",
+    "manifest.json"
+   ],
+   "findings": [],
+   "keys_checked": 46149,
+   "ok": true
+  },
+  {
+   "bundle": "dd-rung-l2-zero",
+   "controls": {
+    "all_fire": true,
+    "controls": [
+     {
+      "control": "SC-1",
+      "findings_naming_it": [
+       "S1: stage-00.json carries field(s) not on the capture allow-list: ['extra_private_field']"
+      ],
+      "fires": true,
+      "what": "an unlisted key added to stage-00.json"
+     },
+     {
+      "control": "SC-2",
+      "findings_naming_it": [
+       "S1: run.json carries field(s) not on the capture allow-list: ['hidden_debug']"
+      ],
+      "fires": true,
+      "what": "an unlisted key nested in run.json's shape"
+     },
+     {
+      "control": "SC-3",
+      "findings_naming_it": [
+       "S2: stage-00.json contains the forbidden word 'seed'"
+      ],
+      "fires": true,
+      "what": "the word 'seed' appended to stage-00.json's bytes"
+     },
+     {
+      "control": "SC-4",
+      "findings_naming_it": [
+       "S3: 1 byte range(s) of arrays.bin no reference covers (first [10851480, 10851488])"
+      ],
+      "fires": true,
+      "what": "arrays.bin eight bytes longer than every reference covers"
+     }
+    ],
+    "ok": true
+   },
+   "coverage": {
+    "arrays_bin_bytes": 10851480,
+    "bytes_past_the_end": 0,
+    "covered_exactly": true,
+    "gap_count": 0,
+    "gaps": [],
+    "references": 1183
+   },
+   "files": [
+    "run.json",
+    "stage-00.json",
+    "stage-01.json",
+    "manifest.json"
+   ],
+   "findings": [],
+   "keys_checked": 46149,
+   "ok": true
+  },
+  {
+   "bundle": "tl128dd-l1-dense",
+   "controls": {
+    "all_fire": true,
+    "controls": [
+     {
+      "control": "SC-1",
+      "findings_naming_it": [
+       "S1: stage-00.json carries field(s) not on the capture allow-list: ['extra_private_field']"
+      ],
+      "fires": true,
+      "what": "an unlisted key added to stage-00.json"
+     },
+     {
+      "control": "SC-2",
+      "findings_naming_it": [
+       "S1: run.json carries field(s) not on the capture allow-list: ['hidden_debug']"
+      ],
+      "fires": true,
+      "what": "an unlisted key nested in run.json's shape"
+     },
+     {
+      "control": "SC-3",
+      "findings_naming_it": [
+       "S2: stage-00.json contains the forbidden word 'seed'"
+      ],
+      "fires": true,
+      "what": "the word 'seed' appended to stage-00.json's bytes"
+     },
+     {
+      "control": "SC-4",
+      "findings_naming_it": [
+       "S3: 1 byte range(s) of arrays.bin no reference covers (first [69427480, 69427488])"
+      ],
+      "fires": true,
+      "what": "arrays.bin eight bytes longer than every reference covers"
+     }
+    ],
+    "ok": true
+   },
+   "coverage": {
+    "arrays_bin_bytes": 69427480,
+    "bytes_past_the_end": 0,
+    "covered_exactly": true,
+    "gap_count": 0,
+    "gaps": [],
+    "references": 593
+   },
+   "files": [
+    "run.json",
+    "stage-00.json",
+    "manifest.json"
+   ],
+   "findings": [],
+   "keys_checked": 31345,
+   "ok": true
+  },
+  {
+   "bundle": "tl128dd-l1-zero",
+   "controls": {
+    "all_fire": true,
+    "controls": [
+     {
+      "control": "SC-1",
+      "findings_naming_it": [
+       "S1: stage-00.json carries field(s) not on the capture allow-list: ['extra_private_field']"
+      ],
+      "fires": true,
+      "what": "an unlisted key added to stage-00.json"
+     },
+     {
+      "control": "SC-2",
+      "findings_naming_it": [
+       "S1: run.json carries field(s) not on the capture allow-list: ['hidden_debug']"
+      ],
+      "fires": true,
+      "what": "an unlisted key nested in run.json's shape"
+     },
+     {
+      "control": "SC-3",
+      "findings_naming_it": [
+       "S2: stage-00.json contains the forbidden word 'seed'"
+      ],
+      "fires": true,
+      "what": "the word 'seed' appended to stage-00.json's bytes"
+     },
+     {
+      "control": "SC-4",
+      "findings_naming_it": [
+       "S3: 1 byte range(s) of arrays.bin no reference covers (first [69442448, 69442456])"
+      ],
+      "fires": true,
+      "what": "arrays.bin eight bytes longer than every reference covers"
+     }
+    ],
+    "ok": true
+   },
+   "coverage": {
+    "arrays_bin_bytes": 69442448,
+    "bytes_past_the_end": 0,
+    "covered_exactly": true,
+    "gap_count": 0,
+    "gaps": [],
+    "references": 593
+   },
+   "files": [
+    "run.json",
+    "stage-00.json",
+    "manifest.json"
+   ],
+   "findings": [],
+   "keys_checked": 31345,
+   "ok": true
+  },
+  {
+   "bundle": "tl128dd-l2-dense",
+   "controls": {
+    "all_fire": true,
+    "controls": [
+     {
+      "control": "SC-1",
+      "findings_naming_it": [
+       "S1: stage-00.json carries field(s) not on the capture allow-list: ['extra_private_field']"
+      ],
+      "fires": true,
+      "what": "an unlisted key added to stage-00.json"
+     },
+     {
+      "control": "SC-2",
+      "findings_naming_it": [
+       "S1: run.json carries field(s) not on the capture allow-list: ['hidden_debug']"
+      ],
+      "fires": true,
+      "what": "an unlisted key nested in run.json's shape"
+     },
+     {
+      "control": "SC-3",
+      "findings_naming_it": [
+       "S2: stage-00.json contains the forbidden word 'seed'"
+      ],
+      "fires": true,
+      "what": "the word 'seed' appended to stage-00.json's bytes"
+     },
+     {
+      "control": "SC-4",
+      "findings_naming_it": [
+       "S3: 1 byte range(s) of arrays.bin no reference covers (first [98990008, 98990016])"
+      ],
+      "fires": true,
+      "what": "arrays.bin eight bytes longer than every reference covers"
+     }
+    ],
+    "ok": true
+   },
+   "coverage": {
+    "arrays_bin_bytes": 98990008,
+    "bytes_past_the_end": 0,
+    "covered_exactly": true,
+    "gap_count": 0,
+    "gaps": [],
+    "references": 1185
+   },
+   "files": [
+    "run.json",
+    "stage-00.json",
+    "stage-01.json",
+    "manifest.json"
+   ],
+   "findings": [],
+   "keys_checked": 59693,
+   "ok": true
+  },
+  {
+   "bundle": "tl128dd-l2-zero",
+   "controls": {
+    "all_fire": true,
+    "controls": [
+     {
+      "control": "SC-1",
+      "findings_naming_it": [
+       "S1: stage-00.json carries field(s) not on the capture allow-list: ['extra_private_field']"
+      ],
+      "fires": true,
+      "what": "an unlisted key added to stage-00.json"
+     },
+     {
+      "control": "SC-2",
+      "findings_naming_it": [
+       "S1: run.json carries field(s) not on the capture allow-list: ['hidden_debug']"
+      ],
+      "fires": true,
+      "what": "an unlisted key nested in run.json's shape"
+     },
+     {
+      "control": "SC-3",
+      "findings_naming_it": [
+       "S2: stage-00.json contains the forbidden word 'seed'"
+      ],
+      "fires": true,
+      "what": "the word 'seed' appended to stage-00.json's bytes"
+     },
+     {
+      "control": "SC-4",
+      "findings_naming_it": [
+       "S3: 1 byte range(s) of arrays.bin no reference covers (first [99019944, 99019952])"
+      ],
+      "fires": true,
+      "what": "arrays.bin eight bytes longer than every reference covers"
+     }
+    ],
+    "ok": true
+   },
+   "coverage": {
+    "arrays_bin_bytes": 99019944,
+    "bytes_past_the_end": 0,
+    "covered_exactly": true,
+    "gap_count": 0,
+    "gaps": [],
+    "references": 1185
+   },
+   "files": [
+    "run.json",
+    "stage-00.json",
+    "stage-01.json",
+    "manifest.json"
+   ],
+   "findings": [],
+   "keys_checked": 59693,
+   "ok": true
+  }
+ ],
+ "ok": true,
+ "privacy_acceptance": false,
+ "privacy_property_established": false,
+ "tool_sha256": "07e83172a006c5d7c6bbcb8763561d4026b01b3442288453a8b6b20176525970",
+ "what": "closed key schema, forbidden words and arrays.bin coverage (finding P-10)"
+}

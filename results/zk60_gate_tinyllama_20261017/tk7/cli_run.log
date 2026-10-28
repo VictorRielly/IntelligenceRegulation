@@ -1,0 +1,17 @@
+[zk60-guard 16:44:41] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 16:45:41] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 16:46:41] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 16:47:41] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 16:48:41] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 16:49:41] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 16:50:41] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 16:51:41] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 16:52:42] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 16:53:42] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 16:54:42] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 16:55:42] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 16:56:42] waiting for /tmp/zk-heavy.lock (721s)
+[zk60-guard 16:57:03] START gate-tk7-cli-stack-prove class=cpu need=0.8G cap=1.5G enforce=cgroup+watchdog waited=742s run=c7b87dc634cc
+[zk60-guard 16:57:09] END gate-tk7-cli-stack-prove exit=0 child_wall=6s peak_rss=1.04G min_avail=11.48G
+[zk60-guard 16:57:10] START gate-tk7-cli-stack-verify class=cpu need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=8e01a21ede46
+[zk60-guard 16:57:11] END gate-tk7-cli-stack-verify exit=0 child_wall=1s peak_rss=0.29G min_avail=12.50G

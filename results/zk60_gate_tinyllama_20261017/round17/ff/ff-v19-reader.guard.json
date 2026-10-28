@@ -1,0 +1,43 @@
+{
+ "ts_end": "2026-10-26T20:29:13Z",
+ "run_id": "2b7a91d31ebe",
+ "label": "gate-ff-v19-reader",
+ "class": "light",
+ "cmd": [
+  "python3",
+  "-c",
+  "\nimport json, sys\nsys.path.insert(0, '/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v19/scripts')\nimport zk60_native_rg_classterminals as CT, zk60_native_rg_classpins as CP\nimport types\nm = json.load(open('/home/victor/zk60-artifacts/token-io/captures/classify-rung-L1-v1/manifest.json'))\nr = CT.check_classify_terminals(types.SimpleNamespace(manifest=m, name='classify-rung-L1-v1'))\np = CP.check_classify_pins(m)\nout = {'v19_reader': {k: r.get(k) for k in ('ok', 'checked', 'refused')}, 'v19_pin_check': p}\njson.dump(out, open('/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round17/ff/ff-v19-reader.json', 'w'), indent=1)\nprint(out['v19_reader'], p['ok'], p['refusals'][:4])\n"
+ ],
+ "need_gib": 0.3,
+ "cap_gib": 1.0,
+ "exit": 1,
+ "child_rc": 1,
+ "guard_killed": null,
+ "child_wall_seconds": 0.5134639739990234,
+ "refused": null,
+ "guard_error": null,
+ "guard_pid": 918362,
+ "boot_id": "9d3a66e4-7664-4344-a046-38a0c53a53f3",
+ "pid_ns": "pid:[4026532216]",
+ "guard_starttime_ticks": 22415332,
+ "lock_ids": {
+  "heavy": "2096:36955",
+  "build": "2096:37006"
+ },
+ "enforcement": "cgroup+watchdog",
+ "waited_s": 0.0,
+ "guard_wall_s": 0.5,
+ "stragglers_killed": 0,
+ "hard_killed": 0,
+ "scope_unit": "zk60-2b7a91d31ebe.scope",
+ "scope_adopted": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/zk60.slice/zk60-2b7a91d31ebe.scope",
+ "foreign_cgroups_refused": [],
+ "peak_rss_gib": 0.04,
+ "peak_cgroup_gib": 0.05,
+ "peak_vram_mib": null,
+ "min_mem_available_gib": 12.94,
+ "vram_drain_s": null,
+ "gpu_drain_failed": false,
+ "gpu_telemetry_lost": false,
+ "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+}

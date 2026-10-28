@@ -1,0 +1,27 @@
+{
+  "cycle": "0099",
+  "run_id": "20261020T071854Z-1076bec1",
+  "completed_at_utc": "2026-10-20T07:36:06.281760+00:00",
+  "deadline_utc": "2026-10-20T07:38:54Z",
+  "status": "COMPLETE_RESEARCH_ONLY_NO_PROVING_SPEED_IMPROVEMENT",
+  "native_source_pins_unchanged": 8,
+  "prior_sources_and_findings_preserved": true,
+  "source_records": 577,
+  "new_source_records": 6,
+  "full_stack": {
+    "proofs": 0,
+    "passes": 0,
+    "positions": 0,
+    "context_length": null,
+    "device": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "startup_fraction": null,
+    "steady_rate": null,
+    "total_rate": null
+  },
+  "writes": "research directory excluding runtime only",
+  "next_cycle_not_before": "2026-10-20T08:18:54Z"
+}

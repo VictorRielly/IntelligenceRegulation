@@ -219,6 +219,8 @@ def m9_2_a_moved_opened_column_entry(bundle) -> dict:
 INDICATOR_SLOTS = {
     "D": {0, 1, 14}, "Q": {15}, "S": {4, 17}, "Ht": {17}, "Kv": {16},
     "F": {18}, "L": {3}, "Tab": {19}, "T": {2},
+    # [v17, gate round 14] a DD profile's dictionary: only SC_DD reads it
+    "Dd": {23},
 }
 
 # [v7, review round 2 Q-8] the two refusals that name the host slot's
@@ -230,6 +232,10 @@ _TABLE_COUNT = re.compile(
 _DRAW_COUNT = re.compile(
     r"^slot (\d+): this slot consumes (\d+) definition draws \(.*\) and the "
     r"capture declares (\d+)$")
+# [v17, gate round 14] the DD arms' own refusal (argument.rs R9: a DD profile
+# refuses `pad_on` by name, so a domain made to look padded never reaches a
+# draw count there)
+_DD_PAD = re.compile(r"^slot (\d+): a DD profile's .* would host a pad term")
 # a domain made to look padded adds ONE support table to its host slot, and
 # TWO definition draws (the pad mu and zeta) to it
 _EXTRA = {"public-table count": 1, "definition-draw count": 2}
@@ -254,10 +260,13 @@ def refusal_mechanism(host: int, said: list):
         m = rx.match(said[0])
         if m and int(m[1]) == host:
             return mech, (int(m[2]), int(m[3]))
+    m = _DD_PAD.match(said[0])
+    if m and int(m[1]) == host:
+        return "DD pad refusal", None
     return None, None
 
 
-def g4_criterion(dom: str, host: int, arm: str, stopped: set, said: list) -> dict:
+def g4_criterion(dom: str, host: int, arm: str, stopped: set, said: list, dd: bool = False) -> dict:
     """[v7, finding G-4, tightened per review round 2 Q-8] one arm's verdict
     for one domain.
 
@@ -272,16 +281,19 @@ def g4_criterion(dom: str, host: int, arm: str, stopped: set, said: list) -> dic
       host slot may stop.  This is the refusal M9-3's criterion always
       expected; before v7 no perturbation reached it."""
     mech, nums = refusal_mechanism(host, said)
+    # [v17] a DD arm (slots 17 / 23 at a DD profile) has no pad arithmetic:
+    # its refusal is argument.rs R9's by name, with no draw surplus
+    dd_arm = dd and host in (17, 23)
     if arm == "indicator":
         want_slots = set(INDICATOR_SLOTS[dom])
-        allowed = ("public-table count", "definition-draw count")
+        allowed = ("public-table count", "definition-draw count") + (("DD pad refusal",) if dd_arm else ())
     elif arm == "draw-count":
         want_slots = {host}
-        allowed = ("definition-draw count",)
+        allowed = ("DD pad refusal",) if dd_arm else ("definition-draw count",)
     else:
         raise ValueError(f"unknown M9-3 arm {arm!r}")
     surplus = nums[0] - nums[1] if nums else None
-    mech_ok = mech in allowed and surplus == _EXTRA[mech]
+    mech_ok = mech in allowed and (mech == "DD pad refusal" or surplus == _EXTRA[mech])
     exact = stopped == want_slots
     return {"arm": arm, "refusal_mechanism": mech,
             "port_and_capture_numbers": list(nums) if nums else None,
@@ -305,6 +317,10 @@ def m9_3_the_unpadded_domains(bundle, index, replay) -> dict:
     hosts = {"T": (2, "SC_TZC"), "Kv": (16, "SC_KVZC"), "F": (18, "SC_FZC"),
              "L": (3, "SC_LZC"), "D": (14, "SC_DZC"), "Q": (15, "SC_QZC"),
              "S": (17, "SC_SZC"), "Tab": (19, "SC_TAB")}
+    # [v17, gate round 14] a DD profile's dictionary domain, hosted by SC_DD
+    dd = int(bundle.run["shape"].get("dd_cap", 0)) > 0
+    if dd:
+        hosts["Dd"] = (23, "SC_DD")
     # **[ROUND 9b] FINDING P-F2, repaired here.**  Until now this read
     # `index.geom`, and a `PlaneIndex` has no `geom`: the `except` below
     # turned every domain's pad state into `None`, `unpadded` came out
@@ -349,7 +365,7 @@ def m9_3_the_unpadded_domains(bundle, index, replay) -> dict:
         said = [f["why"] for s in bad["per_stage"]
                 for f in s["not_checked"] if f["slot"] == slot]
         stopped = _stopped_slots(bad) - honest_stopped
-        crit = g4_criterion(dom, slot, arm, stopped, said)
+        crit = g4_criterion(dom, slot, arm, stopped, said, dd=dd)
         return {"refusal": said[0] if said else None,
                 "slots_that_stopped_being_checked": sorted(stopped),
                 "fires": bool(said), **crit}

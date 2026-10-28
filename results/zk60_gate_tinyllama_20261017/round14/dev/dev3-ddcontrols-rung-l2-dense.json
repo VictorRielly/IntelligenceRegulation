@@ -1,0 +1,218 @@
+{
+ "what": "controls on the DD planes and slots, each predicted; NOT a privacy result",
+ "privacy_acceptance": false,
+ "bundle": "dd-rung-l2-dense",
+ "bundle_dir": "/home/victor/zk60-artifacts/dd-gate-r9/dd-rung-l2-dense",
+ "honest": {
+  "ok": true,
+  "slot_checks_equal": 48,
+  "of": 48,
+  "covered_slots": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21,
+   22,
+   23
+  ]
+ },
+ "controls": [
+  {
+   "control": "DT-1",
+   "what": "slot 23's A_PDICT terminal +1 (the dictionary quotient)",
+   "stage": 1,
+   "slot": 23,
+   "terminal": 0,
+   "predicted": [
+    [
+     1,
+     23
+    ]
+   ],
+   "slots_that_failed": [
+    [
+     1,
+     23
+    ]
+   ],
+   "replay_refuses": true,
+   "first_replay_refusal": "stage 1 slot 23 after: transcript state differs",
+   "restored": true,
+   "fires": true
+  },
+  {
+   "control": "DT-2",
+   "what": "slot 17's H_STUPLE terminal +1 (the score entry's tuple helper)",
+   "stage": 1,
+   "slot": 17,
+   "terminal": 10,
+   "predicted": [
+    [
+     1,
+     17
+    ]
+   ],
+   "slots_that_failed": [
+    [
+     1,
+     17
+    ]
+   ],
+   "replay_refuses": true,
+   "first_replay_refusal": "stage 1 slot 17 after: transcript state differs",
+   "restored": true,
+   "fires": true
+  },
+  {
+   "control": "DT-3",
+   "what": "slot 23's H_GDD terminal +1 (the dictionary's table helper)",
+   "stage": 1,
+   "slot": 23,
+   "terminal": 17,
+   "predicted": [
+    [
+     1,
+     23
+    ]
+   ],
+   "slots_that_failed": [
+    [
+     1,
+     23
+    ]
+   ],
+   "replay_refuses": true,
+   "first_replay_refusal": "stage 1 slot 23 after: transcript state differs",
+   "restored": true,
+   "fires": true
+  },
+  {
+   "control": "DT-4",
+   "what": "one entry of the captured e column +1",
+   "predicted_digest_off": [
+    [
+     1,
+     23
+    ]
+   ],
+   "digest_off_failed": [
+    [
+     1,
+     23
+    ]
+   ],
+   "digest_off_structure_failures": [
+    "dd_e_column: not periodic in cap = 32 (255 positions differ, first 33)"
+   ],
+   "digest_on_refusals": [
+    "slot 23 public table 12 (the DD dictionary's public e column, sorted({0} U the exp table's outputs) padded with 0 to cap, tiled over (h, t) (AttentionPublic::dd_e_column, private_block.rs R9)): the values hash to cac37635fac7, the capture declares e39b10474210"
+   ],
+   "fires": true
+  },
+  {
+   "control": "DT-5",
+   "what": "the e column's first two entries swapped in every period (digest off)",
+   "structure_failures": [
+    "dd_e_column: the column does not start at 0",
+    "dd_e_column: the column is not a strictly increasing run then zero padding"
+   ],
+   "fires": true
+  },
+  {
+   "control": "DT-6",
+   "what": "the dictionary tag taken as 140 instead of 141",
+   "predicted": [
+    [
+     0,
+     17
+    ],
+    [
+     0,
+     23
+    ],
+    [
+     1,
+     17
+    ],
+    [
+     1,
+     23
+    ]
+   ],
+   "slots_that_failed": [
+    [
+     0,
+     17
+    ],
+    [
+     0,
+     23
+    ],
+    [
+     1,
+     17
+    ],
+    [
+     1,
+     23
+    ]
+   ],
+   "tag_restored": true,
+   "fires": true
+  },
+  {
+   "control": "DT-7",
+   "what": "slot 23's plane list with H_GDD dropped",
+   "predicted": [
+    [
+     0,
+     23
+    ],
+    [
+     1,
+     23
+    ]
+   ],
+   "slots_that_failed": [
+    [
+     0,
+     23
+    ],
+    [
+     1,
+     23
+    ]
+   ],
+   "first_finding": "stage 0 slot 23 [SC_DD]: slot 23: the plane index table lists 17 planes for 18 private tables",
+   "fires": true
+  }
+ ],
+ "fired": 7,
+ "of": 7,
+ "ok": true,
+ "status": "PASS",
+ "seconds": 6.3,
+ "peak_rss_mb": 106,
+ "tool_sha256": {
+  "zk60_native_rg_ddcontrols.py": "f44063324ec5c0ac25880f63d4d6ad74440af4ac2cdb973f07fd81d9bd5d1350",
+  "zk60_native_rg_terminals.py": "f26966c281f4b3f4d7d9546f72ac164fea25754315899d56c9a2b0e67aa820dd"
+ }
+}

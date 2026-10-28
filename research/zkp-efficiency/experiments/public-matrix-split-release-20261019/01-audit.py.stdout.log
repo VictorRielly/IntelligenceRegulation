@@ -1,0 +1,1 @@
+{"accepted_path_cases": 78, "affinity": [0], "checks": 10232, "independent_corruptions": 1404, "independent_first_error_checks": 6720, "nice": 19, "rss_kib": 34308, "scope": "Independent synthetic reconstruction and accounting only; no native loader/proof execution", "status": "PASS", "threads": 1, "wall_seconds": 0.16031069999735337}

@@ -1,0 +1,2911 @@
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/argument.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/argument.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/argument.rs	2026-10-17 07:13:26.690109475 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/argument.rs	2026-10-19 09:43:52.719119676 -0700
+@@ -73,6 +73,43 @@
+ }
+ 
+ pub(crate) type Poly = Box<dyn Fn(&[Fp2]) -> Fp2 + Send + Sync>;
++
++// **NATIVE R9, TEST BUILDS ONLY: the LAPSED constructions D30 forbids**,
++// switched on both sides of a test (the prover and the verifier in one
++// thread) so that a mutation test can show its cheat PASSES against the
++// lapse and is CAUGHT by the construction as built. A release build has no
++// switch: `dd_lapse` is the constant `false` there.
++#[cfg(test)]
++thread_local! {
++    static DD_LAPSE: std::cell::Cell<u8> = const { std::cell::Cell::new(0) };
++}
++/// CHECK.md D-3: the division clauses gated off the LAST dictionary slot of
++/// every row (an unconstrained position)
++pub(crate) const DD_LAPSE_GATE_LAST_SLOT: u8 = 1;
++/// CHECK.md D-4: the row key dropped from the tuple
++pub(crate) const DD_LAPSE_DROP_KEY: u8 = 2;
++/// D30 condition 3: the dictionary's two LogUp columns left out of the single
++/// value-0 sum claim
++pub(crate) const DD_LAPSE_OUT_OF_SUM: u8 = 4;
++
++/// TEST ONLY: set the lapse bits (0 = the construction as built)
++#[cfg(test)]
++pub(crate) fn set_dd_lapse(v: u8) {
++    DD_LAPSE.with(|c| c.set(v));
++}
++
++/// whether a lapse bit is set (always `false` in a release build)
++pub(crate) fn dd_lapse(bit: u8) -> bool {
++    #[cfg(test)]
++    {
++        DD_LAPSE.with(|c| c.get()) & bit != 0
++    }
++    #[cfg(not(test))]
++    {
++        let _ = bit;
++        false
++    }
++}
+ type GroupPoly = std::sync::Arc<dyn Fn(usize, &[Fp2]) -> Fp2 + Send + Sync>;
+ 
+ pub(crate) struct SlotDef {
+@@ -133,6 +170,9 @@
+     pub g_exp: Fp2,
+     /// `gamma * TAG_ACT`, the third table tag (T2 decision 4)
+     pub g_act: Fp2,
++    /// NATIVE R9 (D30, B-5): `gamma * TAG_DD`, the dictionary's tag (read by
++    /// a DD profile's two dictionary relations only; no new challenge)
++    pub g_dd: Fp2,
+ }
+ 
+ #[derive(Default)]
+@@ -1716,6 +1756,67 @@
+             };
+             b.finish(Box::new(poly), hosted)
+         }
++        // **NATIVE R9 (D30): the softmax zero-check on a DD profile.** Each
++        // score entry keeps S8, RSL, ZSEL, E and P and the argmax clauses c0,
++        // c1, its byte lookups (sym(s8), rsl) and the exp pair; it carries NO
++        // division clause and no quotient / remainder limbs. Instead ONE
++        // tuple lookup puts (key = the row's Sum, mask * E, P) into its row's
++        // dictionary: `h_t * (alpha - (gamma TAG_DD + Sum + beta mask E +
++        // beta^2 P)) = 1`. Membership forces P = floor(mask E 2^F_P / Sum),
++        // because every dictionary slot proves exactly that quotient (`SC_DD`)
++        // and every value mask * E takes is in the public e column (B-7).
++        // Hosts 07 and 10 as before. A DD profile has no padded score
++        // position (`Shape::check_dd_geometry`).
++        SC_SZC if sh.dd_cap > 0 => {
++            if pad_on {
++                return Err("private block: a DD profile's softmax zero-check would host a pad term; D30 here needs an unpadded score domain".into());
++            }
++            let tau = tr.challenge_fp2_vec(sh.log(Dom::S));
++            let n_help = sh.helpers(Dom::S);
++            let mu = tr.challenge_fp2_vec(2 + n_help + 2);
++            let nu = nonzero(tr.challenge_fp2_vec(2))?;
++            let lam = pts.lam_z;
++            b.eq(&tau, 0);
++            b.eq(&pts.p_ht, 0);
++            b.eq(&pts.p_s, 0);
++            let im = b.public(causal_mask_at(sh));
++            let idx = b.a_range(ids.at(A_S8), ids.at(A_P))?;
++            let lht = sh.log(Dom::Ht);
++            let imx = b.a_slice(lay.a_off[ids.at(A_MX)], lht, rho(0..lht), 0)?;
++            let isum = b.a_slice(lay.a_off[ids.at(A_SUM)], lht, rho(0..lht), 0)?;
++            let h0 = b.h(hids.first_helper(Dom::S))?;
++            for j in 1..n_help {
++                b.h(hids.helper(Dom::S, j))?;
++            }
++            let ihx = b.h(hids.sexp())?;
++            let iht = b.h(hids.stuple())?;
++            let lks = lk_tables(lay, Dom::S, &b.shaped, g_u8);
++            let b_shs = k(1i64 << sh.sh_s).c0;
++            let k_s_half = k(super::witness::half(sh.sh_s));
++            let per_row = (sh.size(Dom::S) / sh.size(Dom::Ht)) as i64;
++            let hosted = vec![(SC_RS, nu[0].mul(k(per_row))), (SC_SCORE, nu[1])];
++            let ght = Gate(b.supp(Dom::Ht, cube)?);
++            let gs = Gate(b.supp(Dom::S, cube)?);
++            let (g_dd, beta2) = (ctx.g_dd, beta.mul(beta));
++            let keyed = !dd_lapse(DD_LAPSE_DROP_KEY);
++            let poly = move |v: &[Fp2]| {
++                let at = |p: usize| v[idx[p]];
++                let host_rs = nu[0].mul(ght.at(v)).mul(v[isum].add(lam));
++                let host_s = nu[1].mul(gs.at(v)).mul(at(A_S8).mul_base(b_shs).add(at(A_RSL)).sub(k_s_half));
++                let (mask, s8, zsel, e, p, sum) = (v[im], at(A_S8), at(A_ZSEL), at(A_E), at(A_P), v[isum]);
++                let delta = v[imx].sub(mask.mul(s8.add(k(-MASK_SCORE)))).add(k(-MASK_SCORE));
++                let c0 = zsel.mul(zsel).sub(zsel);
++                let c1 = zsel.mul(delta);
++                let cx = v[ihx].mul(alpha.sub(delta.add(beta.mul(e)).add(g_exp))).sub(Fp2::ONE);
++                // the tuple lookup into this row's dictionary (D30)
++                let key = if keyed { sum } else { Fp2::ZERO };
++                let ct = v[iht].mul(alpha.sub(g_dd.add(key).add(beta.mul(mask.mul(e))).add(beta2.mul(p)))).sub(Fp2::ONE);
++                let clauses = mu[0].mul(c0).add(mu[1].mul(c1));
++                let zc = helper_sum(v, &lks, h0, alpha, &mu[2..2 + n_help]).add(mu[2 + n_help].mul(cx)).add(mu[3 + n_help].mul(ct)).add(gs.at(v).mul(clauses));
++                v[0].mul(zc).add(v[1].mul(host_rs)).add(v[2].mul(host_s))
++            };
++            b.finish(Box::new(poly), hosted)
++        }
+         SC_SZC => {
+             let tau = tr.challenge_fp2_vec(sh.log(Dom::S));
+             let n_help = sh.helpers(Dom::S);
+@@ -1918,6 +2019,80 @@
+             b.h(hids.u())?;
+             b.finish(Box::new(|v: &[Fp2]| v[0].mul(v[1])), vec![])
+         }
++        // **NATIVE R9 (D30; CHECK.md B-1..B-5): the dictionary zero-check.**
++        // On the cube (h, t | k) of `dd_cap` slots per row, at EVERY slot — no
++        // usage gate, no `k < n_E` indicator (B-1) — today's exact-division
++        // relation, verbatim, with the public e column for `mask * E`:
++        //   c2: e 2^F_P - P_dict Sum - rho_s = 0
++        //   c3: rho_s + sigma_s + 1 - Sum = 0
++        //   c4: P_dict = limbs(P_dict)
++        // and the limbs' byte lookups with their top pins (the dictionary's own
++        // helper planes), so 0 <= rho_s < Sum and P_dict is the floor quotient;
++        // `Sum` is `A_SUM` read on the leading (h, t) variables, a claim site
++        // of this slot (B-4). Then the TABLE helper of the committed table
++        // side: `g (alpha - (gamma TAG_DD + Sum + beta e + beta^2 P_dict)) =
++        // M_dd` (B-5), whose plane enters the single value-0 sum claim with
++        // sign -1 (`HIds::is_table`, D30 condition 3). Every plane is
++        // committed (`A`: P_dict, its limbs, M_dd before every LogUp challenge,
++        // B-2; `H`: the helpers) and opened only at its own reserved site.
++        SC_DD => {
++            if sh.dd_cap == 0 {
++                return Err("private block: the dictionary slot at a profile without a dictionary".into());
++            }
++            if pad_on {
++                return Err("private block: a DD profile's dictionary would host a pad term; D30 here needs an unpadded dictionary".into());
++            }
++            let ldd = sh.log(Dom::Dd);
++            let tau = tr.challenge_fp2_vec(ldd);
++            let n_help = sh.helpers(Dom::Dd);
++            let mu = tr.challenge_fp2_vec(3 + n_help + 1);
++            b.eq(&tau, 0);
++            let _ = b.a_range(ids.pdict(), ids.mdd())?;
++            let (ipd, imd) = (b.tab(ids.pdict()), b.tab(ids.mdd()));
++            let i_pl: Vec<usize> = (0..lp).map(|kk| b.tab(ids.pl(kk))).collect();
++            let i_sr: Vec<usize> = (0..ls).map(|kk| b.tab(ids.sr(kk))).collect();
++            let i_sg: Vec<usize> = (0..ls).map(|kk| b.tab(ids.sg(kk))).collect();
++            let lht = sh.log(Dom::Ht);
++            let isum = b.a_slice(lay.a_off[ids.at(A_SUM)], lht, rho(0..lht), 0)?;
++            // the public e column, constant in (h, t): slot k's value
++            let ecol = ctx.public.dd_e_column(sh.dd_cap)?;
++            let cap = sh.dd_cap;
++            let ie = b.public((0..(1usize << ldd)).map(|x| k(ecol[x % cap])).collect());
++            let h0 = b.h(hids.first_helper(Dom::Dd))?;
++            for j in 1..n_help {
++                b.h(hids.helper(Dom::Dd, j))?;
++            }
++            let ig = b.h(hids.gdd())?;
++            let lks = lk_tables(lay, Dom::Dd, &b.shaped, g_u8);
++            let b_fp = k(1 << F_P).c0;
++            let lw = |ix: &[usize]| -> Vec<(usize, Fp)> { ix.iter().enumerate().map(|(kk, i)| (*i, pow256(kk).c0)).collect() };
++            let (w_sr, w_sg, w_pl) = (lw(&i_sr), lw(&i_sg), lw(&i_pl));
++            let (g_dd, beta2) = (ctx.g_dd, beta.mul(beta));
++            let keyed = !dd_lapse(DD_LAPSE_DROP_KEY);
++            // the D-3 lapse's public "used slot" gate: 0 on every row's last
++            // slot (test builds, lapsed only)
++            let gate = if dd_lapse(DD_LAPSE_GATE_LAST_SLOT) { Some(b.public((0..(1usize << ldd)).map(|x| if x % cap == cap - 1 { Fp2::ZERO } else { Fp2::ONE }).collect())) } else { None };
++            let poly = move |v: &[Fp2]| {
++                let lb = |w: &[(usize, Fp)]| match w.split_first() {
++                    None => Fp2::ZERO,
++                    Some(((i0, _), rest)) => rest.iter().fold(v[*i0], |a, (i, c)| a.add(v[*i].mul_base(*c))),
++                };
++                let (pd, md, sum, e) = (v[ipd], v[imd], v[isum], v[ie]);
++                let sr = lb(&w_sr);
++                let c2 = e.mul_base(b_fp).sub(pd.mul(sum)).sub(sr);
++                let c3 = lb(&w_sg).add(sr).add(Fp2::ONE).sub(sum);
++                let c4 = pd.sub(lb(&w_pl));
++                let key = if keyed { sum } else { Fp2::ZERO };
++                let ctab = v[ig].mul(alpha.sub(g_dd.add(key).add(beta.mul(e)).add(beta2.mul(pd)))).sub(md);
++                let division = mu[0].mul(c2).add(mu[1].mul(c3)).add(mu[2].mul(c4));
++                let division = match gate {
++                    Some(gi) => v[gi].mul(division),
++                    None => division,
++                };
++                v[0].mul(division.add(helper_sum(v, &lks, h0, alpha, &mu[3..3 + n_help])).add(mu[3 + n_help].mul(ctab)))
++            };
++            b.finish(Box::new(poly), vec![])
++        }
+         SC_IO_IN | SC_IO_OUT => {
+             let tau = tr.challenge_fp2_vec(sh.log(Dom::D));
+             b.eq(&tau, 0);
+@@ -1941,7 +2116,9 @@
+     let mut acc = Acc::default();
+     let mut pts = Points::default();
+     let sh = ctx.lay.shape();
+-    for slot in 0..N_SLOTS {
++    // NATIVE R9: THIS profile's slots — the twenty-three, plus the
++    // dictionary zero-check on a DD profile (appended last)
++    for slot in 0..sh.n_slots() {
+         #[cfg(test)]
+         super::capture::start_slot(side, tr);
+         #[cfg(test)]
+@@ -1957,7 +2134,7 @@
+     }
+     let hosts = std::mem::take(&mut acc.host_fs);
+     acc.fs.extend(hosts);
+-    if acc.fs.len() != N_FUNCTIONALS {
++    if acc.fs.len() != sh.n_functionals() {
+         return Err("private block: functional count differs from the declared schedule".into());
+     }
+     Ok(acc)
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/grow_tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/grow_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/grow_tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/grow_tests.rs	2026-10-19 09:54:21.589838646 -0700
+@@ -556,8 +556,9 @@
+     check_against_model(&sh, &MODEL_TOY);
+     let lay = Layout::new();
+     assert_eq!((lay.a_data_rows, lay.a_rows, lay.h_data_rows, lay.h_rows), (A_DATA_ROWS, A_ROWS, H_DATA_ROWS, H_ROWS));
+-    assert_eq!(sh.claim_sites(), (A_SITES, H_SITES));
+-    assert_eq!(sh.slots(), SLOTS);
++    let (a_s, h_s) = sh.claim_sites();
++    assert_eq!((&a_s[..N_SLOTS], &h_s[..N_SLOTS]), (&A_SITES[..], &H_SITES[..]));
++    assert_eq!(&sh.slots()[..N_SLOTS], &SLOTS[..]);
+     assert_eq!(sh.profile, std::str::from_utf8(PROFILE).unwrap(), "the toy shape's profile id is this module's");
+     // the two statements of the row rule agree at the toy
+     for dom in ALL_DOMS {
+@@ -1282,6 +1283,7 @@
+             g_u8: Fp2::from_u64(13),
+             g_exp: Fp2::from_u64(17),
+             g_act: Fp2::from_u64(19),
++            g_dd: Fp2::from_u64(23),
+         };
+         let mut tr = crate::transcript::Transcript::new(sh.profile.as_bytes());
+         let mut pts = Points::default();
+@@ -1372,7 +1374,7 @@
+         match pub_toy {
+             None => {
+                 // the TOY carries no pad machinery at all (finding S9-F1)
+-                assert_eq!(super::pad::indicator_tables_per_slot(&sh), [0usize; N_SLOTS], "the frozen toy profile declares an indicator table");
++                assert_eq!(super::pad::indicator_tables_per_slot(&sh), [0usize; MAX_SLOTS], "the frozen toy profile declares an indicator table");
+                 pub_toy = Some(pubs);
+             }
+             Some(toy_pubs) => {
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/hash_domain.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/hash_domain.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/hash_domain.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/hash_domain.rs	2026-10-19 09:38:58.079800344 -0700
+@@ -424,8 +424,10 @@
+     // from the SHAPE so that this function can be called from
+     // `Layout::for_shape` without building a second layout.
+     let (a_sites, h_sites) = sh.claim_sites();
+-    let mut terms: Vec<usize> = (0..super::layout::N_SLOTS)
+-        .map(|s| FP2 * (a_sites[s] + h_sites[s] + usize::from(s >= super::layout::SC_IO_IN)))
++    // NATIVE R9: over THIS profile's slots (a DD profile's dictionary slot
++    // included)
++    let mut terms: Vec<usize> = (0..sh.n_slots())
++        .map(|s| FP2 * (a_sites[s] + h_sites[s] + usize::from(s == super::layout::SC_IO_IN || s == super::layout::SC_IO_OUT)))
+         .collect();
+     terms.sort_unstable();
+     terms.dedup();
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/layout.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/layout.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/layout.rs	2026-10-17 06:37:47.114131670 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/layout.rs	2026-10-19 09:33:59.573193441 -0700
+@@ -102,6 +102,11 @@
+     F,
+     /// one 256-entry table row (8 vars)
+     Tab,
++    /// **NATIVE R9 (D30): the per-row division dictionary**, `(h, t | k)` with
++    /// `dd_cap` slots per attention row, its `(h, t)` variables in `A_SUM`'s
++    /// own order (CHECK.md B-4). Present only on a DD profile; no other
++    /// profile lays out, claims or describes it.
++    Dd,
+ }
+ 
+ /// THE P-3 LIFT (memo section 4.1, blocking item B-3), named here so it can be
+@@ -184,6 +189,8 @@
+             Dom::L | Dom::D | Dom::Q | Dom::F => 9,
+             Dom::Kv | Dom::Tab => 8,
+             Dom::S => 11,
++            // the toy carries no dictionary; never laid out at the toy
++            Dom::Dd => 0,
+         }
+     }
+     /// `Dom::T` and `Dom::Ht` carry `A` planes only; every other domain owns
+@@ -343,6 +350,10 @@
+     pub ln: usize,
+     pub ls: usize,
+     pub lp: usize,
++    /// NATIVE R9: the dictionary's quotient `P_dict` and multiplicity `M_dd`
++    /// (`usize::MAX` off a DD profile)
++    pdict: usize,
++    mdd: usize,
+ }
+ 
+ impl Ids {
+@@ -354,6 +365,56 @@
+         // (first toy id, toy length, this shape's length, domain), in plane
+         // order. Only the four norm limb groups, the `p` limbs and the two
+         // `sigma_s` limb groups have a length that is not a literal.
++        //
++        // NATIVE R9 (D30): on a DD profile the `p`, `rho_s` and `sigma_s`
++        // limb groups are the DICTIONARY's (one per slot, not per score
++        // entry), so their toy ids map into the `Dom::Dd` block, between the
++        // quotient `P_dict` and the multiplicity `M_dd` (two planes the toy
++        // has no name for) — below the histograms (CHECK.md E-1).
++        if sh.dd_cap > 0 {
++            let segs: [(usize, usize, usize, Dom); 20] = [
++                (A_D, 4, 4, Dom::T),
++                (A_MX, 2, 2, Dom::Ht),
++                (A_LIMB, 2, 2, Dom::L),
++                (A_X, 4, 4, Dom::D),
++                (A_NR0, LN_TOY, ln, Dom::D),
++                (A_NS0, LN_TOY, ln, Dom::D),
++                (A_AO, 8, 8, Dom::D),
++                (A_MR0, LN_TOY, ln, Dom::D),
++                (A_MS0, LN_TOY, ln, Dom::D),
++                (A_Z16, 7, 7, Dom::D),
++                (A_Q8, 7, 7, Dom::Q),
++                (A_K8, 6, 6, Dom::Kv),
++                (A_S8, 5, 5, Dom::S),
++                (A_G8, 11, 11, Dom::F),
++                (usize::MAX, 0, 1, Dom::Dd),
++                (A_PL0, LP_TOY, lp, Dom::Dd),
++                (A_SR0, LS_TOY, ls, Dom::Dd),
++                (A_SG0, LS_TOY, ls, Dom::Dd),
++                (usize::MAX, 0, 1, Dom::Dd),
++                (A_MU8, 3, 3, Dom::Tab),
++            ];
++            let mut map = vec![usize::MAX; N_A];
++            let mut doms: Vec<Dom> = Vec::new();
++            let mut firsts = Vec::new();
++            for (start, toy_len, len, dom) in segs {
++                let base = doms.len();
++                firsts.push(base);
++                for k in 0..toy_len {
++                    map[start + k] = base + k;
++                }
++                for _ in 0..len {
++                    doms.push(dom);
++                }
++            }
++            if map.iter().any(|v| *v == usize::MAX) {
++                return Err("private block: the A plane segment table does not cover every plane".into());
++            }
++            if doms != sh.a_plane_doms() {
++                return Err("private block: this shape's A plane list differs from the pinned one".into());
++            }
++            return Ok(Ids { map, doms, ln, ls, lp, pdict: firsts[14], mdd: firsts[18] });
++        }
+         let segs: [(usize, usize, usize, Dom); 18] = [
+             (A_D, 4, 4, Dom::T),
+             (A_MX, 2, 2, Dom::Ht),
+@@ -391,7 +452,7 @@
+         if doms != sh.a_plane_doms() {
+             return Err("private block: this shape's A plane list differs from the pinned one".into());
+         }
+-        Ok(Ids { map, doms, ln, ls, lp })
++        Ok(Ids { map, doms, ln, ls, lp, pdict: usize::MAX, mdd: usize::MAX })
+     }
+ 
+     /// the toy's own map, which is the identity (asserted by `Layout::new`)
+@@ -433,6 +494,17 @@
+     pub(crate) fn is_multiplicity(&self, plane: usize) -> bool {
+         plane >= self.map[A_MU8]
+     }
++    /// NATIVE R9: the dictionary quotient `P_dict` (a DD profile only)
++    pub(crate) fn pdict(&self) -> usize {
++        assert!(self.pdict != usize::MAX, "private block: P_dict asked of a shape without a dictionary");
++        self.pdict
++    }
++    /// NATIVE R9: the dictionary multiplicity `M_dd` (a DD profile only; a
++    /// committed `A` plane BELOW the histograms, written by the witness)
++    pub(crate) fn mdd(&self) -> usize {
++        assert!(self.mdd != usize::MAX, "private block: M_dd asked of a shape without a dictionary");
++        self.mdd
++    }
+ }
+ 
+ // ---- the H planes (every one Fp2-valued: a `re` slice then an `im` slice) ----
+@@ -508,6 +580,11 @@
+     fact: usize,
+     gu8: usize,
+     u: usize,
++    /// NATIVE R9 (D30): the score entry's tuple helper, the dictionary's
++    /// first byte helper and its TABLE helper (`usize::MAX` off a DD profile)
++    stuple: usize,
++    first_dd: usize,
++    gdd: usize,
+ }
+ 
+ impl HIds {
+@@ -530,14 +607,17 @@
+         let first_kv = seg(&mut doms, Dom::Kv, sh.helpers(Dom::Kv));
+         let first_s = seg(&mut doms, Dom::S, sh.helpers(Dom::S));
+         let sexp = seg(&mut doms, Dom::S, 1);
++        let dd = sh.dd_cap > 0;
++        let stuple = if dd { seg(&mut doms, Dom::S, 1) } else { usize::MAX };
+         let first_f = seg(&mut doms, Dom::F, sh.helpers(Dom::F));
+         let fact = seg(&mut doms, Dom::F, 1);
++        let (first_dd, gdd) = if dd { (seg(&mut doms, Dom::Dd, sh.helpers(Dom::Dd)), seg(&mut doms, Dom::Dd, 1)) } else { (usize::MAX, usize::MAX) };
+         let gu8 = seg(&mut doms, Dom::Tab, 3);
+         let u = seg(&mut doms, Dom::Tab, 1);
+         if doms != sh.h_plane_doms() {
+             return Err("private block: this shape's H plane list differs from the pinned one".into());
+         }
+-        Ok(HIds { doms, first_l, first_d, first_q, first_kv, first_s, first_f, sexp, fact, gu8, u })
++        Ok(HIds { doms, first_l, first_d, first_q, first_kv, first_s, first_f, sexp, fact, gu8, u, stuple, first_dd, gdd })
+     }
+ 
+     /// the `k`-th LogUp helper of a lookup domain
+@@ -554,6 +634,7 @@
+             Dom::Kv => self.first_kv,
+             Dom::S => self.first_s,
+             Dom::F => self.first_f,
++            Dom::Dd => self.first_dd,
+             _ => 0,
+         }
+     }
+@@ -580,8 +661,20 @@
+         self.doms[plane]
+     }
+     /// the table helpers enter the value-0 LogUp identity with a negative sign
++    /// — NATIVE R9 (D30 condition 3, CHECK.md P-2 / E-2): the dictionary's
++    /// table helper too, in the SINGLE value-0 sum claim
+     pub(crate) fn is_table(&self, plane: usize) -> bool {
+-        (self.gu8..self.gu8 + 3).contains(&plane)
++        (self.gu8..self.gu8 + 3).contains(&plane) || (self.gdd != usize::MAX && plane == self.gdd)
++    }
++    /// NATIVE R9: the score entry's single tuple helper (a DD profile only)
++    pub(crate) fn stuple(&self) -> usize {
++        assert!(self.stuple != usize::MAX, "private block: the tuple helper asked of a shape without a dictionary");
++        self.stuple
++    }
++    /// NATIVE R9: the dictionary's table helper `g` (a DD profile only)
++    pub(crate) fn gdd(&self) -> usize {
++        assert!(self.gdd != usize::MAX, "private block: the dictionary table helper asked of a shape without a dictionary");
++        self.gdd
+     }
+ }
+ 
+@@ -771,6 +864,22 @@
+         Dom::S => {
+             v.extend(sym(ids.at(A_S8)));
+             v.extend([byte(ids.at(A_RSL)), scaled(ids.at(A_RSL), one(sh.sh_s))]);
++            // NATIVE R9: on a DD profile the division limbs are the
++            // dictionary's (D30), never a score entry's
++            if sh.dd_cap == 0 {
++                v.extend((0..lp).map(|k| byte(ids.pl(k))));
++                v.push(scaled(ids.pl(lp - 1), p_scale));
++                v.extend((0..ls).map(|k| byte(ids.sr(k))));
++                v.push(scaled(ids.sr(ls - 1), sigma_scale));
++                v.extend((0..ls).map(|k| byte(ids.sg(k))));
++                v.push(scaled(ids.sg(ls - 1), sigma_scale));
++            }
++        }
++        // NATIVE R9 (D30, B-1): the division limbs at EVERY dictionary slot —
++        // the quotient's with its top pin (`p < 2^(F_P + 1)`), then rho_s's
++        // and sigma_s's, each with its top pin (`< 2^wrho_s`) — today's
++        // relation's lookups, verbatim, on the dictionary's own planes
++        Dom::Dd if sh.dd_cap > 0 => {
+             v.extend((0..lp).map(|k| byte(ids.pl(k))));
+             v.push(scaled(ids.pl(lp - 1), p_scale));
+             v.extend((0..ls).map(|k| byte(ids.sr(k))));
+@@ -778,7 +887,7 @@
+             v.extend((0..ls).map(|k| byte(ids.sg(k))));
+             v.push(scaled(ids.sg(ls - 1), sigma_scale));
+         }
+-        Dom::T | Dom::Ht | Dom::Tab => {}
++        Dom::T | Dom::Ht | Dom::Tab | Dom::Dd => {}
+     }
+     v
+ }
+@@ -825,8 +934,20 @@
+ pub(crate) const SC_ZS: usize = 20;
+ pub(crate) const SC_IO_IN: usize = 21;
+ pub(crate) const SC_IO_OUT: usize = 22;
++/// **NATIVE R9 (D30): the dictionary zero-check**, APPENDED as the 24th slot
++/// and present only on a DD profile (`Shape::n_slots`), so no other
++/// profile's transcript, mask rows or functionals move. A Standalone slot.
++pub(crate) const SC_DD: usize = 23;
++/// the most slots any profile runs (the arrays below are sized by it; a
++/// non-DD profile's 24th entry is never read)
++pub(crate) const MAX_SLOTS: usize = 24;
++/// **NATIVE R9 (D30 condition 2, CHECK.md B-5 / S-8): the dictionary's
++/// LogUp tag**, distinct mod p from `TAG_U8` / `TAG_EXP` / `TAG_ACT` (129 /
++/// 133 / 134); the tuple is compressed as `gamma TAG_DD + key + beta e +
++/// beta^2 P`, all three components fixed in `A` before beta and gamma.
++pub(crate) const TAG_DD: u64 = 141;
+ 
+-pub(crate) const SLOT_NAMES: [&str; N_SLOTS] = [
++pub(crate) const SLOT_NAMES: [&str; MAX_SLOTS] = [
+     "01 SS row sums norm_a (private)",
+     "01m SS row sums norm_m (private)",
+     "02 norm squares zero-check (hosts 01, 01m)",
+@@ -850,6 +971,7 @@
+     "ZS zero-sum row",
+     "IO-in endpoint equality",
+     "IO-out endpoint equality",
++    "DD dictionary zero-check (division at every slot, byte helpers, table helper)",
+ ];
+ 
+ /// (main rounds, extension rounds, degree)
+@@ -889,7 +1011,7 @@
+     Host,
+ }
+ 
+-pub(crate) const SLOT_KINDS: [SlotKind; N_SLOTS] = [
++pub(crate) const SLOT_KINDS: [SlotKind; MAX_SLOTS] = [
+     SlotKind::Private,
+     SlotKind::Private,
+     SlotKind::Host,
+@@ -913,6 +1035,9 @@
+     SlotKind::Standalone,
+     SlotKind::Standalone,
+     SlotKind::Standalone,
++    // NATIVE R9: the dictionary zero-check (D30; CHECK.md P-1 "+2
++    // functionals (a Standalone slot)")
++    SlotKind::Standalone,
+ ];
+ 
+ /// host slot -> the private slots it hosts (every private slot exactly once)
+@@ -945,7 +1070,7 @@
+ 
+ /// private terminals a slot publishes (A sites, H sites, one endpoint terminal for IO)
+ pub(crate) fn slot_terms(slot: usize) -> usize {
+-    A_SITES[slot] + H_SITES[slot] + usize::from(slot >= SC_IO_IN)
++    A_SITES[slot] + H_SITES[slot] + usize::from(slot == SC_IO_IN || slot == SC_IO_OUT)
+ }
+ 
+ pub(crate) fn mask_specs() -> Vec<(usize, usize)> {
+@@ -1018,9 +1143,9 @@
+     hids: HIds,
+     /// the row width `1 << sh.log_cols`
+     n: usize,
+-    a_sites: [usize; N_SLOTS],
+-    h_sites: [usize; N_SLOTS],
+-    slots: [(usize, usize, usize); N_SLOTS],
++    a_sites: [usize; MAX_SLOTS],
++    h_sites: [usize; MAX_SLOTS],
++    slots: [(usize, usize, usize); MAX_SLOTS],
+     /// **STAGE 12.** `[incoming, outgoing]`: the first row of the reserved
+     /// pair each IO tab claims. See [`Layout::with_io_mask_rows`].
+     io_mask_row: [usize; 2],
+@@ -1048,9 +1173,10 @@
+         assert!((0..N_A).all(|p| lay.ids.dom(p) == a_dom(p)), "a shape-driven A plane sits on another domain");
+         assert!((0..N_H).all(|p| lay.hids.dom(p) == h_dom(p)), "a shape-driven H plane sits on another domain");
+         assert!((0..N_A).all(|p| lay.ids.at(p) == p), "the toy's A plane id map is not the identity");
+-        assert_eq!(lay.a_sites, A_SITES, "the shape-driven A claim sites are not the declared ones");
+-        assert_eq!(lay.h_sites, H_SITES, "the shape-driven H claim sites are not the declared ones");
+-        assert_eq!(lay.slots, SLOTS, "the shape-driven slot table is not the declared one");
++        assert_eq!(lay.a_sites[..N_SLOTS], A_SITES[..], "the shape-driven A claim sites are not the declared ones");
++        assert_eq!(lay.h_sites[..N_SLOTS], H_SITES[..], "the shape-driven H claim sites are not the declared ones");
++        assert_eq!(lay.slots[..N_SLOTS], SLOTS[..], "the shape-driven slot table is not the declared one");
++        assert_eq!(sh.n_slots(), N_SLOTS, "the toy runs a dictionary slot");
+         assert_eq!((sh.a_groups(), sh.h_groups()), (A_GROUPS, H_GROUPS), "the shape-driven opening groups are not the declared ones");
+         assert_eq!(lay.n, N, "the shape's row width is not this profile's");
+         // the derived counts of the disposition section 1.2
+@@ -1137,14 +1263,18 @@
+             row += sh.rows_of(*d);
+         }
+         let a_data_rows = row;
+-        let mut a_prefix = vec![0usize; N_SLOTS + 1];
+-        let mut h_prefix = vec![0usize; N_SLOTS + 1];
+-        for s in 0..N_SLOTS {
++        // NATIVE R9: the prefix runs over THIS profile's slots (a DD
++        // profile's dictionary slot appended last), so no other profile's
++        // site rows move
++        let ns = sh.n_slots();
++        let mut a_prefix = vec![0usize; ns + 1];
++        let mut h_prefix = vec![0usize; ns + 1];
++        for s in 0..ns {
+             a_prefix[s + 1] = a_prefix[s] + a_sites[s];
+             h_prefix[s + 1] = h_prefix[s] + h_sites[s];
+         }
+         let a_mask_base = a_data_rows;
+-        let a_prox = a_mask_base + 2 * a_prefix[N_SLOTS];
++        let a_prox = a_mask_base + 2 * a_prefix[ns];
+         let a_rows = a_prox + 2;
+         let mut row = 0usize;
+         let mut h_off = Vec::with_capacity(h_doms.len());
+@@ -1155,7 +1285,7 @@
+         }
+         let h_data_rows = row;
+         let h_mask_base = h_data_rows;
+-        let h_prox = h_mask_base + 2 * h_prefix[N_SLOTS];
++        let h_prox = h_mask_base + 2 * h_prefix[ns];
+         let h_rows = h_prox + 2;
+         // **C-H4 / T-3, at the FULL shape-driven set.** The shape-free set
+         // above is what a bare statement constructor can check; here the
+@@ -1170,7 +1300,7 @@
+         // lengths between them means nothing — see
+         // `hash_domain::imposed_at_shape_with` for why that is not a
+         // weakening.
+-        super::hash_domain::imposed_at_shape(sh).refuse(&[("A", a_rows), ("H", h_rows), ("M", M_ROWS), ("endpoint", sh.endpoint_rows)])?;
++        super::hash_domain::imposed_at_shape(sh).refuse(&[("A", a_rows), ("H", h_rows), ("M", sh.m_rows()), ("endpoint", sh.endpoint_rows)])?;
+         Ok(Layout {
+             a_off,
+             a_data_rows,
+@@ -1235,31 +1365,41 @@
+     pub(crate) fn n(&self) -> usize {
+         self.n
+     }
+-    pub(crate) fn slots(&self) -> &[(usize, usize, usize); N_SLOTS] {
+-        &self.slots
++    pub(crate) fn slots(&self) -> &[(usize, usize, usize)] {
++        &self.slots[..self.sh.n_slots()]
++    }
++    /// NATIVE R9: how many slots this layout's profile runs
++    pub(crate) fn n_slots(&self) -> usize {
++        self.sh.n_slots()
++    }
++    /// NATIVE R9: the masking commitment's rows at this profile
++    pub(crate) fn m_rows(&self) -> usize {
++        self.sh.m_rows()
+     }
+     /// **STEP C part 2.** The CFS mask specification of THIS layout's slot
+     /// table — `(rounds, degree)` per slot — the shaped form of the free
+     /// [`mask_specs`], which reads the toy's `SLOTS` literal. At the toy the
+     /// two are equal (asserted in `grow_tests`), so no toy byte moves.
+     pub(crate) fn mask_specs(&self) -> Vec<(usize, usize)> {
+-        self.slots.iter().map(|&(n, e, d)| (n + e, d)).collect()
++        self.slots().iter().map(|&(n, e, d)| (n + e, d)).collect()
+     }
+     /// private terminals slot `s` publishes at THIS shape (the shaped form of
+     /// the free [`slot_terms`], which reads `A_SITES` / `H_SITES`)
+     pub(crate) fn slot_terms(&self, slot: usize) -> usize {
+-        self.a_sites[slot] + self.h_sites[slot] + usize::from(slot >= SC_IO_IN)
++        self.a_sites[slot] + self.h_sites[slot] + usize::from(slot == SC_IO_IN || slot == SC_IO_OUT)
+     }
+ 
+     // ---- the slot schedule ----
+     pub(crate) fn a_sites(&self) -> &[usize] {
+-        &self.a_sites
++        &self.a_sites[..self.sh.n_slots()]
+     }
+     pub(crate) fn h_sites(&self) -> &[usize] {
+-        &self.h_sites
++        &self.h_sites[..self.sh.n_slots()]
+     }
+-    pub(crate) fn lookup_doms(&self) -> &'static [Dom] {
+-        &LOOKUP_DOMS
++    /// the lookup domains in helper order (NATIVE R9: plus `Dom::Dd` on a DD
++    /// profile, whose byte lookups enter the U8 histogram — CHECK.md E-3)
++    pub(crate) fn lookup_doms(&self) -> Vec<Dom> {
++        self.sh.lookup_doms()
+     }
+     pub(crate) fn lookups(&self, dom: Dom) -> Vec<Lk> {
+         lookups_at(&self.sh, &self.ids, dom)
+@@ -1322,9 +1462,9 @@
+                 "{tag}: T{} d{} H{} KV{} dh{} F{}; n={} inv_rate={} Q={}; P1 (weights public, no W commitment); whole block (attention, norm_m, feed-forward, residual 2)",
+                 sh.tokens, sh.width, sh.q_heads, sh.kv_heads, sh.head_dim, sh.hidden, self.n, sh.inv_rate, sh.opened_cols
+             ),
+-            format!("A rows={} data={} site-pairs={} prox-pair=({},{})", self.a_rows, self.a_data_rows, self.a_prefix[N_SLOTS], self.a_prox, self.a_prox + 1),
+-            format!("H rows={} data={} site-pairs={} zero-sum-pair={:?} prox-pair=({},{})", self.h_rows, self.h_data_rows, self.h_prefix[N_SLOTS], self.h_u_rows(), self.h_prox, self.h_prox + 1),
+-            format!("M rows={M_ROWS} functionals={N_FUNCTIONALS} A-groups={} H-groups={} collapse=0", sh.a_groups(), sh.h_groups()),
++            format!("A rows={} data={} site-pairs={} prox-pair=({},{})", self.a_rows, self.a_data_rows, self.a_prefix[sh.n_slots()], self.a_prox, self.a_prox + 1),
++            format!("H rows={} data={} site-pairs={} zero-sum-pair={:?} prox-pair=({},{})", self.h_rows, self.h_data_rows, self.h_prefix[sh.n_slots()], self.h_u_rows(), self.h_prox, self.h_prox + 1),
++            format!("M rows={} functionals={} A-groups={} H-groups={} collapse=0", sh.m_rows(), sh.n_functionals(), sh.a_groups(), sh.h_groups()),
+             // NATIVE LANE: a frozen profile prints the frozen constants in
+             // the frozen format, byte for byte (`for_shape` refused any frozen
+             // profile whose fields differ from them); a TRAINED-calibration
+@@ -1356,7 +1496,17 @@
+                 sh.hidden, sh.sh_g, sh.sh_h, sh.sh_z
+             ),
+         ];
+-        for s in 0..N_SLOTS {
++        // **NATIVE R9 (D30; CHECK.md B-5, B-7, B-8): the dictionary's rule,
++        // bound in the schedule.** Only a DD profile carries this line (and
++        // the 24th slot below), so no other profile's schedule digest moves.
++        if sh.dd_cap > 0 {
++            out.push(format!(
++                "dictionary (D30): cap={} slots per (h,t) row on Dom::Dd (h,t|k) of {} entries; e column = sorted({{0}} U exp-table outputs) padded with 0, public per block; key = the row Sum (A_SUM on the leading (h,t) variables); tuple gamma*TAG_DD + key + beta*e + beta^2*P with TAG_DD={TAG_DD}; division clauses e*2^{F_P} - P*Sum - rho_s = 0, rho_s + sigma_s + 1 - Sum = 0, P = limbs at EVERY slot, no usage gate; P_dict, its limbs and the multiplicities committed in A; the table helper in the single value-0 sum claim with sign -1; a layer whose n_col exceeds cap is refused",
++                sh.dd_cap,
++                sh.size(Dom::Dd)
++            ));
++        }
++        for s in 0..sh.n_slots() {
+             let (n, e, d) = self.slots[s];
+             out.push(format!(
+                 "slot {s:02} [{}] main={n} ext={e} degree={d} kind={:?} A-sites={} H-sites={}",
+@@ -1402,7 +1552,9 @@
+         assert_eq!(M_ROWS, 50);
+         assert_eq!((lay.a_planes().len(), lay.h_planes().len()), (N_A, N_H));
+         // 23 slots: 12 private, 5 standalone, 6 hosts; 34 functionals
+-        let kinds = |k: SlotKind| SLOT_KINDS.iter().filter(|x| **x == k).count();
++        // (the toy's twenty-three; NATIVE R9's 24th, `SC_DD`, is a DD
++        // profile's only)
++        let kinds = |k: SlotKind| SLOT_KINDS[..N_SLOTS].iter().filter(|x| **x == k).count();
+         assert_eq!((kinds(SlotKind::Private), kinds(SlotKind::Standalone), kinds(SlotKind::Host)), (12, 5, 6));
+         // one eval per slot, one Gamma per standalone slot, one batched Gamma per host
+         assert_eq!(N_SLOTS + kinds(SlotKind::Standalone) + HOSTS.len(), N_FUNCTIONALS);
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/p2_tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/p2_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/p2_tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/p2_tests.rs	2026-10-19 09:46:47.970907896 -0700
+@@ -287,6 +287,7 @@
+         g_u8: Fp2::from_u64(13),
+         g_exp: Fp2::from_u64(17),
+         g_act: Fp2::from_u64(19),
++        g_dd: Fp2::from_u64(23),
+     };
+     let mut tr = Transcript::new(sh.profile.as_bytes());
+     let mut pts = Points::default();
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/pad.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/pad.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/pad.rs	2026-10-16 18:58:35.103265581 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/pad.rs	2026-10-19 11:59:12.255273682 -0700
+@@ -175,6 +175,8 @@
+         Dom::S => vec![(1, BitForm::of(s.tokens, t_pad)), (t_pad, BitForm::of(s.tokens, t_pad)), (t_pad * t_pad, head())],
+         Dom::L => vec![(1, BitForm::of(s.tokens, t_pad)), (t_pad, BitForm::of(3 * LIMBS_ISQRT, s.size(dom) / t_pad))],
+         Dom::Tab => vec![(1, BitForm::of(U8_LEN, s.size(dom)))],
++        // NATIVE R9: (h, t | k), unpadded on a DD profile (`check_dd_geometry`)
++        Dom::Dd => vec![(1, BitForm::of(s.dd_cap.max(1), s.dd_cap.max(1))), (s.dd_cap.max(1), BitForm::of(s.tokens, t_pad)), (t_pad * s.dd_cap.max(1), head())],
+     };
+     let mut factors = Vec::new();
+     for (stride, form) in axes {
+@@ -234,6 +236,8 @@
+         Dom::L => &[SC_LZC],
+         Dom::Tab => &[SC_TAB],
+         Dom::T => &[SC_TZC],
++        // NATIVE R9: a DD profile's dictionary never pads; listed for totality
++        Dom::Dd => &[SC_DD],
+     }
+ }
+ 
+@@ -241,8 +245,8 @@
+ /// transpose of [`indicator_slots`] over the shape's padded domains, and zero
+ /// everywhere on the frozen toy profile.
+ #[cfg(test)]
+-pub(crate) fn indicator_tables_per_slot(s: &Shape) -> [usize; N_SLOTS] {
+-    let mut out = [0usize; N_SLOTS];
++pub(crate) fn indicator_tables_per_slot(s: &Shape) -> [usize; MAX_SLOTS] {
++    let mut out = [0usize; MAX_SLOTS];
+     if !s.carries_pad_rule() {
+         return out;
+     }
+@@ -355,6 +359,9 @@
+         Dom::S => SC_SZC,
+         Dom::F => SC_FZC,
+         Dom::Tab => SC_TAB,
++        // NATIVE R9: the dictionary's own zero-check (a DD profile's
++        // dictionary never pads, so it never hosts a term)
++        Dom::Dd => SC_DD,
+     }
+ }
+ 
+@@ -933,7 +940,7 @@
+     fn the_declared_degrees_are_inside_the_declared_range() {
+         let (lo, hi) = Shape::degree_range();
+         for s in [Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::rung_k4(), Shape::m125()] {
+-            for (slot, (_, _, d)) in s.slots().iter().enumerate() {
++            for (slot, (_, _, d)) in s.slots().iter().enumerate().take(s.n_slots()) {
+                 assert!((lo..=hi).contains(d), "{}: slot {slot} declares degree {d}, outside the declared range {lo}..={hi}", s.name);
+             }
+         }
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/protocol.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/protocol.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/protocol.rs	2026-10-17 17:46:01.833301649 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/protocol.rs	2026-10-19 09:43:52.734236811 -0700
+@@ -171,7 +171,13 @@
+ pub(crate) fn logup_sum_claim(lay: &Layout) -> ZClaim {
+     let (sh, hids) = (lay.shape(), lay.hids());
+     let mut parts = Vec::with_capacity(2 * hids.n_h());
++    // (test builds: the lapse of D30 condition 3 leaves the dictionary's two
++    // LogUp columns out of the single sum claim)
++    let out_of_sum = sh.dd_cap > 0 && super::argument::dd_lapse(super::argument::DD_LAPSE_OUT_OF_SUM);
+     for p in lay.h_planes() {
++        if out_of_sum && (p == hids.stuple() || p == hids.gdd()) {
++            continue;
++        }
+         let sign = if hids.is_table(p) { Fp2::ONE.neg() } else { Fp2::ONE };
+         let (re, im) = lay.h_off[p];
+         let log_size = sh.log(hids.dom(p)) as u32;
+@@ -479,6 +485,85 @@
+     (m, missed)
+ }
+ 
++/// **NATIVE R9 (D30): the dictionary's tuples as the prover sees them.**
++/// `(queries, table)`: per `Dom::S` position the score entry's compressed
++/// tuple `gamma TAG_DD + Sum + beta (mask E) + beta^2 P`, and per `Dom::Dd`
++/// slot the dictionary's `gamma TAG_DD + Sum + beta e + beta^2 P_dict`, with
++/// `Sum` read at the position's `(h, t)` row (B-4) and `mask` the public
++/// causal support. Shared by the prover's helper columns and (through the
++/// integer form [`dd_misses`]) by the CS-3 check.
++pub(crate) fn dd_tuples(lay: &Layout, wit: &Witness, ecol: &[i64], beta: Fp2, g_dd: Fp2) -> (Vec<Fp2>, Vec<Fp2>) {
++    let (sh, ids) = (lay.shape(), lay.ids());
++    let (tp, cap) = (sh.t_pad, sh.dd_cap);
++    let beta2 = beta.mul(beta);
++    let sum = &wit.planes[ids.at(A_SUM)];
++    let (e, p) = (&wit.planes[ids.at(A_E)], &wit.planes[ids.at(A_P)]);
++    // (test builds: the D-4 lapse drops the key on both sides)
++    let keyed = !super::argument::dd_lapse(super::argument::DD_LAPSE_DROP_KEY);
++    let tup = |s: i64, e: i64, p: i64| g_dd.add(if keyed { Fp2::from_i64(s) } else { Fp2::ZERO }).add(beta.mul(Fp2::from_i64(e))).add(beta2.mul(Fp2::from_i64(p)));
++    let q: Vec<Fp2> = (0..sh.size(Dom::S))
++        .map(|x| {
++            let (ht, j) = (x / tp, x % tp);
++            let me = if j <= ht % tp { e[x] } else { 0 };
++            tup(sum[ht], me, p[x])
++        })
++        .collect();
++    let pd = &wit.planes[ids.pdict()];
++    let t: Vec<Fp2> = (0..sh.size(Dom::Dd)).map(|x| tup(sum[x / cap], ecol[x % cap], pd[x])).collect();
++    (q, t)
++}
++
++/// **NATIVE R9 (D30, CHECK.md B-8): the defensive dictionary-miss count** —
++/// how many score entries' integer tuples `(Sum, mask E, P)` are no tuple of
++/// their own row's dictionary. Zero for any witness the builder admits.
++pub(crate) fn dd_misses(lay: &Layout, wit: &Witness, ecol: &[i64]) -> usize {
++    let (sh, ids) = (lay.shape(), lay.ids());
++    let (tp, cap) = (sh.t_pad, sh.dd_cap);
++    let (e, p, pd) = (&wit.planes[ids.at(A_E)], &wit.planes[ids.at(A_P)], &wit.planes[ids.pdict()]);
++    (0..sh.size(Dom::S))
++        .filter(|&x| {
++            let (ht, j) = (x / tp, x % tp);
++            let me = if j <= ht % tp { e[x] } else { 0 };
++            !(0..cap).any(|k| ecol[k] == me && pd[ht * cap + k] == p[x])
++        })
++        .count()
++}
++
++/// **NATIVE R9: ruling CS-3's refusal for the dictionary family** (the class
++/// of the miss only, never a count — K-2; a cheating prover skips it in test
++/// builds exactly as [`refuse_lookup_misses`])
++fn refuse_dictionary_misses(missed: usize) -> Result<(), String> {
++    #[cfg(test)]
++    if CHEATING_PROVER.with(|c| c.get()) {
++        return Ok(());
++    }
++    if missed == 0 {
++        return Ok(());
++    }
++    Err(format!("{LOOKUP_MISS_REFUSAL}; the table family that missed: the division dictionary (the class of the miss only, never a count — ruling K-2). It is refused before this block's A mask rows are drawn, its A commitment is made or any challenge of it is drawn."))
++}
++
++// CHECK.md D-8, TEST BUILDS ONLY: the multiplicities a cheating prover uses
++// in the dictionary's table helper after alpha, against the honest `A` plane
++#[cfg(test)]
++thread_local! {
++    static DD_MOVED_MULTIPLICITY: std::cell::Cell<Option<(usize, usize)>> = const { std::cell::Cell::new(None) };
++}
++
++/// TEST ONLY: while set, the prover moves one dictionary count from slot
++/// position `from` to `to` in the TABLE HELPER only (the committed `M_dd`
++/// stays honest) — the CHECK.md D-8 attack on a construction that commits
++/// the multiplicities in `A`
++#[cfg(test)]
++pub(crate) fn set_dd_moved_multiplicity(v: Option<(usize, usize)>) {
++    DD_MOVED_MULTIPLICITY.with(|c| c.set(v));
++}
++
++#[cfg(test)]
++fn dd_moved_multiplicity() -> Option<(usize, usize)> {
++    DD_MOVED_MULTIPLICITY.with(|c| c.get())
++}
++
+ /// **NATIVE R6 (review r5 note N-r5-a): ruling CS-3's lookup-miss refusal,
+ /// run on a witness BEFORE any proof exists.** The trained stack's sealing
+ /// pass calls it on every sealed witness, so "every refusal of an
+@@ -499,7 +584,13 @@
+     let lookup_words: u64 = looked.iter().map(|(d, cols)| (cols.len() * sh.size(*d)) as u64).sum();
+     let (_, exp_missed) = exp_histogram(&exp_deltas(lay, wit), &wit.planes[ids.at(A_E)], &blk.attention().exp);
+     let (_, act_missed) = act_histogram(&act_indices(lay, wit), &wit.planes[ids.at(A_A16)], &blk.feed_forward().act);
+-    refuse_lookup_misses(u8_misses_of(&looked, lookup_words), exp_missed, act_missed)
++    refuse_lookup_misses(u8_misses_of(&looked, lookup_words), exp_missed, act_missed)?;
++    // NATIVE R9 (D30, CHECK.md B-8): the dictionary family, in the sealing
++    // pass too, before `A` and before the header
++    if sh.dd_cap > 0 {
++        refuse_dictionary_misses(dd_misses(lay, wit, &blk.attention().dd_e_column(sh.dd_cap)?))?;
++    }
++    Ok(())
+ }
+ 
+ // **RULING CS-3's test-only switch: the soundness tests' CHEATING PROVER.**
+@@ -871,7 +962,7 @@
+         phases: phases.iter().map(|(n, s)| (n.to_string(), *s)).collect(),
+         a_rows: lay.a_rows,
+         h_rows: lay.h_rows,
+-        m_rows: M_ROWS,
++        m_rows: lay.m_rows(),
+         u8_lookups: core.lookups[0],
+         exp_lookups: core.lookups[1],
+         act_lookups: core.lookups[2],
+@@ -985,6 +1076,13 @@
+     // function already holds, and BEFORE the first draw of the `A` mask rows,
+     // the `A` commitment and any absorb or challenge of this block's body.
+     refuse_lookup_misses(u8_misses_of(&looked, lookup_words), exp_missed, act_missed)?;
++    // NATIVE R9 (D30, CHECK.md B-8): at a DD profile, the score entries'
++    // tuples against their rows' dictionaries — the same named refusal, its
++    // own family (an admitted witness never misses: the builder writes the
++    // dictionary from the public e column, B-7)
++    if sh.dd_cap > 0 {
++        refuse_dictionary_misses(dd_misses(lay, &wit, &public.dd_e_column(sh.dd_cap)?))?;
++    }
+     for i in 0..U8_LEN {
+         a_data[lay.a_off[ids.at(A_MU8)] + i] = Fp::new(m_u8[i]);
+         a_data[lay.a_off[ids.at(A_MEXP)] + i] = Fp::new(m_exp[i]);
+@@ -1033,7 +1131,7 @@
+     let mask_root = mc.tree.root();
+     tr.absorb(b"M", &mask_root);
+     // the same: `zk::mask_commit` is `hashline/src/zk.rs`, one enclosing call
+-    ph.mark(Half::Commit, "M: mask commit (zk::mask_commit, ONE call)", M_ROWS as u64, "rows");
++    ph.mark(Half::Commit, "M: mask commit (zk::mask_commit, ONE call)", lay.m_rows() as u64, "rows");
+     lap(phases, tick, "commit M");
+ 
+     // ---- LogUp challenges, helpers, table helpers, the zero-sum pair, commit H ----
+@@ -1072,6 +1170,32 @@
+     let act_den = act_idx.iter().zip(wit.planes[ids.at(A_A16)].iter()).map(|(i, a)| alpha.sub(Fp2::from_i64(*i).add(beta.mul(Fp2::from_i64(*a))).add(g_act))).collect();
+     write_h(&mut h_data, lay.h_off[hids.fact()], &inverses(act_den)?);
+     ph.mark_bytes(Half::Commit, "H: exp + activation helper inverses", (sh.size(Dom::S) + sh.size(Dom::F)) as u64, "words", 16 * (sh.size(Dom::S) + sh.size(Dom::F)) as u64);
++    // **NATIVE R9 (D30): the dictionary's two LogUp columns.** The score
++    // entry's single tuple helper `1 / (alpha - (gamma TAG_DD + Sum + beta
++    // mask E + beta^2 P))`, and the TABLE helper `M_dd / (alpha - (gamma
++    // TAG_DD + Sum + beta e + beta^2 P_dict))` at every dictionary slot. D30
++    // condition 4 / CHECK.md P-4: the prover inverts EVERY slot's denominator
++    // on every attempt — unused and padding slots included, before any
++    // multiplicity enters — so whether a zero denominator refuses the attempt
++    // depends on the hidden data only through the set of table values.
++    if sh.dd_cap > 0 {
++        let g_dd = gamma.mul_base(Fp::new(TAG_DD));
++        let (tq, tt) = dd_tuples(lay, &wit, &public.dd_e_column(sh.dd_cap)?, beta, g_dd);
++        write_h(&mut h_data, lay.h_off[hids.stuple()], &inverses(tq.iter().map(|q| alpha.sub(*q)).collect())?);
++        let inv = inverses(tt.iter().map(|q| alpha.sub(*q)).collect())?;
++        #[allow(unused_mut)]
++        let mut m: Vec<i64> = wit.planes[ids.mdd()].clone();
++        // CHECK.md D-8, TEST BUILDS ONLY: a prover whose multiplicities are
++        // chosen AFTER alpha (one count moved) while `A` holds the honest ones
++        #[cfg(test)]
++        if let Some((from, to)) = dd_moved_multiplicity() {
++            m[from] -= 1;
++            m[to] += 1;
++        }
++        let col: Vec<Fp2> = inv.iter().zip(m.iter()).map(|(x, c)| x.mul_base(Fp::from_i64(*c))).collect();
++        write_h(&mut h_data, lay.h_off[hids.gdd()], &col);
++        ph.mark_bytes(Half::Commit, "H: dictionary tuple + table helpers (every slot inverted)", (sh.size(Dom::S) + sh.size(Dom::Dd)) as u64, "words", 16 * (sh.size(Dom::S) + sh.size(Dom::Dd)) as u64);
++    }
+     // ---- STEP S2 (C-11): the prover's four transient buffers die HERE ----
+     // The two lines above are the LAST reads of the witness planes and of
+     // `looked`; the memo's earlier proposal to drop them at the histogram loop
+@@ -1145,7 +1269,8 @@
+     lap(phases, tick, "LogUp helpers + commit H");
+ 
+     // ---- the twenty-three slots ----
+-    let ctx = Ctx { lay, public, ff, alpha, beta, g_u8, g_exp, g_act };
++    let g_dd = gamma.mul_base(Fp::new(TAG_DD));
++    let ctx = Ctx { lay, public, ff, alpha, beta, g_u8, g_exp, g_act, g_dd };
+     let pd = ProverData { data: [a.data.as_slice(), h.data.as_slice(), io_data[0], io_data[1]], masks: &mc.masks };
+     let mut side = Side::Prove { pd, out: Vec::new() };
+     let acc = argument(&mut side, &ctx, tr, ph)?;
+@@ -1158,7 +1283,7 @@
+     // ---- ONE M opening, then ONE opening per commitment; each owner dropped after its opening ----
+     let mask_open = zk::mask_open(&mc, &acc.fs, ntt, tr);
+     drop(mc);
+-    ph.mark(Half::Open, "open M (zk::mask_open, ONE call)", M_ROWS as u64, "rows");
++    ph.mark(Half::Open, "open M (zk::mask_open, ONE call)", lay.m_rows() as u64, "rows");
+     let order = acc.order;
+     let [ac, hc, ic, oc] = finish_claims(acc.claims, lay);
+     check_opening(&ac, sh.log_cols, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, sh.a_groups(), tr)?;
+@@ -1244,7 +1369,8 @@
+     let g_exp = gamma.mul_base(Fp::new(TAG_EXP));
+     let g_act = gamma.mul_base(Fp::new(TAG_ACT));
+     absorb_root(tr, b"H", &v.h_root, lay.h_rows, sh.log_cols);
+-    let ctx = Ctx { lay, public, ff, alpha, beta, g_u8, g_exp, g_act };
++    let g_dd = gamma.mul_base(Fp::new(TAG_DD));
++    let ctx = Ctx { lay, public, ff, alpha, beta, g_u8, g_exp, g_act, g_dd };
+     let mut side = Side::Verify { slots: v.slots };
+     ph.mark(Half::Setup, "transcript header + the A and H roots", 2, "roots");
+     let acc = argument(&mut side, &ctx, tr, ph)?;
+@@ -1259,7 +1385,7 @@
+     super::capture::mask(&v.mask_root, &acc.fs, v.mask_open, capture_before, tr);
+     #[cfg(test)]
+     super::run_capture::mask(&lay.mask_specs(), &v.mask_root, &acc.fs, v.mask_open, ntt, run_capture_before, tr);
+-    ph.mark(Half::Open, "verify M (zk::mask_verify, ONE call)", M_ROWS as u64, "rows");
++    ph.mark(Half::Open, "verify M (zk::mask_verify, ONE call)", lay.m_rows() as u64, "rows");
+     let order = acc.order;
+     let [ac, hc, ic, oc] = finish_claims(acc.claims, lay);
+     check_opening(&ac, sh.log_cols, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, sh.a_groups(), tr)?;
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/r9_golden_tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/r9_golden_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/r9_golden_tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/r9_golden_tests.rs	2026-10-19 09:41:47.674821394 -0700
+@@ -0,0 +1,110 @@
++//! **NATIVE R9: byte identity of the NON-DD profiles across R8 -> R9**
++//! (coordinator's check (a)). TEST CODE ONLY. Public synthetic data only.
++//!
++//! Proof bytes come from OS randomness, so two proofs never repeat. This test
++//! proves ONE block with a SEEDED generator (`ZkRng::new`, test code only —
++//! the production path's census still forbids it there) through the shared
++//! `protocol::prove_core`, at the TinyLlama T128 and Llama-3-8B T128 trained
++//! shapes, on a generic dense witness, with a fixed transcript prefix and
++//! deterministic endpoint data, and digests EVERYTHING the core produces: the
++//! three roots, every slot proof, the three openings, the IO claims, the
++//! absorb order and the final transcript state. The same file runs in a copy
++//! of the R8 freeze (`r9/r8-golden-tree/`) to record the digests, and in the
++//! R9 tree against them.
++//!
++//! Heavy (one width-2048 and one width-4096 T128 block): `#[ignore]`, run
++//! through the guard by name.
++
++use super::layout::*;
++use super::shape::{NormCalibration, Shape};
++use super::*;
++use crate::field::Fp;
++use crate::transcript::Transcript;
++
++/// the R8 freeze's digests, recorded in `r9/r8-golden-tree/` (a copy of
++/// `r8/frozen-tree/` with this file added) on 2026-10-19
++const GOLDEN: &[(&str, &str)] = &[
++    ("tinyllama-t128", "782b64c97a88cba4c6c34a2fecb73132f26d5f54adc9bd159f3d6cf9df4205c0"),
++    ("llama3-8b-t128", "05a22d72a892aff5fb2e35da4d0ab0c894d696f2e6afa542b6ecece5aeb9f4db"),
++];
++
++fn digest_of_seeded_block(sh: &Shape, blk: &BlockPublic, w: super::witness::Witness) -> String {
++    let lay = Layout::for_shape(sh).unwrap();
++    let rows = sh.endpoint_rows;
++    let n = 1usize << sh.endpoint_log_n;
++    let ids = Ids::new(sh).unwrap();
++    // deterministic endpoint data: the padded input / output plane words in
++    // the data rows, zero elsewhere (the core reads them; nothing here opens
++    // an endpoint)
++    let io = |p: usize| -> Vec<Fp> {
++        let mut d = vec![Fp::ZERO; rows * n];
++        for (i, v) in w.planes[p].iter().enumerate().take(d.len()) {
++            d[i] = Fp::from_i64(*v);
++        }
++        d
++    };
++    let (ein, eout) = (io(ids.at(A_X)), io(ids.at(A_X2)));
++    let ntt = crate::ntt::NttTables::new(super::protocol::ntt_log_at(sh));
++    let mut rng = crate::zk::ZkRng::new(20261019, b"native r9 golden");
++    let mut tr = Transcript::new(b"native r9 golden");
++    tr.absorb(b"profile", sh.profile.as_bytes());
++    tr.absorb(b"schedule", &lay.schedule_digest());
++    let mut ph = super::timing::Phases::start();
++    let mut phases = Vec::new();
++    let mut tick = std::time::Instant::now();
++    let core = super::protocol::prove_core(sh, &lay, blk, w, [ein.as_slice(), eout.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick).expect("the seeded core proof");
++    let text = format!(
++        "{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}",
++        core.a_root,
++        core.h_root,
++        core.mask_root,
++        core.slots,
++        core.mask_open,
++        core.a_open,
++        core.h_open,
++        core.io_claims,
++        core.order,
++        core.lookups,
++        tr.state()
++    );
++    eprintln!("R9-GOLDEN {}: {} slots, {} absorbs, debug text {} B", sh.profile, core.slots.len(), core.order.len(), text.len());
++    blake3::hash(text.as_bytes()).to_hex().to_string()
++}
++
++fn check(name: &str, got: &str) {
++    eprintln!("R9-GOLDEN-DIGEST {name} {got}");
++    if let Some((_, want)) = GOLDEN.iter().find(|(n, _)| *n == name) {
++        assert_eq!(got, *want, "{name}: the seeded core proof's bytes moved between R8 and R9");
++    } else {
++        assert!(GOLDEN.is_empty(), "{name} has no recorded golden");
++    }
++}
++
++#[test]
++#[ignore = "native lane heavy: seeded TinyLlama T128 block proof (byte identity across R8 -> R9)"]
++fn r9_golden_seeded_tinyllama_t128_block_is_byte_identical() {
++    let cal = super::trained_calib_tests::t3_calibration();
++    let sh = Shape::tinyllama_trained(128, &cal, 9).unwrap();
++    let (blk, input) = super::trained_calib_tests::trained_dense_block(&sh);
++    let w = super::witness::build_shaped(&sh, blk.attention(), blk.feed_forward(), &input).expect("the generic dense witness");
++    check("tinyllama-t128", &digest_of_seeded_block(&sh, &blk, w));
++}
++
++#[test]
++#[ignore = "native lane heavy: seeded Llama-3-8B T128 block proof (byte identity across R8 -> R9)"]
++fn r9_golden_seeded_llama3_8b_t128_block_is_byte_identical() {
++    let cal = NormCalibration { cn_a: 6380, cn_m: 6672, ..super::trained_calib_tests::llama3_8b_calibration() };
++    let sh = Shape::llama3_8b_trained(128, &cal, 9).unwrap();
++    // the R4-2 / ladder bands at the 8B geometry: the FIRST admissible
++    use super::trained_calib_tests::{Bands, TRAINED_BANDS};
++    let cands = [TRAINED_BANDS, Bands { attn: 6, gate: 8, ..TRAINED_BANDS }, Bands { attn: 4, gate: 8, down: 1, ..TRAINED_BANDS }, Bands { attn: 4, gate: 6, down: 1, xmag: 4_000, ..TRAINED_BANDS }];
++    for b in cands {
++        let (blk, input) = super::trained_calib_tests::trained_dense_block_with(&sh, b);
++        if let Ok(w) = super::witness::build_shaped(&sh, blk.attention(), blk.feed_forward(), &input) {
++            eprintln!("R9-GOLDEN 8B bands {b:?}");
++            check("llama3-8b-t128", &digest_of_seeded_block(&sh, &blk, w));
++            return;
++        }
++    }
++    panic!("no candidate band is admissible at the 8B T128 geometry");
++}
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/r9_tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/r9_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/r9_tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/r9_tests.rs	2026-10-19 10:28:11.050021225 -0700
+@@ -0,0 +1,383 @@
++//! **NATIVE LANE, ROUND 9: DD, THE PER-ROW DIVISION DICTIONARY** (register
++//! entry D30; `results/zk60_gpt_nonlinear_review_20261018/dd_check/CHECK.md`
++//! B-1..B-8). TEST CODE ONLY. Public synthetic data only. NOT a soundness or
++//! privacy acceptance: D30 sends the built relations to an independent
++//! soundness review and to the gate first.
++//!
++//! * the profile gate: DD is three NEW profiles; every other profile keeps 23
++//!   slots, 50 mask rows, 34 functionals, its plane lists, its schedule and
++//!   its profile strings (check (c)); a DD profile runs a 24th slot;
++//! * the door: a shape that pads its dictionary is refused by name; the cap
++//!   counts `{0} U outputs` — 32 passes (the older 8B T32 export's e_s 1
++//!   table), 33 refuses, by name, before any header;
++//! * completeness on a GENERIC honest witness (dense weights, heads that
++//!   differ, the independent reference kernel's output);
++//! * the mutations D30 and CHECK.md name, each shown to PASS against its
++//!   lapsed construction and to be CAUGHT by the construction as built:
++//!   D-3 (an unconstrained slot), D-4 (the row key dropped), the dictionary's
++//!   LogUp columns left out of the single sum claim; D-8 (multiplicities
++//!   chosen after alpha) caught because `M_dd` is committed in `A`.
++
++use super::layout::*;
++use super::shape::{NormCalibration, Shape, DD_CAP};
++use super::witness::{self, Witness};
++use super::*;
++
++fn dd_rung() -> Shape {
++    Shape::rung_dd(&super::trained_calib_tests::rung_tc_calibration()).expect("the DD development rung")
++}
++
++/// the public statement of nine true-size words with an exp table of score
++/// exponent `e_s` and a SiLU member (the rung's f_e 12, head_dim 32)
++fn block_with(sh: &Shape, w: &[Vec<i8>; 9], e_s: i32, silu: (i32, i32)) -> (BlockPublic, Vec<i64>, Vec<i16>) {
++    let (cos, sin) = crate::tables_attn::rope_tables_generate(sh.tokens, sh.head_dim, 10000.0, F_RO);
++    let (exp, _) = crate::tables_attn::exp_member(e_s, sh.head_dim, sh.f_e);
++    let (act, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, silu.0, silu.1).expect("a frozen SiLU member");
++    let aw = super::grow_tests::pad_attention_weights(sh, &w[0], &w[1], &w[2], &w[3], &w[4]);
++    let fw = super::grow_tests::pad_ff_weights(sh, &w[5], &w[6], &w[7], &w[8]);
++    let public = AttentionPublic::new_shaped(sh, &aw[0], &aw[1], &aw[2], &aw[3], &aw[4], &cos, &sin, &exp).expect("the attention statement");
++    let ff = FeedForwardPublic::new_shaped(sh, &fw[0], &fw[1], &fw[2], &fw[3], &act).expect("the feed-forward statement");
++    (BlockPublic::new(public, ff), exp.to_vec(), act.to_vec())
++}
++
++/// the INDEPENDENT shape-driven reference kernel's block output at `sh`
++fn kernel_out(sh: &Shape, w: &[Vec<i8>; 9], x: &[i16], exp: &[i64], act: &[i16]) -> Vec<i16> {
++    use private_block_kernel_shaped as k;
++    let (cos, sin) = crate::tables_attn::rope_tables_generate(sh.tokens, sh.head_dim, 10000.0, F_RO);
++    let ksh = super::parity::kernel_shape(sh);
++    let mut scratch = vec![0i64; ksh.scratch_len()];
++    let mut out = vec![0i16; ksh.x_len()];
++    let wr = k::WeightsRef { wq: &w[0], wk: &w[1], wv: &w[2], wo: &w[3], gamma_a: &w[4], gamma_m: &w[5], wg_t: &w[6], wu_t: &w[7], wd_t: &w[8] };
++    let tr = k::TablesRef { rope_cos: &cos, rope_sin: &sin, exp, act };
++    k::run_shaped(&ksh, x, &wr, &tr, &mut scratch, None, &mut out).unwrap_or_else(|e| panic!("the reference kernel refuses: {e:?}"));
++    out
++}
++
++fn true_words(sh: &Shape, w: &Witness, plane: usize) -> Vec<i16> {
++    (0..sh.tokens).flat_map(|t| (0..sh.width).map(move |i| (t, i))).map(|(t, i)| w.planes[plane][t * sh.d_pad + i] as i16).collect()
++}
++
++/// the generic dense block at the DD rung (exp e_s 2: a 32-slot column fits)
++fn generic(sh: &Shape) -> (BlockPublic, [Vec<i8>; 9], Vec<i16>, Vec<i64>, Vec<i16>) {
++    let (w, input) = super::trained_calib_tests::trained_dense_words(sh, super::trained_calib_tests::TRAINED_BANDS);
++    let (blk, exp, act) = block_with(sh, &w, 2, (-3, -11));
++    (blk, w, input, exp, act)
++}
++
++/// resets every test hook when it goes out of scope
++struct Hooks;
++
++impl Drop for Hooks {
++    fn drop(&mut self) {
++        super::argument::set_dd_lapse(0);
++        super::witness::set_dd_cheat(0);
++        super::protocol::set_dd_moved_multiplicity(None);
++    }
++}
++
++// ------------------------------------------------------------------ the gate
++
++/// **Check (c): a non-DD profile is untouched.** Every registered non-DD
++/// trained shape and the toy keep 23 slots, 50 mask rows, 34 functionals,
++/// no dictionary line, no 24th slot line, and their profile strings; the DD
++/// profiles run 24 slots with 52 mask rows and 36 functionals, a dictionary
++/// line, and their own plane lists.
++#[test]
++fn a_non_dd_profile_has_no_24th_slot_and_its_strings_are_unchanged() {
++    let tl = super::trained_calib_tests::pg_calibration();
++    let l8 = super::trained_calib_tests::llama3_8b_calibration();
++    let plain = [
++        Shape::toy(),
++        Shape::rung_tc(&super::trained_calib_tests::rung_tc_calibration()).unwrap(),
++        Shape::tinyllama_trained(32, &tl, 9).unwrap(),
++        Shape::tinyllama_trained(64, &tl, 9).unwrap(),
++        Shape::tinyllama_trained(128, &tl, 9).unwrap(),
++        Shape::llama3_8b_trained(32, &l8, 9).unwrap(),
++        Shape::llama3_8b_trained(64, &l8, 9).unwrap(),
++        Shape::llama3_8b_trained(128, &l8, 9).unwrap(),
++    ];
++    let strings = [
++        "hashline-zk-mr1/private-block-t32-poc/1",
++        "hashline-zk-mr1/private-block-rung-tc-t32-dev/1",
++        "hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1",
++        "hashline-zk-mr1/private-block-tinyllama-1.1b-t64-trained/1",
++        "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-block/1",
++        "hashline-zk-mr1/private-block-llama-3-8b-t32-trained/1",
++        "hashline-zk-mr1/private-block-llama-3-8b-t64-trained/1",
++        "hashline-zk-mr1/private-block-llama-3-8b-t128-trained/1",
++    ];
++    for (s, want) in plain.iter().zip(strings) {
++        assert_eq!(s.profile, want, "a profile string moved");
++        assert_eq!((s.dd_cap, s.n_slots(), s.m_rows(), s.n_functionals()), (0, 23, 50, 34), "{}", s.profile);
++        let lay = Layout::for_shape(s).unwrap();
++        let d = lay.describe();
++        assert!(!d.iter().any(|l| l.contains("dictionary") || l.starts_with("slot 23")), "{}: a dictionary line in a non-DD schedule", s.profile);
++        assert_eq!(lay.slots().len(), 23);
++        assert!(!s.a_plane_doms().contains(&Dom::Dd) && !s.h_plane_doms().contains(&Dom::Dd));
++    }
++    let tl_dd = Shape::tinyllama_t128_trained_dd(&tl, 9).unwrap();
++    let l8_dd = Shape::llama3_8b_t128_trained_dd(&l8, 9).unwrap();
++    for s in [dd_rung(), tl_dd, l8_dd] {
++        assert_eq!((s.dd_cap, s.n_slots(), s.m_rows(), s.n_functionals()), (DD_CAP, 24, 52, 36), "{}", s.profile);
++        let lay = Layout::for_shape(&s).unwrap();
++        let d = lay.describe();
++        assert!(d.iter().any(|l| l.starts_with("dictionary (D30): cap=32")), "{}", s.profile);
++        assert!(d.iter().any(|l| l.starts_with("slot 23 [DD dictionary zero-check")), "{}", s.profile);
++        let ids = Ids::new(&s).unwrap();
++        assert_eq!(s.a_plane_doms().iter().filter(|d| **d == Dom::S).count(), 5, "a DD score entry keeps five planes");
++        assert_eq!(s.a_plane_doms().iter().filter(|d| **d == Dom::Dd).count(), 2 + s.limbs_p() + 2 * s.limbs_sigma_s());
++        // CHECK.md E-1: P_dict and M_dd sit BELOW the histograms, so the
++        // prover writes them into A
++        assert!(!ids.is_multiplicity(ids.pdict()) && !ids.is_multiplicity(ids.mdd()));
++        assert!(ids.mdd() < ids.at(A_MU8));
++        // CHECK.md E-2: the dictionary's table helper is a TABLE helper (sign -1)
++        let hids = HIds::new(&s).unwrap();
++        assert!(hids.is_table(hids.gdd()) && !hids.is_table(hids.stuple()));
++        // CHECK.md P-6: `u` stays the last H plane, on Dom::Tab
++        assert_eq!(hids.u(), hids.n_h() - 1);
++        assert_eq!(s.h_plane_doms()[hids.u()], Dom::Tab);
++        // the score domain's byte lookups: sym(s8) and the rsl pair only
++        assert_eq!(s.lookups_per_position(Dom::S), 4);
++        assert_eq!(s.lookups_per_position(Dom::Dd), (s.limbs_p() + 1) + 2 * (s.limbs_sigma_s() + 1));
++    }
++}
++
++/// **The DD door (B-3 by restriction):** a shape whose dictionary would pad
++/// is refused by name; the three registered DD shapes pass.
++#[test]
++fn a_dd_shape_that_pads_is_refused_by_name() {
++    let mut s = Shape::rung_tc(&super::trained_calib_tests::rung_tc_calibration()).unwrap();
++    assert_ne!(s.h_pad, s.q_heads, "the rung-TC pads its heads (12 of 16)");
++    s.dd_cap = DD_CAP;
++    let e = s.check_dd_geometry().expect_err("a padded head axis was admitted under DD");
++    assert!(e.contains("DD (D30) needs an unpadded dictionary") && e.contains("pads its head axis"), "{e}");
++    let mut s2 = dd_rung();
++    s2.dd_cap = 24;
++    assert!(s2.check_dd_geometry().unwrap_err().contains("not a power of two"));
++    dd_rung().check_dd_geometry().unwrap();
++}
++
++/// **The cap (D30 condition 6, CHECK.md C-1 / B-7 / B-8).** `n_col` counts
++/// `{0} U outputs`: the older Llama-3-8B T32 export's e_s 1 table (f_e 9,
++/// head_dim 128) needs EXACTLY 32 and passes; a table needing 33 is refused
++/// by name; the column is sorted, starts at 0 and pads with 0.
++#[test]
++fn the_cap_admits_32_and_refuses_33_by_name() {
++    let (t32, _) = crate::tables_attn::exp_member(1, 128, 9);
++    let col = dd_e_column_of(&t32, DD_CAP).expect("the e_s 1 8B table (n_col 32) passes the cap");
++    assert_eq!(col.len(), 32);
++    assert_eq!(col[0], 0);
++    let distinct: std::collections::BTreeSet<i64> = std::iter::once(0).chain(t32.iter().copied()).collect();
++    assert_eq!(distinct.len(), 32, "the older 8B T32 export's table is the boundary case");
++    // 33: the same table with one more distinct value
++    let mut t33 = t32.to_vec();
++    let spare = (1..512).find(|v| !distinct.contains(v)).unwrap();
++    let last = t33.len() - 1;
++    t33[last] = spare;
++    let e = dd_e_column_of(&t33, DD_CAP).expect_err("a 33-slot column was admitted");
++    assert!(e.contains("D30 / B-8") && e.contains("33 slots") && e.contains("cap of 32"), "{e}");
++    // padding: a short column is padded with 0 after its largest value
++    let (t3, _) = crate::tables_attn::exp_member(4, 128, 9);
++    let c3 = dd_e_column_of(&t3, DD_CAP).unwrap();
++    let n = std::iter::once(0).chain(t3.iter().copied()).collect::<std::collections::BTreeSet<i64>>().len();
++    assert!(c3[..n].windows(2).all(|p| p[0] < p[1]) && c3[n..].iter().all(|v| *v == 0), "{c3:?}");
++}
++
++/// **The door refuses an over-cap block BEFORE any header**: the witness
++/// builder, `BlockPublic::check_for_shape` (CS-1 / CS-4, which the run prover
++/// takes before its header) and the run prover itself — no segment exists.
++#[test]
++fn an_over_cap_block_is_refused_before_any_header() {
++    let sh = dd_rung();
++    let (w, input) = super::trained_calib_tests::trained_dense_words(&sh, super::trained_calib_tests::TRAINED_BANDS);
++    // e_s 0 at head_dim 32, f_e 12: far more than 32 distinct outputs
++    let (blk, exp, _) = block_with(&sh, &w, 0, (-3, -11));
++    let n = std::iter::once(0).chain(exp.iter().copied()).collect::<std::collections::BTreeSet<i64>>().len();
++    assert!(n > DD_CAP, "the e_s 0 table needs {n} slots");
++    let e = match witness::build_shaped(&sh, blk.attention(), blk.feed_forward(), &input) {
++        Ok(_) => panic!("the builder admitted an over-cap table"),
++        Err(e) => e,
++    };
++    assert!(e.contains("D30 / B-8"), "{e}");
++    let e = blk.check_for_shape(&sh).expect_err("the block statement fits a DD shape over the cap");
++    assert!(e.contains("D30 / B-8"), "{e}");
++    // the run prover refuses at CS-1 / CS-4, before the endpoints are opened,
++    // the randomness seeded or the header absorbed: no segment is handed out
++    let (ok_blk, _, ok_input, _, _) = generic(&sh);
++    let w_ok = witness::build_shaped(&sh, ok_blk.attention(), ok_blk.feed_forward(), &ok_input).unwrap();
++    let ids = Ids::new(&sh).unwrap();
++    let plane = |p: usize| -> Vec<i16> { w_ok.planes[p].iter().map(|v| *v as i16).collect() };
++    let ctx = *blake3::hash(b"native r9: over-cap door").as_bytes();
++    let spec = IoSpec::new_shaped(&sh, ctx, 0, 0).unwrap();
++    let (expected, owners) = prepare_endpoints(spec, &plane(ids.at(A_X)), &plane(ids.at(A_X2))).unwrap();
++    let blocks = vec![blk];
++    let st = super::run::RunStatement::new_bound(super::trained_calib_tests::run_shape_for(&sh, 1), ctx, expected, &blocks, &[(0, 0)], &super::trained_calib_tests::synthetic_statement(&sh, &blocks));
++    eprintln!("R9 over-cap: the run statement {}", match &st { Ok(_) => "constructs (the run prover must refuse)".to_string(), Err(e) => format!("refuses: {e}") });
++    if let Err(e) = &st {
++        assert!(e.contains("D30 / B-8"), "the run statement refused for another reason: {e}");
++    }
++    if let Ok(st) = st {
++        struct One(Option<Witness>);
++        impl super::run::RunWitnessSource for One {
++            fn witness(&mut self, _k: usize) -> Result<Witness, String> {
++                self.0.take().ok_or_else(|| "consumed".into())
++            }
++            fn boundary_plane(&mut self, _k: usize) -> Result<Vec<i16>, String> {
++                Err("one block".into())
++            }
++        }
++        let mut segs = 0usize;
++        let e = super::run::prove_run(&st, &blocks, &mut One(Some(w_ok)), owners, &mut |_, _| {
++            segs += 1;
++            Ok(())
++        })
++        .expect_err("the run prover admitted an over-cap block");
++        assert!(e.contains("D30 / B-8") && segs == 0, "{e} ({segs} segments)");
++    }
++}
++
++// ------------------------------------------------------------ completeness
++
++/// **Completeness on a GENERIC honest witness** (dense weights, heads that
++/// differ, the INDEPENDENT reference kernel's output): the DD witness's
++/// output is the kernel's bit for bit, every dictionary slot holds the floor
++/// quotient and its remainders, the multiplicities count every score entry
++/// once, and a one-block bound run proves and verifies; a two-block run with
++/// a second, different block proves and verifies too.
++#[test]
++fn a_generic_honest_witness_proves_and_verifies_under_dd() {
++    let sh = dd_rung();
++    let (blk, w, input, exp, act) = generic(&sh);
++    let wit = witness::build_shaped(&sh, blk.attention(), blk.feed_forward(), &input).expect("the honest DD witness");
++    let ids = Ids::new(&sh).unwrap();
++    assert_eq!(true_words(&sh, &wit, ids.at(A_X2)), kernel_out(&sh, &w, &input, &exp, &act), "the DD witness and the independent reference kernel disagree");
++    // heads differ (the recipe's S19-F1 regime)
++    let s8 = &wit.planes[ids.at(A_S8)];
++    let blkln = sh.t_pad * sh.t_pad;
++    assert!((1..sh.q_heads).any(|h| s8[h * blkln..(h + 1) * blkln] != s8[..blkln]), "every head carries the same scores");
++    // the dictionary, slot by slot (B-1, B-7)
++    let ecol = blk.attention().dd_e_column(DD_CAP).unwrap();
++    let (cap, tp) = (DD_CAP, sh.t_pad);
++    let sum = &wit.planes[ids.at(A_SUM)];
++    let mut counted = 0i64;
++    for ht in 0..sh.size(Dom::Ht) {
++        for k in 0..cap {
++            let x = ht * cap + k;
++            let q = (ecol[k] << 9) / sum[ht];
++            assert_eq!(wit.planes[ids.pdict()][x], q, "slot ({ht}, {k}) is not the floor quotient");
++            counted += wit.planes[ids.mdd()][x];
++        }
++    }
++    assert_eq!(counted as usize, sh.size(Dom::S), "the multiplicities do not count every score entry once");
++    assert_eq!(super::protocol::dd_misses(&Layout::for_shape(&sh).unwrap(), &wit, &ecol), 0);
++    let _ = tp;
++    let one = super::trained_calib_tests::prove_one_bound(&sh, &blk, wit).expect("the DD block proves");
++    super::trained_calib_tests::verify_one_bound(&sh, &blk, &one.expected.to_bytes(), &one.seg).expect("the DD block verifies");
++    eprintln!("R9 DD rung, one block: segment {} B", one.seg.len());
++}
++
++// --------------------------------------------------------------- mutations
++
++/// prove one block at the DD rung with the current hooks (a cheating
++/// prover: CS-3's refusals off) — the PROVER must produce a receipt — and
++/// return the VERIFIER's verdict under the same hooks
++fn prove_and_verify(sh: &Shape, blk: &BlockPublic, input: &[i16]) -> Result<(), String> {
++    let wit = witness::build_shaped(sh, blk.attention(), blk.feed_forward(), input).unwrap_or_else(|e| panic!("the (mutated) witness did not build: {e}"));
++    let _cheat = super::protocol::CheatingProver::on();
++    let one = super::trained_calib_tests::prove_one_bound(sh, blk, wit).unwrap_or_else(|e| panic!("the prover produced no receipt, so the verifier was never asked: {e}"));
++    super::trained_calib_tests::verify_one_bound(sh, blk, &one.expected.to_bytes(), &one.seg)
++}
++
++/// run one mutation: against its LAPSED construction it must pass (the test
++/// is not vacuous), against the construction as built it must be rejected
++fn mutation(name: &str, cheat: u8, lapse: u8) {
++    let _h = Hooks;
++    let sh = dd_rung();
++    let (blk, _, input, _, _) = generic(&sh);
++    super::witness::set_dd_cheat(cheat);
++    super::argument::set_dd_lapse(lapse);
++    prove_and_verify(&sh, &blk, &input).unwrap_or_else(|e| panic!("{name}: the cheat did NOT pass the lapsed construction, so this test proves nothing: {e}"));
++    super::argument::set_dd_lapse(0);
++    let e = prove_and_verify(&sh, &blk, &input).expect_err(&format!("{name}: the cheat VERIFIED against the construction as built"));
++    eprintln!("R9 mutation {name}: passes the lapse, rejected as built: {}", e.chars().take(140).collect::<String>());
++}
++
++/// **CHECK.md D-3: an unconstrained dictionary position.** A padding slot
++/// (e = 0) of row (0, 0) holds the wrong tuple (Sum, 0, 1) with a count moved
++/// onto it, and a masked score entry claims P = 1 (the PV accumulator follows
++/// it, so only the dictionary can object). With the division clauses gated
++/// off that slot the proof VERIFIES; with every slot constrained (B-1) it is
++/// rejected.
++#[test]
++fn d3_an_unconstrained_slot_is_caught() {
++    mutation("D-3 unconstrained slot", 1, super::argument::DD_LAPSE_GATE_LAST_SLOT);
++}
++
++/// **CHECK.md D-4: the row key dropped.** An entry of one row presents
++/// another row's quotient for the same e, one count moved between the two
++/// rows' slots. Keyless tuples balance; keyed by the row's Sum they do not.
++#[test]
++fn d4_a_dropped_row_key_is_caught() {
++    mutation("D-4 row key dropped", 2, super::argument::DD_LAPSE_DROP_KEY);
++}
++
++/// **D30 condition 3: the dictionary's LogUp columns in the single value-0
++/// sum claim.** An entry's P off by one with no count moved: its tuple helper
++/// still satisfies its row relation, so only the sum claim can object. Left
++/// out of the claim the proof VERIFIES; in it, rejected.
++#[test]
++fn the_dictionary_helpers_out_of_the_sum_claim_is_caught() {
++    mutation("helper out of the sum claim", 3, super::argument::DD_LAPSE_OUT_OF_SUM);
++}
++
++/// **CHECK.md D-8: multiplicities chosen after alpha.** The construction
++/// commits `M_dd` in `A` before beta, gamma and alpha (B-2), so a prover who
++/// chooses its counts after alpha can only put them into the table helper —
++/// one count moved from row (0, 0)'s e = 0 slot onto a padding slot — and the
++/// dictionary zero-check's `g (alpha - tau) - M_dd` sees the committed plane
++/// disagree. Rejected. (The lapsed construction, multiplicities in `H` after
++/// alpha, is CHECK.md's toy D-8, 20 of 20; it is not built here.)
++#[test]
++fn d8_multiplicities_after_alpha_are_caught() {
++    let _h = Hooks;
++    let sh = dd_rung();
++    let (blk, _, input, _, _) = generic(&sh);
++    super::protocol::set_dd_moved_multiplicity(Some((0, DD_CAP - 1)));
++    let e = prove_and_verify(&sh, &blk, &input).expect_err("D-8: counts chosen after alpha VERIFIED");
++    eprintln!("R9 mutation D-8: rejected: {}", e.chars().take(140).collect::<String>());
++    super::protocol::set_dd_moved_multiplicity(None);
++    prove_and_verify(&sh, &blk, &input).expect("the same block without the move verifies");
++}
++
++/// the TinyLlama / 8B DD shapes build with their real calibrations' classes
++#[test]
++fn the_t128_dd_shapes_build_and_lay_out() {
++    let tl = super::trained_calib_tests::pg_calibration();
++    let l8 = super::trained_calib_tests::llama3_8b_calibration();
++    for (dd, plain) in [
++        (Shape::tinyllama_t128_trained_dd(&tl, 9).unwrap(), Shape::tinyllama_trained(128, &tl, 9).unwrap()),
++        (Shape::llama3_8b_t128_trained_dd(&l8, 9).unwrap(), Shape::llama3_8b_trained(128, &l8, 9).unwrap()),
++    ] {
++        let (a, b) = (Layout::for_shape(&dd).unwrap(), Layout::for_shape(&plain).unwrap());
++        let n = 1u64 << dd.log_cols;
++        let (ta, tb) = (dd.totals(), plain.totals());
++        eprintln!(
++            "R9 COUNT {}: A rows {} -> {} , H rows {} -> {}, committed {} -> {} elements ({:+.2}%), U8 lookups {} -> {} ({:+.2}%), receipt {} -> {} B",
++            plain.profile,
++            b.a_rows,
++            a.a_rows,
++            b.h_rows,
++            a.h_rows,
++            (b.a_rows as u64 + b.h_rows as u64) * n,
++            (a.a_rows as u64 + a.h_rows as u64) * n,
++            100.0 * ((a.a_rows + a.h_rows) as f64 / (b.a_rows + b.h_rows) as f64 - 1.0),
++            tb.u8_lookups,
++            ta.u8_lookups,
++            100.0 * (ta.u8_lookups as f64 / tb.u8_lookups as f64 - 1.0),
++            tb.receipt_bytes.total,
++            ta.receipt_bytes.total
++        );
++        assert_eq!(dd.norm_calibration(), plain.norm_calibration());
++        let _ = NormCalibration::FROZEN;
++    }
++}
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/run.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/run.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/run.rs	2026-10-19 06:32:57.303153107 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/run.rs	2026-10-19 09:39:31.608281729 -0700
+@@ -94,6 +94,11 @@
+ pub(crate) const RUN_PROFILE_LLAMA3_8B_T128_TRAINED: &str = "hashline-zk-mr1/private-run-llama-3-8b-t128-trained-statement/1";
+ /// NATIVE LANE: the run profile of the trained-calibration development rung.
+ pub(crate) const RUN_PROFILE_RUNG_TC: &str = "hashline-zk-mr1/private-run-rung-tc-t32-dev/1";
++/// **NATIVE R9 (D30): the run profiles of the three DD block profiles** (one
++/// per shape, D17), at the lengths of their non-DD twins' (67 / 63 / 45)
++pub(crate) const RUN_PROFILE_TINYLLAMA_T128_DD: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-ddict32-statement/1";
++pub(crate) const RUN_PROFILE_LLAMA3_8B_T128_DD: &str = "hashline-zk-mr1/private-run-llama-3-8b-t128-ddict32-statement/1";
++pub(crate) const RUN_PROFILE_RUNG_DD: &str = "hashline-zk-mr1/private-run-rung-dd-t32-dev/1";
+ 
+ /// One run's geometry: the per-block shape, how many blocks, and the run's own
+ /// profile id. A run is a NEW profile under D17 — its own transcript, its own
+@@ -133,6 +138,9 @@
+         RUN_PROFILE_LLAMA3_8B_T32_TRAINED => Shape::llama3_8b_t32_trained(&cal, sh.f_e),
+         RUN_PROFILE_LLAMA3_8B_T64_TRAINED => Shape::llama3_8b_trained(64, &cal, sh.f_e),
+         RUN_PROFILE_LLAMA3_8B_T128_TRAINED => Shape::llama3_8b_trained(128, &cal, sh.f_e),
++        RUN_PROFILE_TINYLLAMA_T128_DD => Shape::tinyllama_t128_trained_dd(&cal, sh.f_e),
++        RUN_PROFILE_LLAMA3_8B_T128_DD => Shape::llama3_8b_t128_trained_dd(&cal, sh.f_e),
++        RUN_PROFILE_RUNG_DD => Shape::rung_dd(&cal),
+         #[cfg(test)]
+         RUN_PROFILE_TINYLLAMA_T32_DEV => Ok(Shape::tinyllama_t32_dev()),
+         _ => return None,
+@@ -223,6 +231,9 @@
+             p if p == super::shape::LLAMA3_8B_T32_TRAINED_PROFILE => RUN_PROFILE_LLAMA3_8B_T32_TRAINED,
+             p if p == super::shape::LLAMA3_8B_T64_TRAINED_PROFILE => RUN_PROFILE_LLAMA3_8B_T64_TRAINED,
+             p if p == super::shape::LLAMA3_8B_T128_TRAINED_PROFILE => RUN_PROFILE_LLAMA3_8B_T128_TRAINED,
++            // NATIVE R9: the DD profiles (D30)
++            p if p == super::shape::TINYLLAMA_T128_DD_TRAINED_PROFILE => RUN_PROFILE_TINYLLAMA_T128_DD,
++            p if p == super::shape::LLAMA3_8B_T128_DD_TRAINED_PROFILE => RUN_PROFILE_LLAMA3_8B_T128_DD,
+             _ => return Err("private run: a trained-model run profile needs a trained TinyLlama or Llama-3-8B shape".into()),
+         };
+         if !sh.trained_calibration {
+@@ -230,6 +241,13 @@
+         }
+         RunShape::new(sh, l, rp)
+     }
++    /// NATIVE R9: a run at the DD development rung (D30).
++    pub(crate) fn rung_dd(sh: Shape, l: usize) -> Result<RunShape, String> {
++        if sh.profile != super::shape::TRAINED_DD_RUNG_PROFILE || !sh.trained_calibration {
++            return Err("private run: the DD rung run profile needs its shape".into());
++        }
++        RunShape::new(sh, l, RUN_PROFILE_RUNG_DD)
++    }
+     /// NATIVE LANE: a run at the trained-calibration development rung.
+     pub(crate) fn rung_tc(sh: Shape, l: usize) -> Result<RunShape, String> {
+         if sh.profile != super::shape::TRAINED_CALIB_RUNG_PROFILE || !sh.trained_calibration {
+@@ -426,7 +444,7 @@
+         let facts = super::hash_domain::RunFacts { profile: st.rs.profile, l: st.rs.l, parameter_line: line.as_str() };
+         let set = super::hash_domain::imposed_at_shape_with(&st.rs.sh, Some(&facts));
+         let lay = Layout::for_shape(&st.rs.sh)?;
+-        let mut commitments = vec![("A", lay.a_rows), ("H", lay.h_rows), ("M", super::layout::M_ROWS), ("external endpoint", st.rs.sh.endpoint_rows)];
++        let mut commitments = vec![("A", lay.a_rows), ("H", lay.h_rows), ("M", lay.m_rows()), ("external endpoint", st.rs.sh.endpoint_rows)];
+         if st.rs.l > 1 {
+             commitments.push(("internal boundary", st.boundary_spec(0)?.commitment_rows()));
+         }
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/run_capture.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/run_capture.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/run_capture.rs	2026-10-17 16:38:20.059915747 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/run_capture.rs	2026-10-19 11:59:12.254808635 -0700
+@@ -1373,7 +1373,7 @@
+         sh.endpoint_general,
+         sh.norm_wrho,
+         sh.wrho_s,
+-        sh.slots().iter().map(|&(n, e, d)| [n, e, d]).collect::<Vec<_>>(),
++        sh.slots().iter().take(sh.n_slots()).map(|&(n, e, d)| [n, e, d]).collect::<Vec<_>>(),
+         sh.a_groups(),
+         sh.h_groups()
+     )
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/rung_tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/rung_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/rung_tests.rs	2026-10-17 07:31:18.536650697 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/rung_tests.rs	2026-10-19 09:54:21.588593280 -0700
+@@ -289,7 +289,7 @@
+     let lay = Layout::for_shape(&sh).expect("the rung layout");
+     let ids = lay.ids();
+     let (public, ff) = (blk.attention(), blk.feed_forward());
+-    for dom in lay.lookup_doms() {
++    for dom in lay.lookup_doms().iter() {
+         for (k, col) in super::protocol::lookup_values(&lay, &w, *dom).iter().enumerate() {
+             if let Some((x, v)) = col.iter().enumerate().find(|(_, v)| !(0..256).contains(*v)) {
+                 panic!("{dom:?} lookup {k} at position {x} has value {v}, outside the U8 table");
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/s20_review_tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/s20_review_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/s20_review_tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/s20_review_tests.rs	2026-10-19 09:54:31.852666400 -0700
+@@ -272,6 +272,7 @@
+         g_u8: Fp2::from_u64(13),
+         g_exp: Fp2::from_u64(17),
+         g_act: Fp2::from_u64(19),
++        g_dd: Fp2::from_u64(23),
+     };
+     // a pseudo-random A buffer: the identity is algebraic in the contents
+     let n = 1usize << sh.log_cols;
+@@ -421,6 +422,7 @@
+             g_u8: Fp2::from_u64(13),
+             g_exp: Fp2::from_u64(17),
+             g_act: Fp2::from_u64(19),
++            g_dd: Fp2::from_u64(23),
+         };
+         let mut tr = crate::transcript::Transcript::new(sh.profile.as_bytes());
+         let mut pts = Points::default();
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/s24_tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/s24_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/s24_tests.rs	2026-10-17 16:38:30.474616431 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/s24_tests.rs	2026-10-19 09:54:31.854898373 -0700
+@@ -111,6 +111,7 @@
+         g_u8: Fp2::from_u64(13),
+         g_exp: Fp2::from_u64(17),
+         g_act: Fp2::from_u64(19),
++        g_dd: Fp2::from_u64(23),
+     };
+     let mut tr = Transcript::new(sh.profile.as_bytes());
+     let mut pts = Points::default();
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/s28_review_tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/s28_review_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/s28_review_tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/s28_review_tests.rs	2026-10-19 09:54:21.588956110 -0700
+@@ -338,7 +338,7 @@
+         let blk = BlockPublic::new(public, ff);
+         let w = super::witness::build_shaped(&sh, blk.attention(), blk.feed_forward(), &x).expect("an honest witness");
+         let lay = Layout::for_shape(&sh).expect("a layout");
+-        for dom in lay.lookup_doms() {
++        for dom in lay.lookup_doms().iter() {
+             let len = lay.shape().size(*dom);
+             let want: Vec<Vec<i64>> = lay
+                 .lookups(*dom)
+@@ -439,7 +439,7 @@
+         let mut lookup_words = 0u64;
+         let mut lookup_par = false; // lookup_values: cols * len >= 2^17
+         let mut helper_par = false; // helper_inverses_u8: col.len() >= 2^14
+-        for dom in lay.lookup_doms() {
++        for dom in lay.lookup_doms().iter() {
+             let len = lay.shape().size(*dom);
+             let cols = lay.lookups(*dom).len();
+             lookup_words += (cols * len) as u64;
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/s28_tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/s28_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/s28_tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/s28_tests.rs	2026-10-19 09:54:21.588823000 -0700
+@@ -436,7 +436,7 @@
+         let blk = BlockPublic::new(public, ff);
+         let w = super::witness::build_shaped(&sh, blk.attention(), blk.feed_forward(), &x).expect("an honest witness at this shape");
+         let lay = Layout::for_shape(&sh).expect("the layout of this shape");
+-        for dom in lay.lookup_doms() {
++        for dom in lay.lookup_doms().iter() {
+             let len = lay.shape().size(*dom);
+             let want: Vec<Vec<i64>> = lay
+                 .lookups(*dom)
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/s29_tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/s29_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/s29_tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/s29_tests.rs	2026-10-19 09:54:21.589078358 -0700
+@@ -306,7 +306,7 @@
+         let blk = BlockPublic::new(public, ff);
+         let w = super::witness::build_shaped(&sh, blk.attention(), blk.feed_forward(), &x).expect("an honest witness at this shape");
+         let lay = Layout::for_shape(&sh).expect("the layout of this shape");
+-        for dom in lay.lookup_doms() {
++        for dom in lay.lookup_doms().iter() {
+             let want = lookup_values_79f0726(&lay, &w, *dom);
+             assert_eq!(lookup_values_at(&lay, &w, *dom, usize::MAX), want, "{} {dom:?}: the forced-serial columns moved", sh.name);
+             assert_eq!(lookup_values_at(&lay, &w, *dom, 0), want, "{} {dom:?}: the forced-parallel columns moved", sh.name);
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/s35_tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/s35_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/s35_tests.rs	2026-10-17 02:32:26.926035796 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/s35_tests.rs	2026-10-19 09:46:42.093252316 -0700
+@@ -365,7 +365,7 @@
+     let lay = Layout::for_shape(sh).unwrap_or_else(|e| panic!("{}: layout: {e}", sh.name));
+     let (public, ff, _) = super::grow_tests::tame_case(sh);
+     let (alpha, beta, g_u8, g_exp, g_act) = ctx_scalars();
+-    let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act };
++    let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act, g_dd: Fp2::ZERO };
+     let mut tr = Transcript::new(sh.profile.as_bytes());
+     let mut pts = Points::default();
+     for s in 0..N_SLOTS {
+@@ -381,7 +381,7 @@
+     let lay = Layout::for_shape(sh).unwrap_or_else(|e| panic!("{}: layout: {e}", sh.name));
+     let (public, ff, _) = super::grow_tests::tame_case(sh);
+     let (alpha, beta, g_u8, g_exp, g_act) = ctx_scalars();
+-    let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act };
++    let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act, g_dd: Fp2::ZERO };
+     let mut tr_def = Transcript::new(sh.profile.as_bytes());
+     let mut tr_ir = Transcript::new(sh.profile.as_bytes());
+     let (mut pts, mut ipts) = (Points::default(), IrPoints::default());
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/shape.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/shape.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/shape.rs	2026-10-19 06:31:56.957545390 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/shape.rs	2026-10-19 09:39:31.610897884 -0700
+@@ -21,9 +21,9 @@
+ //! Python were written from the same memo but not from each other; the tests
+ //! in `grow_tests.rs` assert they agree, shape by shape.
+ 
+-use super::layout::{domain_log_at, Dom, ALL_DOMS, LOOKUP_DOMS, N_FUNCTIONALS, N_SLOTS, U8_LEN};
++use super::layout::{domain_log_at, Dom, ALL_DOMS, LOOKUP_DOMS, MAX_SLOTS, N_FUNCTIONALS, N_SLOTS, U8_LEN};
+ use zkp_core::hashtag::HashTag;
+-use super::layout::{SC_DMM, SC_DZC, SC_FZC, SC_GMM, SC_IO_IN, SC_IO_OUT, SC_KMM, SC_KVZC, SC_LZC, SC_PV, SC_QMM, SC_QZC, SC_RS, SC_SCORE, SC_SS, SC_SSM, SC_SZC, SC_TAB, SC_TZC, SC_UMM, SC_VMM, SC_WO, SC_ZS};
++use super::layout::{SC_DMM, SC_DZC, SC_FZC, SC_GMM, SC_IO_IN, SC_IO_OUT, SC_KMM, SC_KVZC, SC_LZC, SC_PV, SC_QMM, SC_QZC, SC_RS, SC_SCORE, SC_SS, SC_SSM, SC_DD, SC_SZC, SC_TAB, SC_TZC, SC_UMM, SC_VMM, SC_WO, SC_ZS};
+ 
+ /// byte limbs of the isqrt witness `D`, `a1`, `a2` (each below `2^24`)
+ pub(crate) const LIMBS_ISQRT: usize = 3;
+@@ -94,9 +94,44 @@
+ /// the trained Llama-3-8B profiles: the pinned checkpoint's, at each
+ /// registered context length
+ pub(crate) const LLAMA3_8B_TRAINED_PROFILES: [&str; 3] = [LLAMA3_8B_T32_TRAINED_PROFILE, LLAMA3_8B_T64_TRAINED_PROFILE, LLAMA3_8B_T128_TRAINED_PROFILE];
++/// **NATIVE R9: DD, the per-row division dictionary (register entry D30).**
++/// Three NEW block profiles (D17: a new relation is a new profile; every
++/// existing profile, its schedule, transcript and receipt are untouched):
++/// the TinyLlama and Llama-3-8B T128 geometries and a small development
++/// rung, each with `DD_CAP` dictionary slots per attention row. Their
++/// lengths equal existing profiles' (65 / 55 / 47 bytes), so no new hash
++/// input length appears on the path.
++pub(crate) const TINYLLAMA_T128_DD_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-ddict/1";
++pub(crate) const LLAMA3_8B_T128_DD_TRAINED_PROFILE: &str = "hashline-zk-mr1/private-block-llama-3-8b-t128-ddict32/1";
++/// development grade, never a deliverable: T32 / d256 / f512, 8 heads of 32
++/// over 2 KV heads — nothing on the head or token axis pads, which DD
++/// requires (see [`Shape::check_dd_geometry`])
++pub(crate) const TRAINED_DD_RUNG_PROFILE: &str = "hashline-zk-mr1/private-block-rung-dd-t32-dev/1";
++/// the DD profiles
++pub(crate) const DD_PROFILES: [&str; 3] = [TINYLLAMA_T128_DD_TRAINED_PROFILE, LLAMA3_8B_T128_DD_TRAINED_PROFILE, TRAINED_DD_RUNG_PROFILE];
++/// **D30 / CHECK.md B-8: the dictionary's slots per attention row** — one
++/// constant for every DD profile, bound in the schedule line; the trained
++/// door refuses a layer whose exp table needs more (`n_col =
++/// |{0} U outputs| > DD_CAP`), by name, before any header
++pub(crate) const DD_CAP: usize = 32;
++/// the trained TinyLlama / Llama-3-8B DD profiles carry the pinned
++/// checkpoints of their families
++pub(crate) const TINYLLAMA_DD_PROFILES: [&str; 1] = [TINYLLAMA_T128_DD_TRAINED_PROFILE];
++pub(crate) const LLAMA3_8B_DD_PROFILES: [&str; 1] = [LLAMA3_8B_T128_DD_TRAINED_PROFILE];
+ /// the profiles [`Shape::with_trained_calibration`] may give a non-frozen
+ /// calibration to; every other profile's calibration is frozen
+-pub(crate) const TRAINED_CALIBRATION_PROFILES: [&str; 7] = [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE, TINYLLAMA_T64_TRAINED_PROFILE, TINYLLAMA_T128_TRAINED_PROFILE, LLAMA3_8B_T32_TRAINED_PROFILE, LLAMA3_8B_T64_TRAINED_PROFILE, LLAMA3_8B_T128_TRAINED_PROFILE];
++pub(crate) const TRAINED_CALIBRATION_PROFILES: [&str; 10] = [
++    TINYLLAMA_T32_TRAINED_PROFILE,
++    TRAINED_CALIB_RUNG_PROFILE,
++    TINYLLAMA_T64_TRAINED_PROFILE,
++    TINYLLAMA_T128_TRAINED_PROFILE,
++    LLAMA3_8B_T32_TRAINED_PROFILE,
++    LLAMA3_8B_T64_TRAINED_PROFILE,
++    LLAMA3_8B_T128_TRAINED_PROFILE,
++    TINYLLAMA_T128_DD_TRAINED_PROFILE,
++    LLAMA3_8B_T128_DD_TRAINED_PROFILE,
++    TRAINED_DD_RUNG_PROFILE,
++];
+ const INT16_MAX: i128 = 32_767;
+ /// the absolute endpoint of signed int16 (`-32768`), used by the TRAINED
+ /// calibration rule only; every frozen profile keeps the historical 32767
+@@ -178,7 +213,7 @@
+ /// profile with no trained calibration. An export or statement naming any
+ /// other base is refused.
+ pub(crate) fn trained_rope_theta(profile: &str) -> Option<f64> {
+-    if LLAMA3_8B_TRAINED_PROFILES.contains(&profile) {
++    if LLAMA3_8B_TRAINED_PROFILES.contains(&profile) || LLAMA3_8B_DD_PROFILES.contains(&profile) {
+         Some(LLAMA3_8B_ROPE_THETA)
+     } else if TRAINED_CALIBRATION_PROFILES.contains(&profile) {
+         Some(TRAINED_ROPE_THETA)
+@@ -310,8 +345,12 @@
+ const MASK_MSG: usize = 1usize << crate::zk::MASK_LOG_MSG;
+ const MASK_PADS: usize = crate::zk::MASK_Q;
+ 
+-/// the structural degree of each slot, BEFORE any pad support indicator
+-const BASE_DEGREE: [usize; N_SLOTS] = [3, 3, 3, 4, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 3, 2, 2, 2];
++/// the structural degree of each slot, BEFORE any pad support indicator.
++/// NATIVE R9: entry `SC_DD` (24th, present only on a DD profile) is the
++/// dictionary zero-check's: its LogUp pair helpers are degree 3 in the
++/// committed planes, times `eq` (D30; CHECK.md S-11 "degree <= 5" with the
++/// pad term, which a DD profile never carries)
++const BASE_DEGREE: [usize; MAX_SLOTS] = [3, 3, 3, 4, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 3, 2, 2, 2, 4];
+ 
+ /// The slots whose relation is switched off on the pad by a support indicator,
+ /// and which therefore gain ONE degree when their governing domain pads
+@@ -397,6 +436,11 @@
+         LLAMA3_8B_T64_TRAINED_PROFILE => l8("Llama-3-8B block geometry, trained calibration (T64 / d4096 / f14336, 32 heads of 128 over 8 KV heads)", LLAMA3_8B_T64_TRAINED_PROFILE, 64),
+         LLAMA3_8B_T128_TRAINED_PROFILE => l8("Llama-3-8B block geometry, trained calibration (T128 / d4096 / f14336, 32 heads of 128 over 8 KV heads)", LLAMA3_8B_T128_TRAINED_PROFILE, 128),
+         TRAINED_CALIB_RUNG_PROFILE => Shape::build("development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)", TRAINED_CALIB_RUNG_PROFILE, 32, 384, 512, 12, 32, 4, 10, 4, 12, 21, None, None, None, None),
++        // NATIVE R9: the DD profiles (D30), the same geometries as their
++        // non-DD twins (the rung's own: nothing pads on the head or token axis)
++        TINYLLAMA_T128_DD_TRAINED_PROFILE => tl("TinyLlama-1.1B block geometry, trained calibration, DD (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads, 32-slot division dictionary)", TINYLLAMA_T128_DD_TRAINED_PROFILE, 128, 14),
++        LLAMA3_8B_T128_DD_TRAINED_PROFILE => l8("Llama-3-8B block geometry, trained calibration, DD (T128 / d4096 / f14336, 32 heads of 128 over 8 KV heads, 32-slot division dictionary)", LLAMA3_8B_T128_DD_TRAINED_PROFILE, 128),
++        TRAINED_DD_RUNG_PROFILE => Shape::build("development rung, trained norm calibration, DD (T32 / d256 / f512, 8 heads of 32 over 2 KV heads, 32-slot division dictionary)", TRAINED_DD_RUNG_PROFILE, 32, 256, 512, 8, 32, 2, 10, 4, 12, ((32 * 256) >> 10) + mask, None, None, None, None),
+         _ => return None,
+     })
+ }
+@@ -464,6 +508,11 @@
+     /// endpoint 32768 and the declared `ceps`, and its schedule's calibration
+     /// line prints the trained form
+     pub trained_calibration: bool,
++    /// **NATIVE R9 (D30): the division dictionary's slots per attention row,
++    /// 0 when the profile carries no dictionary.** DERIVED from the profile
++    /// string in [`Shape::build`] (a DD profile carries [`DD_CAP`]), never set
++    /// by hand, so CS-8's rebuild and CS-9's registry see it.
++    pub dd_cap: usize,
+     // ---- derived
+     pub t_pad: usize,
+     pub d_pad: usize,
+@@ -656,6 +705,7 @@
+             sh_h: NormCalibration::FROZEN.sh_h,
+             sh_z: NormCalibration::FROZEN.sh_z,
+             trained_calibration: false,
++            dd_cap: if DD_PROFILES.contains(&profile) { DD_CAP } else { 0 },
+             t_pad,
+             d_pad,
+             h_pad,
+@@ -840,10 +890,15 @@
+         // degree 5 and a 262-element message — and
+         // `s24_tests::a_shape_whose_mask_leaves_no_room_for_the_pads_is_refused_by_name`
+         // records it, with the control one bit below at 252.
++        // NATIVE R9 (D30): a DD profile's dictionary domain must be unpadded
++        // (see `check_dd_geometry`), refused by name here, at construction
++        if sh.dd_cap > 0 {
++            sh.check_dd_geometry()?;
++        }
+         {
+             let lens = sh.slot_lengths();
+             let sl = sh.slots();
+-            for s in 0..N_SLOTS {
++            for s in 0..sh.n_slots() {
+                 if lens[s] + MASK_PADS > MASK_MSG {
+                     return Err(format!(
+                         "private block shape: ruling C-4 — slot {s}'s masked sumcheck message is {} field elements ({} main + {} extension rounds at degree {}, plus 2), and the masking commitment gives each slot ONE {MASK_MSG}-position row of which {MASK_PADS} are its random pads; {} + {MASK_PADS} > {MASK_MSG}, so the mask would not fit",
+@@ -1727,6 +1782,19 @@
+     /// 2^10) under a declared trained calibration, so that the end-to-end
+     /// norm-alias cases (D16 item 6) and the coefficient tamper controls run
+     /// in seconds. At width 384 the class admits `tn <= 11`.
++    /// **NATIVE R9 (D30): the DD shapes**, through the same trained door.
++    pub(crate) fn tinyllama_t128_trained_dd(cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
++        Shape::check_f_e_class(128, f_e)?;
++        trained_geometry(TINYLLAMA_T128_DD_TRAINED_PROFILE, f_e).ok_or("private block shape: an unregistered trained profile")??.with_trained_calibration(cal)
++    }
++    pub(crate) fn llama3_8b_t128_trained_dd(cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
++        Shape::check_f_e_class(128, f_e)?;
++        trained_geometry(LLAMA3_8B_T128_DD_TRAINED_PROFILE, f_e).ok_or("private block shape: an unregistered trained profile")??.with_trained_calibration(cal)
++    }
++    /// the DD development rung (f_e 12, as the trained-calibration rung)
++    pub(crate) fn rung_dd(cal: &NormCalibration) -> Result<Shape, String> {
++        trained_geometry(TRAINED_DD_RUNG_PROFILE, 12).ok_or("private block shape: an unregistered trained profile")??.with_trained_calibration(cal)
++    }
+     pub(crate) fn rung_tc(cal: &NormCalibration) -> Result<Shape, String> {
+         trained_geometry(TRAINED_CALIB_RUNG_PROFILE, 12).ok_or("private block shape: an unregistered trained profile")??.with_trained_calibration(cal)
+     }
+@@ -1854,6 +1922,10 @@
+             Dom::S => clog2(self.h_pad * self.t_pad * self.t_pad),
+             Dom::F => clog2(self.t_pad * self.f_pad),
+             Dom::Tab => clog2(U8_LEN),
++            // NATIVE R9 (D30, B-4): the dictionary cube (h, t | k), `dd_cap`
++            // slots per (h, t) row; a shape without a dictionary has no such
++            // domain (a 1-entry placeholder, never laid out)
++            Dom::Dd => clog2(self.h_pad * self.t_pad * self.dd_cap.max(1)),
+         }
+     }
+     /// the positions a domain actually uses, before any padding
+@@ -1868,6 +1940,7 @@
+             Dom::S => self.q_heads * self.tokens * self.tokens,
+             Dom::F => self.tokens * self.hidden,
+             Dom::Tab => U8_LEN,
++            Dom::Dd => self.q_heads * self.tokens * self.dd_cap.max(1),
+         }
+     }
+     /// the domain's log AFTER the P-3 lift (`layout::domain_log_at`)
+@@ -1899,8 +1972,19 @@
+         v.extend(vec![Dom::D; 4 + 2 * ln + 8 + 2 * ln + 7]);
+         v.extend([Dom::Q; 7]);
+         v.extend([Dom::Kv; 6]);
+-        v.extend(vec![Dom::S; 5 + self.limbs_p() + 2 * self.limbs_sigma_s()]);
+-        v.extend([Dom::F; 11]);
++        if self.dd_cap > 0 {
++            // NATIVE R9 (D30): a score entry keeps S8, RSL, ZSEL, E and P and
++            // drops its own quotient / remainder limbs; the dictionary carries
++            // them, per slot, with the quotient itself and the multiplicity —
++            // committed in `A`, before every LogUp challenge (B-2), and BELOW
++            // the three histograms (CHECK.md E-1)
++            v.extend([Dom::S; 5]);
++            v.extend([Dom::F; 11]);
++            v.extend(vec![Dom::Dd; 2 + self.limbs_p() + 2 * self.limbs_sigma_s()]);
++        } else {
++            v.extend(vec![Dom::S; 5 + self.limbs_p() + 2 * self.limbs_sigma_s()]);
++            v.extend([Dom::F; 11]);
++        }
+         v.extend([Dom::Tab; 3]);
+         v
+     }
+@@ -1921,9 +2005,15 @@
+             Dom::Q => 13,
+             Dom::Kv => 12,
+             // sym(s8); rsl + scaled; p limbs + scaled top; rho_s and sigma_s
+-            // limbs, each with a scaled top
++            // limbs, each with a scaled top. NATIVE R9: on a DD profile the
++            // last three groups move to the dictionary (D30)
++            Dom::S if self.dd_cap > 0 => 2 + 2,
+             Dom::S => 2 + 2 + (self.limbs_p() + 1) + 2 * (self.limbs_sigma_s() + 1),
+-            Dom::T | Dom::Ht | Dom::Tab => 0,
++            // NATIVE R9 (D30, B-1): at EVERY dictionary slot, the quotient's
++            // limbs + scaled top and rho_s / sigma_s limbs, each with a scaled
++            // top — today's division limbs, verbatim
++            Dom::Dd if self.dd_cap > 0 => (self.limbs_p() + 1) + 2 * (self.limbs_sigma_s() + 1),
++            Dom::T | Dom::Ht | Dom::Tab | Dom::Dd => 0,
+         }
+     }
+ 
+@@ -1939,10 +2029,18 @@
+         v.extend(vec![Dom::Q; self.helpers(Dom::Q)]);
+         v.extend(vec![Dom::Kv; self.helpers(Dom::Kv)]);
+         // the `Dom::S` helpers plus the exponential pair's own helper
+-        v.extend(vec![Dom::S; self.helpers(Dom::S) + 1]);
++        // (NATIVE R9: plus, on a DD profile, the score entry's single tuple
++        // helper into its row's dictionary)
++        v.extend(vec![Dom::S; self.helpers(Dom::S) + 1 + usize::from(self.dd_cap > 0)]);
+         // the `Dom::F` helpers plus the activation pair's own helper
+         v.extend(vec![Dom::F; self.helpers(Dom::F) + 1]);
+-        // the three table helpers and the zero-sum pair `u`
++        // NATIVE R9 (D30): the dictionary's byte-lookup helpers and its TABLE
++        // helper (which enters the value-0 sum claim with sign -1)
++        if self.dd_cap > 0 {
++            v.extend(vec![Dom::Dd; self.helpers(Dom::Dd) + 1]);
++        }
++        // the three table helpers and the zero-sum pair `u` (P-3 / P-6: `u`
++        // stays the last plane, on `Dom::Tab`)
+         v.extend([Dom::Tab; 4]);
+         v
+     }
+@@ -1953,9 +2051,9 @@
+ 
+     // ---- claim sites -------------------------------------------------------
+     /// one reserved mask pair per site; `(A sites, H sites)` per slot
+-    pub(crate) fn claim_sites(&self) -> ([usize; N_SLOTS], [usize; N_SLOTS]) {
+-        let mut a = [0usize; N_SLOTS];
+-        let mut h = [0usize; N_SLOTS];
++    pub(crate) fn claim_sites(&self) -> ([usize; MAX_SLOTS], [usize; MAX_SLOTS]) {
++        let mut a = [0usize; MAX_SLOTS];
++        let mut h = [0usize; MAX_SLOTS];
+         a[SC_SS] = 1;
+         a[SC_SSM] = 1;
+         // the four `Dom::T` planes, plus nine limb sub-slices per norm
+@@ -1976,9 +2074,10 @@
+         h[SC_QZC] = self.helpers(Dom::Q);
+         a[SC_KVZC] = self.a_planes_on(Dom::Kv) + 1;
+         h[SC_KVZC] = self.helpers(Dom::Kv);
+-        // + A_MX and A_SUM; + H_SEXP
++        // + A_MX and A_SUM; + H_SEXP (NATIVE R9: + the tuple helper on a DD
++        // profile, whose `Dom::S` block is five planes)
+         a[SC_SZC] = self.a_planes_on(Dom::S) + 2;
+-        h[SC_SZC] = self.helpers(Dom::S) + 1;
++        h[SC_SZC] = self.helpers(Dom::S) + 1 + usize::from(self.dd_cap > 0);
+         // + H_FACT
+         a[SC_FZC] = self.a_planes_on(Dom::F);
+         h[SC_FZC] = self.helpers(Dom::F) + 1;
+@@ -1987,15 +2086,23 @@
+         h[SC_ZS] = 1;
+         a[SC_IO_IN] = 1;
+         a[SC_IO_OUT] = 1;
++        // NATIVE R9 (D30): the dictionary zero-check — every `Dom::Dd` plane
++        // on its own cube, plus `A_SUM` read on the leading (h, t) variables
++        // (B-4: a claim site of this slot); its byte helpers plus the table
++        // helper. Each plane is opened only at its own reserved site.
++        if self.dd_cap > 0 {
++            a[SC_DD] = self.a_planes_on(Dom::Dd) + 1;
++            h[SC_DD] = self.helpers(Dom::Dd) + 1;
++        }
+         (a, h)
+     }
+ 
+     /// private terminals a slot publishes
+-    pub(crate) fn slot_terms(&self) -> [usize; N_SLOTS] {
++    pub(crate) fn slot_terms(&self) -> [usize; MAX_SLOTS] {
+         let (a, h) = self.claim_sites();
+-        let mut out = [0usize; N_SLOTS];
+-        for s in 0..N_SLOTS {
+-            out[s] = a[s] + h[s] + usize::from(s >= SC_IO_IN);
++        let mut out = [0usize; MAX_SLOTS];
++        for s in 0..self.n_slots() {
++            out[s] = a[s] + h[s] + usize::from(s == SC_IO_IN || s == SC_IO_OUT);
+         }
+         out
+     }
+@@ -2005,9 +2112,10 @@
+     /// slot's cube: the domain log for a zero-check or a row sum, and the
+     /// matmul's INNER index log for a matmul (M-2: the four matmul families do
+     /// NOT share one width).
+-    pub(crate) fn slots(&self) -> [(usize, usize, usize); N_SLOTS] {
++    pub(crate) fn slots(&self) -> [(usize, usize, usize); MAX_SLOTS] {
+         let cube = |s: usize| -> Option<Dom> {
+             Some(match s {
++                SC_DD => Dom::Dd,
+                 SC_SS | SC_SSM | SC_DZC | SC_IO_IN | SC_IO_OUT => Dom::D,
+                 SC_TZC => Dom::T,
+                 SC_LZC => Dom::L,
+@@ -2036,8 +2144,8 @@
+                 _ => unreachable!(),
+             }
+         };
+-        let mut out = [(0usize, 0usize, 0usize); N_SLOTS];
+-        for s in 0..N_SLOTS {
++        let mut out = [(0usize, 0usize, 0usize); MAX_SLOTS];
++        for s in 0..self.n_slots() {
+             let main = match cube(s) {
+                 Some(dom) => self.log(dom),
+                 None => inner(s),
+@@ -2083,10 +2191,10 @@
+ 
+     /// the masked sumcheck message length `L = (main + ext) * degree + 2` of
+     /// each slot; `L + 256 <= 512` is the M-row budget
+-    pub(crate) fn slot_lengths(&self) -> [usize; N_SLOTS] {
++    pub(crate) fn slot_lengths(&self) -> [usize; MAX_SLOTS] {
+         let sl = self.slots();
+-        let mut out = [0usize; N_SLOTS];
+-        for s in 0..N_SLOTS {
++        let mut out = [0usize; MAX_SLOTS];
++        for s in 0..self.n_slots() {
+             out[s] = (sl[s].0 + sl[s].1) * sl[s].2 + 2;
+         }
+         out
+@@ -2106,20 +2214,22 @@
+             h_data_rows,
+             a_rows: a_data_rows + 2 * a_sites + 2,
+             h_rows: h_data_rows + 2 * h_sites + 2,
+-            m_rows: 2 * N_SLOTS + 4,
++            m_rows: self.m_rows(),
+             a_sites,
+             h_sites,
+             a_groups: self.a_groups(),
+             h_groups: self.h_groups(),
+             logup_sum_claim_keys: self.logup_sum_claim_keys(),
+-            functionals: N_FUNCTIONALS,
++            functionals: self.n_functionals(),
+             largest_slot_length: *self.slot_lengths().iter().max().unwrap(),
+             main_rounds: sl.iter().map(|s| s.0).sum(),
+             extension_rounds: sl.iter().map(|s| s.1).sum(),
+-            u8_per_domain: LOOKUP_DOMS.iter().map(|d| self.lookups_per_position(*d) * self.size(*d)).collect(),
+-            u8_lookups: LOOKUP_DOMS.iter().map(|d| self.lookups_per_position(*d) * self.size(*d)).sum(),
++            u8_per_domain: self.lookup_doms().iter().map(|d| self.lookups_per_position(*d) * self.size(*d)).collect(),
++            u8_lookups: self.lookup_doms().iter().map(|d| self.lookups_per_position(*d) * self.size(*d)).sum(),
+             exp_pairs: self.size(Dom::S),
+             act_pairs: self.size(Dom::F),
++            dd_tuple_lookups: if self.dd_cap > 0 { self.size(Dom::S) } else { 0 },
++            dd_slots: if self.dd_cap > 0 { self.size(Dom::Dd) } else { 0 },
+             receipt_bytes: self.receipt_bytes(),
+         }
+     }
+@@ -2164,14 +2274,17 @@
+         // 10 score, 11 PV: two private factors each
+         // 03 D, 04 Q, 05 KV, 06 softmax: the cube plus one off-cube plane
+         // ZS: none of its own
+-        tzc + 15 + 2 * 2 + 4 * 2
++        // NATIVE R9 (D30): the dictionary zero-check adds its own cube's
++        // group and the off-cube `A_SUM` group
++        tzc + 15 + 2 * 2 + 4 * 2 + if self.dd_cap > 0 { 2 } else { 0 }
+     }
+ 
+     /// `H`: one group per slot that raises `H` claims — `SC_LZC`, the five
+     /// domain zero-checks, `SC_TAB`, `SC_ZS` — plus the single value-0 LogUp
+     /// sum claim.
+     pub(crate) fn h_groups(&self) -> usize {
+-        8 + 1
++        // NATIVE R9: + the dictionary zero-check's helpers (one group)
++        8 + 1 + usize::from(self.dd_cap > 0)
+     }
+ 
+     /// How many distinct column-weight keys the single value-0 LogUp sum claim
+@@ -2201,11 +2314,11 @@
+         let e_path = clog2(e_n * self.endpoint_inv_rate);
+         let sl = self.slots();
+         let terms = self.slot_terms();
+-        let slot_words: usize = (0..N_SLOTS).map(|s| 1 + (sl[s].0 + sl[s].1) * (sl[s].2 + 1) + terms[s]).sum();
++        let slot_words: usize = (0..self.n_slots()).map(|s| 1 + (sl[s].0 + sl[s].1) * (sl[s].2 + 1) + terms[s]).sum();
+         let parts = ReceiptBytes {
+             header_and_three_roots: WIRE_HEADER + 3 * 32,
+             slots: slot_words * 16,
+-            mask_opening: 2 * MASK_VEC * 16 + COL_CHECKS * (8 + (2 * N_SLOTS + 4) * 8 + 32 + MASK_PATH * 32),
++            mask_opening: 2 * MASK_VEC * 16 + COL_CHECKS * (8 + self.m_rows() * 8 + 32 + MASK_PATH * 32),
+             a_opening: opening(self.a_groups(), t.0, vec_len, path),
+             h_opening: opening(self.h_groups(), t.1, vec_len, path),
+             endpoint_openings: 2 * opening(1, self.endpoint_rows, e_vec, e_path),
+@@ -2223,6 +2336,54 @@
+         data + 2 * self.claim_sites().1.iter().sum::<usize>() + 2
+     }
+ 
++    /// **NATIVE R9: how many slots this profile's argument runs** — the
++    /// twenty-three, plus the dictionary zero-check (`SC_DD`, appended LAST)
++    /// on a DD profile only, so that no other profile's transcript gains a
++    /// slot, a mask row or a functional
++    pub(crate) fn n_slots(&self) -> usize {
++        N_SLOTS + usize::from(self.dd_cap > 0)
++    }
++    /// the masking commitment's rows: two per slot plus four
++    pub(crate) fn m_rows(&self) -> usize {
++        2 * self.n_slots() + 4
++    }
++    /// the CFS functionals: the declared 34, plus a Standalone dictionary
++    /// slot's `Gamma` and its evaluation on a DD profile
++    pub(crate) fn n_functionals(&self) -> usize {
++        N_FUNCTIONALS + if self.dd_cap > 0 { 2 } else { 0 }
++    }
++    /// the lookup domains in helper order: the six, plus `Dom::Dd` on a DD
++    /// profile (CHECK.md E-3: the dictionary's byte lookups enter the U8
++    /// histogram)
++    pub(crate) fn lookup_doms(&self) -> Vec<Dom> {
++        let mut v = LOOKUP_DOMS.to_vec();
++        if self.dd_cap > 0 {
++            v.push(Dom::Dd);
++        }
++        v
++    }
++    /// **NATIVE R9 (D30, B-3 by restriction): a DD profile's dictionary and
++    /// score domains are UNPADDED** — every head and token is true
++    /// (`h_pad == q_heads`, `t_pad == tokens`), `dd_cap` is a power of two,
++    /// and neither `Dom::S` nor `Dom::Dd` sits below the row width (no P-3
++    /// lift). Every dictionary position is then a true row's slot, carrying
++    /// the division clauses with no gate (B-1), and B-3's pad clause is
++    /// vacuous, as at Llama-3-8B T512. Refused by name; no relation changes.
++    pub(crate) fn check_dd_geometry(&self) -> Result<(), String> {
++        const DD: &str = "private block shape: DD (D30) needs an unpadded dictionary — ";
++        if self.h_pad != self.q_heads || self.t_pad != self.tokens {
++            return Err(format!("{DD}{} pads its head axis ({} of {}) or its token axis ({} of {})", self.profile, self.q_heads, self.h_pad, self.tokens, self.t_pad));
++        }
++        if !self.dd_cap.is_power_of_two() {
++            return Err(format!("{DD}a cap of {} slots is not a power of two", self.dd_cap));
++        }
++        for dom in [Dom::S, Dom::Dd] {
++            if self.natural_log(dom) < self.log_cols || self.size(dom) != self.true_size(dom) {
++                return Err(format!("{DD}{}'s {dom:?} domain pads or is lifted to the row width", self.profile));
++            }
++        }
++        Ok(())
++    }
+     /// the domains that pad, in the fixed domain order
+     pub(crate) fn padded_domains(&self) -> Vec<Dom> {
+         ALL_DOMS.iter().copied().filter(|d| self.pads(*d)).collect()
+@@ -2282,6 +2443,10 @@
+     pub u8_lookups: usize,
+     pub exp_pairs: usize,
+     pub act_pairs: usize,
++    /// NATIVE R9: the score entries' tuple lookups into the dictionary, and
++    /// the dictionary's slots (both 0 off a DD profile)
++    pub dd_tuple_lookups: usize,
++    pub dd_slots: usize,
+     pub receipt_bytes: ReceiptBytes,
+ }
+ 
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/slot_ir_tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/slot_ir_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/slot_ir_tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/slot_ir_tests.rs	2026-10-19 09:46:42.090716737 -0700
+@@ -87,7 +87,7 @@
+     let lay = Layout::for_shape(sh).unwrap_or_else(|e| panic!("{}: layout: {e}", sh.name));
+     let (public, ff, _) = super::grow_tests::tame_case(sh);
+     let (alpha, beta, g_u8, g_exp, g_act) = ctx_scalars();
+-    let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act };
++    let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act, g_dd: Fp2::ZERO };
+     let mut tr_def = Transcript::new(sh.profile.as_bytes());
+     let mut tr_ir = Transcript::new(sh.profile.as_bytes());
+     let mut pts = Points::default();
+@@ -354,7 +354,7 @@
+             let (a_data, h_data, io) = prover_data(&sh, &lay, honest);
+             let masks = Vec::new();
+             let pd = ProverData { data: [&a_data, &h_data, &io, &io], masks: &masks };
+-            let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act };
++            let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act, g_dd: Fp2::ZERO };
+             let mut tr_def = Transcript::new(sh.profile.as_bytes());
+             let mut tr_ir = Transcript::new(sh.profile.as_bytes());
+             let mut pts = Points::default();
+@@ -435,7 +435,7 @@
+     let pd = ProverData { data: [&a_data, &h_data, &io, &io], masks: &masks };
+     let (public, ff, _) = super::grow_tests::tame_case(&sh);
+     let (alpha, beta, g_u8, g_exp, g_act) = ctx_scalars();
+-    let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act };
++    let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act, g_dd: Fp2::ZERO };
+     let mut tr_def = Transcript::new(sh.profile.as_bytes());
+     let mut tr_ir = Transcript::new(sh.profile.as_bytes());
+     let mut pts = Points::default();
+@@ -508,7 +508,7 @@
+         let pd = ProverData { data: [&a_data, &h_data, &io, &io], masks: &masks };
+         let (public, ff, _) = super::grow_tests::tame_case(&sh);
+         let (alpha, beta, g_u8, g_exp, g_act) = ctx_scalars();
+-        let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act };
++        let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha, beta, g_u8, g_exp, g_act, g_dd: Fp2::ZERO };
+         let mut tr = Transcript::new(sh.profile.as_bytes());
+         let mut pts = Points::default();
+         let mut r = xs(0xC19_0001);
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/tests.rs	2026-10-19 09:54:31.852476682 -0700
+@@ -394,7 +394,7 @@
+     let alpha = tr.challenge_fp2();
+     let (g_u8, g_exp, g_act) = (gamma.mul_base(Fp::new(TAG_U8)), gamma.mul_base(Fp::new(TAG_EXP)), gamma.mul_base(Fp::new(TAG_ACT)));
+     absorb_root(&mut tr, b"H", &receipt.h_root, lay.h_rows);
+-    let ctx = Ctx { lay: &lay, public: blk.attention(), ff: blk.feed_forward(), alpha, beta, g_u8, g_exp, g_act };
++    let ctx = Ctx { lay: &lay, public: blk.attention(), ff: blk.feed_forward(), alpha, beta, g_u8, g_exp, g_act, g_dd: crate::field::Fp2::ZERO };
+     let mut side = Side::Verify { slots: &receipt.slots };
+     let mut ph = super::timing::Phases::start();
+     let acc = argument(&mut side, &ctx, &mut tr, &mut ph).expect("the honest receipt's slots verify");
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/timing.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/timing.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/timing.rs	2026-10-17 07:13:26.688815978 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/timing.rs	2026-10-19 09:38:58.080430641 -0700
+@@ -31,7 +31,7 @@
+ //! `pcs.rs` and `zk.rs` (read fresh at every call and never memoised in a
+ //! `OnceLock`, so a test can turn it on for one proof and off for the next).
+ 
+-use super::layout::{N_SLOTS, SLOT_NAMES};
++use super::layout::{MAX_SLOTS, SLOT_NAMES};
+ use std::time::Instant;
+ 
+ /// the switch
+@@ -145,7 +145,7 @@
+ /// * `SC_TAB`, `SC_ZS` — the three public byte tables' helper relations and
+ ///   the zero-sum row. LOOKUP-TABLE.
+ /// * `SC_IO_IN`, `SC_IO_OUT` — the two external endpoint equalities. ENDPOINTS.
+-pub(crate) const SLOT_HALF: [Half; N_SLOTS] = [
++pub(crate) const SLOT_HALF: [Half; MAX_SLOTS] = [
+     Half::Norm,     // 00 SC_SS    row sums, norm_a
+     Half::Norm,     // 01 SC_SSM   row sums, norm_m
+     Half::Norm,     // 02 SC_TZC   norm squares zero-check (hosts 00, 01)
+@@ -169,6 +169,7 @@
+     Half::Lookup,   // 20 SC_ZS    the zero-sum row
+     Half::Endpoint, // 21 SC_IO_IN  input endpoint equality
+     Half::Endpoint, // 22 SC_IO_OUT output endpoint equality
++    Half::Attn,     // 23 SC_DD    NATIVE R9: the softmax division dictionary (DD profiles only)
+ ];
+ 
+ /// Process resident memory and its high-water mark, in MiB, from Linux
+@@ -247,7 +248,7 @@
+     /// ROUND 5: one slot with its counted ELEMENT-TERMS (cube x tables) and
+     /// the bytes of one read of them (16 per extension-field element)
+     pub(crate) fn slot_work(&mut self, s: usize, element_terms: u64) {
+-        if !self.on || s >= N_SLOTS {
++        if !self.on || s >= MAX_SLOTS {
+             return;
+         }
+         self.push(SLOT_HALF[s], SLOT_NAMES[s], Some(s), element_terms, "elem-terms", 16 * element_terms);
+@@ -256,7 +257,7 @@
+     /// The same for one slot of the argument, labelled by the schedule's own
+     /// public name and classified by [`SLOT_HALF`].
+     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+-        if !self.on || s >= N_SLOTS {
++        if !self.on || s >= MAX_SLOTS {
+             return;
+         }
+         self.push(SLOT_HALF[s], SLOT_NAMES[s], Some(s), size, unit, 0);
+@@ -374,7 +375,7 @@
+     let t = Instant::now();
+     let per: Vec<usize> = tables.par_iter().map(|t| t.iter().filter(|w| w.c1.is_zero()).count()).collect();
+     let secs = t.elapsed().as_secs_f64();
+-    let name = if slot < N_SLOTS { SLOT_NAMES[slot] } else { "?" };
++    let name = if slot < MAX_SLOTS { SLOT_NAMES[slot] } else { "?" };
+     let words: usize = tables.iter().map(|t| t.len()).sum();
+     let base: usize = per.iter().sum();
+     let whole = per.iter().zip(tables.iter()).filter(|(b, t)| **b == t.len()).count();
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/trained_block.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/trained_block.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/trained_block.rs	2026-10-19 06:33:32.148373542 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/trained_block.rs	2026-10-19 09:41:06.376177590 -0700
+@@ -57,6 +57,8 @@
+ const SCOPE_8B: &str = "ONE trained Llama-3-8B block (of 32) at T=32, CPU unless the run line says gpu; the integer model the calibration export names; NOT a model pass; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
+ const SCOPE_8B_LONGER: &str = "ONE trained Llama-3-8B block (of 32) at the export's T (64 or 128; both profiles accepted by the independent review, round 5), CPU unless the run line says gpu; the integer model the calibration export names; NOT a model pass; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
+ const SCOPE_RUNG: &str = "SYNTHETIC development export at the trained-calibration rung (rung-TC, width 384): NOT a trained model, NOT TinyLlama; a test of the export reader and the driver only; no privacy acceptance";
++/// NATIVE R9: the single-block scope at a DD profile (D30)
++const SCOPE_DD: &str = "ONE trained block under DD, the per-row division dictionary (D30; TinyLlama-1.1B or Llama-3-8B at T128, or the synthetic DD rung): the integer model the calibration export names; NOT a model pass; NOT a soundness or privacy acceptance (D30 requires an independent soundness review and the gate first); float fidelity is the calibration lane's measurement";
+ 
+ // ------------------------------------------------------------------ JSON
+ 
+@@ -515,6 +517,13 @@
+     /// also T = 64 and 128 (PENDING REVIEW), each its own profile
+     Llama3_8B(usize),
+     RungTcDev,
++    /// **NATIVE R9 (D30): the DD profiles' geometries** — chosen by the CLI's
++    /// `--dd` (an export names its model and T, not the relation it is
++    /// proved under); the DD rung is a DD-only development geometry
++    /// (`rung-dd-t32-dev`)
++    TinyLlamaDd,
++    Llama3_8BDd,
++    RungDdDev,
+ }
+ 
+ impl Geometry {
+@@ -527,20 +536,36 @@
+             "llama-3-8b-t64" => Ok(Geometry::Llama3_8B(64)),
+             "llama-3-8b-t128" => Ok(Geometry::Llama3_8B(128)),
+             "rung-tc-t32-dev" => Ok(Geometry::RungTcDev),
+-            _ => Err(format!("geometry `{s}` is not one of tinyllama-1.1b-t32 / -t64 / -t128 / llama-3-8b-t32 / -t64 / -t128 / rung-tc-t32-dev")),
++            "rung-dd-t32-dev" => Ok(Geometry::RungDdDev),
++            _ => Err(format!("geometry `{s}` is not one of tinyllama-1.1b-t32 / -t64 / -t128 / llama-3-8b-t32 / -t64 / -t128 / rung-tc-t32-dev / rung-dd-t32-dev")),
+         }
+     }
++    /// **NATIVE R9: the same model and T under DD (D30)**, refused by name at
++    /// a geometry with no DD profile
++    pub(crate) fn dd(self) -> Result<Geometry, String> {
++        match self {
++            Geometry::TinyLlama(128) | Geometry::TinyLlamaDd => Ok(Geometry::TinyLlamaDd),
++            Geometry::Llama3_8B(128) | Geometry::Llama3_8BDd => Ok(Geometry::Llama3_8BDd),
++            Geometry::RungDdDev => Ok(Geometry::RungDdDev),
++            g => Err(format!("trained export: DD (D30) is registered only at TinyLlama T128, Llama-3-8B T128 and the DD development rung, not at {g:?}")),
++        }
++    }
++    /// whether this geometry proves under DD
++    pub(crate) fn is_dd(self) -> bool {
++        matches!(self, Geometry::TinyLlamaDd | Geometry::Llama3_8BDd | Geometry::RungDdDev)
++    }
+     /// the context length the geometry fixes
+     pub(crate) fn tokens(self) -> usize {
+         match self {
+             Geometry::TinyLlama(t) | Geometry::Llama3_8B(t) => t,
+-            Geometry::RungTcDev => 32,
++            Geometry::RungTcDev | Geometry::RungDdDev => 32,
++            Geometry::TinyLlamaDd | Geometry::Llama3_8BDd => 128,
+         }
+     }
+     /// the RoPE base the geometry's model fixes (pinned per profile)
+     pub(crate) fn rope_theta(self) -> f64 {
+         match self {
+-            Geometry::Llama3_8B(_) => super::shape::LLAMA3_8B_ROPE_THETA,
++            Geometry::Llama3_8B(_) | Geometry::Llama3_8BDd => super::shape::LLAMA3_8B_ROPE_THETA,
+             _ => super::shape::TRAINED_ROPE_THETA,
+         }
+     }
+@@ -553,12 +578,16 @@
+             Geometry::Llama3_8B(128) => super::run::RUN_PROFILE_LLAMA3_8B_T128_TRAINED,
+             Geometry::Llama3_8B(_) => super::run::RUN_PROFILE_LLAMA3_8B_T32_TRAINED,
+             Geometry::RungTcDev => RUN_PROFILE_RUNG_TC,
++            Geometry::TinyLlamaDd => super::run::RUN_PROFILE_TINYLLAMA_T128_DD,
++            Geometry::Llama3_8BDd => super::run::RUN_PROFILE_LLAMA3_8B_T128_DD,
++            Geometry::RungDdDev => super::run::RUN_PROFILE_RUNG_DD,
+         }
+     }
+     pub(crate) fn run_shape(self, sh: &Shape, l: usize) -> Result<RunShape, String> {
+         match self {
+-            Geometry::TinyLlama(_) | Geometry::Llama3_8B(_) => RunShape::tinyllama_trained(sh.clone(), l),
++            Geometry::TinyLlama(_) | Geometry::Llama3_8B(_) | Geometry::TinyLlamaDd | Geometry::Llama3_8BDd => RunShape::tinyllama_trained(sh.clone(), l),
+             Geometry::RungTcDev => RunShape::rung_tc(sh.clone(), l),
++            Geometry::RungDdDev => RunShape::rung_dd(sh.clone(), l),
+         }
+     }
+     /// the shape at a calibration (the controls rebuild it at other ones)
+@@ -568,6 +597,7 @@
+             Geometry::Llama3_8B(32) => SCOPE_8B,
+             Geometry::Llama3_8B(_) => SCOPE_8B_LONGER,
+             Geometry::RungTcDev => SCOPE_RUNG,
++            Geometry::TinyLlamaDd | Geometry::Llama3_8BDd | Geometry::RungDdDev => SCOPE_DD,
+         }
+     }
+     pub(crate) fn shape_at(self, cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
+@@ -580,6 +610,14 @@
+                 }
+                 Shape::rung_tc(cal)
+             }
++            Geometry::TinyLlamaDd => Shape::tinyllama_t128_trained_dd(cal, f_e),
++            Geometry::Llama3_8BDd => Shape::llama3_8b_t128_trained_dd(cal, f_e),
++            Geometry::RungDdDev => {
++                if f_e != 12 {
++                    return Err(format!("trained export: the DD rung geometry fixes f_e = 12, the export declares {f_e}"));
++                }
++                Shape::rung_dd(cal)
++            }
+         }
+     }
+ }
+@@ -676,19 +714,19 @@
+             _ => return Err(ctx("model: exactly one of `sha256` / `shards_sha256` is required".into())),
+         };
+         let source = match geometry {
+-            Geometry::Llama3_8B(_) => {
++            Geometry::Llama3_8B(_) | Geometry::Llama3_8BDd => {
+                 if repo != llama_pin.repo || rev != llama_pin.revision || msha != llama_pin.weights_sha256 {
+                     return Err(ctx(format!("the model pin ({repo}, {rev}, {}) is not the pinned Llama-3-8B source ({}, {}, {})", hex(&msha), llama_pin.repo, llama_pin.revision, hex(&llama_pin.weights_sha256))));
+                 }
+                 llama_pin
+             }
+-            Geometry::TinyLlama(_) => {
++            Geometry::TinyLlama(_) | Geometry::TinyLlamaDd => {
+                 if repo != pin.repo || rev != pin.revision || msha != pin.weights_sha256 {
+                     return Err(ctx(format!("the model pin ({repo}, {rev}, {}) is not the pinned TinyLlama source ({}, {}, {})", hex(&msha), pin.repo, pin.revision, hex(&pin.weights_sha256))));
+                 }
+                 pin
+             }
+-            Geometry::RungTcDev => {
++            Geometry::RungTcDev | Geometry::RungDdDev => {
+                 if !repo.starts_with("synthetic/") || rev.is_empty() {
+                     return Err(ctx("a rung-TC export must name a synthetic source (`synthetic/...`) and a revision".into()));
+                 }
+@@ -780,7 +818,7 @@
+         let variant = p.get("variant").and_then(J::str).map_err(ctx)?.to_string();
+         plain_name(&variant).map_err(|e| ctx(format!("variant: {e}")))?;
+         let mut source = source;
+-        if geometry == Geometry::RungTcDev {
++        if geometry == Geometry::RungTcDev || geometry == Geometry::RungDdDev {
+             source.checkpoint_layers = layers.iter().max().map(|m| m + 1).unwrap_or(0);
+         }
+         Ok(TrainedExport {
+@@ -1045,6 +1083,13 @@
+         let public = AttentionPublic::new_shaped(sh, &aw[0], &aw[1], &aw[2], &aw[3], &aw[4], &cos, &sin, &exp.i64s()).map_err(ctx)?;
+         let ff = FeedForwardPublic::new_shaped(sh, &fw[0], &fw[1], &fw[2], &fw[3], &act.i16s()).map_err(ctx)?;
+         let blk = BlockPublic::new(public, ff);
++        // NATIVE R9 (D30 condition 6, CHECK.md B-8): at a DD profile the
++        // trained door refuses a layer whose exp table needs more than `cap`
++        // dictionary slots — by name (the layer and its table key), from the
++        // public table, before any header
++        if sh.dd_cap > 0 {
++            blk.attention().dd_e_column(sh.dd_cap).map_err(|e| ctx(format!("layer {index} (exp_e_s {}): {e}", tk.exp_e_s)))?;
++        }
+         // the source tensors the manifest names, if it names any
+         let mut source_tensors: Vec<(String, [u8; 32])> = Vec::new();
+         if let Some(st) = m.opt("source_tensors") {
+@@ -1391,7 +1436,7 @@
+ /// `statement.json` into a NEW directory. JSON lines on stdout; exit 0 =
+ /// proved and verified, 1 = refused or failed, 2 = bad arguments.
+ pub fn trained_prove_command(args: &[String]) -> i32 {
+-    let f = match flags(args, &["--export", "--layer", "--seq", "--seq-dir", "--out", "--label"], &["--rope-from-export", "--controls"]) {
++    let f = match flags(args, &["--export", "--layer", "--seq", "--seq-dir", "--out", "--label"], &["--rope-from-export", "--controls", "--dd"]) {
+         Ok(f) => f,
+         Err(e) => {
+             eprintln!("zk60_trained_block prove: {e}");
+@@ -1418,7 +1463,12 @@
+         return Err(format!("{} exists; the output directory must be new", out.display()));
+     }
+     let t0 = Instant::now();
+-    let ex = TrainedExport::load(&export)?;
++    let mut ex = TrainedExport::load(&export)?;
++    // NATIVE R9 (D30): `--dd` proves / verifies under the DD profile of the
++    // export's model and T (refused by name where none is registered)
++    if flag(f, "--dd").is_some() {
++        ex.geometry = ex.geometry.dd()?;
++    }
+     let c = ex.run_constants(&[layer_ix])?;
+     let sh = ex.shape_for(&c)?;
+     let layer = ex.load_layer(&sh, &c, layer_ix, flag(f, "--rope-from-export").is_some())?;
+@@ -1537,7 +1587,7 @@
+ /// statement-mismatch and receipt-mutation controls, each of which must
+ /// REFUSE.
+ pub fn trained_verify_command(args: &[String]) -> i32 {
+-    let f = match flags(args, &["--export", "--layer", "--artifact", "--expect-statement", "--label"], &["--rope-from-export", "--controls"]) {
++    let f = match flags(args, &["--export", "--layer", "--artifact", "--expect-statement", "--label"], &["--rope-from-export", "--controls", "--dd"]) {
+         Ok(f) => f,
+         Err(e) => {
+             eprintln!("zk60_trained_block verify: {e}");
+@@ -1562,7 +1612,12 @@
+     let t0 = Instant::now();
+     // R5b (P-5): the verifier's export holds no prover-private seq_* entry
+     refuse_prover_private_entries(&export)?;
+-    let ex = TrainedExport::load(&export)?;
++    let mut ex = TrainedExport::load(&export)?;
++    // NATIVE R9 (D30): `--dd` proves / verifies under the DD profile of the
++    // export's model and T (refused by name where none is registered)
++    if flag(f, "--dd").is_some() {
++        ex.geometry = ex.geometry.dd()?;
++    }
+     let c = ex.run_constants(&[layer_ix])?;
+     let sh = ex.shape_for(&c)?;
+     let layer = ex.load_layer(&sh, &c, layer_ix, flag(f, "--rope-from-export").is_some())?;
+@@ -2501,7 +2556,7 @@
+ /// means the control behaved). stdout from a run on a hidden input is
+ /// prover-private (privacy review P-6).
+ pub fn trained_stack_prove_command(args: &[String]) -> i32 {
+-    let f = match flags(args, &["--export", "--seq", "--seq-dir", "--out", "--layers", "--label", "--lie-at-boundary", "--witness-cache-gib"], &["--rope-from-export", "--verify-in-process"]) {
++    let f = match flags(args, &["--export", "--seq", "--seq-dir", "--out", "--layers", "--label", "--lie-at-boundary", "--witness-cache-gib"], &["--rope-from-export", "--verify-in-process", "--dd"]) {
+         Ok(f) => f,
+         Err(e) => {
+             eprintln!("zk60_trained_block stack-prove: {e}");
+@@ -2546,7 +2601,12 @@
+     // called `run_header`, which is the transcript's name for something that
+     // happens only after the sealing pass
+     println!("{{\"event\":\"prover_start\",\"gpu\":{},\"hl_gpu_required\":{}}}", js(&crate::gpu::label()), crate::gpu::required());
+-    let ex = TrainedExport::load(&export)?;
++    let mut ex = TrainedExport::load(&export)?;
++    // NATIVE R9 (D30): `--dd` proves / verifies under the DD profile of the
++    // export's model and T (refused by name where none is registered)
++    if flag(f, "--dd").is_some() {
++        ex.geometry = ex.geometry.dd()?;
++    }
+     let layers = parse_layers(flag(f, "--layers"), &ex.layers)?;
+     let l = layers.len();
+     if let Some(k) = lie_at {
+@@ -2704,7 +2764,7 @@
+ /// renames to `<artifact>/statement/` (never over an existing one); an
+ /// existing `statement/` is only checked.
+ pub fn trained_stack_verify_command(args: &[String]) -> i32 {
+-    let f = match flags(args, &["--export", "--artifact", "--expect-statement", "--layers", "--label"], &["--rope-from-export", "--controls"]) {
++    let f = match flags(args, &["--export", "--artifact", "--expect-statement", "--layers", "--label"], &["--rope-from-export", "--controls", "--dd"]) {
+         Ok(f) => f,
+         Err(e) => {
+             eprintln!("zk60_trained_block stack-verify: {e}");
+@@ -2728,7 +2788,12 @@
+     let t = Instant::now();
+     // R5b (P-5): the verifier's export holds no prover-private seq_* entry
+     refuse_prover_private_entries(&export)?;
+-    let ex = TrainedExport::load(&export)?;
++    let mut ex = TrainedExport::load(&export)?;
++    // NATIVE R9 (D30): `--dd` proves / verifies under the DD profile of the
++    // export's model and T (refused by name where none is registered)
++    if flag(f, "--dd").is_some() {
++        ex.geometry = ex.geometry.dd()?;
++    }
+     let layers = parse_layers(flag(f, "--layers"), &ex.layers)?;
+     let l = layers.len();
+     let rope = flag(f, "--rope-from-export").is_some();
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/trained_calib_tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/trained_calib_tests.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/trained_calib_tests.rs	2026-10-17 13:11:16.542544358 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/trained_calib_tests.rs	2026-10-19 12:14:27.126077909 -0700
+@@ -222,7 +222,7 @@
+         assert!(e.contains("is frozen"), "{}: {e}", sh.name);
+         assert!(!sh.trained_calibration && sh.norm_calibration() == NormCalibration::FROZEN, "{}: a registered shape carries a non-frozen calibration", sh.name);
+     }
+-    assert_eq!(TRAINED_CALIBRATION_PROFILES, [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE, super::shape::TINYLLAMA_T64_TRAINED_PROFILE, super::shape::TINYLLAMA_T128_TRAINED_PROFILE, super::shape::LLAMA3_8B_T32_TRAINED_PROFILE, super::shape::LLAMA3_8B_T64_TRAINED_PROFILE, super::shape::LLAMA3_8B_T128_TRAINED_PROFILE]);
++    assert_eq!(TRAINED_CALIBRATION_PROFILES, [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE, super::shape::TINYLLAMA_T64_TRAINED_PROFILE, super::shape::TINYLLAMA_T128_TRAINED_PROFILE, super::shape::LLAMA3_8B_T32_TRAINED_PROFILE, super::shape::LLAMA3_8B_T64_TRAINED_PROFILE, super::shape::LLAMA3_8B_T128_TRAINED_PROFILE, super::shape::TINYLLAMA_T128_DD_TRAINED_PROFILE, super::shape::LLAMA3_8B_T128_DD_TRAINED_PROFILE, super::shape::TRAINED_DD_RUNG_PROFILE]);
+     // ROUND 3 (R3-2): one profile per context length; any other T is refused
+     for t in [16usize, 48, 256, 512] {
+         assert!(Shape::tinyllama_trained(t, &c, T3_F_E).unwrap_err().contains("no trained TinyLlama profile"), "T{t}");
+@@ -460,6 +460,9 @@
+     // own run profile; the development rung its own
+     if sh.profile == super::shape::TRAINED_CALIB_RUNG_PROFILE {
+         super::run::RunShape::rung_tc(sh.clone(), l)
++    } else if sh.profile == super::shape::TRAINED_DD_RUNG_PROFILE {
++        // NATIVE R9: the DD development rung's own run profile
++        super::run::RunShape::rung_dd(sh.clone(), l)
+     } else {
+         super::run::RunShape::tinyllama_trained(sh.clone(), l)
+     }
+@@ -809,7 +812,7 @@
+     let lay = Layout::for_shape(sh).unwrap();
+     let (public, ff, _) = super::grow_tests::tame_case(sh);
+     let c = |re: u64, im: u64| Fp2::new(Fp::new(re), Fp::new(im));
+-    let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha: c(7, 1), beta: c(11, 2), g_u8: c(13, 3), g_exp: c(17, 5), g_act: c(19, 7) };
++    let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha: c(7, 1), beta: c(11, 2), g_u8: c(13, 3), g_exp: c(17, 5), g_act: c(19, 7), g_dd: c(23, 11) };
+     let mut tr = crate::transcript::Transcript::new(sh.profile.as_bytes());
+     let mut pts = IrPoints::default();
+     (0..N_SLOTS).map(|s| build_slot_ir(s, &ctx, &mut pts, &mut tr).unwrap_or_else(|e| panic!("{}: slot {s} IR: {e}", sh.name))).collect()
+@@ -998,7 +1001,19 @@
+ /// the calibration values; the calibration is bound through the schedule
+ /// digest and the statement), and each run profile with its block shape.
+ pub(super) fn registered_trained_shapes() -> Vec<Shape> {
+-    vec![tinyllama(), rung_tc(), tinyllama_at(64), tinyllama_at(128), llama3_8b(), llama3_8b_at(64), llama3_8b_at(128)]
++    vec![tinyllama(), rung_tc(), tinyllama_at(64), tinyllama_at(128), llama3_8b(), llama3_8b_at(64), llama3_8b_at(128), tinyllama_dd(), llama3_8b_dd(), rung_dd()]
++}
++
++/// NATIVE R9: the three DD shapes (D30) at the same calibrations as their
++/// non-DD twins
++pub(super) fn tinyllama_dd() -> Shape {
++    Shape::tinyllama_t128_trained_dd(&t3_calibration(), T3_F_E).expect("the TinyLlama T128 DD shape")
++}
++pub(super) fn llama3_8b_dd() -> Shape {
++    Shape::llama3_8b_t128_trained_dd(&llama3_8b_calibration(), 9).expect("the Llama-3-8B T128 DD shape")
++}
++pub(super) fn rung_dd() -> Shape {
++    Shape::rung_dd(&rung_tc_calibration()).expect("the DD development rung")
+ }
+ 
+ /// ROUND 4 (R4-1): the trained Llama-3-8B shape with the B5 smoke's
+@@ -1026,6 +1041,9 @@
+         (super::run::RUN_PROFILE_LLAMA3_8B_T32_TRAINED, llama3_8b()),
+         (super::run::RUN_PROFILE_LLAMA3_8B_T64_TRAINED, llama3_8b_at(64)),
+         (super::run::RUN_PROFILE_LLAMA3_8B_T128_TRAINED, llama3_8b_at(128)),
++        (super::run::RUN_PROFILE_TINYLLAMA_T128_DD, tinyllama_dd()),
++        (super::run::RUN_PROFILE_LLAMA3_8B_T128_DD, llama3_8b_dd()),
++        (super::run::RUN_PROFILE_RUNG_DD, rung_dd()),
+     ]
+ }
+ 
+@@ -1060,6 +1078,7 @@
+     prov.rope_theta = super::shape::trained_rope_theta(sh.profile).unwrap_or(prov.rope_theta);
+     let cal = IntegerCalibration::as_the_code_proves(sh, &prov);
+     let model = TrainedModelStatement::new(sh, profile, source, cal, recs).expect("the registry's trained statement");
+-    let rs = if sh.profile == super::shape::TRAINED_CALIB_RUNG_PROFILE { RunShape::rung_tc(sh.clone(), l) } else { RunShape::tinyllama_trained(sh.clone(), l) }.expect("the trained run shape");
++    let rs = run_shape_for_checked(sh, l).expect("the trained run shape");
++    let _ = RunShape::rung_tc;
+     RunStatement::new_bound_from_digests(rs, ctx, expected, vec![one.digest(); l], &vec![(0, 0); l], &model).expect("the trained run statement")
+ }
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/trained_statement.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/trained_statement.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/trained_statement.rs	2026-10-19 06:32:39.651044739 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/trained_statement.rs	2026-10-19 09:39:39.871808453 -0700
+@@ -148,9 +148,9 @@
+ 
+     /// the pinned source a trained-model profile carries, if it has one
+     pub(crate) fn pinned_for_profile(profile: &str) -> Option<ModelSource> {
+-        if super::shape::TINYLLAMA_TRAINED_PROFILES.contains(&profile) {
++        if super::shape::TINYLLAMA_TRAINED_PROFILES.contains(&profile) || super::shape::TINYLLAMA_DD_PROFILES.contains(&profile) {
+             Some(ModelSource::tinyllama_chat_v1_0())
+-        } else if super::shape::LLAMA3_8B_TRAINED_PROFILES.contains(&profile) {
++        } else if super::shape::LLAMA3_8B_TRAINED_PROFILES.contains(&profile) || super::shape::LLAMA3_8B_DD_PROFILES.contains(&profile) {
+             Some(ModelSource::llama3_8b())
+         } else {
+             None
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/wire.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/wire.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/wire.rs	2026-10-17 01:47:01.051682391 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/wire.rs	2026-10-19 09:39:07.195008971 -0700
+@@ -121,8 +121,8 @@
+     let sh = lay.shape();
+     let (bd, ed) = (Dim::block(lay), Dim::endpoint(lay));
+     let sl = lay.slots();
+-    let slots: usize = (0..N_SLOTS).map(|s| (1 + (sl[s].0 + sl[s].1) * (sl[s].2 + 1) + lay.slot_terms(s)) * 16).sum();
+-    let mask = 2 * MASK_VEC * 16 + bd.checks * (8 + M_ROWS * 8 + 32 + MASK_PATH * 32);
++    let slots: usize = (0..lay.n_slots()).map(|s| (1 + (sl[s].0 + sl[s].1) * (sl[s].2 + 1) + lay.slot_terms(s)) * 16).sum();
++    let mask = 2 * MASK_VEC * 16 + bd.checks * (8 + lay.m_rows() * 8 + 32 + MASK_PATH * 32);
+     HEADER + 3 * 32 + slots + mask + bd.opening_len(sh.a_groups(), lay.a_rows) + bd.opening_len(sh.h_groups(), lay.h_rows) + 2 * ed.opening_len(1, sh.endpoint_rows)
+ }
+ 
+@@ -130,7 +130,7 @@
+ pub(crate) fn validate(r: &Receipt, lay: &Layout) -> Result<(), String> {
+     let sh = lay.shape();
+     let (bd, ed) = (Dim::block(lay), Dim::endpoint(lay));
+-    if r.slots.len() != N_SLOTS {
++    if r.slots.len() != lay.n_slots() {
+         return Err("private block wire: slot count".into());
+     }
+     for (s, sp) in r.slots.iter().enumerate() {
+@@ -143,7 +143,7 @@
+     if m.q.len() != MASK_VEC
+         || m.prox.len() != MASK_VEC
+         || m.columns.len() != bd.checks
+-        || m.columns.iter().any(|(j, c, _, p)| *j >= MASK_DOM || c.len() != M_ROWS || p.len() != MASK_PATH)
++        || m.columns.iter().any(|(j, c, _, p)| *j >= MASK_DOM || c.len() != lay.m_rows() || p.len() != MASK_PATH)
+         || !bd.hiding_ok(&r.a_open, sh.a_groups(), lay.a_rows)
+         || !bd.hiding_ok(&r.h_open, sh.h_groups(), lay.h_rows)
+         || r.io_open.iter().any(|o| !ed.hiding_ok(o, 1, sh.endpoint_rows))
+@@ -240,8 +240,8 @@
+         return Err("private block wire: expected statement mismatch".into());
+     }
+     let (a_root, h_root, mask_root) = (r.take::<32>()?, r.take::<32>()?, r.take::<32>()?);
+-    let mut slots = Vec::with_capacity(N_SLOTS);
+-    for s in 0..N_SLOTS {
++    let mut slots = Vec::with_capacity(lay.n_slots());
++    for s in 0..lay.n_slots() {
+         let (n, e, d) = lay.slots()[s];
+         let scalar = r.fp2()?;
+         let rounds = (0..n + e).map(|_| r.fp2_vec(d + 1)).collect::<Result<Vec<_>, String>>()?;
+@@ -250,7 +250,7 @@
+     }
+     let q = r.fp2_vec(MASK_VEC)?;
+     let prox = r.fp2_vec(MASK_VEC)?;
+-    let columns = (0..bd.checks).map(|_| r.column(M_ROWS, MASK_DOM, MASK_PATH)).collect::<Result<Vec<_>, String>>()?;
++    let columns = (0..bd.checks).map(|_| r.column(lay.m_rows(), MASK_DOM, MASK_PATH)).collect::<Result<Vec<_>, String>>()?;
+     let mask_open = MaskOpening { q, prox, columns };
+     let a_open = r.hiding(bd, sh.a_groups(), lay.a_rows)?;
+     let h_open = r.hiding(bd, sh.h_groups(), lay.h_rows)?;
+@@ -341,8 +341,8 @@
+     let sh = lay.shape();
+     let (bd, ed) = (Dim::block(lay), Dim::endpoint(lay));
+     let sl = lay.slots();
+-    let slots: usize = (0..N_SLOTS).map(|s| (1 + (sl[s].0 + sl[s].1) * (sl[s].2 + 1) + lay.slot_terms(s)) * 16).sum();
+-    let mask = 2 * MASK_VEC * 16 + bd.checks * (8 + M_ROWS * 8 + 32 + MASK_PATH * 32);
++    let slots: usize = (0..lay.n_slots()).map(|s| (1 + (sl[s].0 + sl[s].1) * (sl[s].2 + 1) + lay.slot_terms(s)) * 16).sum();
++    let mask = 2 * MASK_VEC * 16 + bd.checks * (8 + lay.m_rows() * 8 + 32 + MASK_PATH * 32);
+     let (gi, ri) = g.incoming(sh.endpoint_rows);
+     RUN_HEADER
+         + usize::from(g.commits_boundary()) * 32
+@@ -361,7 +361,7 @@
+ fn validate_segment(s: &Segment, lay: &Layout, g: SegGeom) -> Result<(), String> {
+     let sh = lay.shape();
+     let (bd, ed) = (Dim::block(lay), Dim::endpoint(lay));
+-    if s.slots.len() != N_SLOTS {
++    if s.slots.len() != lay.n_slots() {
+         return Err("private run wire: slot count".into());
+     }
+     for (i, sp) in s.slots.iter().enumerate() {
+@@ -378,7 +378,7 @@
+     if m.q.len() != MASK_VEC
+         || m.prox.len() != MASK_VEC
+         || m.columns.len() != bd.checks
+-        || m.columns.iter().any(|(j, c, _, p)| *j >= MASK_DOM || c.len() != M_ROWS || p.len() != MASK_PATH)
++        || m.columns.iter().any(|(j, c, _, p)| *j >= MASK_DOM || c.len() != lay.m_rows() || p.len() != MASK_PATH)
+         || !bd.hiding_ok(&s.a_open, sh.a_groups(), lay.a_rows)
+         || !bd.hiding_ok(&s.h_open, sh.h_groups(), lay.h_rows)
+         || !ed.hiding_ok(&s.in_open, gi, ri)
+@@ -456,8 +456,8 @@
+     }
+     let b_root = if g.commits_boundary() { Some(r.take::<32>()?) } else { None };
+     let (a_root, h_root, mask_root) = (r.take::<32>()?, r.take::<32>()?, r.take::<32>()?);
+-    let mut slots = Vec::with_capacity(N_SLOTS);
+-    for s in 0..N_SLOTS {
++    let mut slots = Vec::with_capacity(lay.n_slots());
++    for s in 0..lay.n_slots() {
+         let (n, e, d) = lay.slots()[s];
+         let scalar = r.fp2()?;
+         let rounds = (0..n + e).map(|_| r.fp2_vec(d + 1)).collect::<Result<Vec<_>, String>>()?;
+@@ -466,7 +466,7 @@
+     }
+     let q = r.fp2_vec(MASK_VEC)?;
+     let prox = r.fp2_vec(MASK_VEC)?;
+-    let columns = (0..bd.checks).map(|_| r.column(M_ROWS, MASK_DOM, MASK_PATH)).collect::<Result<Vec<_>, String>>()?;
++    let columns = (0..bd.checks).map(|_| r.column(lay.m_rows(), MASK_DOM, MASK_PATH)).collect::<Result<Vec<_>, String>>()?;
+     let mask_open = MaskOpening { q, prox, columns };
+     let a_open = r.hiding(bd, sh.a_groups(), lay.a_rows)?;
+     let h_open = r.hiding(bd, sh.h_groups(), lay.h_rows)?;
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/witness.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/witness.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/witness.rs	2026-10-17 06:37:47.112776514 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block/witness.rs	2026-10-19 09:43:27.322500052 -0700
+@@ -59,6 +59,95 @@
+     }
+ }
+ 
++// NATIVE R9, TEST BUILDS ONLY: which dictionary mutation the witness
++// builder applies (0 = none)
++#[cfg(test)]
++thread_local! {
++    static DD_CHEAT: std::cell::Cell<u8> = const { std::cell::Cell::new(0) };
++}
++
++/// TEST ONLY. 1 = CHECK.md D-3 (an e = 0 PADDING slot, the last of row
++/// (0, 0), holds the wrong tuple (Sum, 0, 1) with one count moved onto it
++/// from the honest e = 0 slot, and the masked entry (0, 0, 1) claims P = 1);
++/// 2 = D-4 (an entry of row (0, ta) presents row (0, tb)'s quotient for the
++/// same e, one count moved between the two rows' slots); 3 = an entry's P off
++/// by one with NO count moved (caught only by the value-0 sum claim)
++#[cfg(test)]
++pub(crate) fn set_dd_cheat(v: u8) {
++    DD_CHEAT.with(|c| c.set(v));
++}
++
++#[cfg(test)]
++#[allow(clippy::too_many_arguments)]
++fn dd_cheat(shape: &Shape, g: &Geom, ids: &Ids, pl: &mut [Vec<i64>], oacc: &mut [i64], v8: &[i64], ecol: &[i64]) -> Result<(), String> {
++    let mode = DD_CHEAT.with(|c| c.get());
++    if mode == 0 {
++        return Ok(());
++    }
++    let cap = shape.dd_cap;
++    let (p, e, sum) = (ids.at(A_P), ids.at(A_E), ids.at(A_SUM));
++    let hs = g.slot(0);
++    let kv = 0usize;
++    let dix = |t: usize, k: usize| (hs * g.t_pad + t) * cap + k;
++    let mut rows: Vec<usize> = Vec::new();
++    match mode {
++        1 => {
++            // the masked entry (t 0, j 1) looks up e = 0; the last slot of
++            // its row is an e = 0 padding slot (n_col < cap)
++            pl[p][g.six(hs, 0, 1)] = 1;
++            pl[ids.pdict()][dix(0, cap - 1)] = 1;
++            pl[ids.pl(0)][dix(0, cap - 1)] = 1;
++            for kk in 1..g.lp {
++                pl[ids.pl(kk)][dix(0, cap - 1)] = 0;
++            }
++            pl[ids.mdd()][dix(0, 0)] -= 1;
++            pl[ids.mdd()][dix(0, cap - 1)] += 1;
++            rows.push(0);
++        }
++        2 | 3 => {
++            // the first pair of rows with different Sums, and an on-support
++            // entry of row ta whose e's quotient differs between them
++            let mut found = None;
++            'outer: for ta in 1..g.t {
++                for tb in 0..g.t {
++                    if tb == ta || pl[sum][g.htix(hs, ta)] == pl[sum][g.htix(hs, tb)] {
++                        continue;
++                    }
++                    for j in 0..=ta.min(tb) {
++                        let ev = pl[e][g.six(hs, ta, j)];
++                        if ev == 0 {
++                            continue;
++                        }
++                        let qb = (ev << F_P) / pl[sum][g.htix(hs, tb)];
++                        if qb != pl[p][g.six(hs, ta, j)] {
++                            found = Some((ta, tb, j, ev, qb));
++                            break 'outer;
++                        }
++                    }
++                }
++            }
++            let (ta, tb, j, ev, qb) = found.ok_or("dd cheat: no two rows with different quotients")?;
++            if mode == 2 {
++                // the count sits on the FIRST slot holding e, in both rows
++                let k = ecol.iter().position(|v| *v == ev).ok_or("dd cheat: e is not in the column")?;
++                pl[p][g.six(hs, ta, j)] = qb;
++                pl[ids.mdd()][dix(ta, k)] -= 1;
++                pl[ids.mdd()][dix(tb, k)] += 1;
++            } else {
++                pl[p][g.six(hs, ta, j)] += 1;
++            }
++            rows.push(ta);
++        }
++        _ => return Err("dd cheat: unknown mode".into()),
++    }
++    for t in rows {
++        for i in 0..g.dh {
++            oacc[g.qix(t, hs, i)] = (0..g.t_pad).map(|j| pl[p][g.six(hs, t, j)] * v8[g.kvix(j, kv, i)]).sum();
++        }
++    }
++    Ok(())
++}
++
+ /// floor integer square root (integer only)
+ pub(crate) fn isqrt(v: u64) -> u64 {
+     let mut rem = v;
+@@ -273,6 +362,9 @@
+                 }
+             }
+             Dom::Tab => v.extend(0..U8_LEN),
++            // NATIVE R9: a DD profile's dictionary is unpadded
++            // (`Shape::check_dd_geometry`): every slot of every row is support
++            Dom::Dd => v.extend(0..self.s.size(Dom::Dd)),
+         }
+         v
+     }
+@@ -680,13 +772,52 @@
+                 #[cfg(test)]
+                 let (q, rho, sigma) = super::review_d24_tests::forge_softmax(h, t, j, total, q, rho, sigma);
+                 pl[ap(A_P)][idx] = q;
+-                let (lp, lr, ls) = (limbs(q, g.lp), limbs(rho, g.ls), limbs(sigma, g.ls));
+-                for k in 0..g.lp {
+-                    pl[ids.pl(k)][idx] = lp[k];
+-                }
+-                for k in 0..g.ls {
+-                    pl[ids.sr(k)][idx] = lr[k];
+-                    pl[ids.sg(k)][idx] = ls[k];
++                // NATIVE R9: on a DD profile a score entry carries no limbs of
++                // its own (the dictionary below does, per slot)
++                if shape.dd_cap == 0 {
++                    let (lp, lr, ls) = (limbs(q, g.lp), limbs(rho, g.ls), limbs(sigma, g.ls));
++                    for k in 0..g.lp {
++                        pl[ids.pl(k)][idx] = lp[k];
++                    }
++                    for k in 0..g.ls {
++                        pl[ids.sr(k)][idx] = lr[k];
++                        pl[ids.sg(k)][idx] = ls[k];
++                    }
++                }
++            }
++            // **NATIVE R9 (D30): this row's division dictionary.** Slot k of
++            // row (h, t) holds the public e_k (the sorted column {0} U the exp
++            // table's outputs, padded with 0 — B-7), the quotient
++            // floor(e_k 2^F_P / Sum) with its limbs, and the remainder pair
++            // (rho_s, sigma_s) with theirs: today's exact division, at EVERY
++            // slot, padding slots included (B-1). `M_dd` counts the row's score
++            // entries whose (mask E) is e_k, all of them on the FIRST slot
++            // holding that value (the padding zeros carry no count).
++            if shape.dd_cap > 0 {
++                let cap = shape.dd_cap;
++                let ecol = public.dd_e_column(cap)?;
++                let base = (hs * g.t_pad + t) * cap;
++                for (k, ek) in ecol.iter().enumerate() {
++                    let num = ek << F_P;
++                    let (q, rho) = (num / total, num % total);
++                    let sigma = total - 1 - rho;
++                    if !(0..1i64 << wrho_s).contains(&sigma) || !(0..=1i64 << F_P).contains(&q) {
++                        return Err(range("dictionary quotient/remainder"));
++                    }
++                    pl[ids.pdict()][base + k] = q;
++                    let (lq, lr, ls) = (limbs(q, g.lp), limbs(rho, g.ls), limbs(sigma, g.ls));
++                    for kk in 0..g.lp {
++                        pl[ids.pl(kk)][base + k] = lq[kk];
++                    }
++                    for kk in 0..g.ls {
++                        pl[ids.sr(kk)][base + k] = lr[kk];
++                        pl[ids.sg(kk)][base + k] = ls[kk];
++                    }
++                }
++                for j in 0..g.t_pad {
++                    let me = if j <= t { pl[ap(A_E)][g.six(hs, t, j)] } else { 0 };
++                    let k = ecol.iter().position(|v| *v == me).ok_or_else(|| range("dictionary column"))?;
++                    pl[ids.mdd()][base + k] += 1;
+                 }
+             }
+             for i in 0..g.dh {
+@@ -695,6 +826,15 @@
+             }
+         }
+     }
++    // NATIVE R9, TEST BUILDS ONLY: the D30 / CHECK.md mutation witnesses
++    // (identity when unset). Each edits the honest witness CONSISTENTLY —
++    // the PV accumulator is recomputed over every key position of the edited
++    // rows — so that only the dictionary relation the mutation targets can
++    // object.
++    #[cfg(test)]
++    if shape.dd_cap > 0 {
++        dd_cheat(shape, &g, &ids, &mut pl, &mut oacc, &v8, &public.dd_e_column(shape.dd_cap)?)?;
++    }
+     // **S12a, finding S12-F3: `A_E` is EXEMPT from the pad rule and its
+     // PADDED positions must still be genuine exp-table rows.** The LogUp arm
+     // is never gated (§3.7a), so `protocol::exp_deltas` reads the WHOLE
+diff -ruN -x target -x target-gpu /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block.rs
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block.rs	2026-10-19 06:36:36.431886013 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r9/hashline/src/private_block.rs	2026-10-19 09:44:41.022052784 -0700
+@@ -170,6 +170,12 @@
+ // NATIVE R8: every export-chosen calibration constant per layer (test only)
+ #[cfg(test)]
+ mod r8_tests;
++// NATIVE R9: byte identity of the non-DD profiles across R8 -> R9 (test only)
++#[cfg(test)]
++mod r9_golden_tests;
++// NATIVE R9: DD, the per-row division dictionary (D30) (test only)
++#[cfg(test)]
++mod r9_tests;
+ // STAGE 19 (test-only): DENSE public weights and a numerically non-trivial
+ // witness at the shaped geometries, where the diagonal fixture leaves every
+ // hidden unit above `d` with no input and no output weight.
+@@ -589,6 +595,34 @@
+         Self::check_words(sh, &self.wq, &self.wk, &self.wv, &self.wo, &self.gamma_a, &self.rope_cos, &self.rope_sin, &self.exp).map_err(|e| format!("{CS4_ATTENTION_REFUSAL}: {e}"))
+     }
+ 
++    /// **NATIVE R9 (D30; CHECK.md B-7, B-8, C-1): the dictionary's public e
++    /// column** — `sorted({0} U the exp table's outputs)`, padded with 0 to
++    /// `cap`. Masked positions look up e = 0, so 0 is always in the column
++    /// (B-7). A table whose column needs more than `cap` slots is REFUSED by
++    /// name: the refusal names the class and the count, both public (the
++    /// table is the block's public statement), and nothing else.
++    pub(crate) fn dd_e_column(&self, cap: usize) -> Result<Vec<i64>, String> {
++        dd_e_column_of(&self.exp, cap)
++    }
++
++}
++
++/// **NATIVE R9: [`AttentionPublic::dd_e_column`] on a bare table** (the
++/// trained door's and the tests' form)
++pub(crate) fn dd_e_column_of(exp: &[i64], cap: usize) -> Result<Vec<i64>, String> {
++    {
++        let mut col: Vec<i64> = std::iter::once(0).chain(exp.iter().copied()).collect();
++        col.sort_unstable();
++        col.dedup();
++        if col.len() > cap {
++            return Err(format!("private block: D30 / B-8 — this block's exp table needs a dictionary column of {} slots ({{0}} U its outputs), more than the profile's cap of {cap}; refused by name before any header", col.len()));
++        }
++        col.resize(cap, 0);
++        Ok(col)
++    }
++}
++
++impl AttentionPublic {
+     fn absorb_into(&self, h: &mut blake3::Hasher) {
+         for w in [&self.wq, &self.wk, &self.wv, &self.wo, &self.gamma_a] {
+             h.update(&(w.len() as u64).to_le_bytes());
+@@ -751,7 +785,15 @@
+     /// feed-forward half's, in block order, each refusing by its own name.
+     pub(crate) fn check_for_shape(&self, sh: &shape::Shape) -> Result<(), String> {
+         self.attention.check_for_shape(sh)?;
+-        self.feed_forward.check_for_shape(sh)
++        self.feed_forward.check_for_shape(sh)?;
++        // NATIVE R9 (D30 condition 6, CHECK.md B-8): at a DD profile the
++        // block's exp table must fit the dictionary — refused by name, from
++        // the public table alone, wherever a block meets a DD shape (the
++        // trained door, the run statement, both cores)
++        if sh.dd_cap > 0 {
++            self.attention.dd_e_column(sh.dd_cap)?;
++        }
++        Ok(())
+     }
+ 
+     pub fn digest(&self) -> Digest {

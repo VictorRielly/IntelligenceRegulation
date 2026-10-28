@@ -1,0 +1,2 @@
+build_l8_aex|3.5|2|llama3-8b|fp_variant.py --variant dg --vocab0 --extra-calib wtval:64 --extra-refused e8_voc0 --window qkv:16,g:16,z:16 --sh-u --up-margin 3 --name l8_dg_aex
+e8_aex_fh|3|1|llama3-8b|fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/l8_dg_aex --corpora fineweb:48,wikitext:48 --tag e8_aex_fh --head float --pos-chunk 256

@@ -1,0 +1,21 @@
+{
+ "schema": "zk60-trained-stack-run/2",
+ "scope": "ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement",
+ "statement_written_by": "stack-verify, after its fresh-process verification of the run directory, from its own data and the hashes of the bytes it verified",
+ "prover_reported": {"backend": "gpu: off (built without --features gpu-cuda)", "gpu_declines": 0, "what": "self-reports of the prover (privacy review P-7): a CPU proof and a GPU proof have the same form, so no verifier can check these fields"},
+ "block_profile": "hashline-zk-mr1/private-block-rung-dd-t32-dev/1",
+ "run_profile": "hashline-zk-mr1/private-run-rung-dd-t32-dev/1",
+ "blocks": 2,
+ "export_variant": "dd-good",
+ "export_profile_sha256": "6b9f528eeb1040629831be46c5ea7de3c559c70313cef1a5acd99dad68c1cfbc",
+ "calibration_tool_sha256": "b2788d99b39931f9e3c2e77e3e523d83db072eaf1ad494ccae5218f7a38f89ec",
+ "trained_statement_identity": "4927508374bc28bb39f9166de9cbb79686499e7f45f087e66885eb6e69c0127c",
+ "context_label": "zk60-trained-stack",
+ "context": "8bbd5dcf32c92540ef400b936c2f485c97f803cc926f2a440c33f61f7794b851",
+ "expected_io": "48424c4b455850318bbd5dcf32c92540ef400b936c2f485c97f803cc926f2a440c33f61f7794b85100000000000000008b8c4779787f969d3199b88c81ec4032007f8426d1adfe92e344926aa91c17b1ca4bea7d990c1b0ca91a66ebce36cb2ec0d73fcfac8d4cee155ef4943c6a4655",
+ "layers": [
+  {"layer": 0, "block_digest": "bf772da49079eea618632951cdd8b33361cd95552be1ef6bf1d25c5c3b0c0a8a", "manifest_sha256": "859193be65549a75fc8b6314256b2ec45c692a9bfb0005161b994d942a3006cb", "silu_member": [-3, -11], "exp_e_s": 1},
+  {"layer": 1, "block_digest": "fcb2c92ac39b03cac6d08f83f5711c18cc1903ec9db50bc20fa62ce39b58f0aa", "manifest_sha256": "5b54a94181bc65dc5fdc034650d556f7b25d089175b8857dcd2cfd76143998e5", "silu_member": [-4, -12], "exp_e_s": 2}
+ ],
+ "shape": {"tokens": 32, "width": 256, "hidden": 512, "q_heads": 8, "kv_heads": 2, "head_dim": 32, "log_cols": 10, "inv_rate": 4, "opened_cols": 256, "f_e": 12, "wrho_s": 17, "norm_wrho": 31, "norm_tn": 10, "norm_cn_a": 1336, "norm_cn_m": 2158, "norm_ceps": 33554467, "sh_ao": 6, "sh_qkv": 8, "sh_s": 5, "sh_o": 10, "sh_g": 8, "sh_h": 13, "sh_z": 5, "d_max": 524319}
+}

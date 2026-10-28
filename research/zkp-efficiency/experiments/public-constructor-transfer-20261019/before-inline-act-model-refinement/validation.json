@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "checks": 245,
+  "utc": "2026-10-19T18:30:13.073321+00:00",
+  "wall_seconds": 0.042230034989188425,
+  "scope": "Provenance, saved synthetic results, report/target separation, and in-memory exact patch-hunk applicability; NOT Rust compilation/native validation."
+}

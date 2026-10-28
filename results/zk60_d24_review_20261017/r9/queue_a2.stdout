@@ -1,0 +1,10 @@
+[zk60-guard 22:17:13] START r9-dd-probes2 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=7d5f47a2dc1d
+[zk60-guard 22:17:13] END r9-dd-probes2 exit=0 child_wall=0s peak_rss=0.00G min_avail=12.11G
+[zk60-guard 22:17:13] START r9-xr-ddtl-as-plain class=cpu need=2G cap=5G enforce=cgroup+watchdog waited=0s run=f41faac85122
+[zk60-guard 22:17:15] END r9-xr-ddtl-as-plain exit=1 child_wall=2s peak_rss=0.69G min_avail=11.70G
+[zk60-guard 22:17:15] START r9-xr-dd8b-as-plain class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=d30ef81e0016
+[zk60-guard 22:17:26] END r9-xr-dd8b-as-plain exit=1 child_wall=11s peak_rss=1.76G min_avail=10.36G
+[zk60-guard 22:17:26] START r9-xr-r8tl-as-dd class=cpu need=2G cap=5G enforce=cgroup+watchdog waited=0s run=dc6f8ccec83f
+[zk60-guard 22:17:28] END r9-xr-r8tl-as-dd exit=1 child_wall=2s peak_rss=0.67G min_avail=11.29G
+[zk60-guard 22:17:28] START r9-xr-r88b-as-dd class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=806ddcdd2d71
+[zk60-guard 22:17:38] END r9-xr-r88b-as-dd exit=1 child_wall=10s peak_rss=2.00G min_avail=10.15G

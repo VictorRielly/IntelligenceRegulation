@@ -161,3 +161,119 @@ sha256 e047fb59… (checked), register D28, D29, D31. Output `REVIEW3.md`.
   REVIEW3). The surjection job (gate lane's, not mine) was still running at
   12:04 UTC (no `.done`). Nothing of mine launched or pending. Review lane
   closed. NOT a privacy acceptance.
+
+## ROUND 4 (coordinator brief; opened 2026-10-20 00:01 UTC)
+
+Background: Victor accepted the statement as **D33** (2026-10-19 16:56 UTC),
+`docs/zkmatrix-poc/ZK60_PRIVACY_STATEMENT_TRAINED_TINYLLAMA_T32.md` (sha256
+ded3f0e7…), in force for native R7 only; R8 changed five pinned files, so
+step 3 is suspended for later trees. Two items:
+(A) the re-pin note `EV/tk7/ZK60_PRIVACY_STATEMENT_REPIN_TK7_20261019.md`
+(sha256 9958e548…, checked) moving D33's pins onto the token lane's
+`results/zk60_token_io_r1_20261017/frozen-r7/` (= R8 + token code): does it
+meet D33 condition 7 and the D22 4751b93 precedent; judge the carry by
+reading of the P-18 capture-and-gate and the 22-block pass F.
+(B) the next-token draft `EV/round9/PRIVACY_STATEMENT_NEXT_TOKEN_T32_DRAFT.md`
+(sha256 abccfc64…, checked): attack F-T1 (CS-3 mid-run only), F-T2 (input-
+dependent token LogUp refusal counted as distance; compare D30 (4)), the τ /
+head-fold caveat, the owed list, the residual recount
+(2^-74.43 / 2^-73.62 / 2^-70.35). Output `REVIEW4.md`, findings PR4-n.
+
+- 00:01 — round 4 opened; hashes of the three objects checked.
+- 00:05 — launched one read-only helper on the token code (F-T1, sink
+  contract, F-T2 inversion sets and counts, token CLI publication surface,
+  owners' handoff).
+- 00:03-00:09 — (A) checked myself: frozen-r7 vs R7 differ in exactly the
+  five files; zkp-core and protocol / argument / layout / boundary /
+  endpoint_g / witness / pad / wire byte-identical. Read every code hunk of
+  run.rs, shape.rs, trained_statement.rs, trained_block.rs, private_block.rs:
+  at an export with no per-layer calibration fields every change is the
+  identity (stage_cal = base, own all None, identity encoder writes nothing
+  new, ssh = sh); the rest is visibility, token profile strings, a refusal of
+  a token profile in a blocks-only statement, `token: None` in the cfg(test)
+  capture header. tk7 vs R7 summaries: 10 of 10 records PASS, 0 unexplained,
+  every randomness-free figure equal (replay, hash, terminal, channels, mask,
+  joint, preimage leaves). v11 frozen copy = manifest (60 of 60); queues ran
+  under it. Stage-47 five tests PASS on tk7. tk7 CLI (dac7fc73…): sealed
+  before header, statement-published by fresh stack-verify; published
+  statement.json vs R7's: 52 leaves each, only `/expected_io` differs
+  (checked). (B) residuals recounted: draws, sampler, N_leaf, salt,
+  liveness, refusal 2·(768L+T+256)/p² all reproduce; 2T union would give
+  2^-116.91; token endpoint H-pad closed form holds at (2^8, 2^11). REVIEW5
+  verdict still a placeholder.
+- 00:09-00:12 — (B) read myself (times corrected from `date -u` at 00:12;
+  the two ranges first written here were guessed): no `check_lookup_misses` call under
+  `token_io/` (F-T1 confirmed); stage IN inverts `α − q_t` with q_t =
+  τ_tab[tok_t] and the mult ≠ 0 rows only (≤ T distinct, input-dependent);
+  stage OUT byte helpers + non-zero histogram rows (≤ 256); constant
+  message; unkeyed BLAKE3 on the token path all public and ≥ 96 B (C-R1).
+  REVIEW4.md drafted: (A) YES with PR4-1..PR4-3; (B) NOT YET with PR4-4..
+  PR4-14; §2.6 (sink contract, CLI surface) waits for the helper's report.
+- 00:12-00:15 — read the token CLI myself (`cli.rs:470-560`): NO block
+  sealing pass; output token from the export's reference x_out; block
+  builder / int16 / parity / CS-3 all post-header; `Claimed::drop` removes
+  silently. Helper report in (confirms F-T1 widened, F-T2 and count,
+  sink contract; adds silent removal, killed-run leftovers, `--prompt` on
+  the command line, owner base beside `captures/`, capture uses
+  `stream_pipeline`); spot-checked `cli.rs:268-274, 360-395`,
+  `capture_tests.rs:318, 400`, listing of `~/zk60-artifacts/token-io/`.
+  REVIEW4.md finished: (A) YES (PR4-1 decision must name 52 pins, the CPU
+  binary, the two carries; PR4-2 optional capture of the tk7 CLI run;
+  PR4-3 wording). (B) NOT YET, closed list PR4-12: PR4-4 (token CLI breaks
+  H-1, R5-pattern; code preferred), PR4-5 (D30-(4)-style ruling for F-T2),
+  PR4-7, PR4-8, PR4-9 (narrowed to calibration attribution), PR4-10,
+  PR4-15 / PR4-16; should PR4-11; wording PR4-6, -13, -14, -17. Nothing of
+  mine launched or pending. NOT a privacy acceptance.
+
+## ROUND 5 (coordinator brief; opened 2026-10-20 05:22 UTC)
+
+(A) re-pin note `EV/tk9/ZK60_PRIVACY_STATEMENT_REPIN_TK9_20261020.md`
+(c4d88df1…, checked): D33 frozen-r7 → frozen-r9 (b666a991…); condition 7?
+(B) next-token draft v2 `EV/round11/PRIVACY_STATEMENT_NEXT_TOKEN_T32_DRAFT_v2.md`
+(34562422…, checked) against PR4-12: addendum, D34, D35, token round 9,
+REVIEW5/REVIEW6; harness captures on frozen-r7 carried to frozen-r9 by
+argument (re-capture running in the gate). Output `REVIEW5.md`, PR5-n,
+plainly whether (B) is ready for the security owner and Victor.
+
+- 05:22 — opened; hashes checked; frozen-r9 FROZEN.txt read (236 files,
+  12 changed + 3 added vs frozen-r7, one block/run file: run.rs).
+- 05:22-05:30 — (A) checked: `diff -rq` r7→r9 (only run.rs on the block
+  path; +2 token profile strings, registry 3→5, two shape arms); tk9 vs tk7
+  summaries identical on every deterministic figure (10/10 PASS);
+  frozen_v15 = manifest (65/65); stage-47 block and token replays PASS;
+  tk9 binary 911e82f0 (checked); tk9 CLI statement vs tk7: only
+  `/expected_io` differs. (B) read the v2 draft (783 lines), D34, D35, token
+  REVIEW5/REVIEW6 verdicts; read the r7→r9 diffs of token run.rs (sealing
+  pass moved before the generator/header, nothing after the header changed)
+  and stage_in.rs (adds `lookup_misses` only); read CLI `seal_chain`
+  (builder chain, int16, parity, CS-3, next token from the builder),
+  `--prompt` refusal / `--prompt-file`, `OWNER_BASE`, `leftover_refusal`,
+  `REMOVAL-FAILED`; `cheating` is const false outside test builds. Round-10
+  evidence: NL-1 records PASS, surjection summaries match, attribution PASS
+  (10), CLI capture v14 PASS, token stage-47 bytes equal on r7 and r9 code.
+  REVIEW5.md written: (A) YES (PR5-1, PR5-2 optional); (B) READY for the
+  security owner and Victor (PR5-3 decision content incl. D29 extension,
+  PR5-4 carry suffices, PR5-5..PR5-8 wording / operating). Nothing launched
+  or pending. NOT a privacy acceptance.
+
+## ROUND 6 (coordinator brief; opened 2026-10-21 02:19 UTC)
+
+Victor accepted D33 extended to frozen-r9 and the next-token statement v3
+as D36 (2026-10-21 ~00:17 UTC). Item: the round-15 re-pin note onto
+frozen-r11, `EV/round15/ZK60_PRIVACY_STATEMENT_REPIN_R11_20261021.md`
+(a0c28c57…, checked), covering both statements. Question: condition 7 met
+for D33 and D36, YES / NO each. Output `REVIEW6.md`.
+
+- 02:19 — opened; hash checked; frozen-r11 vs frozen-r9: 4 changed
+  (examples doc header, token_io.rs, cli.rs, cli_tests.rs) + 1 added
+  (r11_tests.rs); no block / run file.
+- 02:19-02:22 — read both pinned diffs (token_io.rs: one cfg(test) mod
+  line; cli.rs: TR7-5 refactor, TR7-6 owner refusal, TR7-7 base
+  tightening, cfg(test) counters); frozen_v18 = manifest (71/71); v17 probe
+  NOT-OK, v18 token gate PASS; compare_r15: gate figures, NL-1, surjection
+  equal, run facts differ only in input/output roots and the policy digest
+  (leaves computed myself); d33_report_only_check ok (44 enforced files, no
+  token file); binaries 0c9f247c and 631e2a15 checked; r11 trained CLI
+  publishes ef061000; b4 per-layer fields only table keys. REVIEW6.md
+  written: D36 YES, D33 YES (PR6-1, PR6-2 decision content; PR6-3
+  optional). Nothing launched or pending. NOT a privacy acceptance.

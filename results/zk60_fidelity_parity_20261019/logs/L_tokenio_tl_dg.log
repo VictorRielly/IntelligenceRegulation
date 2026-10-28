@@ -1,0 +1,3 @@
+[19:16:17Z] byte identity with R2 r2_inputs: {'head_int8_perrow.bin': True, 'head_mult12.bin': True, 'final_norm': True}
+[19:16:17Z] token_io written: /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/tinyllama_dg_rot1_T128/token_io (cn 5664, ceps 74429, tn 10); checked ['seq_ho00', 'seq_ho36']
+/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/tinyllama_dg_rot1_T128/token_io exists

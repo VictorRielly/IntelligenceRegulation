@@ -1,0 +1,58 @@
+[
+  {
+    "line": 1,
+    "text": "# Costed speed plan: private Llama-3-8B stack at 50 proved positions/s (2026-10-17)"
+  },
+  {
+    "line": 12,
+    "text": "## Task results (dated)"
+  },
+  {
+    "line": 95,
+    "text": "## In plain words (10 lines)"
+  },
+  {
+    "line": 122,
+    "text": "## 1. What was measured (the anchors)"
+  },
+  {
+    "line": 144,
+    "text": "## 2. The per-token cost model"
+  },
+  {
+    "line": 146,
+    "text": "### 2.1 Work measures (exact, from the layout)"
+  },
+  {
+    "line": 171,
+    "text": "### 2.2 The cost law"
+  },
+  {
+    "line": 197,
+    "text": "### 2.3 Fit error (proofs only, per block)"
+  },
+  {
+    "line": 212,
+    "text": "### 2.4 Fixed costs per run, today (8B)"
+  },
+  {
+    "line": 223,
+    "text": "## 3. Llama-3-8B at T = 512 \u2026 4096 with today's code"
+  },
+  {
+    "line": 254,
+    "text": "## 4. The levers"
+  },
+  {
+    "line": 289,
+    "text": "## 5. The ranked, integrated plan"
+  },
+  {
+    "line": 349,
+    "text": "## 6. The first three engineering tasks"
+  },
+  {
+    "line": 406,
+    "text": "## 7. What would change this plan"
+  }
+]

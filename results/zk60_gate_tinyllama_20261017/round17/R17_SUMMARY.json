@@ -1,0 +1,1350 @@
+{
+ "what": "[gate round 17] One summary of the round's records (frozen tools v20 on",
+ "privacy_acceptance": false,
+ "records": [
+  {
+   "record": "round17/v20/v20-classify-rung-L1-v0.json",
+   "bundle": "classify-rung-L1-v0",
+   "status": "PASS",
+   "false_parts": [],
+   "tools_equal_v20": true,
+   "blocks": 1,
+   "verdict": 0,
+   "c": 5361093,
+   "chunk": {
+    "a": 0,
+    "b": 23,
+    "count": 1,
+    "index": 0,
+    "overlap": 4,
+    "size": 23,
+    "total": 23
+   },
+   "replay": [
+    4224,
+    203,
+    true
+   ],
+   "classifier_slots": [
+    12,
+    12
+   ],
+   "block_stage_slots": [
+    [
+     23,
+     23
+    ]
+   ],
+   "per_commitment": [
+    [
+     "A-in@0",
+     10,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "H-in@0",
+     14,
+     4,
+     4,
+     2,
+     2
+    ],
+    [
+     "E-token-in",
+     6,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     "A@1",
+     1337,
+     122,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@1",
+     1476,
+     53,
+     9,
+     2,
+     2
+    ],
+    [
+     "B0",
+     22,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A-out@2",
+     76,
+     29,
+     16,
+     0,
+     0
+    ],
+    [
+     "H-out@2",
+     38,
+     10,
+     5,
+     2,
+     2
+    ],
+    [
+     "B1",
+     22,
+     2,
+     2,
+     0,
+     0
+    ]
+   ],
+   "cfs": [
+    [
+     "IN-C",
+     5337,
+     0,
+     8
+    ],
+    [
+     "BLOCK",
+     16068,
+     0,
+     34
+    ],
+    [
+     "OUT-C",
+     7557,
+     0,
+     14
+    ]
+   ],
+   "joint": [
+    33312,
+    0,
+    true
+   ],
+   "full_preimage": [
+    9,
+    947835,
+    0
+   ],
+   "joint_preimage": true,
+   "B3": true,
+   "one_public_bit": true,
+   "D41": true,
+   "NL1": [
+    12,
+    12
+   ],
+   "controls_fired": [
+    "CC-1_verdict_flipped",
+    "CC-2_threshold_moved",
+    "CC-3_margin_terminal_moved",
+    "CC-4_margin_vector_entry_moved",
+    "CC-5_template_id_in_the_captured_kappa",
+    "CC-6_chunk_range_moved",
+    "CC-8_preimage_controls_on_stage_IN_C",
+    "CC-9_preimage_controls_on_stage_OUT_C",
+    "J-1_endpoint_reserved_row_identified_with_tok",
+    "J-2_B_in_reserved_row_identified_with_block_0_input",
+    "J-3_shared_proximity_row"
+   ],
+   "controls_not_fired": [],
+   "seconds": 568.4,
+   "peak_rss_mb": 286
+  },
+  {
+   "record": "round17/v20/v20-classify-rung-L1-v1.json",
+   "bundle": "classify-rung-L1-v1",
+   "status": "PASS",
+   "false_parts": [],
+   "tools_equal_v20": true,
+   "blocks": 1,
+   "verdict": 1,
+   "c": 5361091,
+   "chunk": {
+    "a": 0,
+    "b": 23,
+    "count": 1,
+    "index": 0,
+    "overlap": 4,
+    "size": 23,
+    "total": 23
+   },
+   "replay": [
+    4224,
+    203,
+    true
+   ],
+   "classifier_slots": [
+    12,
+    12
+   ],
+   "block_stage_slots": [
+    [
+     23,
+     23
+    ]
+   ],
+   "per_commitment": [
+    [
+     "A-in@0",
+     10,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "H-in@0",
+     14,
+     4,
+     4,
+     2,
+     2
+    ],
+    [
+     "E-token-in",
+     6,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     "A@1",
+     1337,
+     122,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@1",
+     1476,
+     53,
+     9,
+     2,
+     2
+    ],
+    [
+     "B0",
+     22,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A-out@2",
+     76,
+     29,
+     16,
+     0,
+     0
+    ],
+    [
+     "H-out@2",
+     38,
+     10,
+     5,
+     2,
+     2
+    ],
+    [
+     "B1",
+     22,
+     2,
+     2,
+     0,
+     0
+    ]
+   ],
+   "cfs": [
+    [
+     "IN-C",
+     5337,
+     0,
+     8
+    ],
+    [
+     "BLOCK",
+     16068,
+     0,
+     34
+    ],
+    [
+     "OUT-C",
+     7557,
+     0,
+     14
+    ]
+   ],
+   "joint": [
+    33312,
+    0,
+    true
+   ],
+   "full_preimage": [
+    9,
+    961496,
+    0
+   ],
+   "joint_preimage": true,
+   "B3": true,
+   "one_public_bit": true,
+   "D41": true,
+   "NL1": [
+    12,
+    12
+   ],
+   "controls_fired": [
+    "CC-1_verdict_flipped",
+    "CC-2_threshold_moved",
+    "CC-3_margin_terminal_moved",
+    "CC-4_margin_vector_entry_moved",
+    "CC-5_template_id_in_the_captured_kappa",
+    "CC-6_chunk_range_moved",
+    "CC-8_preimage_controls_on_stage_IN_C",
+    "CC-9_preimage_controls_on_stage_OUT_C",
+    "J-1_endpoint_reserved_row_identified_with_tok",
+    "J-2_B_in_reserved_row_identified_with_block_0_input",
+    "J-3_shared_proximity_row"
+   ],
+   "controls_not_fired": [],
+   "seconds": 545.1,
+   "peak_rss_mb": 287
+  },
+  {
+   "record": "round17/v20/v20-classify-rung-L1-vtie.json",
+   "bundle": "classify-rung-L1-vtie",
+   "status": "PASS",
+   "false_parts": [],
+   "tools_equal_v20": true,
+   "blocks": 1,
+   "verdict": 0,
+   "c": 5361092,
+   "chunk": {
+    "a": 0,
+    "b": 23,
+    "count": 1,
+    "index": 0,
+    "overlap": 4,
+    "size": 23,
+    "total": 23
+   },
+   "replay": [
+    4224,
+    203,
+    true
+   ],
+   "classifier_slots": [
+    12,
+    12
+   ],
+   "block_stage_slots": [
+    [
+     23,
+     23
+    ]
+   ],
+   "per_commitment": [
+    [
+     "A-in@0",
+     10,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "H-in@0",
+     14,
+     4,
+     4,
+     2,
+     2
+    ],
+    [
+     "E-token-in",
+     6,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     "A@1",
+     1337,
+     122,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@1",
+     1476,
+     53,
+     9,
+     2,
+     2
+    ],
+    [
+     "B0",
+     22,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A-out@2",
+     76,
+     29,
+     16,
+     0,
+     0
+    ],
+    [
+     "H-out@2",
+     38,
+     10,
+     5,
+     2,
+     2
+    ],
+    [
+     "B1",
+     22,
+     2,
+     2,
+     0,
+     0
+    ]
+   ],
+   "cfs": [
+    [
+     "IN-C",
+     5337,
+     0,
+     8
+    ],
+    [
+     "BLOCK",
+     16068,
+     0,
+     34
+    ],
+    [
+     "OUT-C",
+     7557,
+     0,
+     14
+    ]
+   ],
+   "joint": [
+    33312,
+    0,
+    true
+   ],
+   "full_preimage": [
+    9,
+    951839,
+    0
+   ],
+   "joint_preimage": true,
+   "B3": true,
+   "one_public_bit": true,
+   "D41": true,
+   "NL1": [
+    12,
+    12
+   ],
+   "controls_fired": [
+    "CC-1_verdict_flipped",
+    "CC-2_threshold_moved",
+    "CC-3_margin_terminal_moved",
+    "CC-4_margin_vector_entry_moved",
+    "CC-5_template_id_in_the_captured_kappa",
+    "CC-6_chunk_range_moved",
+    "CC-8_preimage_controls_on_stage_IN_C",
+    "CC-9_preimage_controls_on_stage_OUT_C",
+    "J-1_endpoint_reserved_row_identified_with_tok",
+    "J-2_B_in_reserved_row_identified_with_block_0_input",
+    "J-3_shared_proximity_row"
+   ],
+   "controls_not_fired": [],
+   "seconds": 504.4,
+   "peak_rss_mb": 287
+  },
+  {
+   "record": "round17/v20/v20-classify-rung-L2-v0.json",
+   "bundle": "classify-rung-L2-v0",
+   "status": "PASS",
+   "false_parts": [],
+   "tools_equal_v20": true,
+   "blocks": 2,
+   "verdict": 0,
+   "c": 5269430,
+   "chunk": {
+    "a": 0,
+    "b": 23,
+    "count": 1,
+    "index": 0,
+    "overlap": 4,
+    "size": 23,
+    "total": 23
+   },
+   "replay": [
+    7933,
+    327,
+    true
+   ],
+   "classifier_slots": [
+    12,
+    12
+   ],
+   "block_stage_slots": [
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ]
+   ],
+   "per_commitment": [
+    [
+     "A-in@0",
+     10,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "H-in@0",
+     14,
+     4,
+     4,
+     2,
+     2
+    ],
+    [
+     "E-token-in",
+     6,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     "A@1",
+     1337,
+     122,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@1",
+     1476,
+     53,
+     9,
+     2,
+     2
+    ],
+    [
+     "B0",
+     22,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@2",
+     1337,
+     122,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@2",
+     1476,
+     53,
+     9,
+     2,
+     2
+    ],
+    [
+     "B1",
+     22,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A-out@3",
+     76,
+     29,
+     16,
+     0,
+     0
+    ],
+    [
+     "H-out@3",
+     38,
+     10,
+     5,
+     2,
+     2
+    ],
+    [
+     "B2",
+     22,
+     2,
+     2,
+     0,
+     0
+    ]
+   ],
+   "cfs": [
+    [
+     "IN-C",
+     5337,
+     0,
+     8
+    ],
+    [
+     "BLOCK",
+     16068,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16068,
+     0,
+     34
+    ],
+    [
+     "OUT-C",
+     7557,
+     0,
+     14
+    ]
+   ],
+   "joint": [
+    33312,
+    0,
+    true
+   ],
+   "full_preimage": [
+    12,
+    1722031,
+    0
+   ],
+   "joint_preimage": true,
+   "B3": true,
+   "one_public_bit": true,
+   "D41": true,
+   "NL1": [
+    12,
+    12
+   ],
+   "controls_fired": [
+    "CC-1_verdict_flipped",
+    "CC-2_threshold_moved",
+    "CC-3_margin_terminal_moved",
+    "CC-4_margin_vector_entry_moved",
+    "CC-5_template_id_in_the_captured_kappa",
+    "CC-6_chunk_range_moved",
+    "CC-8_preimage_controls_on_stage_IN_C",
+    "CC-9_preimage_controls_on_stage_OUT_C",
+    "J-1_endpoint_reserved_row_identified_with_tok",
+    "J-2_B_in_reserved_row_identified_with_block_0_input",
+    "J-3_shared_proximity_row"
+   ],
+   "controls_not_fired": [],
+   "seconds": 620.1,
+   "peak_rss_mb": 323
+  },
+  {
+   "record": "round17/v20/v20-classify-rung-L2-v1-chunk1o27.json",
+   "bundle": "classify-rung-L2-v1-chunk1o27",
+   "status": "PASS",
+   "false_parts": [],
+   "tools_equal_v20": true,
+   "blocks": 2,
+   "verdict": 1,
+   "c": 5269428,
+   "chunk": {
+    "a": 4,
+    "b": 27,
+    "count": 2,
+    "index": 1,
+    "overlap": 4,
+    "size": 23,
+    "total": 27
+   },
+   "replay": [
+    7933,
+    327,
+    true
+   ],
+   "classifier_slots": [
+    12,
+    12
+   ],
+   "block_stage_slots": [
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ]
+   ],
+   "per_commitment": [
+    [
+     "A-in@0",
+     10,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "H-in@0",
+     14,
+     4,
+     4,
+     2,
+     2
+    ],
+    [
+     "E-token-in",
+     6,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     "A@1",
+     1337,
+     122,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@1",
+     1476,
+     53,
+     9,
+     2,
+     2
+    ],
+    [
+     "B0",
+     22,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@2",
+     1337,
+     122,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@2",
+     1476,
+     53,
+     9,
+     2,
+     2
+    ],
+    [
+     "B1",
+     22,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A-out@3",
+     76,
+     29,
+     16,
+     0,
+     0
+    ],
+    [
+     "H-out@3",
+     38,
+     10,
+     5,
+     2,
+     2
+    ],
+    [
+     "B2",
+     22,
+     2,
+     2,
+     0,
+     0
+    ]
+   ],
+   "cfs": [
+    [
+     "IN-C",
+     5337,
+     0,
+     8
+    ],
+    [
+     "BLOCK",
+     16068,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16068,
+     0,
+     34
+    ],
+    [
+     "OUT-C",
+     7557,
+     0,
+     14
+    ]
+   ],
+   "joint": [
+    33312,
+    0,
+    true
+   ],
+   "full_preimage": [
+    12,
+    1721107,
+    0
+   ],
+   "joint_preimage": true,
+   "B3": true,
+   "one_public_bit": true,
+   "D41": true,
+   "NL1": [
+    12,
+    12
+   ],
+   "controls_fired": [
+    "CC-1_verdict_flipped",
+    "CC-2_threshold_moved",
+    "CC-3_margin_terminal_moved",
+    "CC-4_margin_vector_entry_moved",
+    "CC-5_template_id_in_the_captured_kappa",
+    "CC-6_chunk_range_moved",
+    "CC-8_preimage_controls_on_stage_IN_C",
+    "CC-9_preimage_controls_on_stage_OUT_C",
+    "J-1_endpoint_reserved_row_identified_with_tok",
+    "J-2_B_in_reserved_row_identified_with_block_0_input",
+    "J-3_shared_proximity_row"
+   ],
+   "controls_not_fired": [],
+   "seconds": 677.8,
+   "peak_rss_mb": 323
+  },
+  {
+   "record": "round17/v20/v20-classify-rung-L2-v1.json",
+   "bundle": "classify-rung-L2-v1",
+   "status": "PASS",
+   "false_parts": [],
+   "tools_equal_v20": true,
+   "blocks": 2,
+   "verdict": 1,
+   "c": 5269428,
+   "chunk": {
+    "a": 0,
+    "b": 23,
+    "count": 1,
+    "index": 0,
+    "overlap": 4,
+    "size": 23,
+    "total": 23
+   },
+   "replay": [
+    7933,
+    327,
+    true
+   ],
+   "classifier_slots": [
+    12,
+    12
+   ],
+   "block_stage_slots": [
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ]
+   ],
+   "per_commitment": [
+    [
+     "A-in@0",
+     10,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "H-in@0",
+     14,
+     4,
+     4,
+     2,
+     2
+    ],
+    [
+     "E-token-in",
+     6,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     "A@1",
+     1337,
+     122,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@1",
+     1476,
+     53,
+     9,
+     2,
+     2
+    ],
+    [
+     "B0",
+     22,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@2",
+     1337,
+     122,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@2",
+     1476,
+     53,
+     9,
+     2,
+     2
+    ],
+    [
+     "B1",
+     22,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A-out@3",
+     76,
+     29,
+     16,
+     0,
+     0
+    ],
+    [
+     "H-out@3",
+     38,
+     10,
+     5,
+     2,
+     2
+    ],
+    [
+     "B2",
+     22,
+     2,
+     2,
+     0,
+     0
+    ]
+   ],
+   "cfs": [
+    [
+     "IN-C",
+     5337,
+     0,
+     8
+    ],
+    [
+     "BLOCK",
+     16068,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16068,
+     0,
+     34
+    ],
+    [
+     "OUT-C",
+     7557,
+     0,
+     14
+    ]
+   ],
+   "joint": [
+    33312,
+    0,
+    true
+   ],
+   "full_preimage": [
+    12,
+    1715111,
+    0
+   ],
+   "joint_preimage": true,
+   "B3": true,
+   "one_public_bit": true,
+   "D41": true,
+   "NL1": [
+    12,
+    12
+   ],
+   "controls_fired": [
+    "CC-1_verdict_flipped",
+    "CC-2_threshold_moved",
+    "CC-3_margin_terminal_moved",
+    "CC-4_margin_vector_entry_moved",
+    "CC-5_template_id_in_the_captured_kappa",
+    "CC-6_chunk_range_moved",
+    "CC-8_preimage_controls_on_stage_IN_C",
+    "CC-9_preimage_controls_on_stage_OUT_C",
+    "J-1_endpoint_reserved_row_identified_with_tok",
+    "J-2_B_in_reserved_row_identified_with_block_0_input",
+    "J-3_shared_proximity_row"
+   ],
+   "controls_not_fired": [],
+   "seconds": 603.5,
+   "peak_rss_mb": 328
+  },
+  {
+   "record": "round17/v20/v20-classify-rung-L2-vtie.json",
+   "bundle": "classify-rung-L2-vtie",
+   "status": "PASS",
+   "false_parts": [],
+   "tools_equal_v20": true,
+   "blocks": 2,
+   "verdict": 0,
+   "c": 5269429,
+   "chunk": {
+    "a": 0,
+    "b": 23,
+    "count": 1,
+    "index": 0,
+    "overlap": 4,
+    "size": 23,
+    "total": 23
+   },
+   "replay": [
+    7933,
+    327,
+    true
+   ],
+   "classifier_slots": [
+    12,
+    12
+   ],
+   "block_stage_slots": [
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ]
+   ],
+   "per_commitment": [
+    [
+     "A-in@0",
+     10,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "H-in@0",
+     14,
+     4,
+     4,
+     2,
+     2
+    ],
+    [
+     "E-token-in",
+     6,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     "A@1",
+     1337,
+     122,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@1",
+     1476,
+     53,
+     9,
+     2,
+     2
+    ],
+    [
+     "B0",
+     22,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@2",
+     1337,
+     122,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@2",
+     1476,
+     53,
+     9,
+     2,
+     2
+    ],
+    [
+     "B1",
+     22,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A-out@3",
+     76,
+     29,
+     16,
+     0,
+     0
+    ],
+    [
+     "H-out@3",
+     38,
+     10,
+     5,
+     2,
+     2
+    ],
+    [
+     "B2",
+     22,
+     2,
+     2,
+     0,
+     0
+    ]
+   ],
+   "cfs": [
+    [
+     "IN-C",
+     5337,
+     0,
+     8
+    ],
+    [
+     "BLOCK",
+     16068,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16068,
+     0,
+     34
+    ],
+    [
+     "OUT-C",
+     7557,
+     0,
+     14
+    ]
+   ],
+   "joint": [
+    33312,
+    0,
+    true
+   ],
+   "full_preimage": [
+    12,
+    1719792,
+    0
+   ],
+   "joint_preimage": true,
+   "B3": true,
+   "one_public_bit": true,
+   "D41": true,
+   "NL1": [
+    12,
+    12
+   ],
+   "controls_fired": [
+    "CC-1_verdict_flipped",
+    "CC-2_threshold_moved",
+    "CC-3_margin_terminal_moved",
+    "CC-4_margin_vector_entry_moved",
+    "CC-5_template_id_in_the_captured_kappa",
+    "CC-6_chunk_range_moved",
+    "CC-8_preimage_controls_on_stage_IN_C",
+    "CC-9_preimage_controls_on_stage_OUT_C",
+    "J-1_endpoint_reserved_row_identified_with_tok",
+    "J-2_B_in_reserved_row_identified_with_block_0_input",
+    "J-3_shared_proximity_row"
+   ],
+   "controls_not_fired": [],
+   "seconds": 646.3,
+   "peak_rss_mb": 325
+  }
+ ],
+ "cross_verdict": {
+  "L1": {
+   "captures": [
+    "classify-rung-L1-v0",
+    "classify-rung-L1-v1",
+    "classify-rung-L1-vtie"
+   ],
+   "verdicts": [
+    0,
+    1,
+    0
+   ],
+   "randomness_free_figures_equal": true,
+   "compared": [
+    "replay",
+    "classifier_slots",
+    "block_stage_slots",
+    "per_commitment",
+    "joint",
+    "NL1",
+    "cfs (stage, entries, differing)"
+   ]
+  },
+  "L2": {
+   "captures": [
+    "classify-rung-L2-v0",
+    "classify-rung-L2-v1",
+    "classify-rung-L2-vtie"
+   ],
+   "verdicts": [
+    0,
+    1,
+    0
+   ],
+   "randomness_free_figures_equal": true,
+   "compared": [
+    "replay",
+    "classifier_slots",
+    "block_stage_slots",
+    "per_commitment",
+    "joint",
+    "NL1",
+    "cfs (stage, entries, differing)"
+   ]
+  }
+ },
+ "all_pass": true,
+ "d41/d41-item-chunk1o27.json": {
+  "label": 1,
+  "verdict_or": 1,
+  "K": 2,
+  "ranges": [
+   [
+    0,
+    23
+   ],
+   [
+    4,
+    27
+   ]
+  ],
+  "fail_closed_reasons": [
+   "chunks [0] have no accepted proof"
+  ],
+  "covers": true,
+  "chunks_given": [
+   [
+    1,
+    4,
+    27,
+    1
+   ]
+  ]
+ }
+}

@@ -1,0 +1,11 @@
+{
+  "device": "Intel(R) Core(TM) Ultra 9 185H",
+  "threads": 1,
+  "accelerator_used": false,
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "memory_estimate_MiB": 64,
+  "address_space_cap_MiB": 256,
+  "cpu_seconds_cap": 30,
+  "parent_timeout_seconds": 35,
+  "priority_nice": 19
+}

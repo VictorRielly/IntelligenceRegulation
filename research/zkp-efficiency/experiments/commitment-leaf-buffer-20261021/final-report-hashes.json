@@ -1,0 +1,26 @@
+[
+  {
+    "path": "STATE.md",
+    "sha256": "c9d9cd83b00229db235291a5c57ca56bafe751241dd2a70babc4c873558552a8"
+  },
+  {
+    "path": "PROGRESS.md",
+    "sha256": "1a688e1d45efc04f6f85169edc2d10a4514c96119ea45726749e3495ac74370d"
+  },
+  {
+    "path": "FINDINGS.md",
+    "sha256": "12ae725908d34ba938658fac1db78ab20458fe73176d0aaa671b30b249bc9f80"
+  },
+  {
+    "path": "sources.jsonl",
+    "sha256": "7c561d42d57707d40a216d18403c43a471eb14e855b50f28af55db7a885db780"
+  },
+  {
+    "path": "progress/20261021T071854Z-0fa6988f.md",
+    "sha256": "1f4df1d7721adddbe2614883cd055aa8315cf18ebc6b4e71670a712af69812d9"
+  },
+  {
+    "path": "handoffs/20261021-streaming-blake3-state.md",
+    "sha256": "9ccd6cc0fb5f845ccfa719abfb066560247998e7d59ccb777f43a82c5ff6ceaa"
+  }
+]

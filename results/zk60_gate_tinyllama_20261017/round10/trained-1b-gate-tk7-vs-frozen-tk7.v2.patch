@@ -1,0 +1,2374 @@
+diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r7/hashline/src/private_block/gr4_token_tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-tk7/hashline/src/private_block/gr4_token_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r7/hashline/src/private_block/gr4_token_tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-tk7/hashline/src/private_block/gr4_token_tests.rs	2026-10-19 17:34:15.998268667 -0700
+@@ -0,0 +1,750 @@
++//! [PRIVACY GATE LANE, GATE ROUND 10, 2026-10-20, tk7 gate copy] TEST-ONLY.
++//! A child of `gr4_trained_tests` (it reuses that module's private replay
++//! helpers: `Draws`, `zk_root`, `rebuild_on`, `boundary_root_on`, `probe`,
++//! `probe_at`, `position_tag`, `words`, `assert_pairwise_distinct`), mounted
++//! by one `#[path]` line at the end of that file. No production file and no
++//! pinned file changes.
++//!
++//! **Not a privacy result and not an acceptance of anything.**
++//!
++//! TWO CHECKS, the privacy review round 4's PR4-8 and PR4-9:
++//!
++//! **PR4-8: THE STAGE-47 ROOT-REBUILD REPLAY OF A TOKEN-I/O RUN** (the block
++//! replay of `gr4_trained_tests` extended to stage IN and stage OUT). A token
++//! run of the trained TinyLlama T32 blocks at the export the token captures
++//! used (`pg_rot1_b4_T32_cal128`, the R2 head tables) is proved with
++//! `prove_token_run_with`'s body REPLICATED line for line
++//! (`token_io/run.rs:744-822`) on ONE SEEDED stream: stage IN
++//! (`stage_in::prove`: B_in, A_in, M_in, H_in on the run stream), each block
++//! stage (B_{k+1} by `boundary::prepare`, then `protocol::prove_core`, then
++//! B_k's one opening), stage OUT (`stage_out::prove`: A_out, M_out, H_out, then
++//! B_out's opening and the output endpoint's). Every segment is encoded with
++//! the production encoders and the run is VERIFIED BY THE PRODUCTION TOKEN-RUN
++//! VERIFIER (`verify_token_run`) from the segment bytes, which re-derives every
++//! geometry and replays the whole Fiat-Shamir chain: an inexact replication
++//! would be refused. The statement's private helpers this needs
++//! (`ntt_log`, `in_geom`, `out_geom`, `block_geom`, `block_layout`) are
++//! restated here from `pub(crate)` pieces, each next to the line it mirrors;
++//! the verifier's acceptance checks them.
++//!
++//! THE PREDICTION: ONE replay stream in the predicted order -- B_in's mask
++//! rows, pads, salts; A_in's mask rows, pads, salts; M_in; H_in's mask rows,
++//! zero-sum rows, pads, salts; for each block k: B_{k+1}, then the block's A,
++//! M, H (`rebuild_on`); then A_out, M_out, H_out -- REBUILDS EVERY ROOT from the
++//! witness and the stream (the token stages' H rows from the replayed
++//! challenges), and every root must equal the prover's; the replay must end
++//! where the prover's generator did (next-draw probe; the counted bytes; the
++//! 16-byte non-vacuity of the probe).
++//!
++//! NON-VACUITY, each must move the named root(s): A_in's proximity word
++//! zeroed (A_in); B_in drawn after A_in (B_in and A_in); stage OUT predicted on
++//! a fresh stream (A_out); H_out's first reserved word := A_out's (H_out);
++//! M_out's slot 1 coefficient := slot 0's (M_out); H_in's zero-sum rows from a
++//! stream reset (H_in).
++//!
++//! THE TOKEN ENDPOINTS are sealed by `seal_endpoints` on their own OS-seeded
++//! generators: checked IN SITU (no drawn value or salt repeats inside or
++//! across the two), as the block replay checks its endpoints.
++//!
++//! **PR4-9: THE CALIBRATION ATTRIBUTION.** For each export and layer range
++//! the token captures used, the trained-model statement over those layers
++//! and the token profile are built from the EXPORT and the named TABLE FILES
++//! by the production loaders (the capture test's own recipe), and the token
++//! run's calibration word is composed here as
++//! BLAKE3("hashline/token-io-calibration/v1" || identity || profile digest)
++//! (`token_io/run.rs:303-308`) and cross-checked against the statement's own
++//! header word. The words are printed (they are public: the run header
++//! absorbs them) so the gate can compare them with every capture's absorbed
++//! `calibration`.
++//!
++//! THE CAPTURE RULE of the parent applies to PR4-8 (booleans, counts, labels,
++//! seconds; the seeded receipt is never written). PR4-9 prints only public
++//! digests.
++
++use super::*;
++use crate::mle::eq_table_msb;
++use crate::private_block::boundary::{self, BoundarySpec};
++use crate::private_block::run::RunShape;
++use crate::private_block::token_io::load::{load_token_tables, read_manifests, token_run_profile_of, TableFiles};
++use crate::private_block::token_io::run::{endpoint_specs, honest_pipeline_at, seal_endpoints, verify_token_run, TokenRunStatement, VerifierPolicy, STAGE_IN_MAGIC, STAGE_OUT_MAGIC};
++use crate::private_block::token_io::stage_in::{self, StageInWitness};
++use crate::private_block::token_io::stage_out::{self, StageOutWitness};
++use crate::private_block::token_io::{k as fk, Dim, SelectorVariant, StageLayout, StageSegGeom, Tier, TokenProfile, TokenTables, TAG_EMB};
++use crate::private_block::trained_block::hex as thex;
++use crate::private_block::trained_statement::{apply_own, has_own, IntegerCalibration, Provenance, TrainedModelStatement};
++
++fn tl_export() -> PathBuf {
++    match std::env::var("HL_PB_TOKEN_EXPORT") {
++        Ok(v) => PathBuf::from(v),
++        Err(_) => PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../../results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128"),
++    }
++}
++
++fn tl_head() -> PathBuf {
++    match std::env::var("HL_PB_TOKEN_HEAD") {
++        Ok(v) => PathBuf::from(v),
++        Err(_) => PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../../results/zk60_token_io_r1_20261017/r2_inputs"),
++    }
++}
++
++fn token_context() -> Digest {
++    *blake3::hash(b"privacy gate PR4-8: the seeded token-run replay fixture context").as_bytes()
++}
++
++/// a sequence manifest's `token_ids` (the capture test's `seq_tokens`)
++fn seq_ids(export: &std::path::Path, seq: &str) -> Vec<u64> {
++    let m = std::fs::read_to_string(export.join(format!("seq_{seq}")).join("manifest.json")).unwrap_or_else(|e| panic!("seq_{seq}: {e}"));
++    let at = m.find("\"token_ids\"").expect("token_ids") + "\"token_ids\"".len();
++    let open = at + m[at..].find('[').unwrap() + 1;
++    let close = open + m[open..].find(']').unwrap();
++    m[open..close].split(',').map(|x| x.trim().parse::<u64>().expect("a token id")).collect()
++}
++
++/// the statement pieces of one token run (the capture test's recipe,
++/// `token_io/capture_tests.rs` `capture_token_export`); `keep_blocks` false
++/// drops every block once its record is taken (the attribution needs none)
++struct TokenParts {
++    sh: Shape,
++    shapes: Vec<Shape>,
++    profile: &'static str,
++    blocks: Vec<BlockPublic>,
++    digests: Vec<Digest>,
++    model: TrainedModelStatement,
++    tables: TokenTables,
++    tp: TokenProfile,
++    bos: u64,
++    norm: crate::private_block::token_io::FinalNorm,
++}
++
++fn token_parts(export: &std::path::Path, emb_dir: &std::path::Path, head_dir: &std::path::Path, layers: &[u32], keep_blocks: bool) -> TokenParts {
++    let ex = TrainedExport::load(export).unwrap_or_else(|e| panic!("the export: {e}"));
++    assert!(layers.iter().all(|k| ex.layers.contains(k)), "layers {layers:?} are not all in the export");
++    let c = ex.run_constants(layers).unwrap_or_else(|e| panic!("{e}"));
++    let sh = ex.shape_for(&c).unwrap_or_else(|e| panic!("{e}"));
++    let profile = token_run_profile_of(&sh).unwrap_or_else(|e| panic!("{e}"));
++    let (mut blocks, mut records, mut digests) = (Vec::new(), Vec::new(), Vec::new());
++    for &l in layers {
++        let t = ex.load_layer(&sh, &c, l, false).unwrap_or_else(|e| panic!("layer {l}: {e}"));
++        digests.push(t.blk.digest());
++        records.push(t.record);
++        if keep_blocks {
++            blocks.push(t.blk);
++        }
++    }
++    let prov = Provenance {
++        label: format!("export:{}", ex.variant),
++        residual_unit: ex.residual_unit,
++        quantizer_sha256: ex.tool_sha256,
++        calibration_set_sha256: ex.calibration_set_sha256,
++        export_profile_sha256: ex.profile_sha256,
++        calibration_tool_sha256: ex.tool_sha256,
++        rope_theta: c.rope_theta,
++    };
++    let cal = IntegerCalibration::as_the_code_proves(&sh, &prov);
++    let base = sh.norm_calibration();
++    let shapes: Vec<Shape> = records.iter().map(|r| if has_own(&r.own) { sh.with_layer_calibration(&apply_own(&base, &r.own).unwrap()).unwrap() } else { sh.clone() }).collect();
++    let model = TrainedModelStatement::new(&sh, profile, ex.source.clone(), cal, records).unwrap_or_else(|e| panic!("the trained-model statement over {layers:?}: {e}"));
++    let files = TableFiles { emb_dir: emb_dir.to_path_buf(), head_dir: head_dir.to_path_buf() };
++    let (tables, tm) = load_token_tables(&files, read_manifests(&files).unwrap().v, sh.width).unwrap_or_else(|e| panic!("the tables: {e}"));
++    let tp = TokenProfile::new(&sh, &tables, tm.bos, tm.norm, SelectorVariant::PublicRow, Tier::R1_MVP).unwrap_or_else(|e| panic!("{e}"));
++    TokenParts { sh, shapes, profile, blocks, digests, model, tables, tp, bos: tm.bos, norm: tm.norm }
++}
++
++/// `TokenRunStatement::ntt_log` (private), restated
++fn st_ntt_log(st: &TokenRunStatement) -> u32 {
++    let sh = st.sh();
++    let t = st.tp.tier;
++    [
++        protocol::ntt_log_at(sh),
++        (sh.endpoint_log_n + sh.endpoint_inv_rate.trailing_zeros() as usize) as u32,
++        (t.stage_log_n + t.stage_inv_rate.trailing_zeros() as usize) as u32,
++        (t.ep_log_n + t.ep_inv_rate.trailing_zeros() as usize) as u32,
++        crate::zk::MASK_LOG_DOM,
++    ]
++    .into_iter()
++    .max()
++    .unwrap_or(crate::zk::MASK_LOG_DOM)
++}
++
++/// `TokenRunStatement::in_geom` (private), restated
++fn st_in_geom<'a>(st: &TokenRunStatement, lay: &'a StageLayout) -> StageSegGeom<'a> {
++    let ed = Dim::of(&st.in_spec.params());
++    StageSegGeom { magic: STAGE_IN_MAGIC, lay, has_b_root: true, a_groups: stage_in::A_GROUPS, h_groups: stage_in::H_GROUPS, closes: vec![(ed, 1, st.in_spec.commitment_rows())], total: st.l() + 2, index: 0 }
++}
++
++/// `TokenRunStatement::out_geom` (private), restated
++fn st_out_geom<'a>(st: &TokenRunStatement, lay: &'a StageLayout) -> StageSegGeom<'a> {
++    let b = st.boundary_spec(st.l()).expect("B_out's statement");
++    let (bd, ed) = (Dim::of(&b.params()), Dim::of(&st.out_spec.params()));
++    StageSegGeom {
++        magic: STAGE_OUT_MAGIC,
++        lay,
++        has_b_root: false,
++        a_groups: stage_out::A_GROUPS,
++        h_groups: stage_out::H_GROUPS,
++        closes: vec![(bd, 2, b.commitment_rows()), (ed, 1, st.out_spec.commitment_rows())],
++        total: st.l() + 2,
++        index: st.l() + 1,
++    }
++}
++
++/// `TokenRunStatement::block_geom` (private), restated
++fn st_block_geom(st: &TokenRunStatement, k: usize) -> SegGeom {
++    SegGeom { l: st.l() + 2, k: k + 1, boundary_rows: st.boundary_spec(0).expect("B_in").commitment_rows(), sites: 2 }
++}
++
++/// `TokenRunStatement::block_layout` (private), restated
++fn st_block_layout(st: &TokenRunStatement, k: usize) -> Layout {
++    Layout::for_shape(&st.stage_shape(k).expect("the stage shape"))
++        .expect("a layout")
++        .with_io_mask_rows([st.boundary_spec(k).unwrap().mask_row(1).unwrap(), st.boundary_spec(k + 1).unwrap().mask_row(0).unwrap()])
++}
++
++/// one deliberate error in the token prediction
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++enum TPert {
++    None,
++    /// A_in's first proximity-row word := 0
++    InAProxZero,
++    /// B_in predicted AFTER A_in (stage IN's B-before-A order reversed)
++    BinAfterAin,
++    /// H_in's zero-sum rows drawn from a stream reset
++    InZeroSumReset,
++    /// stage OUT predicted on a fresh stream (a stream reset before stage OUT)
++    ResetBeforeOut,
++    /// H_out's first reserved word := A_out's first reserved word
++    OutCopyAIntoH,
++    /// M_out's slot 1 first coefficient := slot 0's
++    OutAlphaCopy,
++}
++
++/// `zk::mask_commit_tagged`'s root on a CALLER's stream (the parent's M
++/// prediction, restated as a function)
++fn mask_root_on(rp: &mut Draws, specs: &[(usize, usize)], ntt: &NttTables, tag: &HashTag, alpha_copy: bool) -> Digest {
++    let (m, dom) = (1usize << MASK_LOG_MSG, 1usize << MASK_LOG_DOM);
++    let mut alphas: Vec<Vec<Fp2>> = specs.iter().map(|&(nv, d)| (0..CfsMask::len(nv, d)).map(|_| rp.fp2()).collect()).collect();
++    if alpha_copy {
++        alphas[1][0] = alphas[0][0];
++    }
++    let n_base = 2 * specs.len() + 4;
++    let pows_m = pcs::coset_powers(Fp::new(7), dom);
++    let enc_coeffs = |c: &[Fp], out: &mut [Fp]| {
++        for v in out.iter_mut() {
++            *v = Fp::ZERO;
++        }
++        for (i, x) in c.iter().enumerate() {
++            out[i] = x.mul(pows_m[i]);
++        }
++        ntt.forward(out);
++    };
++    let mut enc = vec![Fp::ZERO; n_base * dom];
++    for (s, al) in alphas.iter().enumerate() {
++        let re: Vec<Fp> = al.iter().map(|c| c.c0).collect();
++        let im: Vec<Fp> = al.iter().map(|c| c.c1).collect();
++        for (kk, part) in [re, im].iter().enumerate() {
++            assert!(part.len() + MASK_Q <= m, "the prediction's mask row overflows");
++            let mut msg = vec![Fp::ZERO; m];
++            msg[..part.len()].copy_from_slice(part);
++            for j in 0..MASK_Q {
++                msg[part.len() + j] = rp.fp();
++            }
++            ntt.inverse(&mut msg);
++            enc_coeffs(&msg, &mut enc[(2 * s + kk) * dom..(2 * s + kk + 1) * dom]);
++        }
++    }
++    let mut b_re: Vec<Fp> = (0..2 * m).map(|_| rp.fp()).collect();
++    let mut b_im: Vec<Fp> = (0..2 * m).map(|_| rp.fp()).collect();
++    b_re[m] = b_re[0].neg();
++    b_im[m] = b_im[0].neg();
++    let u_re: Vec<Fp> = (0..2 * m).map(|_| rp.fp()).collect();
++    let u_im: Vec<Fp> = (0..2 * m).map(|_| rp.fp()).collect();
++    let base0 = 2 * specs.len();
++    for (kk, c) in [&b_re, &b_im, &u_re, &u_im].iter().enumerate() {
++        enc_coeffs(c, &mut enc[(base0 + kk) * dom..(base0 + kk + 1) * dom]);
++    }
++    let salts: Vec<[u8; 32]> = (0..dom).map(|_| rp.bytes32()).collect();
++    let leaves = pcs::hash_columns_keyed(&enc, n_base, dom, tag.column_key());
++    let salted: Vec<Digest> = leaves.iter().zip(salts.iter()).map(|(l, s)| pcs::salt_leaf_keyed(l, s, tag.leaf_key())).collect();
++    MerkleTree::build_keyed(salted, tag.node_key()).root()
++}
++
++fn write_h2(h: &mut [Fp], off: (usize, usize), col: &[Fp2]) {
++    for (i, v) in col.iter().enumerate() {
++        h[off.0 + i] = v.c0;
++        h[off.1 + i] = v.c1;
++    }
++}
++
++/// the zero-sum pair: n - 1 draws per row, the declared closing entry
++fn zero_sum_rows(h: &mut [Fp], rows: [usize; 2], n: usize, rp: &mut Draws) {
++    for r in rows {
++        let mut sum = Fp::ZERO;
++        for j in 0..n - 1 {
++            let v = rp.fp();
++            h[r * n + j] = v;
++            sum = sum.add(v);
++        }
++        h[r * n + n - 1] = sum.neg();
++    }
++}
++
++/// THE STAGE-IN PREDICTION: (B_in, A_in, M_in, H_in) on the caller's stream,
++/// from the stage witness, the B_in plane and the transcript at stage IN's
++/// start (after the run header; the locality words are absorbed here, as
++/// `stage_in::prove` absorbs them)
++#[allow(clippy::too_many_arguments)]
++fn predict_in(rp: &mut Draws, tp: &TokenProfile, tables: &TokenTables, lay: &StageLayout, wit: &StageInWitness, b_spec: &BoundarySpec, b_plane: &[i16], stage_tr: &Transcript, ntt: &NttTables, tag: &HashTag, pert: TPert) -> [Digest; 4] {
++    let n = lay.n;
++    let (ti_n, voc_n) = (1usize << tp.ti_log(), 1usize << tp.voc_log());
++    let mut tr = Transcript::clone_state(stage_tr);
++    tr.absorb_u64(b"pb-run-stage", 0);
++    tr.absorb(b"pb-run-block", &tp.emb_digest);
++    let b_words = words(b_plane);
++    let mut a = vec![Fp::ZERO; lay.a_rows * n];
++    a[lay.a_off[stage_in::A_TOK]..lay.a_off[stage_in::A_TOK] + ti_n].copy_from_slice(&wit.tok);
++    a[lay.a_off[stage_in::A_MULT]..lay.a_off[stage_in::A_MULT] + voc_n].copy_from_slice(&wit.mult);
++    let a_part = |rp: &mut Draws, a: &mut Vec<Fp>| -> Digest {
++        for x in a[lay.a_mask_base * n..].iter_mut() {
++            *x = rp.fp();
++        }
++        if pert == TPert::InAProxZero {
++            a[lay.a_prox * n] = Fp::ZERO;
++        }
++        zk_root(&lay.params, a, lay.a_rows, rp, ntt, tag)
++    };
++    let (b_root, a_root) = if pert == TPert::BinAfterAin {
++        let ar = a_part(rp, &mut a);
++        (boundary_root_on(rp, b_spec, &b_words, ntt, tag), ar)
++    } else {
++        let br = boundary_root_on(rp, b_spec, &b_words, ntt, tag);
++        (br, a_part(rp, &mut a))
++    };
++    protocol::absorb_root(&mut tr, b"B", &b_root, b_spec.commitment_rows(), b_spec.log_n());
++    protocol::absorb_root(&mut tr, b"A", &a_root, lay.a_rows, lay.log_n);
++    let m_root = mask_root_on(rp, &lay.mask_specs(), ntt, tag, false);
++    tr.absorb(b"M", &m_root);
++    // `stage_in::challenges` (private), restated
++    let beta = tr.challenge_fp2();
++    let gamma = tr.challenge_fp2();
++    let alpha = tr.challenge_fp2();
++    let r_emb = tr.challenge_fp2_vec(tp.d_pad.trailing_zeros() as usize);
++    let g_emb = gamma.mul_base(Fp::new(TAG_EMB));
++    let ef = tables.emb_fold(&r_emb);
++    let tau = stage_in::tau_table(tp, &ef, beta, g_emb);
++    let e_r = eq_table_msb(&r_emb);
++    let mut h_q = vec![Fp2::ZERO; ti_n];
++    for t in 0..tp.tokens {
++        if wit.hq_zero.contains(&t) {
++            continue;
++        }
++        let row = &b_plane[t * tp.d_pad..(t + 1) * tp.d_pad];
++        let xr = row.iter().zip(e_r.iter()).fold(Fp2::ZERO, |acc, (x, e)| if *x == 0 { acc } else { acc.add(e.mul_base(Fp::from_i64(i64::from(*x)))) });
++        let q = Fp2::from_base(wit.tok[t]).add(beta.mul(xr)).add(g_emb);
++        h_q[t] = alpha.sub(q).inv();
++    }
++    let mut h_tab = vec![Fp2::ZERO; voc_n];
++    for v in 0..voc_n {
++        if !wit.mult[v].is_zero() {
++            h_tab[v] = alpha.sub(tau[v]).inv().mul_base(wit.mult[v]);
++        }
++    }
++    let mut h = vec![Fp::ZERO; lay.h_rows * n];
++    write_h2(&mut h, lay.h_off[stage_in::H_Q], &h_q);
++    write_h2(&mut h, lay.h_off[stage_in::H_TAB], &h_tab);
++    for x in h[lay.h_mask_base * n..].iter_mut() {
++        *x = rp.fp();
++    }
++    if pert == TPert::InZeroSumReset {
++        let mut fresh = Draws::new();
++        zero_sum_rows(&mut h, lay.h_u_rows(), n, &mut fresh);
++        // the real stream still advances by what the honest rows consume
++        let mut sink = vec![Fp::ZERO; lay.h_rows * n];
++        zero_sum_rows(&mut sink, lay.h_u_rows(), n, rp);
++    } else {
++        zero_sum_rows(&mut h, lay.h_u_rows(), n, rp);
++    }
++    let h_root = zk_root(&lay.params, &h, lay.h_rows, rp, ntt, tag);
++    [b_root, a_root, m_root, h_root]
++}
++
++/// `stage_out`'s private `looked` and `helper_col`, restated
++fn looked_cols(planes: &[Vec<Fp>], lks: &[stage_out::Lk], n: usize) -> Vec<Vec<Fp>> {
++    lks.iter().map(|lk| (0..n).map(|x| lk.terms.iter().fold(Fp::from_i64(lk.cst), |a, (p, c)| a.add(Fp::from_i64(*c).mul(planes[*p][x])))).collect()).collect()
++}
++
++fn helper_col2(a: &[Fp], b: Option<&[Fp]>, alpha: Fp2, g: Fp2) -> Vec<Fp2> {
++    let inv = |x: Fp| alpha.sub(Fp2::from_base(x).add(g)).inv();
++    (0..a.len()).map(|i| match b {
++        Some(bb) => inv(a[i]).add(inv(bb[i])),
++        None => inv(a[i]),
++    }).collect()
++}
++
++/// THE STAGE-OUT PREDICTION: (A_out, M_out, H_out) on the caller's stream
++#[allow(clippy::too_many_arguments)]
++fn predict_out(rp: &mut Draws, tp: &TokenProfile, lay: &StageLayout, wit: &StageOutWitness, stage_index: u64, stage_tr: &Transcript, ntt: &NttTables, tag: &HashTag, pert: TPert) -> [Digest; 3] {
++    let n = lay.n;
++    let l = tp.limbs;
++    let mult = stage_out::a_mult(l);
++    let mut tr = Transcript::clone_state(stage_tr);
++    tr.absorb_u64(b"pb-run-stage", stage_index);
++    tr.absorb(b"pb-run-block", &tp.head_digest);
++    let cols: Vec<Vec<Fp>> = [(stage_out::lookups_lo(), tp.lo_log()), (stage_out::lookups_do(), tp.do_log()), (stage_out::lookups_vo(l), tp.vo_log())].iter().flat_map(|(lks, lg)| looked_cols(&wit.planes, lks, 1usize << lg)).collect();
++    let mut hist = vec![0u64; U8_LEN];
++    for c in &cols {
++        for v in c {
++            assert!((v.0 as usize) < U8_LEN, "an honest stage-OUT witness looks up a byte");
++            hist[v.0 as usize] += 1;
++        }
++    }
++    let mut a = vec![Fp::ZERO; lay.a_rows * n];
++    for p in 0..mult {
++        a[lay.a_off[p]..lay.a_off[p] + wit.planes[p].len()].copy_from_slice(&wit.planes[p]);
++    }
++    for (i, c) in hist.iter().enumerate() {
++        a[lay.a_off[mult] + i] = Fp::new(*c);
++    }
++    for x in a[lay.a_mask_base * n..].iter_mut() {
++        *x = rp.fp();
++    }
++    let a_root = zk_root(&lay.params, &a, lay.a_rows, rp, ntt, tag);
++    protocol::absorb_root(&mut tr, b"A", &a_root, lay.a_rows, lay.log_n);
++    let m_root = mask_root_on(rp, &lay.mask_specs(), ntt, tag, pert == TPert::OutAlphaCopy);
++    tr.absorb(b"M", &m_root);
++    let gamma = tr.challenge_fp2();
++    let alpha = tr.challenge_fp2();
++    let g_u8 = gamma.mul_base(Fp::new(TAG_U8));
++    let mut h = vec![Fp::ZERO; lay.h_rows * n];
++    let mut ci = 0usize;
++    for (first, count) in [(stage_out::H_LO, 1usize), (stage_out::H_D0, stage_out::H_DO_HELPERS), (stage_out::H_V0, stage_out::hv(l))] {
++        let dom_cols = if first == stage_out::H_LO {
++            1
++        } else if first == stage_out::H_D0 {
++            stage_out::lookups_do().len()
++        } else {
++            l
++        };
++        for kk in 0..count {
++            let a_col = &cols[ci + 2 * kk];
++            let b_col = if 2 * kk + 1 < dom_cols { Some(cols[ci + 2 * kk + 1].as_slice()) } else { None };
++            write_h2(&mut h, lay.h_off[first + kk], &helper_col2(a_col, b_col, alpha, g_u8));
++        }
++        ci += dom_cols;
++    }
++    let tcol: Vec<Fp2> = (0..1usize << tp.tab_log())
++        .map(|z| {
++            let m = if z < U8_LEN { hist[z] } else { 0 };
++            if m == 0 {
++                Fp2::ZERO
++            } else {
++                alpha.sub(fk((z % U8_LEN) as i64).add(g_u8)).inv().mul_base(Fp::new(m))
++            }
++        })
++        .collect();
++    write_h2(&mut h, lay.h_off[stage_out::h_gu8(l)], &tcol);
++    for x in h[lay.h_mask_base * n..].iter_mut() {
++        *x = rp.fp();
++    }
++    if pert == TPert::OutCopyAIntoH {
++        h[lay.h_mask_base * n] = a[lay.a_mask_base * n];
++    }
++    zero_sum_rows(&mut h, lay.h_u_rows(), n, rp);
++    let h_root = zk_root(&lay.params, &h, lay.h_rows, rp, ntt, tag);
++    [a_root, m_root, h_root]
++}
++
++/// every drawn field value of a token endpoint owner (the rows above the data
++/// row, then the pads) and its salts, read in situ
++fn token_endpoint_drawn(e: &pcs::CommittedZk, data_rows: usize) -> (Vec<u64>, Vec<[u8; 32]>) {
++    let rows = e.cm.rows;
++    let n = e.data.len() / rows;
++    assert!(n * rows == e.data.len(), "the token endpoint owner's matrix is not rows x n");
++    let mut v: Vec<u64> = e.data[data_rows * n..].iter().map(|x| x.0).collect();
++    v.extend(e.pads.iter().map(|x| x.0));
++    (v, e.salts.clone())
++}
++
++struct TokenRoots {
++    b: Vec<Digest>,
++    a: Vec<Digest>,
++    m: Vec<Digest>,
++    h: Vec<Digest>,
++    bytes: u64,
++    probe: [u64; 4],
++}
++
++fn replay_token_run(layers: &[u32], dense: bool) {
++    let l = layers.len();
++    let label = format!("TinyLlama T32 token run (b4 export), layers {:?}, {}", layers, if dense { "dense ho00" } else { "fixed: 32 x BOS" });
++    let t_all = Instant::now();
++    let export = tl_export();
++    let p = token_parts(&export, &export, &tl_head(), layers, true);
++    let sh = p.sh.clone();
++    let tokens = if dense { seq_ids(&export, "ho00") } else { vec![p.bos; sh.tokens] };
++    let mut pipe = honest_pipeline_at(&p.shapes, &p.tp, &p.tables, &p.blocks, &tokens).unwrap_or_else(|e| panic!("{label}: the honest pipeline: {e}"));
++    let (ins, outs) = endpoint_specs(&sh, token_context(), &p.tp).expect("the token endpoint specs");
++    let (roots, owners) = seal_endpoints(&ins, &outs, &pipe.in_plane, &pipe.out_plane, &sh.hash_tag()).expect("the token endpoints seal");
++    let st = TokenRunStatement::new(RunShape::new(sh.clone(), l, p.profile).unwrap(), token_context(), p.digests.clone(), &p.model, &p.tables, p.bos, p.norm, SelectorVariant::PublicRow, Tier::R1_MVP, roots).unwrap_or_else(|e| panic!("{label}: {e}"));
++
++    // ---- the token endpoints, IN SITU (OS-seeded, cannot be replayed) ----
++    let (vi, si) = token_endpoint_drawn(&owners.input, st.in_spec.data_rows());
++    let (vo, so) = token_endpoint_drawn(&owners.output, st.out_spec.data_rows());
++    let ep_fields = assert_pairwise_distinct(&format!("{label}: the two token endpoint owners' drawn field values"), [vi, vo].concat());
++    let ep_salts = assert_pairwise_distinct(&format!("{label}: the two token endpoint owners' salts"), [si, so].concat());
++
++    // ---- `prove_token_run_with`'s body, replicated, on the SEEDED stream ----
++    let tag = sh.hash_tag();
++    let ntt = NttTables::new(st_ntt_log(&st));
++    let mut tr = st.transcript().expect("the token run header");
++    let binding = tr.state();
++    let binding_ok = binding == st.binding().unwrap();
++    let mut rng = ZkRng::new(SEED, DOMAIN);
++    let mut segs: Vec<Vec<u8>> = Vec::with_capacity(l + 2);
++    let t_prove = Instant::now();
++    // stage IN
++    let start = position_tag(&tr);
++    let in_tr = Transcript::clone_state(&tr);
++    let in_lay = stage_in::layout(&sh, &st.tp);
++    let b0 = st.boundary_spec(0).unwrap();
++    let win = pipe.stage_in.clone();
++    let b_in_plane = pipe.b_in.clone();
++    let inp = stage_in::prove(&in_lay, &st.tp, &p.tables, win.clone(), &b0, &b_in_plane, owners.input, &ntt, &mut rng, &mut tr, &tag).unwrap_or_else(|e| panic!("{label}: stage IN on the seeded stream: {e}"));
++    let end = position_tag(&tr);
++    let prover_in = [inp.seg.b_root.expect("stage IN commits B_in"), inp.seg.a_root, inp.seg.mask_root, inp.seg.h_root];
++    segs.push(st_in_geom(&st, &in_lay).encode(&inp.seg, &binding, &start, &end).expect("stage IN's segment encodes"));
++    let mut pending = inp.pending_b;
++    let mut prev = (b0, inp.b_owner);
++    // the blocks
++    let mut ph = crate::private_block::timing::Phases::start();
++    let mut phases: Vec<(&'static str, f64)> = Vec::new();
++    let mut tick = Instant::now();
++    let mut block_trs = Vec::with_capacity(l);
++    let mut block_wits = Vec::with_capacity(l);
++    let mut prover_blocks: Vec<[Digest; 4]> = Vec::with_capacity(l);
++    for k in 0..l {
++        let start = position_tag(&tr);
++        tr.absorb_u64(b"pb-run-stage", (k + 1) as u64);
++        tr.absorb(b"pb-run-block", &p.digests[k]);
++        let spec = st.boundary_spec(k + 1).unwrap();
++        let bw = words(&pipe.planes[k]);
++        let cur = boundary::prepare(&spec, &bw, &ntt, &mut rng, &tag).expect("a boundary commits on the run stream");
++        protocol::absorb_root(&mut tr, b"B", &cur.root(), spec.commitment_rows(), spec.log_n());
++        block_trs.push(Transcript::clone_state(&tr));
++        let lay = st_block_layout(&st, k);
++        let ssh = st.stage_shape(k).unwrap();
++        let wit = pipe.witnesses[k].take().expect("block k's witness");
++        block_wits.push(Witness { planes: wit.planes.clone() });
++        let core = protocol::prove_core(&ssh, &lay, &p.blocks[k], wit, [prev.1.data(), cur.data()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick).unwrap_or_else(|e| panic!("{label}: block {k} on the seeded stream: {e}"));
++        let [ic, oc] = core.io_claims;
++        let mut claims = std::mem::take(&mut pending);
++        claims.extend(ic);
++        let (pspec, powner) = prev;
++        let in_open = powner.into_opening(&pspec, &claims, &mut tr).expect("a boundary's one opening");
++        pending = oc;
++        let end = position_tag(&tr);
++        prover_blocks.push([cur.root(), core.a_root, core.mask_root, core.h_root]);
++        let seg = Segment { b_root: Some(cur.root()), a_root: core.a_root, h_root: core.h_root, mask_root: core.mask_root, slots: core.slots, mask_open: core.mask_open, a_open: core.a_open, h_open: core.h_open, in_open, out_open: None };
++        segs.push(wire::encode_segment(&seg, &lay, st_block_geom(&st, k), &binding, &start, &end).expect("a block segment encodes"));
++        prev = (spec, cur);
++    }
++    // stage OUT
++    let start = position_tag(&tr);
++    let out_tr = Transcript::clone_state(&tr);
++    let out_lay = stage_out::layout(&sh, &st.tp);
++    let (bspec, bowner) = prev;
++    let wout = pipe.stage_out.clone();
++    let outp = stage_out::prove(&out_lay, &st.tp, &p.tables, wout.clone(), &bspec, bowner, pending, owners.output, (l + 1) as u64, &ntt, &mut rng, &mut tr, &tag).unwrap_or_else(|e| panic!("{label}: stage OUT on the seeded stream: {e}"));
++    let end = position_tag(&tr);
++    let prover_out = [outp.seg.a_root, outp.seg.mask_root, outp.seg.h_root];
++    segs.push(st_out_geom(&st, &out_lay).encode(&outp.seg, &binding, &start, &end).expect("stage OUT's segment encodes"));
++    let prove_s = t_prove.elapsed().as_secs_f64();
++    let prover_probe = probe(&mut rng);
++    drop(pipe);
++    let seg_lens: Vec<usize> = segs.iter().map(|s| s.len()).collect();
++    let lens_ok = seg_lens == st.segment_lens().unwrap();
++    let t_verify = Instant::now();
++    // THE PRODUCTION TOKEN-RUN VERIFIER, from the segments' bytes (in memory
++    // only: the seeded receipt is never written anywhere)
++    let verified = verify_token_run(&st, &p.blocks, &p.tables, &segs, VerifierPolicy { min_whole_run_bits: st.whole_run().floor_bits });
++    let verify_s = t_verify.elapsed().as_secs_f64();
++    drop(segs);
++
++    // ---- THE PREDICTION: one replay stream, the predicted order ----
++    let predict = |pert: TPert| -> TokenRoots {
++        let mut rp = Draws::new();
++        let [bi, ai, mi, hi] = predict_in(&mut rp, &st.tp, &p.tables, &in_lay, &win, &b0_spec_of(&st), &b_in_plane, &in_tr, &ntt, &tag, pert);
++        let (mut b, mut a, mut m, mut h) = (vec![bi], vec![ai], vec![mi], vec![hi]);
++        for k in 0..l {
++            let spec = st.boundary_spec(k + 1).unwrap();
++            b.push(boundary_root_on(&mut rp, &spec, &words(&planes_of(&st, k, &b_in_plane, &block_wits)), &ntt, &tag));
++            let lay = st_block_layout(&st, k);
++            let ssh = st.stage_shape(k).unwrap();
++            let (ak, mk, hk) = rebuild_on(&mut rp, &ssh, &lay, &p.blocks[k], &block_trs[k], &block_wits[k], &ntt, Pert::None);
++            a.push(ak);
++            m.push(mk);
++            h.push(hk);
++        }
++        if pert == TPert::ResetBeforeOut {
++            rp = Draws::new();
++        }
++        let [ao, mo, ho] = predict_out(&mut rp, &st.tp, &out_lay, &wout, (l + 1) as u64, &out_tr, &ntt, &tag, pert);
++        a.push(ao);
++        m.push(mo);
++        h.push(ho);
++        let bytes = rp.bytes;
++        TokenRoots { b, a, m, h, bytes, probe: probe(&mut rp.rng) }
++    };
++    let t_rebuild = Instant::now();
++    let r = predict(TPert::None);
++    let rebuild_s = t_rebuild.elapsed().as_secs_f64();
++    let in_ok = [r.b[0] == prover_in[0], r.a[0] == prover_in[1], r.m[0] == prover_in[2], r.h[0] == prover_in[3]];
++    let blocks_ok: Vec<[bool; 4]> = (0..l).map(|k| [r.b[k + 1] == prover_blocks[k][0], r.a[k + 1] == prover_blocks[k][1], r.m[k + 1] == prover_blocks[k][2], r.h[k + 1] == prover_blocks[k][3]]).collect();
++    let out_ok = [r.a[l + 1] == prover_out[0], r.m[l + 1] == prover_out[1], r.h[l + 1] == prover_out[2]];
++    let ends_ok = r.probe == prover_probe;
++    let counted_ok = probe_at(r.bytes) == prover_probe;
++    let shifted_differs = probe_at(r.bytes + 16) != prover_probe;
++    eprintln!(
++        "GR4 TOKEN replay [{label}]: header rebuilt = binding: {binding_ok}; {} segments, lengths = the statement's counted lengths: {lens_ok}; verified by the production token-run verifier = {}; token endpoints in situ: {ep_fields} drawn field values and {ep_salts} salts, all distinct",
++        seg_lens.len(),
++        verified.is_ok()
++    );
++    eprintln!("GR4 TOKEN replay [{label}]: stage IN roots rebuilt B_in/A_in/M_in/H_in = {:?}; block roots B_k+1/A/M/H = {:?}; stage OUT roots A_out/M_out/H_out = {:?}", in_ok, blocks_ok, out_ok);
++    eprintln!(
++        "GR4 TOKEN replay [{label}]: replay stream ends where the prover's did (next-draw probe) = {ends_ok}; prover consumed exactly the predicted {} bytes = {counted_ok}; probe non-vacuity (16 bytes further differs) = {shifted_differs}",
++        r.bytes
++    );
++    assert!(binding_ok, "{label}: the token header is not the binding");
++    assert!(lens_ok, "{label}: a replicated segment's length is not the statement's counted length");
++    assert!(in_ok.iter().all(|x| *x), "{label}: a stage-IN root is not the prediction (B_in, A_in, M_in, H_in on the run stream)");
++    assert!(blocks_ok.iter().all(|r| r.iter().all(|x| *x)), "{label}: a block-stage root (B_k+1, A, M, H) is not the prediction on the run stream");
++    assert!(out_ok.iter().all(|x| *x), "{label}: a stage-OUT root is not the prediction (A_out, M_out, H_out on the run stream)");
++    assert!(ends_ok, "{label}: the replay did not end where the prover's generator did");
++    assert!(counted_ok, "{label}: the prover's generator did not consume exactly the predicted byte count");
++    assert!(shifted_differs, "{label}: the next-draw probe cannot tell a 16-byte shift");
++    verified.unwrap_or_else(|e| panic!("{label}: the seeded token run does not verify: {e}"));
++
++    // ---- NON-VACUITY ----
++    let checks: [(TPert, &str); 6] = [
++        (TPert::InAProxZero, "A_in"),
++        (TPert::BinAfterAin, "B_in and A_in"),
++        (TPert::InZeroSumReset, "H_in"),
++        (TPert::ResetBeforeOut, "A_out"),
++        (TPert::OutCopyAIntoH, "H_out"),
++        (TPert::OutAlphaCopy, "M_out"),
++    ];
++    for (pert, what) in checks {
++        let q = predict(pert);
++        let moved = match pert {
++            TPert::InAProxZero => q.a[0] != prover_in[1],
++            TPert::BinAfterAin => q.b[0] != prover_in[0] && q.a[0] != prover_in[1],
++            TPert::InZeroSumReset => q.h[0] != prover_in[3],
++            TPert::ResetBeforeOut => q.a[l + 1] != prover_out[0],
++            TPert::OutCopyAIntoH => q.h[l + 1] != prover_out[2],
++            TPert::OutAlphaCopy => q.m[l + 1] != prover_out[1],
++            TPert::None => false,
++        };
++        eprintln!("GR4 TOKEN replay [{label}]: non-vacuity {pert:?} moves the {what} root(s) = {moved}");
++        assert!(moved, "{label}: the perturbation {pert:?} did not move the {what} root(s)");
++    }
++    eprintln!(
++        "GR4 TOKEN replay [{label}]: PASS. seconds: seeded prove {prove_s:.2}, production token-run verify {verify_s:.2}, one prediction {rebuild_s:.2}, whole test {:.2}; process high-water mark {:.2} GiB [MEASURED, shared box, n=1]. Not a privacy result.",
++        t_all.elapsed().as_secs_f64(),
++        run::peak_rss_mib() / 1024.0
++    );
++}
++
++/// B_in's statement (the run's boundary 0)
++fn b0_spec_of(st: &TokenRunStatement) -> BoundarySpec {
++    st.boundary_spec(0).expect("B_in's statement")
++}
++
++/// the padded plane committed at boundary k + 1: block k's padded output,
++/// read from the kept witness (A_X2), so the prediction does not reuse the
++/// pipeline's own plane list
++fn planes_of(st: &TokenRunStatement, k: usize, _b_in: &[i16], wits: &[Witness]) -> Vec<i16> {
++    let ids = Ids::new(&st.stage_shape(k).unwrap()).expect("a plane map");
++    padded(&wits[k], ids.at(A_X2))
++}
++
++#[test]
++#[ignore = "PR4-8: proves a one-block token run (b4 export, layer 0) on a seeded stream; run with --ignored --exact under the resource guard"]
++fn gr4_token_t32_l1_dense_ho00_commits_exactly_the_predicted_stream() {
++    replay_token_run(&[0], true);
++}
++
++#[test]
++#[ignore = "PR4-8: proves a one-block token run (b4 export, layer 0, 32 x BOS) on a seeded stream; run with --ignored --exact under the resource guard"]
++fn gr4_token_t32_l1_fixed_commits_exactly_the_predicted_stream() {
++    replay_token_run(&[0], false);
++}
++
++#[test]
++#[ignore = "PR4-8: proves a two-block token run (b4 export, layers 0 | 1) on a seeded stream; run with --ignored --exact under the resource guard"]
++fn gr4_token_t32_l2_dense_ho00_commits_exactly_the_predicted_stream() {
++    replay_token_run(&[0, 1], true);
++}
++
++#[test]
++#[ignore = "PR4-8: proves a two-block token run (b4 export, layers 0 | 1, 32 x BOS) on a seeded stream; run with --ignored --exact under the resource guard"]
++fn gr4_token_t32_l2_fixed_commits_exactly_the_predicted_stream() {
++    replay_token_run(&[0, 1], false);
++}
++
++/// PR4-9: one export / table set / layer range -> (identity, profile digest,
++/// composed word, the statement's own header word)
++fn attribution(tag: &str, export: &std::path::Path, emb: &std::path::Path, head: &std::path::Path, layers: &[u32]) {
++    let p = token_parts(export, emb, head, layers, false);
++    let ident = p.model.identity();
++    let pdig = p.tp.digest_under(p.profile);
++    let mut h = blake3::Hasher::new();
++    h.update(b"hashline/token-io-calibration/v1");
++    h.update(&ident);
++    h.update(&pdig);
++    let word: Digest = *h.finalize().as_bytes();
++    // the statement's own word: a statement needs endpoint roots, which the
++    // calibration word does not depend on; seal two public placeholder planes
++    let sh = &p.sh;
++    let (ins, outs) = endpoint_specs(sh, token_context(), &p.tp).expect("the endpoint specs");
++    let in_plane = stage_in::endpoint_plane(&p.tp, &vec![p.bos; sh.tokens]);
++    let out_plane = stage_out::endpoint_plane(&p.tp, p.bos);
++    let (roots, _owners) = seal_endpoints(&ins, &outs, &in_plane, &out_plane, &sh.hash_tag()).expect("seal");
++    let st = TokenRunStatement::new(RunShape::new(sh.clone(), layers.len(), p.profile).unwrap(), token_context(), p.digests.clone(), &p.model, &p.tables, p.bos, p.norm, SelectorVariant::PublicRow, Tier::R1_MVP, roots).unwrap_or_else(|e| panic!("{tag}: {e}"));
++    let header = st.capture_header().expect("the header words");
++    let same = header.calibration == word;
++    let digests: Vec<String> = p.digests.iter().map(|d| thex(d)).collect();
++    println!(
++        "{{\"event\":\"pr4-9-attribution\",\"tag\":\"{tag}\",\"export\":\"{}\",\"emb_dir\":\"{}\",\"head_dir\":\"{}\",\"layers\":{:?},\"run_profile\":\"{}\",\"trained_statement_identity\":\"{}\",\"token_profile_digest\":\"{}\",\"calibration_word_composed\":\"{}\",\"statement_header_word_equal\":{same},\"block_digests\":{:?}}}",
++        export.display(),
++        emb.display(),
++        head.display(),
++        layers,
++        p.profile,
++        thex(&ident),
++        thex(&pdig),
++        thex(&word),
++        digests
++    );
++    assert!(same, "{tag}: the composed calibration word is not the statement's header word");
++}
++
++#[test]
++#[ignore = "PR4-9: builds the trained-model statements and token profiles of the b4 TinyLlama captures (layers {0}, {0,1}, {0..21}) from the export and the named tables; run under the resource guard"]
++fn pr4_9_calibration_words_tinyllama_b4() {
++    let export = tl_export();
++    let head = tl_head();
++    attribution("tinyllama-b4-L1", &export, &export, &head, &[0]);
++    attribution("tinyllama-b4-L2", &export, &export, &head, &[0, 1]);
++    attribution("tinyllama-b4-L22", &export, &export, &head, &(0..22).collect::<Vec<u32>>());
++}
++
++#[test]
++#[ignore = "PR4-9: the same for the 8B b7voc0 captures (layers {0}, {0,1}); heavy; run under the resource guard"]
++fn pr4_9_calibration_words_llama3_8b_b7voc0() {
++    let export = match std::env::var("HL_PB_TOKEN_EXPORT_8B") {
++        Ok(v) => PathBuf::from(v),
++        Err(_) => PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../../results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32"),
++    };
++    let tio = export.join("token_io");
++    attribution("llama3-8b-b7voc0-L1", &export, &tio, &tio, &[0]);
++    attribution("llama3-8b-b7voc0-L2", &export, &tio, &tio, &[0, 1]);
++}
+diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r7/hashline/src/private_block/gr4_trained_tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-tk7/hashline/src/private_block/gr4_trained_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r7/hashline/src/private_block/gr4_trained_tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-tk7/hashline/src/private_block/gr4_trained_tests.rs	2026-10-19 17:34:29.427523205 -0700
+@@ -0,0 +1,1049 @@
++//! [PRIVACY GATE LANE, 2026-10-19, R7 gate copy] the R5b gate copy's module
++//! (with round 6's Q-6 L = 2 replay), every proved stage under
++//! `RunStatement::stage_shape(k)` as NATIVE R6's `prove_run_with` does.
++//! [PRIVACY GATE LANE, 2026-10-18] copied from the P-12 sub-lane's
++//! `ops/zkp-mvp/trained-1b-gate-gr4/` with every `super::` path rewritten to
++//! `crate::private_block::` (mounted under `run_capture_tests`, see there).
++//! **PRIVACY GATE LANE, SUB-LANE P-12 (2026-10-17): the stage-47 G-R4
++//! root-rebuild check (ruling LW-2), PORTED to the trained TinyLlama T32
++//! tree** — finding P-12 of the independent privacy review
++//! (`results/zk60_privacy_review_trained_t32_20261017/REVIEW.md`). Source:
++//! the 125M lane's `private_block/gr4_check_tests.rs` (stage 47). TEST-ONLY:
++//! no prover or verifier relation, no production file and no production byte
++//! changes; the only other edit is this module's `mod` line.
++//!
++//! **Not a privacy result and not an acceptance of anything.** It machine-
++//! checks one owed condition (G-R4's value-level half) on the witnesses it
++//! runs; only the security review process can accept, and rulings are
++//! Victor's.
++//!
++//! **WHAT IS ASSERTED, BY VALUE, NOT BY SOURCE TEXT** (as at stage 47):
++//!
++//! 1. `protocol::prove_core` — the body every proving path shares — runs on
++//!    a SEEDED generator `ZkRng::new(SEED, DOMAIN)` and its receipt is
++//!    verified.
++//! 2. A SECOND generator on the same seed is cut into the eleven predicted
++//!    segments IN THE PREDICTED ORDER, and the three committed matrices are
++//!    REBUILT from the witness and those segments: `A` (witness rows and the
++//!    three histograms, segment 1 row-major into `a_mask_base..a_rows`,
++//!    segment 2 pads, segment 3 salts), `M` (segment 4 the 23 `alpha`
++//!    vectors, 5 the per-row pads, 6 `b` and `u` with the ONE declared
++//!    relation `b[m] := -b[0]`, 7 the salts) and `H` (the LogUp rows from the
++//!    witness and the challenges replayed on the transcript, segment 8 into
++//!    `h_mask_base..h_rows`, segment 9 into the two zero-sum rows with the
++//!    declared closing entry, 10 pads, 11 salts). Encoding and hashing are
++//!    rebuilt with `pcs::encode_row_zk`, `pcs::hash_columns_keyed`,
++//!    `pcs::salt_leaf_keyed` and `MerkleTree::build_keyed` — NOT through
++//!    `pcs::commit_zk_owned_tagged` (whose host path in this tree is the new
++//!    `encode_buffer::encode_rows`) nor `zk::mask_commit_tagged`.
++//! 3. The three rebuilt ROOTS equal the prover's, and the replay generator
++//!    ends where the prover's did.
++//! 4. Three deliberate errors in the PREDICTION (m1's, m2's and the `alpha`
++//!    analogue) each move their root (non-vacuity).
++//! 5. The two endpoint owners (OS-seeded, cannot be replayed) are checked
++//!    IN SITU: no drawn field value or salt repeats inside or across them.
++//! 6. The internal boundary `B_0` of a two-block trained run, at the run's
++//!    own `boundary_spec(0)` (22 rows = 16 data + 2x2 sites + 2, row width
++//!    2^12, rate 4, the trained keyed tag), is rebuilt from a seeded stream,
++//!    with one non-vacuity perturbation (site 1's first reserved word :=
++//!    site 0's).
++//!
++//! **THE ADAPTATIONS, AND WHY (the 125M file cannot run here as written).**
++//!
++//! * A trained-calibration profile refuses a single-block receipt (R2-4:
++//!   `protocol::single_block_profile_allowed`; `protocol::transcript` asserts
++//!   it), so `verify_inner_at` and the single-block header are unavailable.
++//!   The block is proved as a ONE-BLOCK BOUND RUN built through the
++//!   production constructors the trained CLI and the gate capture use
++//!   (`TrainedExport::load / run_constants / shape_for / load_layer /
++//!   statement_of_records / load_seq`, `IoSpec::new_shaped`,
++//!   `prepare_endpoints`, `RunStatement::new_bound`).
++//! * `RunStatement::transcript`, `stage_layout`, `seg_geom` and
++//!   `run::position_tag` are private to `run.rs`. The run header is REBUILT
++//!   here from the statement's public words (`RunStatement::capture_header`,
++//!   test-only, as the run capture does) and asserted equal to the binding
++//!   (`RunStatement::binding`). Stage 0 of `prove_run_with` is replicated
++//!   line for line (`run.rs:884-967` at L = 1: the position tag, the two
++//!   locality absorbs, the stage layout `[data rows; 2]`, `prove_core`, the
++//!   input then the output endpoint opening, the end tag, the segment). The
++//!   segment is encoded by `wire::encode_segment` and VERIFIED BY THE
++//!   PRODUCTION RUN VERIFIER `run::verify_run` from its bytes, which compares
++//!   both position tags and replays the whole Fiat-Shamir chain — so an
++//!   inexact replication of the run prover's transcript would be refused.
++//! * This tree's `ZkRng` has no `consumed_bytes()` (the 125M lane added one
++//!   to its zkp-core, a separate crate whose `cfg(test)` is off here). "Ends
++//!   where the prover's did" is therefore checked by a NEXT-DRAW PROBE: the
++//!   next 32 bytes of the prover's and of the replay generator must be equal;
++//!   and a FRESH generator advanced by exactly the prediction's COUNTED bytes
++//!   must give the prover's probe (so the prover consumed exactly that many
++//!   bytes), while one advanced 16 bytes further must not (non-vacuity).
++//!   Equal probes at unequal positions of a BLAKE3-XOF stream occur with
++//!   negligible probability.
++//!
++//! **WHAT IT DOES NOT COVER.** (a) Uses of drawn values OUTSIDE the three
++//! commitments (the slot argument's reads of `alpha` and of the reserved
++//! pairs): bound by the verifier, which accepts here; that is soundness, not
++//! this check. (b) The endpoint generators (`from_os`, unseedable): in situ
++//! and order-blind only. (c) A run of L >= 2: `prove_run_with`'s stage loop
++//! (B_k drawn from the run stream before A_k, the B_{k-1} opening) is NOT
++//! replayed; the boundary preparer is checked alone on a seeded stream.
++//! (d) The production entry `prove_run` itself (OS randomness) is not called;
++//! stage 0 is replicated, and the production verifier accepting its segment
++//! is the evidence that the replication is the run prover's. (e) One layer
++//! (0), one sequence (ho00) and the all-zero input; the CPU host path only
++//! (no `gpu-cuda` feature in this build).
++//!
++//! **LW-4's note, carried forward to this tree [READ]:** `CfsMask` derives
++//! `Clone` (zkp-core/src/sumcheck.rs) and `CommittedZk`'s `data`, `pads` and
++//! `salts` are `pub` (zkp-core/src/pcs.rs). The in-situ endpoint check below
++//! reads those `pub` fields; a production path that copied a mask or owner
++//! would not be visible to the source scans for the same reason.
++//!
++//! **THE CAPTURE RULE.** Nothing is printed but booleans, counts, labels and
++//! wall-clock seconds: no drawn value, no seed-derived word, no root, no key,
++//! no hidden value (every comparison is `assert!(a == b)`, never
++//! `assert_eq!`, so a failure does not print a root or a probe either). The
++//! seeded receipt is NEVER written anywhere: under a public seed its openings
++//! are not hiding.
++
++use crate::private_block::layout::*;
++use crate::private_block::protocol;
++use crate::private_block::run::{self, RunStatement};
++use crate::private_block::shape::Shape;
++use crate::private_block::trained_block::TrainedExport;
++use crate::private_block::wire::{self, SegGeom, Segment};
++use crate::private_block::witness::{self, Witness};
++use crate::private_block::{prepare_endpoints, BlockPublic, IoSpec};
++use crate::field::{batch_inverse2_checked, Fp, Fp2};
++use crate::merkle::{Digest, MerkleTree};
++use crate::ntt::NttTables;
++use crate::pcs::{self, PcsParams, ZkOpts};
++use crate::sumcheck::CfsMask;
++use crate::tables_attn::{TAG_ACT, TAG_EXP, TAG_U8};
++use crate::transcript::Transcript;
++use crate::zk::{ZkRng, MASK_LOG_DOM, MASK_LOG_MSG, MASK_Q};
++use rayon::prelude::*;
++use std::path::PathBuf;
++use std::time::Instant;
++use zkp_core::hashtag::HashTag;
++
++/// a public TEST seed; production never uses `ZkRng::new`
++const SEED: u64 = 0x5031_3247_5234_5452;
++const DOMAIN: &[u8] = b"privacy gate P-12: the seeded G-R4 value-level replay at the trained TinyLlama T32 shape (test fixture only)";
++/// the export layer the block test proves (the boundary test uses 0 | 1)
++const LAYER: u32 = 0;
++/// the export's held-out sequence: the DENSE (generic, real) witness
++const SEQ: &str = "ho00";
++
++/// one deliberate error in the PREDICTION, used to show the root comparison
++/// is sensitive to exactly the relations a source scan cannot see
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++enum Pert {
++    None,
++    /// m1's analogue: overwrite A's first proximity-row word after the fill
++    AProxZero,
++    /// m2's analogue: copy A's first reserved-pair word into H's first reserved word
++    CopyAIntoH,
++    /// the `alpha` analogue: slot 1's first CFS coefficient := slot 0's
++    AlphaCopy,
++}
++
++fn export_dir() -> PathBuf {
++    match std::env::var("HL_PB_EXPORT") {
++        Ok(v) => PathBuf::from(v),
++        Err(_) => PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../../results/zk60_1b_calibration_20260929/export/pg_rot1_export_T32"),
++    }
++}
++
++/// the fixture's public context word (nonzero, as a run requires)
++fn context() -> Digest {
++    *blake3::hash(b"privacy gate P-12: G-R4 trained replay fixture context").as_bytes()
++}
++
++/// the padded plane of a witness, as `int16`
++fn padded(w: &Witness, plane: usize) -> Vec<i16> {
++    w.planes[plane].iter().map(|v| i16::try_from(*v).expect("a plane word outside int16")).collect()
++}
++
++/// the TRUE `(tokens, width)` words inside a padded `Dom::D` plane
++fn true_input(sh: &Shape, plane: &[i16]) -> Vec<i16> {
++    (0..sh.tokens).flat_map(|t| plane[t * sh.d_pad..t * sh.d_pad + sh.width].to_vec()).collect()
++}
++
++/// a TRUE `(tokens, width)` plane placed into the padded `(t_pad, d_pad)` cube
++fn pad_cube(sh: &Shape, x: &[i16]) -> Vec<i16> {
++    let mut out = vec![0i16; sh.t_pad * sh.d_pad];
++    for t in 0..sh.tokens {
++        out[t * sh.d_pad..t * sh.d_pad + sh.width].copy_from_slice(&x[t * sh.width..(t + 1) * sh.width]);
++    }
++    out
++}
++
++fn words(v: &[i16]) -> Vec<Fp> {
++    v.iter().map(|x| Fp::from_i64(i64::from(*x))).collect()
++}
++
++/// the NTT domain a run builds (`RunShape::ntt_log`, private to run.rs)
++fn run_ntt_log(sh: &Shape) -> u32 {
++    protocol::ntt_log_at(sh).max((sh.endpoint_log_n + sh.endpoint_inv_rate.trailing_zeros() as usize) as u32)
++}
++
++/// `run::position_tag` (private to run.rs), restated: two challenges squeezed
++/// from a discarded clone
++fn position_tag(tr: &Transcript) -> [u8; 32] {
++    let mut c = Transcript::clone_state(tr);
++    let v = c.challenge_fp2_vec(2);
++    let mut out = [0u8; 32];
++    out[..16].copy_from_slice(&v[0].to_bytes());
++    out[16..].copy_from_slice(&v[1].to_bytes());
++    out
++}
++
++/// The run header, REBUILT from the statement's public words in the order
++/// `RunStatement::transcript` absorbs them (the run capture's own recipe,
++/// `run_capture::begin_run_with`). The caller compares it with the binding.
++fn rebuilt_header(st: &RunStatement) -> Transcript {
++    let h = st.capture_header().expect("the run's public header words");
++    let mut tr = protocol::tagged_transcript(&h.sh, h.profile.as_bytes());
++    let mut shape_bytes = Vec::with_capacity(8 * h.run_shape_words.len());
++    for v in &h.run_shape_words {
++        shape_bytes.extend_from_slice(&v.to_le_bytes());
++    }
++    tr.absorb(b"run-shape", &shape_bytes);
++    tr.absorb(b"expected-IO", &h.expected_bytes);
++    tr.absorb(b"public-statement", &h.public_statement);
++    tr.absorb(b"parameters", h.parameter_line.as_bytes());
++    tr.absorb(b"calibration", &h.calibration);
++    tr.absorb(b"schedule", &h.schedule_digest);
++    tr
++}
++
++/// THE REPLAY GENERATOR: the same seeded stream, counting what the
++/// prediction draws (16 bytes per field word, 32 per extension word or salt)
++struct Draws {
++    rng: ZkRng,
++    bytes: u64,
++}
++
++impl Draws {
++    fn new() -> Draws {
++        Draws { rng: ZkRng::new(SEED, DOMAIN), bytes: 0 }
++    }
++    fn fp(&mut self) -> Fp {
++        self.bytes += 16;
++        self.rng.fp()
++    }
++    fn fp2(&mut self) -> Fp2 {
++        self.bytes += 32;
++        self.rng.fp2()
++    }
++    fn bytes32(&mut self) -> [u8; 32] {
++        self.bytes += 32;
++        self.rng.bytes32()
++    }
++}
++
++/// the next 32 bytes of a generator (compared, never printed)
++fn probe(r: &mut ZkRng) -> [u64; 4] {
++    [r.next_u64(), r.next_u64(), r.next_u64(), r.next_u64()]
++}
++
++/// the probe of a FRESH seeded generator advanced by exactly `bytes`
++fn probe_at(bytes: u64) -> [u64; 4] {
++    assert!(bytes % 8 == 0, "a stream position off the 8-byte grid");
++    let mut r = ZkRng::new(SEED, DOMAIN);
++    for _ in 0..bytes / 8 {
++        r.next_u64();
++    }
++    probe(&mut r)
++}
++
++/// `pcs::commit_zk_owned_with_tag`'s root, rebuilt WITHOUT calling it: the
++/// pads (`rows * q` field draws) then the salts (`nn` 32-byte draws) are
++/// taken from `rp`, each row is encoded with `encode_row_zk` (rows in
++/// parallel: each row is independent and nothing is drawn here), and the
++/// salted keyed tree is built from the leaves
++fn zk_root(params: &PcsParams, data: &[Fp], rows: usize, rp: &mut Draws, ntt: &NttTables, tag: &HashTag) -> Digest {
++    let zko = ZkOpts::standard(params);
++    let (n, nn, q) = (params.cols(), params.enc_cols(), zko.q_pad);
++    assert!(data.len() == rows * n, "the rebuilt matrix is not rows x n");
++    let pads: Vec<Fp> = (0..rows * q).map(|_| rp.fp()).collect();
++    let salts: Vec<[u8; 32]> = (0..nn).map(|_| rp.bytes32()).collect();
++    let pows = pcs::coset_powers(zko.coset, nn);
++    let mut enc = vec![Fp::ZERO; rows * nn];
++    enc.par_chunks_mut(nn).enumerate().for_each(|(r, out)| pcs::encode_row_zk(ntt, &data[r * n..(r + 1) * n], &pads[r * q..(r + 1) * q], &pows, out));
++    let leaves = pcs::hash_columns_keyed(&enc, rows, nn, tag.column_key());
++    let salted: Vec<Digest> = leaves.iter().zip(salts.iter()).map(|(l, s)| pcs::salt_leaf_keyed(l, s, tag.leaf_key())).collect();
++    MerkleTree::build_keyed(salted, tag.node_key()).root()
++}
++
++fn inv(mut den: Vec<Fp2>) -> Vec<Fp2> {
++    batch_inverse2_checked(&mut den).expect("an honest witness has no zero LogUp denominator");
++    den
++}
++
++fn write_h(h: &mut [Fp], off: (usize, usize), col: &[Fp2]) {
++    for (i, v) in col.iter().enumerate() {
++        h[off.0 + i] = v.c0;
++        h[off.1 + i] = v.c1;
++    }
++}
++
++struct Rebuilt {
++    a_root: Digest,
++    m_root: Digest,
++    h_root: Digest,
++    /// the bytes the prediction drew, counted
++    bytes: u64,
++    /// the replay generator's next 32 bytes after the prediction
++    probe: [u64; 4],
++}
++
++/// THE PREDICTION: the three committed matrices of one stage from (witness,
++/// the eleven predicted segments of the replayed stream, in the predicted
++/// order). `stage_tr` is the transcript at the stage's first commitment
++/// (after the run header and the two locality words), rebuilt from public
++/// words; only the three LogUp challenges are read from it.
++fn rebuild(sh: &Shape, lay: &Layout, blk: &BlockPublic, stage_tr: &Transcript, wit: &Witness, ntt: &NttTables, pert: Pert) -> Rebuilt {
++    let mut rp = Draws::new();
++    let (a_root, m_root, h_root) = rebuild_on(&mut rp, sh, lay, blk, stage_tr, wit, ntt, pert);
++    let bytes = rp.bytes;
++    Rebuilt { a_root, m_root, h_root, bytes, probe: probe(&mut rp.rng) }
++}
++
++/// [ROUND 6, review round 2 Q-6] THE PREDICTION of one stage on a CALLER's
++/// replay stream, so that a run's boundary and its stages are drawn from ONE
++/// stream in the predicted order (`replay_trained_run_l2`). `rebuild` above is
++/// this on a fresh stream; its body is unchanged apart from taking `rp`.
++#[allow(clippy::too_many_arguments)]
++fn rebuild_on(rp: &mut Draws, sh: &Shape, lay: &Layout, blk: &BlockPublic, stage_tr: &Transcript, wit: &Witness, ntt: &NttTables, pert: Pert) -> (Digest, Digest, Digest) {
++    let (public, ff) = (blk.attention(), blk.feed_forward());
++    let (ids, hids, n) = (lay.ids(), lay.hids(), lay.n());
++    let params = protocol::pcs_params_at(sh);
++    assert!(params.cols() == n, "the PCS row width is not the layout's");
++    let tag = sh.hash_tag();
++
++    // ---- A's witness rows: `prove_core`'s own construction, restated ----
++    let committed: Vec<usize> = lay.a_planes().into_iter().filter(|p| !ids.is_multiplicity(*p)).collect();
++    let mut a = vec![Fp::ZERO; lay.a_rows * n];
++    for p in &committed {
++        for (i, v) in wit.planes[*p].iter().enumerate() {
++            a[lay.a_off[*p] + i] = Fp::from_i64(*v);
++        }
++    }
++    let looked: Vec<(Dom, Vec<Vec<i64>>)> = lay.lookup_doms().iter().map(|d| (*d, protocol::lookup_values(lay, wit, *d))).collect();
++    let lookup_words: u64 = looked.iter().map(|(d, cols)| (cols.len() * sh.size(*d)) as u64).sum();
++    let m_u8 = protocol::byte_histogram_at(&looked, lookup_words, protocol::HISTOGRAM_PAR_MIN);
++    let deltas = protocol::exp_deltas(lay, wit);
++    let mut m_exp = vec![0u64; U8_LEN];
++    for (x, d) in deltas.iter().enumerate() {
++        let hit = (0..U8_LEN as i64).contains(d) && public.exp[*d as usize] == wit.planes[ids.at(A_E)][x];
++        m_exp[if hit { *d as usize } else { 0 }] += 1;
++    }
++    let act_idx = protocol::act_indices(lay, wit);
++    let mut m_act = vec![0u64; U8_LEN];
++    for (x, i) in act_idx.iter().enumerate() {
++        let hit = (0..U8_LEN as i64).contains(i) && i64::from(ff.act[*i as usize]) == wit.planes[ids.at(A_A16)][x];
++        m_act[if hit { *i as usize } else { 0 }] += 1;
++    }
++    for i in 0..U8_LEN {
++        a[lay.a_off[ids.at(A_MU8)] + i] = Fp::new(m_u8[i]);
++        a[lay.a_off[ids.at(A_MEXP)] + i] = Fp::new(m_exp[i]);
++        a[lay.a_off[ids.at(A_MACT)] + i] = Fp::new(m_act[i]);
++    }
++    // ---- segment 1: A's reserved pairs and proximity pair, row-major ----
++    for x in a[lay.a_mask_base * n..].iter_mut() {
++        *x = rp.fp();
++    }
++    if pert == Pert::AProxZero {
++        a[lay.a_prox * n] = Fp::ZERO;
++    }
++    // ---- segments 2, 3: A's pads, then A's salts ----
++    let a_root = zk_root(&params, &a, lay.a_rows, rp, ntt, &tag);
++
++    // ---- segments 4-7: M, every word of it ----
++    let specs = lay.mask_specs();
++    let (m, dom) = (1usize << MASK_LOG_MSG, 1usize << MASK_LOG_DOM);
++    let mut alphas: Vec<Vec<Fp2>> = specs.iter().map(|&(nv, d)| (0..CfsMask::len(nv, d)).map(|_| rp.fp2()).collect()).collect();
++    if pert == Pert::AlphaCopy {
++        alphas[1][0] = alphas[0][0];
++    }
++    let n_base = 2 * specs.len() + 4;
++    let pows_m = pcs::coset_powers(Fp::new(7), dom);
++    let enc_coeffs = |c: &[Fp], out: &mut [Fp]| {
++        for v in out.iter_mut() {
++            *v = Fp::ZERO;
++        }
++        for (i, x) in c.iter().enumerate() {
++            out[i] = x.mul(pows_m[i]);
++        }
++        ntt.forward(out);
++    };
++    let mut enc = vec![Fp::ZERO; n_base * dom];
++    for (s, al) in alphas.iter().enumerate() {
++        let re: Vec<Fp> = al.iter().map(|c| c.c0).collect();
++        let im: Vec<Fp> = al.iter().map(|c| c.c1).collect();
++        for (k, part) in [re, im].iter().enumerate() {
++            assert!(part.len() + MASK_Q <= m, "the prediction's mask row overflows");
++            let mut msg = vec![Fp::ZERO; m];
++            msg[..part.len()].copy_from_slice(part);
++            for j in 0..MASK_Q {
++                msg[part.len() + j] = rp.fp();
++            }
++            ntt.inverse(&mut msg);
++            enc_coeffs(&msg, &mut enc[(2 * s + k) * dom..(2 * s + k + 1) * dom]);
++        }
++    }
++    let mut b_re: Vec<Fp> = (0..2 * m).map(|_| rp.fp()).collect();
++    let mut b_im: Vec<Fp> = (0..2 * m).map(|_| rp.fp()).collect();
++    // the ONE declared relation on M
++    b_re[m] = b_re[0].neg();
++    b_im[m] = b_im[0].neg();
++    let u_re: Vec<Fp> = (0..2 * m).map(|_| rp.fp()).collect();
++    let u_im: Vec<Fp> = (0..2 * m).map(|_| rp.fp()).collect();
++    let base0 = 2 * specs.len();
++    for (k, c) in [&b_re, &b_im, &u_re, &u_im].iter().enumerate() {
++        enc_coeffs(c, &mut enc[(base0 + k) * dom..(base0 + k + 1) * dom]);
++    }
++    let m_salts: Vec<[u8; 32]> = (0..dom).map(|_| rp.bytes32()).collect();
++    let m_leaves = pcs::hash_columns_keyed(&enc, n_base, dom, tag.column_key());
++    let m_salted: Vec<Digest> = m_leaves.iter().zip(m_salts.iter()).map(|(l, s)| pcs::salt_leaf_keyed(l, s, tag.leaf_key())).collect();
++    let m_root = MerkleTree::build_keyed(m_salted, tag.node_key()).root();
++
++    // ---- H's LogUp rows: the challenges replayed on the stage transcript ----
++    let mut tr = Transcript::clone_state(stage_tr);
++    protocol::absorb_root(&mut tr, b"A", &a_root, lay.a_rows, sh.log_cols);
++    tr.absorb(b"M", &m_root);
++    let beta = tr.challenge_fp2();
++    let gamma = tr.challenge_fp2();
++    let alpha = tr.challenge_fp2();
++    let g_u8 = gamma.mul_base(Fp::new(TAG_U8));
++    let g_exp = gamma.mul_base(Fp::new(TAG_EXP));
++    let g_act = gamma.mul_base(Fp::new(TAG_ACT));
++    let mut h = vec![Fp::ZERO; lay.h_rows * n];
++    let u8_inv = protocol::u8_denominator_inverses(alpha, g_u8);
++    for (d, cols) in &looked {
++        let (first, count) = lay.helpers(*d);
++        for k in 0..count {
++            let col = match cols.get(2 * k + 1) {
++                Some(second) => protocol::helper_pair_inverses_u8(&cols[2 * k], second, alpha, g_u8, &u8_inv),
++                None => protocol::helper_inverses_u8(&cols[2 * k], alpha, g_u8, &u8_inv),
++            }
++            .expect("an honest witness's helper column");
++            write_h(&mut h, lay.h_off[first + k], &col);
++        }
++    }
++    let exp_den: Vec<Fp2> = deltas.iter().zip(wit.planes[ids.at(A_E)].iter()).map(|(d, e)| alpha.sub(Fp2::from_i64(*d).add(beta.mul(Fp2::from_i64(*e))).add(g_exp))).collect();
++    write_h(&mut h, lay.h_off[hids.sexp()], &inv(exp_den));
++    let act_den: Vec<Fp2> = act_idx.iter().zip(wit.planes[ids.at(A_A16)].iter()).map(|(i, x)| alpha.sub(Fp2::from_i64(*i).add(beta.mul(Fp2::from_i64(*x))).add(g_act))).collect();
++    write_h(&mut h, lay.h_off[hids.fact()], &inv(act_den));
++    let [gu8, gexp, gact] = hids.table_helpers();
++    for (plane, tv, mm) in [
++        (gu8, crate::private_block::argument::table_values_u8(g_u8), &m_u8),
++        (gexp, crate::private_block::argument::table_values_exp(public, beta, g_exp), &m_exp),
++        (gact, crate::private_block::argument::table_values_act(ff, beta, g_act), &m_act),
++    ] {
++        let iv = inv(tv.iter().map(|t| alpha.sub(*t)).collect());
++        let col: Vec<Fp2> = iv.iter().zip(mm.iter()).map(|(x, c)| x.mul_base(Fp::new(*c))).collect();
++        write_h(&mut h, lay.h_off[plane], &col);
++    }
++    // ---- segment 8: H's reserved pairs and proximity pair, row-major ----
++    for x in h[lay.h_mask_base * n..].iter_mut() {
++        *x = rp.fp();
++    }
++    if pert == Pert::CopyAIntoH {
++        h[lay.h_mask_base * n] = a[lay.a_mask_base * n];
++    }
++    // ---- segment 9: the two zero-sum rows, n - 1 draws each, declared closing entry ----
++    for r in lay.h_u_rows() {
++        let mut sum = Fp::ZERO;
++        for j in 0..n - 1 {
++            let v = rp.fp();
++            h[r * n + j] = v;
++            sum = sum.add(v);
++        }
++        h[r * n + n - 1] = sum.neg();
++    }
++    // ---- segments 10, 11: H's pads, then H's salts ----
++    let h_root = zk_root(&params, &h, lay.h_rows, rp, ntt, &tag);
++    (a_root, m_root, h_root)
++}
++
++/// every drawn field value one REAL endpoint owner holds (the mask rows above
++/// the shape's data rows, then the pads), and its salts — read in situ
++fn endpoint_drawn(sh: &Shape, e: &pcs::CommittedZk) -> (Vec<u64>, Vec<[u8; 32]>) {
++    let (rows, data, _) = protocol::endpoint_geometry(sh).expect("the endpoint geometry");
++    let n = e.data.len() / rows;
++    assert!(n * rows == e.data.len(), "the endpoint owner's matrix is not rows x n");
++    let mut v: Vec<u64> = e.data[data * n..].iter().map(|x| x.0).collect();
++    v.extend(e.pads.iter().map(|x| x.0));
++    (v, e.salts.clone())
++}
++
++fn assert_pairwise_distinct<V: Ord + Clone>(what: &str, mut v: Vec<V>) -> usize {
++    let len = v.len();
++    v.sort();
++    let dup = v.windows(2).filter(|w| w[0] == w[1]).count();
++    assert!(dup == 0, "{what}: {dup} repeated drawn value(s) among {len}: a copy or a reuse (an honest draw repeats with probability < len^2 / 2^65)");
++    len
++}
++
++/// the whole check on ONE trained block: a one-block BOUND run whose stage 0
++/// is proved on the seeded stream and verified by the production run
++/// verifier; the in-situ endpoint check; the rebuild and comparison; the
++/// three perturbations; the probe's own non-vacuity
++fn replay_trained_block(dense: bool) {
++    let label = if dense { "TinyLlama-trained T32 layer 0, dense ho00 (generic witness)" } else { "TinyLlama-trained T32 layer 0, all-zero input (degenerate partner)" };
++    let t_all = Instant::now();
++    let ex = TrainedExport::load(&export_dir()).unwrap_or_else(|e| panic!("the export: {e}"));
++    let layers = [LAYER];
++    let c = ex.run_constants(&layers).expect("the run-level constants");
++    let sh = ex.shape_for(&c).expect("the trained shape (through the door)");
++    assert!(sh.trained_calibration, "the export did not build a trained-calibration shape");
++    let single_refused = protocol::single_block_profile_allowed(&sh).is_err();
++    assert!(single_refused, "the trained profile no longer refuses a single-block receipt (R2-4); this port's one-block-run adaptation would be unnecessary");
++    let t = ex.load_layer(&sh, &c, LAYER, false).unwrap_or_else(|e| panic!("layer {LAYER}: {e}"));
++    let blocks = vec![t.blk];
++    let model = ex.statement_of_records(&sh, &c, vec![t.record]).expect("the trained-model statement");
++
++    // ---- the witness: the export's real hidden input, or the all-zero plane ----
++    let x0 = if dense { ex.load_seq(&sh, SEQ, LAYER).expect("the export's hidden input").0 } else { vec![0i16; sh.tokens * sh.width] };
++    let wit = witness::build_shaped(&sh, blocks[0].attention(), blocks[0].feed_forward(), &x0).expect("the honest trained witness");
++    let ids = Ids::new(&sh).expect("the trained shape has a plane map");
++    let (x_in, x_out) = (padded(&wit, ids.at(A_X)), padded(&wit, ids.at(A_X2)));
++    let mut parity_words = 0usize;
++    if dense {
++        let (_, want) = ex.load_seq(&sh, SEQ, LAYER).expect("the export's reference output");
++        let got = true_input(&sh, &x_out);
++        let differ = got.iter().zip(want.iter()).filter(|(a, b)| a != b).count();
++        assert!(got.len() == want.len() && differ == 0, "parity: layer {LAYER}'s native output differs from the export's x_out in {differ} of {} words (no value printed)", got.len());
++        parity_words = got.len();
++    }
++
++    // ---- the bound ONE-BLOCK run statement, through the production constructors ----
++    let spec = IoSpec::new_shaped(&sh, context(), 0, 0).expect("the run's endpoint spec");
++    let (expected, owners) = prepare_endpoints(spec, &x_in, &x_out).expect("the run's external endpoint owners");
++    let rs = ex.geometry.run_shape(&sh, 1).expect("the trained run shape");
++    let st = RunStatement::new_bound(rs, context(), expected.clone(), &blocks, &[(0, 0)], &model).expect("the bound run statement");
++    let data_rows = st.rs().data_rows();
++    // the stage layout of stage 0 of a one-block run: slot 21 and slot 22 at
++    // the external endpoints' terminal pair (`in_site(0)`, `out_site(0)`)
++    // [R7 gate copy] NATIVE R6: a stage is proved under `RunStatement::stage_shape(k)`
++    let ssh = st.stage_shape(0).expect("stage 0's shape");
++    let lay = Layout::for_shape(&ssh).expect("the shape has a layout").with_io_mask_rows([data_rows, data_rows]);
++
++    // ---- the endpoint generators, IN SITU (they cannot be seeded) ----
++    let [ein, eout] = protocol::check_endpoints(&sh, &expected, owners).expect("the endpoint owners match the statement");
++    let (vi, si) = endpoint_drawn(&sh, &ein);
++    let (vo, so) = endpoint_drawn(&sh, &eout);
++    let fields = assert_pairwise_distinct(&format!("{label}: the two endpoint owners' drawn field values"), [vi, vo].concat());
++    let salts = assert_pairwise_distinct(&format!("{label}: the two endpoint owners' salts"), [si, so].concat());
++
++    // ---- the run header, rebuilt from public words, must be the binding ----
++    let binding = st.binding().expect("the run binding");
++    let mut tr = rebuilt_header(&st);
++    let header_ok = tr.state() == binding;
++    assert!(header_ok, "{label}: the run header rebuilt from the statement's public words is not the run's binding");
++
++    // ---- stage 0 of `prove_run_with`, replicated, on the SEEDED stream ----
++    let start_tag = position_tag(&tr);
++    tr.absorb_u64(b"pb-run-stage", 0);
++    tr.absorb(b"pb-run-block", &st.block_digests()[0]);
++    let stage_tr = Transcript::clone_state(&tr);
++    let ntt = NttTables::new(run_ntt_log(&sh));
++    let mut rng = ZkRng::new(SEED, DOMAIN);
++    let mut ph = crate::private_block::timing::Phases::start();
++    let mut phases: Vec<(&'static str, f64)> = Vec::new();
++    let mut tick = Instant::now();
++    let t_prove = Instant::now();
++    let core = protocol::prove_core(&ssh, &lay, &blocks[0], Witness { planes: wit.planes.clone() }, [ein.data.as_slice(), eout.data.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick).expect("the core prover on the seeded stream");
++    let [ic, oc] = core.io_claims;
++    protocol::check_endpoint_opening(&ic, &sh, &tr).expect("the input endpoint opening passes its refusal checks");
++    let in_open = pcs::open_zk(&ein, &ic, &mut tr);
++    drop(ein);
++    protocol::check_endpoint_opening(&oc, &sh, &tr).expect("the output endpoint opening passes its refusal checks");
++    let out_open = pcs::open_zk(&eout, &oc, &mut tr);
++    drop(eout);
++    let end_tag = position_tag(&tr);
++    let prove_s = t_prove.elapsed().as_secs_f64();
++    // nothing after `prove_core` draws in a one-block stage: the probe is the
++    // stream position at the end of the stage
++    let prover_probe = probe(&mut rng);
++    let (a_root, m_root, h_root) = (core.a_root, core.mask_root, core.h_root);
++    let seg = Segment { b_root: None, a_root, h_root, mask_root: m_root, slots: core.slots, mask_open: core.mask_open, a_open: core.a_open, h_open: core.h_open, in_open, out_open: Some(out_open) };
++    let geom = SegGeom { l: 1, k: 0, boundary_rows: 0, sites: run::BOUNDARY_SITES };
++    let bytes = wire::encode_segment(&seg, &lay, geom, &binding, &start_tag, &end_tag).expect("the seeded segment encodes");
++    drop(seg);
++    let seg_len = bytes.len();
++    let t_verify = Instant::now();
++    // THE PRODUCTION RUN VERIFIER, from the segment's bytes (in memory only:
++    // the seeded receipt is never written anywhere)
++    let verified = run::verify_run(&st, &blocks, std::slice::from_ref(&bytes));
++    let verify_s = t_verify.elapsed().as_secs_f64();
++    drop(bytes);
++
++    // ---- the prediction ----
++    let t_rebuild = Instant::now();
++    let r = rebuild(&ssh, &lay, &blocks[0], &stage_tr, &wit, &ntt, Pert::None);
++    let rebuild_s = t_rebuild.elapsed().as_secs_f64();
++    let (a_ok, m_ok, h_ok) = (r.a_root == a_root, r.m_root == m_root, r.h_root == h_root);
++    let ends_ok = r.probe == prover_probe;
++    let counted_ok = probe_at(r.bytes) == prover_probe;
++    let shifted_differs = probe_at(r.bytes + 16) != prover_probe;
++    let u_rows_below_mask = lay.h_u_rows().iter().all(|u| *u < lay.h_mask_base);
++    eprintln!(
++        "GR4 trained replay [{label}]: layout A {} rows (mask region {} rows), H {} rows (mask region {} rows), M {} base rows, row width 2^{}, rate {}; H zero-sum rows below the segment-8 region = {u_rows_below_mask}; parity words {parity_words}",
++        lay.a_rows,
++        lay.a_rows - lay.a_mask_base,
++        lay.h_rows,
++        lay.h_rows - lay.h_mask_base,
++        2 * lay.mask_specs().len() + 4,
++        sh.log_cols,
++        sh.inv_rate
++    );
++    eprintln!(
++        "GR4 trained replay [{label}]: single-block receipt refused at this profile = {single_refused}; run header rebuilt from public words = binding: {header_ok}; one-block bound run, seeded stage 0, segment {seg_len} B, verified by the production run verifier = {}",
++        verified.is_ok()
++    );
++    eprintln!(
++        "GR4 trained replay [{label}]: A root rebuilt = {a_ok}; M root rebuilt = {m_ok}; H root rebuilt = {h_ok}; replay stream ends where the prover's did (next-draw probe) = {ends_ok}; prover consumed exactly the predicted {} bytes = {counted_ok}; probe non-vacuity (16 bytes further differs) = {shifted_differs}; endpoint owners: {fields} drawn field values and {salts} salts, all distinct",
++        r.bytes
++    );
++    assert!(a_ok, "{label}: A's root is not the root of (witness rows, segment 1 as the reserved and proximity rows, segment 2 as pads, segment 3 as salts): a drawn A word is not where, or not what, the schedule says");
++    assert!(m_ok, "{label}: M's root is not the root of segments 4-7 with b[m] := -b[0] only: a CFS coefficient, pad, b, u or salt of M is not where, or not what, the schedule says");
++    assert!(h_ok, "{label}: H's root is not the root of (LogUp rows, segment 8 as the reserved and proximity rows, segment 9 as the zero-sum rows, 10 as pads, 11 as salts): a drawn H word is not where, or not what, the schedule says");
++    assert!(ends_ok, "{label}: the replay did not end where the prover's generator did");
++    assert!(counted_ok, "{label}: the prover's generator did not consume exactly the predicted byte count");
++    assert!(shifted_differs, "{label}: the next-draw probe cannot tell a 16-byte shift; the position comparison is vacuous");
++    assert!(u_rows_below_mask, "{label}: H's zero-sum rows sit inside the segment-8 fill; the prediction's discard statement no longer holds");
++    verified.expect("the seeded one-block trained run verifies");
++
++    // ---- NON-VACUITY: each deliberate error in the PREDICTION moves its root ----
++    for (pert, what) in [(Pert::AProxZero, "A"), (Pert::CopyAIntoH, "H"), (Pert::AlphaCopy, "M")] {
++        let p = rebuild(&ssh, &lay, &blocks[0], &stage_tr, &wit, &ntt, pert);
++        let moved = match what {
++            "A" => p.a_root != a_root,
++            "H" => p.h_root != h_root,
++            _ => p.m_root != m_root,
++        };
++        eprintln!("GR4 trained replay [{label}]: non-vacuity {pert:?} moves the {what} root = {moved}");
++        assert!(moved, "{label}: the perturbation {pert:?} did not move the {what} root; the comparison is blind to it");
++    }
++    eprintln!(
++        "GR4 trained replay [{label}]: PASS. seconds: seeded prove stage {prove_s:.2}, production run verify {verify_s:.2}, one rebuild {rebuild_s:.2}, whole test {:.2}; process high-water mark {:.2} GiB [MEASURED, shared box, n=1]. Not a privacy result.",
++        t_all.elapsed().as_secs_f64(),
++        run::peak_rss_mib() / 1024.0
++    );
++}
++
++/// **THE TRAINED BLOCK, DENSE** (the export's held-out sequence ho00 entering
++/// layer 0, parity bit-exact against the export): every drawn word of `A`,
++/// `M` and `H` is where the schedule says, with the value it says.
++#[test]
++#[ignore = "P-12 G-R4 port: reads the trained export and proves one trained TinyLlama T32 block on a seeded stream; run with --ignored --exact under the resource guard"]
++fn gr4_trained_t32_block_dense_ho00_commits_exactly_the_predicted_stream() {
++    replay_trained_block(true);
++}
++
++/// **THE TRAINED BLOCK, ALL-ZERO INPUT** (the fixed input the privacy case
++/// is stated at, on the same trained public block).
++#[test]
++#[ignore = "P-12 G-R4 port: reads the trained export and proves one trained TinyLlama T32 block on a seeded stream; run with --ignored --exact under the resource guard"]
++fn gr4_trained_t32_block_zero_commits_exactly_the_predicted_stream() {
++    replay_trained_block(false);
++}
++
++/// **THE INTERNAL BOUNDARY B_0 OF A TWO-BLOCK TRAINED RUN** (layers 0 | 1),
++/// at the run's own `boundary_spec(0)` and the trained keyed tag. The
++/// preparer takes the CALLER's generator, so it is seeded here: its root must
++/// be (plane, predicted mask rows, predicted pads, predicted salts), for the
++/// dense plane (block 0's native output on ho00, parity bit-exact — exactly
++/// what `prove_run` commits at B_0) and for the all-zero plane.
++#[test]
++#[ignore = "P-12 G-R4 port: reads the trained export (two layers) and commits the trained boundary on a seeded stream; run with --ignored --exact under the resource guard"]
++fn gr4_trained_t32_boundary_commits_exactly_the_predicted_stream() {
++    let t_all = Instant::now();
++    let ex = TrainedExport::load(&export_dir()).unwrap_or_else(|e| panic!("the export: {e}"));
++    let layers = [0u32, 1];
++    let c = ex.run_constants(&layers).expect("the run-level constants");
++    let sh = ex.shape_for(&c).expect("the trained shape (through the door)");
++    let mut blocks = Vec::with_capacity(2);
++    let mut records = Vec::with_capacity(2);
++    for &l in &layers {
++        let t = ex.load_layer(&sh, &c, l, false).unwrap_or_else(|e| panic!("layer {l}: {e}"));
++        records.push(t.record);
++        blocks.push(t.blk);
++    }
++    let model = ex.statement_of_records(&sh, &c, records).expect("the trained-model statement");
++    // the dense B_0 plane: block 0's native padded output on ho00
++    let x0 = ex.load_seq(&sh, SEQ, 0).expect("the export's hidden input").0;
++    let w0 = witness::build_shaped(&sh, blocks[0].attention(), blocks[0].feed_forward(), &x0).expect("block 0's honest trained witness");
++    let ids = Ids::new(&sh).expect("the trained shape has a plane map");
++    let (x_in, b0) = (padded(&w0, ids.at(A_X)), padded(&w0, ids.at(A_X2)));
++    drop(w0);
++    let (_, want) = ex.load_seq(&sh, SEQ, 0).expect("the export's reference output of layer 0");
++    let got = true_input(&sh, &b0);
++    let differ = got.iter().zip(want.iter()).filter(|(a, b)| a != b).count();
++    assert!(got.len() == want.len() && differ == 0, "parity: block 0's native output differs from the export's x_out in {differ} words (no value printed)");
++    // the two-block statement (its external output endpoint carries the
++    // export's reference output of layer 1; this run is never proved here,
++    // only its boundary statement is taken from it)
++    let x_out = pad_cube(&sh, &ex.load_seq(&sh, SEQ, 1).expect("the export's reference output of layer 1").1);
++    let spec_io = IoSpec::new_shaped(&sh, context(), 0, 0).expect("the run's endpoint spec");
++    let (expected, _owners) = prepare_endpoints(spec_io, &x_in, &x_out).expect("the run's external endpoint owners");
++    let rs = ex.geometry.run_shape(&sh, 2).expect("the trained run shape");
++    let st = RunStatement::new_bound(rs, context(), expected, &blocks, &[(0, 0), (0, 0)], &model).expect("the bound two-block run statement");
++    let spec = st.boundary_spec(0).expect("the run's boundary B_0 statement");
++    let (rows, data, sites, log_n, rate) = (spec.commitment_rows(), spec.data_rows(), spec.sites(), spec.log_n(), spec.params().inv_rate);
++    assert!((rows, data, sites, log_n, rate) == (22, 16, 2, 12, 4), "the trained boundary geometry is ({rows}, {data}, {sites}, 2^{log_n}, rate {rate}), not the declared (22 rows = 16 data + 2x2 sites + 2, 2^12, rate 4)");
++    let tag = sh.hash_tag();
++    let keyed = tag.column_key().is_some() && tag.leaf_key().is_some() && tag.node_key().is_some();
++    assert!(keyed, "the trained profile does not hash under a keyed tag (D19)");
++    let ntt = NttTables::new(run_ntt_log(&sh));
++    let n = 1usize << log_n;
++    let (s0, s1) = (spec.mask_row(0).expect("site 0"), spec.mask_row(1).expect("site 1"));
++    for (label, plane) in [("dense: block 0's native output on ho00", b0), ("all-zero plane", vec![0i16; spec.len()])] {
++        assert!(plane.len() == spec.len(), "{label}: the plane is not the padded boundary plane");
++        let vals = words(&plane);
++        let mut rng = ZkRng::new(SEED, DOMAIN);
++        let p = crate::private_block::boundary::prepare(&spec, &vals, &ntt, &mut rng, &tag).expect("the boundary commits");
++        let prover_probe = probe(&mut rng);
++        let predict = |copy_site: bool| -> (Digest, u64, [u64; 4]) {
++            let mut d = vec![Fp::ZERO; rows * n];
++            d[..vals.len()].copy_from_slice(&vals);
++            let mut rp = Draws::new();
++            for x in d[data * n..].iter_mut() {
++                *x = rp.fp();
++            }
++            if copy_site {
++                d[s1 * n] = d[s0 * n];
++            }
++            let root = zk_root(&spec.params(), &d, rows, &mut rp, &ntt, &tag);
++            let bytes = rp.bytes;
++            (root, bytes, probe(&mut rp.rng))
++        };
++        let (root, bytes, replay_probe) = predict(false);
++        let root_ok = p.root() == root;
++        let ends_ok = replay_probe == prover_probe;
++        let counted_ok = probe_at(bytes) == prover_probe;
++        let shifted_differs = probe_at(bytes + 16) != prover_probe;
++        let (pert_root, _, _) = predict(true);
++        let moved = pert_root != p.root();
++        eprintln!(
++            "GR4 trained replay boundary B_0 [{label}]: root rebuilt = {root_ok}; replay stream ends where the preparer's did (next-draw probe) = {ends_ok}; preparer consumed exactly the predicted {bytes} bytes = {counted_ok}; probe non-vacuity = {shifted_differs}; non-vacuity (site 1's first reserved word := site 0's) moves the root = {moved}; geometry {rows} rows = {data} data + 2x{sites} sites + 2, row width 2^{log_n}, rate {rate}, keyed tag = {keyed}"
++        );
++        assert!(root_ok, "boundary [{label}]: the root is not (plane, predicted mask rows, pads, salts)");
++        assert!(ends_ok, "boundary [{label}]: the replay did not end where the preparer's generator did");
++        assert!(counted_ok, "boundary [{label}]: the preparer did not consume exactly the predicted byte count");
++        assert!(shifted_differs, "boundary [{label}]: the next-draw probe cannot tell a 16-byte shift");
++        assert!(moved, "boundary [{label}]: copying a reserved word did not move the root; the comparison is blind to it");
++    }
++    eprintln!(
++        "GR4 trained replay boundary B_0: PASS. whole test {:.2} s; process high-water mark {:.2} GiB [MEASURED, shared box, n=1]. Not a privacy result.",
++        t_all.elapsed().as_secs_f64(),
++        run::peak_rss_mib() / 1024.0
++    );
++}
++
++// =========================================================================
++// [PRIVACY GATE LANE, ROUND 6, 2026-10-19] REVIEW ROUND 2, FINDING Q-6: the
++// seeded value-level replay extended from one stage to a RUN OF L = 2.
++//
++// What the one-block test above does not replay (its "(c)"): `prove_run_with`'s
++// stage loop -- B_k drawn from the run stream BEFORE A_k, stage k+1 drawn on
++// the stream AFTER stage k, and the B_{k-1} opening. Here a two-block trained
++// run (layers 0 | 1) is proved stage by stage on ONE seeded stream, with
++// stage 0 and stage 1 replicated line for line from `run.rs:895-981` (R5b):
++//   stage 0: position tag; locality; B_0 := boundary::prepare(spec_0, block 0's
++//            padded output, the RUN stream); absorb B; prove_core(block 0,
++//            [input endpoint, B_0]); open the input endpoint; slot 22's claims
++//            wait for B_0; end tag; segment (b_root = B_0)
++//   stage 1: position tag; locality; prove_core(block 1, [B_0, output
++//            endpoint]) on the SAME stream; open B_0 with the waiting claims
++//            plus slot 21's (`PreparedBoundary::into_opening`); open the
++//            output endpoint; end tag; segment (no b_root)
++// Both segments are encoded with `wire::encode_segment` and VERIFIED BY THE
++// PRODUCTION RUN VERIFIER `run::verify_run` from their bytes, which re-derives
++// the stage layouts and segment geometry from the statement and replays the
++// whole two-stage Fiat-Shamir chain -- so an inexact replication (a wrong
++// stage layout, a wrong order, a wrong site) would be refused.
++//
++// THE PREDICTION: ONE replay stream, cut in the predicted order -- B_0's mask
++// rows, pads and salts; stage 0's eleven segments; stage 1's eleven segments --
++// rebuilds all SEVEN roots (B_0, A_0, M_0, H_0, A_1, M_1, H_1), which must
++// equal the prover's, and the replay must end where the prover's generator
++// did (next-draw probe, plus the counted-bytes probe and its 16-byte
++// non-vacuity, as above).
++//
++// NON-VACUITY OF THE CROSS-STAGE CLAIMS (each must move the named root):
++//   * stage 1 predicted on a FRESH stream (a stream reset between stages, the
++//     cross-stage reuse the review names): A_1 moves;
++//   * B_0 predicted AFTER stage 0's block draws (the B-before-A order
++//     reversed): B_0 and A_0 move;
++//   * the per-commitment perturbations m1 / m2 / alpha applied to STAGE 1:
++//     A_1 / H_1 / M_1 move.
++//
++// The restated private items, each checked by the production verifier's
++// acceptance: `RunStatement::in_site / out_site` (stage 0 = [data rows,
++// B_0 site 0], stage 1 = [B_0 site 1, data rows]) and `RunStatement::seg_geom`.
++//
++// STILL NOT COVERED: the production entry `prove_run` on OS randomness (the
++// stages are replicated, the verifier's acceptance is the evidence the
++// replication is the run prover's); L >= 3 (stage k >= 2 repeats stage 1's
++// pattern with B_{k-1} incoming and B_k outgoing -- the code path is the
++// same loop body, but it is not replayed here); the endpoint generators
++// (in situ only, as above); the GPU path.
++//
++// THE CAPTURE RULE of this file applies: booleans, counts, labels, seconds.
++// =========================================================================
++
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++enum L2Pert {
++    None,
++    /// stage 1 predicted on a fresh stream (a stream reset between stages)
++    ResetBeforeStage1,
++    /// B_0 predicted after stage 0's block draws (B-before-A reversed)
++    BoundaryAfterBlock,
++    /// a per-commitment perturbation applied to stage 1
++    Stage1(Pert),
++}
++
++/// `boundary::prepare`'s root on a CALLER's replay stream (the boundary test's
++/// prediction, restated): the plane, then the mask rows, pads and salts
++fn boundary_root_on(rp: &mut Draws, spec: &crate::private_block::boundary::BoundarySpec, vals: &[Fp], ntt: &NttTables, tag: &HashTag) -> Digest {
++    let (rows, data, n) = (spec.commitment_rows(), spec.data_rows(), 1usize << spec.log_n());
++    let mut d = vec![Fp::ZERO; rows * n];
++    d[..vals.len()].copy_from_slice(vals);
++    for x in d[data * n..].iter_mut() {
++        *x = rp.fp();
++    }
++    zk_root(&spec.params(), &d, rows, rp, ntt, tag)
++}
++
++struct L2Roots {
++    b0: Digest,
++    a: [Digest; 2],
++    m: [Digest; 2],
++    h: [Digest; 2],
++    bytes: u64,
++    probe: [u64; 4],
++}
++
++fn replay_trained_run_l2(dense: bool) {
++    let label = if dense { "TinyLlama-trained T32 run of layers 0|1, dense ho00 (generic witness)" } else { "TinyLlama-trained T32 run of layers 0|1, all-zero input (degenerate partner)" };
++    let t_all = Instant::now();
++    let ex = TrainedExport::load(&export_dir()).unwrap_or_else(|e| panic!("the export: {e}"));
++    let layers = [0u32, 1];
++    let c = ex.run_constants(&layers).expect("the run-level constants");
++    let sh = ex.shape_for(&c).expect("the trained shape (through the door)");
++    assert!(sh.trained_calibration, "the export did not build a trained-calibration shape");
++    let mut blocks = Vec::with_capacity(2);
++    let mut records = Vec::with_capacity(2);
++    for &l in &layers {
++        let t = ex.load_layer(&sh, &c, l, false).unwrap_or_else(|e| panic!("layer {l}: {e}"));
++        records.push(t.record);
++        blocks.push(t.blk);
++    }
++    let model = ex.statement_of_records(&sh, &c, records).expect("the trained-model statement");
++    let ids = Ids::new(&sh).expect("the trained shape has a plane map");
++
++    // ---- the run's own chain: block 0 on x0, block 1 on block 0's output ----
++    let x0 = if dense { ex.load_seq(&sh, SEQ, 0).expect("the export's hidden input").0 } else { vec![0i16; sh.tokens * sh.width] };
++    let w0 = witness::build_shaped(&sh, blocks[0].attention(), blocks[0].feed_forward(), &x0).expect("block 0's honest trained witness");
++    let (x_in, b0) = (padded(&w0, ids.at(A_X)), padded(&w0, ids.at(A_X2)));
++    let x1 = true_input(&sh, &b0);
++    let w1 = witness::build_shaped(&sh, blocks[1].attention(), blocks[1].feed_forward(), &x1).expect("block 1's honest trained witness");
++    let x_out = padded(&w1, ids.at(A_X2));
++    let chain_ok = padded(&w1, ids.at(A_X)) == b0;
++    assert!(chain_ok, "{label}: block 1's padded input plane is not block 0's padded output plane (the B_0 plane)");
++    let mut parity_words = 0usize;
++    if dense {
++        for (l, plane) in [(0u32, &b0), (1u32, &x_out)] {
++            let (_, want) = ex.load_seq(&sh, SEQ, l).expect("the export's reference output");
++            let got = true_input(&sh, plane);
++            let differ = got.iter().zip(want.iter()).filter(|(a, b)| a != b).count();
++            assert!(got.len() == want.len() && differ == 0, "parity: layer {l}'s native output differs from the export's x_out in {differ} of {} words (no value printed)", got.len());
++            parity_words += got.len();
++        }
++    }
++
++    // ---- the bound TWO-block run statement, through the production constructors ----
++    let spec_io = IoSpec::new_shaped(&sh, context(), 0, 0).expect("the run's endpoint spec");
++    let (expected, owners) = prepare_endpoints(spec_io, &x_in, &x_out).expect("the run's external endpoint owners");
++    let rs = ex.geometry.run_shape(&sh, 2).expect("the trained run shape");
++    let st = RunStatement::new_bound(rs, context(), expected.clone(), &blocks, &[(0, 0), (0, 0)], &model).expect("the bound two-block run statement");
++    let data_rows = st.rs().data_rows();
++    let bspec = st.boundary_spec(0).expect("the run's boundary B_0 statement");
++    let (s0, s1) = (bspec.mask_row(0).expect("B_0 site 0"), bspec.mask_row(1).expect("B_0 site 1"));
++    // `RunStatement::in_site / out_site` (private), restated for L = 2
++    // [R7 gate copy] NATIVE R6: stage k is proved under `RunStatement::stage_shape(k)`
++    let (ssh0, ssh1) = (st.stage_shape(0).expect("stage 0's shape"), st.stage_shape(1).expect("stage 1's shape"));
++    let lay0 = Layout::for_shape(&ssh0).expect("the shape has a layout").with_io_mask_rows([data_rows, s0]);
++    let lay1 = Layout::for_shape(&ssh1).expect("the shape has a layout").with_io_mask_rows([s1, data_rows]);
++    // `RunStatement::seg_geom` (private), restated
++    let geom = |k: usize| SegGeom { l: 2, k, boundary_rows: bspec.commitment_rows(), sites: run::BOUNDARY_SITES };
++    let [ein, eout] = protocol::check_endpoints(&sh, &expected, owners).expect("the endpoint owners match the statement");
++
++    // ---- the run header, rebuilt from public words, must be the binding ----
++    let binding = st.binding().expect("the run binding");
++    let mut tr = rebuilt_header(&st);
++    let header_ok = tr.state() == binding;
++    assert!(header_ok, "{label}: the run header rebuilt from the statement's public words is not the run's binding");
++
++    let tag = sh.hash_tag();
++    let ntt = NttTables::new(run_ntt_log(&sh));
++    let mut rng = ZkRng::new(SEED, DOMAIN);
++    let mut ph = crate::private_block::timing::Phases::start();
++    let mut phases: Vec<(&'static str, f64)> = Vec::new();
++    let mut tick = Instant::now();
++    let t_prove = Instant::now();
++
++    // ---- STAGE 0 (run.rs: k = 0, k + 1 < l) ----
++    let start0 = position_tag(&tr);
++    tr.absorb_u64(b"pb-run-stage", 0);
++    tr.absorb(b"pb-run-block", &st.block_digests()[0]);
++    let b0_words = words(&b0);
++    let pb = crate::private_block::boundary::prepare(&bspec, &b0_words, &ntt, &mut rng, &tag).expect("the boundary B_0 commits on the run stream");
++    let b_root = pb.root();
++    protocol::absorb_root(&mut tr, b"B", &b_root, bspec.commitment_rows(), bspec.log_n());
++    let stage0_tr = Transcript::clone_state(&tr);
++    let core0 = protocol::prove_core(&ssh0, &lay0, &blocks[0], Witness { planes: w0.planes.clone() }, [ein.data.as_slice(), pb.data()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick).expect("stage 0's core prover on the seeded run stream");
++    let [ic0, oc0] = core0.io_claims;
++    protocol::check_endpoint_opening(&ic0, &sh, &tr).expect("the input endpoint opening passes its refusal checks");
++    let in_open0 = pcs::open_zk(&ein, &ic0, &mut tr);
++    drop(ein);
++    let mut pending = oc0;
++    let end0 = position_tag(&tr);
++    let (a0, m0, h0) = (core0.a_root, core0.mask_root, core0.h_root);
++    let seg0 = Segment { b_root: Some(b_root), a_root: a0, h_root: h0, mask_root: m0, slots: core0.slots, mask_open: core0.mask_open, a_open: core0.a_open, h_open: core0.h_open, in_open: in_open0, out_open: None };
++    let bytes0 = wire::encode_segment(&seg0, &lay0, geom(0), &binding, &start0, &end0).expect("stage 0's seeded segment encodes");
++    drop(seg0);
++
++    // ---- STAGE 1 (run.rs: k = 1 = l - 1) on the SAME stream ----
++    let start1 = position_tag(&tr);
++    tr.absorb_u64(b"pb-run-stage", 1);
++    tr.absorb(b"pb-run-block", &st.block_digests()[1]);
++    let stage1_tr = Transcript::clone_state(&tr);
++    let core1 = protocol::prove_core(&ssh1, &lay1, &blocks[1], Witness { planes: w1.planes.clone() }, [pb.data(), eout.data.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick).expect("stage 1's core prover on the seeded run stream");
++    let [ic1, oc1] = core1.io_claims;
++    pending.extend(ic1);
++    let in_open1 = pb.into_opening(&bspec, &pending, &mut tr).expect("B_0's one opening");
++    protocol::check_endpoint_opening(&oc1, &sh, &tr).expect("the output endpoint opening passes its refusal checks");
++    let out_open1 = pcs::open_zk(&eout, &oc1, &mut tr);
++    drop(eout);
++    let end1 = position_tag(&tr);
++    let prove_s = t_prove.elapsed().as_secs_f64();
++    // nothing after the output endpoint opening draws: the probe is the
++    // stream position at the end of the run
++    let prover_probe = probe(&mut rng);
++    let (a1, m1, h1) = (core1.a_root, core1.mask_root, core1.h_root);
++    let seg1 = Segment { b_root: None, a_root: a1, h_root: h1, mask_root: m1, slots: core1.slots, mask_open: core1.mask_open, a_open: core1.a_open, h_open: core1.h_open, in_open: in_open1, out_open: Some(out_open1) };
++    let bytes1 = wire::encode_segment(&seg1, &lay1, geom(1), &binding, &start1, &end1).expect("stage 1's seeded segment encodes");
++    drop(seg1);
++    let seg_lens = (bytes0.len(), bytes1.len());
++    let t_verify = Instant::now();
++    // THE PRODUCTION RUN VERIFIER, from the two segments' bytes (in memory
++    // only: the seeded receipt is never written anywhere)
++    let verified = run::verify_run(&st, &blocks, &[bytes0, bytes1]);
++    let verify_s = t_verify.elapsed().as_secs_f64();
++
++    // ---- THE PREDICTION: one replay stream, the predicted order ----
++    let predict = |pert: L2Pert| -> L2Roots {
++        let mut rp = Draws::new();
++        let (b, a0, m0, h0) = if pert == L2Pert::BoundaryAfterBlock {
++            let (a, m, h) = rebuild_on(&mut rp, &ssh0, &lay0, &blocks[0], &stage0_tr, &w0, &ntt, Pert::None);
++            (boundary_root_on(&mut rp, &bspec, &b0_words, &ntt, &tag), a, m, h)
++        } else {
++            let b = boundary_root_on(&mut rp, &bspec, &b0_words, &ntt, &tag);
++            let (a, m, h) = rebuild_on(&mut rp, &ssh0, &lay0, &blocks[0], &stage0_tr, &w0, &ntt, Pert::None);
++            (b, a, m, h)
++        };
++        if pert == L2Pert::ResetBeforeStage1 {
++            rp = Draws::new();
++        }
++        let p1 = match pert {
++            L2Pert::Stage1(p) => p,
++            _ => Pert::None,
++        };
++        let (a1, m1, h1) = rebuild_on(&mut rp, &ssh1, &lay1, &blocks[1], &stage1_tr, &w1, &ntt, p1);
++        let bytes = rp.bytes;
++        L2Roots { b0: b, a: [a0, a1], m: [m0, m1], h: [h0, h1], bytes, probe: probe(&mut rp.rng) }
++    };
++    let t_rebuild = Instant::now();
++    let r = predict(L2Pert::None);
++    let rebuild_s = t_rebuild.elapsed().as_secs_f64();
++    let b_ok = r.b0 == b_root;
++    let (a0_ok, m0_ok, h0_ok) = (r.a[0] == a0, r.m[0] == m0, r.h[0] == h0);
++    let (a1_ok, m1_ok, h1_ok) = (r.a[1] == a1, r.m[1] == m1, r.h[1] == h1);
++    let ends_ok = r.probe == prover_probe;
++    let counted_ok = probe_at(r.bytes) == prover_probe;
++    let shifted_differs = probe_at(r.bytes + 16) != prover_probe;
++    eprintln!(
++        "GR4 trained run replay L=2 [{label}]: run header rebuilt from public words = binding: {header_ok}; block chain B_0 plane = block 1's input: {chain_ok}; parity words {parity_words}; stage layouts [{data_rows}, {s0}] | [{s1}, {data_rows}]; boundary {} rows; segments {} B + {} B, verified by the production run verifier = {}",
++        bspec.commitment_rows(),
++        seg_lens.0,
++        seg_lens.1,
++        verified.is_ok()
++    );
++    eprintln!(
++        "GR4 trained run replay L=2 [{label}]: B_0 root rebuilt = {b_ok}; stage 0 A/M/H roots rebuilt = {a0_ok}/{m0_ok}/{h0_ok}; stage 1 A/M/H roots rebuilt = {a1_ok}/{m1_ok}/{h1_ok}; replay stream ends where the prover's did (next-draw probe) = {ends_ok}; prover consumed exactly the predicted {} bytes = {counted_ok}; probe non-vacuity (16 bytes further differs) = {shifted_differs}",
++        r.bytes
++    );
++    assert!(b_ok, "{label}: B_0's root is not (block 0's output plane, then B_0's mask rows, pads and salts drawn FIRST in stage 0 from the run stream)");
++    assert!(a0_ok && m0_ok && h0_ok, "{label}: a stage-0 root is not the prediction on the run stream after B_0");
++    assert!(a1_ok && m1_ok && h1_ok, "{label}: a stage-1 root is not the prediction on the run stream after stage 0");
++    assert!(ends_ok, "{label}: the replay did not end where the prover's generator did");
++    assert!(counted_ok, "{label}: the prover's generator did not consume exactly the predicted byte count");
++    assert!(shifted_differs, "{label}: the next-draw probe cannot tell a 16-byte shift; the position comparison is vacuous");
++    verified.expect("the seeded two-block trained run verifies");
++
++    // ---- NON-VACUITY of the cross-stage claims and of stage 1's comparisons ----
++    let checks: [(L2Pert, &str); 5] = [
++        (L2Pert::ResetBeforeStage1, "A_1"),
++        (L2Pert::BoundaryAfterBlock, "B_0 and A_0"),
++        (L2Pert::Stage1(Pert::AProxZero), "A_1"),
++        (L2Pert::Stage1(Pert::CopyAIntoH), "H_1"),
++        (L2Pert::Stage1(Pert::AlphaCopy), "M_1"),
++    ];
++    for (pert, what) in checks {
++        let p = predict(pert);
++        let moved = match pert {
++            L2Pert::ResetBeforeStage1 => p.a[1] != a1,
++            L2Pert::BoundaryAfterBlock => p.b0 != b_root && p.a[0] != a0,
++            L2Pert::Stage1(Pert::AProxZero) => p.a[1] != a1,
++            L2Pert::Stage1(Pert::CopyAIntoH) => p.h[1] != h1,
++            L2Pert::Stage1(_) => p.m[1] != m1,
++            L2Pert::None => false,
++        };
++        eprintln!("GR4 trained run replay L=2 [{label}]: non-vacuity {pert:?} moves the {what} root(s) = {moved}");
++        assert!(moved, "{label}: the perturbation {pert:?} did not move the {what} root(s); the comparison is blind to it");
++    }
++    eprintln!(
++        "GR4 trained run replay L=2 [{label}]: PASS. seconds: seeded prove of both stages {prove_s:.2}, production run verify {verify_s:.2}, one prediction {rebuild_s:.2}, whole test {:.2}; process high-water mark {:.2} GiB [MEASURED, shared box, n=1]. Not a privacy result.",
++        t_all.elapsed().as_secs_f64(),
++        run::peak_rss_mib() / 1024.0
++    );
++}
++
++/// **[Q-6] A TWO-BLOCK TRAINED RUN, DENSE** (ho00 through layers 0 and 1,
++/// parity bit-exact against the export at both layers): B_0, then stage 0,
++/// then stage 1, every drawn word where the schedule says, on ONE stream.
++#[test]
++#[ignore = "Q-6 G-R4 run-scope replay: reads the trained export (two layers) and proves a two-block trained run on a seeded stream; run with --ignored --exact under the resource guard"]
++fn gr4_trained_t32_run_l2_dense_ho00_commits_exactly_the_predicted_stream() {
++    replay_trained_run_l2(true);
++}
++
++/// **[Q-6] A TWO-BLOCK TRAINED RUN, ALL-ZERO INPUT** (the fixed input the
++/// privacy case is stated at).
++#[test]
++#[ignore = "Q-6 G-R4 run-scope replay: reads the trained export (two layers) and proves a two-block trained run on a seeded stream; run with --ignored --exact under the resource guard"]
++fn gr4_trained_t32_run_l2_zero_commits_exactly_the_predicted_stream() {
++    replay_trained_run_l2(false);
++}
++
++// [PRIVACY GATE LANE, GATE ROUND 10, 2026-10-20] PR4-8 (the token-run
++// root-rebuild replay) and PR4-9 (the calibration attribution): a CHILD of this
++// module, so that it reuses the private replay helpers above. Test-only.
++#[path = "gr4_token_tests.rs"]
++mod gr4_token_tests;
+diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r7/hashline/src/private_block/run_capture.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-tk7/hashline/src/private_block/run_capture.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r7/hashline/src/private_block/run_capture.rs	2026-10-19 09:53:24.445396105 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-tk7/hashline/src/private_block/run_capture.rs	2026-10-19 12:13:29.734099098 -0700
+@@ -1919,9 +1919,25 @@
+     let sh = &h.sh;
+     let mut out = Vec::new();
+     let schema = schema_of(r.store.is_on());
++    // PRIVACY GATE LANE (2026-10-17, additive, test-scoped like this whole
++    // module): a TRAINED-calibration shape carries its per-profile
++    // calibration (D24's norm constants, the seven requantization shifts and
++    // the derived `D_max`) inside `shape`, so a gate reads the constants the
++    // relations were built with instead of the frozen literals. Every
++    // public: each is bound into the schedule line, the parameter line and
++    // the trained-model statement. On every other shape this is EMPTY, so no
++    // byte of any bundle of a frozen or registered development profile moves.
++    let trained = if sh.trained_calibration {
++        format!(
++            ",\"trained_calibration\":true,\"norm_tn\":{},\"norm_cn_a\":{},\"norm_cn_m\":{},\"norm_ceps\":{},\"sh_ao\":{},\"sh_qkv\":{},\"sh_s\":{},\"sh_o\":{},\"sh_g\":{},\"sh_h\":{},\"sh_z\":{},\"d_max\":{}",
++            sh.norm_tn, sh.norm_cn_a, sh.norm_cn_m, sh.norm_ceps, sh.sh_ao, sh.sh_qkv, sh.sh_s, sh.sh_o, sh.sh_g, sh.sh_h, sh.sh_z, sh.d_max
++        )
++    } else {
++        String::new()
++    };
+     write!(
+         out,
+-        "{{\"schema\":{schema:?},\"kind\":\"zk60-run-verifier-observations\",\"coverage\":\"native-run-all-stages-v1\",\"profile\":{:?},\"transcript_domain\":{:?},\"block_profile\":{:?},\"blocks\":{},\"boundaries\":{},\"fully_verified\":true,\"privacy\":\"P1\",\"privacy_review_complete\":false,\"weight_policy\":\"public-statement\",\"field_modulus\":{},\"extension_nonresidue\":{},\"public_tables_included\":{},\"source_commit\":{:?},\"run_binding\":{:?},\"context\":{:?},\"calibration\":{:?},\"public_statement_digest\":{:?},\"parameter_line\":{:?},\"schedule_digest\":{:?},\"expected_policy\":{:?},\"expected_policy_sha256\":{:?},\"run_shape_words\":{:?},\"shape\":{{\"name\":{:?},\"profile\":{:?},\"tokens\":{},\"width\":{},\"hidden\":{},\"q_heads\":{},\"kv_heads\":{},\"head_dim\":{},\"t_pad\":{},\"d_pad\":{},\"h_pad\":{},\"f_pad\":{},\"log_cols\":{},\"cols\":{},\"inv_rate\":{},\"opened_cols\":{},\"f_e\":{},\"endpoint_rows\":{},\"endpoint_log_n\":{},\"endpoint_inv_rate\":{},\"endpoint_general\":{},\"norm_wrho\":{},\"wrho_s\":{},\"slots\":{:?},\"a_groups\":{},\"h_groups\":{},\"n_slots\":{N_SLOTS}}},",
++        "{{\"schema\":{schema:?},\"kind\":\"zk60-run-verifier-observations\",\"coverage\":\"native-run-all-stages-v1\",\"profile\":{:?},\"transcript_domain\":{:?},\"block_profile\":{:?},\"blocks\":{},\"boundaries\":{},\"fully_verified\":true,\"privacy\":\"P1\",\"privacy_review_complete\":false,\"weight_policy\":\"public-statement\",\"field_modulus\":{},\"extension_nonresidue\":{},\"public_tables_included\":{},\"source_commit\":{:?},\"run_binding\":{:?},\"context\":{:?},\"calibration\":{:?},\"public_statement_digest\":{:?},\"parameter_line\":{:?},\"schedule_digest\":{:?},\"expected_policy\":{:?},\"expected_policy_sha256\":{:?},\"run_shape_words\":{:?},\"shape\":{{\"name\":{:?},\"profile\":{:?},\"tokens\":{},\"width\":{},\"hidden\":{},\"q_heads\":{},\"kv_heads\":{},\"head_dim\":{},\"t_pad\":{},\"d_pad\":{},\"h_pad\":{},\"f_pad\":{},\"log_cols\":{},\"cols\":{},\"inv_rate\":{},\"opened_cols\":{},\"f_e\":{},\"endpoint_rows\":{},\"endpoint_log_n\":{},\"endpoint_inv_rate\":{},\"endpoint_general\":{},\"norm_wrho\":{},\"wrho_s\":{},\"slots\":{:?},\"a_groups\":{},\"h_groups\":{},\"n_slots\":{N_SLOTS}{trained}}},",
+         h.profile,
+         h.profile,
+         sh.profile,
+@@ -2542,6 +2558,23 @@
+     "a_groups",
+     "h_groups",
+     "n_slots",
++    // PRIVACY GATE LANE (2026-10-17): a trained-calibration shape's public
++    // calibration, written only when `trained_calibration` is true. Each is
++    // a PUBLIC profile constant (bound into the schedule and parameter lines
++    // and the trained-model statement); no witness quantity is behind any.
++    "trained_calibration",
++    "norm_tn",
++    "norm_cn_a",
++    "norm_cn_m",
++    "norm_ceps",
++    "sh_ao",
++    "sh_qkv",
++    "sh_s",
++    "sh_o",
++    "sh_g",
++    "sh_h",
++    "sh_z",
++    "d_max",
+     // external endpoints and boundaries
+     "input_root",
+     "output_root",
+@@ -2823,8 +2856,18 @@
+     } else {
+         format!("Every array is an inline JSON list (schema `{SCHEMA}`); this bundle has no `{ARRAYS_FILE}`.")
+     };
++    // PRIVACY GATE LANE (2026-10-17): a TRAINED-calibration run's weights
++    // are the trained public words of a calibration export and its hidden
++    // input is the export's (or the all-zero plane), so the stock sentence
++    // would be false there; every other profile keeps it byte for byte.
++    let trained_run = b.profile == super::run::RUN_PROFILE_TINYLLAMA_T32_TRAINED || b.profile == super::run::RUN_PROFILE_RUNG_TC;
++    let weights = if trained_run {
++        "The weights are the\nTRAINED public words of the calibration export the note names (public by\nscope P1); the hidden input came from that export's held-out sequence or is\nthe all-zero plane, as the note says, and is not here."
++    } else {
++        "The weights are\nsynthetic and public; the hidden input came from the lane's fixture generator\nand is not here."
++    };
+     let readme = format!(
+-        "# ZK60 run capture bundle\n\n{note}\n\nWhat this is: the VERIFIER'S VIEW of one private run of {} blocks under one\ntranscript, profile `{}`, written by `hashline/src/private_block/run_capture.rs`\n(schema `{schema}`). It is the INPUT to the privacy gate of ruling M-8 and it\nis NOT a privacy result: no gate has read it.\n\nWhat made it:\n\n    {command}\n\nFiles: `run.json` (the run header, the shape, the external endpoints and the\n{} internal boundaries) and `stage-NN.json` (per stage: the roots, the\ntwenty-three slot transcripts, the M opening, and the A, H and IO openings).\nEach stage file carries its segment's length and SHA-256, so the bundle is\npinned to the exact receipt bytes that were verified; the segments themselves\nare written into `segments/` only when `HL_RUN_CAPTURE_SEGMENTS=1` asks for\nthem, because they are a third of a bundle and the gate reads only the JSON.\n`manifest.json` lists every file with its SHA-256 and pins the source files.\n\n{arrays_note}\n\nNOT in this bundle: any prover-side value. The list is in `run.json` under\n`not_in_a_capture`, and `every_key_of_a_bundle_is_on_the_allow_list` fails if\nthe writer ever emits a field outside its declared allow-list. The weights are\nsynthetic and public; the hidden input came from the lane's fixture generator\nand is not here.\n\n{payload} bytes of run file, stage files and segments.\n",
++        "# ZK60 run capture bundle\n\n{note}\n\nWhat this is: the VERIFIER'S VIEW of one private run of {} blocks under one\ntranscript, profile `{}`, written by `hashline/src/private_block/run_capture.rs`\n(schema `{schema}`). It is the INPUT to the privacy gate of ruling M-8 and it\nis NOT a privacy result: no gate has read it.\n\nWhat made it:\n\n    {command}\n\nFiles: `run.json` (the run header, the shape, the external endpoints and the\n{} internal boundaries) and `stage-NN.json` (per stage: the roots, the\ntwenty-three slot transcripts, the M opening, and the A, H and IO openings).\nEach stage file carries its segment's length and SHA-256, so the bundle is\npinned to the exact receipt bytes that were verified; the segments themselves\nare written into `segments/` only when `HL_RUN_CAPTURE_SEGMENTS=1` asks for\nthem, because they are a third of a bundle and the gate reads only the JSON.\n`manifest.json` lists every file with its SHA-256 and pins the source files.\n\n{arrays_note}\n\nNOT in this bundle: any prover-side value. The list is in `run.json` under\n`not_in_a_capture`, and `every_key_of_a_bundle_is_on_the_allow_list` fails if\nthe writer ever emits a field outside its declared allow-list. {weights}\n\n{payload} bytes of run file, stage files and segments.\n",
+         b.l,
+         b.profile,
+         b.l.saturating_sub(1)
+diff -ruN '--exclude=target*' /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r7/hashline/src/private_block/run_capture_tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-tk7/hashline/src/private_block/run_capture_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r7/hashline/src/private_block/run_capture_tests.rs	2026-10-19 05:56:34.046104894 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-tk7/hashline/src/private_block/run_capture_tests.rs	2026-10-19 17:34:35.555957159 -0700
+@@ -2082,3 +2082,489 @@
+     assert!(total < 2_000_000_000, "the 125M bundle is {total} B, past the 2 GB runaway ceiling");
+     eprintln!("CAPTURE 125M RESULT: {total} B ({:.1} MB) at {} — a CAPTURE, not a privacy result; no gate has read it", total as f64 / 1e6, dir.display());
+ }
++
++// -------------------------------------------------- PRIVACY GATE LANE (2026-10-17): the trained TinyLlama T32 capture
++//
++// ADDITIVE AND TEST-ONLY. Nothing below changes a prover or verifier relation:
++// it builds a run through the same production constructors the trained stack
++// CLI uses (`TrainedExport::load` / `run_constants` / `shape_for` /
++// `load_layer` / `statement_of_records`, `IoSpec::new_shaped`,
++// `prepare_endpoints`, `RunStatement::new_bound`, `run::prove_run`), and
++// VERIFIES it with the production run verifier while the capture's recorder
++// is attached, exactly as `capture_a_run_into` does at the development
++// shapes and at 125M. The bundle is written only after the run verified.
++
++/// One honest trained chain: the export's own public block per layer (each
++/// with ITS tables), the hidden inputs and the `l + 1` padded planes the
++/// run's IO commitments carry. Prover side only; none of it reaches a bundle.
++struct TrainedChain<'a> {
++    sh: Shape,
++    // BORROWED, never cloned: 22 padded TinyLlama blocks are about 1.3 GB,
++    // and the stack holds them once (the stack CLI's own rule)
++    blocks: &'a [BlockPublic],
++    inputs: Vec<Vec<i16>>,
++    planes: Vec<Vec<i16>>,
++}
++
++impl<'a> TrainedChain<'a> {
++    fn build(sh: &Shape, blocks: &'a [BlockPublic], x0: Vec<i16>) -> TrainedChain<'a> {
++        let ids = Ids::new(sh).expect("the trained shape has a plane map");
++        let mut inputs = Vec::with_capacity(blocks.len());
++        let mut planes = Vec::with_capacity(blocks.len() + 1);
++        let mut x = x0;
++        for (k, b) in blocks.iter().enumerate() {
++            let w = witness::build_shaped(sh, b.attention(), b.feed_forward(), &x).unwrap_or_else(|e| panic!("block {k}: the honest trained witness: {e}"));
++            if k == 0 {
++                planes.push(padded(&w, ids.at(A_X)));
++            }
++            planes.push(padded(&w, ids.at(A_X2)));
++            inputs.push(x);
++            x = true_input(sh, &padded(&w, ids.at(A_X2)));
++        }
++        TrainedChain { sh: sh.clone(), blocks, inputs, planes }
++    }
++    /// the true `[T, d]` output words of block `k` (for the parity check)
++    fn output_words(&self, k: usize) -> Vec<i16> {
++        true_input(&self.sh, &self.planes[k + 1])
++    }
++}
++
++impl RunWitnessSource for TrainedChain<'_> {
++    fn witness(&mut self, k: usize) -> Result<Witness, String> {
++        witness::build_shaped(&self.sh, self.blocks[k].attention(), self.blocks[k].feed_forward(), &self.inputs[k])
++    }
++    fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String> {
++        Ok(self.planes[k + 1].clone())
++    }
++}
++
++/// The capture's public context word: the same length-prefixed recipe as the
++/// stack CLI's `stack_context`, under this lane's own label, so a capture run
++/// is never mistaken for a stack-CLI artifact. Public.
++fn trained_capture_context(variant: &str, layers: &[u32]) -> Digest {
++    let mut b = Vec::new();
++    for s in ["hashline/zk60-trained-stack-context/1", variant, "zk60-privacy-gate-capture"] {
++        b.extend_from_slice(&(s.len() as u64).to_le_bytes());
++        b.extend_from_slice(s.as_bytes());
++    }
++    for l in layers {
++        b.extend_from_slice(&u64::from(*l).to_le_bytes());
++    }
++    *blake3::hash(&b).as_bytes()
++}
++
++/// What the trained capture did, for the note and the log (public facts).
++struct TrainedCaptureFacts {
++    variant: String,
++    layers: Vec<u32>,
++    statement_identity: String,
++    silu: Vec<(i32, i32)>,
++    exp_e_s: Vec<i32>,
++    calibration: String,
++    parity_words: usize,
++}
++
++/// Prove an honest trained run over `layers` (dense: the export's hidden
++/// input on `seq`, with the native output checked bit for bit against the
++/// export's `x_out` at every layer; zero: the all-zero hidden plane on the
++/// SAME trained public blocks), then VERIFY it with the recorder attached.
++fn prove_and_capture_trained(export: &Path, seq: &str, layers: &[u32], dense: bool, opts: run_capture::CaptureOpts) -> (Vec<Vec<u8>>, Bundle, Digest, TrainedCaptureFacts) {
++    use super::trained_block::TrainedExport;
++    let ex = TrainedExport::load(export).unwrap_or_else(|e| panic!("the export {}: {e}", export.display()));
++    let c = ex.run_constants(layers).expect("the run-level constants");
++    let sh = ex.shape_for(&c).expect("the trained shape (through the door)");
++    assert!(sh.trained_calibration, "the export did not build a trained-calibration shape");
++    let mut blocks = Vec::with_capacity(layers.len());
++    let mut records = Vec::with_capacity(layers.len());
++    for &l in layers {
++        let t = ex.load_layer(&sh, &c, l, false).unwrap_or_else(|e| panic!("layer {l}: {e}"));
++        records.push(t.record);
++        blocks.push(t.blk);
++    }
++    let silu: Vec<(i32, i32)> = records.iter().map(|r| r.silu_member).collect();
++    let exp_e_s: Vec<i32> = records.iter().map(|r| r.exp_e_s).collect();
++    let st_model = ex.statement_of_records(&sh, &c, records).expect("the trained-model statement");
++    let x0 = if dense { ex.load_seq(&sh, seq, layers[0]).expect("the export's hidden input").0 } else { vec![0i16; sh.tokens * sh.width] };
++    let mut chain = TrainedChain::build(&sh, &blocks, x0);
++    // PARITY (dense only): the native chain IS the export's reference chain
++    let mut parity_words = 0usize;
++    if dense {
++        for (k, &l) in layers.iter().enumerate() {
++            let (_, want) = ex.load_seq(&sh, seq, l).expect("the export's reference output");
++            let got = chain.output_words(k);
++            let differ = got.iter().zip(want.iter()).filter(|(a, b)| a != b).count();
++            assert_eq!(differ, 0, "parity: layer {l}'s native output differs from the export's x_out in {differ} words (no value printed)");
++            parity_words += got.len();
++        }
++    }
++    let l = layers.len();
++    let ctx = trained_capture_context(&ex.variant, layers);
++    let spec = IoSpec::new_shaped(&sh, ctx, 0, 0).expect("the run's endpoint spec");
++    let (expected, owners) = prepare_endpoints(spec, &chain.planes[0], &chain.planes[l]).expect("the run's external endpoint owners");
++    let rs = ex.geometry.run_shape(&sh, l).expect("the trained run shape");
++    let st = RunStatement::new_bound(rs, ctx, expected, &blocks, &vec![(0, 0); l], &st_model).expect("the bound run statement");
++    let segs = prove_to_vec(&st, &blocks, &mut chain, owners);
++    drop(chain);
++    let binding = st.binding().expect("the run binding");
++    let guard = run_capture::Recorder::attach();
++    run_capture::begin_run_with(st.capture_header().expect("the capture header"), binding, opts);
++    run::verify_run(&st, &blocks, &segs).expect("the honest trained run verifies");
++    let bundle = run_capture::take().expect("a bundle for an accepted run");
++    drop(guard);
++    let id: String = st_model.identity().iter().map(|b| format!("{b:02x}")).collect();
++    let facts = TrainedCaptureFacts { variant: ex.variant.clone(), layers: layers.to_vec(), statement_identity: id, silu, exp_e_s, calibration: sh.norm_calibration().describe(), parity_words };
++    (segs, bundle, binding, facts)
++}
++
++/// **PRIVACY GATE LANE: CAPTURE ONE BOUND PRIVATE RUN OF TRAINED TinyLlama
++/// BLOCKS AT T = 32**, for the joint-view / run gate at the trained profile.
++///
++/// | variable | what | default |
++/// |---|---|---|
++/// | `HL_PB_CAPTURE_DIR` | where the bundle goes | **required**, absolute, refused inside the repository |
++/// | `HL_PB_INPUT` | `dense` (the export's real hidden input, parity-checked) or `zero` (the all-zero hidden plane on the same trained blocks) | `dense` |
++/// | `HL_PB_CAPTURE_BLOCKS` | `L` | 2 |
++/// | `HL_PB_FIRST_LAYER` | the first export layer of the run | 7 |
++/// | `HL_PB_EXPORT` | the calibration export (variant directory) | the repository's `pg_rot1_export_T32` |
++/// | `HL_PB_SEQ` | the held-out sequence id | `ho00` |
++/// | `HL_RUN_CAPTURE_PUBLIC_TABLES` | `1` carries the public tables' values | **required** |
++/// | `HL_TEST_SOURCE_COMMIT` | the label the bundle records | `uncommitted-test` |
++///
++/// Why layer 7 by default: across the 7 | 8 boundary BOTH per-block table
++/// keys of `pg_rot1` change (exp `e_s` 1 -> 2, SiLU member (-1,-10) ->
++/// (-4,-13)), so a two-block bundle there is the most demanding window for a
++/// gate that must carry every stage's own public tables.
++#[test]
++#[ignore = "captures a trained TinyLlama run; set HL_PB_CAPTURE_DIR (outside the repo) and HL_RUN_CAPTURE_PUBLIC_TABLES"]
++fn capture_a_tinyllama_trained_run() {
++    let dense = capture_dense_from_env();
++    let dir = capture_dir_from_env();
++    let l = capture_blocks_from_env(2);
++    let first: u32 = match std::env::var("HL_PB_FIRST_LAYER") {
++        Ok(v) => v.parse().unwrap_or_else(|_| panic!("HL_PB_FIRST_LAYER={v:?} is not a number")),
++        Err(_) => 7,
++    };
++    let export = match std::env::var("HL_PB_EXPORT") {
++        Ok(v) => PathBuf::from(v),
++        Err(_) => Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../../results/zk60_1b_calibration_20260929/export/pg_rot1_export_T32"),
++    };
++    let seq = std::env::var("HL_PB_SEQ").unwrap_or_else(|_| "ho00".into());
++    let public_tables = match std::env::var("HL_RUN_CAPTURE_PUBLIC_TABLES").as_deref() {
++        Ok("1") => true,
++        Ok("0") => false,
++        _ => panic!("HL_RUN_CAPTURE_PUBLIC_TABLES is not set to 1 or 0; this test will not pick for you"),
++    };
++    let layers: Vec<u32> = (first..first + l as u32).collect();
++    let opts = run_capture::CaptureOpts { arrays: true, public_tables };
++    let t0 = std::time::Instant::now();
++    let (segs, bundle, binding, facts) = prove_and_capture_trained(&export, &seq, &layers, dense, opts);
++    let capture_s = t0.elapsed().as_secs_f64();
++    let tag = format!("TinyLlama-trained L={l} layers {}..{} {}", layers[0], layers[l - 1] + 1, if dense { "dense" } else { "zero" });
++    eprintln!(
++        "CAPTURE {tag}: witness={}, public tables={}, parity words {}, prove+verify+record {capture_s:.2} s, high-water mark {:.2} GiB",
++        if dense { "the export's hidden input (generic, parity bit-exact)" } else { "all-zero (degenerate)" },
++        if public_tables { "values" } else { "length + digest only" },
++        facts.parity_words,
++        run::peak_rss_mib() / 1024.0
++    );
++    let (distinct, stored, deduped, inline, blob) = bundle.arrays.stats();
++    eprintln!("CAPTURE {tag}: run.json {} B, stage files {:?} B; arrays.bin {blob} B over {distinct} distinct arrays, {stored} references ({deduped} deduplicated), {inline} inline", bundle.run_json.len(), bundle.stages.iter().map(|s| s.len()).collect::<Vec<_>>());
++    eprintln!("CAPTURE {tag}: segments {} B (pinned by digest)", segs.iter().map(|s| s.len()).sum::<usize>());
++    let note = format!(
++        "Bundle: one honest {l}-block private run of TRAINED TinyLlama-1.1B-Chat blocks at T = 32,\nbound to its trained-model statement (run profile\n`hashline-zk-mr1/private-run-tinyllama-1.1b-t32-trained-statement/1`, block profile\nthe trained TinyLlama T32 profile), under the D19 separating hash tag.\n\nExport: variant `{}` (calibration `{}`), layers {:?}, per-block table keys\nexp e_s {:?} and SiLU members {:?}; trained-model statement identity\n{}.\n\nHidden input: {}.\n\nWritten by the PRIVACY GATE lane (2026-10-18, round 5) from `ops/zkp-mvp/trained-1b-gate-r5b/`\n(the native lane's frozen R5b tree, tree sha256 44013397..., plus test-only capture code).\nA capture is the INPUT to the run privacy gate and is NOT a privacy result.",
++        facts.variant,
++        facts.calibration,
++        facts.layers,
++        facts.exp_e_s,
++        facts.silu,
++        facts.statement_identity,
++        if dense {
++            format!("the export's own held-out sequence `{seq}` entering layer {} (the real integer hidden state), and the native output was checked bit for bit against the export's reference output at every layer ({} words). THE GENERIC WITNESS", layers[0], facts.parity_words)
++        } else {
++            "the ALL-ZERO hidden plane on the same trained public blocks - the fixed input the privacy case is stated at, and the named DEGENERATE partner of the dense run".to_string()
++        }
++    );
++    let command = "HL_PB_CAPTURE_DIR=<dir> HL_PB_INPUT=<dense|zero> HL_PB_CAPTURE_BLOCKS=<L> HL_PB_FIRST_LAYER=<k> HL_PB_SEQ=<id> HL_RUN_CAPTURE_PUBLIC_TABLES=1 HL_TEST_SOURCE_COMMIT=<label> cargo test --release --lib private_block::run_capture_tests::capture_a_tinyllama_trained_run -- --ignored --nocapture";
++    run_capture::write_bundle(&dir, &bundle, &segs, &note, command).unwrap_or_else(|e| panic!("{tag}: {e}"));
++    let total = check_bundle_on_disk(&dir, l, binding, &segs, true);
++    assert!(total < 2_000_000_000, "the trained bundle is {total} B, past the 2 GB runaway ceiling");
++    eprintln!("CAPTURE {tag} RESULT: {total} B ({:.1} MB) at {}, self-consistent, every key on the allow-list — a CAPTURE, not a privacy result", total as f64 / 1e6, dir.display());
++}
++
++// -------------------------------------------------- PRIVACY GATE LANE (2026-10-18): the stage-47 G-R4 check
++//
++// TEST-ONLY. The privacy-gate lane's port of the 125M lane's stage-47 root-rebuild
++// check (review finding P-12), mounted HERE (a child of this cfg(test) module) so
++// that no file the capture writer pins changes: `private_block.rs` keeps R5b's
++// bytes. Its paths name `crate::private_block::...` (a descendant of
++// `private_block`, so the same items are visible as from a direct child).
++#[path = "gr4_trained_tests.rs"]
++mod gr4_trained_tests;
++
++// -------------------------------------------------- PRIVACY GATE LANE, P-18 (2026-10-19): a capture of the production CLI's run directory
++// [GATE ROUND 10, 2026-10-20, review round 4 PR4-2] PORTED VERBATIM from the
++// P-18 sub-lane's R7 copy (`ops/zkp-mvp/trained-1b-gate-r7-cli/`) into the tk7
++// gate copy, the note text naming this tree; every CLI line it mirrors was
++// re-read in the tk7 tree (R8: `stack_records` renders own fields only when
++// present; `run_constants` / `load_layer` generalised; nothing else it
++// mirrors moved).
++//
++// ADDITIVE AND TEST-ONLY (review P-18 of the trained T32 privacy draft). The
++// RECEIPT BYTES are the production CLI's (`zk60_trained_block stack-prove`);
++// its fresh-process `stack-verify` has already verified the run directory and
++// published `<run>/statement/`. This test re-verifies THE SAME DIRECTORY with
++// the CLI's own verification function, `run::verify_run_from_dir_hashed_with`,
++// the gate's recorder attached, after rebuilding the run statement exactly as
++// the CLI's `stack_verify_inner` does (R7 `trained_block.rs:2707-2768`). The
++// pieces of that function that are private to `trained_block` (a sibling
++// module) are re-stated here from its `pub(crate)` constructors, each next to
++// the CLI line it mirrors; R7's bodies of `stack_records`, `stack_context`,
++// `BlockCache` / `CacheBlocks`, `parse_layers`, `refuse_prover_private_entries`
++// and `label_of` are byte-identical to R6's. Nothing here changes a prover or
++// verifier relation, and nothing here is a privacy result.
++
++/// **A mirror of the stack CLI's private `CacheBlocks` / `BlockCache`** (R7
++/// `trained_block.rs:1763-1858`): ONE block resident, reloaded from the
++/// export with `reload_block` (no RoPE from the export: the CLI default) and
++/// refused unless its digest is the statement's; the shape compared on the
++/// block GEOMETRY only (`fit_the_shape`); CS-6 on the digest list
++/// (`are_the_statements`). Public data only.
++struct CliBlocks<'a> {
++    ex: &'a super::trained_block::TrainedExport,
++    sh: &'a Shape,
++    c: &'a super::trained_block::Constants,
++    layers: Vec<u32>,
++    digests: Vec<Digest>,
++    cur: Option<(usize, std::sync::Arc<BlockPublic>)>,
++    loads: usize,
++}
++
++impl run::BlockSource for CliBlocks<'_> {
++    // = `BlockCache::get` + `CacheBlocks::block`
++    fn block(&mut self, k: usize) -> Result<run::BlockRef<'_>, String> {
++        if let Some((j, a)) = &self.cur {
++            if *j == k {
++                return Ok(run::BlockRef::Shared(a.clone()));
++            }
++        }
++        if k >= self.layers.len() {
++            return Err(format!("trained stack: no block {k} in a {}-block run", self.layers.len()));
++        }
++        // drop the previous block BEFORE the next one is read
++        self.cur = None;
++        let blk = self.ex.reload_block(self.sh, self.c, self.layers[k], false)?;
++        if blk.digest() != self.digests[k] {
++            return Err(format!("trained stack: layer {}'s reloaded public statement is not the one the run statement binds", self.layers[k]));
++        }
++        let a = std::sync::Arc::new(blk);
++        self.cur = Some((k, a.clone()));
++        self.loads += 1;
++        Ok(run::BlockRef::Shared(a))
++    }
++    fn count(&self) -> usize {
++        self.layers.len()
++    }
++    // = `CacheBlocks::fit_the_shape` (the block GEOMETRY, not the whole shape)
++    fn fit_the_shape(&mut self, sh: &Shape) -> Result<(), String> {
++        let geometry = |s: &Shape| (s.profile, s.tokens, s.width, s.hidden, s.q_heads, s.head_dim, s.kv_heads, s.t_pad, s.d_pad, s.h_pad, s.f_pad);
++        if geometry(self.sh) != geometry(sh) {
++            return Err(format!("private run: the block cache was built for the block geometry of {:?}, the run's shape is {:?}", self.sh.name, sh.name));
++        }
++        Ok(())
++    }
++    // = `CacheBlocks::are_the_statements` (ruling CS-6)
++    fn are_the_statements(&mut self, st: &RunStatement) -> Result<(), String> {
++        let want = st.block_digests();
++        if self.digests.len() != want.len() {
++            return Err(format!("private run: ruling CS-6 — the run statement holds {} block digests and {} blocks were handed", want.len(), self.digests.len()));
++        }
++        for (k, (got, w)) in self.digests.iter().zip(want).enumerate() {
++            run::digest_is_the_statements(k, got, w)?;
++        }
++        Ok(())
++    }
++}
++
++/// = the CLI's private `stack_context` (R7 `trained_block.rs:1944`), C-R1's
++/// 40-byte refusal included. Public.
++fn cli_stack_context(variant: &str, layers: &[u32], label: &str) -> Digest {
++    let mut b = Vec::new();
++    for s in ["hashline/zk60-trained-stack-context/1", variant, label] {
++        b.extend_from_slice(&(s.len() as u64).to_le_bytes());
++        b.extend_from_slice(s.as_bytes());
++    }
++    for l in layers {
++        b.extend_from_slice(&u64::from(*l).to_le_bytes());
++    }
++    assert_ne!(b.len(), 40, "context: condition C-R1 — a 40-byte input to the unkeyed hash is refused");
++    *blake3::hash(&b).as_bytes()
++}
++
++/// a small regular file read whole, refused above `max` or when it is not a
++/// regular file (a link is not followed). Public files of the run directory.
++fn read_small_regular(p: &Path, max: u64) -> Vec<u8> {
++    let m = std::fs::symlink_metadata(p).unwrap_or_else(|e| panic!("{}: {e}", p.display()));
++    assert!(m.file_type().is_file(), "{} is not a regular file", p.display());
++    assert!(m.len() <= max, "{} is {} B, above {max} B", p.display(), m.len());
++    std::fs::read(p).unwrap_or_else(|e| panic!("{}: {e}", p.display()))
++}
++
++/// the `statement_written_by` text of the CLI's FRESH-PROCESS verifier
++/// (R7 `trained_block.rs:2163`, `StatementWriter::FreshVerify`, private)
++const CLI_FRESH_VERIFY_WRITER: &str = "stack-verify, after its fresh-process verification of the run directory, from its own data and the hashes of the bytes it verified";
++
++/// **PRIVACY GATE LANE, P-18: CAPTURE THE PRODUCTION CLI'S RUN DIRECTORY.**
++///
++/// | variable | what |
++/// |---|---|
++/// | `HL_PB_EXPORT` | the VERIFIER's copy of the export (no `seq_*`; refused otherwise, as the CLI's P-5) |
++/// | `HL_PB_ARTIFACT` | the CLI's run directory, after `stack-verify` published `statement/` |
++/// | `HL_PB_LAYERS` | `A..B`, B exclusive, as the CLI's `--layers` |
++/// | `HL_PB_LABEL` | the context label (C-R4 allow-list: `zk60-trained-stack`) |
++/// | `HL_PB_CAPTURE_DIR` | where the bundle goes: absolute, outside the repository |
++/// | `HL_PB_SEQ` | for the note only: the held-out sequence the prover was given (the verifier never reads it) |
++/// | `HL_PB_CLI_SHA256` | for the note only: the sha256 of the CLI binary that proved and verified |
++/// | `HL_RUN_CAPTURE_PUBLIC_TABLES` | `1` carries the public tables' values (**required**) |
++/// | `HL_TEST_SOURCE_COMMIT` | the label the bundle records |
++#[test]
++#[ignore = "captures a production-CLI run directory; set HL_PB_EXPORT, HL_PB_ARTIFACT, HL_PB_LAYERS, HL_PB_LABEL, HL_PB_CAPTURE_DIR, HL_PB_SEQ, HL_PB_CLI_SHA256, HL_RUN_CAPTURE_PUBLIC_TABLES"]
++fn capture_a_cli_run_directory() {
++    use super::trained_block::{hex, parse_json, TrainedExport, J, STACK_LABELS};
++    let var = |k: &str| std::env::var(k).unwrap_or_else(|_| panic!("{k} is not set; this test will not choose it for you"));
++    let dir = capture_dir_from_env();
++    let export = PathBuf::from(var("HL_PB_EXPORT"));
++    let art = PathBuf::from(var("HL_PB_ARTIFACT"));
++    let spec = var("HL_PB_LAYERS");
++    let label = var("HL_PB_LABEL");
++    let seq_note = var("HL_PB_SEQ");
++    let cli_sha = var("HL_PB_CLI_SHA256");
++    let public_tables = match std::env::var("HL_RUN_CAPTURE_PUBLIC_TABLES").as_deref() {
++        Ok("1") => true,
++        Ok("0") => false,
++        _ => panic!("HL_RUN_CAPTURE_PUBLIC_TABLES is not set to 1 or 0; this test will not pick for you"),
++    };
++    let t0 = std::time::Instant::now();
++    // = `label_of(f, &STACK_LABELS)` (C-R4)
++    assert!(STACK_LABELS.contains(&label.as_str()), "--label: ruling C-R4 — this build admits {STACK_LABELS:?}, not {label:?}");
++    // = `refuse_prover_private_entries(&export)` (P-5)
++    for e in std::fs::read_dir(&export).unwrap_or_else(|e| panic!("{}: {e}", export.display())) {
++        let name = e.unwrap_or_else(|e| panic!("{}: {e}", export.display())).file_name().to_string_lossy().to_string();
++        assert!(!name.starts_with("seq_"), "privacy review P-5: the export directory {} holds the prover-private entry {name:?}; a verifier's copy holds the public files only", export.display());
++    }
++    // = `TrainedExport::load` + `parse_layers`
++    let ex = TrainedExport::load(&export).unwrap_or_else(|e| panic!("the export {}: {e}", export.display()));
++    let (a, b) = spec.split_once("..").expect("HL_PB_LAYERS is A..B (B exclusive)");
++    let (a, b): (u32, u32) = (a.parse().expect("HL_PB_LAYERS: A is not an integer"), b.parse().expect("HL_PB_LAYERS: B is not an integer"));
++    assert!(a < b, "HL_PB_LAYERS: an empty range");
++    let layers: Vec<u32> = (a..b).collect();
++    for m in &layers {
++        assert!(ex.layers.contains(m), "HL_PB_LAYERS: layer {m} is not in the export");
++    }
++    let l = layers.len();
++    // = `stack_records(&ex, &layers, false)`: the same loads and checks, in
++    //   layer order (the CLI loads two at a time in parallel; same results)
++    let c = ex.run_constants(&layers).expect("the run-level constants");
++    let sh = ex.shape_for(&c).expect("the trained shape (through the door)");
++    assert!(sh.trained_calibration, "the export did not build a trained-calibration shape");
++    let (mut digests, mut records, mut silu, mut exp_e_s) = (Vec::with_capacity(l), Vec::with_capacity(l), Vec::new(), Vec::new());
++    for &m in &layers {
++        let t = ex.load_layer(&sh, &c, m, false).unwrap_or_else(|e| panic!("layer {m}: {e}"));
++        digests.push(t.record.block_digest);
++        silu.push(t.record.silu_member);
++        exp_e_s.push(t.record.exp_e_s);
++        records.push(t.record);
++        // the block itself is dropped here: one resident at a time
++    }
++    let st = ex.statement_of_records(&sh, &c, records).expect("the trained-model statement");
++    let identity = hex(&st.identity());
++    // = `stack_context(&ex.variant, &layers, label)`
++    let ctx = cli_stack_context(&ex.variant, &layers, &label);
++    // = R7's `clear_stale_writing_dirs(&art)` (N-r6-b), as a refusal that
++    //   mutates nothing: this test never removes anything from the run
++    for e in std::fs::read_dir(&art).unwrap_or_else(|e| panic!("{}: {e}", art.display())) {
++        let name = e.unwrap_or_else(|e| panic!("{}: {e}", art.display())).file_name().to_string_lossy().to_string();
++        assert!(!name.starts_with(&format!("{}.writing-", super::run_sink::STATEMENT_DIR)), "{}: a half-written statement directory {name:?} is in the run; this test does not clear it", art.display());
++    }
++    // the statement directory: the one the CLI's FRESH-PROCESS verifier wrote
++    // (the prover's unverified directory must be gone: `stack-verify` promoted it)
++    let sdir = art.join(super::run_sink::STATEMENT_DIR);
++    let unverified = art.with_file_name(format!("{}.unverified-statement", art.file_name().expect("the run directory has a name").to_string_lossy()));
++    assert!(std::fs::symlink_metadata(&unverified).is_err(), "{} still exists: `stack-verify` has not published this run", unverified.display());
++    let sm = std::fs::symlink_metadata(&sdir).unwrap_or_else(|e| panic!("{}: {e} (run the CLI's stack-verify first)", sdir.display()));
++    assert!(sm.is_dir() && !sm.file_type().is_symlink(), "{} is not a real directory", sdir.display());
++    let mut names: Vec<String> = std::fs::read_dir(&sdir).expect("the statement directory").map(|e| e.expect("an entry").file_name().to_string_lossy().to_string()).collect();
++    names.sort();
++    assert_eq!(names, ["expected.bin", "segments.json", "statement.json"], "{} does not hold exactly the verifier's three files", sdir.display());
++    let stmt = parse_json(&read_small_regular(&sdir.join("statement.json"), 4 << 20)).expect("statement.json parses (the CLI's strict parser)");
++    let field = |k: &str| -> String { stmt.get(k).and_then(J::str).unwrap_or_else(|e| panic!("statement.json: {k}: {e}")).to_string() };
++    assert_eq!(field("schema"), "zk60-trained-stack-run/2", "statement.json schema");
++    assert_eq!(field("statement_written_by"), CLI_FRESH_VERIFY_WRITER, "statement.json was not written by the CLI's fresh-process verifier");
++    assert_eq!(field("trained_statement_identity"), identity, "the CLI's published statement identity is not the one rebuilt here from the verifier's export");
++    assert_eq!(field("context_label"), label, "statement.json context label");
++    assert_eq!(field("context"), hex(&ctx), "statement.json context");
++    // = the CLI's policy read: canonical, carrying this run's context
++    let expected_bytes = read_small_regular(&sdir.join("expected.bin"), 4096);
++    assert_eq!(field("expected_io"), hex(&expected_bytes), "statement.json expected_io is not expected.bin");
++    let expected = super::ExpectedIo::from_bytes_at(&sh, &expected_bytes).expect("expected.bin decodes at the run's shape");
++    assert_eq!(expected.to_bytes(), expected_bytes, "expected.bin is not the canonical encoding of its policy");
++    assert_eq!(&expected_bytes[8..40], &ctx[..], "the artifact's endpoint policy carries another context");
++    // = `RunStatement::new_bound_from_digests(...)`, the CLI's own call
++    let rs = ex.geometry.run_shape(&sh, l).expect("the trained run shape");
++    let rst = RunStatement::new_bound_from_digests(rs, ctx, expected.clone(), digests.clone(), &vec![(0, 0); l], &st).expect("the bound run statement");
++    let header = rst.capture_header().expect("the capture header");
++    assert_eq!(header.calibration, st.identity(), "the run header's calibration word is not the trained statement identity");
++    let binding = rst.binding().expect("the run binding");
++    let load_s = t0.elapsed().as_secs_f64();
++    // THE CLI'S VERIFICATION FUNCTION on THE CLI'S RUN DIRECTORY, recorder attached
++    let opts = run_capture::CaptureOpts { arrays: true, public_tables };
++    let t1 = std::time::Instant::now();
++    let guard = run_capture::Recorder::attach();
++    run_capture::begin_run_with(header, binding, opts);
++    let mut blocks = CliBlocks { ex: &ex, sh: &sh, c: &c, layers: layers.clone(), digests: digests.clone(), cur: None, loads: 0 };
++    let seen = run::verify_run_from_dir_hashed_with(&rst, &mut blocks, &art).unwrap_or_else(|e| panic!("the CLI's run directory did not verify: {e}"));
++    let bundle = run_capture::take().expect("a bundle for an accepted run");
++    drop(guard);
++    let verify_s = t1.elapsed().as_secs_f64();
++    let loads = blocks.loads;
++    drop(blocks);
++    // the bytes verified here are the bytes the CLI's fresh-process verifier
++    // verified: `segments.json` (its hashes of EXACTLY those bytes), entry for entry
++    let sj = parse_json(&read_small_regular(&sdir.join("segments.json"), 4 << 20)).expect("segments.json parses");
++    let entries = sj.arr().expect("segments.json is a list");
++    assert_eq!(entries.len(), l, "segments.json does not list {l} segments");
++    for (k, (e, (n, h))) in entries.iter().zip(&seen).enumerate() {
++        assert_eq!(e.get("file").and_then(J::str).expect("file"), super::run_sink::segment_file_name(k), "segments.json entry {k}: file");
++        assert_eq!(e.get("bytes").and_then(J::i64).expect("bytes"), *n as i64, "segments.json entry {k}: the CLI's verifier verified another length");
++        assert_eq!(e.get("sha256").and_then(J::str).expect("sha256"), h.as_str(), "segments.json entry {k}: the CLI's verifier verified other bytes");
++    }
++    // re-read through the run verifier's bounded reader; they must be the verified bytes
++    let paths = super::run_sink::segment_paths(&art, l).expect("the run directory holds exactly the run's segments");
++    let segs: Vec<Vec<u8>> = paths.iter().enumerate().map(|(k, p)| run::read_segment_bounded(&rst, k, p).unwrap_or_else(|e| panic!("segment {k}: {e}"))).collect();
++    for (k, (s, (n, h))) in segs.iter().zip(&seen).enumerate() {
++        assert_eq!(s.len() as u64, *n, "segment {k} changed length after its verification");
++        assert_eq!(&super::run_sink::digest_hex(s), h, "segment {k} changed after its verification");
++    }
++    let tag = format!("TinyLlama-trained CLI run L={l} layers {}..{}", layers[0], layers[l - 1] + 1);
++    eprintln!("CAPTURE {tag}: trained statement identity {identity} (public; = the CLI's published statement.json)");
++    eprintln!(
++        "CAPTURE {tag}: rebuilt the statement in {load_s:.2} s; verify_run_from_dir_hashed_with + record {verify_s:.2} s over {loads} block loads; segments {} B, = statement/segments.json entry for entry; high-water mark {:.2} GiB",
++        seen.iter().map(|(n, _)| *n).sum::<u64>(),
++        run::peak_rss_mib() / 1024.0
++    );
++    let (distinct, stored, deduped, inline, blob) = bundle.arrays.stats();
++    eprintln!("CAPTURE {tag}: run.json {} B, stage files {:?} B; arrays.bin {blob} B over {distinct} distinct arrays, {stored} references ({deduped} deduplicated), {inline} inline", bundle.run_json.len(), bundle.stages.iter().map(|s| s.len()).collect::<Vec<_>>());
++    let note = format!(
++        "Bundle: one honest {l}-block private run of TRAINED TinyLlama-1.1B-Chat blocks at T = 32,\nbound to its trained-model statement, under the D19 separating hash tag, whose\nRECEIPT BYTES WERE WRITTEN BY THE PRODUCTION CLI (`zk60_trained_block stack-prove`,\nthe tk7 gate copy's CPU release binary, sha256 {cli_sha}), not by the test harness\n(privacy review P-18).\n\nVerification: the CLI's own fresh-process `stack-verify` (same binary) verified the run\ndirectory and published its `statement/` (writer: the fresh-process verifier); this\ncapture then verified THE SAME DIRECTORY with the CLI's verification function\n`run::verify_run_from_dir_hashed_with`, the statement rebuilt as the CLI's\n`stack_verify_inner` does (block source: a test-local mirror of the CLI's private\n`CacheBlocks`), with the gate's recorder attached. The bytes it verified equal the\nCLI verifier's `statement/segments.json` entry for entry.\n\nExport: variant `{}` (calibration `{}`), layers {:?}, context label `{label}`,\nper-block table keys exp e_s {:?} and SiLU members {:?}; trained-model statement\nidentity {identity}.\n\nHidden input: the export's held-out sequence `{seq_note}` entering layer {}, handed to the\nprover through `--seq-dir` (P-5); the CLI's sealing pass checked the native output\nbit for bit against the export's reference output at every layer before the run\nheader (ruling H-1). THE GENERIC WITNESS. The verifier never read it.\n\nWritten by the PRIVACY GATE lane (gate round 10, 2026-10-20) from\n`ops/zkp-mvp/trained-1b-gate-tk7/` (the token lane's frozen round-7 tree, native R8 plus\nthe token files, plus test-only capture code). A capture is the INPUT to the run privacy gate and is NOT a privacy result.",
++        ex.variant,
++        sh.norm_calibration().describe(),
++        layers,
++        exp_e_s,
++        silu,
++        layers[0]
++    );
++    let command = "zk60_trained_block stack-prove --export <export> --seq-dir <prover-private seq dir> --out <run> --layers A..B --label zk60-trained-stack; zk60_trained_block stack-verify --export <verifier copy> --artifact <run> --expect-statement <identity> --layers A..B --label zk60-trained-stack; HL_PB_EXPORT=<verifier copy> HL_PB_ARTIFACT=<run> HL_PB_LAYERS=A..B HL_PB_LABEL=zk60-trained-stack HL_PB_CAPTURE_DIR=<dir> HL_PB_SEQ=<id> HL_PB_CLI_SHA256=<sha> HL_RUN_CAPTURE_PUBLIC_TABLES=1 HL_TEST_SOURCE_COMMIT=<label> cargo test --release --lib private_block::run_capture_tests::capture_a_cli_run_directory -- --ignored --nocapture";
++    run_capture::write_bundle(&dir, &bundle, &segs, &note, command).unwrap_or_else(|e| panic!("{tag}: {e}"));
++    let total = check_bundle_on_disk(&dir, l, binding, &segs, true);
++    assert!(total < 2_000_000_000, "the CLI-run bundle is {total} B, past the 2 GB runaway ceiling");
++    eprintln!("CAPTURE {tag} RESULT: {total} B ({:.1} MB) at {}, self-consistent, every key on the allow-list — a CAPTURE of the production CLI's receipt, not a privacy result", total as f64 / 1e6, dir.display());
++}

@@ -1,0 +1,12 @@
+{
+  "prior": 38,
+  "preserved": 38,
+  "new": [
+    39
+  ],
+  "refined": [
+    1,
+    14
+  ],
+  "priority_note": "Whole-proverGPU/residentwork,DDcontextscaling andnativeexclusiveclocksstaytop3; scalarcandidateisparkedfornativeclocks."
+}

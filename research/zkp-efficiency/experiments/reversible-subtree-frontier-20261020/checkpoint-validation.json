@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "checks": 52,
+  "checkpoint_utc": "2026-10-20T19:30:16.241538+00:00",
+  "source_records": 682,
+  "new_full_stack_positions": 0,
+  "scope": "Artifact hashes, append-only memory, counts and report links; not a proof verification"
+}

@@ -1,0 +1,25 @@
+{
+  "at": "2026-10-28T21:10:30Z",
+  "complete": {
+    "strict": true,
+    "moderate": true
+  },
+  "files": {
+    "bench/openai_mod_cat_sexual_le168_strat300.jsonl": "1be6f2929d1c6fff850ef102cb38c07f404a2dc733d8e9a5cd76a62fb63cd3a4",
+    "bench/openai_mod_cat_violence_le168_strat300.jsonl": "21af02e86a16e49dc717dfea888cf77292c780f249009d3c4a93193c95ec2563",
+    "bench/openai_mod_cat_hate_le168_strat300.jsonl": "8712c263b08e93859913eb38047762c6ffc42384fb21dd729f35abd2535f9a77",
+    "bench/toxicchat_cat_sexual.jsonl": "f85c3b01ab2046312576fa527baaa459fd08997fa2e27013b6a7594969effa85",
+    "bench/toxicchat_cat_violence.jsonl": "f48967b56de140accb038aa80261b87a2c1f07d033e0364ceca7a18313cb005b",
+    "bench/toxicchat_cat_hate.jsonl": "2467fae597b0888509b3fba71a7627ab21e4fa85d6713c8564d360e1eee610b1",
+    "bench/openai_mod_mod_sexual_le168_strat300.jsonl": "bb515c30e9c61c2d832fb28452936d7d27424935b6592196bcdd75d06aaca461",
+    "bench/openai_mod_mod_violence_le168_strat300.jsonl": "1ecb8db482f4a6e2bb53c1e4fd93c866d397659e3438ec9fd0809a1379407ee4",
+    "bench/openai_mod_mod_hate_le168_strat300.jsonl": "cc8cded375e68fbb1a2836795a2409d01e4877f851d8b72f7f8c3a00b62998c7",
+    "bench/toxicchat_mod_sexual.jsonl": "67e055c1bc42dfd0df60dc3d6cbb8051eca65b756d9fd1049272aa4c7024d052",
+    "bench/toxicchat_mod_violence.jsonl": "ce8e7f2542c59ff8ffb8b2f2bcd6f009efaa5db0e0ebf26fc5f189ffd37d5dcd",
+    "bench/toxicchat_mod_hate.jsonl": "f18549a00a74977c837225c2af57d07bd3202996516eb72b41ea0e61e6a2c7aa"
+  },
+  "metrics_sha256": "e307573804431eb585f18fc095aec4f514841ec2cbb4b443889eeafc0c0b7101",
+  "lengths_sha256": "e7b2b5ccd3beabd39ea2cd5d03a5235150ed3fd2cc75b9041e8df15bced14ae7",
+  "analysis_source_sha256": "faa44719bd4fc82ad17d128562f698435dee06e7d43655184ca88a1fd20256dc",
+  "report_source_sha256": "4c037f917761db755f0a1c927f2a21a9541bd0957e0538b81827aaf89be69131"
+}

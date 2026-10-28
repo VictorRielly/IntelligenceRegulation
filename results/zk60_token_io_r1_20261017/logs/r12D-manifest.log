@@ -1,0 +1,11 @@
+246 files; list sha256 246cd4b9c21f0a93abb4d28235a0b3a4e452301333ed98d10d12908d0f87c43c
+vs manifest_final_r12.sha256: changed 8, added 1, removed 0
+  changed hashline/src/private_block/run.rs
+  changed hashline/src/private_block/run_capture.rs
+  changed hashline/src/private_block/token_io.rs
+  changed hashline/src/private_block/token_io/classify.rs
+  changed hashline/src/private_block/token_io/classify_run.rs
+  changed hashline/src/private_block/token_io/run.rs
+  changed hashline/src/private_block/token_io/stage_in_c.rs
+  changed hashline/src/private_block/token_io/stage_out_c.rs
+  added   hashline/src/private_block/token_io/classify_capture_tests.rs

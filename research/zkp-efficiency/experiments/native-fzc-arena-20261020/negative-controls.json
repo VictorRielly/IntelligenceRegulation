@@ -1,0 +1,46 @@
+[
+  {
+    "bug": "constructor",
+    "rejected": "old full slice runs beyond table capacity"
+  },
+  {
+    "bug": "first_fused_fold",
+    "rejected": "('first_fused_fold', 'allocation bounds')"
+  },
+  {
+    "bug": "later_fused_fold",
+    "rejected": "('later_fused_fold', 'allocation bounds')"
+  },
+  {
+    "bug": "generic_fold",
+    "rejected": "('generic_fold', 'allocation bounds')"
+  },
+  {
+    "bug": "later_round_read",
+    "rejected": "('later_round_read', 'allocation bounds')"
+  },
+  {
+    "bug": "pack",
+    "rejected": "('pack', 'allocation bounds')"
+  },
+  {
+    "bug": "finals",
+    "rejected": "('finals', 'allocation bounds')"
+  },
+  {
+    "bug": "affine",
+    "rejected": "('round polynomial', 4, 'implicit', 0)"
+  },
+  {
+    "bug": "affine_delta",
+    "rejected": "('round polynomial', 4, 'implicit', 0)"
+  },
+  {
+    "bug": "compressed_without_raw",
+    "rejected": true
+  },
+  {
+    "bug": "old_componentwise_extension_multiply",
+    "rejected": true
+  }
+]

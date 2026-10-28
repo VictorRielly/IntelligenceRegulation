@@ -1,0 +1,23 @@
+.........../usr/lib/python3.10/unittest/case.py:549: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/tinyllama-trained-capture-dense-l1/arrays.bin'>
+  method()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./usr/lib/python3.10/json/decoder.py:353: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/tinyllama-trained-capture-zero-l1/arrays.bin'>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.10/unittest/case.py:549: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/tinyllama-trained-capture-dense-l2/arrays.bin'>
+  method()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+............/usr/lib/python3.10/json/decoder.py:353: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/tinyllama-trained-capture-zero-l2/arrays.bin'>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+........./usr/lib/python3.10/copy.py:205: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/tinyllama-trained-capture-dense-l1/arrays.bin'>
+  for a in x:
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+....................../usr/lib/python3.10/unittest/case.py:549: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/token-io/captures/tinyllama-t32-L1-dense-pt1/arrays.bin'>
+  method()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+....
+----------------------------------------------------------------------
+Ran 59 tests in 9.366s
+
+OK

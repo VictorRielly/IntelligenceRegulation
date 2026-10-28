@@ -59,6 +59,95 @@ impl Witness {
     }
 }
 
+// NATIVE R9, TEST BUILDS ONLY: which dictionary mutation the witness
+// builder applies (0 = none)
+#[cfg(test)]
+thread_local! {
+    static DD_CHEAT: std::cell::Cell<u8> = const { std::cell::Cell::new(0) };
+}
+
+/// TEST ONLY. 1 = CHECK.md D-3 (an e = 0 PADDING slot, the last of row
+/// (0, 0), holds the wrong tuple (Sum, 0, 1) with one count moved onto it
+/// from the honest e = 0 slot, and the masked entry (0, 0, 1) claims P = 1);
+/// 2 = D-4 (an entry of row (0, ta) presents row (0, tb)'s quotient for the
+/// same e, one count moved between the two rows' slots); 3 = an entry's P off
+/// by one with NO count moved (caught only by the value-0 sum claim)
+#[cfg(test)]
+pub(crate) fn set_dd_cheat(v: u8) {
+    DD_CHEAT.with(|c| c.set(v));
+}
+
+#[cfg(test)]
+#[allow(clippy::too_many_arguments)]
+fn dd_cheat(shape: &Shape, g: &Geom, ids: &Ids, pl: &mut [Vec<i64>], oacc: &mut [i64], v8: &[i64], ecol: &[i64]) -> Result<(), String> {
+    let mode = DD_CHEAT.with(|c| c.get());
+    if mode == 0 {
+        return Ok(());
+    }
+    let cap = shape.dd_cap;
+    let (p, e, sum) = (ids.at(A_P), ids.at(A_E), ids.at(A_SUM));
+    let hs = g.slot(0);
+    let kv = 0usize;
+    let dix = |t: usize, k: usize| (hs * g.t_pad + t) * cap + k;
+    let mut rows: Vec<usize> = Vec::new();
+    match mode {
+        1 => {
+            // the masked entry (t 0, j 1) looks up e = 0; the last slot of
+            // its row is an e = 0 padding slot (n_col < cap)
+            pl[p][g.six(hs, 0, 1)] = 1;
+            pl[ids.pdict()][dix(0, cap - 1)] = 1;
+            pl[ids.pl(0)][dix(0, cap - 1)] = 1;
+            for kk in 1..g.lp {
+                pl[ids.pl(kk)][dix(0, cap - 1)] = 0;
+            }
+            pl[ids.mdd()][dix(0, 0)] -= 1;
+            pl[ids.mdd()][dix(0, cap - 1)] += 1;
+            rows.push(0);
+        }
+        2 | 3 => {
+            // the first pair of rows with different Sums, and an on-support
+            // entry of row ta whose e's quotient differs between them
+            let mut found = None;
+            'outer: for ta in 1..g.t {
+                for tb in 0..g.t {
+                    if tb == ta || pl[sum][g.htix(hs, ta)] == pl[sum][g.htix(hs, tb)] {
+                        continue;
+                    }
+                    for j in 0..=ta.min(tb) {
+                        let ev = pl[e][g.six(hs, ta, j)];
+                        if ev == 0 {
+                            continue;
+                        }
+                        let qb = (ev << F_P) / pl[sum][g.htix(hs, tb)];
+                        if qb != pl[p][g.six(hs, ta, j)] {
+                            found = Some((ta, tb, j, ev, qb));
+                            break 'outer;
+                        }
+                    }
+                }
+            }
+            let (ta, tb, j, ev, qb) = found.ok_or("dd cheat: no two rows with different quotients")?;
+            if mode == 2 {
+                // the count sits on the FIRST slot holding e, in both rows
+                let k = ecol.iter().position(|v| *v == ev).ok_or("dd cheat: e is not in the column")?;
+                pl[p][g.six(hs, ta, j)] = qb;
+                pl[ids.mdd()][dix(ta, k)] -= 1;
+                pl[ids.mdd()][dix(tb, k)] += 1;
+            } else {
+                pl[p][g.six(hs, ta, j)] += 1;
+            }
+            rows.push(ta);
+        }
+        _ => return Err("dd cheat: unknown mode".into()),
+    }
+    for t in rows {
+        for i in 0..g.dh {
+            oacc[g.qix(t, hs, i)] = (0..g.t_pad).map(|j| pl[p][g.six(hs, t, j)] * v8[g.kvix(j, kv, i)]).sum();
+        }
+    }
+    Ok(())
+}
+
 /// floor integer square root (integer only)
 pub(crate) fn isqrt(v: u64) -> u64 {
     let mut rem = v;
@@ -131,6 +220,9 @@ pub(super) struct Geom<'a> {
     /// padded strides
     t_pad: usize,
     d_pad: usize,
+    /// NATIVE R12 (F2): the padded QUERY width `h_pad * head_dim`, the row
+    /// stride of `Dom::Q` (equal to `d_pad` at every profile before R12)
+    q_pad: usize,
     f_pad: usize,
     h_pad: usize,
     kvw: usize,
@@ -154,6 +246,7 @@ impl<'a> Geom<'a> {
             half: s.head_dim / 2,
             t_pad: s.t_pad,
             d_pad: s.d_pad,
+            q_pad: s.q_pad(),
             f_pad: s.f_pad,
             h_pad: s.h_pad,
             kvw: s.kv_heads * s.head_dim,
@@ -167,8 +260,8 @@ impl<'a> Geom<'a> {
     pub(super) fn len(&self, dom: Dom) -> usize {
         self.s.size(dom)
     }
-    /// `(t, i)` of `Dom::D`, and `(t, slot, i')` of `Dom::Q` (the same flat
-    /// index, read with the head axis PERMUTED — see [`Geom::slot`])
+    /// `(t, i)` of `Dom::D` (NATIVE R12: `Dom::Q` has its own row stride,
+    /// `q_pad`, read with the head axis PERMUTED — see [`Geom::qix`])
     fn dix(&self, t: usize, i: usize) -> usize {
         t * self.d_pad + i
     }
@@ -182,7 +275,7 @@ impl<'a> Geom<'a> {
     }
     /// `(t, slot, i')` of `Dom::Q`
     fn qix(&self, t: usize, sl: usize, i: usize) -> usize {
-        t * self.d_pad + sl * self.dh + i
+        t * self.q_pad + sl * self.dh + i
     }
     /// `(t, kv, i')` of `Dom::Kv`
     fn kvix(&self, t: usize, kv: usize, i: usize) -> usize {
@@ -218,8 +311,8 @@ impl<'a> Geom<'a> {
                     }
                 }
             }
-            // `Dom::Q` shares `Dom::D`'s flat index and is NOT the same
-            // support (§3.7a note 1): `D` pads the top of each token's row,
+            // `Dom::Q` (row stride `q_pad`; `== d_pad` before R12) is NOT
+            // `Dom::D`'s support (§3.7a note 1): `D` pads the top of each token's row,
             // `Q` pads one head slot per key-value group. The order is
             // `(t, h, i')` with `h` the LOGICAL head, which is the order the
             // reference kernel lays its `q8` / `o8` buffers out in.
@@ -273,6 +366,9 @@ impl<'a> Geom<'a> {
                 }
             }
             Dom::Tab => v.extend(0..U8_LEN),
+            // NATIVE R9: a DD profile's dictionary is unpadded
+            // (`Shape::check_dd_geometry`): every slot of every row is support
+            Dom::Dd => v.extend(0..self.s.size(Dom::Dd)),
         }
         v
     }
@@ -587,16 +683,19 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
     // ---- QKV, RoPE ----
     let y = pl[ap(A_Y)].clone();
     let (dl, kvl, sl) = (g.len(Dom::D), g.len(Dom::Kv), g.len(Dom::S));
+    // NATIVE R12 (F2): the query planes live on `Dom::Q`, of row stride
+    // `q_pad` (`ql == dl` and `q_pad == d_pad` at every profile before R12)
+    let ql = g.len(Dom::Q);
     // S9: the QKV weights are the PADDED, head-permuted matrices (ruling
     // P-2), so every matmul folds over the padded inner index and `Wq` writes
     // the `Dom::Q` axis in SLOT order. The padded rows and columns are zero
     // by construction check, so the accumulation is unchanged on the support.
-    let (q8, rql) = quantize(&matmul(&g, &y, g.d_pad, &public.wq, g.d_pad, g.d_pad, g.d_pad, dl), &sup_q, shape.sh_qkv, -127, 127, "Q")?;
+    let (q8, rql) = quantize(&matmul(&g, &y, g.d_pad, &public.wq, g.d_pad, g.q_pad, g.q_pad, ql), &sup_q, shape.sh_qkv, -127, 127, "Q")?;
     let (k8, rkl) = quantize(&matmul(&g, &y, g.d_pad, &public.wk, g.d_pad, g.kvw, g.kvw, kvl), &sup_kv, shape.sh_qkv, -127, 127, "K")?;
     let (v8, rvl) = quantize(&matmul(&g, &y, g.d_pad, &public.wv, g.d_pad, g.kvw, g.kvw, kvl), &sup_kv, shape.sh_qkv, -127, 127, "V")?;
     // the rotation runs over every padded head SLOT; a padded slot holds
     // zeros, so it rotates to zero and the pad stays zero
-    let (qr8, rqrl) = quantize(&rotate(&g, &q8, g.h_pad, g.d_pad, dl, &public.rope_cos, &public.rope_sin), &sup_q, SH_ROPE, -127, 127, "QR")?;
+    let (qr8, rqrl) = quantize(&rotate(&g, &q8, g.h_pad, g.q_pad, ql, &public.rope_cos, &public.rope_sin), &sup_q, SH_ROPE, -127, 127, "QR")?;
     // S7: the key rotation runs over the KEY-VALUE heads, not over one head
     let (kr8, rkrl) = quantize(&rotate(&g, &k8, g.hkv, g.kvw, kvl, &public.rope_cos, &public.rope_sin), &sup_kv, SH_ROPE, -127, 127, "KR")?;
 
@@ -626,7 +725,7 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
     let (s8, rsl) = quantize(&sacc, &sup_s, shape.sh_s, -127, 127, "score")?;
 
     // ---- causal softmax, PV ----
-    let mut oacc = vec![0i64; dl];
+    let mut oacc = vec![0i64; ql];
     for h in 0..g.hq {
         // S7: the value mixing reads the same key-value head as the scores
         let hs = g.slot(h);
@@ -680,13 +779,52 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
                 #[cfg(test)]
                 let (q, rho, sigma) = super::review_d24_tests::forge_softmax(h, t, j, total, q, rho, sigma);
                 pl[ap(A_P)][idx] = q;
-                let (lp, lr, ls) = (limbs(q, g.lp), limbs(rho, g.ls), limbs(sigma, g.ls));
-                for k in 0..g.lp {
-                    pl[ids.pl(k)][idx] = lp[k];
+                // NATIVE R9: on a DD profile a score entry carries no limbs of
+                // its own (the dictionary below does, per slot)
+                if shape.dd_cap == 0 {
+                    let (lp, lr, ls) = (limbs(q, g.lp), limbs(rho, g.ls), limbs(sigma, g.ls));
+                    for k in 0..g.lp {
+                        pl[ids.pl(k)][idx] = lp[k];
+                    }
+                    for k in 0..g.ls {
+                        pl[ids.sr(k)][idx] = lr[k];
+                        pl[ids.sg(k)][idx] = ls[k];
+                    }
                 }
-                for k in 0..g.ls {
-                    pl[ids.sr(k)][idx] = lr[k];
-                    pl[ids.sg(k)][idx] = ls[k];
+            }
+            // **NATIVE R9 (D30): this row's division dictionary.** Slot k of
+            // row (h, t) holds the public e_k (the sorted column {0} U the exp
+            // table's outputs, padded with 0 — B-7), the quotient
+            // floor(e_k 2^F_P / Sum) with its limbs, and the remainder pair
+            // (rho_s, sigma_s) with theirs: today's exact division, at EVERY
+            // slot, padding slots included (B-1). `M_dd` counts the row's score
+            // entries whose (mask E) is e_k, all of them on the FIRST slot
+            // holding that value (the padding zeros carry no count).
+            if shape.dd_cap > 0 {
+                let cap = shape.dd_cap;
+                let ecol = public.dd_e_column(cap)?;
+                let base = (hs * g.t_pad + t) * cap;
+                for (k, ek) in ecol.iter().enumerate() {
+                    let num = ek << F_P;
+                    let (q, rho) = (num / total, num % total);
+                    let sigma = total - 1 - rho;
+                    if !(0..1i64 << wrho_s).contains(&sigma) || !(0..=1i64 << F_P).contains(&q) {
+                        return Err(range("dictionary quotient/remainder"));
+                    }
+                    pl[ids.pdict()][base + k] = q;
+                    let (lq, lr, ls) = (limbs(q, g.lp), limbs(rho, g.ls), limbs(sigma, g.ls));
+                    for kk in 0..g.lp {
+                        pl[ids.pl(kk)][base + k] = lq[kk];
+                    }
+                    for kk in 0..g.ls {
+                        pl[ids.sr(kk)][base + k] = lr[kk];
+                        pl[ids.sg(kk)][base + k] = ls[kk];
+                    }
+                }
+                for j in 0..g.t_pad {
+                    let me = if j <= t { pl[ap(A_E)][g.six(hs, t, j)] } else { 0 };
+                    let k = ecol.iter().position(|v| *v == me).ok_or_else(|| range("dictionary column"))?;
+                    pl[ids.mdd()][base + k] += 1;
                 }
             }
             for i in 0..g.dh {
@@ -694,6 +832,15 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
                 oacc[g.qix(t, hs, i)] = (0..=t).map(|j| pl[ap(A_P)][g.six(hs, t, j)] * v8[g.kvix(j, kv, i)]).sum();
             }
         }
+    }
+    // NATIVE R9, TEST BUILDS ONLY: the D30 / CHECK.md mutation witnesses
+    // (identity when unset). Each edits the honest witness CONSISTENTLY —
+    // the PV accumulator is recomputed over every key position of the edited
+    // rows — so that only the dictionary relation the mutation targets can
+    // object.
+    #[cfg(test)]
+    if shape.dd_cap > 0 {
+        dd_cheat(shape, &g, &ids, &mut pl, &mut oacc, &v8, &public.dd_e_column(shape.dd_cap)?)?;
     }
     // **S12a, finding S12-F3: `A_E` is EXEMPT from the pad rule and its
     // PADDED positions must still be genuine exp-table rows.** The LogUp arm
@@ -713,10 +860,10 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
     // The pass itself is BELOW, after `A_S8`'s plane is written: it reads the
     // committed plane, exactly as `protocol::exp_deltas` does.
     let (o8, ro) = quantize(&oacc, &sup_q, shape.sh_o, -127, 127, "O")?;
-    // `Wo` reads the head-permuted `Dom::Q` axis and writes `Dom::D`: both
-    // are the PADDED width, with the padded head columns and the padded
+    // `Wo` reads the head-permuted `Dom::Q` axis (`q_pad`) and writes
+    // `Dom::D` (`d_pad`): both PADDED, with the padded head columns and the padded
     // output rows zero (ruling P-2, checked at construction)
-    let (ao, ral) = quantize(&matmul(&g, &o8, g.d_pad, &public.wo, g.d_pad, g.d_pad, g.d_pad, dl), &sup_d, shape.sh_ao, -32768, 32767, "AO")?;
+    let (ao, ral) = quantize(&matmul(&g, &o8, g.q_pad, &public.wo, g.q_pad, g.d_pad, g.d_pad, dl), &sup_d, shape.sh_ao, -32768, 32767, "AO")?;
 
     // ---- residual 1 (all three shifts are 0: xres1 = x + ao exactly) ----
     for &idx in &sup_d {

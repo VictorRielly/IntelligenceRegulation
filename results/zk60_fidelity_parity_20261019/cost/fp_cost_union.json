@@ -1,0 +1,125 @@
+{
+ "tinyllama_T128": {
+  "baseline": {
+   "committed_elems": 68403200,
+   "u8": 28999680,
+   "receipt": 23049192,
+   "block_proof_s_cpu_law": 6.316545454545454,
+   "S_A_planes": 11,
+   "ls": 2,
+   "lp": 2,
+   "wrho_s": 16,
+   "committed_delta_pct": 0.0,
+   "proof_delta_pct": 0.0,
+   "receipt_delta_pct": 0.0
+  },
+  "UNION R1..R6 (no double counting: Q+7 Kv+8 D+6 F+3 S+2, softmax +1 bit)": {
+   "committed_elems": 83968000,
+   "u8": 35979264,
+   "receipt": 24995384,
+   "block_proof_s_cpu_law": 7.650104870952321,
+   "S_A_planes": 15,
+   "ls": 3,
+   "lp": 2,
+   "wrho_s": 17,
+   "committed_delta_pct": 22.754491017964074,
+   "proof_delta_pct": 21.112163697757012,
+   "receipt_delta_pct": 8.443645226262152
+  },
+  "R1+R3+R4+R6 (no norm outputs, no softmax bit)": {
+   "committed_elems": 80035840,
+   "u8": 34406400,
+   "receipt": 24503736,
+   "block_proof_s_cpu_law": 7.3262320192326635,
+   "S_A_planes": 13,
+   "ls": 2,
+   "lp": 2,
+   "wrho_s": 16,
+   "committed_delta_pct": 17.0059880239521,
+   "proof_delta_pct": 15.984790609883582,
+   "receipt_delta_pct": 6.310607330617057
+  }
+ },
+ "llama3-8b_T128": {
+  "baseline": {
+   "committed_elems": 117882880,
+   "u8": 51937280,
+   "receipt": 29300856,
+   "block_proof_s_cpu_law": 10.598917180438352,
+   "S_A_planes": 11,
+   "ls": 2,
+   "lp": 2,
+   "wrho_s": 16,
+   "committed_delta_pct": 0.0,
+   "proof_delta_pct": 0.0,
+   "receipt_delta_pct": 0.0
+  },
+  "UNION R1..R6 (no double counting: Q+7 Kv+8 D+6 F+3 S+2, softmax +1 bit)": {
+   "committed_elems": 145571840,
+   "u8": 64651264,
+   "receipt": 32762568,
+   "block_proof_s_cpu_law": 12.945410350728064,
+   "S_A_planes": 15,
+   "ls": 3,
+   "lp": 2,
+   "wrho_s": 17,
+   "committed_delta_pct": 23.48853370396109,
+   "proof_delta_pct": 22.138989581128744,
+   "receipt_delta_pct": 11.814371566482574
+  },
+  "R1+R3+R4+R6 (no norm outputs, no softmax bit)": {
+   "committed_elems": 140066816,
+   "u8": 62554112,
+   "receipt": 32074312,
+   "block_proof_s_cpu_law": 12.479612891658821,
+   "S_A_planes": 13,
+   "ls": 2,
+   "lp": 2,
+   "wrho_s": 16,
+   "committed_delta_pct": 18.818624044475342,
+   "proof_delta_pct": 17.744224992073065,
+   "receipt_delta_pct": 9.465443603422363
+  }
+ },
+ "llama3-8b_T512": {
+  "baseline": {
+   "committed_elems": 663257088,
+   "u8": 306249728,
+   "receipt": 69554440,
+   "block_proof_s_cpu_law": 51.97759290238243,
+   "S_A_planes": 13,
+   "ls": 3,
+   "lp": 2,
+   "wrho_s": 18,
+   "committed_delta_pct": 0.0,
+   "proof_delta_pct": 0.0,
+   "receipt_delta_pct": 0.0
+  },
+  "UNION R1..R6 (no double counting: Q+7 Kv+8 D+6 F+3 S+2, softmax +1 bit)": {
+   "committed_elems": 775585792,
+   "u8": 359202816,
+   "receipt": 76575528,
+   "block_proof_s_cpu_law": 61.237411219271856,
+   "S_A_planes": 15,
+   "ls": 3,
+   "lp": 2,
+   "wrho_s": 19,
+   "committed_delta_pct": 16.93592213823427,
+   "proof_delta_pct": 17.81501951096507,
+   "receipt_delta_pct": 10.094377871491744
+  },
+  "R1+R3+R4+R6 (no norm outputs, no softmax bit)": {
+   "committed_elems": 762675200,
+   "u8": 355008512,
+   "receipt": 75768536,
+   "block_proof_s_cpu_law": 60.03644512087352,
+   "S_A_planes": 15,
+   "ls": 3,
+   "lp": 2,
+   "wrho_s": 18,
+   "committed_delta_pct": 14.989377995158337,
+   "proof_delta_pct": 15.504473694320886,
+   "receipt_delta_pct": 8.934147122742985
+  }
+ }
+}

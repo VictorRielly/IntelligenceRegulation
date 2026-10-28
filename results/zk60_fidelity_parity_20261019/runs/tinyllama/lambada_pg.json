@@ -1,0 +1,59 @@
+{
+ "model": "tinyllama",
+ "runs": [
+  "full_lam0",
+  "full_lam250",
+  "full_lam500",
+  "full_lam750"
+ ],
+ "items": 1000,
+ "chunks": [
+  {
+   "n": 250,
+   "offset": 0,
+   "source": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/data/lambada_openai/en_test.parquet",
+   "sha256_expected": "99d8a9e54cda761c6340ddd4fa6feda7f846ffb0e716afa52968dea75495eea7",
+   "truncated_items": 4
+  },
+  {
+   "n": 250,
+   "offset": 250,
+   "source": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/data/lambada_openai/en_test.parquet",
+   "sha256_expected": "99d8a9e54cda761c6340ddd4fa6feda7f846ffb0e716afa52968dea75495eea7",
+   "truncated_items": 8
+  },
+  {
+   "n": 250,
+   "offset": 500,
+   "source": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/data/lambada_openai/en_test.parquet",
+   "sha256_expected": "99d8a9e54cda761c6340ddd4fa6feda7f846ffb0e716afa52968dea75495eea7",
+   "truncated_items": 5
+  },
+  {
+   "n": 250,
+   "offset": 750,
+   "source": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/data/lambada_openai/en_test.parquet",
+   "sha256_expected": "99d8a9e54cda761c6340ddd4fa6feda7f846ffb0e716afa52968dea75495eea7",
+   "truncated_items": 3
+  }
+ ],
+ "acc_float": 0.598,
+ "acc_float_ci95": [
+  0.5675955644139986,
+  0.6284044355860013
+ ],
+ "acc_int": 0.522,
+ "acc_diff": -0.076,
+ "acc_diff_ci95": [
+  -0.10097645975597706,
+  -0.05102354024402293
+ ],
+ "acc_ratio_int_over_float": 0.8729096989966556,
+ "discordant": {
+  "int_only": 46,
+  "float_only": 122
+ },
+ "target_nll_float": 1.8070744404916854,
+ "target_nll_int": 2.3342419784751245,
+ "refused_sequences": 7
+}

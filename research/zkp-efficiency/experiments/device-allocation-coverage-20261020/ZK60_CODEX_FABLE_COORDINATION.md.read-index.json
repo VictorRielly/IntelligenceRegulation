@@ -1,0 +1,51 @@
+[
+  {
+    "heading": "",
+    "lines": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lead": "",
+    "tail": ""
+  },
+  {
+    "heading": "# Codex \u2194 Fable active loop \u2014 2026-09-18",
+    "lines": 2,
+    "sha256": "0b4bad59324dae0330f18fd4e080a7fb5fab21d87d377f80096e46841dfb12f2",
+    "lead": "",
+    "tail": "# Codex \u2194 Fable active loop \u2014 2026-09-18 "
+  },
+  {
+    "heading": "## Reboot recovery coordination \u2014 2026-09-30 00:54 UTC",
+    "lines": 40,
+    "sha256": "ff536f008a0bf463535c6515e7abaf8b42749983288b4b37cf43fa3c2fcfb0a6",
+    "lead": " Codex thread `01a0efcb-3f84-74f1-8860-07f05d31254f` resumes the interrupted Tech Week/MVP work. Host boot ID is `821442fc-3e31-457d-a742-de97ad7c8122`; host process inspection confirms no surviving native proof/build. Claude PID",
+    "tail": "Keep five-limb support and coefficient range/identity binding explicit; these arithmetic checks authorize no privacy or restricted-domain ruling. "
+  },
+  {
+    "heading": "## CURRENT \u2014 Codex pickup, 2026-09-19",
+    "lines": 855,
+    "sha256": "e99a1d537e354e51192029d1b6464d9dc48edbd98c082e38f8fc6ab4c4e45b9c",
+    "lead": " **05:49 UTC, trained approximately 1B checkpoint started:** Victor explicitly asks for a smaller complete-model intermediate on the current GPU with matched CPU/GPU scaling measurements, and continued checkmark updates.",
+    "tail": "claim that either target has been reached. Fable can acknowledge and report its chosen branch/files in `ZK60_FABLE_LANE_HANDOFF.md`; Codex owns this file. "
+  },
+  {
+    "heading": "## Codex lane: complete functional receipt and integration",
+    "lines": 26,
+    "sha256": "ee8042397733f40b1383be7b4cc53b75c67de1c906055cdf52bf22c474fd1fd5",
+    "lead": " Codex owns `private-block-kernel/`, `private-model-kernel/`, `zkvm-block/`, `zkvm-model/`, the maintained demo/tool runners, their tests, and integration evidence. Opus 5's block/token runner and native-tool pin helper are integrated",
+    "tail": "  prefixes. The guest computation was unchanged. The token review is   `ZK60_TOKEN_MODEL_SOURCE_REVIEW.md`. "
+  },
+  {
+    "heading": "## Fable request: implement the custom attention path",
+    "lines": 40,
+    "sha256": "db0e105daa117639be1d3779880c7237c4a2242f4c96bca92f46bd3cf4e29956",
+    "lead": " **Dispatch update:** the headless Claude Fable 5.1 implementation lane now has worktree `/tmp/wt-zk60-attention-fable-20260918`, branch `zk60-private-attention-fable-20260918` at checkpoint `db021ba`. It is the",
+    "tail": "private-model timing. Shared-box timings are diagnostic; no five-second or quiesced p95 claim follows from them. Larger timed runs share `/tmp/zk-heavy.lock`. "
+  },
+  {
+    "heading": "## Integration and rulings",
+    "lines": 32,
+    "sha256": "0ae8eee18102c8befd478db1e9de5baeef6eaf37aa6fb34bd480493aafaa9658",
+    "lead": " Opus 5's current worktree is `/tmp/wt-zk60-private-profile-opus-20260918`, branch `zk60-private-profile-opus-20260918` at `db021ba`. It owns only `zk_ffn_fresh_io.rs`, a new `zk60_private_ffn_profile.rs` example, narrowly",
+    "tail": "Keep `MVP_STATUS.md` current and retain original failed run markers alongside their corrections. Do not publish inner receipts, salts, plaintext outputs, activation traces, witness files or private prover logs."
+  }
+]

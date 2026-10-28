@@ -1,0 +1,107 @@
+diff -ruN -x __pycache__ frozen_v14/tests/test_v4_status_g10.py frozen_v15/tests/test_v4_status_g10.py
+--- frozen_v14/tests/test_v4_status_g10.py	2026-10-19 19:11:02.962523387 -0700
++++ frozen_v15/tests/test_v4_status_g10.py	2026-10-19 20:10:49.020453124 -0700
+@@ -942,3 +942,103 @@
+         import zk60_native_rg_tokengate as TG
+         self.assertIn("export_dir", inspect.signature(TG.gate).parameters)
+ 
++
++
++class TK9Pins(unittest.TestCase):
++    """[v15, gate round 10: the frozen-r9 re-pin] the tk9 reading.  The one
++    digest the tk9 module adds is the tk9 copy's run.rs and frozen-r9's; the
++    six pins a tk9 bundle moves against tk7 are frozen-r9's files and the v13
++    readings' keys; the 52 pins split 40 R7 / 5 token r7c / 6 token r9 / 1
++    tk7 writer; a tk9 pin set passes the run-layer, terminal and mask pin
++    checks; without the tk9 entry (the v14 state) the same set is refused,
++    naming run.rs; a moved run.rs is refused"""
++
++    TK9 = "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-tk9/hashline"
++    R9 = "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r9/hashline"
++    PINS = ("/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/"
++            "tk9/tk9-source-pins.v1.json")
++
++    def _sha(self, root, rel):
++        import hashlib
++        with open(os.path.join(root, rel), "rb") as fh:
++            return hashlib.sha256(fh.read()).hexdigest()
++
++    def _tk9_pins(self):
++        with open(self.PINS) as fh:
++            return {p["pin"]: p["sha256_gate_copy"] for p in json.load(fh)["pins"]}
++
++    @unittest.skipUnless(os.path.isdir(TK9) and os.path.isdir(R9) and os.path.isfile(PINS),
++                         "the gate's tk9 copy, frozen-r9 or the tk9 pin list is not on disk")
++    def test_every_tk9_digest_and_the_pin_split(self):
++        import zk60_native_rg_tinyllama_tk9_pins as K9
++        import zk60_native_rg_tinyllama_tk7_pins as K7
++        import zk60_native_rg_tokenio_r7c_pins as TP
++        import zk60_native_rg_tokenio_r9_pins as R9P
++        for path, digests in K9.RUN_LAYER_PINS.items():
++            self.assertEqual(list(digests), [self._sha(self.TK9, path)], path)
++            self.assertEqual(list(digests), [self._sha(self.R9, path)], path)
++        for path, d in K9.TK9_MOVED_PINS.items():
++            self.assertEqual(d, self._sha(self.TK9, path), path)
++            self.assertEqual(d, self._sha(self.R9, path), path)
++            self.assertIn(d, R9P.TOKEN_R9_READINGS[path], path)
++        pins = self._tk9_pins()
++        self.assertEqual(len(pins), 52)
++        where = {}
++        for f, d in pins.items():
++            self.assertEqual(d, self._sha(self.TK9, f), f)
++            if TP.R7_PINS_READ_IN_V8.get(f) == d:
++                where[f] = "r7"
++            elif d in TP.TOKEN_R7C_READINGS.get(f, {}):
++                where[f] = "token-r7c"
++            elif d in R9P.TOKEN_R9_READINGS.get(f, {}):
++                where[f] = "token-r9"
++            elif f == "src/private_block/run_capture.rs" and d == K7.RUN_CAPTURE_RS:
++                where[f] = "tk7-writer"
++            else:
++                self.fail(f"{f} {d[:12]} has no reading")
++        got = sorted(where.values())
++        self.assertEqual((got.count("r7"), got.count("token-r7c"), got.count("token-r9"),
++                          got.count("tk7-writer")), (40, 5, 6, 1))
++        self.assertEqual({f for f, w in where.items() if w == "token-r9"}, set(K9.TK9_MOVED_PINS))
++
++    @unittest.skipUnless(os.path.isdir(TL1D) and os.path.isfile(PINS),
++                         "L = 1 bundle or the tk9 pin list not on disk")
++    def test_a_tk9_pin_set_is_accepted_refused_without_the_reading_and_a_moved_one_refused(self):
++        import types
++        import zk60_native_rg_runpins as RP
++        import zk60_native_rg_terminals as T
++        import zk60_native_rg_mask as M
++        import zk60_native_rg_tinyllama_tk9_pins as K9
++        with open(os.path.join(TL1D, "manifest.json")) as fh:
++            man = json.load(fh)
++        pins = self._tk9_pins()
++
++        def bundle(change=None):
++            mm = copy.deepcopy(man)
++            mm["source_pins"] = [{"file": f, "sha256": d} for f, d in pins.items()]
++            if change:
++                for p in mm["source_pins"]:
++                    if p["file"] == change:
++                        p["sha256"] = "1" * 64
++            return types.SimpleNamespace(manifest=mm, name="tk9-pin-set")
++        out = RP.check_run_layer_pins(bundle())
++        self.assertTrue(out["ok"], (out["pins_that_moved"], out["pins_missing_from_the_bundle"],
++                                    out.get("shared_files", {}).get("pins_that_moved")))
++        self.assertTrue(T.check_source_pins(bundle())["ok"])
++        self.assertTrue(M.check_mask_layer_pins(bundle())["ok"])
++        # failing first: the v14 state (no tk9 entry) refuses run.rs by name
++        # and suspends every stage it affects
++        entry = RP.RUN_LAYER_PINS["src/private_block/run.rs"].pop(K9.RUN_RS)
++        try:
++            off = RP.check_run_layer_pins(bundle())
++        finally:
++            RP.RUN_LAYER_PINS["src/private_block/run.rs"][K9.RUN_RS] = entry
++        self.assertFalse(off["ok"])
++        self.assertEqual(len(off["pins_that_moved"]), 1)
++        self.assertTrue(off["pins_that_moved"][0].startswith("src/private_block/run.rs: the bundle pins cc2c420498b1"))
++        self.assertEqual(set(off["stages_not_checked"]),
++                         set(RP.AFFECTED_STAGES["src/private_block/run.rs"][0])
++                         | set(RP.AFFECTED_ARM_STAGES.get("src/private_block/run.rs", ())))
++        self.assertTrue(RP.check_run_layer_pins(bundle())["ok"])
++        for f in ("src/private_block/run.rs", "src/private_block/run_capture.rs"):
++            self.assertFalse(RP.check_run_layer_pins(bundle(f))["ok"], f)

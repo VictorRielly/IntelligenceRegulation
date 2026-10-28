@@ -1,0 +1,37 @@
+bundle tinyllama-t32-L1-dense-pt1: challenges from transcript replay (TokenRunReplay); replay ok True; source pins ok True
+  IN-00 equal=True tp=True fin=c*me+poly=True rounds=9 tabs eq/pub/priv=1/1/2 draws=8 | NL-1 pubfactor=True deg 3<=3 terms 2=2 monos=2
+  IN-01 equal=True tp=True fin=c*me+poly=True rounds=13 tabs eq/pub/priv=1/2/3 draws=16 | NL-1 pubfactor=True deg 3<=4 terms 3=3 monos=9
+  IN-02 equal=True tp=True fin=c*me+poly=True rounds=16 tabs eq/pub/priv=1/2/2 draws=18 | NL-1 pubfactor=True deg 3<=4 terms 2=2 monos=5
+  IN-03 equal=True tp=True fin=c*me+poly=True rounds=13 tabs eq/pub/priv=0/1/1 draws=0 | NL-1 pubfactor=True deg 2<=2 terms 1=1 monos=1
+  OUT-00 equal=True tp=True fin=c*me+poly=True rounds=12 tabs eq/pub/priv=1/0/2 draws=11 | NL-1 pubfactor=True deg 2<=2 terms 2=2 monos=2
+  OUT-01 equal=True tp=True fin=c*me+poly=True rounds=13 tabs eq/pub/priv=0/1/1 draws=0 | NL-1 pubfactor=True deg 3<=4 terms 1=1 monos=1
+  OUT-02 equal=True tp=True fin=c*me+poly=True rounds=2 tabs eq/pub/priv=1/1/11 draws=7 | NL-1 pubfactor=True deg 3<=3 terms 11=11 monos=19
+  OUT-03 equal=True tp=True fin=c*me+poly=True rounds=13 tabs eq/pub/priv=1/1/2 draws=14 | NL-1 pubfactor=True deg 3<=4 terms 2=2 monos=5
+  OUT-04 equal=True tp=True fin=c*me+poly=True rounds=12 tabs eq/pub/priv=0/1/1 draws=15 | NL-1 pubfactor=True deg 2<=2 terms 1=1 monos=1
+  OUT-05 equal=True tp=True fin=c*me+poly=True rounds=13 tabs eq/pub/priv=1/1/19 draws=23 | NL-1 pubfactor=True deg 4<=5 terms 19=19 monos=50
+  OUT-06 equal=True tp=True fin=c*me+poly=True rounds=16 tabs eq/pub/priv=2/2/14 draws=23 | NL-1 pubfactor=True deg 4<=5 terms 14=14 monos=42
+  OUT-07 equal=True tp=True fin=c*me+poly=True rounds=16 tabs eq/pub/priv=0/3/9 draws=3 | NL-1 pubfactor=True deg 3<=4 terms 9=9 monos=11
+  OUT-08 equal=True tp=True fin=c*me+poly=True rounds=13 tabs eq/pub/priv=1/2/2 draws=15 | NL-1 pubfactor=True deg 3<=3 terms 2=2 monos=5
+  OUT-09 equal=True tp=True fin=c*me+poly=True rounds=13 tabs eq/pub/priv=0/1/1 draws=0 | NL-1 pubfactor=True deg 2<=2 terms 1=1 monos=1
+  OUT-10 equal=True tp=True fin=c*me+poly=True rounds=9 tabs eq/pub/priv=1/1/2 draws=8 | NL-1 pubfactor=True deg 3<=3 terms 2=2 monos=2
+  identity: 15/15 equal; public tables rebuilt 18, taken 2; ok True (0.68 s)
+  NL-1: 15/15 slots hold every premise; ok True (0.02 s)
+  NL observations: {'slots_with_a_monomial_whose_only_public_factors_are_indicator_tables': ['OUT-01', 'OUT-02', 'OUT-07'], 'slots_with_a_monomial_whose_only_public_factor_has_a_constant_MLE': ['IN-03', 'OUT-09']}
+  control TT-1_terminal_moved_IN-01: fires=True
+  control TT-2_terminal_moved_OUT-05: fires=True
+  control TT-3a_rebuildable_public_value_moved_OUT-07_iota: fires=True
+  control TT-3b_same_digests_off_captured_values_used: fires=True
+  control TT-3c_taken_table_value_moved_IN-02_tau_digests_off: fires=True
+  control TT-3d_same_digests_on: fires=True
+  control TT-4_pad_term_dropped: fires=True
+  control TT-5_capture_eq_point_moved_OUT-03: fires=True
+  control TT-6_capture_hosted_coefficient_moved_OUT-06: fires=True
+  control TT-7_token_io_limbs_moved: fires=True
+  control NL-C1_private_only_monomial_IN-01: fires=True
+  control NL-C2_affine_1_minus_supp_only_IN-01: fires=True
+  control NL-C3_bare_constant_IN-01: fires=True
+  control NL-C4_degree_overflow_IN-01: fires=True
+  control NL-C5_terminal_dropped_IN-02: fires=True
+  controls all fire: True
+  poly engine self-test True; total 12.97 s; peak RSS 112.7 MiB; OK True
+wall 13.17 s user 13.48 s sys 1.31 s maxrss 115420 KiB exit 0

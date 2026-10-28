@@ -14,3 +14,242 @@
 [13:38:47Z] start vocab0_8b_voc0 (need 2 weight 1 llama3-8b fp_vocab0.py /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/l8_b7_voc0)
 [zk60-guard 06:38:47] waiting for admission lock (0s)
 [zk60-guard 06:38:48] START fp-L_vocab0_8b_voc0 class=light need=2G cap=3G enforce=cgroup+watchdog waited=1s run=37236e02bace
+[zk60-guard 06:50:16] END fp-L_vocab0_8b_voc0 exit=0 child_wall=688s peak_rss=2.23G min_avail=10.23G
+[13:50:16Z] end vocab0_8b_voc0 exit 0
+[13:50:16Z] start e8_voc0 (need 3 weight 1 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/l8_b7_voc0 --corpora fineweb:48,wikitext:48 --tag e8_voc0 --pos-chunk 256)
+[zk60-guard 06:50:16] START fp-L_e8_voc0 class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=177d860ad788
+[zk60-guard 07:37:54] END fp-L_e8_voc0 exit=0 child_wall=2858s peak_rss=2.81G min_avail=6.50G
+[14:37:55Z] end e8_voc0 exit 0
+[14:37:55Z] start export_l8_b7_voc0 (need 2.5 weight 1 llama3-8b fp_export.py --variant /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/l8_b7_voc0 --ref /home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T128 --name llama3_8b_pg_rot1_b7voc0_T128)
+[zk60-guard 07:37:55] START fp-L_export_l8_b7_voc0 class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=a07954917247
+[zk60-guard 07:41:56] END fp-L_export_l8_b7_voc0 exit=0 child_wall=241s peak_rss=1.62G min_avail=8.58G
+[14:41:56Z] end export_l8_b7_voc0 exit 0
+[14:41:56Z] start export_tl_dg (need 2 weight 1 tinyllama fp_export.py --variant /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/tl_dg --ref /home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T128 --name tinyllama_dg_rot1_T128 --fidelity-run var_dg)
+[zk60-guard 07:41:56] START fp-L_export_tl_dg class=light need=2G cap=3G enforce=cgroup+watchdog waited=0s run=5ac1b30dc559
+[zk60-guard 07:42:31] END fp-L_export_tl_dg exit=0 child_wall=35s peak_rss=0.86G min_avail=10.31G
+[14:42:31Z] end export_tl_dg exit 0
+[14:42:31Z] start e8_lam0 (need 3 weight 1 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T128 --corpora lambada:100@0 --tag e8_lam0 --pos-chunk 256)
+[zk60-guard 07:42:31] START fp-L_e8_lam0 class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=cdb63a88df6d
+[zk60-guard 08:41:09] END fp-L_e8_lam0 exit=0 child_wall=3518s peak_rss=2.57G min_avail=6.01G
+[15:41:09Z] end e8_lam0 exit 0
+[15:41:09Z] start build_l8_b7_voc0_T32 (need 3 weight 1 llama3-8b fp_variant.py --variant pg --T 32 --calib-T 128 --profile-from /home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/runs/llama3_8b_pg_rot1_T128/prepass.json --sh-s-layer 1:7 --vocab0 --only-layers 0 --ref /home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T32 --name l8_b7_voc0_T32)
+[zk60-guard 08:41:09] START fp-L_build_l8_b7_voc0_T32 class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=573707f95ff1
+[zk60-guard 08:44:53] END fp-L_build_l8_b7_voc0_T32 exit=0 child_wall=224s peak_rss=3.03G min_avail=10.67G
+[15:44:53Z] end build_l8_b7_voc0_T32 exit 0
+[15:44:53Z] start export_l8_b7_voc0_T32 (need 2.5 weight 1 llama3-8b fp_export.py --variant /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/l8_b7_voc0_T32 --ref /home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T32 --name llama3_8b_pg_rot1_b7voc0_T32)
+[zk60-guard 08:44:53] START fp-L_export_l8_b7_voc0_T32 class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=a613616d07cb
+[zk60-guard 08:48:21] END fp-L_export_l8_b7_voc0_T32 exit=0 child_wall=208s peak_rss=1.50G min_avail=9.66G
+[15:48:21Z] end export_l8_b7_voc0_T32 exit 0
+[15:48:21Z] start vocab0_8b_voc0_T32 (need 2 weight 1 llama3-8b fp_vocab0.py /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32)
+[zk60-guard 08:48:21] START fp-L_vocab0_8b_voc0_T32 class=light need=2G cap=3G enforce=cgroup+watchdog waited=0s run=5f01aae5c49c
+[zk60-guard 09:01:19] END fp-L_vocab0_8b_voc0_T32 exit=0 child_wall=778s peak_rss=1.97G min_avail=3.71G
+[16:01:19Z] end vocab0_8b_voc0_T32 exit 0
+[16:17:00Z] start build_l8_dg_voc0 (need 3.5 weight 2 llama3-8b fp_variant.py --variant dg --vocab0 --extra-calib wtval:64 --extra-refused e8_voc0 --name l8_dg_voc0)
+[zk60-guard 09:17:00] START fp-L_build_l8_dg_voc0 class=light need=3.5G cap=4.5G enforce=cgroup+watchdog waited=0s run=664e10ae5e3b
+[zk60-guard 10:27:32] END fp-L_build_l8_dg_voc0 exit=0 child_wall=4232s peak_rss=3.37G min_avail=5.54G
+[17:27:32Z] end build_l8_dg_voc0 exit 0
+[17:27:32Z] start export_l8_dg_voc0 (need 2.5 weight 1 llama3-8b fp_export.py --variant /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/l8_dg_voc0 --ref /home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T128 --name llama3_8b_dg_rot1_voc0_T128)
+[zk60-guard 10:27:32] START fp-L_export_l8_dg_voc0 class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=6b34a0e8832f
+[zk60-guard 10:27:32] END fp-L_export_l8_dg_voc0 exit=1 child_wall=0s peak_rss=0.00G min_avail=13.29G
+[17:27:32Z] end export_l8_dg_voc0 exit 1
+[17:27:32Z] start vocab0_8b_dg (need 2 weight 1 llama3-8b fp_vocab0.py /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128)
+[zk60-guard 10:27:33] START fp-L_vocab0_8b_dg class=light need=2G cap=3G enforce=cgroup+watchdog waited=0s run=1aee55f1dc3b
+[zk60-guard 10:27:33] END fp-L_vocab0_8b_dg exit=1 child_wall=0s peak_rss=0.00G min_avail=13.18G
+[17:27:33Z] end vocab0_8b_dg exit 1
+[17:27:33Z] start e8_dg_voc0 (need 3 weight 1 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128 --corpora fineweb:48,wikitext:48 --tag e8_dg_voc0 --pos-chunk 256)
+[zk60-guard 10:27:33] START fp-L_e8_dg_voc0 class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=c94056831ce3
+[zk60-guard 10:27:33] END fp-L_e8_dg_voc0 exit=1 child_wall=0s peak_rss=0.00G min_avail=13.12G
+[17:27:33Z] end e8_dg_voc0 exit 1
+[17:27:33Z] start e8_dg_lam0 (need 3 weight 1 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128 --corpora lambada:100@0 --tag e8_dg_lam0 --pos-chunk 256)
+[zk60-guard 10:27:33] START fp-L_e8_dg_lam0 class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=33e9bff1c7fb
+[zk60-guard 10:27:33] END fp-L_e8_dg_lam0 exit=1 child_wall=0s peak_rss=0.00G min_avail=13.01G
+[17:27:33Z] end e8_dg_lam0 exit 1
+[17:27:33Z] start e8_lam100 (need 3 weight 1 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T128 --corpora lambada:100@100 --tag e8_lam100 --pos-chunk 256)
+[zk60-guard 10:27:33] START fp-L_e8_lam100 class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=4cda2da01a8d
+[zk60-guard 11:23:23] END fp-L_e8_lam100 exit=0 child_wall=3350s peak_rss=2.60G min_avail=8.64G
+[18:23:23Z] end e8_lam100 exit 0
+[18:23:23Z] start export_l8_dg_voc0b (need 2.5 weight 2 llama3-8b fp_export.py --variant /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/l8_dg_voc0 --ref /home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T128 --name llama3_8b_dg_rot1_voc0_T128 --rebuild-token-io)
+[zk60-guard 11:23:23] START fp-L_export_l8_dg_voc0b class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=c682ce33fa0f
+[zk60-guard 11:28:05] END fp-L_export_l8_dg_voc0b exit=0 child_wall=282s peak_rss=2.71G min_avail=8.90G
+[18:28:05Z] end export_l8_dg_voc0b exit 0
+[18:28:05Z] start vocab0_8b_dgb (need 2 weight 1 llama3-8b fp_vocab0.py /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128)
+[zk60-guard 11:28:06] START fp-L_vocab0_8b_dgb class=light need=2G cap=3G enforce=cgroup+watchdog waited=0s run=bd51488e6c70
+[zk60-guard 11:40:45] END fp-L_vocab0_8b_dgb exit=0 child_wall=759s peak_rss=2.12G min_avail=5.62G
+[18:40:45Z] end vocab0_8b_dgb exit 0
+[18:40:45Z] start e8_dg_voc0 (need 3 weight 1 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128 --corpora fineweb:48,wikitext:48 --tag e8_dg_voc0 --pos-chunk 256)
+[zk60-guard 11:40:45] admission waiting: budget: 9+3 GiB > 11.9 GiB with live [tio-s10-suite(cpu,6.5G), fp-L_full_lam750(light,2.5G)]
+[zk60-guard 11:41:45] admission waiting: budget: 9+3 GiB > 11.9 GiB with live [tio-s10-suite(cpu,6.5G), fp-L_full_lam750(light,2.5G)]
+[zk60-guard 11:42:45] admission waiting: budget: 9.75+3 GiB > 11.9 GiB with live [blockterm2-tinyllama-t32-L2-fixed(light,0.75G), tio-s10-suite(cpu,6.5G), fp-L_full_lam750(light,2.5G)]
+[zk60-guard 11:43:00] START fp-L_e8_dg_voc0 class=light need=3G cap=4G enforce=cgroup+watchdog waited=135s run=ee8c0e4cf219
+[zk60-guard 12:28:32] END fp-L_e8_dg_voc0 exit=0 child_wall=2732s peak_rss=2.87G min_avail=5.86G
+[19:28:32Z] end e8_dg_voc0 exit 0
+[19:28:32Z] start nexttoken_c (need 3 weight 1 llama3-8b fp_nexttoken.py /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128 seq_ho00 /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/runs/llama3-8b/nexttoken_ho00_dg_voc0_T128.json)
+[zk60-guard 12:28:32] START fp-L_nexttoken_c class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=9d70c94082ff
+[zk60-guard 12:29:57] END fp-L_nexttoken_c exit=0 child_wall=85s peak_rss=2.06G min_avail=9.64G
+[19:29:57Z] end nexttoken_c exit 0
+[19:29:57Z] start e8_dg_lam0 (need 3 weight 1 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128 --corpora lambada:100@0 --tag e8_dg_lam0 --pos-chunk 256)
+[zk60-guard 12:29:57] START fp-L_e8_dg_lam0 class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=02aa34c81030
+[zk60-guard 13:11:13] END fp-L_e8_dg_lam0 exit=0 child_wall=2476s peak_rss=2.46G min_avail=9.35G
+[20:11:13Z] end e8_dg_lam0 exit 0
+[20:11:13Z] start e8_dg_gn (need 3 weight 1 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128 --corpora fineweb:48,wikitext:48 --tag e8_dg_gn --relax gate,normq --pos-chunk 256)
+[zk60-guard 13:11:13] START fp-L_e8_dg_gn class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=c03c17d0a134
+[zk60-guard 13:46:00] END fp-L_e8_dg_gn exit=0 child_wall=2088s peak_rss=3.01G min_avail=6.39G
+[20:46:00Z] end e8_dg_gn exit 0
+[23:57:02Z] start e8_dg_noW (need 3 weight 1 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128 --corpora fineweb:48,wikitext:48 --tag e8_dg_noW --relax gate,normq,attn_core,resid,uh,act,head --pos-chunk 256)
+[zk60-guard 16:57:02] START fp-L_e8_dg_noW class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=28b982e98e88
+[zk60-guard 17:36:15] END fp-L_e8_dg_noW exit=0 child_wall=2353s peak_rss=2.71G min_avail=8.33G
+[00:36:15Z] end e8_dg_noW exit 0
+[00:53:24Z] start e8_dg_lam100 (need 3 weight 2 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128 --corpora lambada:100@100 --tag e8_dg_lam100 --pos-chunk 256)
+[zk60-guard 17:53:24] START fp-L_e8_dg_lam100 class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=5de81eb27510
+[zk60-guard 18:28:41] END fp-L_e8_dg_lam100 exit=0 child_wall=2117s peak_rss=2.62G min_avail=4.05G
+[01:28:41Z] end e8_dg_lam100 exit 0
+[01:43:44Z] start e8_dg_w (need 4.5 weight 2 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128 --corpora fineweb:48,wikitext:48 --tag e8_dg_w --relax wts --pos-chunk 256)
+[zk60-guard 18:43:44] START fp-L_e8_dg_w class=light need=4.5G cap=5.5G enforce=cgroup+watchdog waited=0s run=f8adc50a3e4c
+[zk60-guard 19:44:20] END fp-L_e8_dg_w exit=0 child_wall=3636s peak_rss=3.96G min_avail=9.69G
+[02:44:20Z] end e8_dg_w exit 0
+[03:01:13Z] start build_l8_dg_w16u (need 3.5 weight 2 llama3-8b fp_variant.py --variant dg --vocab0 --extra-calib wtval:64 --extra-refused e8_voc0 --window qkv:16,g:16,z:16 --up-mc 100 --name l8_dg_w16u)
+[zk60-guard 20:01:13] START fp-L_build_l8_dg_w16u class=light need=3.5G cap=4.5G enforce=cgroup+watchdog waited=0s run=f57955b69f13
+[zk60-guard 21:23:20] END fp-L_build_l8_dg_w16u exit=0 child_wall=4927s peak_rss=3.46G min_avail=5.51G
+[04:23:20Z] end build_l8_dg_w16u exit 0
+[04:23:20Z] start export_l8_dg_w16u (need 2.5 weight 1 llama3-8b fp_export.py --variant /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/l8_dg_w16u --ref /home/victor/IntelligenceRegulation/results/zk60_8b_calibration_20261017/export/llama3_8b_pg_rot1_b7_T128 --name EVAL_llama3_8b_dg_w16u_voc0_T128 --rebuild-token-io --class-change sh_qkv:16,sh_g:16,sh_z:16)
+[zk60-guard 21:23:20] START fp-L_export_l8_dg_w16u class=light need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=177e96ff7b4a
+[zk60-guard 21:24:49] END fp-L_export_l8_dg_w16u exit=1 child_wall=89s peak_rss=2.10G min_avail=5.15G
+[04:24:49Z] end export_l8_dg_w16u exit 1
+[04:24:49Z] start e8_dg_w16u (need 3 weight 1 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/EVAL_llama3_8b_dg_w16u_voc0_T128 --corpora fineweb:48,wikitext:48 --tag e8_dg_w16u --pos-chunk 256)
+[zk60-guard 21:24:49] admission waiting: budget: 9.2+3 GiB > 11.9 GiB with live [r9-stack-dd-tinyllama_dg_rot1_T128(cpu,8G), gate-tk7-cli-l2-dense-everything(light,1.2G)]
+[zk60-guard 21:25:49] admission waiting: budget: 9.2+3 GiB > 11.9 GiB with live [r9-stack-dd-tinyllama_dg_rot1_T128(cpu,8G), gate-tk7-cli-l2-dense-everything(light,1.2G)]
+[zk60-guard 21:25:54] START fp-L_e8_dg_w16u class=light need=3G cap=4G enforce=cgroup+watchdog waited=65s run=ff69c156b32c
+[zk60-guard 21:25:55] END fp-L_e8_dg_w16u exit=1 child_wall=0s peak_rss=0.00G min_avail=6.60G
+[04:25:55Z] end e8_dg_w16u exit 1
+[04:26:25Z] start e8_dg_w16u_fh (need 3 weight 1 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/l8_dg_w16u --corpora fineweb:48,wikitext:48 --tag e8_dg_w16u_fh --head float --pos-chunk 256)
+[zk60-guard 21:26:25] START fp-L_e8_dg_w16u_fh class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=46eaaa32c8d6
+[zk60-guard 22:04:29] END fp-L_e8_dg_w16u_fh exit=0 child_wall=2284s peak_rss=2.82G min_avail=5.55G
+[05:04:29Z] end e8_dg_w16u_fh exit 0
+[05:04:29Z] start e8_dg_fh (need 3 weight 1 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128 --corpora fineweb:48,wikitext:48 --tag e8_dg_fh --head float --pos-chunk 256)
+[zk60-guard 22:04:29] START fp-L_e8_dg_fh class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=4afddcecdcd7
+[zk60-guard 22:41:16] END fp-L_e8_dg_fh exit=0 child_wall=2207s peak_rss=2.30G min_avail=6.21G
+[05:41:16Z] end e8_dg_fh exit 0
+[05:46:12Z] start e8_c2_dg (need 5 weight 2 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128 --corpora fineweb:48,wikitext:48 --tag e8_c2_dg --mult-bits q:5,k:5,v:7,o:8,g:6,u:4,d:6 --pos-chunk 256)
+[zk60-guard 22:46:12] START fp-L_e8_c2_dg class=light need=5G cap=6G enforce=cgroup+watchdog waited=0s run=cb6b542f2a5f
+[zk60-guard 23:41:33] END fp-L_e8_c2_dg exit=0 child_wall=3321s peak_rss=3.70G min_avail=4.98G
+[06:41:33Z] end e8_c2_dg exit 0
+[06:41:34Z] start build_l8_aex (need 3.5 weight 2 llama3-8b fp_variant.py --variant dg --vocab0 --extra-calib wtval:64 --extra-refused e8_voc0 --window qkv:16,g:16,z:16 --sh-u --up-margin 3 --name l8_dg_aex)
+[zk60-guard 23:41:34] START fp-L_build_l8_aex class=light need=3.5G cap=4.5G enforce=cgroup+watchdog waited=0s run=d9fbd35a5d38
+[zk60-guard 23:41:34] END fp-L_build_l8_aex exit=3 child_wall=0s peak_rss=0.00G min_avail=12.83G
+[06:41:34Z] end build_l8_aex exit 3
+[06:41:34Z] start e8_aex_fh (need 3 weight 1 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/l8_dg_aex --corpora fineweb:48,wikitext:48 --tag e8_aex_fh --head float --pos-chunk 256)
+[zk60-guard 23:41:34] START fp-L_e8_aex_fh class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=43fb93b73d40
+[zk60-guard 23:41:34] END fp-L_e8_aex_fh exit=1 child_wall=0s peak_rss=0.00G min_avail=12.81G
+[06:41:34Z] end e8_aex_fh exit 1
+[06:53:34Z] start t_c2gpc_y4 (need 3 weight 1 tinyllama fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/tinyllama_dg_rot1_T128 --corpora fineweb:48,wikitext:48 --tag t_c2gpc_y4 --mult-bits q:5,k:5,v:7,o:8,g:6,u:4,d:6 --gate-pc=-5:mc3 --mods y4)
+[zk60-guard 23:53:34] waiting for admission lock (0s)
+[zk60-guard 23:53:36] START fp-L_t_c2gpc_y4 class=light need=3G cap=4G enforce=cgroup+watchdog waited=1s run=2a523c7c5895
+[zk60-guard 00:04:06] END fp-L_t_c2gpc_y4 exit=0 child_wall=631s peak_rss=1.86G min_avail=7.67G
+[07:04:06Z] end t_c2gpc_y4 exit 0
+[07:04:06Z] start t_c2gpc_y8 (need 3 weight 1 tinyllama fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/tinyllama_dg_rot1_T128 --corpora fineweb:48,wikitext:48 --tag t_c2gpc_y8 --mult-bits q:5,k:5,v:7,o:8,g:6,u:4,d:6 --gate-pc=-5:mc3 --mods y8)
+[zk60-guard 00:04:06] START fp-L_t_c2gpc_y8 class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=4f132c476739
+[zk60-guard 00:14:34] END fp-L_t_c2gpc_y8 exit=0 child_wall=628s peak_rss=1.86G min_avail=8.02G
+[07:14:34Z] end t_c2gpc_y8 exit 0
+[07:14:34Z] start t_c2gpc_y4fp12 (need 3 weight 1 tinyllama fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/tinyllama_dg_rot1_T128 --corpora fineweb:48,wikitext:48 --tag t_c2gpc_y4fp12 --mult-bits q:5,k:5,v:7,o:8,g:6,u:4,d:6 --gate-pc=-5:mc3 --mods y4,fp12)
+[zk60-guard 00:14:35] START fp-L_t_c2gpc_y4fp12 class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=02b249cab6d4
+[zk60-guard 00:24:53] END fp-L_t_c2gpc_y4fp12 exit=0 child_wall=618s peak_rss=1.88G min_avail=8.62G
+[07:24:53Z] end t_c2gpc_y4fp12 exit 0
+[07:24:53Z] start t_LOW (need 3 weight 1 tinyllama fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/tinyllama_dg_rot1_T128 --corpora fineweb:48,wikitext:48 --tag t_LOW --mult-bits q:5,k:5,v:7,o:8,g:6,u:4,d:6 --gate-pc=-5:mc3 --mods y8,fp12,a8,g4)
+[zk60-guard 00:24:53] START fp-L_t_LOW class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=a5f91d96a354
+[zk60-guard 00:35:29] END fp-L_t_LOW exit=0 child_wall=636s peak_rss=1.88G min_avail=8.83G
+[07:35:29Z] end t_LOW exit 0
+[07:36:17Z] start e8_LOW (need 5 weight 2 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128 --corpora fineweb:48,wikitext:48 --tag e8_LOW --mult-bits q:5,k:5,v:7,o:8,g:6,u:4,d:6 --gate-pc=-5:mc3 --mods y8,fp12,a8,g4 --pos-chunk 256)
+[zk60-guard 00:36:17] START fp-L_e8_LOW class=light need=5G cap=6G enforce=cgroup+watchdog waited=0s run=217e0aa92700
+[zk60-guard 01:36:01] END fp-L_e8_LOW exit=0 child_wall=3584s peak_rss=3.86G min_avail=7.37G
+[08:36:01Z] end e8_LOW exit 0
+[08:43:37Z] start e8_HIGH (need 5 weight 2 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128 --corpora fineweb:48,wikitext:48 --tag e8_HIGH --mult-bits q:5,k:5,v:7,o:8,g:6,u:4,d:6 --gate-pc=-5:mc3 --mods y8,fp12,a8,g4,o4,h8,s4 --pos-chunk 256)
+[zk60-guard 01:43:37] admission waiting: budget: 8.5+5 GiB > 11.9 GiB with live [tio-demo-prove(cpu,8.5G)]
+[zk60-guard 01:44:37] admission waiting: budget: 8.5+5 GiB > 11.9 GiB with live [tio-demo-prove(cpu,8.5G)]
+[zk60-guard 01:45:32] START fp-L_e8_HIGH class=light need=5G cap=6G enforce=cgroup+watchdog waited=116s run=939131a9b3ab
+[zk60-guard 02:38:14] END fp-L_e8_HIGH exit=0 child_wall=3162s peak_rss=3.80G min_avail=6.30G
+[09:38:14Z] end e8_HIGH exit 0
+[09:43:40Z] start e8_LOW_mc5 (need 5 weight 2 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128 --corpora fineweb:48,wikitext:48 --tag e8_LOW_mc5 --mult-bits q:5,k:5,v:7,o:8,g:6,u:4,d:6 --gate-pc=-5:mc5 --mods y8,fp12,a8,g4 --pos-chunk 256)
+[zk60-guard 02:43:40] START fp-L_e8_LOW_mc5 class=light need=5G cap=6G enforce=cgroup+watchdog waited=0s run=71b6ab563aae
+[zk60-guard 03:48:15] END fp-L_e8_LOW_mc5 exit=0 child_wall=3875s peak_rss=3.81G min_avail=10.29G
+[10:48:15Z] end e8_LOW_mc5 exit 0
+[10:56:18Z] start e8_HIGH_mc5 (need 5 weight 2 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128 --corpora fineweb:48,wikitext:48 --tag e8_HIGH_mc5 --mult-bits q:5,k:5,v:7,o:8,g:6,u:4,d:6 --gate-pc=-5:mc5 --mods y8,fp12,a8,g4,o4,h8,s4 --pos-chunk 256)
+[zk60-guard 03:56:18] START fp-L_e8_HIGH_mc5 class=light need=5G cap=6G enforce=cgroup+watchdog waited=0s run=4fbd04893a22
+[zk60-guard 04:52:21] END fp-L_e8_HIGH_mc5 exit=0 child_wall=3363s peak_rss=3.78G min_avail=10.45G
+[11:52:21Z] end e8_HIGH_mc5 exit 0
+[12:00:02Z] start build_l8_aex2 (need 3.5 weight 2 llama3-8b fp_variant.py --variant dg --vocab0 --extra-calib wtval:64 --extra-refused e8_voc0 --window qkv:16,g:16,z:16 --sh-u --up-margin 3 --name l8_dg_aex)
+[zk60-guard 05:00:02] START fp-L_build_l8_aex2 class=light need=3.5G cap=4.5G enforce=cgroup+watchdog waited=0s run=3939f5448a42
+[zk60-guard 06:39:25] END fp-L_build_l8_aex2 exit=0 child_wall=5962s peak_rss=3.45G min_avail=10.78G
+[13:39:25Z] end build_l8_aex2 exit 0
+[13:39:25Z] start e8_aex_fh2 (need 3 weight 1 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/l8_dg_aex --corpora fineweb:48,wikitext:48 --tag e8_aex_fh --head float --pos-chunk 256)
+[zk60-guard 06:39:25] START fp-L_e8_aex_fh2 class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=53a62e1bc4c6
+[zk60-guard 07:20:51] END fp-L_e8_aex_fh2 exit=0 child_wall=2486s peak_rss=2.61G min_avail=10.19G
+[14:20:51Z] end e8_aex_fh2 exit 0
+[14:35:41Z] start e8_aex_c2gpc_fh (need 5 weight 2 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/variants/l8_dg_aex --corpora fineweb:48,wikitext:48 --tag e8_aex_c2gpc_fh --head float --mult-bits q:5,k:5,v:7,o:8,g:6,u:4,d:6 --gate-pc=-5:mc3 --pos-chunk 256)
+[zk60-guard 07:35:41] START fp-L_e8_aex_c2gpc_fh class=light need=5G cap=6G enforce=cgroup+watchdog waited=0s run=29bd3cd9d80b
+[zk60-guard 08:31:03] END fp-L_e8_aex_c2gpc_fh exit=0 child_wall=3322s peak_rss=3.97G min_avail=10.52G
+[15:31:03Z] end e8_aex_c2gpc_fh exit 0
+[15:46:20Z] start e8_MID (need 5 weight 2 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128 --corpora fineweb:48,wikitext:48 --tag e8_MID --mult-bits q:5,k:5,v:7,o:8,g:6,u:4,d:6 --gate-pc=-5:mc3 --mods y8,fp12,a8,g4,o4 --pos-chunk 256)
+[zk60-guard 08:46:21] START fp-L_e8_MID class=light need=5G cap=6G enforce=cgroup+watchdog waited=0s run=b6660a1546b7
+[zk60-guard 09:42:47] END fp-L_e8_MID exit=0 child_wall=3386s peak_rss=3.82G min_avail=10.40G
+[16:42:47Z] end e8_MID exit 0
+[16:50:21Z] start e8_c2gpc (need 5 weight 2 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128 --corpora fineweb:48,wikitext:48 --tag e8_c2gpc --mult-bits q:5,k:5,v:7,o:8,g:6,u:4,d:6 --gate-pc=-5:mc3 --pos-chunk 256)
+[zk60-guard 09:50:21] START fp-L_e8_c2gpc class=light need=5G cap=6G enforce=cgroup+watchdog waited=0s run=5224f330d900
+[zk60-guard 10:46:28] END fp-L_e8_c2gpc exit=0 child_wall=3367s peak_rss=3.78G min_avail=10.46G
+[17:46:28Z] end e8_c2gpc exit 0
+[00:10:31Z] start e8_LOWs4f (need 5 weight 2 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128 --corpora fineweb:48,wikitext:48 --tag e8_LOWs4f --mult-bits q:5,k:5,v:7,o:8,g:6,u:4,d:6 --gate-pc=-5:mc8:tm2 --mods y8,fp12,a8,ah2,g4,s4 --pos-chunk 256)
+[zk60-guard 17:10:31] START fp-L_e8_LOWs4f class=light need=5G cap=6G enforce=cgroup+watchdog waited=0s run=c5eec0b49c86
+[zk60-guard 18:05:52] END fp-L_e8_LOWs4f exit=0 child_wall=3321s peak_rss=3.78G min_avail=7.47G
+[01:05:52Z] end e8_LOWs4f exit 0
+[01:05:52Z] start t_P1 (need 3 weight 1 tinyllama fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/tinyllama_dg_rot1_T128 --corpora fineweb:48,wikitext:48 --tag t_P1 --mult-bits q:5,k:5,v:7,o:8,g:6,u:4,d:6 --gate-pc=-5:mc8:tm2:ng4 --mods fp12,g4)
+[zk60-guard 18:05:52] START fp-L_t_P1 class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=5d502464eb41
+[zk60-guard 18:17:01] END fp-L_t_P1 exit=0 child_wall=669s peak_rss=1.89G min_avail=7.57G
+[01:17:02Z] end t_P1 exit 0
+[01:17:02Z] start t_P2 (need 3 weight 1 tinyllama fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/tinyllama_dg_rot1_T128 --corpora fineweb:48,wikitext:48 --tag t_P2 --mult-bits q:5,k:5,v:7,o:8,g:6,u:4,d:6 --gate-pc=-5:mc8:tm2:ng4 --mods y8,fp12,g4)
+[zk60-guard 18:17:02] START fp-L_t_P2 class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=5f136d0de9e3
+[zk60-guard 18:29:59] END fp-L_t_P2 exit=0 child_wall=778s peak_rss=1.87G min_avail=9.16G
+[01:29:59Z] end t_P2 exit 0
+[01:29:59Z] start t_P3 (need 3 weight 1 tinyllama fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/tinyllama_dg_rot1_T128 --corpora fineweb:48,wikitext:48 --tag t_P3 --mult-bits q:5,k:5,v:7,o:8,g:6,u:4,d:6 --gate-pc=-5:mc8:tm2:ng4 --mods fp12,a8,ah2,g4)
+[zk60-guard 18:29:59] START fp-L_t_P3 class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=2ca2fdeb395e
+[zk60-guard 18:43:18] END fp-L_t_P3 exit=0 child_wall=799s peak_rss=1.89G min_avail=8.67G
+[01:43:18Z] end t_P3 exit 0
+[01:43:25Z] start e8_LOWh8g (need 5 weight 2 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128 --corpora fineweb:48,wikitext:48 --tag e8_LOWh8g --mult-bits q:5,k:5,v:7,o:8,g:6,u:4,d:6 --gate-pc=-5:mc8:tm2:ng4 --mods y8,fp12,a8,ah2,g4,h8 --pos-chunk 256)
+[zk60-guard 18:43:25] START fp-L_e8_LOWh8g class=light need=5G cap=6G enforce=cgroup+watchdog waited=0s run=433f939b73e0
+[zk60-guard 19:53:19] END fp-L_e8_LOWh8g exit=0 child_wall=4194s peak_rss=3.82G min_avail=6.78G
+[02:53:19Z] end e8_LOWh8g exit 0
+[02:53:19Z] start t_P3h8 (need 3 weight 1 tinyllama fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/tinyllama_dg_rot1_T128 --corpora fineweb:48,wikitext:48 --tag t_P3h8 --mult-bits q:5,k:5,v:7,o:8,g:6,u:4,d:6 --gate-pc=-5:mc8:tm2:ng4 --mods fp12,a8,ah2,g4,h8)
+[zk60-guard 19:53:19] START fp-L_t_P3h8 class=light need=3G cap=4G enforce=cgroup+watchdog waited=0s run=d95de374890b
+[zk60-guard 20:09:45] END fp-L_t_P3h8 exit=0 child_wall=986s peak_rss=1.84G min_avail=7.30G
+[03:09:45Z] end t_P3h8 exit 0
+[03:09:45Z] start e8_LOWh8v6_lam0 (need 5 weight 2 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128 --corpora lambada:100@0 --tag e8_LOWh8v6_lam0 --mult-bits q:5,k:5,v:6,o:8,g:6,u:4,d:6 --gate-pc=-5:mc8:tm2:ng4 --mods y8,fp12,a8,ah2,g4,h8 --pos-chunk 256)
+[zk60-guard 20:09:45] admission waiting: budget: 7.3+5 GiB > 11.9 GiB with live [gate-ddts-tl128dd-l2-dense(light,1.5G), shieldstral-bench_toxicchat_card_200-c1(light,1G), gate-tl128dd-l1-dense-everything(light,2G), pm-seqgen-a72321cd7fb0(light,1G), shieldstral-prefixcache(light,0.8G), gate-ddts-tl128dd-l2-dense(light,1G)]
+[zk60-guard 20:10:45] admission waiting: budget: 7.3+5 GiB > 11.9 GiB with live [gate-ddts-tl128dd-l2-dense(light,1.5G), shieldstral-bench_toxicchat_card_200-c1(light,1G), gate-tl128dd-l1-dense-everything(light,2G), pm-prove-a72321cd7fb0(cpu,1.8G), gate-ddts-tl128dd-l2-dense(light,1G)]
+[zk60-guard 20:11:45] admission waiting: budget: 7.3+5 GiB > 11.9 GiB with live [gate-ddts-tl128dd-l2-dense(light,1.5G), shieldstral-bench_toxicchat_card_200-c1(light,1G), gate-tl128dd-l1-dense-everything(light,2G), pm-prove-a72321cd7fb0(cpu,1.8G), gate-ddts-tl128dd-l2-dense(light,1G)]
+[zk60-guard 20:12:46] admission waiting: budget: 9.7+5 GiB > 11.9 GiB with live [shieldstral-hfcheck-bf16(light,1.2G), gate-ddts-tl128dd-l2-dense(light,1.5G), shieldstral-bench_toxicchat_card_200-c1(light,1G), gate-tl128dd-l1-dense-everything(light,2G), r12-golden-r9-build(build,3G), gate-ddts-tl128dd-l2-dense(light,1G)]
+[zk60-guard 20:13:46] admission waiting: budget: 9.7+5 GiB > 11.9 GiB with live [shieldstral-hfcheck-bf16(light,1.2G), gate-ddts-tl128dd-l2-dense(light,1.5G), shieldstral-bench_toxicchat_card_200-c1(light,1G), gate-tl128dd-l1-dense-everything(light,2G), r12-golden-r9-build(build,3G), gate-ddts-tl128dd-l2-dense(light,1G)]
+[zk60-guard 20:14:46] admission waiting: budget: 9.7+5 GiB > 11.9 GiB with live [shieldstral-hfcheck-bf16(light,1.2G), gate-ddts-tl128dd-l2-dense(light,1.5G), shieldstral-bench_toxicchat_card_200-c1(light,1G), gate-tl128dd-l1-dense-everything(light,2G), r12-golden-r9-build(build,3G), gate-ddts-tl128dd-l2-dense(light,1G)]
+[zk60-guard 20:15:46] admission waiting: budget: 9.7+5 GiB > 11.9 GiB with live [shieldstral-hfcheck-bf16(light,1.2G), gate-ddts-tl128dd-l2-dense(light,1.5G), shieldstral-bench_toxicchat_card_200-c1(light,1G), gate-tl128dd-l1-dense-everything(light,2G), r12-golden-r9-build(build,3G), gate-ddts-tl128dd-l2-dense(light,1G)]
+[zk60-guard 20:16:46] admission waiting: budget: 10.5+5 GiB > 11.9 GiB with live [shieldstral-hfcheck-bf16(light,1.2G), gate-ddts-tl128dd-l2-dense(light,1.5G), gate-tl128dd-l1-dense-everything(light,2G), shieldstral-refcheck-consolidated(light,0.8G), shieldstral-bench_openai_mod_card_200-c1(light,1G), r12-golden-r9-build(build,3G), gate-ddts-tl128dd-l2-dense(light,1G)]
+[zk60-guard 20:17:46] admission waiting: budget: 9.7+5 GiB > 11.9 GiB with live [shieldstral-hfcheck-bf16(light,1.2G), gate-ddts-tl128dd-l2-dense(light,1.5G), gate-tl128dd-l1-dense-everything(light,2G), shieldstral-bench_openai_mod_card_200-c1(light,1G), r12-golden-r9-build(build,3G), gate-ddts-tl128dd-l2-dense(light,1G)]
+[zk60-guard 20:18:47] admission waiting: budget: 7.5+5 GiB > 11.9 GiB with live [gate-ddts-tl128dd-l2-dense(light,1.5G), gate-tl128dd-l1-dense-everything(light,2G), shieldstral-bench_openai_mod_card_200-c1(light,1G), r12-t1-build(build,2G), gate-ddts-tl128dd-l2-dense(light,1G)]
+[zk60-guard 20:19:47] admission waiting: budget: 8.4+5 GiB > 11.9 GiB with live [gate-ddts-tl128dd-l2-dense(light,1.5G), gate-tl128dd-l1-dense-everything(light,2G), shieldstral-bench_openai_mod_card_200-c1(light,1G), r12-t1-build(build,2G), shieldstral-refcheck-bf16emul(light,0.9G), gate-ddts-tl128dd-l2-dense(light,1G)]
+[zk60-guard 20:20:47] admission waiting: budget: 8.8+5 GiB > 11.9 GiB with live [gate-ddts-tl128dd-l2-dense(light,1.5G), gate-tl128dd-l1-dense-everything(light,2G), shieldstral-bench-tc200-bf16emul(light,1.3G), shieldstral-bench_openai_mod_card_200-c1(light,1G), r12-t1-build(build,2G), gate-ddts-tl128dd-l2-dense(light,1G)]
+[zk60-guard 20:21:47] admission waiting: budget: 8.8+5 GiB > 11.9 GiB with live [gate-ddts-tl128dd-l2-dense(light,1.5G), gate-tl128dd-l1-dense-everything(light,2G), shieldstral-bench-tc200-bf16emul(light,1.3G), shieldstral-bench_openai_mod_card_200-c1(light,1G), r12-t1-build(build,2G), gate-ddts-tl128dd-l2-dense(light,1G)]
+[zk60-guard 20:22:47] admission waiting: budget: 8.8+5 GiB > 11.9 GiB with live [gate-ddts-tl128dd-l2-dense(light,1.5G), gate-tl128dd-l1-dense-everything(light,2G), shieldstral-bench-tc200-bf16emul(light,1.3G), shieldstral-bench_openai_mod_card_200-c1(light,1G), r12-t1-build(build,2G), gate-ddts-tl128dd-l2-dense(light,1G)]
+[zk60-guard 20:23:48] admission waiting: budget: 8.8+5 GiB > 11.9 GiB with live [gate-ddts-tl128dd-l2-dense(light,1.5G), gate-tl128dd-l1-dense-everything(light,2G), shieldstral-bench-tc200-bf16emul(light,1.3G), shieldstral-bench_openai_mod_card_200-c1(light,1G), r12-t1-build(build,2G), gate-ddts-tl128dd-l2-dense(light,1G)]
+[zk60-guard 20:24:48] admission waiting: budget: 8.8+5 GiB > 11.9 GiB with live [gate-ddts-tl128dd-l2-dense(light,1.5G), gate-tl128dd-l1-dense-everything(light,2G), shieldstral-bench-tc200-bf16emul(light,1.3G), shieldstral-bench_openai_mod_card_200-c1(light,1G), r12-t1-build(build,2G), gate-ddts-tl128dd-l2-dense(light,1G)]
+[zk60-guard 20:25:48] admission waiting: budget: 8.2+5 GiB > 11.9 GiB with live [gate-ddts-tl128dd-l2-dense(light,1.5G), gate-tl128dd-l1-dense-everything(light,2G), shieldstral-bench-tc200-bf16emul(light,1.3G), shieldstral-bench_openai_mod_card_200-c1(light,1G), gate-ddts-tl128dd-l2-dense(light,1G), pm-verify-a72321cd7fb0(cpu,1.4G)]
+[zk60-guard 20:26:48] admission waiting: budget: 8.2+5 GiB > 11.9 GiB with live [gate-ddts-tl128dd-l2-dense(light,1.5G), gate-tl128dd-l1-dense-everything(light,2G), shieldstral-bench-tc200-bf16emul(light,1.3G), shieldstral-bench_openai_mod_card_200-c1(light,1G), pm-inowner-a72321cd7fb0(cpu,1.4G), gate-ddts-tl128dd-l2-dense(light,1G)]
+[zk60-guard 20:27:48] admission waiting: budget: 9.8+5 GiB > 11.9 GiB with live [gate-ddts-tl128dd-l2-dense(light,1.5G), gate-tl128dd-l1-dense-everything(light,2G), shieldstral-bench-tc200-bf16emul(light,1.3G), shieldstral-bench_openai_mod_card_200-c1(light,1G), tio-r12-c2-check(build,3G), gate-ddts-tl128dd-l2-dense(light,1G)]
+[zk60-guard 20:28:49] admission waiting: budget: 8.8+5 GiB > 11.9 GiB with live [gate-ddts-tl128dd-l2-dense(light,1.5G), gate-tl128dd-l1-dense-everything(light,2G), shieldstral-bench-tc200-bf16emul(light,1.3G), r12-t2-build(build,2G), shieldstral-bench_openai_mod_card_200-c1(light,1G), gate-ddts-tl128dd-l2-dense(light,1G)]
+[zk60-guard 20:29:49] admission waiting: budget: 8.8+5 GiB > 11.9 GiB with live [gate-ddts-tl128dd-l2-dense(light,1.5G), gate-tl128dd-l1-dense-everything(light,2G), shieldstral-bench-tc200-bf16emul(light,1.3G), r12-t2-build(build,2G), shieldstral-bench_openai_mod_card_200-c1(light,1G), gate-ddts-tl128dd-l2-dense(light,1G)]
+[zk60-guard 20:30:49] admission waiting: budget: 8.8+5 GiB > 11.9 GiB with live [gate-ddts-tl128dd-l2-dense(light,1.5G), gate-tl128dd-l1-dense-everything(light,2G), shieldstral-bench-tc200-bf16emul(light,1.3G), r12-t2-build(build,2G), shieldstral-bench_openai_mod_card_200-c1(light,1G), gate-ddts-tl128dd-l2-dense(light,1G)]
+[zk60-guard 20:31:49] admission waiting: budget: 7.8+5 GiB > 11.9 GiB with live [gate-ddts-tl128dd-l2-dense(light,1.5G), gate-tl128dd-l1-dense-everything(light,2G), shieldstral-bench-tc200-bf16emul(light,1.3G), r12-t2-build(build,2G), shieldstral-bench_openai_mod_card_200-c1(light,1G)]
+[zk60-guard 20:32:49] admission waiting: budget: 7.8+5 GiB > 11.9 GiB with live [gate-ddts-tl128dd-l2-dense(light,1.5G), gate-tl128dd-l1-dense-everything(light,2G), shieldstral-bench-tc200-bf16emul(light,1.3G), r12-t2-build(build,2G), shieldstral-bench_openai_mod_card_200-c1(light,1G)]
+[zk60-guard 20:32:59] START fp-L_e8_LOWh8v6_lam0 class=light need=5G cap=6G enforce=cgroup+watchdog waited=1394s run=94e443356b55
+[zk60-guard 22:05:49] END fp-L_e8_LOWh8v6_lam0 exit=0 child_wall=5570s peak_rss=3.78G min_avail=6.45G
+[05:05:50Z] end e8_LOWh8v6_lam0 exit 0
+[05:05:50Z] start e8_LOWh8v6_lam100 (need 5 weight 2 llama3-8b fp_eval.py --export /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_dg_rot1_voc0_T128 --corpora lambada:100@100 --tag e8_LOWh8v6_lam100 --mult-bits q:5,k:5,v:6,o:8,g:6,u:4,d:6 --gate-pc=-5:mc8:tm2:ng4 --mods y8,fp12,a8,ah2,g4,h8 --pos-chunk 256)
+[zk60-guard 22:05:50] START fp-L_e8_LOWh8v6_lam100 class=light need=5G cap=6G enforce=cgroup+watchdog waited=0s run=be14e00be7ba
+[zk60-guard 23:16:23] END fp-L_e8_LOWh8v6_lam100 exit=0 child_wall=4233s peak_rss=3.77G min_avail=9.10G
+[06:16:23Z] end e8_LOWh8v6_lam100 exit 0
+[17:34:41Z] lane X finished

@@ -1,0 +1,19 @@
+{
+  "queries": [
+    "GPU NTT bit reversal coalesced memory 2026 Blackwell ICICLE",
+    "GPU NTT coalesced bit reversal Stockham 2025 2026 paper",
+    "GPU sumcheck GKR LogUp 2026 release October private inference proof",
+    "site.github.com/succinctlabs/sp1 \"6.9.0\" \"license\"",
+    "site:github.com/LMPC-Lab/GenGPUCrypto \"GNTT4\" \"License\"",
+    "site:docs.nvidia.com/cuda/cuda-c-best-practices-guide \"Last updated\" \"2026\"",
+    "site:github.com/pscamillo/icicle-blackwell-ntt \"Sep\" \"2026\""
+  ],
+  "tools": "Native LIVE web__run, no shell network",
+  "primary_sources_recorded": 6,
+  "screened_secondary_results_not_used": [
+    "Hysen Labs DeepProve summary",
+    "Reddit inference-only performance posts",
+    "iframe-proxy mirror"
+  ],
+  "limitations": "No source fetch was retried via alternate transport; blocked metadata retained. External content not executed."
+}

@@ -1,0 +1,46 @@
+{
+ "classifier_sha256": "0578430f50f03020db26cc7c27b66fcc8b501e602cfec7ad4c9f8ec612376992",
+ "control_families_not_fired_in_this_pass": {
+  "stage10_bilinear_group_factor": "GQ (bilinear group factor)",
+  "stage8_plane_index_and_terminals": "CT-1..CT-9 (terminal identity)"
+ },
+ "controls_requested": false,
+ "controls_requested_inferred_from_the_record": false,
+ "explained": {
+  "/stage10_bilinear_group_factor/controls/ok": "(a) controls not requested in this pass",
+  "/stage8_plane_index_and_terminals/controls/ok": "(a) controls not requested in this pass"
+ },
+ "false_leaves": [
+  "/stage10_bilinear_group_factor/controls/ok",
+  "/stage8_plane_index_and_terminals/controls/ok"
+ ],
+ "non_bool_leaves": [],
+ "ok": true,
+ "ok_is_unchanged": "this status never changes `ok`; ok = false stays ok = false",
+ "privacy_acceptance": false,
+ "privacy_property_established": false,
+ "record": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round14/v17/tl128dd-l1-zero-a.json",
+ "record_bundle": "tl128dd-l1-zero",
+ "record_driver_sha256": "b64799b32e8d5fc3a3fea0d67ab28e49bfc167439d96fd8d561d12ad644f3ce9",
+ "record_sha256": "000cf11893064ed803438e12fe4c52fcca80d1256ef7dd2ef73161d1c0869286",
+ "record_stages_run": [
+  "stage10_bilinear_group_factor",
+  "stage11_full_preimage",
+  "stage12_mask_and_cfs",
+  "stage13_joint_run_preimage",
+  "stage14_export_crosscheck",
+  "stage1_integrity",
+  "stage2_transcript_replay",
+  "stage3_per_commitment",
+  "stage4_the_boundary",
+  "stage5_zero_data_preimage",
+  "stage7_channels",
+  "stage8_plane_index_and_terminals",
+  "stage9_hash_layer"
+ ],
+ "stages_that_raised": [],
+ "status": "PASS",
+ "unexplained": [],
+ "what_ARMS_ONLY_means": "every figure of the arms this pass ran closed (recomputed here from the record), and the ONLY reason ok is false is that the pass was run without --controls",
+ "what_it_does_not_mean": "that those controls fired: they did not, in this pass.  An arm counts only where its controls fired on the same tools and shape in another record, which the ledger must cite"
+}

@@ -1,0 +1,21 @@
+{
+  "cycle": "0115",
+  "current_rotation": [
+    "GPU NTT/commitments",
+    "memory traffic",
+    "batching/amortization"
+  ],
+  "next_rotation": [
+    "quantization/arithmetic underD32",
+    "private lookup source consistency",
+    "proof composition"
+  ],
+  "top_owner_priorities": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "local_test_rank": 28,
+  "next_local": "Inspect exact Goldilocks inverse-size scales and coset scaling in real private commit/open kernels. Count repeated fixed public inversions separately from per-row multiplies; test a public scale table against Fermat inverses/direct DFT and compiler-style operation counts. If work is already cached or negligible, preserve negative and pivot to actual M-commit encode/hash incidence. Do not rebuild/GPU."
+}

@@ -1,0 +1,11 @@
+tinyllama-t32-L1-dense-pt1 NOT OK ['A1: 0 attribution lines for /home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128 layers [0]']
+tinyllama-t32-L1-fixed-pt1 NOT OK ['A1: 0 attribution lines for /home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128 layers [0]']
+tinyllama-t32-L2-dense-pt1 ok []
+tinyllama-t32-L2-fixed-pt1 ok []
+tinyllama-t32-L22-dense-pt1 ok []
+tinyllama-t32-L22-fixed-pt1 ok []
+llama3-8b-t32-L1-dense-pt1 NOT OK ['A1: 0 attribution lines for /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32 layers [0]']
+llama3-8b-t32-L1-fixed-pt1 NOT OK ['A1: 0 attribution lines for /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/llama3_8b_pg_rot1_b7voc0_T32 layers [0]']
+llama3-8b-t32-L2-dense-pt1 ok []
+llama3-8b-t32-L2-fixed-pt1 ok []
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round10/cal/cal-all.json  status NOT-OK

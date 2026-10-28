@@ -1,0 +1,12 @@
+{
+  "status": "PASS_COST_AND_ARTIFACT_AUDIT",
+  "checks": 273,
+  "immutable_artifacts": 54,
+  "prior_sources": 760,
+  "appended_sources": 13,
+  "prior_findings_lines": 10319,
+  "hypotheses_retained": 34,
+  "live_source_pins": 6,
+  "wall_seconds": 0.02215528697706759,
+  "rss_kib": 20876
+}

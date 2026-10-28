@@ -1,0 +1,28 @@
+[00:17:12Z] fp_eval tinyllama export tl_dg_w16u T 128 corpora lambada:250@0 relax [] threads 4
+[00:17:13Z] corpora built: (250, 128), {'lambada': {'n': 250, 'offset': 0, 'source': '/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/data/lambada_openai/en_test.parquet', 'sha256_expected': '99d8a9e54cda761c6340ddd4fa6feda7f846ffb0e716afa52968dea75495eea7', 'truncated_items': 4}} (1s)
+[00:17:13Z] float final residual from cache float_T128_a4b886231dff.npy
+[00:18:14Z] L00 violations 2 refused so far 1 (52s)
+[00:19:07Z] L01 violations 0 refused so far 1 (53s)
+[00:19:58Z] L02 violations 0 refused so far 1 (51s)
+[00:20:51Z] L03 violations 0 refused so far 1 (53s)
+[00:21:43Z] L04 violations 0 refused so far 1 (52s)
+[00:22:35Z] L05 violations 0 refused so far 1 (52s)
+[00:23:28Z] L06 violations 0 refused so far 1 (53s)
+[00:24:22Z] L07 violations 0 refused so far 1 (54s)
+[00:25:14Z] L08 violations 0 refused so far 1 (52s)
+[00:26:03Z] L09 violations 0 refused so far 1 (49s)
+[00:26:53Z] L10 violations 3 refused so far 4 (51s)
+[00:27:43Z] L11 violations 0 refused so far 4 (50s)
+[00:28:34Z] L12 violations 0 refused so far 4 (50s)
+[00:29:24Z] L13 violations 0 refused so far 4 (51s)
+[00:30:14Z] L14 violations 0 refused so far 4 (50s)
+[00:31:04Z] L15 violations 0 refused so far 4 (50s)
+[00:31:55Z] L16 violations 0 refused so far 4 (51s)
+[00:32:44Z] L17 violations 0 refused so far 4 (49s)
+[00:33:30Z] L18 violations 0 refused so far 4 (46s)
+[00:34:17Z] L19 violations 0 refused so far 4 (47s)
+[00:35:03Z] L20 violations 0 refused so far 4 (46s)
+[00:35:49Z] L21 violations 0 refused so far 4 (46s)
+[00:35:51Z] lambada: acc float 0.6280 int 0.5760 diff -0.0520 CI [-0.08562765127273211, -0.01837234872726788] top1 0.914 refused 4
+[00:35:51Z] done (1119s) -> /home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/runs/tinyllama/combo2_lam0
+[00:35:52Z] ALREADY DONE: runs/tinyllama/combo2_lam0/summary.json exists (set FP_RERUN=1 to recompute)

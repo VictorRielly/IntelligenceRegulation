@@ -1,0 +1,60 @@
+{
+ "transformers_4_48_1": {
+  "source_behaviour": [
+   "correction range uses config.max_position_embeddings (ignores rope_scaling.original_max_position_embeddings)",
+   "attention_factor = 0.1*ln(factor)+1 = 1.27726 unless rope_scaling.attention_factor is given (ignores mscale/mscale_all_dim)"
+  ],
+  "with_config_as_shipped_max_pos_262144": {
+   "attention_factor": 1.2772588722239782,
+   "inv_freq_max_rel_diff_vs_5_13_1": 11.47,
+   "dims_original_interp_ramp": [
+    34,
+    14,
+    16
+   ]
+  },
+  "with_max_pos_16384": {
+   "attention_factor": 1.2772588722239782,
+   "inv_freq_bitwise_equal_5_13_1": true
+  },
+  "with_max_pos_16384_and_attention_factor_1": {
+   "attention_factor": 1.0,
+   "inv_freq_bitwise_equal_5_13_1": true
+  }
+ },
+ "transformers_5_13_1_vs_reference": {
+  "inv_freq_max_rel_diff": 1.3948626383934997e-07,
+  "attention_scaling": 1.0,
+  "dims_original_interp_ramp": [
+   21,
+   27,
+   16
+  ],
+  "max_abs_cos_diff_pos_lt_400": 2.452662268320749e-05
+ },
+ "yarn_vs_unscaled_entries_changed": {
+  "T128": {
+   "exact": 0.6666,
+   "int8_x127": 0.2421,
+   "x256": 0.2814,
+   "q15": 0.4966
+  },
+  "T256": {
+   "exact": 0.6693,
+   "int8_x127": 0.294,
+   "x256": 0.333,
+   "q15": 0.525
+  },
+  "T1024": {
+   "exact": 0.6712,
+   "int8_x127": 0.396,
+   "x256": 0.4341,
+   "q15": 0.5777
+  }
+ },
+ "margin_effect_measured_13_prompts": {
+  "no_yarn": 0.0511,
+  "yarn_no_truncation": 0.0011,
+  "mscale_1.277_applied (=4.48 with max_pos 16384)": 1.3401
+ }
+}

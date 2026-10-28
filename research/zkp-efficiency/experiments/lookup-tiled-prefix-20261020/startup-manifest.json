@@ -1,0 +1,67 @@
+{
+  "CLAUDE.md": {
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089,
+    "lines": 235
+  },
+  "docs/zkmatrix-poc/MVP_STATUS.md": {
+    "sha256": "621ced1c6a8611be5b76a22689d0977d43c76e7c02bdfdcee16b467b1513986e",
+    "bytes": 84664,
+    "lines": 1198
+  },
+  "docs/zkmatrix-poc/ZK60_DECISIONS.md": {
+    "sha256": "9a7730c640fe8611327257a7df68f3da3be30cb1885cd3e7640b5ba2e22b869f",
+    "bytes": 102129,
+    "lines": 1035
+  },
+  "docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md": {
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889,
+    "lines": 995
+  },
+  "docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md": {
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941,
+    "lines": 90
+  },
+  "research/zkp-efficiency/AGENDA.md": {
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603,
+    "lines": 85
+  },
+  "research/zkp-efficiency/STATE.md": {
+    "sha256": "b191100f9da5b95e7f76eb3dc6067d76780062b1286bc74698cc3225b56d2733",
+    "bytes": 3763,
+    "lines": 58
+  },
+  "research/zkp-efficiency/PROGRESS.md": {
+    "sha256": "5d8e470db8ef9f9b0c88733948108a1b74827bd4e7f93393038d8d9fea127b7b",
+    "bytes": 2573,
+    "lines": 44
+  },
+  "research/zkp-efficiency/FINDINGS.md": {
+    "sha256": "de98145b538a777e2e1361eadc4cccd50c99841719d0f3a1d6608b39b02c5865",
+    "bytes": 768061,
+    "lines": 8907
+  },
+  "research/zkp-efficiency/sources.jsonl": {
+    "sha256": "4e00ec56be40d3458d126b7b0cb01165f08f73d18f8d2f649e87cf388c781973",
+    "bytes": 800866,
+    "lines": 631
+  },
+  "research/zkp-efficiency/experiments/lookup-owned-consumer-20261020/result.json": {
+    "sha256": "1a78d61ab1c321c165e8f616c20340000e72f55147d6d9540dfe9b021c0f15bd",
+    "bytes": 1096,
+    "lines": 38
+  },
+  "research/zkp-efficiency/experiments/lookup-owned-consumer-20261020/validation-result.json": {
+    "sha256": "238f8f3815b1e8ee6722f9828e8bbae3ea463ea6c12998de429bfc73a2eb0ad3",
+    "bytes": 369,
+    "lines": 12
+  },
+  "research/zkp-efficiency/progress/20261020T141854Z-e43b78d7.md": {
+    "sha256": "9637c13c0434ffaa51f9f8c7189d64ab0e12cd9a5c7bca9bc9c0ad03fce1f2f7",
+    "bytes": 2622,
+    "lines": 46
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "tool": "native LIVE web__run",
+  "access_date": "2026-10-20",
+  "queries": [
+    "site.github.com openvm stark backend gkr revert_layers logup",
+    "site.eprint.iacr.org 2026 GPU sumcheck batching memory commitment prover",
+    "site.github.com sumcheck fraction tree \"revert\" denominator",
+    "site.eprint.iacr.org \"reversible\" \"GKR\"",
+    "site.github.com GPU NTT October 2026 release memory preprocessing",
+    "site.github.com \"frac_unadd_inplace\"",
+    "site.eprint.iacr.org \"2026\" \"prover\" \"memory\" \"October\"",
+    "site.github.com/ingonyama-zk/icicle/releases v4.0.0",
+    "\"fractional\" \"sumcheck\" \"in-place\" inverse",
+    "\"batch inversion\" \"product tree\" in-place",
+    "site.eprint.iacr.org/2026/ \"2026-10\" \"prover\" memory",
+    "\"reversible computation\" \"1973\" Bennett time space",
+    "site.eprint.iacr.org \"fraction\" \"batch\" \"inversion\" GKR",
+    "site.github.com/fractalyze/openvm-zorch/issues/71 \"Jun 20, 2026\" \"2.2s\"",
+    "site.github.com/a16z/jolt \"Twist\" \"Shout\" \"2026\""
+  ],
+  "query_count": 15,
+  "source_records": 9,
+  "rotation": [
+    "batching/amortization",
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "memory traffic",
+    "lookup/softmax",
+    "proof composition"
+  ],
+  "next_rotation": [
+    "quantization/arithmetic under D32",
+    "composition/private input-consistency"
+  ],
+  "other_access_limits": [
+    "https://research.ibm.com/publications/logical-reversibility-of-computation: not accessible",
+    "https://doi.org/10.1147/rd.176.0525 -> IEEE robot/JavaScript gate; no bypass",
+    "One erroneous release-list click had invalid arguments; no source evidence obtained"
+  ],
+  "no_downloaded_code_execution": true
+}

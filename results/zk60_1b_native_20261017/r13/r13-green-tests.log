@@ -1,0 +1,10 @@
+
+running 5 tests
+test tests::group_scale_precedes_product_rounding ... ok
+test tests::grouped_products_match_independent_rational_vectors ... ok
+test tests::invalid_shifts_multipliers_and_overflow_are_refused ... ok
+test tests::negative_half_ties_round_toward_positive_infinity ... ok
+test tests::requantization_matches_independent_rational_vectors ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

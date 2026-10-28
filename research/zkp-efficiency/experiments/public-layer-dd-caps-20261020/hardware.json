@@ -1,0 +1,14 @@
+{
+  "cpu": "Intel Core Ultra 9 185H",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "threads": 1,
+  "GPU_jobs": 0,
+  "limits": {
+    "threads": 1,
+    "CPU_s": 59,
+    "alarm_s": 59,
+    "parent_wall_s": 60,
+    "address_space_MiB": 512,
+    "estimate_MiB": 64
+  }
+}

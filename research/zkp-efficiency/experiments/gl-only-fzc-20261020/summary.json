@@ -1,0 +1,59 @@
+{
+  "run_id": "20261020T071854Z-1076bec1",
+  "cycle": "0099",
+  "checkpoint_at": "2026-10-20T07:32:03.634194+00:00",
+  "baseline": "literal rawround0 endpoint derivation",
+  "scope": "Python algebra and partial source primitive/read accounting only",
+  "result": {
+    "status": "PASS_PYTHON_ALGEBRA_AND_PARTIAL_SOURCE_COSTS_ONLY",
+    "fixtures": 36,
+    "rounds": 144,
+    "checks": 2372,
+    "negative_controls": 15,
+    "cost_cases": 90,
+    "seed": 2026102099,
+    "wall_seconds": 2.415169582993258,
+    "rss_kib": 17012,
+    "threads": 1,
+    "affinity": [
+      0
+    ],
+    "full_stack": {
+      "proofs": 0,
+      "passes": 0,
+      "positions": 0,
+      "context_length": null,
+      "device": null,
+      "witness_s": null,
+      "proof_s": null,
+      "serialization_s": null,
+      "verification_s": null,
+      "startup_fraction": null,
+      "steady_rate": null,
+      "total_rate": null
+    },
+    "scope": "Synthetic quotient-field/original-polynomial/direct-original-MLE checks; no native code/masks/transcript/PCS/receipt/verifier"
+  },
+  "validation": {
+    "status": "PASS_RESEARCH_ARTIFACTS_ONLY",
+    "checks": 223,
+    "source_pins_unchanged": 8,
+    "native_execution": false,
+    "wall_seconds": 0.0034981960052391514,
+    "rss_kib": 14748
+  },
+  "illustration": {
+    "entries": 2097152,
+    "support": true,
+    "pad_nonzero": 11,
+    "base_products_removed": 14680064,
+    "base_adds_subs_removed": 97517568,
+    "logical_shared_read_bytes_removed": 268435456,
+    "added_host_preweights": 0,
+    "added_parameter_bytes": 0,
+    "global_capacity_bytes_saved": 0
+  },
+  "full_native_execution": false,
+  "next_owner": "Three-arm native A/B,compiler/exclusive/enclosing clocks,masked transcript/receipt parity+fresh independent verification.",
+  "next_local": "Static census of Rust public pad-weight construction and existing raw/BASE/SUPP gates; reachable support sizes only, no private-value scans. Prioritize owner compiler/phase evidence."
+}

@@ -1,0 +1,1787 @@
+{
+ "D34_D40": {
+  "D40_figure_T512": -112.7,
+  "classifier_L26": [
+   {
+    "L": 26,
+    "T": 128,
+    "log2": -112.687
+   },
+   {
+    "L": 26,
+    "T": 256,
+    "log2": -112.678
+   },
+   {
+    "L": 26,
+    "T": 512,
+    "log2": -112.66
+   }
+  ],
+  "formula": "2 (768 L + T + 256) / p^2 (D34; D40 recount for the classifier family)",
+  "next_token_L1_T32_check": -116.956
+ },
+ "D41_rung_example": {
+  "overlap": 4,
+  "ranges": [
+   [
+    0,
+    23
+   ],
+   [
+    4,
+    27
+   ]
+  ],
+  "size": 23,
+  "total": 27
+ },
+ "geometries": [
+  {
+   "P0": 8,
+   "S": 1,
+   "V": 300,
+   "V_pad": 512,
+   "b_in_b_out": {
+    "data_rows": 4,
+    "inv_rate": 4,
+    "plane": [
+     32,
+     512
+    ],
+    "row_width_log": 12,
+    "rows": 10,
+    "sites": 2
+   },
+   "c": 0,
+   "d": 384,
+   "d_pad": 512,
+   "door_findings": [],
+   "expectations": {
+    "OUT-C claims": {
+     "A_site_pairs": 29,
+     "H_site_pairs": 9
+    },
+    "one_public_bit": "stage OUT-C's public tables are functions of the geometry, the profile constants (c, the margin vector w_Delta by digest), the re-derived challenges and b ONLY: supp_d, the limb-plane live selector, g(z) = sigma 256^(z-32) on the limb entries, u0, w_Delta, the byte table and its support; the LZC host constant is b + c. The margin Delta, the limbs lambda and y are committed in A_out and opened only through reserved pairs, so (rank lemma) A_out discloses 0 and no magnitude of Delta is a public value",
+    "opening_groups": {
+     "IN-C": [
+      3,
+      4
+     ],
+     "OUT-C": [
+      16,
+      5
+     ]
+    },
+    "per_commitment_disclosed_Fp": {
+     "A-in": 0,
+     "A-out (OUT-C)": 0,
+     "B-in / internal boundaries / B-out": 0,
+     "E-token-in": 0,
+     "E-token-out": "ABSENT (D40: no output endpoint)",
+     "H-in": 2,
+     "H-out (OUT-C)": 2,
+     "block A": 0,
+     "block H": 2
+    },
+    "public_outputs_depending_on_hidden_data": [
+     "the verdict bit b (statement; header label classify-verdict)"
+    ],
+    "template_and_ctl_columns": "stage IN-C's template indicator pi, template ids kappa and the query control column ctl_q are public functions of the policy; the content positions' ids stay in A_in (disclosed 0)",
+    "why_H_2": "each H commitment's two zero-sum rows (the value-0 sum claim's u pair), as in every built stage"
+   },
+   "geometry": "R-C1 classifier rung (T32 / d384, V 300, P0 8 + n 23 + S 1)",
+   "input_endpoint": {
+    "commitment_rows": 6,
+    "content_words": 23,
+    "data_rows": 1,
+    "inv_rate": 8,
+    "pad_words": 224,
+    "row_width_log": 8,
+    "template_words": 9,
+    "true_words": 32,
+    "words": 256
+   },
+   "margin": {
+    "B_Delta": 1597981056,
+    "B_Delta_log2": 30.574,
+    "delta_max_any_limbs_log2": 40,
+    "honest_delta_fits": true,
+    "honest_delta_max": 10187915648,
+    "identity_total_below_p_half": true,
+    "isqrt_live_entries": [
+     0,
+     2,
+     4,
+     6,
+     8,
+     10,
+     12,
+     14,
+     16
+    ],
+    "limb_entries": [
+     32,
+     36
+    ],
+    "limb_plane_entries": 4096,
+    "limbs": 5,
+    "window_bits": 34
+   },
+   "n": 23,
+   "num_special": 5,
+   "opening_groups": {
+    "IN-C": [
+     3,
+     4
+    ],
+    "OUT-C": [
+     16,
+     5
+    ]
+   },
+   "output_endpoint": null,
+   "privacy_acceptance": false,
+   "stage_in_c": {
+    "A": {
+     "data_rows": 2,
+     "plane_logs": [
+      12,
+      12
+     ],
+     "prox_pair": [
+      8,
+      9
+     ],
+     "rows": 10,
+     "site_pairs": 3
+    },
+    "H": {
+     "data_rows": 6,
+     "plane_logs": [
+      12,
+      12,
+      12
+     ],
+     "prox_pair": [
+      12,
+      13
+     ],
+     "rows": 14,
+     "signs": [
+      1,
+      -1,
+      1
+     ],
+     "site_pairs": 3,
+     "zero_sum_pair": [
+      4,
+      5
+     ]
+    },
+    "M": {
+     "functionals": 8,
+     "mask_specs": [
+      [
+       9,
+       3
+      ],
+      [
+       13,
+       4
+      ],
+      [
+       13,
+       4
+      ],
+      [
+       13,
+       2
+      ]
+     ],
+     "rows": 12
+    },
+    "committed_elements": 98304,
+    "hosts": [],
+    "label": "stage IN-C",
+    "row_log_A_H_In_Out": [
+     12,
+     12,
+     8,
+     12
+    ],
+    "row_width_log": 12,
+    "slots": [
+     {
+      "a_sites": 1,
+      "degree": 3,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 1,
+      "kind": "Standalone",
+      "main": 8,
+      "name": "INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 1,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE + pad, fresh mu each"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each"
+     },
+     {
+      "a_sites": 0,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "INC-03 ZS zero-sum row"
+     }
+    ]
+   },
+   "stage_out_c": {
+    "A": {
+     "data_rows": 16,
+     "plane_logs": [
+      1,
+      1,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12
+     ],
+     "prox_pair": [
+      74,
+      75
+     ],
+     "rows": 76,
+     "site_pairs": 29
+    },
+    "H": {
+     "data_rows": 18,
+     "plane_logs": [
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12
+     ],
+     "prox_pair": [
+      36,
+      37
+     ],
+     "rows": 38,
+     "signs": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      -1,
+      1
+     ],
+     "site_pairs": 9,
+     "zero_sum_pair": [
+      16,
+      17
+     ]
+    },
+    "M": {
+     "functionals": 14,
+     "mask_specs": [
+      [
+       10,
+       2
+      ],
+      [
+       13,
+       4
+      ],
+      [
+       2,
+       3
+      ],
+      [
+       10,
+       2
+      ],
+      [
+       13,
+       4
+      ],
+      [
+       13,
+       5
+      ],
+      [
+       13,
+       3
+      ],
+      [
+       13,
+       2
+      ]
+     ],
+     "rows": 20
+    },
+    "committed_elements": 466944,
+    "hosts": [
+     [
+      2,
+      [
+       1
+      ]
+     ],
+     [
+      4,
+      [
+       3
+      ]
+     ]
+    ],
+    "label": "stage OUT-C",
+    "row_log_A_H_In_Out": [
+     12,
+     12,
+     12,
+     12
+    ],
+    "row_width_log": 12,
+    "slots": [
+     {
+      "a_sites": 1,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 1,
+      "kind": "Standalone",
+      "main": 9,
+      "name": "OUTC-00 IO-in: x = B_out row T-1 (fixed public row bits)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 0,
+      "kind": "Private",
+      "main": 12,
+      "name": "OUTC-01 SS final-norm row sum (private, hosted by TZC)"
+     },
+     {
+      "a_sites": 11,
+      "degree": 3,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 0,
+      "kind": "Host",
+      "main": 1,
+      "name": "OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 0,
+      "kind": "Private",
+      "main": 9,
+      "name": "OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Host",
+      "main": 12,
+      "name": "OUTC-04 LZC limb lookups (+pad; isqrt and margin limbs) + host term sigma g limb + u0 (sigma b + c)"
+     },
+     {
+      "a_sites": 13,
+      "degree": 5,
+      "ext": 1,
+      "h_sites": 6,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUTC-05 DZC final-norm quotient + x limbs + helpers (+pad)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 3,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUTC-06 TAB byte-table helper (+pad)"
+     },
+     {
+      "a_sites": 0,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUTC-07 ZS zero-sum row"
+     }
+    ]
+   },
+   "t_pad": 32,
+   "tier": {
+    "ep_inv_rate": 8,
+    "ep_log_n": 8,
+    "lookup_ext_degree": 2,
+    "name": "mvp-95-whole-run (D27)",
+    "opened_cols": 256,
+    "stage_inv_rate": 4,
+    "stage_log_n": 12
+   },
+   "tokens": 32
+  },
+  {
+   "P0": 84,
+   "S": 1,
+   "V": 131072,
+   "V_pad": 131072,
+   "b_in_b_out": {
+    "data_rows": 64,
+    "inv_rate": 4,
+    "plane": [
+     128,
+     4096
+    ],
+    "row_width_log": 13,
+    "rows": 70,
+    "sites": 2
+   },
+   "c": 0,
+   "d": 3072,
+   "d_pad": 4096,
+   "door_findings": [],
+   "expectations": {
+    "OUT-C claims": {
+     "A_site_pairs": 29,
+     "H_site_pairs": 9
+    },
+    "one_public_bit": "stage OUT-C's public tables are functions of the geometry, the profile constants (c, the margin vector w_Delta by digest), the re-derived challenges and b ONLY: supp_d, the limb-plane live selector, g(z) = sigma 256^(z-32) on the limb entries, u0, w_Delta, the byte table and its support; the LZC host constant is b + c. The margin Delta, the limbs lambda and y are committed in A_out and opened only through reserved pairs, so (rank lemma) A_out discloses 0 and no magnitude of Delta is a public value",
+    "opening_groups": {
+     "IN-C": [
+      3,
+      4
+     ],
+     "OUT-C": [
+      16,
+      5
+     ]
+    },
+    "per_commitment_disclosed_Fp": {
+     "A-in": 0,
+     "A-out (OUT-C)": 0,
+     "B-in / internal boundaries / B-out": 0,
+     "E-token-in": 0,
+     "E-token-out": "ABSENT (D40: no output endpoint)",
+     "H-in": 2,
+     "H-out (OUT-C)": 2,
+     "block A": 0,
+     "block H": 2
+    },
+    "public_outputs_depending_on_hidden_data": [
+     "the verdict bit b (statement; header label classify-verdict)"
+    ],
+    "template_and_ctl_columns": "stage IN-C's template indicator pi, template ids kappa and the query control column ctl_q are public functions of the policy; the content positions' ids stay in A_in (disclosed 0)",
+    "why_H_2": "each H commitment's two zero-sum rows (the value-0 sum claim's u pair), as in every built stage"
+   },
+   "geometry": "Shieldstral-1.0-3B T128 (card template, P0 84 + n 43 + S 1)",
+   "input_endpoint": {
+    "commitment_rows": 6,
+    "content_words": 43,
+    "data_rows": 1,
+    "inv_rate": 8,
+    "pad_words": 128,
+    "row_width_log": 8,
+    "template_words": 85,
+    "true_words": 128,
+    "words": 256
+   },
+   "margin": {
+    "B_Delta": 12783848448,
+    "B_Delta_log2": 33.574,
+    "delta_max_any_limbs_log2": 40,
+    "honest_delta_fits": true,
+    "honest_delta_max": 21373783040,
+    "identity_total_below_p_half": true,
+    "isqrt_live_entries": [
+     0,
+     2,
+     4,
+     6,
+     8,
+     10,
+     12,
+     14,
+     16
+    ],
+    "limb_entries": [
+     32,
+     36
+    ],
+    "limb_plane_entries": 4096,
+    "limbs": 5,
+    "window_bits": 35
+   },
+   "n": 43,
+   "num_special": 1000,
+   "opening_groups": {
+    "IN-C": [
+     3,
+     4
+    ],
+    "OUT-C": [
+     16,
+     5
+    ]
+   },
+   "output_endpoint": null,
+   "privacy_acceptance": false,
+   "stage_in_c": {
+    "A": {
+     "data_rows": 33,
+     "plane_logs": [
+      12,
+      17
+     ],
+     "prox_pair": [
+      39,
+      40
+     ],
+     "rows": 41,
+     "site_pairs": 3
+    },
+    "H": {
+     "data_rows": 68,
+     "plane_logs": [
+      12,
+      17,
+      12
+     ],
+     "prox_pair": [
+      74,
+      75
+     ],
+     "rows": 76,
+     "signs": [
+      1,
+      -1,
+      1
+     ],
+     "site_pairs": 3,
+     "zero_sum_pair": [
+      66,
+      67
+     ]
+    },
+    "M": {
+     "functionals": 8,
+     "mask_specs": [
+      [
+       9,
+       3
+      ],
+      [
+       13,
+       4
+      ],
+      [
+       18,
+       4
+      ],
+      [
+       13,
+       2
+      ]
+     ],
+     "rows": 12
+    },
+    "committed_elements": 479232,
+    "hosts": [],
+    "label": "stage IN-C",
+    "row_log_A_H_In_Out": [
+     12,
+     12,
+     8,
+     13
+    ],
+    "row_width_log": 12,
+    "slots": [
+     {
+      "a_sites": 1,
+      "degree": 3,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 1,
+      "kind": "Standalone",
+      "main": 8,
+      "name": "INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 1,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE + pad, fresh mu each"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 17,
+      "name": "INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each"
+     },
+     {
+      "a_sites": 0,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "INC-03 ZS zero-sum row"
+     }
+    ]
+   },
+   "stage_out_c": {
+    "A": {
+     "data_rows": 16,
+     "plane_logs": [
+      1,
+      1,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12
+     ],
+     "prox_pair": [
+      74,
+      75
+     ],
+     "rows": 76,
+     "site_pairs": 29
+    },
+    "H": {
+     "data_rows": 18,
+     "plane_logs": [
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12
+     ],
+     "prox_pair": [
+      36,
+      37
+     ],
+     "rows": 38,
+     "signs": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      -1,
+      1
+     ],
+     "site_pairs": 9,
+     "zero_sum_pair": [
+      16,
+      17
+     ]
+    },
+    "M": {
+     "functionals": 14,
+     "mask_specs": [
+      [
+       13,
+       2
+      ],
+      [
+       13,
+       4
+      ],
+      [
+       2,
+       3
+      ],
+      [
+       13,
+       2
+      ],
+      [
+       13,
+       4
+      ],
+      [
+       13,
+       5
+      ],
+      [
+       13,
+       3
+      ],
+      [
+       13,
+       2
+      ]
+     ],
+     "rows": 20
+    },
+    "committed_elements": 466944,
+    "hosts": [
+     [
+      2,
+      [
+       1
+      ]
+     ],
+     [
+      4,
+      [
+       3
+      ]
+     ]
+    ],
+    "label": "stage OUT-C",
+    "row_log_A_H_In_Out": [
+     12,
+     12,
+     13,
+     12
+    ],
+    "row_width_log": 12,
+    "slots": [
+     {
+      "a_sites": 1,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 1,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUTC-00 IO-in: x = B_out row T-1 (fixed public row bits)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 0,
+      "kind": "Private",
+      "main": 12,
+      "name": "OUTC-01 SS final-norm row sum (private, hosted by TZC)"
+     },
+     {
+      "a_sites": 11,
+      "degree": 3,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 0,
+      "kind": "Host",
+      "main": 1,
+      "name": "OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 0,
+      "kind": "Private",
+      "main": 12,
+      "name": "OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Host",
+      "main": 12,
+      "name": "OUTC-04 LZC limb lookups (+pad; isqrt and margin limbs) + host term sigma g limb + u0 (sigma b + c)"
+     },
+     {
+      "a_sites": 13,
+      "degree": 5,
+      "ext": 1,
+      "h_sites": 6,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUTC-05 DZC final-norm quotient + x limbs + helpers (+pad)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 3,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUTC-06 TAB byte-table helper (+pad)"
+     },
+     {
+      "a_sites": 0,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUTC-07 ZS zero-sum row"
+     }
+    ]
+   },
+   "t_pad": 128,
+   "tier": {
+    "ep_inv_rate": 8,
+    "ep_log_n": 8,
+    "lookup_ext_degree": 2,
+    "name": "mvp-95-whole-run (D27)",
+    "opened_cols": 256,
+    "stage_inv_rate": 4,
+    "stage_log_n": 12
+   },
+   "tokens": 128
+  },
+  {
+   "P0": 84,
+   "S": 1,
+   "V": 131072,
+   "V_pad": 131072,
+   "b_in_b_out": {
+    "data_rows": 128,
+    "inv_rate": 4,
+    "plane": [
+     256,
+     4096
+    ],
+    "row_width_log": 13,
+    "rows": 134,
+    "sites": 2
+   },
+   "c": 0,
+   "d": 3072,
+   "d_pad": 4096,
+   "door_findings": [],
+   "expectations": {
+    "OUT-C claims": {
+     "A_site_pairs": 29,
+     "H_site_pairs": 9
+    },
+    "one_public_bit": "stage OUT-C's public tables are functions of the geometry, the profile constants (c, the margin vector w_Delta by digest), the re-derived challenges and b ONLY: supp_d, the limb-plane live selector, g(z) = sigma 256^(z-32) on the limb entries, u0, w_Delta, the byte table and its support; the LZC host constant is b + c. The margin Delta, the limbs lambda and y are committed in A_out and opened only through reserved pairs, so (rank lemma) A_out discloses 0 and no magnitude of Delta is a public value",
+    "opening_groups": {
+     "IN-C": [
+      3,
+      4
+     ],
+     "OUT-C": [
+      16,
+      5
+     ]
+    },
+    "per_commitment_disclosed_Fp": {
+     "A-in": 0,
+     "A-out (OUT-C)": 0,
+     "B-in / internal boundaries / B-out": 0,
+     "E-token-in": 0,
+     "E-token-out": "ABSENT (D40: no output endpoint)",
+     "H-in": 2,
+     "H-out (OUT-C)": 2,
+     "block A": 0,
+     "block H": 2
+    },
+    "public_outputs_depending_on_hidden_data": [
+     "the verdict bit b (statement; header label classify-verdict)"
+    ],
+    "template_and_ctl_columns": "stage IN-C's template indicator pi, template ids kappa and the query control column ctl_q are public functions of the policy; the content positions' ids stay in A_in (disclosed 0)",
+    "why_H_2": "each H commitment's two zero-sum rows (the value-0 sum claim's u pair), as in every built stage"
+   },
+   "geometry": "Shieldstral-1.0-3B T256 (card template, P0 84 + n 171 + S 1)",
+   "input_endpoint": {
+    "commitment_rows": 6,
+    "content_words": 171,
+    "data_rows": 1,
+    "inv_rate": 8,
+    "pad_words": 0,
+    "row_width_log": 8,
+    "template_words": 85,
+    "true_words": 256,
+    "words": 256
+   },
+   "margin": {
+    "B_Delta": 12783848448,
+    "B_Delta_log2": 33.574,
+    "delta_max_any_limbs_log2": 40,
+    "honest_delta_fits": true,
+    "honest_delta_max": 21373783040,
+    "identity_total_below_p_half": true,
+    "isqrt_live_entries": [
+     0,
+     2,
+     4,
+     6,
+     8,
+     10,
+     12,
+     14,
+     16
+    ],
+    "limb_entries": [
+     32,
+     36
+    ],
+    "limb_plane_entries": 4096,
+    "limbs": 5,
+    "window_bits": 35
+   },
+   "n": 171,
+   "num_special": 1000,
+   "opening_groups": {
+    "IN-C": [
+     3,
+     4
+    ],
+    "OUT-C": [
+     16,
+     5
+    ]
+   },
+   "output_endpoint": null,
+   "privacy_acceptance": false,
+   "stage_in_c": {
+    "A": {
+     "data_rows": 33,
+     "plane_logs": [
+      12,
+      17
+     ],
+     "prox_pair": [
+      39,
+      40
+     ],
+     "rows": 41,
+     "site_pairs": 3
+    },
+    "H": {
+     "data_rows": 68,
+     "plane_logs": [
+      12,
+      17,
+      12
+     ],
+     "prox_pair": [
+      74,
+      75
+     ],
+     "rows": 76,
+     "signs": [
+      1,
+      -1,
+      1
+     ],
+     "site_pairs": 3,
+     "zero_sum_pair": [
+      66,
+      67
+     ]
+    },
+    "M": {
+     "functionals": 8,
+     "mask_specs": [
+      [
+       9,
+       3
+      ],
+      [
+       13,
+       4
+      ],
+      [
+       18,
+       4
+      ],
+      [
+       13,
+       2
+      ]
+     ],
+     "rows": 12
+    },
+    "committed_elements": 479232,
+    "hosts": [],
+    "label": "stage IN-C",
+    "row_log_A_H_In_Out": [
+     12,
+     12,
+     8,
+     13
+    ],
+    "row_width_log": 12,
+    "slots": [
+     {
+      "a_sites": 1,
+      "degree": 3,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 1,
+      "kind": "Standalone",
+      "main": 8,
+      "name": "INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 1,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE + pad, fresh mu each"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 17,
+      "name": "INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each"
+     },
+     {
+      "a_sites": 0,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "INC-03 ZS zero-sum row"
+     }
+    ]
+   },
+   "stage_out_c": {
+    "A": {
+     "data_rows": 16,
+     "plane_logs": [
+      1,
+      1,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12
+     ],
+     "prox_pair": [
+      74,
+      75
+     ],
+     "rows": 76,
+     "site_pairs": 29
+    },
+    "H": {
+     "data_rows": 18,
+     "plane_logs": [
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12
+     ],
+     "prox_pair": [
+      36,
+      37
+     ],
+     "rows": 38,
+     "signs": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      -1,
+      1
+     ],
+     "site_pairs": 9,
+     "zero_sum_pair": [
+      16,
+      17
+     ]
+    },
+    "M": {
+     "functionals": 14,
+     "mask_specs": [
+      [
+       13,
+       2
+      ],
+      [
+       13,
+       4
+      ],
+      [
+       2,
+       3
+      ],
+      [
+       13,
+       2
+      ],
+      [
+       13,
+       4
+      ],
+      [
+       13,
+       5
+      ],
+      [
+       13,
+       3
+      ],
+      [
+       13,
+       2
+      ]
+     ],
+     "rows": 20
+    },
+    "committed_elements": 466944,
+    "hosts": [
+     [
+      2,
+      [
+       1
+      ]
+     ],
+     [
+      4,
+      [
+       3
+      ]
+     ]
+    ],
+    "label": "stage OUT-C",
+    "row_log_A_H_In_Out": [
+     12,
+     12,
+     13,
+     12
+    ],
+    "row_width_log": 12,
+    "slots": [
+     {
+      "a_sites": 1,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 1,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUTC-00 IO-in: x = B_out row T-1 (fixed public row bits)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 0,
+      "kind": "Private",
+      "main": 12,
+      "name": "OUTC-01 SS final-norm row sum (private, hosted by TZC)"
+     },
+     {
+      "a_sites": 11,
+      "degree": 3,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 0,
+      "kind": "Host",
+      "main": 1,
+      "name": "OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 0,
+      "kind": "Private",
+      "main": 12,
+      "name": "OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Host",
+      "main": 12,
+      "name": "OUTC-04 LZC limb lookups (+pad; isqrt and margin limbs) + host term sigma g limb + u0 (sigma b + c)"
+     },
+     {
+      "a_sites": 13,
+      "degree": 5,
+      "ext": 1,
+      "h_sites": 6,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUTC-05 DZC final-norm quotient + x limbs + helpers (+pad)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 3,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUTC-06 TAB byte-table helper (+pad)"
+     },
+     {
+      "a_sites": 0,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUTC-07 ZS zero-sum row"
+     }
+    ]
+   },
+   "t_pad": 256,
+   "tier": {
+    "ep_inv_rate": 8,
+    "ep_log_n": 8,
+    "lookup_ext_degree": 2,
+    "name": "mvp-95-whole-run (D27)",
+    "opened_cols": 256,
+    "stage_inv_rate": 4,
+    "stage_log_n": 12
+   },
+   "tokens": 256
+  },
+  {
+   "P0": 84,
+   "S": 1,
+   "V": 131072,
+   "V_pad": 131072,
+   "b_in_b_out": {
+    "data_rows": 256,
+    "inv_rate": 4,
+    "plane": [
+     512,
+     4096
+    ],
+    "row_width_log": 13,
+    "rows": 262,
+    "sites": 2
+   },
+   "c": 0,
+   "d": 3072,
+   "d_pad": 4096,
+   "door_findings": [],
+   "expectations": {
+    "OUT-C claims": {
+     "A_site_pairs": 29,
+     "H_site_pairs": 9
+    },
+    "one_public_bit": "stage OUT-C's public tables are functions of the geometry, the profile constants (c, the margin vector w_Delta by digest), the re-derived challenges and b ONLY: supp_d, the limb-plane live selector, g(z) = sigma 256^(z-32) on the limb entries, u0, w_Delta, the byte table and its support; the LZC host constant is b + c. The margin Delta, the limbs lambda and y are committed in A_out and opened only through reserved pairs, so (rank lemma) A_out discloses 0 and no magnitude of Delta is a public value",
+    "opening_groups": {
+     "IN-C": [
+      3,
+      4
+     ],
+     "OUT-C": [
+      16,
+      5
+     ]
+    },
+    "per_commitment_disclosed_Fp": {
+     "A-in": 0,
+     "A-out (OUT-C)": 0,
+     "B-in / internal boundaries / B-out": 0,
+     "E-token-in": 0,
+     "E-token-out": "ABSENT (D40: no output endpoint)",
+     "H-in": 2,
+     "H-out (OUT-C)": 2,
+     "block A": 0,
+     "block H": 2
+    },
+    "public_outputs_depending_on_hidden_data": [
+     "the verdict bit b (statement; header label classify-verdict)"
+    ],
+    "template_and_ctl_columns": "stage IN-C's template indicator pi, template ids kappa and the query control column ctl_q are public functions of the policy; the content positions' ids stay in A_in (disclosed 0)",
+    "why_H_2": "each H commitment's two zero-sum rows (the value-0 sum claim's u pair), as in every built stage"
+   },
+   "geometry": "Shieldstral-1.0-3B T512 (card template, P0 84 + n 427 + S 1)",
+   "input_endpoint": {
+    "commitment_rows": 7,
+    "content_words": 427,
+    "data_rows": 2,
+    "inv_rate": 8,
+    "pad_words": 0,
+    "row_width_log": 8,
+    "template_words": 85,
+    "true_words": 512,
+    "words": 512
+   },
+   "margin": {
+    "B_Delta": 12783848448,
+    "B_Delta_log2": 33.574,
+    "delta_max_any_limbs_log2": 40,
+    "honest_delta_fits": true,
+    "honest_delta_max": 21373783040,
+    "identity_total_below_p_half": true,
+    "isqrt_live_entries": [
+     0,
+     2,
+     4,
+     6,
+     8,
+     10,
+     12,
+     14,
+     16
+    ],
+    "limb_entries": [
+     32,
+     36
+    ],
+    "limb_plane_entries": 4096,
+    "limbs": 5,
+    "window_bits": 35
+   },
+   "n": 427,
+   "num_special": 1000,
+   "opening_groups": {
+    "IN-C": [
+     3,
+     4
+    ],
+    "OUT-C": [
+     16,
+     5
+    ]
+   },
+   "output_endpoint": null,
+   "privacy_acceptance": false,
+   "stage_in_c": {
+    "A": {
+     "data_rows": 33,
+     "plane_logs": [
+      12,
+      17
+     ],
+     "prox_pair": [
+      39,
+      40
+     ],
+     "rows": 41,
+     "site_pairs": 3
+    },
+    "H": {
+     "data_rows": 68,
+     "plane_logs": [
+      12,
+      17,
+      12
+     ],
+     "prox_pair": [
+      74,
+      75
+     ],
+     "rows": 76,
+     "signs": [
+      1,
+      -1,
+      1
+     ],
+     "site_pairs": 3,
+     "zero_sum_pair": [
+      66,
+      67
+     ]
+    },
+    "M": {
+     "functionals": 8,
+     "mask_specs": [
+      [
+       10,
+       3
+      ],
+      [
+       13,
+       4
+      ],
+      [
+       18,
+       4
+      ],
+      [
+       13,
+       2
+      ]
+     ],
+     "rows": 12
+    },
+    "committed_elements": 479232,
+    "hosts": [],
+    "label": "stage IN-C",
+    "row_log_A_H_In_Out": [
+     12,
+     12,
+     8,
+     13
+    ],
+    "row_width_log": 12,
+    "slots": [
+     {
+      "a_sites": 1,
+      "degree": 3,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 1,
+      "kind": "Standalone",
+      "main": 9,
+      "name": "INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 1,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE + pad, fresh mu each"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 17,
+      "name": "INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each"
+     },
+     {
+      "a_sites": 0,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "INC-03 ZS zero-sum row"
+     }
+    ]
+   },
+   "stage_out_c": {
+    "A": {
+     "data_rows": 16,
+     "plane_logs": [
+      1,
+      1,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12
+     ],
+     "prox_pair": [
+      74,
+      75
+     ],
+     "rows": 76,
+     "site_pairs": 29
+    },
+    "H": {
+     "data_rows": 18,
+     "plane_logs": [
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12
+     ],
+     "prox_pair": [
+      36,
+      37
+     ],
+     "rows": 38,
+     "signs": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      -1,
+      1
+     ],
+     "site_pairs": 9,
+     "zero_sum_pair": [
+      16,
+      17
+     ]
+    },
+    "M": {
+     "functionals": 14,
+     "mask_specs": [
+      [
+       13,
+       2
+      ],
+      [
+       13,
+       4
+      ],
+      [
+       2,
+       3
+      ],
+      [
+       13,
+       2
+      ],
+      [
+       13,
+       4
+      ],
+      [
+       13,
+       5
+      ],
+      [
+       13,
+       3
+      ],
+      [
+       13,
+       2
+      ]
+     ],
+     "rows": 20
+    },
+    "committed_elements": 466944,
+    "hosts": [
+     [
+      2,
+      [
+       1
+      ]
+     ],
+     [
+      4,
+      [
+       3
+      ]
+     ]
+    ],
+    "label": "stage OUT-C",
+    "row_log_A_H_In_Out": [
+     12,
+     12,
+     13,
+     12
+    ],
+    "row_width_log": 12,
+    "slots": [
+     {
+      "a_sites": 1,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 1,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUTC-00 IO-in: x = B_out row T-1 (fixed public row bits)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 0,
+      "kind": "Private",
+      "main": 12,
+      "name": "OUTC-01 SS final-norm row sum (private, hosted by TZC)"
+     },
+     {
+      "a_sites": 11,
+      "degree": 3,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 0,
+      "kind": "Host",
+      "main": 1,
+      "name": "OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 0,
+      "kind": "Private",
+      "main": 12,
+      "name": "OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Host",
+      "main": 12,
+      "name": "OUTC-04 LZC limb lookups (+pad; isqrt and margin limbs) + host term sigma g limb + u0 (sigma b + c)"
+     },
+     {
+      "a_sites": 13,
+      "degree": 5,
+      "ext": 1,
+      "h_sites": 6,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUTC-05 DZC final-norm quotient + x limbs + helpers (+pad)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 3,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUTC-06 TAB byte-table helper (+pad)"
+     },
+     {
+      "a_sites": 0,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUTC-07 ZS zero-sum row"
+     }
+    ]
+   },
+   "t_pad": 512,
+   "tier": {
+    "ep_inv_rate": 8,
+    "ep_log_n": 8,
+    "lookup_ext_degree": 2,
+    "name": "mvp-95-whole-run (D27)",
+    "opened_cols": 256,
+    "stage_inv_rate": 4,
+    "stage_log_n": 12
+   },
+   "tokens": 512
+  }
+ ],
+ "privacy_acceptance": false,
+ "what": "classifier profile family, re-derived (gate round 16); NOT a privacy result"
+}

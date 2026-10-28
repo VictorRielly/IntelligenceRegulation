@@ -1,0 +1,297 @@
+--- frozen-r11/hashline/src/private_block.rs
++++ frozen-r12/hashline/src/private_block.rs
+@@ -119,6 +119,8 @@
+ // TOKEN I/O LANE (2026-10-19): the token-I/O run's CLI bridge
+ // (`examples/zk60_token_io.rs`): a CALLER of the token run, like the above
+ pub use token_io::cli::{token_input_owner_command, token_owner_command, token_profile_command, token_prove_command, token_verify_command};
++// TOKEN I/O ROUND 12 (R-C1): the classifier CLI bridge (`examples/zk60_classify.rs`)
++pub use token_io::classify_cli::{classify_input_owner_command, classify_label_command, classify_prove_command, classify_verify_command};
+ // TOKEN I/O R1 LANE (2026-10-17): the token-in / token-out stages of a
+ // private run (DESIGN v3 rung R1, public-row variant) under a NEW run profile
+ // (D17). Additive: no existing profile, relation or byte moves.
+--- frozen-r11/hashline/src/private_block/run.rs
++++ frozen-r12/hashline/src/private_block/run.rs
+@@ -130,6 +130,17 @@
+ /// every token-I/O run profile this build registers (a blocks-only run may
+ /// carry none of them)
+ pub(crate) const TOKEN_IO_RUN_PROFILES: [&str; 5] = [RUN_PROFILE_TOKEN_IO_RUNG_TC, RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32, RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32, RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128, RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T128];
++/// TOKEN I/O ROUND 12 (2026-10-21): the CLASSIFIER run over the trained-
++/// calibration development rung (DESIGN_CLASSIFIER v2, rung R-C1: stage IN-C
++/// with the public template and the control-id column, the L blocks, stage
++/// OUT-C with the margin slot and the PUBLIC verdict bit; one external
++/// endpoint). A NEW profile string under D17 — its own transcript; a run
++/// under it is built by `token_io::classify_run` only. Same length as the
++/// token rung's string (65 characters), whose transcript constructor the W-2
++/// census already admits.
++pub(crate) const RUN_PROFILE_CLASSIFY_RUNG_TC: &str = "hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1";
++/// every classifier run profile this build registers
++pub(crate) const CLASSIFY_RUN_PROFILES: [&str; 1] = [RUN_PROFILE_CLASSIFY_RUNG_TC];
+ 
+ /// One run's geometry: the per-block shape, how many blocks, and the run's own
+ /// profile id. A run is a NEW profile under D17 — its own transcript, its own
+@@ -164,6 +175,7 @@
+         RUN_PROFILE_M125 => Ok(Shape::m125()),
+         RUN_PROFILE_RUNG_TC => Shape::rung_tc(&cal),
+         RUN_PROFILE_TOKEN_IO_RUNG_TC => Shape::rung_tc(&cal),
++        RUN_PROFILE_CLASSIFY_RUNG_TC => Shape::rung_tc(&cal),
+         RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32 => Shape::tinyllama_trained(32, &cal, sh.f_e),
+         RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32 => Shape::llama3_8b_t32_trained(&cal, sh.f_e),
+         RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128 => Shape::tinyllama_trained(128, &cal, sh.f_e),
+--- frozen-r11/hashline/src/private_block/s24_tests.rs
++++ frozen-r12/hashline/src/private_block/s24_tests.rs
+@@ -169,6 +169,8 @@
+     runs.extend(super::trained_calib_tests::registered_trained_runs().into_iter().map(|(p, _)| p));
+     // TOKEN I/O R1 LANE: the token-I/O run profile(s), one shared list
+     runs.extend(super::token_io::registered_token_runs().into_iter().map(|(p, _)| p));
++    // TOKEN I/O ROUND 12: the classifier run profile(s), their own list
++    runs.extend(super::token_io::classify::registered_classify_runs().into_iter().map(|(p, _)| p));
+     let mut covered: Vec<String> = shapes.iter().map(|s| s.profile.to_string()).collect();
+     covered.extend(runs.iter().map(|r| r.to_string()));
+     covered.sort();
+@@ -223,6 +225,8 @@
+     // TOKEN I/O R1 LANE: a token-I/O run is keyed by its BLOCK shape's key set
+     // too (the rule this item measures; review finding TR-7 recorded)
+     run_shapes.extend(super::token_io::registered_token_runs());
++    // TOKEN I/O ROUND 12: a classifier run is keyed by its BLOCK shape's key set too
++    run_shapes.extend(super::token_io::classify::registered_classify_runs());
+     for (rp, sh) in run_shapes {
+         let live = super::protocol::tagged_transcript(&sh, rp.as_bytes()).state();
+         let block_key = *sh.hash_tag().transcript_key().expect("a tagged block profile carries a transcript key");
+--- frozen-r11/hashline/src/private_block/s25_tests.rs
++++ frozen-r12/hashline/src/private_block/s25_tests.rs
+@@ -439,6 +439,124 @@
+     push("the token-I/O run's schedule digest (TK6)".to_string(), "F_U", schedule_digest_input_len(33, &lines));
+     // (4) THE COLUMN DIGESTS, named by their row count alone
+     let mut rows = vec![lay.a_rows, lay.h_rows, M_ROWS, st.boundary_spec(0).expect("B_in").commitment_rows(), li.a_rows, li.h_rows, li.m_rows(), lo.a_rows, lo.h_rows, lo.m_rows(), st.in_spec.commitment_rows(), st.out_spec.commitment_rows()];
++    rows.sort_unstable();
++    rows.dedup();
++    for r in rows {
++        push(format!("a commitment column digest of {r} rows"), column_f, 8 * r);
++    }
++    push("a salted Merkle leaf".to_string(), leaf_f, 64);
++    push("a Merkle inner node".to_string(), node_f, 64);
++    // (5) THE TAG KEYS: the run uses its block shape's four (s24 item 4)
++    for (role, ctx) in [("transcript", zkp_core::hashtag::CTX_TRANSCRIPT), ("column", zkp_core::hashtag::CTX_COLUMN), ("leaf", zkp_core::hashtag::CTX_LEAF), ("node", zkp_core::hashtag::CTX_NODE)] {
++        push(format!("the {role} key's derive_key context"), "K", ctx.len());
++    }
++    out
++}
++
++/// **TOKEN I/O ROUND 12: every hash input kind of a CLASSIFIER run** — the
++/// token run's census with the classifier's stages IN-C / OUT-C, its ONE
++/// external endpoint, the header's two classifier labels (`classify-verdict`,
++/// one byte; `classify-chunk`, seven u64) and its seven statement digests
++/// CL1-CL7 (`token_io/classify.rs`).
++fn kinds_of_classify(st: &super::token_io::classify::ClassifyRunStatement, model: &super::trained_statement::TrainedModelStatement, tables: &super::token_io::classify::ClassifierTables) -> Vec<Kind> {
++    use super::token_io::{stage_in_c, stage_out_c};
++    let sh = st.sh();
++    let (l, cp) = (st.l(), &st.cp);
++    let profile = st.profile();
++    assert!(!sh.hashes_under_the_legacy_rule(), "a classifier run is tagged");
++    let (transcript_f, column_f, leaf_f, node_f) = ("F_T", "F_C", "F_L", "F_N");
++    let lay = Layout::for_shape(sh).unwrap_or_else(|e| panic!("{}: layout: {e}", sh.name));
++    let (li, lo) = (stage_in_c::layout(sh, cp), stage_out_c::layout(sh, cp));
++    let mut out: Vec<Kind> = Vec::new();
++    let mut push = |what: String, func: &'static str, len: usize| out.push(Kind { what, func, len });
++    // (1) THE TRANSCRIPT CLASS
++    push(format!("the transcript constructor at `{profile}`"), transcript_f, 12 + profile.len());
++    push("a transcript squeeze".to_string(), transcript_f, 47);
++    let param = st.parameter_line().expect("the classifier run's parameter line");
++    let mut absorbs: Vec<(&str, Vec<usize>)> = vec![
++        // ELEVEN u64: L, T, width, hidden, q_heads, kv_heads, head_dim, V, P0, n, S
++        ("run-shape", vec![88]),
++        // `classify-expected/v1` (20 bytes), the input endpoint's spec digest and root
++        ("expected-IO", vec![20 + 2 * 32]),
++        ("public-statement", vec![32]),
++        ("parameters", vec![param.len()]),
++        ("calibration", vec![32]),
++        ("schedule", vec![32]),
++        // the classifier header's two last absorbs
++        ("classify-verdict", vec![1]),
++        ("classify-chunk", vec![56]),
++        ("A", vec![32]),
++        ("H", vec![32]),
++        ("B", vec![32]),
++        ("M", vec![32]),
++        ("rows", vec![8]),
++        ("log-cols", vec![8]),
++        ("pb-run-stage", vec![8]),
++        ("pb-run-block", vec![32]),
++        ("pb-slot", vec![8]),
++        ("pb-scalar", vec![16]),
++        ("mask-q", vec![16 * (2 << crate::zk::MASK_LOG_MSG)]),
++        ("mask-prox", vec![16 * (2 << crate::zk::MASK_LOG_MSG)]),
++    ];
++    // sc-round: the block's degree range and every stage slot's degree
++    let (dlo, dhi) = Shape::degree_range();
++    let mut degs: Vec<usize> = (dlo..=dhi).collect();
++    degs.extend(li.sched.slots.iter().chain(lo.sched.slots.iter()).map(|s| s.degree));
++    degs.sort_unstable();
++    degs.dedup();
++    absorbs.push(("sc-round", degs.iter().map(|d| 16 * (d + 1)).collect()));
++    // pb-term: the block's per-slot terminal counts and both stages'
++    let (a_sites, h_sites) = sh.claim_sites();
++    let mut terms: Vec<usize> = (0..N_SLOTS).map(|s| 16 * (a_sites[s] + h_sites[s] + usize::from(s >= SC_IO_IN))).collect();
++    terms.extend(li.sched.slots.iter().chain(lo.sched.slots.iter()).map(|s| 16 * s.terms()));
++    terms.sort_unstable();
++    terms.dedup();
++    absorbs.push(("pb-term", terms));
++    // pcs-vec / pcs-prox: the block, the boundaries, the stage commitments and the ONE endpoint
++    let t = cp.tier;
++    let mut vecs = vec![16 * ((1usize << sh.log_cols) + sh.opened_cols), 16 * ((1usize << sh.endpoint_log_n) + sh.opened_cols), 16 * ((1usize << t.stage_log_n) + t.opened_cols), 16 * ((1usize << t.ep_log_n) + t.opened_cols)];
++    vecs.sort_unstable();
++    vecs.dedup();
++    absorbs.push(("pcs-vec", vecs.clone()));
++    absorbs.push(("pcs-prox", vecs));
++    // every shared label is one the hash-domain table carries; the two
++    // classifier header labels are absorbed only by a classifier run's header
++    // and are declared here (the shared table, and so every other profile's
++    // length set, does not move)
++    const CLASSIFY_HEADER_LABELS: [&str; 2] = ["classify-verdict", "classify-chunk"];
++    let table: Vec<&str> = hash_domain::path_labels(sh, Some(param.as_str())).iter().map(|u| u.label).collect();
++    for (label, data) in &absorbs {
++        assert!(table.contains(label) || CLASSIFY_HEADER_LABELS.contains(label), "the classifier run absorbs `{label}`, which neither the label table of hash_domain.rs nor the classifier's header labels carry");
++        for d in data {
++            push(format!("the transcript absorb of `{label}` with {d} bytes of data"), transcript_f, 48 + label.len() + d);
++        }
++    }
++    // (2) THE GENERATOR: one stream for the run, the input endpoint's
++    push("the generator's refill block".to_string(), "F_U", 40);
++    push(format!("the generator's seed derivation at `{profile}` (token_io/classify_run.rs)"), "R1", hash_domain::run_seed_input_len(profile));
++    push("the generator's seed derivation at the generalised endpoint, either role (endpoint_g.rs)".to_string(), "R1", hash_domain::endpoint_seed_input_len());
++    // (3) THE STATEMENT CLASS, unkeyed
++    let lines = {
++        let mut v = vec![param.clone()];
++        v.extend(lay.describe());
++        v.extend(li.describe());
++        v.extend(lo.describe());
++        v.extend(st.stage_lines().expect("the stage lines"));
++        v
++    };
++    push("the block's public/weights digest (D2)".to_string(), "F_U", block_public_digest_input_len(sh));
++    push("the generalised endpoint's spec digest (D6, the input token endpoint)".to_string(), "F_U", 142);
++    push("an internal boundary's spec digest (D7, B_in / B_out / interior)".to_string(), "F_U", 151);
++    push("the trained-model statement identity (D9)".to_string(), "F_U", 47 + model.encode().len());
++    push("the classifier profile digest (CL1)".to_string(), "F_U", 28 + 8 + cp.describe_under(profile).len());
++    push("the classifier embedding digest (CL2)".to_string(), "F_U", 36 + 16 + 2 * tables.v * tables.d);
++    push("the margin-vector digest (CL3)".to_string(), "F_U", 40 + 8 + 2 * tables.d);
++    push("the policy template digest (CL4)".to_string(), "F_U", 29 + 16 + 8 * (cp.policy.prefix.len() + cp.policy.suffix.len()));
++    push(format!("the classifier run's public statement digest over {l} blocks (CL5)"), "F_U", 31 + 32 * l + 64);
++    push("the classifier run's calibration digest (CL6)".to_string(), "F_U", 32 + 64);
++    push("the classifier run's schedule digest (CL7)".to_string(), "F_U", schedule_digest_input_len(33, &lines));
++    // (4) THE COLUMN DIGESTS, named by their row count alone
++    let mut rows = vec![lay.a_rows, lay.h_rows, M_ROWS, st.boundary_spec(0).expect("B_in").commitment_rows(), li.a_rows, li.h_rows, li.m_rows(), lo.a_rows, lo.h_rows, lo.m_rows(), st.in_spec.commitment_rows()];
+     rows.sort_unstable();
+     rows.dedup();
+     for r in rows {
+@@ -570,6 +688,13 @@
+         assert_eq!(st.sh(), &sh, "the census token statement is not at its profile's registered block shape");
+         all.push((p.to_string(), sh, kinds_of_token(&st, &model, tables)));
+     }
++    // TOKEN I/O ROUND 12: every registered classifier run profile, its kinds
++    // read off a REAL classifier statement at L = 2
++    for (p, sh) in super::token_io::classify::registered_classify_runs() {
++        let (st, model, tables) = super::token_io::classify::census_classify_statement(p, 2);
++        assert_eq!(st.sh(), &sh, "the census classifier statement is not at its profile's registered block shape");
++        all.push((p.to_string(), sh, kinds_of_classify(&st, &model, &tables)));
++    }
+     let mut measured: Vec<String> = all.iter().map(|(p, _, _)| p.clone()).collect();
+     measured.sort();
+     measured.dedup();
+@@ -1414,7 +1539,7 @@
+     }
+     assert_eq!(
+         in_source.len(),
+-        all_shapes.len() + every_run().len() + super::trained_calib_tests::registered_trained_runs().len() + super::token_io::registered_token_runs().len(),
++        all_shapes.len() + every_run().len() + super::trained_calib_tests::registered_trained_runs().len() + super::token_io::registered_token_runs().len() + super::token_io::classify::registered_classify_runs().len(),
+         "the source registry holds a profile this test does not measure (or vice versa)"
+     );
+     eprintln!(
+@@ -1565,8 +1690,11 @@
+     // TOKEN I/O R1 LANE: a SIXTH site, `token_io/run.rs` (`prove_token_run`:
+     // the token-I/O run's ONE stream, `run_seed_domain(its profile)`), seen
+     // since the scan reads production submodules
+-    assert_eq!(from_os_sites.len(), 6, "the scan's generator constructions moved: {from_os_sites:?}");
+-    for want in ["protocol.rs", "src/private_block/run.rs", "endpoint_g.rs", "private_seam.rs", "token_io/run.rs"] {
++    // TOKEN I/O ROUND 12: a SEVENTH, `token_io/classify_run.rs`
++    // (`prove_classify_run_with`: the classifier run's ONE stream,
++    // `run_seed_domain(its profile)`)
++    assert_eq!(from_os_sites.len(), 7, "the scan's generator constructions moved: {from_os_sites:?}");
++    for want in ["protocol.rs", "src/private_block/run.rs", "endpoint_g.rs", "private_seam.rs", "token_io/run.rs", "token_io/classify_run.rs"] {
+         assert!(from_os_sites.iter().any(|s| s.contains(want)), "{want} no longer constructs a generator; the enumeration has moved");
+     }
+     assert_eq!(from_os_sites.iter().filter(|s| s.starts_with("src/private_seam.rs")).count(), 2, "the frozen seam's two generator sites moved");
+@@ -1580,7 +1708,8 @@
+         );
+     }
+     let on_path: Vec<&String> = from_os_sites.iter().filter(|s| s.as_str() != "src/private_seam.rs:349").collect();
+-    assert_eq!(on_path.len(), 5, "the path's generators are no longer five (four, plus the token-I/O run's): {on_path:?}");
++    // TOKEN I/O ROUND 12: six on the path — the four, the token-I/O run's and the classifier run's
++    assert_eq!(on_path.len(), 6, "the path's generators are no longer six (four, plus the token-I/O run's and the classifier run's): {on_path:?}");
+     // `boundary::prepare` takes the caller's stream and makes none
+     let boundary = source("src/private_block/boundary.rs");
+     let btext = production_text(&boundary);
+@@ -1652,6 +1781,8 @@
+         // stages; R3: `prove_token_run` delegates to `prove_token_run_with`
+         // (the blocks from a `TokenBlocks` source), where the ONE generator is made
+         ("src/private_block/token_io/run.rs", "pub(crate) fn prove_token_run_with(", "prove_token_run_with"),
++        // TOKEN I/O ROUND 12: the classifier run prover, ONE stream for all its stages
++        ("src/private_block/token_io/classify_run.rs", "pub(crate) fn prove_classify_run_with(", "prove_classify_run_with"),
+     ] {
+         let src = source(path);
+         let start = src.find(signature).unwrap_or_else(|| panic!("{path}: `{signature}` is gone"));
+@@ -1700,7 +1831,13 @@
+ /// — and the three `cfg(test)` modules that WRITE a retained bundle, because
+ /// a retained capture counts as publishing and its digests are call sites
+ /// like any other.
+-const CALL_SITES: [(&str, &str, usize, &str); 20] = [
++const CALL_SITES: [(&str, &str, usize, &str); 21] = [
++    // TOKEN I/O ROUND 12 (rung R-C1): the classifier run's statement digests,
++    // unkeyed hashes of PUBLIC words, each under its own fixed literal: CL1 the
++    // classifier profile's canonical text, CL2 the int16 embedding, CL3 the
++    // int16 margin vector, CL4 the policy template ids, CL5 the run's public
++    // statement, CL6 its calibration, CL7 its schedule
++    ("src/private_block/token_io/classify.rs", "blake3::Hasher::new(", 7, "CL1-CL7 — the classifier profile digest (28-byte literal, framed text), the embedding digest (36-byte literal, V, d, the int16 words), the margin-vector digest (40-byte literal, d, the int16 words), the template digest (29-byte literal, the framed prefix and suffix ids), the run's public statement (31-byte literal, block, embedding and margin-vector digests), calibration (32-byte literal, model identity, profile digest) and schedule (33-byte literal, framed lines); all unkeyed statement-class digests of public data"),
+     // TOKEN I/O R1 LANE: the token-I/O run's statement digests, unkeyed hashes
+     // of public words (TK1 the token profile's canonical text, TK2 the int16
+     // embedding table, TK3 the int8 head with its per-row multipliers) ...
+--- frozen-r11/hashline/src/private_block/s33_tests.rs
++++ frozen-r12/hashline/src/private_block/s33_tests.rs
+@@ -148,6 +148,8 @@
+     built.extend(super::trained_calib_tests::registered_trained_runs().iter().map(|(p, _)| p.to_string()));
+     // TOKEN I/O R1 LANE: the token-I/O run profile(s)
+     built.extend(super::token_io::registered_token_runs().iter().map(|(p, _)| p.to_string()));
++    // TOKEN I/O ROUND 12: the classifier run profile(s)
++    built.extend(super::token_io::classify::registered_classify_runs().iter().map(|(p, _)| p.to_string()));
+     built.sort();
+     built.dedup();
+     assert_eq!(built, registry_profiles(), "the registry read from the source and the registry built here disagree");
+--- frozen-r11/hashline/src/private_block/token_io.rs
++++ frozen-r12/hashline/src/private_block/token_io.rs
+@@ -37,6 +37,14 @@
+ pub(crate) mod run;
+ pub(crate) mod stage_in;
+ pub(crate) mod stage_out;
++// TOKEN I/O ROUND 12: the classifier variant (DESIGN_CLASSIFIER v2, rung
++// R-C1), in new files only: the next-token stages above are untouched
++pub(crate) mod classify;
++pub(crate) mod classify_run;
++// ROUND 12 (R-C1): the classifier CLI (examples/zk60_classify.rs)
++pub(crate) mod classify_cli;
++pub(crate) mod stage_in_c;
++pub(crate) mod stage_out_c;
+ #[cfg(test)]
+ mod r0_words;
+ #[cfg(test)]
+@@ -64,6 +72,11 @@
+ // derivation is the library's at every registered profile
+ #[cfg(test)]
+ mod r11_tests;
++// TOKEN I/O (round 12, rung R-C1): the classifier variant's tests
++#[cfg(test)]
++mod classify_tests;
++#[cfg(test)]
++mod classify_cli_tests;
+ 
+ /// **THE TOKEN-I/O RUN PROFILES THIS BUILD REGISTERS, with their block shape**
+ /// (test only): the one list the profile-registry censuses (s24 / s25 / s33)

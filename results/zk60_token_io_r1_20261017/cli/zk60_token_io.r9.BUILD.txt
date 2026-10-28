@@ -1,0 +1,12 @@
+zk60_token_io round-9 CPU binary (privacy review round 4, PR4-10)
+file:      /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_token_io.r9.release.bin
+sha256:    b56f1b7152e617e8753c21aa9c77fa5de19862df759081cce514d0766c8d4851
+built:     2026-10-20T01:45:07Z on MSI, by tools/r9_chain.sh (step b9, log logs/b9-cli-build.log)
+command:   /home/victor/.cargo/bin/cargo build --release --offline --locked -j2 --manifest-path /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io/hashline/Cargo.toml --example zk60_token_io
+toolchain: rustc 1.97.1 (8bab26f4f 2026-07-14); cargo 1.97.1 (c980f4866 2026-06-30)
+features:  the crate's defaults only; gpu-cuda NOT enabled (cudarc is not compiled in): CPU backend only.
+           stable-weight-storage not enabled. The binary's statement records its backend (check_prover_reported).
+profile:   [profile.release] opt-level 3, codegen-units 1, lto fat, panic abort, debug false (hashline/Cargo.toml)
+rustflags: none (no RUSTFLAGS, no .cargo/config in the tree or $HOME); default target x86_64-unknown-linux-gnu, no target-cpu
+source:    the lane working copy ops/zkp-mvp/token-io = manifest_r9C.sha256 (list sha256 b666a991a402dd39dfe8376d755fef3ddfd892b7aba09f4bb23d224bfe30ca78)
+scope:     a build record, not a privacy acceptance

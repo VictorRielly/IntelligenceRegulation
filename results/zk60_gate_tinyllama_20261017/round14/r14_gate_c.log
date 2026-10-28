@@ -1,0 +1,28 @@
+[zk60-guard 18:33:46] START gate-tl-controls-dd-rung-l2-dense class=light need=0.6G cap=1.5G enforce=cgroup+watchdog waited=0s run=2d1832bc7e98
+[zk60-guard 18:34:00] END gate-tl-controls-dd-rung-l2-dense exit=0 child_wall=14s peak_rss=0.07G min_avail=9.62G
+[zk60-guard 18:34:00] START gate-tl-controls-tl128dd-l1-dense class=light need=0.6G cap=1.5G enforce=cgroup+watchdog waited=0s run=eb3be9259e51
+[zk60-guard 18:37:29] END gate-tl-controls-tl128dd-l1-dense exit=0 child_wall=209s peak_rss=0.40G min_avail=9.04G
+[zk60-guard 18:37:29] START gate-tl-controls-tl128dd-l2-dense class=light need=0.6G cap=1.5G enforce=cgroup+watchdog waited=0s run=6d99ab304e75
+[zk60-guard 18:45:23] END gate-tl-controls-tl128dd-l2-dense exit=0 child_wall=474s peak_rss=0.45G min_avail=7.90G
+[zk60-guard 18:45:23] START gate-tl-controls-tl128dd-l2-zero class=light need=0.6G cap=1.5G enforce=cgroup+watchdog waited=0s run=203fbc0961b2
+[zk60-guard 18:52:13] END gate-tl-controls-tl128dd-l2-zero exit=0 child_wall=410s peak_rss=0.45G min_avail=6.86G
+[zk60-guard 18:52:14] START gate-export-controls-tl128dd-l1-dense class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=1381390e9b39
+[zk60-guard 18:52:15] END gate-export-controls-tl128dd-l1-dense exit=0 child_wall=1s peak_rss=0.12G min_avail=8.57G
+[zk60-guard 18:52:15] START gate-export-controls-tl128dd-l2-dense class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=14cc3f340b0c
+[zk60-guard 18:52:16] END gate-export-controls-tl128dd-l2-dense exit=0 child_wall=2s peak_rss=0.16G min_avail=8.28G
+[zk60-guard 18:52:16] START gate-schema-dd class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=d45f50f06607
+[zk60-guard 18:52:38] END gate-schema-dd exit=0 child_wall=22s peak_rss=0.10G min_avail=8.13G
+[zk60-guard 18:52:38] START gate-g10-dd-rung-l1 class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=3ec80a403e9c
+[zk60-guard 18:52:40] END gate-g10-dd-rung-l1 exit=0 child_wall=1s peak_rss=0.08G min_avail=8.13G
+[zk60-guard 18:52:40] START gate-g10-tl128dd-l1 class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=9b60aae89592
+[zk60-guard 18:52:43] END gate-g10-tl128dd-l1 exit=0 child_wall=3s peak_rss=0.27G min_avail=8.05G
+[zk60-guard 18:52:43] START gate-g10-tl128dd-l2 class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=c1eb9c852422
+[zk60-guard 18:52:48] END gate-g10-tl128dd-l2 exit=0 child_wall=5s peak_rss=0.38G min_avail=8.20G
+[zk60-guard 18:52:49] START gate-pincontrols-tl128dd-l1-dense class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=e9b4e9eca89c
+[zk60-guard 19:07:01] END gate-pincontrols-tl128dd-l1-dense exit=0 child_wall=852s peak_rss=0.41G min_avail=7.50G
+[zk60-guard 19:07:01] START gate-witcmp-tl128dd-l2 class=light need=0.3G cap=1G enforce=cgroup+watchdog waited=0s run=f402be36c531
+[zk60-guard 19:07:01] END gate-witcmp-tl128dd-l2 exit=0 child_wall=0s peak_rss=0.00G min_avail=9.58G
+[zk60-guard 19:07:01] START gate-ddts-tl128dd-l2-dense class=light need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=2a2137717e17
+[zk60-guard 20:40:57] END gate-ddts-tl128dd-l2-dense exit=0 child_wall=5636s peak_rss=1.07G min_avail=6.86G
+[zk60-guard 20:40:58] START gate-ddts-tl128dd-l2-zero class=light need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=7455eb449e9d
+[zk60-guard 22:21:11] END gate-ddts-tl128dd-l2-zero exit=0 child_wall=6014s peak_rss=1.07G min_avail=6.48G

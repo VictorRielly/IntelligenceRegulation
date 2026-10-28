@@ -1,0 +1,7 @@
+tinyllama-trained-tk7-capture-dense-l1       keys    29506 refs    589 covered True ok True
+tinyllama-trained-tk7-capture-zero-l1        keys    29506 refs    589 covered True ok True
+tinyllama-trained-tk7-capture-dense-l2       keys    56059 refs   1177 covered True ok True
+tinyllama-trained-tk7-capture-zero-l2        keys    56059 refs   1177 covered True ok True
+tinyllama-trained-tk7-capture-dense-l22      keys   587119 refs  12937 covered True ok True
+tinyllama-trained-tk7-capture-zero-l22       keys   587119 refs  12937 covered True ok True
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/tk7/tk7-schema-six-bundles.json   ok=True

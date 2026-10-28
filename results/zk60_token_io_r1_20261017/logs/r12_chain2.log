@@ -1,0 +1,7 @@
+[zk60-guard 11:14:30] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 11:15:30] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 11:16:30] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 11:16:32] START tio-s16-suite class=cpu need=7.5G cap=9.5G enforce=cgroup+watchdog waited=122s run=3ab75fd1da2b
+[zk60-guard 11:31:31] END tio-s16-suite exit=0 child_wall=899s peak_rss=6.77G min_avail=6.30G
+[zk60-guard 11:31:31] START tio-b12-cli-build class=build need=3G cap=5G enforce=cgroup+watchdog waited=0s run=3834f7b6f6ba
+[zk60-guard 11:31:48] END tio-b12-cli-build exit=0 child_wall=18s peak_rss=0.42G min_avail=12.30G

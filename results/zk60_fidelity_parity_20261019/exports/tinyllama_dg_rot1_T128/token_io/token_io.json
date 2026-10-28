@@ -1,0 +1,46 @@
+{
+ "T": 128,
+ "bos": 1,
+ "checked_against": {
+  "check": "table[token_ids] == x_in_L00",
+  "exported_sequences": [
+   "seq_ho00",
+   "seq_ho36"
+  ]
+ },
+ "embedding_table": {
+  "dtype": "int16",
+  "file": "embedding_int16.bin",
+  "rule": "floor(float64(float32(R.fwd(float64(float32(E[t]))))) / s_in + 0.5), refuse outside int16",
+  "sha256": "ad68c716693f12d17cd19c957fbe84ca0f94d79063735f7eb84ead8063d9ab06",
+  "shape": [
+   32000,
+   2048
+  ]
+ },
+ "final_norm_note": "Cn by the b8 rule: per-channel max |xhat'| of the FLOAT model's rotated final residual over the calibration set (export-independent at a fixed rotation), tn / Ceps = this export's profile; the dg integer stack gave 0 final-norm range violations on 96 held-out sequences (fp_eval var_dg)",
+ "kind": "token_io",
+ "mode": "build (fidelity lane fp_tokenio_tl.py)",
+ "r2_inputs_identity": {
+  "dir": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r2_inputs",
+  "final_norm": true,
+  "head_int8_perrow.bin": true,
+  "head_mult12.bin": true
+ },
+ "rms_norm_eps": 1e-05,
+ "rotation": {
+  "file": "../rotation_sign.bin (see ../rotation.json)",
+  "seed": 1,
+  "sign_sha256": "db7b32c2445beded0a2cc56c5739f8cc84aa6f50fd0e9e18aebbe6ef7ab873a1"
+ },
+ "s_x_in_layer0": 0.0005245576041783893,
+ "s_x_out_layer21": 0.0005245576041783893,
+ "schema": "zk60-trained-profile-export/1",
+ "scope": "public model data + calibration data; not a proof",
+ "source_tensors_sha256": {
+  "lm_head.weight": "30fdac3dec9c0e1e5e057348270dfa2d62c2aa45b40809ac391fb4ac10cca223",
+  "model.embed_tokens.weight": "c952a8a4c6d2068af4b08914e450bba41983b886088d2e559813694a9781a78c",
+  "model.norm.weight": "73f048b5952f01f81631e5d838250f1b55fda3a52583209468421eeab42f37b2"
+ },
+ "spec": "results/zk60_1b_calibration_20260929/export/TOKEN_IO_SPEC.md (TinyLlama: d 2048, V 32000, BOS 1, 22 layers)"
+}

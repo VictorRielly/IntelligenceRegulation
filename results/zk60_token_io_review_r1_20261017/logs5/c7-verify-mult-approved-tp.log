@@ -1,0 +1,1 @@
+{"event":"refused","command":"verify","error":"the run's token profile digest is 8b4a8b1ef18f9292b648686151674963c3e4e3263bc611c73252d92c74de1035 (its tables, BOS and final norm), not the pinned approved one (review TR4-2)"}

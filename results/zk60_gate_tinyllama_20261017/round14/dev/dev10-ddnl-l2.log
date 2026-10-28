@@ -1,0 +1,80 @@
+{
+ "dd_slot_instances": 4,
+ "T0": "4/4",
+ "per_mode": {
+  "run": {
+   "X0": "4/4",
+   "F0": "4/4",
+   "S1": {
+    "premise_holds": 4,
+    "public_factor_every_monomial": 4,
+    "degree_fits": 4,
+    "budget_ok": 4,
+    "of": 4
+   },
+   "S4": {
+    "miniatures_pass": 4,
+    "terminal_map_onto": 4,
+    "of": 4
+   }
+  },
+  "random-1": {
+   "X0": "4/4",
+   "F0": "4/4",
+   "S1": {
+    "premise_holds": 4,
+    "public_factor_every_monomial": 4,
+    "degree_fits": 4,
+    "budget_ok": 4,
+    "of": 4
+   },
+   "S4": {
+    "miniatures_pass": 4,
+    "terminal_map_onto": 4,
+    "of": 4
+   }
+  },
+  "random-2": {
+   "X0": "4/4",
+   "F0": "4/4",
+   "S1": {
+    "premise_holds": 4,
+    "public_factor_every_monomial": 4,
+    "degree_fits": 4,
+    "budget_ok": 4,
+    "of": 4
+   },
+   "S4": {
+    "miniatures_pass": 4,
+    "terminal_map_onto": 4,
+    "of": 4
+   }
+  },
+  "random-3": {
+   "X0": "4/4",
+   "F0": "4/4",
+   "S1": {
+    "premise_holds": 4,
+    "public_factor_every_monomial": 4,
+    "degree_fits": 4,
+    "budget_ok": 4,
+    "of": 4
+   },
+   "S4": {
+    "miniatures_pass": 4,
+    "terminal_map_onto": 4,
+    "of": 4
+   }
+  }
+ },
+ "S3_tight": "10/10",
+ "S5": {
+  "N5_1_fires": "4/4",
+  "N5_2_fires": "4/4 (not applicable at slack > 0: 0)",
+  "N5_3_fires": true,
+  "N5_4_fires": true,
+  "F_1_fires": "4/4",
+  "X_1_fires": "4/4"
+ }
+}
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round14/dev/dev10-ddnl-l2-dense.json  status PASS

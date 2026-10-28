@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "seed": 20261020107,
+  "checks": 190521,
+  "allocation_schedules": 260,
+  "cost_mutations": 1300,
+  "independent_original_mle_cases": 90,
+  "source_pins": 9,
+  "elapsed_s": 0.3600162400107365,
+  "maxrss_KiB": 15872,
+  "scope": "Independent phase maxima/event replay and original Boolean-basis arithmetic, not native proof/privacy validation."
+}

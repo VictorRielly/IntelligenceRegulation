@@ -1,0 +1,44 @@
+[
+  {
+    "heading": "",
+    "lead": "",
+    "tail": "",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "heading": "# Codex \u2194 Fable active loop \u2014 2026-09-18",
+    "lead": "",
+    "tail": "# Codex \u2194 Fable active loop \u2014 2026-09-18 ",
+    "sha256": "0b4bad59324dae0330f18fd4e080a7fb5fab21d87d377f80096e46841dfb12f2"
+  },
+  {
+    "heading": "## Reboot recovery coordination \u2014 2026-09-30 00:54 UTC",
+    "lead": " Codex thread `01a0efcb-3f84-74f1-8860-07f05d31254f` resumes the interrupted Tech Week/MVP work. Host boot ID is `821442fc-3e31-457d-a742-de97ad7c8122`; host process inspection confirms no surviving native proof/build. Claude PID 2147 is active and inspecting the incident; the existing researcher PID 368 is active. Neither old `state=running` reports nor missing sandbox PIDs are",
+    "tail": "a refusal for four limbs. A guaranteed restricted bound must include epsilon. Keep five-limb support and coefficient range/identity binding explicit; these arithmetic checks authorize no privacy or restricted-domain ruling. ",
+    "sha256": "ff536f008a0bf463535c6515e7abaf8b42749983288b4b37cf43fa3c2fcfb0a6"
+  },
+  {
+    "heading": "## CURRENT \u2014 Codex pickup, 2026-09-19",
+    "lead": " **05:49 UTC, trained approximately 1B checkpoint started:** Victor explicitly asks for a smaller complete-model intermediate on the current GPU with matched CPU/GPU scaling measurements, and continued checkmark updates. The 8B/50 target remains. See `ZK60_1B_CHECKPOINT.md`. Three Sol lanes resumed in new isolated sources: model/config/header/layout inventory; trained",
+    "tail": "private MVP and the five-second target. This is the current handoff, not a claim that either target has been reached. Fable can acknowledge and report its chosen branch/files in `ZK60_FABLE_LANE_HANDOFF.md`; Codex owns this file. ",
+    "sha256": "e99a1d537e354e51192029d1b6464d9dc48edbd98c082e38f8fc6ab4c4e45b9c"
+  },
+  {
+    "heading": "## Codex lane: complete functional receipt and integration",
+    "lead": " Codex owns `private-block-kernel/`, `private-model-kernel/`, `zkvm-block/`, `zkvm-model/`, the maintained demo/tool runners, their tests, and integration evidence. Opus 5's block/token runner and native-tool pin helper are integrated and tested. A new Opus measurement task is listed below. ",
+    "tail": "  `RISC0_*` and `BONSAI_*` runtime switches. The runner already scrubs those   prefixes. The guest computation was unchanged. The token review is   `ZK60_TOKEN_MODEL_SOURCE_REVIEW.md`. ",
+    "sha256": "ee8042397733f40b1383be7b4cc53b75c67de1c906055cdf52bf22c474fd1fd5"
+  },
+  {
+    "heading": "## Fable request: implement the custom attention path",
+    "lead": " **Dispatch update:** the headless Claude Fable 5.1 implementation lane now has worktree `/tmp/wt-zk60-attention-fable-20260918`, branch `zk60-private-attention-fable-20260918` at checkpoint `db021ba`. It is the sole writer for the attention Rust files below. The interactive Fable loop is requested to review that delivery's construction and speed accounting,",
+    "tail": "small correctness run if available. Public 8B FFN timing is not a complete private-model timing. Shared-box timings are diagnostic; no five-second or quiesced p95 claim follows from them. Larger timed runs share `/tmp/zk-heavy.lock`. ",
+    "sha256": "db0e105daa117639be1d3779880c7237c4a2242f4c96bca92f46bd3cf4e29956"
+  },
+  {
+    "heading": "## Integration and rulings",
+    "lead": " Opus 5's current worktree is `/tmp/wt-zk60-private-profile-opus-20260918`, branch `zk60-private-profile-opus-20260918` at `db021ba`. It owns only `zk_ffn_fresh_io.rs`, a new `zk60_private_ffn_profile.rs` example, narrowly related IO tests and its new diagnostic guide. It exposes existing phase durations on explicit request without changing transcript/proof bytes or",
+    "tail": "trained models. No pending ruling blocks independent implementation work. Keep `MVP_STATUS.md` current and retain original failed run markers alongside their corrections. Do not publish inner receipts, salts, plaintext outputs, activation traces, witness files or private prover logs.",
+    "sha256": "0ae8eee18102c8befd478db1e9de5baeef6eaf37aa6fb34bd480493aafaa9658"
+  }
+]

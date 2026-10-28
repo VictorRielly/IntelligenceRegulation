@@ -1,0 +1,32 @@
+[
+  {
+    "original": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-shared-templates-20261019/scalar-dags.json",
+    "local": "scalar-dags.json",
+    "sha256": "dbedcca0a3dce4752581235a3403380017c8423f135c8241feb7cdf5607503f7"
+  },
+  {
+    "original": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-shared-templates-20261019/group-plan.json",
+    "local": "group-plan.json",
+    "sha256": "13b4501a676a723e57d45160928c7efc2bce704f1ebbd95f0c9e5237256f86de"
+  },
+  {
+    "original": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-shared-templates-20261019/target-accounting.json",
+    "local": "prior-target-accounting.json",
+    "sha256": "11c80dd9ac8995226322fcc910a4b3c4918d14a8b76ceb0eb1a030859838a404"
+  },
+  {
+    "original": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-shared-templates-20261019/owner-evidence-pins.json",
+    "local": "owner-evidence-pins.json",
+    "sha256": "b7272075d15506a488cb7c89f1001f6815d321823f570ab4a69ab53b80600af9"
+  },
+  {
+    "original": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-shared-templates-20261019/carried-D-evidence-pins.json",
+    "local": "carried-D-evidence-pins.json",
+    "sha256": "c0d52a33f42b49a43c090afc33284bb51afb0c25aa982c4f0c65176fafa07d37"
+  },
+  {
+    "original": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-shared-templates-20261019/source-pins.json",
+    "local": "source-pins.json",
+    "sha256": "debb2707feeac2f0bb51a60dce77c917f8e6a401dd3df6428378bd9bc2367483"
+  }
+]

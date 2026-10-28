@@ -1,0 +1,73 @@
+- 2026-10-26T17:40:05Z: S1 R12 acceptance started; source 1e406781f734e9f35f066516a35bf6b9ef97dee164ece4f43bbe7b3e00735fc7. S3 swap remains held while jobs run; S2 awaits final fidelity spec.
+- 2026-10-26T17:40:05Z: S1 r12-build: waiting for admission (build, need 2.5 GiB, cap 5 GiB).
+- 2026-10-26T17:42:25Z: S1 r12-build: running through the resource guard; log results/zk60_sol_20261026/r12-build.log.
+[zk60-guard 10:42:25] START sol-r12-build class=build need=2.5G cap=5G enforce=cgroup+watchdog waited=0s run=1e0834954d33
+[zk60-guard 10:46:18] END sol-r12-build exit=0 child_wall=233s peak_rss=1.85G min_avail=8.08G
+- 2026-10-26T17:46:18Z: S1 r12-build: PASS [MEASURED, n=1, shared box], child 232.6001431941986 s, peak RSS 1.85 GiB, enforcement cgroup+watchdog.
+- 2026-10-26T17:46:18Z: S1 r12-check: waiting for admission (cpu, need 2 GiB, cap 5 GiB).
+- 2026-10-26T17:46:18Z: S1 r12-check: running through the resource guard; log results/zk60_sol_20261026/r12-check.log.
+[zk60-guard 10:46:18] START sol-r12-check class=cpu need=2G cap=5G enforce=cgroup+watchdog waited=0s run=4652b642cfc9
+[zk60-guard 10:48:41] END sol-r12-check exit=0 child_wall=143s peak_rss=1.17G min_avail=8.17G
+- 2026-10-26T17:48:41Z: S1 r12-check: PASS [MEASURED, n=1, shared box], child 142.63050389289856 s, peak RSS 1.17 GiB, enforcement cgroup+watchdog.
+- 2026-10-26T17:48:41Z: S1 r12-golden: waiting for admission (cpu, need 8 GiB, cap 10.5 GiB).
+- 2026-10-26T17:55:02Z: S1 r12-golden: running through the resource guard; log results/zk60_sol_20261026/r12-golden.log.
+[zk60-guard 10:55:03] START sol-r12-golden class=cpu need=8G cap=10.5G enforce=cgroup+watchdog waited=0s run=cd3f8fea117d
+[zk60-guard 10:55:44] END sol-r12-golden exit=0 child_wall=42s peak_rss=6.18G min_avail=7.03G
+- 2026-10-26T17:55:44Z: S1 r12-golden: PASS [MEASURED, n=1, shared box], child 41.56788396835327 s, peak RSS 6.18 GiB, enforcement cgroup+watchdog.
+- 2026-10-26T17:55:44Z: S1 r12-dense: waiting for admission (cpu, need 8.5 GiB, cap 11 GiB).
+- 2026-10-26T17:55:44Z: S1 r12-dense: running through the resource guard; log results/zk60_sol_20261026/r12-dense.log.
+[zk60-guard 10:55:44] START sol-r12-dense class=cpu need=8.5G cap=11G enforce=cgroup+watchdog waited=0s run=83a8591e902c
+[zk60-guard 10:58:18] END sol-r12-dense exit=0 child_wall=154s peak_rss=6.59G min_avail=6.86G
+- 2026-10-26T17:58:18Z: S1 r12-dense: PASS [MEASURED, n=1, shared box], child 153.54764103889465 s, peak RSS 6.59 GiB, enforcement cgroup+watchdog.
+- 2026-10-26T17:58:18Z: S1 r12-fresh-verify: waiting for admission (cpu, need 3 GiB, cap 6 GiB).
+- 2026-10-26T17:58:18Z: S1 r12-fresh-verify: running through the resource guard; log results/zk60_sol_20261026/r12-fresh-verify.log.
+[zk60-guard 10:58:18] START sol-r12-fresh-verify class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=dc82f0c6bea6
+[zk60-guard 10:58:26] END sol-r12-fresh-verify exit=0 child_wall=8s peak_rss=0.78G min_avail=12.02G
+- 2026-10-26T17:58:26Z: S1 r12-fresh-verify: PASS [MEASURED, n=1, shared box], child 8.470460653305054 s, peak RSS 0.78 GiB, enforcement cgroup+watchdog.
+- 2026-10-26T17:58:26Z: S1 r12-cli-build: waiting for admission (build, need 2.5 GiB, cap 5 GiB).
+- 2026-10-26T17:58:26Z: S1 r12-cli-build: running through the resource guard; log results/zk60_sol_20261026/r12-cli-build.log.
+[zk60-guard 10:58:27] START sol-r12-cli-build class=build need=2.5G cap=5G enforce=cgroup+watchdog waited=0s run=611ebf444243
+[zk60-guard 10:59:17] END sol-r12-cli-build exit=0 child_wall=50s peak_rss=1.08G min_avail=12.22G
+- 2026-10-26T17:59:17Z: S1 r12-cli-build: PASS [MEASURED, n=1, shared box], child 50.35038185119629 s, peak RSS 1.08 GiB, enforcement cgroup+watchdog.
+- 2026-10-26T17:59:17Z: S1 r12-gpu-cli-build: waiting for admission (build, need 3 GiB, cap 5 GiB).
+- 2026-10-26T17:59:17Z: S1 r12-gpu-cli-build: running through the resource guard; log results/zk60_sol_20261026/r12-gpu-cli-build.log.
+[zk60-guard 10:59:17] START sol-r12-gpu-cli-build class=build need=3G cap=5G enforce=cgroup+watchdog waited=0s run=25d467401bf4
+[zk60-guard 11:00:12] END sol-r12-gpu-cli-build exit=0 child_wall=55s peak_rss=1.18G min_avail=12.24G
+- 2026-10-26T18:00:12Z: S1 r12-gpu-cli-build: PASS [MEASURED, n=1, shared box], child 54.51819157600403 s, peak RSS 1.18 GiB, enforcement cgroup+watchdog.
+- 2026-10-26T18:00:12Z: S1 r12-compat-tl: waiting for admission (cpu, need 2.5 GiB, cap 8 GiB).
+- 2026-10-26T18:00:12Z: S1 r12-compat-tl: running through the resource guard; log results/zk60_sol_20261026/r12-compat-tl.log.
+[zk60-guard 11:00:12] START sol-r12-compat-tl class=cpu need=2.5G cap=8G enforce=cgroup+watchdog waited=0s run=d418628605fc
+[zk60-guard 11:00:24] END sol-r12-compat-tl exit=0 child_wall=12s peak_rss=0.74G min_avail=12.61G
+- 2026-10-26T18:00:24Z: S1 r12-compat-tl: PASS [MEASURED, n=1, shared box], child 12.13944959640503 s, peak RSS 0.74 GiB, enforcement cgroup+watchdog.
+- 2026-10-26T18:00:24Z: S1 r12-compat-8b: waiting for admission (cpu, need 3 GiB, cap 8 GiB).
+- 2026-10-26T18:00:24Z: S1 r12-compat-8b: running through the resource guard; log results/zk60_sol_20261026/r12-compat-8b.log.
+[zk60-guard 11:00:24] START sol-r12-compat-8b class=cpu need=3G cap=8G enforce=cgroup+watchdog waited=0s run=09572e0cf0f4
+[zk60-guard 11:01:07] END sol-r12-compat-8b exit=0 child_wall=43s peak_rss=1.96G min_avail=11.41G
+- 2026-10-26T18:01:07Z: S1 r12-compat-8b: PASS [MEASURED, n=1, shared box], child 42.532352685928345 s, peak RSS 1.96 GiB, enforcement cgroup+watchdog.
+- 2026-10-26T18:01:07Z: S1 r12-compat-tl-dd: waiting for admission (cpu, need 2.5 GiB, cap 8 GiB).
+- 2026-10-26T18:01:07Z: S1 r12-compat-tl-dd: running through the resource guard; log results/zk60_sol_20261026/r12-compat-tl-dd.log.
+[zk60-guard 11:01:07] START sol-r12-compat-tl-dd class=cpu need=2.5G cap=8G enforce=cgroup+watchdog waited=0s run=d5eed6e565b1
+[zk60-guard 11:01:19] END sol-r12-compat-tl-dd exit=0 child_wall=12s peak_rss=0.72G min_avail=12.62G
+- 2026-10-26T18:01:19Z: S1 r12-compat-tl-dd: PASS [MEASURED, n=1, shared box], child 12.068449974060059 s, peak RSS 0.72 GiB, enforcement cgroup+watchdog.
+- 2026-10-26T18:01:19Z: S1 r12-compat-8b-dd: waiting for admission (cpu, need 3 GiB, cap 8 GiB).
+- 2026-10-26T18:01:19Z: S1 r12-compat-8b-dd: running through the resource guard; log results/zk60_sol_20261026/r12-compat-8b-dd.log.
+[zk60-guard 11:01:19] START sol-r12-compat-8b-dd class=cpu need=3G cap=8G enforce=cgroup+watchdog waited=0s run=364264176813
+[zk60-guard 11:02:01] END sol-r12-compat-8b-dd exit=0 child_wall=43s peak_rss=1.91G min_avail=11.53G
+- 2026-10-26T18:02:02Z: S1 r12-compat-8b-dd: PASS [MEASURED, n=1, shared box], child 42.584228515625 s, peak RSS 1.91 GiB, enforcement cgroup+watchdog.
+- 2026-10-26T18:02:02Z: S1 r12-suite: waiting for admission (cpu, need 6 GiB, cap 8 GiB).
+- 2026-10-26T18:02:02Z: S1 r12-suite: running through the resource guard; log results/zk60_sol_20261026/r12-suite.log.
+[zk60-guard 11:02:02] START sol-r12-suite class=cpu need=6G cap=8G enforce=cgroup+watchdog waited=0s run=617f34cadd92
+[zk60-guard 11:12:33] END sol-r12-suite exit=0 child_wall=631s peak_rss=3.24G min_avail=10.02G
+- 2026-10-26T18:12:33Z: S1 r12-suite: PASS [MEASURED, n=1, shared box], child 630.9630761146545 s, peak RSS 3.24 GiB, enforcement cgroup+watchdog.
+- 2026-10-26T18:12:33Z: S1 r12-suite-kernel: waiting for admission (build, need 0.7 GiB, cap 3 GiB).
+- 2026-10-26T18:12:33Z: S1 r12-suite-kernel: running through the resource guard; log results/zk60_sol_20261026/r12-suite-kernel.log.
+[zk60-guard 11:12:33] START sol-r12-suite-kernel class=build need=0.7G cap=3G enforce=cgroup+watchdog waited=0s run=17f7ef57110e
+[zk60-guard 11:12:33] END sol-r12-suite-kernel exit=0 child_wall=0s peak_rss=0.00G min_avail=13.39G
+- 2026-10-26T18:12:33Z: S1 r12-suite-kernel: PASS [MEASURED, n=1, shared box], child 0.06418633460998535 s, peak RSS 0.0 GiB, enforcement cgroup+watchdog.
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/results/zk60_sol_20261026/accept_r12.py", line 176, in <module>
+    main()
+  File "/home/victor/IntelligenceRegulation/results/zk60_sol_20261026/accept_r12.py", line 166, in main
+    evidence[str(path.relative_to(OUT))] = hashlib.file_digest(f, 'sha256').hexdigest()
+AttributeError: module 'hashlib' has no attribute 'file_digest'
+- 2026-10-26T18:12:33Z: S1 acceptance STOPPED: module 'hashlib' has no attribute 'file_digest'. Inspect acceptance.log and stage logs before resuming; guard/pins unchanged.

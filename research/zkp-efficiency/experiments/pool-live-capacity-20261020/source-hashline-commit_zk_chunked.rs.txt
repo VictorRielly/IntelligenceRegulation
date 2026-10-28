@@ -1,0 +1,45 @@
+fn commit_zk_chunked(&self, d_data: &Pooled, d_pads: &CudaSlice<u64>, d_pows: &CudaSlice<u64>,
+                         rows: usize, n: usize, q: usize, nn: usize, log_n: u32, log_nn: u32,
+                         chunk: usize) -> Result<Vec<Digest>, String> {
+        let dev = self.dev.clone();
+        let plan = chunk_plan(rows, chunk);
+        let rmax = plan.iter().map(|&(_, rc)| rc).max().unwrap();
+        // [ZK60-CL18] the pad/scale output width — `nn`, or `n + q` under the
+        // compact switch — decided (or refused) BEFORE any scratch is taken,
+        // and the ONLY `take_min` it changes is `d_coef2`
+        let pw = zk_pad_width(n, q, nn, zk_compact_pad())?;
+        let t0 = Instant::now();
+        let mut d_coef = Pooled::take_min(&dev, rmax * n)?;
+        let mut d_coef2 = Pooled::take_min(&dev, rmax * pw)?;
+        let mut d_enc = Pooled::take_min(&dev, rmax * nn)?;
+        let state_words = B3_STATE_SLOTS * nn;
+        let mut d_state = Pooled::take_min(&dev, (state_words + 1) / 2)?;
+        dev.memset_zeros(d_state.get_mut()).map_err(|e| format!("state memset: {e}"))?;
+        let mut d_leaves = unsafe { dev.alloc::<u32>(nn * 8) }.map_err(|e| format!("leaves alloc: {e}"))?;
+        note_raw_alloc(nn * 8 * 4); // [round-7 review] the leaf buffer is a raw allocation too
+        let f_hash = dev.get_func(MODULE, "k_hash_cols_stream").ok_or("k_hash_cols_stream missing")?;
+        note_vram(self);
+        for &(r0, rc) in &plan {
+            let dview = d_data.get().slice(r0 * n..(r0 + rc) * n);
+            let pview = d_pads.slice(r0 * q..(r0 + rc) * q);
+            self.encode_rows_view_zk(&dview, &pview, d_pows, d_coef.get_mut(), d_coef2.get_mut(), d_enc.get_mut(),
+                                     rc, n, q, nn, pw, log_n, log_nn)?;
+            let cfg = LaunchConfig::for_num_elems(nn as u32);
+            unsafe { f_hash.clone().launch(cfg, (d_enc.get(), d_state.get_mut(), rc as i32, r0 as i32, rows as i32, nn as i32, &mut d_leaves)) }
+                .map_err(|e| format!("k_hash_cols_stream: {e}"))?;
+        }
+        let words = dev.dtoh_sync_copy(&d_leaves).map_err(|e| format!("leaves download: {e}"))?;
+        let mut leaves = vec![[0u8; 32]; nn];
+        for (j, leaf) in leaves.iter_mut().enumerate() {
+            for w in 0..8 {
+                leaf[4 * w..4 * w + 4].copy_from_slice(&words[j * 8 + w].to_le_bytes());
+            }
+        }
+        let total = t0.elapsed().as_secs_f64();
+        if verbose() {
+            let how = if pw != nn { format!(", compact pad {pw} of {nn}") } else { String::new() };
+            eprintln!("[ZK60-CL1]   chunked ZK commit rows {rows} 2^{log_n} -> 2^{log_nn} (q {q}) in {} chunks of <= {rmax}{how}: {total:.4} s", plan.len());
+        }
+        stats_with(|s| { s.secs_ntt += total; s.n_chunked += 1; s.bytes_d2h += (nn * 32) as u64; });
+        Ok(leaves)
+    }

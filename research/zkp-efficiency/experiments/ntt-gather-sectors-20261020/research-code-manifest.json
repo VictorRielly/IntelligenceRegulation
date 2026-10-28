@@ -1,0 +1,32 @@
+[
+  {
+    "path": "experiments/ntt-gather-sectors-20261020/model.py",
+    "sha256": "06104e8032c4b2ee270ca063551b0633952ef1a1bac8aa30b974d97ef1fb204c",
+    "bytes": 2901
+  },
+  {
+    "path": "experiments/ntt-gather-sectors-20261020/p1_load_rotation.proposed.cuh",
+    "sha256": "721a591ee50230677d72a2275800566e62ff0a280548012df70198bc464343a9",
+    "bytes": 898
+  },
+  {
+    "path": "experiments/ntt-gather-sectors-20261020/probe.py",
+    "sha256": "79ebb0f37c9827f8d42bc5ace4609783db6d783425a8c9f3db886b116c879a8e",
+    "bytes": 8828
+  },
+  {
+    "path": "experiments/ntt-gather-sectors-20261020/reference.py",
+    "sha256": "325bc636977a7c801b17f11a2270bb0547d9472c775b21a390107ca1b4363378",
+    "bytes": 1506
+  },
+  {
+    "path": "experiments/ntt-gather-sectors-20261020/run_bounded.py",
+    "sha256": "0811a4c0743744fb7b0084964d8188340a164b3e6aa73434f5d2363f5086b9e6",
+    "bytes": 1369
+  },
+  {
+    "path": "experiments/ntt-gather-sectors-20261020/validate.py",
+    "sha256": "0bb1b81daf0edb41d5782a9ea5cbeacbb8ce11446b9e532ee83ac9566c9bd724",
+    "bytes": 5637
+  }
+]

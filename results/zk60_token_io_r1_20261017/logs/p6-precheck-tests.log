@@ -1,0 +1,10 @@
+test_demo_prompts_are_clear (__main__.Layer0Precheck) ... ok
+test_listed_tokens_refused_by_name_before_proving (__main__.Layer0Precheck) ... ok
+test_other_layer0_not_covered_and_record_refuses_it (__main__.Layer0Precheck) ... ok
+test_recorded_list_points_at_the_scan (__main__.Layer0Precheck) ... ok
+test_rope_tables_beyond_the_scanned_positions_are_not_covered (__main__.Layer0Precheck) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 11.430s
+
+OK

@@ -1,0 +1,218 @@
+{
+ "arrays": {
+  "act": {
+   "dtype": "int16",
+   "file": "act.bin",
+   "sha256": "695e55ca9d58a7e89e973e5eff2bf7ff13d604d6ab1fbf7f9efc4b0d8a61446f",
+   "shape": [
+    256
+   ]
+  },
+  "exp": {
+   "dtype": "int64",
+   "file": "exp.bin",
+   "sha256": "14fb7e927f0e6639264fe678a7ee24432db24587e4461e3c2cb55005b951d6fb",
+   "shape": [
+    256
+   ]
+  },
+  "gamma_a": {
+   "dtype": "int8",
+   "file": "gamma_a.bin",
+   "sha256": "9226615d883bd5d45389f82f60b6f50d0f03fe99f7c65e8730164381a065f466",
+   "shape": [
+    2048
+   ]
+  },
+  "gamma_m": {
+   "dtype": "int8",
+   "file": "gamma_m.bin",
+   "sha256": "7a2c35c7bc2d879d060b4e62a247b2bd96b4f89308169a1fdc32db4a328e0767",
+   "shape": [
+    2048
+   ]
+  },
+  "rope_cos": {
+   "dtype": "int64",
+   "file": "rope_cos.bin",
+   "sha256": "612efc7dd383cb54513fca74461ee812c71bcc1e97698525484b7ffbe8ebe6c4",
+   "shape": [
+    32,
+    32
+   ]
+  },
+  "rope_sin": {
+   "dtype": "int64",
+   "file": "rope_sin.bin",
+   "sha256": "8b5a918732c8b99f6d221d533e109dee6c17851994775ddc8e108e21dbfb4a16",
+   "shape": [
+    32,
+    32
+   ]
+  },
+  "wd_t": {
+   "dtype": "int8",
+   "file": "wd_t.bin",
+   "sha256": "d961314880324b554102453fb8ab9665aac29bd84340e589cebd12a988adc274",
+   "shape": [
+    5632,
+    2048
+   ]
+  },
+  "wg_t": {
+   "dtype": "int8",
+   "file": "wg_t.bin",
+   "sha256": "f57d9fe7b44797a831ebe382c7406c65b3a827bf0a08544a175ba8840b530dd8",
+   "shape": [
+    2048,
+    5632
+   ]
+  },
+  "wk": {
+   "dtype": "int8",
+   "file": "wk.bin",
+   "sha256": "c512f89b3ced5bf640f93ae81f3961a23da5fd04749f624bc1609b71a19129b2",
+   "shape": [
+    256,
+    2048
+   ]
+  },
+  "wo": {
+   "dtype": "int8",
+   "file": "wo.bin",
+   "sha256": "6989c40faf2ac086bb5bcf41f62985c54ee1fb75812a036717ef39021702c0ce",
+   "shape": [
+    2048,
+    2048
+   ]
+  },
+  "wq": {
+   "dtype": "int8",
+   "file": "wq.bin",
+   "sha256": "b46f4aaeeda341813875c9db02b456d5141acc056d7bb1b2a69619026ed9fe81",
+   "shape": [
+    2048,
+    2048
+   ]
+  },
+  "wu_t": {
+   "dtype": "int8",
+   "file": "wu_t.bin",
+   "sha256": "831322f53d7d85a2d396e24a1b17275e77614ec6df94017b1f8136c341aa0a83",
+   "shape": [
+    2048,
+    5632
+   ]
+  },
+  "wv": {
+   "dtype": "int8",
+   "file": "wv.bin",
+   "sha256": "0239cab34d10ccc8d39e37444ceaf9cac9f8d89cfacd875c9a43eb2f8ff6ce4a",
+   "shape": [
+    256,
+    2048
+   ]
+  }
+ },
+ "constants": {
+  "exp_e_s": 2,
+  "f_e": 9,
+  "f_p": 9,
+  "f_ro": 7,
+  "norm_ceps": 74429,
+  "norm_cn_a": 3583,
+  "norm_cn_m": 2873,
+  "norm_tn": 10,
+  "rope_theta": 10000.0,
+  "sh_ao": 3,
+  "sh_g": 8,
+  "sh_h": 14,
+  "sh_o": 9,
+  "sh_qkv": 8,
+  "sh_r2": 0,
+  "sh_rope": 7,
+  "sh_s": 6,
+  "sh_u": 0,
+  "sh_z": 4,
+  "silu_member": [
+   -4,
+   -12
+  ]
+ },
+ "kind": "layer",
+ "layer": 12,
+ "metadata_out_of_proof": {
+  "norm_consts": {
+   "K_a": 12.933561264817634,
+   "K_m": 16.129812047282137,
+   "ceps": 74429,
+   "ceps_exact": 74429.2389176207,
+   "cn_a": 3583,
+   "cn_m": 2873
+  },
+  "scales": {
+   "act_scale": 0.000244140625,
+   "gate_scale": 0.0625,
+   "s_h": [
+    0.0026058379056059246,
+    0.007607736242275144
+   ],
+   "s_k": [
+    0.22194142497109692,
+    0.4748002701018571
+   ],
+   "s_q": [
+    0.1316342974838496,
+    0.28160583364795133
+   ],
+   "s_u": [
+    0.0006514594764014812,
+    0.001901934060568786
+   ],
+   "s_v": [
+    0.017426607646341397,
+    0.03439731860724021
+   ],
+   "s_x_in": 0.0005245576041783893,
+   "s_x_out": 0.0005245576041783893,
+   "score_scale": 4.0
+  },
+  "weights_clipped": {
+   "wd": 0,
+   "wg": 0,
+   "wk": 0,
+   "wo": 0,
+   "wq": 0,
+   "wu": 0,
+   "wv": 0
+  }
+ },
+ "orientation": {
+  "padding": "none (true extents)",
+  "wd_t": "(input f, output d) row-major",
+  "wg_t/wu_t": "(input d, output f) row-major",
+  "wq/wk/wv/wo": "(output, input) row-major"
+ },
+ "schema": "zk60-trained-profile-export/1",
+ "tables": {
+  "act": {
+   "generator": "zkp-core tables.rs int16out_member(Silu, e_in, e_out) (frozen registry)",
+   "silu_member": [
+    -4,
+    -12
+   ],
+   "spec_digest": "afed7dc5c289cbdb18fbf5d794285ba5901ebe43e9e561aad6ec32987fa66d54"
+  },
+  "exp": {
+   "e_s": 2,
+   "generator": "hashline tables_attn.rs exp_member(e_s, head_dim 64, f_e)",
+   "spec_digest": "ca1b6830e3b6f3e61612334ccfe151e935ef3eb3a2e33f76db39d03b092a186f"
+  },
+  "rope": {
+   "generator": "hashline tables_attn.rs rope_tables_generate(T, 64, 10000.0, 7)",
+   "spec_digest": "e0de1cf45aa38f101ad6d86fdccbf53b4a994afbb7f9dfd11f59f50dab03b2ef",
+   "t_max": 32
+  }
+ },
+ "variant": "pg"
+}

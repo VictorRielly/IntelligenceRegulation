@@ -1,0 +1,18 @@
+{
+  "status": "PASS_INDEPENDENT_AUDIT",
+  "checks": 55423,
+  "source_pins": 11,
+  "schedules": 6144,
+  "full_round_cases": 48,
+  "negative_controls": [
+    "tail_counter_covers_all_messages",
+    "copy_all_derived_tables",
+    "threshold_applies_before_first_round",
+    "host_tail_releases_device_arena",
+    "mapped_zero_traffic",
+    "wrong_msb_lsb_contract"
+  ],
+  "wall_seconds": 0.7619753369945101,
+  "rss_kib": 27120,
+  "scope": "Independent original-slot polynomial and original-table MLE plus closed-form schedule/traffic audit; not a native prover or verifier"
+}

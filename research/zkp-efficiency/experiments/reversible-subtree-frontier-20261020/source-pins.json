@@ -1,0 +1,142 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-fraction-tree-20261020/fp2.py",
+    "snapshot": "fp2.py",
+    "sha256": "14825f26629a364082dd713b29fbb5cd53fb2fd100f081e70bd5d78fa89b31ef",
+    "bytes": 3649
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-fraction-tree-20261020/reference.py",
+    "snapshot": "reference.py",
+    "sha256": "ceae7f087f81f8346f93c6a28581cf3f292c62a18e5e1524d84b84ec5d6e9e53",
+    "bytes": 2307
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-fraction-tree-20261020/support.py",
+    "snapshot": "support.py",
+    "sha256": "58d4ca43af799bb309208ce1bc7af86e4d001cafb382ba357245a38b1912f744",
+    "bytes": 1242
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-fraction-tree-20261020/tiled_fp2.py",
+    "snapshot": "tiled_fp2.py",
+    "sha256": "fabb2cea25b787eea6da8aadcc6f5dd0f79ce718f4c7ff06e21cf0ba11cab5ca",
+    "bytes": 6295
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-fraction-tree-20261020/reversible.py",
+    "snapshot": "reversible.py",
+    "sha256": "74cc7e3f43907eb1b65a61dc1c8229abc6c3ff74abeb162757ea368c24ee458b",
+    "bytes": 6454
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-fraction-tree-20261020/run_bounded.py",
+    "snapshot": "imported/run_bounded.py",
+    "sha256": "d283f5e131598377575d40bda8876b90ac4bc55f947a99264a07f09fe5d0de96",
+    "bytes": 1387
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-fraction-tree-20261020/hypotheses.json",
+    "snapshot": "imported/hypotheses.json",
+    "sha256": "0a67e1850b444de0a0e6fe8924d989c869a2b8b06773d2fc444f04043f19d37f",
+    "bytes": 35683
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-fraction-tree-20261020/inputs.json",
+    "snapshot": "inputs.json",
+    "sha256": "b9be88174ad488fcff944f80fbf976a57d8562ecc682a61999973f2ca80a2201",
+    "bytes": 13411
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-fraction-tree-20261020/prior-model-result.json",
+    "snapshot": "prior-model-result.json",
+    "sha256": "564e8df12efd0ae582e2549ea7ca21d782f91f5ccca42fb2db447c6647f01486",
+    "bytes": 153065
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-fraction-tree-20261020/forest-result.json",
+    "snapshot": "prior-forest-result.json",
+    "sha256": "16473b45e93b88618ad62a7a03f847cd403f49c1453d500f62117d4d890ea6fc",
+    "bytes": 40516
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-fraction-tree-20261020/capacity-result.json",
+    "snapshot": "prior-capacity-result.json",
+    "sha256": "aee96e9520f266fd55de683243a53a8d4d8bbc0a3947f450a0921111f69e41cb",
+    "bytes": 5132
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-fraction-tree-20261020/result.json",
+    "snapshot": "prior-result.json",
+    "sha256": "b554d2c593cba070447f8b999b28b60a2bcc36f8cdf9f1c384c4c45a79b1facd",
+    "bytes": 474
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-fraction-tree-20261020/validation-result.json",
+    "snapshot": "prior-validation-result.json",
+    "sha256": "2decfcbbdb2ddfc356f785bf13235666ee7d67677ecbafc02c7c719316072e0a",
+    "bytes": 410
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/reversible-fraction-tree-20261020/cycle-result.json",
+    "snapshot": "prior-cycle-result.json",
+    "sha256": "e0f85f3d05262b7afcb85b00ade6145445ccca1f9c4e22d9210810c691d3950d",
+    "bytes": 2724
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/shape.rs",
+    "snapshot": "source/shape.rs",
+    "sha256": "e214db86945e0b9df8336edc7974041ebcfe77f2f1884a565a77a0392fca1165",
+    "bytes": 129620,
+    "matches_prior": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/layout.rs",
+    "snapshot": "source/layout.rs",
+    "sha256": "9332802e597beacab56cfa69cfe18325bc476d2ce6485f517051992b26d26efa",
+    "bytes": 74733,
+    "matches_prior": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/argument.rs",
+    "snapshot": "source/argument.rs",
+    "sha256": "112352bc35c8b877cba50707a5ea64ea239ec6c684becb193ad981bd643ff4f5",
+    "bytes": 110974,
+    "matches_prior": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/protocol.rs",
+    "snapshot": "source/protocol.rs",
+    "sha256": "c482402329e4da32a70c780435b2077e8054d1805b1006289f571820017564a4",
+    "bytes": 77946,
+    "matches_prior": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/zkp-core/src/field.rs",
+    "snapshot": "source/field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065,
+    "matches_prior": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/zkp-core/src/mle.rs",
+    "snapshot": "source/mle.rs",
+    "sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e",
+    "bytes": 15255,
+    "matches_prior": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/zkp-core/src/sumcheck.rs",
+    "snapshot": "source/sumcheck.rs",
+    "sha256": "fc7374bbd5e5cc4ede62e8a21d325eb62acff9b9dcc786d12eae39efbdfdbb95",
+    "bytes": 22023,
+    "matches_prior": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/zk.rs",
+    "snapshot": "source/zk.rs",
+    "sha256": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32",
+    "bytes": 254060,
+    "matches_prior": true
+  }
+]

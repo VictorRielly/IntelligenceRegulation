@@ -1,0 +1,43 @@
+{
+  "this_cycle": [
+    "memory traffic",
+    "GPU commitments",
+    "proof composition/access-model screen"
+  ],
+  "next_cycle": [
+    "lookup/softmax: actual fidelity geometry availability",
+    "memory traffic: keyed salted host tree incidence"
+  ],
+  "rotation": [
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "lookup arguments/softmax",
+    "memory traffic",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proof composition"
+  ],
+  "top_hypotheses": [
+    {
+      "rank": 1,
+      "title": "Owner whole-prover high-end GPU plus verified fixed-context resident1/2/4/8"
+    },
+    {
+      "rank": 2,
+      "title": "REFINED owner DD larger-context scaling after measured T128 null result"
+    },
+    {
+      "rank": 3,
+      "title": "REFINED tested public-role exclusive FZC clocks before allocator/capacity changes"
+    },
+    {
+      "rank": 4,
+      "title": "REFINED all-eleven public pad census: native literal/GL-only/full-pair choice"
+    }
+  ],
+  "parked_until_native_clocks": [
+    34,
+    36,
+    37
+  ]
+}

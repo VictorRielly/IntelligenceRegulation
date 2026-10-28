@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "checks": 319,
+  "source_pins": 18,
+  "r8_manifest_matches": 14,
+  "in_memory_patch_hunks": 2,
+  "changed_direction_documents": [],
+  "wall_seconds": 0.017409742999006994,
+  "rss_kib": 20164,
+  "checkpoint": "2026-10-19T21:34:46.947857+00:00",
+  "scope": "Local provenance/semantic/synthetic/report gate; no Rust build, loader, proof, GPU or RSS benchmark"
+}

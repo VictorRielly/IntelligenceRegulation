@@ -1,0 +1,36 @@
+--- a/ops/zkp-mvp/trained-1b/hashline/src/private_block/argument.rs
++++ b/ops/zkp-mvp/trained-1b/hashline/src/private_block/argument.rs
+@@ -1129,8 +1129,23 @@
+ pub(crate) fn table_values_exp(public: &AttentionPublic, beta: Fp2, g_exp: Fp2) -> Vec<Fp2> {
+     table_values_exp_at(Dom::Tab.len(), public, beta, g_exp)
+ }
++/// Repeat freshly encoded byte rows within this one constructor call.
++/// The initialized destination prefix is the source; no second table buffer.
++#[inline]
++fn repeat_encoded_u8_rows(len: usize, mut row: impl FnMut(usize) -> Fp2) -> Vec<Fp2> {
++    let mut out = Vec::with_capacity(len);
++    for i in 0..len.min(U8_LEN) {
++        out.push(row(i));
++    }
++    while out.len() < len {
++        let take = (len - out.len()).min(out.len());
++        out.extend_from_within(..take);
++    }
++    out
++}
++
+ pub(crate) fn table_values_exp_at(len: usize, public: &AttentionPublic, beta: Fp2, g_exp: Fp2) -> Vec<Fp2> {
+-    (0..len).map(|x| x % U8_LEN).map(|i| k(i as i64).add(beta.mul(k(public.exp[i]))).add(g_exp)).collect()
++    repeat_encoded_u8_rows(len, |i| k(i as i64).add(beta.mul(k(public.exp[i]))).add(g_exp))
+ }
+ /// The activation table's public rows `i + beta * act[i] + g_act`, the exp
+ /// table's construction verbatim under a third tag. Binding the PAIR is a
+@@ -1141,7 +1156,7 @@
+     table_values_act_at(Dom::Tab.len(), ff, beta, g_act)
+ }
+ pub(crate) fn table_values_act_at(len: usize, ff: &FeedForwardPublic, beta: Fp2, g_act: Fp2) -> Vec<Fp2> {
+-    (0..len).map(|x| x % U8_LEN).map(|i| k(i as i64).add(beta.mul(k(i64::from(ff.act[i])))).add(g_act)).collect()
++    repeat_encoded_u8_rows(len, |i| k(i as i64).add(beta.mul(k(i64::from(ff.act[i])))).add(g_act))
+ }
+ 
+ /// Draw the slot's challenges and build its tables and polynomial. Identical

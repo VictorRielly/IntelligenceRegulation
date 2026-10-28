@@ -174,6 +174,7 @@ def pre_repair_polynomial_on_this_bundle(bundle, index, replay, group) -> dict:
     rows, repaired_ok, pre_ok = [], 0, 0
     for st in bundle.stages:
         doc = st.doc
+        gate.set_stage(st.index)       # [v17] the stage's own calibration
         gate.set_logup(doc["logup_challenges"])
         lam_z = lam_z_of(doc)
         for slot in BILINEAR_SLOTS:
@@ -394,7 +395,11 @@ def group_controls(bundle, index, replay=None, other_definition=None) -> dict:
                 "skipped": f"this shape has lkv = {lkv}: a point of one entry "
                            "cannot be reordered, so the control does not exist "
                            "here",
-                "fires": False})
+                # [v17, gate round 14] a NAMED not-applicable null, which the
+                # status module reads as such (it was False, an unexplained
+                # false leaf at every lkv < 2 shape: the DD rung's first
+                # everything-pass showed it)
+                "fires": None})
         else:
             docs7 = _docs_with_group_point_perturbed(bundle, 0, 8, swap=True)
             g7 = GroupFactors(bundle, replay=replay, stage_docs=docs7)

@@ -1,0 +1,62 @@
+[zk60-guard 07:42:59] START tio-t27-r6-built class=cpu need=4G cap=6G enforce=cgroup+watchdog waited=0s run=a48a7bc55c0d
+[zk60-guard 07:50:05] END tio-t27-r6-built exit=0 child_wall=426s peak_rss=3.14G min_avail=7.28G
+{"event": "layer0-precheck", "status": "clear", "prompt_tokens": 32, "known_refusing": [662, 16309], "scope": "layer 0 only (exhaustive over the vocabulary for norm_a / Q / K / V / RoPE); later layers depend on context", "not_covered": "the layer-0 attention scores (they depend on pairs of tokens) and all later layers (they depend on the context): a clear prompt can still be refused by the prover, which is safe", "fingerprint": "f8086a4022bade60f010077a0b72a66b382df2178afe3eb93178fc49c310df39", "scan": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/runs/llama3-8b/vocab0_llama3_8b_pg_rot1_b7_T128.json"}
+pins from /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/approvals/token_profile_approval_llama3_8b_pg_rot1_b7_T32.json: expect-statement 47f0194335d08efb4d63df70df01f1e42d900f4730c2384490359046bb07b876, expect-token-profile e8238cf130a36f369d6453e5579ba294e9eac4ae4b47de5815cc7ef7ac297132
+[zk60-guard 07:50:07] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 07:51:07] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 07:52:07] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 07:53:07] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 07:54:07] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 07:55:07] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 07:56:07] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 07:57:08] waiting for /tmp/zk-heavy.lock (421s)
+[zk60-guard 07:58:08] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 07:58:33] START tio-r6-d1-cli-build class=build need=3G cap=5G enforce=cgroup+watchdog waited=506s run=c0c0d83d067a
+[zk60-guard 08:00:00] END tio-r6-d1-cli-build exit=0 child_wall=87s peak_rss=1.05G min_avail=9.30G
+[zk60-guard 08:00:00] START tio-r6-d3-cli-prove class=cpu need=4.5G cap=6.5G enforce=cgroup+watchdog waited=0s run=5936c2a2c550
+[zk60-guard 08:04:58] END tio-r6-d3-cli-prove exit=0 child_wall=298s peak_rss=3.37G min_avail=5.99G
+owner directory: /home/victor/zk60-artifacts/token-io/run-b7_T32-r6-ho00-3d3a3b4113bd.owner-private
+[zk60-guard 08:04:58] START tio-r6-d4-cli-verify class=cpu need=4G cap=6G enforce=cgroup+watchdog waited=0s run=b0f6edb4230c
+[zk60-guard 08:06:35] END tio-r6-d4-cli-verify exit=0 child_wall=97s peak_rss=2.85G min_avail=7.14G
+[zk60-guard 08:06:35] START tio-r6-d5-cli-recheck class=cpu need=4G cap=6G enforce=cgroup+watchdog waited=0s run=64389a1006a8
+[zk60-guard 08:08:19] END tio-r6-d5-cli-recheck exit=0 child_wall=104s peak_rss=2.82G min_avail=6.75G
+[zk60-guard 08:08:19] START tio-r6-d6-cli-owner class=cpu need=4G cap=6G enforce=cgroup+watchdog waited=0s run=821a5605d13e
+[zk60-guard 08:09:59] END tio-r6-d6-cli-owner exit=0 child_wall=100s peak_rss=2.81G min_avail=7.03G
+[zk60-guard 08:09:59] START tio-r6-d7-cli-input-owner class=cpu need=4G cap=6G enforce=cgroup+watchdog waited=0s run=ebf53ce8dad8
+[zk60-guard 08:11:36] END tio-r6-d7-cli-input-owner exit=0 child_wall=97s peak_rss=2.82G min_avail=7.99G
+[zk60-guard 08:11:36] admission waiting: budget: 6+6.5 GiB > 11.9 GiB with live [fp-L_fix_gptq_dg(light,3G), fp-L_e8_lam0(light,3G)]
+[zk60-guard 08:12:36] admission waiting: budget: 6+6.5 GiB > 11.9 GiB with live [fp-L_fix_gptq_dg(light,3G), fp-L_e8_lam0(light,3G)]
+[zk60-guard 08:13:36] admission waiting: budget: 6+6.5 GiB > 11.9 GiB with live [fp-L_fix_gptq_dg(light,3G), fp-L_e8_lam0(light,3G)]
+[zk60-guard 08:14:37] admission waiting: budget: 6+6.5 GiB > 11.9 GiB with live [fp-L_fix_gptq_dg(light,3G), fp-L_e8_lam0(light,3G)]
+[zk60-guard 08:15:37] admission waiting: budget: 6+6.5 GiB > 11.9 GiB with live [fp-L_fix_gptq_dg(light,3G), fp-L_e8_lam0(light,3G)]
+[zk60-guard 08:16:37] admission waiting: budget: 6+6.5 GiB > 11.9 GiB with live [fp-L_fix_gptq_dg(light,3G), fp-L_e8_lam0(light,3G)]
+[zk60-guard 08:17:37] admission waiting: budget: 6+6.5 GiB > 11.9 GiB with live [fp-L_fix_gptq_dg(light,3G), fp-L_e8_lam0(light,3G)]
+[zk60-guard 08:18:37] admission waiting: budget: 6+6.5 GiB > 11.9 GiB with live [fp-L_fix_gptq_dg(light,3G), fp-L_e8_lam0(light,3G)]
+[zk60-guard 08:19:38] admission waiting: budget: 6+6.5 GiB > 11.9 GiB with live [fp-L_fix_gptq_dg(light,3G), fp-L_e8_lam0(light,3G)]
+[zk60-guard 08:20:38] admission waiting: budget: 6+6.5 GiB > 11.9 GiB with live [fp-L_fix_gptq_dg(light,3G), fp-L_e8_lam0(light,3G)]
+[zk60-guard 08:21:38] admission waiting: budget: 6+6.5 GiB > 11.9 GiB with live [fp-L_fix_gptq_dg(light,3G), fp-L_e8_lam0(light,3G)]
+[zk60-guard 08:22:38] admission waiting: budget: 6+6.5 GiB > 11.9 GiB with live [fp-L_fix_gptq_dg(light,3G), fp-L_e8_lam0(light,3G)]
+[zk60-guard 08:23:38] admission waiting: budget: 6+6.5 GiB > 11.9 GiB with live [fp-L_fix_gptq_dg(light,3G), fp-L_e8_lam0(light,3G)]
+[zk60-guard 08:24:38] admission waiting: budget: 6+6.5 GiB > 11.9 GiB with live [fp-L_fix_gptq_dg(light,3G), fp-L_e8_lam0(light,3G)]
+[zk60-guard 08:25:39] admission waiting: budget: 5.5+6.5 GiB > 11.9 GiB with live [fp-L_e8_lam0(light,3G), fp-L_full_ppl(light,2.5G)]
+[zk60-guard 08:26:39] admission waiting: budget: 5.5+6.5 GiB > 11.9 GiB with live [fp-L_e8_lam0(light,3G), fp-L_full_ppl(light,2.5G)]
+[zk60-guard 08:27:39] admission waiting: budget: 5.5+6.5 GiB > 11.9 GiB with live [fp-L_e8_lam0(light,3G), fp-L_full_ppl(light,2.5G)]
+[zk60-guard 08:28:39] admission waiting: budget: 5.5+6.5 GiB > 11.9 GiB with live [fp-L_e8_lam0(light,3G), fp-L_full_ppl(light,2.5G)]
+[zk60-guard 08:29:39] admission waiting: budget: 5.5+6.5 GiB > 11.9 GiB with live [fp-L_e8_lam0(light,3G), fp-L_full_ppl(light,2.5G)]
+[zk60-guard 08:30:39] admission waiting: budget: 5.5+6.5 GiB > 11.9 GiB with live [fp-L_e8_lam0(light,3G), fp-L_full_ppl(light,2.5G)]
+[zk60-guard 08:31:40] admission waiting: budget: 5.5+6.5 GiB > 11.9 GiB with live [fp-L_e8_lam0(light,3G), fp-L_full_ppl(light,2.5G)]
+[zk60-guard 08:32:40] admission waiting: budget: 5.5+6.5 GiB > 11.9 GiB with live [fp-L_e8_lam0(light,3G), fp-L_full_ppl(light,2.5G)]
+[zk60-guard 08:33:40] admission waiting: budget: 5.5+6.5 GiB > 11.9 GiB with live [fp-L_e8_lam0(light,3G), fp-L_full_ppl(light,2.5G)]
+[zk60-guard 08:34:40] admission waiting: budget: 5.5+6.5 GiB > 11.9 GiB with live [fp-L_e8_lam0(light,3G), fp-L_full_ppl(light,2.5G)]
+[zk60-guard 08:35:40] admission waiting: budget: 5.5+6.5 GiB > 11.9 GiB with live [fp-L_e8_lam0(light,3G), fp-L_full_ppl(light,2.5G)]
+[zk60-guard 08:36:41] admission waiting: budget: 5.5+6.5 GiB > 11.9 GiB with live [fp-L_e8_lam0(light,3G), fp-L_full_ppl(light,2.5G)]
+[zk60-guard 08:37:41] admission waiting: budget: 5.5+6.5 GiB > 11.9 GiB with live [fp-L_e8_lam0(light,3G), fp-L_full_ppl(light,2.5G)]
+[zk60-guard 08:38:41] admission waiting: budget: 5.5+6.5 GiB > 11.9 GiB with live [fp-L_e8_lam0(light,3G), fp-L_full_ppl(light,2.5G)]
+[zk60-guard 08:39:41] admission waiting: budget: 5.5+6.5 GiB > 11.9 GiB with live [fp-L_e8_lam0(light,3G), fp-L_full_ppl(light,2.5G)]
+[zk60-guard 08:40:41] admission waiting: budget: 5.5+6.5 GiB > 11.9 GiB with live [fp-L_e8_lam0(light,3G), fp-L_full_ppl(light,2.5G)]
+[zk60-guard 08:41:41] admission waiting: budget: 5.5+6.5 GiB > 11.9 GiB with live [fp-L_build_l8_b7_voc0_T32(light,3G), fp-L_full_ppl(light,2.5G)]
+[zk60-guard 08:42:42] admission waiting: budget: 5.5+6.5 GiB > 11.9 GiB with live [fp-L_build_l8_b7_voc0_T32(light,3G), fp-L_full_ppl(light,2.5G)]
+[zk60-guard 08:43:42] admission waiting: budget: 5.5+6.5 GiB > 11.9 GiB with live [fp-L_build_l8_b7_voc0_T32(light,3G), fp-L_full_ppl(light,2.5G)]
+[zk60-guard 08:44:42] admission waiting: budget: 5.5+6.5 GiB > 11.9 GiB with live [fp-L_build_l8_b7_voc0_T32(light,3G), fp-L_full_ppl(light,2.5G)]
+[zk60-guard 08:44:57] START tio-r6-s8-suite class=cpu need=6.5G cap=8G enforce=cgroup+watchdog waited=2001s run=6fc47d143851
+[zk60-guard 08:59:50] END tio-r6-s8-suite exit=0 child_wall=893s peak_rss=6.01G min_avail=6.19G

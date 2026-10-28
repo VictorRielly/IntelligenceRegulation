@@ -1,0 +1,17 @@
+diff -ruN -x __pycache__ frozen_v13/tests/test_v4_status_g10.py frozen_v14/tests/test_v4_status_g10.py
+--- frozen_v13/tests/test_v4_status_g10.py	2026-10-19 18:50:55.627984870 -0700
++++ frozen_v14/tests/test_v4_status_g10.py	2026-10-19 19:11:02.962523387 -0700
+@@ -932,3 +932,13 @@
+                 p["sha256"] = "2" * 64
+         self.assertFalse(TT.check_source_pins(types.SimpleNamespace(manifest=bad2))["ok"])
+ 
++
++class TokenGateExportOverride(unittest.TestCase):
++    """[v14] the token gate passes an export override to the block-stage
++    terminal check (a CLI-path capture's README names no export directory)"""
++
++    def test_gate_takes_an_export(self):
++        import inspect
++        import zk60_native_rg_tokengate as TG
++        self.assertIn("export_dir", inspect.signature(TG.gate).parameters)
++

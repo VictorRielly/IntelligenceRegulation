@@ -1,0 +1,19 @@
+{
+  "new_completed_independently_verified_full_stack_proofs": 0,
+  "passes": 0,
+  "proved_positions": 0,
+  "actual_context_length": null,
+  "actual_accelerator": null,
+  "witness_seconds": null,
+  "proof_seconds": null,
+  "serialization_seconds": null,
+  "verification_seconds": null,
+  "startup_seconds": null,
+  "startup_fraction": null,
+  "steady_state_proved_tokens_per_second": null,
+  "total_workload_proved_tokens_per_second": null,
+  "prefill": "No workload executed",
+  "resident_passes": "Only conditional source schedules atT32/T64/T128,L1/L2/L32,1/2/4/8passes",
+  "decode": "No execution or state binding tested",
+  "complete_private_8B_50_per_s_achieved": false
+}

@@ -1,0 +1,24 @@
+236 files; list sha256 b666a991a402dd39dfe8376d755fef3ddfd892b7aba09f4bb23d224bfe30ca78
+vs manifest_r9B.sha256: changed 9, added 1, removed 0
+  changed hashline/examples/zk60_token_io.rs
+  changed hashline/src/private_block/token_io.rs
+  changed hashline/src/private_block/token_io/capture_tests.rs
+  changed hashline/src/private_block/token_io/cli.rs
+  changed hashline/src/private_block/token_io/cli_tests.rs
+  changed hashline/src/private_block/token_io/r2_tests.rs
+  changed hashline/src/private_block/token_io/r3_tests.rs
+  changed hashline/src/private_block/token_io/run.rs
+  changed hashline/src/private_block/token_io/stage_in.rs
+  added   hashline/src/private_block/token_io/r9v_tests.rs
+vs manifest_final_r8.sha256: changed 9, added 2, removed 0
+  changed hashline/examples/zk60_token_io.rs
+  changed hashline/src/private_block/token_io.rs
+  changed hashline/src/private_block/token_io/capture_tests.rs
+  changed hashline/src/private_block/token_io/cli.rs
+  changed hashline/src/private_block/token_io/cli_tests.rs
+  changed hashline/src/private_block/token_io/r2_tests.rs
+  changed hashline/src/private_block/token_io/r3_tests.rs
+  changed hashline/src/private_block/token_io/run.rs
+  changed hashline/src/private_block/token_io/stage_in.rs
+  added   hashline/src/private_block/token_io/r9_tests.rs
+  added   hashline/src/private_block/token_io/r9v_tests.rs

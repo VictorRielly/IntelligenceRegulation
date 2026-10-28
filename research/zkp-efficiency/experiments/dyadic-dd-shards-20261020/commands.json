@@ -1,0 +1,78 @@
+[
+  {
+    "command": [
+      "python3",
+      "-B",
+      "experiments/dyadic-dd-shards-20261020/probe.py"
+    ],
+    "exit_code": 0,
+    "parent_wall_s": 0.21579538800870068
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "experiments/dyadic-dd-shards-20261020/audit.py"
+    ],
+    "exit_code": 1,
+    "parent_wall_s": 0.11467887798789889
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "experiments/dyadic-dd-shards-20261020/probe.py"
+    ],
+    "exit_code": 0,
+    "parent_wall_s": 0.21552024202537723
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "experiments/dyadic-dd-shards-20261020/audit.py"
+    ],
+    "exit_code": 0,
+    "parent_wall_s": 0.06472138801473193
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "experiments/dyadic-dd-shards-20261020/probe.py"
+    ],
+    "source_sha256": "46881f49be1000eb50e1d2946b27eea95e4093fe466e2a57feab01f469f8de9c",
+    "exit_code": 0,
+    "parent_wall_s": 0.21599878402776085
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "experiments/dyadic-dd-shards-20261020/audit.py"
+    ],
+    "source_sha256": "1181bd6694f3c768475a9d0004aca39637431e4dab888d3d01c465a85f9d0f4e",
+    "exit_code": 0,
+    "parent_wall_s": 0.06468853200203739
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "experiments/dyadic-dd-shards-20261020/artifact_audit.py"
+    ],
+    "source_sha256": "1cecdb7c82c9d49da5bda5c0937f39c6fc65123d8285743a028f497f2f228db8",
+    "exit_code": 0,
+    "parent_wall_s": 0.03217759801191278
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "experiments/dyadic-dd-shards-20261020/summarize.py"
+    ],
+    "source_sha256": "a058ec75b7b9cde4fc2b060f31fc901bd269dfcbd92cd15ff3cf4f5debd69da2",
+    "exit_code": 0,
+    "parent_wall_s": 0.03224187501473352
+  }
+]

@@ -1,0 +1,28 @@
+[zk60-guard 22:18:11] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 22:19:11] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 22:20:11] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 22:21:11] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 22:21:39] START r9-test-build class=build need=3G cap=6G enforce=cgroup+watchdog waited=208s run=b0e3088365b2
+[zk60-guard 22:24:54] END r9-test-build exit=0 child_wall=195s peak_rss=1.80G min_avail=10.32G
+[zk60-guard 22:24:54] START r9-review class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=db8feec58c65
+[zk60-guard 22:25:02] END r9-review exit=0 child_wall=8s peak_rss=0.15G min_avail=11.93G
+[zk60-guard 22:25:02] START r9-author-subset class=cpu need=4G cap=7G enforce=cgroup+watchdog waited=0s run=3e10d1e27f06
+[zk60-guard 22:25:36] END r9-author-subset exit=0 child_wall=34s peak_rss=0.91G min_avail=11.05G
+[zk60-guard 22:25:36] START r9-golden-r9 class=cpu need=7.5G cap=10.5G enforce=cgroup+watchdog waited=0s run=85202d6cb5bd
+[zk60-guard 22:25:59] END r9-golden-r9 exit=0 child_wall=23s peak_rss=6.09G min_avail=6.20G
+[zk60-guard 22:25:59] START r8-golden-build class=build need=3G cap=6G enforce=cgroup+watchdog waited=0s run=f01841d1a71c
+[zk60-guard 22:29:37] END r8-golden-build exit=0 child_wall=218s peak_rss=1.81G min_avail=8.75G
+[zk60-guard 22:29:37] admission waiting: budget: 6+7.5 GiB > 11.9 GiB with live [fp-L_e8_dg_fh(light,3G), fp-L_c2_dg(light,3G)]
+[zk60-guard 22:30:37] admission waiting: budget: 6+7.5 GiB > 11.9 GiB with live [fp-L_e8_dg_fh(light,3G), fp-L_c2_dg(light,3G)]
+[zk60-guard 22:31:37] admission waiting: budget: 6+7.5 GiB > 11.9 GiB with live [fp-L_e8_dg_fh(light,3G), fp-L_c2_dg(light,3G)]
+[zk60-guard 22:32:38] admission waiting: budget: 6+7.5 GiB > 11.9 GiB with live [fp-L_e8_dg_fh(light,3G), fp-L_c2_dg(light,3G)]
+[zk60-guard 22:33:38] admission waiting: budget: 6+7.5 GiB > 11.9 GiB with live [fp-L_e8_dg_fh(light,3G), fp-L_c2_dg(light,3G)]
+[zk60-guard 22:34:38] admission waiting: budget: 6+7.5 GiB > 11.9 GiB with live [fp-L_e8_dg_fh(light,3G), fp-L_c2_dg(light,3G)]
+[zk60-guard 22:35:38] admission waiting: budget: 6+7.5 GiB > 11.9 GiB with live [fp-L_e8_dg_fh(light,3G), fp-L_c2_dg(light,3G)]
+[zk60-guard 22:36:38] admission waiting: budget: 6+7.5 GiB > 11.9 GiB with live [fp-L_e8_dg_fh(light,3G), fp-L_c2_dg(light,3G)]
+[zk60-guard 22:37:38] admission waiting: budget: 6+7.5 GiB > 11.9 GiB with live [fp-L_e8_dg_fh(light,3G), fp-L_c2gpc_dg(light,3G)]
+[zk60-guard 22:38:39] admission waiting: budget: 6+7.5 GiB > 11.9 GiB with live [fp-L_e8_dg_fh(light,3G), fp-L_c2gpc_dg(light,3G)]
+[zk60-guard 22:39:39] admission waiting: budget: 6+7.5 GiB > 11.9 GiB with live [fp-L_e8_dg_fh(light,3G), fp-L_c2gpc_dg(light,3G)]
+[zk60-guard 22:40:39] admission waiting: budget: 6+7.5 GiB > 11.9 GiB with live [fp-L_e8_dg_fh(light,3G), fp-L_c2gpc_dg(light,3G)]
+[zk60-guard 22:41:19] START r8-golden-run class=cpu need=7.5G cap=10.5G enforce=cgroup+watchdog waited=702s run=e01d12d041da
+[zk60-guard 22:41:41] END r8-golden-run exit=0 child_wall=22s peak_rss=6.04G min_avail=6.54G

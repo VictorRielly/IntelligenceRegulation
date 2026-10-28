@@ -1,0 +1,157 @@
+{
+  "schema": "zk60-shieldstral-s2-evaluator/1",
+  "status": "candidate arithmetic; native R13 schema/acceptance pending",
+  "mods": [
+    "a8",
+    "ah2",
+    "fp12",
+    "g4",
+    "h8",
+    "y8"
+  ],
+  "mult_bits": {
+    "q": 5,
+    "k": 5,
+    "v": 6,
+    "o": 8,
+    "g": 6,
+    "u": 4,
+    "d": 6
+  },
+  "requested_mult_bits": {
+    "q": 5,
+    "k": 5,
+    "v": 6,
+    "o": 8,
+    "g": 6,
+    "u": 4,
+    "d": 6
+  },
+  "mult_report": {
+    "q": {
+      "bits": 5,
+      "median_channel_max_word": [
+        12.0,
+        108.0
+      ]
+    },
+    "k": {
+      "bits": 5,
+      "median_channel_max_word": [
+        13.0,
+        109.0
+      ]
+    },
+    "v": {
+      "bits": 6,
+      "median_channel_max_word": [
+        34.0,
+        124.0
+      ]
+    },
+    "o": {
+      "bits": 8,
+      "median_channel_max_word": [
+        60.0,
+        126.0
+      ]
+    },
+    "g": {
+      "bits": 6,
+      "median_channel_max_word": [
+        30.0,
+        123.0
+      ]
+    },
+    "u": {
+      "bits": 4,
+      "median_channel_max_word": [
+        11.0,
+        91.0
+      ]
+    },
+    "d": {
+      "bits": 6,
+      "median_channel_max_word": [
+        12.0,
+        117.0
+      ]
+    }
+  },
+  "group_report": {
+    "members": {
+      "-2,-11": 2354,
+      "-4,-12": 20,
+      "-3,-11": 6842
+    },
+    "outside_registry": 0
+  },
+  "group_members": [
+    [
+      -4,
+      -12
+    ],
+    [
+      -3,
+      -11
+    ],
+    [
+      -2,
+      -11
+    ]
+  ],
+  "gate_common_shift": 20,
+  "product_common_shift": 7,
+  "group_scale_order": "activation scale BEFORE product rounding",
+  "word_domain_amendment": {
+    "sites": [
+      "K",
+      "KR",
+      "O",
+      "Q",
+      "QR",
+      "V",
+      "norm_a quotient/remainder",
+      "norm_m quotient/remainder"
+    ],
+    "range": [
+      -32768,
+      32767
+    ],
+    "authority": "ZK60_SOL_ASTRA_TODOS_20261026 coordinator note2026-10-26T19:50:00Z; fidelity REPORT.md amendment",
+    "unchanged": "int8 score and weights symmetric; pinned S2_BUILD_SPEC.json bytes unchanged",
+    "scope": "numerical evaluator only; native proof, no-wrap and privacy acceptance are separate"
+  },
+  "scope": "evaluation input; not proof or privacy acceptance",
+  "constants": {
+    "norm_tn": 9,
+    "norm_cn_a": 2277,
+    "norm_cn_m": 1539,
+    "norm_ceps": 2439,
+    "sh_qkv": 8,
+    "sh_rope": 7,
+    "sh_s": 7,
+    "sh_o": 9,
+    "sh_ao": 8,
+    "sh_g": 8,
+    "sh_u": 0,
+    "sh_h": 15,
+    "sh_z": 8,
+    "f_e": 9,
+    "f_p": 9,
+    "f_ro": 7,
+    "sh_r2": 0,
+    "silu_member": [
+      -4,
+      -12
+    ],
+    "exp_e_s": 2,
+    "rope_theta": 1000000.0,
+    "e_s": 2,
+    "silu": [
+      -4,
+      -12
+    ],
+    "wrho": 31
+  }
+}

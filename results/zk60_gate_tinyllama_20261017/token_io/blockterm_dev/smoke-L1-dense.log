@@ -1,0 +1,1 @@
+smoke-L1-dense: status PASS-NO-CONTROLS; false parts []; per block stage (token stage, equal, expected) [(1, 23, 23)]; controls None; 1.8 s; peak 173 MB; record /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/token_io/blockterm_dev/smoke-L1-dense.json

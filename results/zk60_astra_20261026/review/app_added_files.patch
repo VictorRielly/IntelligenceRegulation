@@ -1,0 +1,2103 @@
+--- /dev/null
++++ apps/proven-media/TESTNET.md
+@@ -0,0 +1,76 @@
++# Base Sepolia publisher
++
++The optional publisher posts batch digests to Base Sepolia (chain 84532). Proofs
++remain in the app's local content-addressed store. The contract records a digest;
++it does not verify the proof or provide permanent distributed storage. The default
++demo still uses the local ledger. The testnet publisher refuses fake proofs and
++labels that are not bound to a verified classifier proof, including today's stub.
++
++Implementation: `proven_media/base_sepolia.py`, `testnet_publisher.py`, and
++`contracts/ProvenMediaAnchor.sol`. The latter permits only its deploying publisher
++and only chain 84532. Code hash, publisher address, chain, receipt, exact event,
++transaction input and canonical block are checked on every publication verification.
++Three confirmations are required by the generated configuration.
++
++## Setup
++
++Install `requirements-testnet.txt` into the app venv. Compile with Solidity 0.8.28
++using `tools/compile_anchor.py --out <artifact.json>` **through the project's build
++resource guard**, after admission succeeds. Compiler settings and source SHA256
++are included in the artifact. The existing offline npm cache is
++`/tmp/zk60-astra-npm-cache`.
++
++`tools/sepolia_setup.py key` creates one new throwaway key in
++`.testnet-private/throwaway.sepolia-key.json`, mode 0600, inside a 0700 directory.
++It refuses to overwrite a key. Never supply a mainnet key. The key is not sent to
++RPC, included in manifests or placed on argv. All amounts are free test ETH;
++no real spending is authorized.
++
++The Oct 26 throwaway address is
++`0x775E8A2D741446d74E3f5a02244D1241eceB187d`. It had zero test ETH at the last
++successful status check. Fund it from a free Base Sepolia faucet. The official
++[Base funding guide](https://docs.base.org/get-started/get-funds) lists faucet
++options. No deployment or transaction has been sent yet.
++
++The default public RPC returned HTTP 403 from this host. The provider's documented
++[OnFinality Base Sepolia endpoint](https://onfinality.io/en/rpc-assistant/rpc-base-sepolia)
++responded with chain 84532 and the balance. Commands, from the repository root:
++
++```bash
++apps/proven-media/.venv/bin/python apps/proven-media/tools/sepolia_setup.py status --rpc-url https://base-sepolia.api.onfinality.io/public
++apps/proven-media/.venv/bin/python apps/proven-media/tools/sepolia_setup.py deploy --rpc-url https://base-sepolia.api.onfinality.io/public --artifact results/zk60_astra_20261026/testnet/anchor_contract.json
++```
++
++Deployment persists its signed envelope before sending. Repeat `deploy` while it
++reports pending; it reuses that transaction. After a canonical successful receipt
++has three confirmations, it compares the entire runtime against the compiled
++artifact with the publisher immutable filled in, then writes `sepolia.json`.
++A revert, altered runtime, wrong chain, insufficient test ETH or excessive gas
++fails closed. No replacement transaction or extra funding is sent automatically.
++
++## App configuration and independent checks
++
++Select `PM_PUBLISHER=base-sepolia` and set `PM_SEPOLIA_CONFIG` to the generated
++configuration when starting the app. Local data and testnet data use separate
++namespaces under the public root. Keep the signing config in the private directory.
++The config schema is `proven-media/base-sepolia/1`; it pins the contract runtime
++hash and publisher address. A public copy for verification may omit `key_file`.
++
++`tools/verify_publication.py` and `tools/verify_manifest.py` accept
++`--sepolia-config <public-config.json>`. Read-only verification never loads a key.
++Anchoring and proof verification remain separate checks; use the native verifier
++when checking the proof itself.
++
++The batch worker writes `chain/inflight.json` before broadcasting. Restarting it
++polls or resends the same signed transaction. It finalizes anchors only after
++confirmation and retains recovery state until all local writes are durable. A
++later reorg causes verification to fail until the required canonical receipt is
++present. RPC availability and trust remain operational dependencies.
++
++## Evidence and limits
++
++Transport/batcher tests use real local transaction signing and controlled RPC
++responses, including lost-send responses, reorgs, modified events, wrong chain,
++altered code and interrupted finalization. Deployment tests exercise recovery and
++runtime pinning with a fixture; they are not EVM execution tests. Live deployment,
++live anchoring and the real Shieldstral app demo are still pending.
+--- /dev/null
++++ apps/proven-media/R_C1_DEVELOPMENT.md
+@@ -0,0 +1,68 @@
++# R-C1 classifier adapter
++
++`proven_media.classifier_prover.RungClassifierProver` implements the app's
++`ClassifierProver` interface for the frozen **synthetic** R-C1 fixture. It
++accepts `RungTokenItem`, not text or images. It is not exposed as a web-app
++prover mode and its single `synthetic` category cannot be published as media
++labels. The current `ShieldstralProver` remains unavailable until A2 and the
++reviewed native R12/S2 classifier release arrive.
++
++The worker executes one fresh CLI process per stage through the resource
++guard: `prove`, `verify`, `input-owner`. It observes the app, prep and export
++HOLD files before admission and after the resource precheck. It pins the
++binary on every stage. A separate `label` job re-verifies every chunk before
++returning their OR. Missing chunks, refusals, altered segments and mismatched
++owner input do not produce accepted labels. Private content IDs appear only
++in an owned 0600 file; owner openings stay outside Git and the public run's
++parent directory.
++
++Native R-C1 publishes only `statement/statement.json` plus numbered segments.
++The app retains its segment hashes in the proof record. It must not create a
++`segments.json` inside that native statement directory: native re-verification
++rejects extra files.
++
++For a retained fixture, construct the deployment with the frozen binary
++`results/zk60_token_io_r1_20261017/cli/zk60_classify.r12.release.bin`, its SHA-256
++`04036e269a5c0984c70dd2b391dc9e045156d87dfd9c41ccccad4088a204bb76`,
++the fixture's prover export and a separate public export without `seq_*`, its
++classifier tables and trained statement identity. Set
++`policy="rung-tc-synthetic-policy-dev/1"`, `chunk_size=23`, `overlap=4`,
++`min_bits=93`, `development=True`. This exact binary/policy pair is the only
++93-bit exception. Production deployments require at least 95 bits and cannot
++use this binary.
++
++Pass the whole fixture's IDs and one private activation sequence directory
++per registered chunk to `RungTokenItem`. `start` launches a detached worker;
++`prepare` writes the same job without launching it, allowing the sandbox
++runner to execute a bounded foreground worker:
++
++```
++apps/proven-media/.venv/bin/python apps/proven-media/tools/classifier_pipeline.py /tmp/private-rung/job
++```
++
++Do not put an outer resource guard around this worker: each native leaf is
++already guarded. `pipeline.done` and per-step `.guard.json` files provide
++terminal evidence. `collect` requires successful fresh verifier and owner
++checks and compares the artifact to the inventory retained by the worker.
++`start_recheck` / `collect_recheck` repeat those checks. For an item with
++several chunks, call `start_label` / `collect_label` after collecting every
++chunk; the native aggregate accepts runs in any order.
++
++Validation so far: eight synthetic transport/orchestration tests and the
++66-test app suite pass. These tests mock the native leaves. A retained actual
++fixture run is still required; no real classifier proof or privacy acceptance
++is claimed by this integration.
++
++The retained integration inputs and runner are now prepared under
++`results/zk60_astra_20261026/`. The runner uses `prepare`, `prepare_recheck`
++and `prepare_label` to execute foreground jobs through the same guarded worker.
++Its cases cover both one-chunk verdicts and a two-chunk item with ranges
++`[0,23)` and `[4,27)`, expected verdict bits `[1,0]`, and reversed run order
++for aggregation. The independent Python integer kernel matches the retained
++native sequence bit for bit. The mixed margin is deliberately constructed
++test data and is never a trained classifier.
++
++`run_classifier_integration.py` requires a completed bootstrap model pin.
++Only its retained `classifier_integration/complete.json`, fresh verification
++logs and public receipts can establish that the native integration ran.
++The current bootstrap is waiting for resource-guard admission.
+--- /dev/null
++++ apps/proven-media/requirements-testnet.txt
+@@ -0,0 +1,2 @@
++# Optional Base Sepolia signing support. Core app defaults to the local publisher.
++eth-account==0.13.7
+--- /dev/null
++++ apps/proven-media/contracts/ProvenMediaAnchor.sol
+@@ -0,0 +1,21 @@
++// SPDX-License-Identifier: MIT
++pragma solidity 0.8.28;
++
++/// Testnet publication only. This contract records digests; it does not verify proofs.
++contract ProvenMediaAnchor {
++    address public immutable publisher;
++    event Anchored(bytes32 indexed root, uint256 count, bytes32 batchFileHash);
++
++    constructor() {
++        require(block.chainid == 84532, "Base Sepolia only");
++        publisher = msg.sender;
++    }
++
++    function anchor(bytes32 root, uint256 count, bytes32 batchFileHash) external {
++        require(block.chainid == 84532, "Base Sepolia only");
++        require(msg.sender == publisher, "publisher only");
++        require(count > 0 && count <= 1000, "batch count");
++        require(root != bytes32(0) && batchFileHash != bytes32(0), "empty digest");
++        emit Anchored(root, count, batchFileHash);
++    }
++}
+--- /dev/null
++++ apps/proven-media/proven_media/image_preprocess.py
+@@ -0,0 +1,95 @@
++"""pm-img-area-v1: exact RGB8 area resize and centred 224px letterbox.
++
++The canonical boundary is decoded RGB8 pixels from a lossless master. Every
++resize coefficient, dimension and rounding decision below uses integers.
++"""
++from __future__ import annotations
++
++CANVAS_PX = 224
++PATCH_PX = 14
++FILL_RGB = (123, 117, 104)
++SPEC_ID = "pm-img-area-v1"
++MAX_PIXELS = 40_000_000
++
++
++def _dimensions(w: int, h: int) -> None:
++    if type(w) is not int or type(h) is not int or min(w, h) < 1 or w * h > MAX_PIXELS:
++        raise ValueError("image dimensions out of range")
++
++
++def fitted_size(w: int, h: int) -> tuple[int, int]:
++    """Longest edge 224; short edge nearest integer, ties upward, minimum 1."""
++    _dimensions(w, h)
++    longest = max(w, h)
++    return tuple(max(1, (2 * n * CANVAS_PX + longest) // (2 * longest)) for n in (w, h))
++
++
++def _axis(src: int, dst: int):
++    # In common integer coordinates source pixel i spans [i*dst,(i+1)*dst),
++    # output pixel j spans [j*src,(j+1)*src). Each output's weights sum to src.
++    for j in range(dst):
++        lo, hi = j * src, (j + 1) * src
++        yield [(i, min(hi, (i + 1) * dst) - max(lo, i * dst))
++               for i in range(lo // dst, (hi + dst - 1) // dst)]
++
++
++def area_rgb8(raw: bytes, w: int, h: int, nw: int, nh: int) -> bytes:
++    """Exact area average, ONE final round-half-up, including when upsampling.
++
++    Weights are integer overlap lengths. No per-axis intermediate rounding.
++    Row streaming keeps auxiliary storage bounded by the output width.
++    """
++    _dimensions(w, h)
++    _dimensions(nw, nh)
++    if len(raw) != w * h * 3:
++        raise ValueError("RGB8 byte length does not match dimensions")
++    if (w, h) == (nw, nh):
++        return bytes(raw)
++    xs = list(_axis(w, nw))
++    out = bytearray(nw * nh * 3)
++    denominator = w * h
++    cached_y, horizontal = -1, None
++    for dy, ys in enumerate(_axis(h, nh)):
++        accum = [0] * (nw * 3)
++        for sy, yw in ys:
++            if sy != cached_y:
++                horizontal = [0] * (nw * 3)
++                base = sy * w * 3
++                for dx, weights in enumerate(xs):
++                    k = dx * 3
++                    for sx, xw in weights:
++                        p = base + sx * 3
++                        horizontal[k] += raw[p] * xw
++                        horizontal[k + 1] += raw[p + 1] * xw
++                        horizontal[k + 2] += raw[p + 2] * xw
++                cached_y = sy
++            for k, value in enumerate(horizontal):
++                accum[k] += value * yw
++        offset = dy * nw * 3
++        out[offset:offset + nw * 3] = bytes((2 * v + denominator) // (2 * denominator) for v in accum)
++    return bytes(out)
++
++
++def letterbox_rgb8(raw: bytes, w: int, h: int) -> bytes:
++    nw, nh = fitted_size(w, h)
++    resized = area_rgb8(raw, w, h, nw, nh)
++    out = bytearray(bytes(FILL_RGB) * (CANVAS_PX * CANVAS_PX))
++    left, top = (CANVAS_PX - nw) // 2, (CANVAS_PX - nh) // 2
++    for y in range(nh):
++        dst = ((top + y) * CANVAS_PX + left) * 3
++        out[dst:dst + nw * 3] = resized[y * nw * 3:(y + 1) * nw * 3]
++    return bytes(out)
++
++
++def patch_tensor(raw: bytes) -> bytes:
++    """[patch_y, patch_x, channel, pixel_y, pixel_x], no model plane padding."""
++    if len(raw) != CANVAS_PX * CANVAS_PX * 3:
++        raise ValueError("expected a 224 x 224 RGB8 canvas")
++    out = bytearray()
++    for py in range(0, CANVAS_PX, PATCH_PX):
++        for px in range(0, CANVAS_PX, PATCH_PX):
++            for ch in range(3):
++                for y in range(py, py + PATCH_PX):
++                    base = (y * CANVAS_PX + px) * 3 + ch
++                    out += raw[base:base + PATCH_PX * 3:3]
++    return bytes(out)
+--- /dev/null
++++ apps/proven-media/proven_media/base_sepolia.py
+@@ -0,0 +1,227 @@
++"""Base Sepolia transport: local throwaway signing, pinned contract, fail-closed reads.
++
++RPC checks use chain 84532 exclusively. Signed envelopes are persisted by the
++publisher BEFORE broadcast so uncertain submission retries the same transaction.
++No private key is passed on argv, sent to RPC, or put in publication records.
++"""
++from __future__ import annotations
++
++import json
++import os
++from pathlib import Path
++import stat
++import urllib.request
++from urllib.parse import urlsplit
++
++from .publisher import PublishError
++
++CHAIN_ID = 84532
++CHAIN_NAME = "base-sepolia"
++KEY_SCHEMA = "proven-media/base-sepolia-throwaway-key/1"
++ANCHOR_SIGNATURE = "anchor(bytes32,uint256,bytes32)"
++EVENT_SIGNATURE = "Anchored(bytes32,uint256,bytes32)"
++
++
++def keccak(data: bytes) -> bytes:
++    try:
++        from eth_utils import keccak as impl
++    except ImportError as e:
++        raise PublishError("install requirements-testnet.txt for Base Sepolia support") from e
++    return bytes(impl(data))
++
++
++def hex_bytes(value: str, n: int) -> bytes:
++    if not isinstance(value, str):
++        raise PublishError("expected hex text")
++    try:
++        raw = bytes.fromhex(value.removeprefix("0x"))
++    except ValueError as e:
++        raise PublishError("invalid hex") from e
++    if len(raw) != n:
++        raise PublishError(f"expected {n} bytes")
++    return raw
++
++
++def anchor_data(root: str, count: int, batch_hash: str) -> str:
++    if type(count) is not int or not 1 <= count <= 1000:
++        raise PublishError("batch count outside 1..1000")
++    r, b = hex_bytes(root, 32), hex_bytes(batch_hash, 32)
++    if not any(r) or not any(b):
++        raise PublishError("empty batch digest")
++    return "0x" + (keccak(ANCHOR_SIGNATURE.encode())[:4] + r + count.to_bytes(32, "big") + b).hex()
++
++
++def create_throwaway_key(path: Path) -> str:
++    from eth_account import Account
++    path = Path(path)
++    account = Account.create()
++    # Exclusive creation, no overwrite, symlink, or briefly world-readable file.
++    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
++    with os.fdopen(fd, "w") as f:
++        json.dump({"schema": KEY_SCHEMA, "chain_id": CHAIN_ID, "address": account.address,
++                   "private_key": account.key.hex()}, f)
++        f.flush()
++        os.fsync(f.fileno())
++    return account.address
++
++
++def read_throwaway_key(path: Path):
++    from eth_account import Account
++    try:
++        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
++        with os.fdopen(fd) as f:
++            s = os.fstat(f.fileno())
++            if not stat.S_ISREG(s.st_mode) or stat.S_IMODE(s.st_mode) != 0o600 or s.st_uid != os.getuid():
++                raise PublishError("throwaway key must be an owned regular file with mode 0600")
++            data = json.load(f)
++        if data.get("schema") != KEY_SCHEMA or data.get("chain_id") != CHAIN_ID:
++            raise PublishError("only a generated Base Sepolia throwaway key is accepted")
++        account = Account.from_key(data["private_key"])
++        if account.address != data.get("address"):
++            raise PublishError("throwaway key address mismatch")
++        return account
++    except (OSError, ValueError, KeyError) as e:
++        raise PublishError("invalid throwaway key file") from e
++
++
++class BaseSepoliaRPC:
++    def __init__(self, rpc_url: str, contract: str, runtime_code_hash: str,
++                 publisher_address: str, key_path: Path | None = None,
++                 confirmations: int = 3, max_fee_per_gas: int = 2_000_000_000,
++                 gas_limit: int = 100_000):
++        url = urlsplit(rpc_url)
++        if url.scheme != "https" or not url.hostname or url.username or url.password:
++            raise PublishError("Base Sepolia RPC requires an HTTPS URL without embedded credentials")
++        self.rpc_url = rpc_url
++        self.contract = "0x" + hex_bytes(contract, 20).hex()
++        self.runtime_code_hash = hex_bytes(runtime_code_hash, 32).hex()
++        self.publisher_address = "0x" + hex_bytes(publisher_address, 20).hex()
++        self.key_path = Path(key_path) if key_path else None
++        if type(confirmations) is not int or confirmations < 1:
++            raise PublishError("at least one confirmation is required")
++        if not 21_000 <= gas_limit <= 200_000 or not 0 < max_fee_per_gas <= 10_000_000_000:
++            raise PublishError("testnet gas bounds out of range")
++        self.confirmations, self.gas_limit, self.max_fee = confirmations, gas_limit, max_fee_per_gas
++
++    def call(self, method: str, params: list):
++        request = urllib.request.Request(self.rpc_url, data=json.dumps(
++            {"jsonrpc": "2.0", "id": 1, "method": method, "params": params}).encode(),
++            headers={"Content-Type": "application/json"})
++        try:
++            with urllib.request.urlopen(request, timeout=15) as response:
++                data = response.read(4 * 1024 * 1024 + 1)
++            if len(data) > 4 * 1024 * 1024:
++                raise ValueError("oversized RPC response")
++            result = json.loads(data)
++            if result.get("id") != 1 or "error" in result or "result" not in result:
++                raise ValueError("RPC refused or malformed response")
++            return result["result"]
++        except (OSError, ValueError) as e:
++            raise PublishError(f"Base Sepolia RPC failed for {method}") from e
++
++    def check_chain(self):
++        if int(self.call("eth_chainId", []), 16) != CHAIN_ID:
++            raise PublishError("refusing non-Base-Sepolia chain")
++
++    def check_contract(self):
++        self.check_chain()
++        code = bytes.fromhex(self.call("eth_getCode", [self.contract, "latest"]).removeprefix("0x"))
++        if not code or keccak(code).hex() != self.runtime_code_hash:
++            raise PublishError("anchor contract runtime code does not match its pin")
++        owner = self.call("eth_call", [{"to": self.contract,
++            "data": "0x" + keccak(b"publisher()")[:4].hex()}, "latest"])
++        if hex_bytes(owner, 32) != bytes(12) + hex_bytes(self.publisher_address, 20):
++            raise PublishError("anchor contract names another publisher")
++
++    def prepare(self, root: str, count: int, batch_hash: str) -> dict:
++        self.check_contract()
++        if self.key_path is None:
++            raise PublishError("publisher is read-only: no throwaway key configured")
++        account = read_throwaway_key(self.key_path)
++        if account.address.lower() != self.publisher_address:
++            raise PublishError("throwaway key does not own the anchor contract")
++        data = anchor_data(root, count, batch_hash)
++        nonce = int(self.call("eth_getTransactionCount", [account.address, "pending"]), 16)
++        base_fee = int(self.call("eth_getBlockByNumber", ["latest", False])["baseFeePerGas"], 16)
++        tip = min(int(self.call("eth_maxPriorityFeePerGas", []), 16), self.max_fee // 10)
++        fee = base_fee * 2 + tip
++        if fee > self.max_fee:
++            raise PublishError("testnet fee exceeds configured limit")
++        estimate = int(self.call("eth_estimateGas", [{"from": account.address, "to": self.contract,
++                             "value": "0x0", "data": data}]), 16)
++        gas = max(21_000, (estimate * 125 + 99) // 100)
++        if gas > self.gas_limit:
++            raise PublishError("anchor gas estimate exceeds configured limit")
++        tx = {"chainId": CHAIN_ID, "nonce": nonce, "to": self.contract,
++              "value": 0, "data": data, "gas": gas, "maxFeePerGas": fee,
++              "maxPriorityFeePerGas": tip, "type": 2}
++        # eth-account requires checksum addresses for signing.
++        from eth_utils import to_checksum_address
++        tx["to"] = to_checksum_address(self.contract)
++        signed = account.sign_transaction(tx)
++        return {"transaction": tx, "raw_transaction": "0x" + signed.raw_transaction.hex(),
++                "tx_hash": "0x" + signed.hash.hex()}
++
++    def broadcast(self, envelope: dict) -> str:
++        self.check_contract()
++        raw = bytes.fromhex(envelope["raw_transaction"].removeprefix("0x"))
++        tx_hash = "0x" + keccak(raw).hex()
++        if tx_hash != envelope["tx_hash"]:
++            raise PublishError("signed transaction hash mismatch")
++        # Decode the signed envelope; never trust its accompanying JSON metadata.
++        from eth_account import Account
++        from eth_account.typed_transactions import TypedTransaction
++        from hexbytes import HexBytes
++        tx = TypedTransaction.from_bytes(HexBytes(raw)).as_dict()
++        if (tx["chainId"] != CHAIN_ID or bytes(tx["to"]) != hex_bytes(self.contract, 20)
++                or tx["value"] != 0 or tx["gas"] > self.gas_limit or tx["maxFeePerGas"] > self.max_fee
++                or Account.recover_transaction(raw).lower() != self.publisher_address
++                or bytes(tx["data"]).hex() != envelope["transaction"]["data"].removeprefix("0x")):
++            raise PublishError("signed envelope violates testnet publication constraints")
++        known = self.call("eth_getTransactionByHash", [tx_hash])
++        if known is None:
++            got = self.call("eth_sendRawTransaction", ["0x" + raw.hex()])
++            if got.lower() != tx_hash:
++                raise PublishError("RPC returned another transaction hash")
++        return tx_hash
++
++    def confirmed(self, tx_hash: str, root: str, count: int, batch_hash: str) -> dict | None:
++        self.check_contract()
++        tx_hash = "0x" + hex_bytes(tx_hash, 32).hex()
++        receipt = self.call("eth_getTransactionReceipt", [tx_hash])
++        if receipt is None:
++            return None
++        if int(receipt["status"], 16) != 1:
++            raise PublishError("anchor transaction reverted")
++        tx = self.call("eth_getTransactionByHash", [tx_hash])
++        if not tx or (tx.get("to") or "").lower() != self.contract or tx["from"].lower() != self.publisher_address:
++            raise PublishError("anchor transaction sender or destination mismatch")
++        if int(tx.get("chainId", "0x0"), 16) != CHAIN_ID or int(tx["value"], 16) != 0:
++            raise PublishError("anchor transaction chain or value mismatch")
++        if tx["input"].lower() != anchor_data(root, count, batch_hash):
++            raise PublishError("anchor transaction does not bind this batch")
++        height = int(receipt["blockNumber"], 16)
++        block = self.call("eth_getBlockByNumber", [hex(height), False])
++        if not block or block["hash"].lower() != receipt["blockHash"].lower():
++            return None  # reorg: never publish an orphaned receipt as confirmed
++        if (tx.get("blockHash") or "").lower() != block["hash"].lower():
++            raise PublishError("transaction and receipt blocks differ")
++        if receipt.get("transactionHash", "").lower() != tx_hash:
++            raise PublishError("receipt names another transaction")
++        event = "0x" + keccak(EVENT_SIGNATURE.encode()).hex()
++        topics = [event, "0x" + hex_bytes(root, 32).hex()]
++        data = "0x" + (count.to_bytes(32, "big") + hex_bytes(batch_hash, 32)).hex()
++        matches = [log for log in receipt.get("logs", []) if not log.get("removed", False)
++                   and log.get("address", "").lower() == self.contract
++                   and [t.lower() for t in log.get("topics", [])] == topics
++                   and log.get("data", "").lower() == data
++                   and log.get("transactionHash", "").lower() == tx_hash
++                   and log.get("blockHash", "").lower() == block["hash"].lower()]
++        if len(matches) != 1:
++            raise PublishError("missing or ambiguous Anchored event")
++        current = int(self.call("eth_blockNumber", []), 16)
++        if current - height + 1 < self.confirmations:
++            return None
++        return {"tx_hash": tx_hash, "block_number": height, "block_hash": block["hash"],
++                "confirmations": current - height + 1, "chain_id": CHAIN_ID,
++                "root": root, "count": count, "batch_file_hash": batch_hash}
+--- /dev/null
++++ apps/proven-media/proven_media/testnet_publisher.py
+@@ -0,0 +1,183 @@
++"""Base Sepolia Publisher with durable batches and explicit local proof storage.
++
++Only batch digests go on the testnet; proof objects remain in the app's local
++content-addressed store. This does not claim permanent/network proof storage.
++"""
++from __future__ import annotations
++
++import json
++import os
++from pathlib import Path
++import time
++
++from . import records
++from .base_sepolia import BaseSepoliaRPC, CHAIN_NAME, anchor_data
++from .publisher import (AnchorRef, BATCH_SCHEMA, LocalChainPublisher, MAX_BATCH,
++                        PublishError, merkle, merkle_check)
++
++
++def atomic_json(path: Path, data):
++    temp = path.with_name(path.name + ".tmp")
++    with temp.open("wb") as out:
++        out.write(records.canonical(data))
++        out.flush()
++        os.fsync(out.fileno())
++    os.replace(temp, path)
++    fd = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
++    try:
++        os.fsync(fd)
++    finally:
++        os.close(fd)
++
++
++class BaseSepoliaPublisher(LocalChainPublisher):
++    name = CHAIN_NAME
++    chain_name = CHAIN_NAME
++    description = ("Base Sepolia TESTNET batch anchors; receipts remain in this machine's "
++                   "content-addressed store. Test ETH only. Anchoring is not proof verification "
++                   "or permanent proof storage.")
++
++    def __init__(self, transport: BaseSepoliaRPC, root: Path | None = None, batch_secs=None):
++        self.transport = transport
++        self.contract = transport.contract
++        # Separate namespace prevents existing local-stub anchors being read as testnet data.
++        from . import config
++        super().__init__(Path(root or config.PUBLIC_DIR) / "base-sepolia", batch_secs)
++        self.inflight = self.chain_dir / "inflight.json"
++        self.batches = self.chain_dir / "batches"
++        self.batches.mkdir(exist_ok=True)
++
++    def _write_anchor(self, a: AnchorRef):
++        atomic_json(self.anchors / f"{a.post_id}.c{a.chunk}.{a.category}.json", a.to_dict())
++
++    def _load_batch(self, batch_id: str):
++        if not isinstance(batch_id, str) or not batch_id.startswith("batch-") or not batch_id[6:].isdigit():
++            raise PublishError("invalid batch id")
++        return json.loads((self.batches / (batch_id + ".json")).read_text())
++
++    def publish(self, record):
++        if record.development_only is not False:
++            raise PublishError("development classifier fixtures cannot be published as media labels")
++        if record.proof_verified is not True or record.verdict_bound is not True:
++            raise PublishError("testnet publication requires a verified proof with a bound verdict")
++        if not record.receipt_segments or record.segments_json is None:
++            raise PublishError("testnet publication requires receipt segments and their verified manifest")
++        expected = json.loads(record.segments_json)
++        # Native manifests have a list of segments, or a named segments list.
++        expected = expected.get("segments", []) if isinstance(expected, dict) else expected
++        if not isinstance(expected, list) or len(expected) != len(record.receipt_segments):
++            raise PublishError("verified segment manifest count mismatch")
++        for path, row in zip(record.receipt_segments, expected):
++            path = Path(path)
++            if (row["file"] != path.name or row["bytes"] != path.stat().st_size
++                    or row["sha256"] != records.sha256_file(path)):
++                raise PublishError("receipt differs from verified segment manifest")
++        return super().publish(record)
++
++    def tick(self, now: float | None = None, force: bool = False) -> str | None:
++        now = time.time() if now is None else now
++        with self._lock():
++            if self.inflight.exists():
++                batch = json.loads(self.inflight.read_text())
++            else:
++                pending = self.pending_list()
++                if not pending or not (force or len(pending) >= MAX_BATCH or
++                        now - min(p["queued_at"] for p in pending) >= self.batch_secs):
++                    return None
++                take = pending[:MAX_BATCH]
++                root, proofs, leaves = merkle([p["leaf_hash"] for p in take])
++                if len(leaves) != len(take):
++                    raise PublishError("duplicate pending leaf")
++                batch_id = f"batch-{len(self.blocks_list()):06d}"
++                batch_file = {"schema": BATCH_SCHEMA, "batch_id": batch_id, "root": root,
++                              "count": len(leaves), "leaves": leaves, "closed_at": records.now_iso(),
++                              "tree": "sorted leaves; SHA-256 domain-separated sorted nodes; odd node carried"}
++                file_hash = self.put_bytes(records.canonical(batch_file))
++                batch = {"batch_id": batch_id, "root": root, "count": len(leaves), "leaves": leaves,
++                         "proofs": proofs, "take": take, "batch_file_hash": file_hash,
++                         "envelope": self.transport.prepare(root, len(leaves), file_hash)}
++                atomic_json(self.inflight, batch)  # signed envelope durable BEFORE first send
++            self._validate_batch(batch)
++            envelope = batch["envelope"]
++            # Check before rebroadcast: a previous process may have submitted successfully.
++            confirmed = self.transport.confirmed(envelope["tx_hash"], batch["root"], batch["count"],
++                                                 batch["batch_file_hash"])
++            if confirmed is None:
++                self.transport.broadcast(envelope)
++                return None  # confirmation polling is nonblocking; next worker tick continues
++            batch["confirmation"] = confirmed
++            atomic_json(self.batches / (batch["batch_id"] + ".json"), batch)
++            blocks = self.blocks_list()
++            if not any(b["batch_id"] == batch["batch_id"] for b in blocks):
++                block = {"batch_id": batch["batch_id"], "block_number": confirmed["block_number"],
++                         "block_hash": confirmed["block_hash"], "ts": records.now_iso(),
++                         "txs": [{"method": "anchor", "contract": self.contract,
++                                  "tx_hash": envelope["tx_hash"],
++                                  "args": {k: batch[k] for k in ("root", "count", "batch_file_hash", "batch_id")}}]}
++                with self.blocks.open("a") as out:
++                    out.write(json.dumps(block) + "\n")
++                    out.flush()
++                    os.fsync(out.fileno())
++            for p in batch["take"]:
++                a = self.anchor_of(p["post_id"], p["category"], p["chunk"])
++                if a is None or a.leaf_hash != p["leaf_hash"]:
++                    raise PublishError("pending anchor disappeared or changed")
++                a.status, a.batch_id = "anchored", batch["batch_id"]
++                a.chain, a.contract = self.chain_name, self.contract
++                a.tx_hash, a.block_number = envelope["tx_hash"], confirmed["block_number"]
++                a.merkle_root, a.leaf_index = batch["root"], batch["leaves"].index(a.leaf_hash)
++                a.merkle_proof = batch["proofs"][a.leaf_hash]
++                a.anchored_at = records.now_iso()
++                self._write_anchor(a)
++            taken = {p["leaf_hash"] for p in batch["take"]}
++            remaining = [p for p in self.pending_list() if p["leaf_hash"] not in taken]
++            temp = self.pending.with_name("pending.jsonl.tmp")
++            with temp.open("w") as out:
++                out.write("".join(json.dumps(p) + "\n" for p in remaining))
++                out.flush()
++                os.fsync(out.fileno())
++            os.replace(temp, self.pending)
++            fd = os.open(self.chain_dir, os.O_RDONLY | os.O_DIRECTORY)
++            try:
++                os.fsync(fd)  # pending removal must survive before clearing the recovery journal
++            finally:
++                os.close(fd)
++            self.inflight.unlink()  # replay before this point safely repeats finalization
++            fd = os.open(self.chain_dir, os.O_RDONLY | os.O_DIRECTORY)
++            try:
++                os.fsync(fd)
++            finally:
++                os.close(fd)
++            return batch["batch_id"]
++
++    def _validate_batch(self, batch):
++        bf = json.loads(self.get_bytes(batch["batch_file_hash"]))
++        root, proofs, leaves = merkle([p["leaf_hash"] for p in batch["take"]])
++        if (root != batch["root"] or leaves != batch["leaves"] or proofs != batch["proofs"]
++                or len(leaves) != batch["count"] or len(leaves) != len(batch["take"])
++                or bf["leaves"] != leaves or bf["root"] != root or bf["count"] != len(leaves)
++                or bf["batch_id"] != batch["batch_id"]
++                or batch["envelope"]["transaction"]["data"] != anchor_data(root, len(leaves), batch["batch_file_hash"])):
++            raise PublishError("batch plan or transaction differs from content-addressed batch file")
++
++    def _verify_anchor(self, a: AnchorRef, chk):
++        chk("anchored", a.status == "anchored", "not an anchored testnet publication")
++        chk("chain", a.chain == self.chain_name and a.contract.lower() == self.contract,
++            "wrong chain or contract")
++        batch = self._load_batch(a.batch_id)
++        self._validate_batch(batch)
++        chk("batch_identity", a.tx_hash == batch["envelope"]["tx_hash"] and a.merkle_root == batch["root"])
++        chk("batch_membership", type(a.leaf_index) is int and 0 <= a.leaf_index < batch["count"]
++            and batch["leaves"][a.leaf_index] == a.leaf_hash)
++        chk("merkle_path", merkle_check(a.leaf_hash, a.merkle_proof, batch["root"]))
++        confirmed = self.transport.confirmed(a.tx_hash, batch["root"], batch["count"], batch["batch_file_hash"])
++        chk("anchor_tx", confirmed is not None and confirmed["block_number"] == a.block_number,
++            "transaction lacks a canonical confirmed Anchored event")
++        return confirmed
++
++    def verify_publication(self, anchor_ref, rehash_segments=True):
++        try:
++            return super().verify_publication(anchor_ref, rehash_segments)
++        except (PublishError, OSError, ValueError, KeyError, TypeError, IndexError) as e:
++            return {"accepted": False, "reasons": [f"testnet publication check failed: {type(e).__name__}"],
++                    "checks": {"testnet_publication": False}}
+--- /dev/null
++++ apps/proven-media/proven_media/classifier_cli.py
+@@ -0,0 +1,218 @@
++"""Pinned R-C1 command/result adapter shared by the future real app prover.
++
++This module builds argv and validates fresh verifier/owner/label outputs. Execution
++is supplied by the app's guarded pipeline; it never runs an unguarded heavy CLI.
++The frozen development binary admits synthetic IDs only, not product categories.
++"""
++from __future__ import annotations
++
++from dataclasses import dataclass
++import hashlib
++import json
++import math
++import os
++from pathlib import Path
++import stat
++
++from .provers import ProverError
++from . import records
++
++R_C1_BINARY_SHA256='04036e269a5c0984c70dd2b391dc9e045156d87dfd9c41ccccad4088a204bb76'
++DEV_POLICY='rung-tc-synthetic-policy-dev/1'
++CONTEXT='zk60-classify-verdict'
++VERIFIER_WRITER='zk60_classify verify, after its fresh-process verification of the run directory, from its own data'
++
++
++def require(condition,reason):
++    if not condition:raise ProverError('Classifier verification failed: '+reason)
++
++
++def checked_digest(value):
++    require(isinstance(value,str) and len(value)==64 and all(c in '0123456789abcdef' for c in value),'invalid pinned digest')
++    return value
++
++
++def in_git_tree(path):
++    # Match the native owner-directory rule. An empty .git directory is not
++    # a work tree (the sandbox installs such stubs in /tmp and $HOME).
++    for parent in (path,*path.parents):
++        marker=parent/'.git'
++        if marker.is_dir() and (marker/'HEAD').exists():return True
++        if marker.is_file():
++            try:
++                with marker.open('rb') as stream:
++                    if stream.read(7)==b'gitdir:':return True
++            except OSError:return True
++    return False
++
++
++def one_event(stdout,rc,event):
++    """A terminal refusal or malformed JSON cannot be masked by a success line."""
++    require(rc==0,'CLI refused or failed')
++    found=[]
++    for line in stdout.splitlines():
++        if not line.strip():continue
++        try:item=json.loads(line)
++        except (ValueError,TypeError):raise ProverError('Classifier verification failed: malformed CLI event')
++        require(isinstance(item,dict),'malformed CLI event')
++        require(item.get('event') not in ('refused','app-outcome','REMOVAL-FAILED'),'CLI reported refusal')
++        if item.get('event')==event:found.append(item)
++    require(len(found)==1,'missing or duplicate '+event+' event')
++    return found[0]
++
++
++def chunk_plan(total,size,overlap):
++    require(type(total) is int and type(size) is int and type(overlap) is int and total>=size>overlap>=0,
++            'content length or registered chunk geometry is invalid')
++    starts=list(range(0,total-size+1,size-overlap))
++    if starts[-1]!=total-size:starts.append(total-size)
++    return [(a,a+size) for a in starts]
++
++
++@dataclass(frozen=True)
++class Deployment:
++    binary: Path
++    binary_sha256: str
++    prover_export: Path
++    verifier_export: Path
++    tables: Path
++    statement_identity: str
++    policy: str
++    chunk_size: int
++    overlap: int
++    min_bits: int=95
++    development: bool=False
++
++    def validate(self):
++        checked_digest(self.binary_sha256);checked_digest(self.statement_identity)
++        require(records.sha256_file(self.binary)==self.binary_sha256,'binary hash differs from pin')
++        require(type(self.min_bits) is int,'invalid verification floor')
++        if self.development:
++            require(self.binary_sha256==R_C1_BINARY_SHA256 and self.policy==DEV_POLICY,
++                    'development exception is restricted to frozen R-C1 and its synthetic policy')
++            require(self.min_bits>=93 and (self.chunk_size,self.overlap)==(23,4),'invalid development profile')
++        else:
++            require(self.min_bits>=95 and self.policy!=DEV_POLICY,'production requires at least 95 bits')
++            require(self.binary_sha256!=R_C1_BINARY_SHA256,'frozen R-C1 has no production classifier profile')
++        require(self.verifier_export.is_dir() and not any(p.name.startswith('seq_') for p in self.verifier_export.iterdir()),
++                'verifier export contains private sequence data or is missing')
++        require(self.prover_export.resolve()!=self.verifier_export.resolve(),'prover and verifier exports must be distinct')
++        require(self.prover_export.is_dir() and self.tables.is_dir(),'prover export or classifier tables are missing')
++        require(bool(self.policy) and '\x00' not in self.policy,'invalid policy')
++        chunk_plan(self.chunk_size,self.chunk_size,self.overlap)
++
++
++class ClassifierCLI:
++    def __init__(self,deployment:Deployment):
++        deployment.validate();self.deployment=deployment
++
++    def _base(self,command):
++        d=self.deployment;d.validate()
++        export=d.prover_export if command=='prove' else d.verifier_export
++        return [str(d.binary),command,'--export',str(export),'--tables',str(d.tables),
++                '--policy',d.policy,'--label',CONTEXT]
++
++    def _verify_base(self,command):
++        d=self.deployment
++        return self._base(command)+['--expect-statement',d.statement_identity,'--min-bits',str(d.min_bits)]
++
++    def prove_command(self,content_file,chunk,sequence_dir,artifact,owner_dir):
++        content_file,owner_dir,artifact=map(Path,(content_file,owner_dir,artifact))
++        st=content_file.lstat()
++        require(stat.S_ISREG(st.st_mode) and stat.S_IMODE(st.st_mode)==0o600 and st.st_uid==os.getuid(),
++                'content must be an owned regular 0600 file')
++        require(type(chunk) is int and chunk>=0,'invalid chunk index')
++        owner=owner_dir.resolve();public=artifact.resolve().parent
++        require(owner!=public and public not in owner.parents,'owner opening directory must be outside the public run parent')
++        require(not in_git_tree(owner),'owner opening directory must be outside git work trees')
++        return self._base('prove')+['--content-file',str(content_file),'--chunk',str(chunk),'--seq-dir',str(sequence_dir),
++                                  '--out',str(artifact),'--owner-dir',str(owner_dir)]
++
++    def verify_command(self,artifact):return self._verify_base('verify')+['--artifact',str(artifact)]
++
++    def owner_command(self,artifact,decommitment,content_file):
++        return self._verify_base('input-owner')+['--artifact',str(artifact),'--decommitment',str(decommitment),
++                                                '--content-file',str(content_file)]
++
++    def label_command(self,artifacts):
++        paths=[str(Path(p)) for p in artifacts]
++        require(paths and len(set(paths))==len(paths) and all(',' not in p for p in paths),'invalid or duplicate run list')
++        return self._verify_base('label')+['--runs',','.join(paths)]
++
++    def collect_verified(self,artifact,total,chunk,verify_stdout,verify_exit,owner_stdout,owner_exit):
++        """Only fresh verified/owner-checked statements can produce accepted labels.
++
++        Prover `proved` events are intentionally not an input to this method.
++        """
++        d=self.deployment;d.validate();plan=chunk_plan(total,d.chunk_size,d.overlap)
++        require(type(chunk) is int and 0<=chunk<len(plan),'unexpected chunk')
++        verified=one_event(verify_stdout,verify_exit,'classified')
++        owned=one_event(owner_stdout,owner_exit,'content-checked')
++        raw=(Path(artifact)/'statement/statement.json').read_bytes()
++        statement=json.loads(raw)
++        require(isinstance(statement,dict),'malformed statement')
++        require(statement.get('schema')=='zk60-classify-run/1','unexpected statement schema')
++        require(statement.get('statement_written_by')==VERIFIER_WRITER,'statement was not published by the verifier')
++        require(verified.get('published_by') in ('this verifier','an earlier verifier (re-checked byte for byte)'),
++                'verifier did not publish or recheck the statement')
++        require(statement.get('trained_statement_identity')==d.statement_identity==verified.get('trained_statement_identity'),
++                'model statement identity differs')
++        require(statement.get('policy')==d.policy==verified.get('policy'),'policy differs')
++        require(statement.get('context_label')==CONTEXT,'context differs')
++        require(type(statement.get('verdict_bit')) is int and statement['verdict_bit'] in (0,1),'invalid verdict bit')
++        verdict='flagged' if statement['verdict_bit'] else 'not-flagged'
++        require(statement.get('verdict')==verdict==verified.get('verdict')==owned.get('verdict'),'verdict sources disagree')
++        bounds=statement.get('chunk',{})
++        require(isinstance(bounds,dict) and all(type(bounds.get(k)) is int for k in
++                ('index','count','content_total','chunk_size','overlap')),'malformed chunk plan')
++        require(bounds.get('index')==chunk==verified.get('chunk')==owned.get('chunk') and
++                bounds.get('count')==len(plan)==verified.get('chunks') and bounds.get('range')==list(plan[chunk])==owned.get('range') and
++                bounds.get('content_total')==total==owned.get('content_total') and bounds.get('chunk_size')==d.chunk_size and
++                bounds.get('overlap')==d.overlap,'chunk plan differs from the item')
++        require(statement.get('content_length_n')==d.chunk_size,'chunk content length differs')
++        root=checked_digest(statement.get('input_token_endpoint_root'))
++        require(root==verified.get('input_token_endpoint_root'),'input endpoint differs')
++        for value in (statement.get('whole_run_floor_bits'),verified.get('whole_run_floor_bits')):
++            require(type(value) in (int,float) and math.isfinite(value) and value>=d.min_bits,'verification floor is insufficient')
++        blocks=statement.get('blocks')
++        require(type(blocks) is int and 0<blocks<=1024,'invalid block count')
++        directory=Path(artifact)
++        names=[f'segment-{k:03}.bin' for k in range(blocks+2)]
++        require(not directory.is_symlink() and set(p.name for p in directory.iterdir())==set(names+['statement']),
++                'receipt directory has missing or unexpected entries')
++        statement_dir=directory/'statement'
++        require(not statement_dir.is_symlink() and set(p.name for p in statement_dir.iterdir())=={'statement.json'}
++                and not (statement_dir/'statement.json').is_symlink(),'statement directory differs from native contract')
++        # R-C1 publishes no segments.json. Keep this inventory in the app record;
++        # adding it inside the native artifact would make fresh verification refuse.
++        segments=[]
++        for name in names:
++            file=directory/name
++            require(file.is_file() and not file.is_symlink(),'receipt segment is missing or is a symlink')
++            segments.append({'file':name,'bytes':file.stat().st_size,'sha256':records.sha256_file(file)})
++        return {'value':'yes' if statement['verdict_bit'] else 'no','proof':'accepted','bound_by_proof':True,
++                'policy_id':d.policy,'development_only':d.development,'statement':statement,
++                'statement_sha256':hashlib.sha256(raw).hexdigest(),'files':segments,'run_dir':str(artifact),
++                'content_binding':True,'verifier_sha256':d.binary_sha256,'chunk':{'index':chunk,'start':plan[chunk][0],'end':plan[chunk][1]}}
++
++    def collect_label(self,records_,stdout,exit_code,total):
++        d=self.deployment;d.validate();plan=chunk_plan(total,d.chunk_size,d.overlap)
++        result=one_event(stdout,exit_code,'label')
++        require(len(records_)==len(plan),'category is missing a chunk')
++        by_index={r['chunk']['index']:r for r in records_}
++        require(set(by_index)==set(range(len(plan))),'category has duplicate or missing chunk indexes')
++        for i,r in by_index.items():
++            require(r['proof']=='accepted' and r['bound_by_proof'] is True and r['policy_id']==d.policy and
++                    r['statement']['trained_statement_identity']==d.statement_identity and
++                    r['statement']['chunk']['content_total']==total and
++                    (r['chunk']['start'],r['chunk']['end'])==plan[i],'category mixes incompatible chunks')
++        flagged=[list(plan[i]) for i,r in sorted(by_index.items()) if r['value']=='yes']
++        verdict='flagged' if flagged else 'not-flagged'
++        ranges=result.get('flagged_ranges')
++        require(isinstance(ranges,list) and all(isinstance(pair,list) and len(pair)==2 and
++                all(type(n) is int for n in pair) for pair in ranges),'malformed flagged ranges')
++        require(result.get('policy')==d.policy and result.get('label')==verdict and result.get('chunks')==len(plan) and
++                result.get('content_total')==total and result.get('chunk_size')==d.chunk_size and result.get('overlap')==d.overlap and
++                sorted(ranges)==flagged,'aggregate label differs')
++        return {'value':'yes' if flagged else 'no','proof':'accepted','bound_by_proof':True,
++                'policy_id':d.policy,'development_only':d.development,'flagged_ranges':flagged,'chunks':len(plan)}
+--- /dev/null
++++ apps/proven-media/proven_media/classifier_prover.py
+@@ -0,0 +1,207 @@
++"""R-C1 development implementation of the app's ClassifierProver interface.
++
++Only explicitly supplied synthetic token fixtures are admitted. This class is
++not registered in the web app's prover factory and does not label real text.
++The production Shieldstral deployment awaits its export and reviewed binary.
++"""
++from __future__ import annotations
++
++from dataclasses import asdict, dataclass
++import json
++import os
++from pathlib import Path
++import re
++import subprocess
++import sys
++
++from . import config, records
++from .classifier_cli import ClassifierCLI, Deployment, chunk_plan, require
++from .provers import ClassifierProver, NotSupported, ProverError, boot_id, poll, write_private
++
++PIPELINE=config.TOOLS_DIR/'classifier_pipeline.py'
++PATH_FIELDS=('binary','prover_export','verifier_export','tables')
++
++
++def deployment_json(deployment):
++    obj=asdict(deployment)
++    for key in PATH_FIELDS:obj[key]=str(obj[key])
++    return obj
++
++
++def deployment_from_json(obj):
++    obj=dict(obj)
++    for key in PATH_FIELDS:obj[key]=Path(obj[key])
++    return Deployment(**obj)
++
++
++@dataclass(frozen=True)
++class RungTokenItem:
++    ids: tuple[int,...]
++    sequence_dirs: tuple[Path,...]
++    kind: str='classifier-dev-tokens'
++
++
++def launch_pipeline(job):
++    with (job/'pipeline.out').open('ab') as output:
++        p=subprocess.Popen(['setsid','-f','nohup',sys.executable,str(PIPELINE),str(job)],
++                           stdin=subprocess.DEVNULL,stdout=output,stderr=subprocess.STDOUT,close_fds=True)
++        p.wait(timeout=30)
++
++
++class RungClassifierProver(ClassifierProver):
++    kind='classifier-dev-rung'
++    label='Synthetic R-C1 classifier development fixture'
++    supports=frozenset({'classifier-dev-tokens'})
++    proves_verdict=True
++
++    def __init__(self,deployment:Deployment,public_runs:Path):
++        require(deployment.development,'RungClassifierProver requires the development deployment')
++        self.cli=ClassifierCLI(deployment)
++        self.public_runs=Path(public_runs).resolve()
++
++    def describe(self):
++        return {**super().describe(),'development_only':True,'policy':self.cli.deployment.policy,
++                'binary_sha256':self.cli.deployment.binary_sha256,
++                'what_is_proved':'Synthetic token fixture verdict; no real-text, Shieldstral or privacy acceptance.'}
++
++    def _job(self,job,spec):
++        job=Path(job).resolve()
++        job.parent.mkdir(parents=True,mode=0o700,exist_ok=True)
++        job.mkdir(mode=0o700,exist_ok=False)
++        spec={'schema':'pm-classifier-job/1','deployment':deployment_json(self.cli.deployment),**spec}
++        write_private(job/'classifier-job.json',records.canonical(spec))
++        return job
++
++    def start(self,post_id,item,job,chunk=None):
++        prepared=self.prepare(post_id,item,job,chunk)
++        launch_pipeline(prepared)
++
++    def prepare(self,post_id,item,job,chunk=None):
++        """Write a concrete private job without launching it (bounded CLI runner)."""
++        if not isinstance(item,RungTokenItem):raise NotSupported('R-C1 development accepts synthetic token fixtures only')
++        require(re.fullmatch(r'[A-Za-z0-9_-]{1,80}',post_id) is not None,'invalid development run identifier')
++        require(all(type(x) is int and 5<=x<300 for x in item.ids),'invalid synthetic content token')
++        d=self.cli.deployment;plan=chunk_plan(len(item.ids),d.chunk_size,d.overlap)
++        require(len(item.sequence_dirs)==len(plan) and all(Path(p).is_dir() for p in item.sequence_dirs),
++                'one private sequence directory is required per chunk')
++        if chunk is None:
++            require(len(plan)==1,'explicit chunk required for a multi-chunk fixture')
++            chunk={'index':0,'start':plan[0][0],'end':plan[0][1]}
++        i=chunk['index'];require(type(i) is int and 0<=i<len(plan) and
++                (chunk['start'],chunk['end'])==plan[i],'chunk differs from the registered split')
++        artifact=self.public_runs/f'{post_id}-c{i}'
++        job=Path(job).resolve();content=job/'content.ids';owner=job/'owner'
++        self.public_runs.mkdir(parents=True,exist_ok=True)
++        spec={'mode':'prove','post_id':post_id,'artifact':str(artifact),'total':len(item.ids),'chunk':i,
++              'content_file':str(content),'owner_dir':str(owner),'sequence_dir':str(item.sequence_dirs[i])}
++        job=self._job(job,spec)
++        write_private(content,(','.join(str(x) for x in item.ids)+'\n').encode())
++        # Validate all paths/permissions before starting a detached worker.
++        self.cli.prove_command(content,i,item.sequence_dirs[i],artifact,owner)
++        return job
++
++    def poll(self,job):
++        out=poll(job)
++        if not out['done']:
++            try:
++                pid=int((job/'pipeline.pid').read_text())
++                out['alive']=(job/'pipeline.boot_id').read_text().strip()==boot_id() and \
++                    b'classifier_pipeline.py' in Path(f'/proc/{pid}/cmdline').read_bytes()
++            except (OSError,ValueError):out['alive']=None
++        return out
++
++    def _checked(self,job):
++        status=self.poll(job)
++        require(status['done'] and status['exit']==0,'classifier pipeline has not succeeded')
++        spec=json.loads((job/'classifier-job.json').read_text())
++        require(spec['deployment']==deployment_json(self.cli.deployment),'job deployment differs')
++        logs=job/'logs'
++        for step in ('verify','inowner'):
++            require((logs/f'{step}.exit').read_text().strip()=='0','fresh verifier or owner check failed')
++            guard=json.loads((logs/f'{step}.guard.json').read_text())
++            require(guard.get('exit')==0 and guard.get('child_rc')==0 and not guard.get('refused')
++                    and not guard.get('guard_killed'),'guard did not report a successful verification')
++        result=self.cli.collect_verified(spec['artifact'],spec['total'],spec['chunk'],
++                 (logs/'verify.log').read_text(),0,(logs/'inowner.log').read_text(),0)
++        retained=json.loads((job/'checked.json').read_text())
++        require(result==retained,'verified artifact changed since the worker collected it')
++        return spec,result
++
++    def collect(self,post_id,item,job,chunk=None):
++        spec,r=self._checked(job)
++        require(spec['post_id']==post_id and isinstance(item,RungTokenItem) and len(item.ids)==spec['total'],
++                'collected job differs from fixture')
++        private_ids=tuple(int(x) for x in Path(spec['content_file']).read_text().strip().split(','))
++        require(private_ids==item.ids,'collected job content differs from fixture')
++        if chunk is not None:require(r['chunk']==chunk,'collected chunk differs')
++        statement=r['statement'];d=self.cli.deployment
++        return records.ProofRecord(post_id=post_id,item_kind=item.kind,prover=self.describe(),
++            labels={'synthetic':{k:r[k] for k in ('value','proof','bound_by_proof','policy_id','development_only')}},
++            policies=[{'id':d.policy,'category':'synthetic','development_only':True}],
++            threshold={'margin_gt':statement.get('threshold_c')},
++            content_commitment={'kind':'synthetic fixture input endpoint','value':statement['input_token_endpoint_root']},
++            statement=statement,statement_sha256=r['statement_sha256'],
++            receipt={'run_dir':r['run_dir'],'files':r['files'],'segments':len(r['files']),
++                     'bytes':sum(f['bytes'] for f in r['files']),'inventory_source':'app record; native R-C1 has no segments.json'},
++            timings={},security={'whole_run_floor_bits':statement['whole_run_floor_bits'],'min_bits_required':d.min_bits,
++                                 'note':'Development floor only; no production or privacy acceptance.'},
++            checks={'verify':{'ok':True,'by':'pinned R-C1 fresh process'},'content_binding':{'ok':True}},
++            content_length={'tokens':d.chunk_size,'total_tokens':spec['total'],'tokenizer':'synthetic IDs, not text'},
++            chunk=r['chunk'],created_at=records.now_iso(),proved_at=records.now_iso(),
++            notes=['Development fixture only; never use these labels for media categories or testnet publication.'])
++
++    def start_recheck(self,record,prove_job,job):
++        launch_pipeline(self.prepare_recheck(record,prove_job,job))
++
++    def prepare_recheck(self,record,prove_job,job):
++        require(record.prover.get('kind')==self.kind and record.prover.get('development_only') is True,
++                'recheck requires a development classifier record')
++        original=json.loads((prove_job/'classifier-job.json').read_text())
++        require(original['deployment']==deployment_json(self.cli.deployment) and
++                original['artifact']==record.receipt['run_dir'] and original['post_id']==record.post_id,
++                'recheck proof job differs')
++        spec={k:original[k] for k in ('post_id','artifact','total','chunk','content_file','owner_dir')}
++        return self._job(job,{'mode':'recheck',**spec})
++
++    def collect_recheck(self,record,job):
++        try:
++            _,r=self._checked(job)
++            require(r['statement_sha256']==record.statement_sha256 and r['files']==record.receipt['files'] and
++                    r['value']==record.labels['synthetic']['value'],'rechecked record differs')
++        except (ProverError,OSError,ValueError,KeyError) as exc:
++            return records.Verdict('re-check',False,False,'classifier recheck failed',records.now_iso(),
++                                   {'development_only':True,'message':str(exc)})
++        return records.Verdict(r['value'],True,True,'fresh R-C1 verifier and input-owner',records.now_iso(),
++                               {'development_only':True,'content_binding':True})
++
++    def start_label(self,chunk_records,job):
++        launch_pipeline(self.prepare_label(chunk_records,job))
++
++    def prepare_label(self,chunk_records,job):
++        """Fresh native verification and OR for every chunk of ONE synthetic item."""
++        require(bool(chunk_records),'no chunks to aggregate')
++        first=chunk_records[0];normalized=[]
++        for rec in chunk_records:
++            require(rec.post_id==first.post_id and rec.prover==self.describe() and
++                    rec.content_length['total_tokens']==first.content_length['total_tokens'],
++                    'aggregate mixes items or deployments')
++            normalized.append({**rec.labels['synthetic'],'chunk':rec.chunk,'statement':rec.statement})
++        # Structural checks happen before any native launch; native label still
++        # verifies all segments afresh and supplies the final aggregate event.
++        d=self.cli.deployment;plan=chunk_plan(first.content_length['total_tokens'],d.chunk_size,d.overlap)
++        require(len(chunk_records)==len(plan) and {r.chunk['index'] for r in chunk_records}==set(range(len(plan))),
++                'aggregate is missing a chunk or has a duplicate')
++        runs=[r.receipt['run_dir'] for r in chunk_records];self.cli.label_command(runs)
++        return self._job(job,{'mode':'label','post_id':first.post_id,'total':first.content_length['total_tokens'],
++                       'records':normalized,'runs':runs})
++
++    def collect_label(self,job):
++        status=self.poll(job);require(status['done'] and status['exit']==0,'aggregate pipeline has not succeeded')
++        spec=json.loads((job/'classifier-job.json').read_text())
++        require(spec['mode']=='label' and spec['deployment']==deployment_json(self.cli.deployment),'aggregate deployment differs')
++        logs=job/'logs';guard=json.loads((logs/'label.guard.json').read_text())
++        require((logs/'label.exit').read_text().strip()=='0' and guard.get('exit')==0 and guard.get('child_rc')==0
++                and not guard.get('refused') and not guard.get('guard_killed'),'aggregate verification failed')
++        result=self.cli.collect_label(spec['records'],(logs/'label.log').read_text(),0,spec['total'])
++        require(result==json.loads((job/'checked.json').read_text()),'aggregate changed after collection')
++        return result
+--- /dev/null
++++ apps/proven-media/tools/compile_anchor.py
+@@ -0,0 +1,41 @@
++#!/usr/bin/env python3
++"""Compile the pinned testnet contract; run through the resource guard (build)."""
++import argparse
++import hashlib
++import json
++from pathlib import Path
++import subprocess
++
++APP = Path(__file__).resolve().parents[1]
++SOLC = "0.8.28"
++
++
++def main():
++    ap = argparse.ArgumentParser()
++    ap.add_argument('--out', type=Path, required=True)
++    ap.add_argument('--npm', default='/home/victor/.nvm/versions/node/v22.22.3/bin/npm')
++    ap.add_argument('--cache', default='/tmp/zk60-astra-npm-cache')
++    a = ap.parse_args()
++    src = (APP/'contracts/ProvenMediaAnchor.sol').read_bytes()
++    request = {'language': 'Solidity', 'sources': {'ProvenMediaAnchor.sol': {'content': src.decode()}},
++               'settings': {'optimizer': {'enabled': True, 'runs': 200}, 'evmVersion': 'paris',
++                            'outputSelection': {'*': {'*': ['abi', 'evm.bytecode.object',
++                                'evm.deployedBytecode.object', 'evm.deployedBytecode.immutableReferences']}}}}
++    command = [a.npm, 'exec', '--offline', '--cache', a.cache, '--yes', '--package', 'solc@'+SOLC,
++               '--', 'solcjs', '--standard-json']
++    done = subprocess.run(command, input=json.dumps(request), text=True, capture_output=True, check=True)
++    result = json.loads(done.stdout[done.stdout.index('{'):])
++    errors = [e for e in result.get('errors', []) if e['severity'] == 'error']
++    if errors:
++        raise SystemExit(json.dumps(errors, indent=2))
++    artifact = result['contracts']['ProvenMediaAnchor.sol']['ProvenMediaAnchor']
++    artifact.update(schema='proven-media/testnet-anchor-contract/1', compiler=SOLC,
++                    source_sha256=hashlib.sha256(src).hexdigest(), settings=request['settings'])
++    a.out.parent.mkdir(parents=True, exist_ok=True)
++    a.out.write_text(json.dumps(artifact, indent=2)+'\n')
++    print(json.dumps({'artifact': str(a.out), 'source_sha256': artifact['source_sha256'],
++                      'creation_bytes': len(artifact['evm']['bytecode']['object'])//2,
++                      'runtime_bytes': len(artifact['evm']['deployedBytecode']['object'])//2}))
++
++
++if __name__ == '__main__': main()
+--- /dev/null
++++ apps/proven-media/tools/sepolia_setup.py
+@@ -0,0 +1,149 @@
++#!/usr/bin/env python3
++"""Prepare a throwaway wallet and deploy ONLY the pinned Base Sepolia anchor.
++
++key: create a 0600 throwaway file; status: read chain/balance; deploy: sign once,
++persist before send, resume the same envelope, and write config only after the
++expected runtime is confirmed. Free test ETH must be supplied by a faucet.
++"""
++import argparse
++import hashlib
++import json
++import os
++from pathlib import Path
++import sys
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
++from proven_media.base_sepolia import (BaseSepoliaRPC, CHAIN_ID, create_throwaway_key,
++                                     read_throwaway_key, keccak)
++from proven_media.publisher import PublishError
++from proven_media.testnet_publisher import atomic_json
++
++APP = Path(__file__).resolve().parents[1]
++
++
++def expected_runtime(artifact, address):
++    deployed = artifact['evm']['deployedBytecode']
++    code = bytearray.fromhex(deployed['object'])
++    refs = deployed['immutableReferences']
++    if len(refs) != 1:
++        raise PublishError('expected exactly the publisher immutable in compiled runtime')
++    value = bytes(12) + bytes.fromhex(address.removeprefix('0x'))
++    for ref in next(iter(refs.values())):
++        if ref['length'] != 32:
++            raise PublishError('unexpected immutable width')
++        code[ref['start']:ref['start'] + 32] = value
++    return bytes(code)
++
++
++def deploy(rpc, account, artifact, directory, rpc_url):
++    from eth_account import Account
++    from eth_account.typed_transactions import TypedTransaction
++    from hexbytes import HexBytes
++    pending = directory / 'deployment.pending.json'
++    config = directory / 'sepolia.json'
++    source = (APP/'contracts/ProvenMediaAnchor.sol').read_bytes()
++    if (artifact['schema'] != 'proven-media/testnet-anchor-contract/1' or artifact['compiler'] != '0.8.28'
++            or artifact['source_sha256'] != hashlib.sha256(source).hexdigest()):
++        raise PublishError('compiled artifact does not match the pinned contract source/compiler')
++    creation = bytes.fromhex(artifact['evm']['bytecode']['object'])
++    runtime = expected_runtime(artifact, account.address)
++    rpc.check_chain()
++    if config.exists():
++        raise PublishError('deployment already configured; use status or the app')
++    if pending.exists():
++        plan = json.loads(pending.read_text())
++    else:
++        base = int(rpc.call('eth_getBlockByNumber', ['latest', False])['baseFeePerGas'], 16)
++        tip = min(int(rpc.call('eth_maxPriorityFeePerGas', []), 16), 200_000_000)
++        fee = 2 * base + tip
++        if fee > 2_000_000_000:
++            raise PublishError('testnet fee above 2 gwei cap')
++        estimated = int(rpc.call('eth_estimateGas', [{'from': account.address,
++                          'data': '0x' + creation.hex(), 'value': '0x0'}]), 16)
++        gas = (estimated * 125 + 99) // 100
++        if gas > 500_000:
++            raise PublishError('deployment estimate above 500000 gas cap')
++        balance = int(rpc.call('eth_getBalance', [account.address, 'latest']), 16)
++        if balance < gas * fee:
++            raise PublishError('throwaway address needs free Base Sepolia test ETH from a faucet')
++        tx = {'chainId': CHAIN_ID, 'nonce': int(rpc.call('eth_getTransactionCount', [account.address, 'pending']), 16),
++              'value': 0, 'data': creation, 'gas': gas, 'maxFeePerGas': fee, 'maxPriorityFeePerGas': tip, 'type': 2}
++        signed = account.sign_transaction(tx)
++        plan = {'raw_transaction': '0x' + signed.raw_transaction.hex(),
++                'tx_hash': '0x' + signed.hash.hex(), 'source_sha256': artifact['source_sha256']}
++        atomic_json(pending, plan)
++    raw = HexBytes(plan['raw_transaction'])
++    tx = TypedTransaction.from_bytes(raw).as_dict()
++    tx_hash = '0x' + keccak(raw).hex()
++    if (tx['chainId'] != CHAIN_ID or tx.get('to') not in (None, b'') or tx['value'] != 0
++            or bytes(tx['data']) != creation or tx['gas'] > 500_000 or tx['maxFeePerGas'] > 2_000_000_000
++            or Account.recover_transaction(raw) != account.address or tx_hash != plan['tx_hash']):
++        raise PublishError('persisted deployment envelope differs from the pinned deployment')
++    receipt = rpc.call('eth_getTransactionReceipt', [tx_hash])
++    if receipt is None:
++        if rpc.call('eth_getTransactionByHash', [tx_hash]) is None:
++            rpc.check_chain()
++            if rpc.call('eth_sendRawTransaction', [plan['raw_transaction']]).lower() != tx_hash:
++                raise PublishError('RPC returned another deployment transaction hash')
++        return {'status': 'pending', 'tx_hash': tx_hash, 'next': 'rerun deploy to check confirmation'}
++    if int(receipt['status'], 16) != 1:
++        raise PublishError('deployment reverted; retained envelope will not be replaced automatically')
++    block = rpc.call('eth_getBlockByNumber', [receipt['blockNumber'], False])
++    if block['hash'].lower() != receipt['blockHash'].lower():
++        return {'status': 'pending', 'tx_hash': tx_hash, 'reason': 'receipt block is not canonical'}
++    confirmations = int(rpc.call('eth_blockNumber', []), 16) - int(receipt['blockNumber'], 16) + 1
++    if confirmations < 3:
++        return {'status': 'pending', 'tx_hash': tx_hash, 'confirmations': confirmations}
++    address = receipt['contractAddress']
++    actual = bytes.fromhex(rpc.call('eth_getCode', [address, 'latest']).removeprefix('0x'))
++    if actual != runtime or receipt['transactionHash'].lower() != tx_hash:
++        raise PublishError('deployed runtime or receipt differs from expected contract')
++    cfg = {'schema': 'proven-media/base-sepolia/1', 'chain_id': CHAIN_ID,
++           'rpc_url': rpc_url, 'contract': address, 'runtime_code_hash': keccak(runtime).hex(),
++           'publisher_address': account.address, 'key_file': 'throwaway.sepolia-key.json',
++           'confirmations': 3, 'deployment_tx': tx_hash, 'source_sha256': artifact['source_sha256']}
++    atomic_json(config, cfg)
++    return {'status': 'deployed', 'config': str(config), 'contract': address, 'tx_hash': tx_hash}
++
++
++def main():
++    ap = argparse.ArgumentParser()
++    ap.add_argument('action', choices=['key', 'status', 'deploy'])
++    ap.add_argument('--private-dir', type=Path, default=APP/'.testnet-private')
++    ap.add_argument('--rpc-url', default='https://sepolia.base.org')
++    ap.add_argument('--artifact', type=Path)
++    a = ap.parse_args()
++    if not a.private_dir.exists():
++        a.private_dir.mkdir(mode=0o700)
++    if a.private_dir.is_symlink() or a.private_dir.stat().st_mode & 0o077:
++        raise PublishError('testnet private directory must have mode 0700 and be a real directory')
++    key = a.private_dir/'throwaway.sepolia-key.json'
++    if a.action == 'key':
++        address = create_throwaway_key(key)
++        print(json.dumps({'chain_id': CHAIN_ID, 'address': address, 'key_file': str(key)}))
++        return
++    account = read_throwaway_key(key)
++    rpc = BaseSepoliaRPC(a.rpc_url, '00'*20, '00'*32, account.address, key)
++    rpc.check_chain()
++    if a.action == 'status':
++        print(json.dumps({'chain_id': CHAIN_ID, 'address': account.address,
++            'balance_wei': int(rpc.call('eth_getBalance', [account.address, 'latest']), 16),
++            'config_exists': (a.private_dir/'sepolia.json').exists()}))
++    elif a.artifact is None:
++        raise PublishError('--artifact is required to deploy')
++    else:
++        print(json.dumps(deploy(rpc, account, json.loads(a.artifact.read_text()), a.private_dir, a.rpc_url)))
++
++
++if __name__ == '__main__':
++    try:
++        main()
++    except PublishError as e:
++        diagnostic = {'status': 'refused', 'reason': str(e)}
++        if e.__cause__ is not None:
++            # Types/status codes diagnose connectivity without exposing URLs or credentials.
++            diagnostic['cause_type'] = type(e.__cause__).__name__
++            if isinstance(getattr(e.__cause__, 'code', None), int):
++                diagnostic['http_status'] = e.__cause__.code
++        print(json.dumps(diagnostic))
++        raise SystemExit(1)
+--- /dev/null
++++ apps/proven-media/tools/classifier_pipeline.py
+@@ -0,0 +1,94 @@
++#!/usr/bin/env python3
++"""Private detached R-C1 worker. Every native CLI leaf passes the shared guard."""
++import fcntl
++import json
++import os
++from pathlib import Path
++import subprocess
++import sys
++import time
++
++sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
++from proven_media import config,records
++from proven_media.classifier_cli import ClassifierCLI,require
++from proven_media.classifier_prover import deployment_from_json
++
++HOLDS=(config.HOLD_FILE,config.REPO/'results/zk60_shieldstral_prep_20261021/HOLD',
++       config.REPO/'results/zk60_shieldstral_export_20261026/HOLD')
++# Initial rung declaration: larger TinyLlama T32 next-token CLI measured
++# 1.28 GiB RSS / 2.28 GiB cgroup. Replace with this classifier's measured peak
++# plus margin after its first retained run. Not a Shieldstral declaration.
++NEED_GIB=2.0
++CAP_GIB=3.5
++
++
++def atomic(path,data):
++    temporary=path.with_suffix(path.suffix+'.tmp')
++    temporary.write_text(data);os.replace(temporary,path)
++
++
++def run_step(job,name,command,cli):
++    logs=job/'logs';deadline=time.monotonic()+config.GUARD_WAIT_SECS
++    while True:
++        require(time.monotonic()<deadline,'admission wait timed out')
++        held=any(p.exists() for p in HOLDS)
++        atomic(job/'step.current',f'{"held" if held else name} {time.time()}\n')
++        if held:time.sleep(15);continue
++        check=subprocess.run(['python3',str(config.GUARD),'check','--class','cpu','--need-gib',str(NEED_GIB)],
++                             capture_output=True,text=True)
++        atomic(logs/f'{name}.precheck',check.stdout+check.stderr)
++        if check.returncode==0 and 'OK to start now' in check.stdout and not any(p.exists() for p in HOLDS):break
++        time.sleep(15)
++    cli.deployment.validate()
++    argv=['python3',str(config.GUARD),'run','--class','cpu','--need-gib',str(NEED_GIB),'--cap-gib',str(CAP_GIB),
++          '--label','pm-classify-'+name,'--wait-secs','60','--max-secs','1200','--log',str(logs/f'{name}.log'),
++          '--done',str(logs/f'{name}.guard.done'),'--result-json',str(logs/f'{name}.guard.json'),'--',*command]
++    with (logs/f'{name}.guard.out').open('wb') as output:
++        result=subprocess.run(argv,stdout=output,stderr=subprocess.STDOUT)
++    atomic(logs/f'{name}.exit',str(result.returncode)+'\n')
++    require(result.returncode==0,'guarded '+name+' failed')
++
++
++def worker(job):
++    spec=json.loads((job/'classifier-job.json').read_text())
++    require(spec['schema']=='pm-classifier-job/1','unknown worker schema')
++    cli=ClassifierCLI(deployment_from_json(spec['deployment']))
++    require(cli.deployment.development,'worker declarations cover the development rung only')
++    require(spec['mode'] in ('prove','recheck','label'),'unknown worker mode')
++    if spec['mode']=='label':
++        run_step(job,'label',cli.label_command(spec['runs']),cli)
++        checked=cli.collect_label(spec['records'],(job/'logs/label.log').read_text(),0,spec['total'])
++        atomic(job/'checked.json',json.dumps(checked,sort_keys=True)+'\n')
++        return
++    artifact=spec['artifact'];owner=Path(spec['owner_dir']);content=spec['content_file']
++    if spec['mode']=='prove':
++        run_step(job,'prove',cli.prove_command(content,spec['chunk'],spec['sequence_dir'],artifact,owner),cli)
++    run_step(job,'verify',cli.verify_command(artifact),cli)
++    run_step(job,'inowner',cli.owner_command(artifact,owner/'input.dec',content),cli)
++    logs=job/'logs'
++    checked=cli.collect_verified(artifact,spec['total'],spec['chunk'],(logs/'verify.log').read_text(),0,
++                                 (logs/'inowner.log').read_text(),0)
++    atomic(job/'checked.json',json.dumps(checked,sort_keys=True)+'\n')
++
++
++def main():
++    os.umask(0o077);job=Path(sys.argv[1]).resolve()
++    with (job/'pipeline.lock').open('a') as lock:
++        fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
++        require(not (job/'pipeline.done').exists(),'worker already terminal')
++        (job/'logs').mkdir(mode=0o700,exist_ok=True)
++        atomic(job/'pipeline.pid',str(os.getpid())+'\n')
++        atomic(job/'pipeline.boot_id',Path('/proc/sys/kernel/random/boot_id').read_text())
++        code=1
++        try:
++            worker(job);code=0
++        except Exception as exc:
++            # Logs stay private. Public callers receive only a generic refusal.
++            atomic(job/'logs/error.json',json.dumps({'type':type(exc).__name__,'message':str(exc)})+'\n')
++        finally:
++            atomic(job/'step.current',f'done {time.time()}\n')
++            atomic(job/'pipeline.done',str(code)+'\n')
++        return code
++
++
++if __name__=='__main__':raise SystemExit(main())
+--- /dev/null
++++ apps/proven-media/tests/test_image_preprocess.py
+@@ -0,0 +1,103 @@
++"""Independent rational-area oracle and portable image preprocessing vectors."""
++import hashlib
++import io
++import json
++import random
++import sys
++import unittest
++from fractions import Fraction as F
++from pathlib import Path
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
++from proven_media import image_preprocess as P
++from proven_media import items
++
++
++def oracle(raw, w, h, nw, nh):
++    # Deliberately enumerate all source pixels using exact rational geometry.
++    result = []
++    for y in range(nh):
++        for x in range(nw):
++            accum = [F(0)] * 3
++            for sy in range(h):
++                wy = max(F(0), min(F(y + 1, nh), F(sy + 1, h)) - max(F(y, nh), F(sy, h)))
++                for sx in range(w):
++                    wx = max(F(0), min(F(x + 1, nw), F(sx + 1, w)) - max(F(x, nw), F(sx, w)))
++                    for ch in range(3):
++                        accum[ch] += raw[(sy * w + sx) * 3 + ch] * wx * wy * nw * nh
++            result.extend((v + F(1, 2)).numerator // (v + F(1, 2)).denominator for v in accum)
++    return bytes(result)
++
++
++class TestIntegerImages(unittest.TestCase):
++    def test_nonintegral_scale_matches_rational_geometry(self):
++        rng = random.Random(20261026)
++        for w, h, nw, nh in [(3, 2, 2, 3), (7, 5, 3, 2), (2, 3, 5, 7),
++                              (1, 7, 3, 2), (7, 1, 2, 3), (4, 4, 1, 1), (3, 3, 3, 3)]:
++            with self.subTest(shape=(w, h, nw, nh)):
++                raw = bytes(rng.randrange(256) for _ in range(w * h * 3))
++                self.assertEqual(P.area_rgb8(raw, w, h, nw, nh), oracle(raw, w, h, nw, nh))
++
++    def test_single_round_and_half_up(self):
++        # Rounding each axis separately would incorrectly produce 1 for this mean 1/4.
++        self.assertEqual(P.area_rgb8(bytes([0] * 9 + [1] * 3), 2, 2, 1, 1), bytes(3))
++        self.assertEqual(P.area_rgb8(bytes([0] * 3 + [1] * 3), 2, 1, 1, 1), bytes([1] * 3))
++
++    def test_size_tie_and_odd_letterbox(self):
++        # 3 * 224 / 192 = 3.5; ties go up, not banker's rounding.
++        self.assertEqual(P.fitted_size(192, 3), (224, 4))
++        self.assertEqual(P.fitted_size(448, 5), (224, 3))
++        self.assertEqual(P.fitted_size(40_000_000, 1), (224, 1))
++        raw = P.letterbox_rgb8(bytes([9, 8, 7]) * (448 * 5), 448, 5)
++        pixel = lambda x, y: raw[(y * 224 + x) * 3:(y * 224 + x + 1) * 3]
++        self.assertEqual(pixel(0, 109), bytes(P.FILL_RGB))
++        self.assertEqual(pixel(0, 110), bytes([9, 8, 7]))
++        self.assertEqual(pixel(0, 112), bytes([9, 8, 7]))
++        self.assertEqual(pixel(0, 113), bytes(P.FILL_RGB))
++
++    def test_all_patch_offsets(self):
++        raw = bytes((x * 7 + y * 13 + c * 71) % 256
++                    for y in range(224) for x in range(224) for c in range(3))
++        tensor = P.patch_tensor(raw)
++        restored = bytearray(len(raw))
++        for y in range(224):
++            for x in range(224):
++                for c in range(3):
++                    k = (((y // 14 * 16 + x // 14) * 3 + c) * 14 + y % 14) * 14 + x % 14
++                    restored[(y * 224 + x) * 3 + c] = tensor[k]
++        self.assertEqual(raw, restored)
++
++    def test_vectors(self):
++        data = json.loads((Path(__file__).parent / "fixtures/image_area_v1.json").read_text())
++        self.assertEqual(data["spec"], P.SPEC_ID)
++        for v in data["vectors"]:
++            with self.subTest(name=v["name"]):
++                raw = bytes.fromhex(v["rgb8_hex"])
++                canvas = P.letterbox_rgb8(raw, v["width"], v["height"])
++                tensor = P.patch_tensor(canvas)
++                self.assertEqual(hashlib.sha256(canvas).hexdigest(), v["canvas_sha256"])
++                self.assertEqual(hashlib.sha256(tensor).hexdigest(), v["tensor_sha256"])
++                self.assertEqual(items.image_commitment(bytes(32), tensor), v["commitment_zero_salt"])
++
++    def test_master_boundary_and_bad_inputs(self):
++        from PIL import Image
++        for mode in ("RGBA", "L"):
++            buf = io.BytesIO()
++            Image.new(mode, (10, 10)).save(buf, "PNG")
++            with self.assertRaises(items.ImageRefused):
++                items.canonical_canvas(buf.getvalue())
++            master, _, _ = items.lossless_master(buf.getvalue())
++            self.assertEqual(items.canonical_canvas(master).mode, "RGB")
++        with self.assertRaises(ValueError):
++            P.area_rgb8(b"", 1, 1, 1, 1)
++        for dims in [(0, 1), (1, -1), (40_000_001, 1), (True, 1)]:
++            with self.assertRaises(ValueError):
++                P.fitted_size(*dims)
++        with self.assertRaises(ValueError):
++            P.patch_tensor(bytes(3))
++        with self.assertRaises(items.ImageRefused):
++            items.canonical_tensor(Image.new("RGB", (14, 14)))
++
++
++if __name__ == "__main__":
++    unittest.main()
+--- /dev/null
++++ apps/proven-media/tests/test_testnet_publisher.py
+@@ -0,0 +1,231 @@
++"""Real signing/ABI checks against a controlled RPC; no network or testnet spending."""
++import copy
++import hashlib
++import json
++import os
++from pathlib import Path
++import sys
++import tempfile
++import unittest
++from unittest.mock import patch
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
++from proven_media.base_sepolia import (BaseSepoliaRPC, CHAIN_ID, create_throwaway_key,
++    read_throwaway_key, keccak, anchor_data, EVENT_SIGNATURE)
++from proven_media.publisher import PublicationRecord, PublishError, make_publisher
++from proven_media.testnet_publisher import BaseSepoliaPublisher
++
++
++class RPC(BaseSepoliaRPC):
++    def __init__(self, key):
++        account = read_throwaway_key(key)
++        self.code = b"test contract runtime"
++        super().__init__("https://sepolia.invalid", "0x" + "11" * 20,
++                         keccak(self.code).hex(), account.address, key)
++        self.chain_id = CHAIN_ID
++        self.tx = self.receipt = None
++        self.height = 102
++        self.block_hash = "0x" + "22" * 32
++        self.sends = 0
++        self.calls = []
++        self.fail_after_send = False
++        self.nonce = 0
++
++    def call(self, method, params):
++        self.calls.append(method)
++        if method == "eth_chainId": return hex(self.chain_id)
++        if method == "eth_getCode": return "0x" + self.code.hex()
++        if method == "eth_call": return "0x" + "00" * 12 + self.publisher_address[2:]
++        if method == "eth_getTransactionCount": return hex(self.nonce)
++        if method == "eth_getBlockByNumber": return {"baseFeePerGas": "0x64", "hash": self.block_hash}
++        if method == "eth_maxPriorityFeePerGas": return "0xa"
++        if method == "eth_estimateGas": return hex(30_000)
++        if method == "eth_getTransactionByHash": return self.tx
++        if method == "eth_getTransactionReceipt": return self.receipt
++        if method == "eth_blockNumber": return hex(self.height)
++        if method == "eth_sendRawTransaction":
++            from eth_account import Account
++            from eth_account.typed_transactions import TypedTransaction
++            from hexbytes import HexBytes
++            raw = HexBytes(params[0])
++            signed = TypedTransaction.from_bytes(raw).as_dict()
++            tx_hash = "0x" + keccak(raw).hex()
++            self.tx = {"hash": tx_hash, "from": Account.recover_transaction(raw),
++                       "to": "0x" + bytes(signed["to"]).hex(), "chainId": hex(signed["chainId"]),
++                       "value": hex(signed["value"]), "input": "0x" + bytes(signed["data"]).hex(),
++                       "blockHash": self.block_hash}
++            self.sends += 1
++            self.nonce += 1
++            if self.fail_after_send:
++                self.fail_after_send = False
++                raise PublishError("simulated lost response after successful broadcast")
++            return tx_hash
++        raise AssertionError((method, params))
++
++    def mine(self):
++        data = self.tx["input"][10:]
++        root, count, batch_hash = data[:64], data[64:128], data[128:192]
++        self.receipt = {"transactionHash": self.tx["hash"], "blockNumber": "0x64", "status": "0x1",
++                        "blockHash": self.block_hash, "logs": [{"address": self.contract,
++                        "topics": ["0x" + keccak(EVENT_SIGNATURE.encode()).hex(), "0x" + root],
++                        "data": "0x" + count + batch_hash, "transactionHash": self.tx["hash"],
++                        "blockHash": self.block_hash}]}
++
++
++class TestBaseSepolia(unittest.TestCase):
++    def setUp(self):
++        self.temp = tempfile.TemporaryDirectory()
++        self.addCleanup(self.temp.cleanup)
++        self.root = Path(self.temp.name)
++        self.key = self.root / "test.sepolia-key.json"
++        create_throwaway_key(self.key)
++        self.rpc = RPC(self.key)
++        self.pub = BaseSepoliaPublisher(self.rpc, self.root, batch_secs=0)
++
++    def record(self, index=1):
++        segment = self.root / f"segment{index}.bin"
++        segment.write_bytes(b"synthetic test receipt")
++        segments = [{"file": segment.name, "bytes": segment.stat().st_size,
++                     "sha256": hashlib.sha256(segment.read_bytes()).hexdigest()}]
++        return PublicationRecord(post_id=f"{index:032x}", category="sexual", statement=b'{"test":true}',
++            receipt_segments=[segment], verdict="no", model_id="01" * 32, policy_id="02" * 32,
++            profile_id="03" * 32, verifier_id="04" * 32, content_commitment="05" * 32,
++            segments_json=json.dumps(segments).encode(), token_range=(0, 20),
++            proof_verified=True, verdict_bound=True)
++
++    def finish(self):
++        record = self.record()
++        a = self.pub.publish(record)
++        self.assertEqual(a.chain, "base-sepolia")
++        self.assertIsNone(self.pub.tick(force=True))
++        self.rpc.mine()
++        self.assertEqual(self.pub.tick(), "batch-000000")
++        return self.pub.anchor_of(record.post_id, record.category)
++
++    def test_roundtrip_signing_batch_and_read_only_verify(self):
++        a = self.finish()
++        self.rpc.key_path = None
++        result = self.pub.verify_publication(a)
++        self.assertTrue(result["accepted"], result)
++        self.assertEqual(self.rpc.sends, 1)
++        self.assertEqual(a.block_number, 100)
++        self.assertEqual(self.pub.pending_list(), [])
++
++    def test_lost_broadcast_response_reuses_exact_envelope(self):
++        self.pub.publish(self.record())
++        self.rpc.fail_after_send = True
++        with self.assertRaises(PublishError): self.pub.tick(force=True)
++        stored = self.pub.inflight.read_bytes()
++        resumed = BaseSepoliaPublisher(self.rpc, self.root)
++        self.assertIsNone(resumed.tick())
++        self.assertEqual(stored, resumed.inflight.read_bytes())
++        self.assertEqual(self.rpc.sends, 1)
++        self.rpc.mine()
++        self.assertEqual(resumed.tick(), "batch-000000")
++
++    def test_finalization_crash_replays_without_duplicate_block_or_send(self):
++        record = self.record()
++        self.pub.publish(record)
++        self.pub.tick(force=True)
++        self.rpc.mine()
++        with patch.object(self.pub, "_write_anchor", side_effect=OSError("simulated disk failure")):
++            with self.assertRaises(OSError): self.pub.tick()
++        self.assertTrue(self.pub.inflight.exists())
++        self.assertEqual(self.pub.tick(), "batch-000000")
++        self.assertEqual(len(self.pub.blocks_list()), 1)
++        self.assertEqual(self.rpc.sends, 1)
++
++    def test_new_pending_publication_survives_inflight_batch(self):
++        self.pub.publish(self.record())
++        self.pub.tick(force=True)
++        self.pub.publish(self.record(2))
++        self.rpc.mine()
++        self.pub.tick()
++        self.assertEqual(len(self.pub.pending_list()), 1)
++        self.assertEqual(self.pub.pending_list()[0]["post_id"], f"{2:032x}")
++
++    def test_refuses_placeholder_unverified_or_changed_receipt(self):
++        for field in ("proof_verified", "verdict_bound"):
++            r = self.record()
++            setattr(r, field, False)
++            with self.assertRaises(PublishError): self.pub.publish(r)
++        r = self.record()
++        r.development_only = True
++        with self.assertRaises(PublishError): self.pub.publish(r)
++        r = self.record()
++        Path(r.receipt_segments[0]).write_bytes(b"altered")
++        with self.assertRaises(PublishError): self.pub.publish(r)
++        self.assertEqual(self.pub.pending_list(), [])
++
++    def test_mainnet_wrong_contract_wrong_key_never_sign(self):
++        self.rpc.chain_id = 8453
++        with self.assertRaises(PublishError): self.rpc.prepare("11" * 32, 1, "22" * 32)
++        self.rpc.chain_id = CHAIN_ID
++        self.rpc.code = b"changed"
++        with self.assertRaises(PublishError): self.rpc.prepare("11" * 32, 1, "22" * 32)
++        self.assertNotIn("eth_sendRawTransaction", self.rpc.calls)
++
++    def test_gas_bound_refuses_before_sign(self):
++        self.rpc.gas_limit = 21_000
++        with self.assertRaises(PublishError): self.rpc.prepare("11" * 32, 1, "22" * 32)
++
++    def test_confirmations_and_reorg_fail_closed(self):
++        a = self.finish()
++        self.rpc.height = 100
++        self.assertFalse(self.pub.verify_publication(a)["accepted"])
++        self.rpc.height = 102
++        self.rpc.block_hash = "0x" + "ff" * 32
++        self.assertFalse(self.pub.verify_publication(a)["accepted"])
++
++    def test_tampered_transaction_or_event_is_rejected(self):
++        a = self.finish()
++        tx, receipt = copy.deepcopy(self.rpc.tx), copy.deepcopy(self.rpc.receipt)
++        mutations = [("tx", "value", "0x1"), ("tx", "input", "0x00"),
++                     ("tx", "chainId", hex(8453)), ("tx", "from", "0x" + "ff" * 20),
++                     ("receipt", "status", "0x0"), ("receipt", "logs", [])]
++        for target, key, value in mutations:
++            with self.subTest(target=target, key=key):
++                self.rpc.tx, self.rpc.receipt = copy.deepcopy(tx), copy.deepcopy(receipt)
++                getattr(self.rpc, target)[key] = value
++                self.assertFalse(self.pub.verify_publication(a)["accepted"])
++
++    def test_batch_and_anchor_tampering_is_rejected(self):
++        a = self.finish()
++        for field, value in [("chain", "base-mainnet"), ("leaf_index", 99), ("merkle_proof", ["ff" * 32]),
++                             ("batch_id", "../../outside"), ("status", "made-up")]:
++            b = copy.deepcopy(a)
++            setattr(b, field, value)
++            self.assertFalse(self.pub.verify_publication(b)["accepted"], field)
++        batchfile = self.pub.batches / (a.batch_id + ".json")
++        batch = json.loads(batchfile.read_text())
++        batch["count"] += 1
++        batchfile.write_text(json.dumps(batch))
++        self.assertFalse(self.pub.verify_publication(a)["accepted"])
++
++    def test_key_0600_exclusive_and_no_symlink(self):
++        self.assertEqual(self.key.stat().st_mode & 0o777, 0o600)
++        with self.assertRaises(FileExistsError): create_throwaway_key(self.key)
++        self.key.chmod(0o644)
++        with self.assertRaises(PublishError): read_throwaway_key(self.key)
++        self.key.chmod(0o600)
++        link = self.root / "link"
++        link.symlink_to(self.key)
++        with self.assertRaises(PublishError): read_throwaway_key(link)
++
++    def test_readonly_factory_does_not_need_key_file(self):
++        cfg = self.root / "sepolia.json"
++        cfg.write_text(json.dumps({"schema": "proven-media/base-sepolia/1", "chain_id": CHAIN_ID,
++            "rpc_url": self.rpc.rpc_url, "contract": self.rpc.contract,
++            "runtime_code_hash": self.rpc.runtime_code_hash, "publisher_address": self.rpc.publisher_address}))
++        p = make_publisher(self.root, mode="base-sepolia", config_path=cfg, read_only=True)
++        self.assertIsNone(p.transport.key_path)
++        self.assertEqual(p.name, "base-sepolia")
++
++    def test_abi_matches_independent_encoder(self):
++        from eth_abi import encode
++        expected = keccak(b"anchor(bytes32,uint256,bytes32)")[:4] + encode(
++            ["bytes32", "uint256", "bytes32"], [bytes.fromhex("13" * 32), 17, bytes.fromhex("29" * 32)])
++        self.assertEqual(anchor_data("13" * 32, 17, "29" * 32), "0x" + expected.hex())
++
++
++if __name__ == "__main__": unittest.main()
+--- /dev/null
++++ apps/proven-media/tests/test_sepolia_setup.py
+@@ -0,0 +1,107 @@
++"""Deployment-envelope recovery, fee/funding refusals, and immutable patching."""
++import hashlib
++import importlib.util
++import json
++from pathlib import Path
++import tempfile
++import unittest
++import sys
++
++APP = Path(__file__).resolve().parents[1]
++sys.path.insert(0, str(APP))
++
++try:
++    from eth_account import Account
++    from eth_account.typed_transactions import TypedTransaction
++    from hexbytes import HexBytes
++except ImportError:
++    Account = None
++
++from proven_media.publisher import PublishError
++from proven_media.base_sepolia import CHAIN_ID, keccak
++
++spec = importlib.util.spec_from_file_location('sepolia_setup', APP/'tools/sepolia_setup.py')
++setup = importlib.util.module_from_spec(spec)
++spec.loader.exec_module(setup)
++
++
++class FakeDeployRPC:
++    def __init__(self):
++        self.balance=10**18;self.sent=[];self.receipt=None;self.visible=False;self.lost=False
++        self.code=b'';self.chain=CHAIN_ID;self.checks=0
++
++    def check_chain(self):
++        self.checks+=1
++        if self.chain!=CHAIN_ID:raise PublishError('wrong chain')
++
++    def call(self,method,params):
++        if method=='eth_getBlockByNumber':return {'baseFeePerGas':'0x64','hash':'0x'+'aa'*32}
++        if method=='eth_maxPriorityFeePerGas':return '0x64'
++        if method=='eth_estimateGas':return hex(100000)
++        if method=='eth_getBalance':return hex(self.balance)
++        if method=='eth_getTransactionCount':return '0x0'
++        if method=='eth_getTransactionReceipt':return self.receipt
++        if method=='eth_getTransactionByHash':return {'hash':params[0]} if self.visible else None
++        if method=='eth_sendRawTransaction':
++            self.sent.append(params[0]);self.visible=True
++            if self.lost:raise PublishError('simulated response lost after acceptance')
++            return '0x'+keccak(bytes.fromhex(params[0][2:])).hex()
++        if method=='eth_blockNumber':return '0x66'
++        if method=='eth_getCode':return '0x'+self.code.hex()
++        raise AssertionError(method)
++
++
++@unittest.skipIf(Account is None,'optional requirements-testnet.txt not installed')
++class SepoliaSetupTests(unittest.TestCase):
++    def setUp(self):
++        self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup)
++        self.dir=Path(self.tmp.name);self.account=Account.create();self.rpc=FakeDeployRPC()
++        # A tiny fixture exercises envelope handling; it does not simulate EVM execution.
++        self.artifact={'schema':'proven-media/testnet-anchor-contract/1','compiler':'0.8.28',
++            'source_sha256':hashlib.sha256((APP/'contracts/ProvenMediaAnchor.sol').read_bytes()).hexdigest(),
++            'evm':{'bytecode':{'object':'60006000'},'deployedBytecode':{
++                'object':'ff'+'00'*32+'ee','immutableReferences':{'1':[{'start':1,'length':32}]}}}}
++
++    def deploy(self):return setup.deploy(self.rpc,self.account,self.artifact,self.dir,'https://example.test')
++
++    def test_deployment_loss_recovery_and_runtime_pin(self):
++        self.rpc.lost=True
++        with self.assertRaises(PublishError):self.deploy()
++        pending=json.loads((self.dir/'deployment.pending.json').read_text())
++        raw=HexBytes(pending['raw_transaction']);tx=TypedTransaction.from_bytes(raw).as_dict()
++        self.assertEqual(tx['chainId'],CHAIN_ID);self.assertEqual(tx['value'],0)
++        self.assertEqual(bytes(tx['data']),bytes.fromhex('60006000'))
++        self.assertEqual(Account.recover_transaction(raw),self.account.address)
++        self.assertEqual(self.deploy()['status'],'pending')
++        self.assertEqual(len(self.rpc.sent),1)
++        self.rpc.receipt={'status':'0x1','blockNumber':'0x64','blockHash':'0x'+'aa'*32,
++            'transactionHash':pending['tx_hash'],'contractAddress':'0x'+'11'*20}
++        self.rpc.code=setup.expected_runtime(self.artifact,self.account.address)
++        result=self.deploy();self.assertEqual(result['status'],'deployed')
++        config=json.loads((self.dir/'sepolia.json').read_text())
++        self.assertEqual(config['runtime_code_hash'],keccak(self.rpc.code).hex())
++        self.assertGreaterEqual(self.rpc.checks,4)
++
++    def test_no_funds_wrong_chain_and_modified_source_refuse(self):
++        self.rpc.balance=0
++        with self.assertRaisesRegex(PublishError,'free Base Sepolia test ETH'):self.deploy()
++        self.assertFalse((self.dir/'deployment.pending.json').exists())
++        self.rpc.chain=1
++        with self.assertRaisesRegex(PublishError,'wrong chain'):self.deploy()
++        self.artifact['source_sha256']='00'*32
++        with self.assertRaisesRegex(PublishError,'pinned contract'):self.deploy()
++        self.assertEqual(self.rpc.sent,[])
++
++    def test_immutable_offsets_and_runtime_mismatch(self):
++        result=setup.expected_runtime(self.artifact,self.account.address)
++        self.assertEqual(result,b'\xff'+bytes(12)+bytes.fromhex(self.account.address[2:])+b'\xee')
++        self.deploy()
++        pending=json.loads((self.dir/'deployment.pending.json').read_text())
++        self.rpc.receipt={'status':'0x1','blockNumber':'0x64','blockHash':'0x'+'aa'*32,
++            'transactionHash':pending['tx_hash'],'contractAddress':'0x'+'11'*20}
++        self.rpc.code=b'wrong'
++        with self.assertRaisesRegex(PublishError,'runtime or receipt'):self.deploy()
++        self.assertFalse((self.dir/'sepolia.json').exists())
++
++
++if __name__=='__main__':unittest.main()
+--- /dev/null
++++ apps/proven-media/tests/test_classifier_cli.py
+@@ -0,0 +1,106 @@
++"""Transport contract tests with synthetic files; these are NOT proof tests."""
++import copy
++from dataclasses import replace
++import hashlib
++import json
++from pathlib import Path
++import tempfile
++import unittest
++from unittest.mock import patch
++
++from proven_media.classifier_cli import ClassifierCLI, Deployment, DEV_POLICY, VERIFIER_WRITER, chunk_plan, one_event
++from proven_media.provers import ProverError
++
++
++def line(event, **fields):
++    return json.dumps({'event': event, **fields})+'\n'
++
++
++class ClassifierContractTests(unittest.TestCase):
++    def setUp(self):
++        self.temp=tempfile.TemporaryDirectory(dir='/tmp');self.addCleanup(self.temp.cleanup)
++        self.root=Path(self.temp.name)
++        self.binary=self.root/'synthetic-binary';self.binary.write_bytes(b'NOT A PROVER')
++        sha=hashlib.sha256(self.binary.read_bytes()).hexdigest()
++        self.pin=patch('proven_media.classifier_cli.R_C1_BINARY_SHA256',sha);self.pin.start();self.addCleanup(self.pin.stop)
++        for name in ('export','public','tables'): (self.root/name).mkdir()
++        self.d=Deployment(self.binary,sha,self.root/'export',self.root/'public',self.root/'tables','1'*64,
++                          DEV_POLICY,23,4,min_bits=93,development=True)
++        self.cli=ClassifierCLI(self.d)
++
++    def fixture(self,total=23,index=0,flagged=False):
++        plan=chunk_plan(total,23,4);bounds=plan[index];verdict='flagged' if flagged else 'not-flagged'
++        run=self.root/f'run-{index}';(run/'statement').mkdir(parents=True)
++        stmt={'schema':'zk60-classify-run/1','statement_written_by':VERIFIER_WRITER,
++              'trained_statement_identity':'1'*64,'policy':DEV_POLICY,'context_label':'zk60-classify-verdict',
++              'verdict_bit':int(flagged),'verdict':verdict,'blocks':1,'content_length_n':23,
++              'input_token_endpoint_root':'2'*64,'whole_run_floor_bits':93,
++              'chunk':{'index':index,'count':len(plan),'range':list(bounds),'content_total':total,'chunk_size':23,'overlap':4}}
++        (run/'statement/statement.json').write_text(json.dumps(stmt))
++        for k in range(3): (run/f'segment-{k:03}.bin').write_bytes(b'SYNTHETIC RECEIPT '+bytes([k]))
++        verify=line('classified',verdict=verdict,chunk=index,chunks=len(plan),policy=DEV_POLICY,
++                    trained_statement_identity='1'*64,input_token_endpoint_root='2'*64,whole_run_floor_bits=93,published_by='this verifier')
++        owner=line('content-checked',verdict=verdict,chunk=index,range=list(bounds),content_total=total)
++        return run,stmt,verify,owner
++
++    def test_native_inventory_and_commands_keep_private_ids_off_argv(self):
++        run,stmt,v,o=self.fixture()
++        result=self.cli.collect_verified(run,23,0,v,0,o,0)
++        self.assertEqual([x['file'] for x in result['files']],[f'segment-{k:03}.bin' for k in range(3)])
++        self.assertEqual([x.name for x in (run/'statement').iterdir()],['statement.json'])
++        content=self.root/'ids';content.write_text(','.join(str(n) for n in range(9,32)));content.chmod(0o600)
++        owner=self.root/'private/owner'
++        command=self.cli.prove_command(content,0,self.root/'seq',self.root/'public-runs/run',owner)
++        self.assertIn('--content-file',command);self.assertNotIn(content.read_text(),command)
++        self.assertIn('93',self.cli.verify_command(run))
++        content.chmod(0o644)
++        with self.assertRaises(ProverError):self.cli.prove_command(content,0,self.root/'seq',run,owner)
++
++    def test_prover_output_or_refusal_never_becomes_an_accepted_label(self):
++        run,stmt,v,o=self.fixture()
++        for bad in (line('proved',verdict='not-flagged'),v+line('refused',error='refused'),v+v,'not json\n'+v):
++            with self.subTest(bad=bad),self.assertRaises(ProverError):self.cli.collect_verified(run,23,0,bad,0,o,0)
++        with self.assertRaises(ProverError):self.cli.collect_verified(run,23,0,v,1,o,0)
++        stmt['statement_written_by']='zk60_classify prove, WITHOUT a verification (unverified)'
++        (run/'statement/statement.json').write_text(json.dumps(stmt))
++        with self.assertRaises(ProverError):self.cli.collect_verified(run,23,0,v,0,o,0)
++
++    def test_pins_floor_owner_and_native_directory_fail_closed(self):
++        run,original,v,o=self.fixture()
++        for key,value in (('policy','different'),('trained_statement_identity','3'*64),('whole_run_floor_bits',92),('verdict_bit',True)):
++            stmt=copy.deepcopy(original);stmt[key]=value
++            (run/'statement/statement.json').write_text(json.dumps(stmt))
++            with self.subTest(key=key),self.assertRaises(ProverError):self.cli.collect_verified(run,23,0,v,0,o,0)
++        (run/'statement/statement.json').write_text(json.dumps(original))
++        with self.assertRaises(ProverError):self.cli.collect_verified(run,23,0,v,0,o.replace('not-flagged','flagged'),0)
++        extra=run/'statement/segments.json';extra.write_text('[]')
++        with self.assertRaises(ProverError):self.cli.collect_verified(run,23,0,v,0,o,0)
++        extra.unlink();(run/'segment-000.bin').unlink();(run/'segment-000.bin').symlink_to(run/'segment-001.bin')
++        with self.assertRaises(ProverError):self.cli.collect_verified(run,23,0,v,0,o,0)
++
++    def test_end_aligned_unordered_aggregation_missing_and_duplicate_refuse(self):
++        plan=chunk_plan(50,23,4);self.assertEqual(plan,[(0,23),(19,42),(27,50)])
++        collected=[]
++        for i in range(3):
++            run,s,v,o=self.fixture(50,i,i!=1)
++            collected.append(self.cli.collect_verified(run,50,i,v,0,o,0))
++        fields={'policy':DEV_POLICY,'label':'flagged','chunks':3,'content_total':50,'chunk_size':23,'overlap':4,
++                'flagged_ranges':[[27,50],[0,23]]}
++        label=line('label',**fields)
++        result=self.cli.collect_label(collected[::-1],label,0,50)
++        self.assertEqual(result['flagged_ranges'],[[0,23],[27,50]])
++        for records in (collected[:2],[collected[0],collected[0],collected[2]]):
++            with self.assertRaises(ProverError):self.cli.collect_label(records,label,0,50)
++        fields['flagged_ranges']=[[0,23],[0,23]]
++        with self.assertRaises(ProverError):self.cli.collect_label(collected,line('label',**fields),0,50)
++
++    def test_dev_floor_cannot_be_used_for_production(self):
++        for deployment in (replace(self.d,development=False),replace(self.d,min_bits=92),
++                           replace(self.d,development=False,policy='production/1',min_bits=93),
++                           replace(self.d,development=False,policy='production/1',min_bits=95)):
++            with self.assertRaises(ProverError):deployment.validate()
++        (self.root/'public/seq_000').mkdir()
++        with self.assertRaises(ProverError):self.d.validate()
++
++
++if __name__=='__main__':unittest.main()
+--- /dev/null
++++ apps/proven-media/tests/test_classifier_prover.py
+@@ -0,0 +1,80 @@
++"""Interface orchestration with mocked leaf commands; no real proof is produced."""
++import importlib.util
++import json
++from pathlib import Path
++import unittest
++from unittest.mock import patch
++
++import test_classifier_cli as contract
++from proven_media.classifier_prover import RungClassifierProver, RungTokenItem, PIPELINE
++from proven_media.items import TextItem
++from proven_media.provers import NotSupported, ProverError
++
++spec=importlib.util.spec_from_file_location('test_classifier_worker',PIPELINE)
++worker=importlib.util.module_from_spec(spec);spec.loader.exec_module(worker)
++
++
++class ClassifierProverTests(unittest.TestCase):
++    def setUp(self):
++        self.fixture=contract.ClassifierContractTests();self.fixture.setUp();self.addCleanup(self.fixture.doCleanups)
++        self.root=self.fixture.root;self.prover=RungClassifierProver(self.fixture.d,self.root/'public-runs')
++        self.seq=self.root/'seq';self.seq.mkdir()
++        self.item=RungTokenItem(tuple(range(9,32)),(self.seq,))
++
++    def make_job(self):
++        job=self.root/'private/job'
++        with patch('proven_media.classifier_prover.launch_pipeline') as launcher:
++            self.prover.start('fixture',self.item,job);launcher.assert_called_once_with(job)
++        job_spec=json.loads((job/'classifier-job.json').read_text())
++        run,stmt,verify,owner=self.fixture.fixture()
++        run.rename(job_spec['artifact'])
++        (job/'logs').mkdir()
++        calls=[]
++        def leaf(job,name,command,cli):
++            calls.append((name,command))
++            log={'prove':contract.line('proved',verdict='not-flagged'),'verify':verify,'inowner':owner}[name]
++            (job/f'logs/{name}.log').write_text(log)
++            (job/f'logs/{name}.exit').write_text('0\n')
++            (job/f'logs/{name}.guard.json').write_text(json.dumps({'exit':0,'child_rc':0}))
++        with patch.object(worker,'run_step',side_effect=leaf):worker.worker(job)
++        (job/'pipeline.done').write_text('0\n')
++        return job,calls
++
++    def test_full_interface_requires_fresh_verifier_and_owner_then_keeps_synthetic_category(self):
++        job,calls=self.make_job()
++        self.assertEqual([c[0] for c in calls],['prove','verify','inowner'])
++        rec=self.prover.collect('fixture',self.item,job)
++        self.assertEqual(set(rec.labels),{'synthetic'})
++        self.assertTrue(rec.labels['synthetic']['bound_by_proof'])
++        self.assertTrue(rec.prover['development_only'])
++        self.assertFalse(self.prover.can_prove(TextItem('real text')))
++        with self.assertRaises(NotSupported):self.prover.start('text',TextItem('real text'),self.root/'private/text')
++        (job/'logs/inowner.guard.json').write_text(json.dumps({'exit':75,'child_rc':0}))
++        with self.assertRaises(ProverError):self.prover.collect('fixture',self.item,job)
++
++    def test_changed_segment_or_content_does_not_reuse_worker_success(self):
++        job,_=self.make_job();spec=json.loads((job/'classifier-job.json').read_text())
++        with self.assertRaises(ProverError):
++            self.prover.collect('fixture',RungTokenItem(tuple(range(10,33)),(self.seq,)),job)
++        segment=Path(spec['artifact'])/'segment-000.bin';segment.write_bytes(b'changed')
++        with self.assertRaises(ProverError):self.prover.collect('fixture',self.item,job)
++
++    def test_native_aggregate_is_a_separate_guarded_step_and_missing_chunk_refuses(self):
++        job,_=self.make_job();rec=self.prover.collect('fixture',self.item,job)
++        aggregate=self.root/'private/aggregate'
++        with patch('proven_media.classifier_prover.launch_pipeline'):
++            self.prover.start_label([rec],aggregate)
++        (aggregate/'logs').mkdir()
++        events=contract.line('label',policy=self.fixture.d.policy,label='not-flagged',chunks=1,content_total=23,
++                    chunk_size=23,overlap=4,flagged_ranges=[])
++        def leaf(job,name,command,cli):
++            self.assertEqual(name,'label');self.assertEqual(command[1],'label')
++            (job/'logs/label.log').write_text(events);(job/'logs/label.exit').write_text('0\n')
++            (job/'logs/label.guard.json').write_text(json.dumps({'exit':0,'child_rc':0}))
++        with patch.object(worker,'run_step',side_effect=leaf):worker.worker(aggregate)
++        (aggregate/'pipeline.done').write_text('0\n')
++        self.assertEqual(self.prover.collect_label(aggregate)['value'],'no')
++        with self.assertRaises(ProverError):self.prover.start_label([rec,rec],self.root/'private/repeated')
++
++
++if __name__=='__main__':unittest.main()
+--- /dev/null
++++ apps/proven-media/tests/fixtures/image_area_v1.json
+@@ -0,0 +1,41 @@
++{
++  "spec": "pm-img-area-v1",
++  "vectors": [
++    {
++      "name": "one-pixel",
++      "width": 1,
++      "height": 1,
++      "rgb8_hex": "115bcb",
++      "canvas_sha256": "a562ec66cd6aaf4c83f99e40111a4100974cb33711ee54ee61941e710610c133",
++      "tensor_sha256": "1020bd449a67965b9cebe7669abe457d6d65ec5995bcd002a214b8cdaf618fe8",
++      "commitment_zero_salt": "b0aaf16bc978de9f9a3fe59c93a953000c718a8334ac180d5fe13b60e75ffbb4"
++    },
++    {
++      "name": "portrait-2x3",
++      "width": 2,
++      "height": 3,
++      "rgb8_hex": "000102030405060708090a0b0c0d0e0f1011",
++      "canvas_sha256": "db16d014fa795b89e8dda719c27540ed98ae23141c6dd753b5cebe858c3a8d9f",
++      "tensor_sha256": "c3916cec3d0669e008cc55774ca051652202ed5cf167afe1e9deffd0536dc599",
++      "commitment_zero_salt": "73b0df79d9edba2f9591bfbde2e9e0903f8c2931acfb4908bdae314ec720aed5"
++    },
++    {
++      "name": "landscape-5x2",
++      "width": 5,
++      "height": 2,
++      "rgb8_hex": "095097de256cb3fa4188cf165da4eb3279c0074e95dc236ab1f83f86cd14",
++      "canvas_sha256": "37388187aca44bbd597b8acdd98cf6940b4726777adca0d4e197f08a3aec4740",
++      "tensor_sha256": "b99db215e498652df04747b13c3c903f68d3823041544dcd218a1ffe53d66223",
++      "commitment_zero_salt": "924156f67f0d17ccaa78954c3a1b625c08c3c2df0a30fb79671c8253467d9ca9"
++    },
++    {
++      "name": "checker-3x3",
++      "width": 3,
++      "height": 3,
++      "rgb8_hex": "000000ff7f0000fe00ff007f007f7ffffe7f0000feff7ffe00fefe",
++      "canvas_sha256": "973e200540c9c67a120495fa5b50dbb3618df2b54e1ce6b4cfb853b0f79c43d7",
++      "tensor_sha256": "d65894416f3588f587f5f1ed983cf71b54d5e76050f615e1050d3c80cc174345",
++      "commitment_zero_salt": "a5f692004ca3daba425f4677813d8361440b05d7f6080ae9e84110b7eb4baa6a"
++    }
++  ]
++}

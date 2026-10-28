@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "checks": 233250,
+  "randomized_cost_schedules": 480,
+  "cost_mutations": 1440,
+  "independent_consumer_cases": 80,
+  "alias_controls": 80,
+  "source_pins": 5,
+  "elapsed_s": 0.31938798900227994,
+  "maxrss_KiB": 15404,
+  "scope": "Independent phase widths, event replay, direct Boolean-basis polynomial samples and source pins; no protocol validation."
+}

@@ -1,0 +1,7 @@
+{
+  "status": "FAIL",
+  "phase": "documentation relative-link audit",
+  "error": "dated progress report inherited root-relative experiment/handoff/self links; resolved relative to progress/ and failed",
+  "affected_file": "progress/20261020T161854Z-f0b8edce.md",
+  "arithmetic_tests_affected": false
+}

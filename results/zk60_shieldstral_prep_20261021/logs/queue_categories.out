@@ -1,0 +1,14 @@
+[zk60-guard 20:42:19] START shieldstral-rope-hf448 class=light need=0.6G cap=1.6G enforce=cgroup+watchdog waited=0s run=0b770379da0b
+[zk60-guard 20:43:21] END shieldstral-rope-hf448 exit=0 child_wall=62s peak_rss=0.43G min_avail=7.65G
+[zk60-guard 20:43:21] START shieldstral-bench_toxicchat_cat_hate_200-c1 class=light need=1.1G cap=1.8G enforce=cgroup+watchdog waited=0s run=b000fdbd10d6
+[zk60-guard 20:51:33] END shieldstral-bench_toxicchat_cat_hate_200-c1 exit=0 child_wall=492s peak_rss=0.83G min_avail=6.61G
+[zk60-guard 20:51:33] START shieldstral-bench_toxicchat_cat_sexual_200-c1 class=light need=1.1G cap=1.8G enforce=cgroup+watchdog waited=0s run=4d9687777789
+[zk60-guard 20:59:16] END shieldstral-bench_toxicchat_cat_sexual_200-c1 exit=0 child_wall=463s peak_rss=0.84G min_avail=6.50G
+[zk60-guard 20:59:16] START shieldstral-bench_toxicchat_cat_violence_200-c1 class=light need=1.1G cap=1.8G enforce=cgroup+watchdog waited=0s run=0c812fed973a
+[zk60-guard 21:07:11] END shieldstral-bench_toxicchat_cat_violence_200-c1 exit=0 child_wall=475s peak_rss=0.83G min_avail=7.05G
+[zk60-guard 21:07:11] START shieldstral-bench_openai_mod_cat_sexual_le168_strat300_0-c1 class=light need=1.1G cap=1.8G enforce=cgroup+watchdog waited=0s run=75f309413284
+[zk60-guard 21:34:14] END shieldstral-bench_openai_mod_cat_sexual_le168_strat300_0-c1 exit=3 child_wall=1623s peak_rss=0.79G min_avail=6.69G
+[zk60-guard 21:34:14] START shieldstral-bench_openai_mod_cat_sexual_le168_strat300_0-c2 class=light need=1.1G cap=1.8G enforce=cgroup+watchdog waited=0s run=a2a7b18a7462
+[zk60-guard 21:38:02] END shieldstral-bench_openai_mod_cat_sexual_le168_strat300_0-c2 exit=0 child_wall=228s peak_rss=0.77G min_avail=7.68G
+[zk60-guard 21:38:02] START shieldstral-bench_openai_mod_cat_violence_le168_strat300_0-c1 class=light need=1.1G cap=1.8G enforce=cgroup+watchdog waited=0s run=30af54ae3313
+[zk60-guard 22:04:35] END shieldstral-bench_openai_mod_cat_violence_le168_strat300_0-c1 exit=3 child_wall=1593s peak_rss=0.79G min_avail=7.17G

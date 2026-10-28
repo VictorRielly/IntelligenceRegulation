@@ -1,0 +1,35 @@
+{
+ "V": 32000,
+ "approved_by": "coordinator, 2026-10-19 ~19:30 UTC (round-8 instruction 2: TinyLlama token_io added by the fidelity lane; record from SHA256SUMS)",
+ "bos": 1,
+ "evidence": [
+  "fidelity lane: exports/tinyllama_dg_rot1_T128 (profile sha256 b01a6db1...e6b8a); token_io/ added 2026-10-19: head files byte-identical to R2's r2_inputs (b99cbec5..., 78240198...), Cn 5664 confirmed (not recalibrated), tn 10, Ceps 74429, window 32, 0 final-norm range violations on 96 held-out sequences",
+  "pins: zk60_token_io profile (round-8 binary 6b601c148da9...) over the VERIFIER copy's public files (logs/r8-profile-tinyllama_dg_rot1_T128.log)"
+ ],
+ "export": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/tinyllama_dg_rot1_T128",
+ "export_profile_json_sha256": "b01a6db14ad93319286fe32bcdf4827e9a41bcee2609cc63e25cdf19609e6b8a",
+ "final_norm": {
+  "ceps": 74429,
+  "cn": 5664,
+  "g0": 127,
+  "tn": 10
+ },
+ "not": "not a privacy acceptance and not a ruling; a pin fixes which public tables a verifier accepts",
+ "pins": {
+  "expect_statement": "0f2467fc77336366fdaf335d2ca890051d8fef36498f81d31ad1a6a05e0b998f",
+  "expect_token_profile": "13679e42bc6f60fdccb09177a250e965b355cfe9a84fe406b8848019f7f39756"
+ },
+ "record": "approved token-profile pins for the token I/O tables of the export tinyllama_dg_rot1_T128",
+ "token_io_SHA256SUMS_sha256": "516da84a4f7b113030fe70f0b30520b29044ca2b1e034b8e7b3fd7ceecb83e0c",
+ "token_io_files_sha256": {
+  "calib_final_xhat_rot_absmax.bin": "9198297eb8b7323d6bc3fa0cd2333d98110756017e55bfc690ca9229a96689fc",
+  "embedding_int16.bin": "ad68c716693f12d17cd19c957fbe84ca0f94d79063735f7eb84ead8063d9ab06",
+  "head_int8_perrow.bin": "b99cbec5f457e47ca2441de517135ba1bd1870e2ae8abe2038dbd84617436280",
+  "head_manifest.json": "05784d2bafead116d85d3768f9e799ebae5370a134f11a840d7c74c99d0529bd",
+  "head_mult12.bin": "7824019e82a62fd6e36c165b9aabfd3711d03b815731e298b356a734a7ea663f",
+  "token_io.json": "a064507cd89df1cd8099c0b6e3e3ef961c7d6c85cacbbda6d163f5907e7535fb"
+ },
+ "use": "a verifier reads --expect-statement / --expect-token-profile from `pins`; never from `zk60_token_io profile` over the prover's files (review TR5-3)",
+ "wording_corrected": "2026-10-20 UTC, review REVIEW5 TR6-4: 'record', 'written_by' and the SHA256SUMS key named the first (b7 T32, calibration lane) record's provenance; corrected to this export's. Every value is unchanged (the reviewer re-hashed every file). Before this correction the file's sha256 was 916bbcd5fa3e66b080e6682561b8d3cb1b69a00ed880048fd1a8f8a6be1c5ae4.",
+ "written_by": "token-I/O lane, at the coordinator's instruction, from this export's own token_io/ files and its SHA256SUMS (below): the fidelity lane's export; its head files are byte-identical to R2's r2_inputs (see evidence)"
+}

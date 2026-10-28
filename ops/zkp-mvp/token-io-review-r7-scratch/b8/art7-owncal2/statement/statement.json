@@ -1,0 +1,23 @@
+{
+ "schema": "zk60-token-io-run/2",
+ "scope": "ONE private next-token run of the export's model: stage IN (the hidden prompt to the hidden embedded input through the public int16 embedding table, BOS forced), ALL the export's trained blocks (one transcript, hidden internal boundaries), stage OUT (the final norm with a uniform gain, the public per-row int8 head with integer multipliers, the keyed greedy argmax, numpy's first maximum); the prompt and the next token are sealed in the two token endpoints and opened only to their owners; public-row variant (the prompt fills T); NO privacy acceptance (the rank / CFS gates on the token stages are owed)",
+ "statement_written_by": "zk60_token_io verify, after its fresh-process verification of the run directory, from its own data and the hashes of the bytes it verified",
+ "prover_reported": {"backend": "gpu: off (built without --features gpu-cuda)", "gpu_declines": 0, "what": "the prover's own report of its build and device path; one of the build's names (R7 / Q-2), not verified by the proof"},
+ "run_profile": "hashline-zk-mr1/private-token-io-run-llama-3-8b-t32-trained-statement-public-row/1",
+ "block_profile": "hashline-zk-mr1/private-block-llama-3-8b-t32-trained/1",
+ "blocks": 32,
+ "export_variant": "llama3_8b_pg_rot1_b7voc0_T32",
+ "export_profile_sha256": "82c7c7529bedec7b8050c0d55c11782042d26823876e09b3d9ce2c64901fc4f6",
+ "trained_statement_identity": "c3fb8c5b767c095663ab08fca1524dc53b4bfb3652a5b786865dd07deaa258c9",
+ "layers_with_own_calibration": [{"layer": 1, "sh_s": 6}],
+ "tables": {"embedding_int16_sha256": "8b5a5fb10fb331dd5b8882bac6717d800f88a2b9a6affe1c7b7b75238686f1ca", "head_int8_perrow_sha256": "f50ba1aa4150172ffb381a335faa41050abf9a45c1ab6b0cbc6401ac8db228cc", "head_mult12_sha256": "9eafb7f4ecd6a6f14ef0c1d8186be69c2f9ce70c034e81732423936c8ee0d1f3", "V": 128256, "d": 4096},
+ "bos": 128000,
+ "final_norm": {"g0": 127, "cn": 4234, "tn": 9, "ceps": 78617},
+ "token_profile_digest": "e8238cf130a36f369d6453e5579ba294e9eac4ae4b47de5815cc7ef7ac297132",
+ "context_label": "zk60-token-io-next-token",
+ "context": "a3a327112a80438083fb683c26eb054e316df2160f0e58f500832b4a79d2d6ad",
+ "input_token_endpoint_root": "d2f4748d5db545309b791800f17a0ac43adc646ad17711f314d6e4815835f1e9",
+ "output_token_endpoint_root": "e50a6dc1af182403dbcd3583beed808584e14a12d2818419ae650f030a2b36e1",
+ "whole_run_floor_bits": 97,
+ "parameter_line": "T32/d4096/f14336/H32/KV8/dh128/log_cols13/inv_rate4/Q256/P1/sh-g8-u0-h14-z4/two-internal-boundaries/one-proof-one-transcript/endpoint-log_n13-rate4-pad256-rows21/L32/boundaries-B_in-B_out-and-interior-log_n13-rate4-pad256-rows22-sites2/token-endpoints-log_n8-rate8-pad256-in-words256-in-rows6-out-words256-out-rows6-sites1/stages-log_n12-rate4-pad256/token-io: V=128256 V_pad=131072 d=4096 d_pad=4096 T=32 BOS=128000 final-norm g0=127 cn=4234 tn=9 ceps=78617 wrho=32 dmax=2097152 head-words=[-127,127] head-multipliers=[1,2^12] keyed-window=56 byte-limbs=7 no-pin embedding=805514ebdfd07f778c845390fc13a2e570c24a449247ebce581dcad3a11a1d74 head=c13a3f36dbe70da1f8579a303a9a1a76921a618c39db986ded7ba9361a05f032 variant=public-row mode=next-token tier mvp-95-whole-run (D27): Q=256 stage-row 2^12 rate 1/4 token-endpoint-row 2^8 rate 1/8 lookup-field F_p^2 (the tier's name refers to the D27 named workload, Llama-3-8B T512; the binding figure is the run statement's derived whole-run figure)/whole-run-floor-97-bits-137-openings-column-plus-logup-derived-plus-pcs-field-and-sumcheck-bound/one-run-one-transcript"
+}

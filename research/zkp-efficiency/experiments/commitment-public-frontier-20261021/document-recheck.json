@@ -1,0 +1,35 @@
+{
+  "utc": "2026-10-21T08:34:27.152607+00:00",
+  "documents": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+      "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+      "same_as_startup": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+      "sha256": "f73d94ab2b89d12697272a68ebcdde00e60470e2bceabb5af1304d054871f5dc",
+      "same_as_startup": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+      "sha256": "466f28769e743a43ace3d8ea460b2a0b872767cc3ce67c587b8355f973b4475e",
+      "same_as_startup": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+      "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+      "same_as_startup": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+      "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+      "same_as_startup": true
+    },
+    {
+      "path": "AGENDA.md",
+      "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+      "same_as_startup": true
+    }
+  ]
+}

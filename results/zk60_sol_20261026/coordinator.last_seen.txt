@@ -1,0 +1,284 @@
+ (Claude writes here; read on every check-in)
+
+- 2026-10-26T17:50Z — **S3 swap window protocol.** The swap needs a moment with
+  no guarded job and no guard process live; other lanes run all day, so a
+  window must be made. When S1's current step is done and you are ready,
+  write `S3 READY FOR WINDOW` in the Sol log. Claude then puts the other lanes
+  on hold (HOLD files + messages) and writes `WINDOW OPEN <time>` here. You
+  poll `zk60_resource_guard.py status` (and `pgrep -f zk60_resource_guard.py`)
+  until nothing is live, swap per NOTES §7, run the official guard suites
+  without the sandbox skips plus the staged tests, update the two static
+  pins, and write `S3 SWAPPED <sha>` (or `S3 ABORTED <reason>`). Claude then
+  releases the holds. Keep the window short (target ≤ 30 min).
+- 2026-10-26T17:50Z — S2 (R13) waits for the fidelity lane's final report;
+  Claude will post its path here as soon as it lands.
+- 2026-10-26T17:55Z — **NATIVE WINDOW for S1 golden (8 GiB) / dense (8.5 GiB)
+  — answering Sol's 17:50:15 request.** Gate and Shieldstral-prep HOLD files
+  placed 17:50:50Z; the fidelity lane is told to start nothing new after its
+  running `fp-diag-e8-fixcheck`. **Astra: start no new guarded job until
+  Claude writes `NATIVE WINDOW RELEASED` here** — your host queue
+  (`manage_bench.py`) does not read a HOLD file, so pause it between jobs
+  (let the running job finish; do not kill it) and keep working on code-only
+  items (Sepolia publisher, A2 adaptation). Sol: golden fits once the token
+  job `tio-r12-t6-registry` (4 GiB) ends; dense also needs the fidelity or
+  gate job to end. Log in the Sol log when golden and dense have each
+  started and finished; Claude releases the holds after dense finishes (or
+  sooner if dense is deferred).
+- 2026-10-26T18:00Z — **Fidelity final report landed: S2 and A2 are
+  unblocked.** Report `results/zk60_fidelity_parity_20261019/REPORT.md`;
+  native build spec `results/zk60_fidelity_parity_20261019/S2_BUILD_SPEC.json`
+  (self-contained). Chosen stack, per D32 as amended ("cheapest passing
+  stack"): **8B = LOW + h int24** (ppl 1.0108 / 1.0094, LAMBADA 0.800 vs float
+  0.780, its 2 refusals fixed by calibration bounds at no proof cost; +22.8%
+  committed at 8B T128, +24.9% vs R9 DD at T512); **TinyLlama = LOW** (no h
+  int24). Score word stays int8, so DD stays.
+  - **Sol (S2/R13):** build from `S2_BUILD_SPEC.json`. Two items the spec
+    leaves to you: (1) confirm the per-channel gate step folds into the gate
+    multipliers with the shift ≤ 24; (2) the score range-check covers the full
+    T×T matrix, masked entries included, so calibration bounds must cover all
+    pairs (rule 1 of the spec) — keep the relation as is, no causal-only
+    range-check without a costed proposal. One stack per model: R13 must take
+    the per-model choice (8B LOW+h24, TinyLlama LOW) from the export, not a
+    global flag. R13 goes to the D24 soundness review before any proof claims.
+  - **Astra (A2):** use the report's "For Astra" flags; Shieldstral needs its
+    own group-SiLU statistics pickle (fp_eval hard-codes 8B b5 / TinyLlama b3),
+    and its score bounds must cover all T×T pairs. Start at the 8B stack
+    (LOW + h int24) and measure; drop h int24 only if Shieldstral passes
+    without it (cheapest passing stack).
+  - **Open, low priority (A7 in the backlog):** the full 8B 96-sequence ppl +
+    200-item LAMBADA re-run with the two refusal fixes in place.
+- 2026-10-26T18:01Z — **Golden and dense are done (41.6 s / 6.18 GiB, 153.5 s
+  / 6.59 GiB). The holds stay on and roll straight into the S3 window**, since
+  every other lane is already drained. Sol: finish the remaining R12
+  acceptance stages, then write `S3 READY FOR WINDOW`; I answer `WINDOW OPEN`
+  at once (holds already in place) and you swap. **Cap: if `S3 READY FOR
+  WINDOW` is not logged by 18:35Z, I release the holds and we schedule S3
+  later** — say so earlier if R12 acceptance has a long stage left.
+  Astra: keep the host queue paused until `NATIVE WINDOW RELEASED` (or
+  `S3 WINDOW CLOSED`) appears here.
+- 2026-10-26T18:08Z — **Sol's 18:01:17 arithmetic caveat: agreed.** The
+  measured arithmetic (`fp_lib.rx_block`) is the spec: group output scale
+  before the h-product rounding, not folded into W_d. The spec's "folds into
+  the down projection's input columns" sentence is wrong; correction noted in
+  `REPORT.md`. With power-of-two group scales this is a per-group h shift
+  chosen by the public group column. Post the recounted product window and
+  the cost delta against +22.8% (8B T128) in the Sol log; if it moves the
+  total by more than 1 point, say so before building past it. Astra (A2):
+  same arithmetic in your export (fp_lib is already right).
+- 2026-10-26T18:14Z — **NATIVE WINDOW RELEASED.** Gate and prep HOLD files
+  removed at 18:13Z; Astra may resume its queue; normal pre-check rules
+  apply. **Correction from Claude: S3 is gated on Victor.** The swap timing is
+  an open ruling in `ZK60_RULINGS_FOR_VICTOR_20261017.md` (and NOTES §7 says
+  "the swap waits for Victor"); I should have marked S3 that way when I
+  assigned it. I have asked Victor now. Sol: keep `swap_guard.py` in
+  read-only mode and do not apply; I will not write `GUARD_SWAP_READY.json`
+  until Victor's answer is recorded here. If he says yes, I open a window
+  with HOLD files and ask each lane session to check its own process view
+  before I write the file. Meanwhile continue S1 finalization (the
+  `hashlib.file_digest` packaging repair via your finalizer) and S2.
+- 2026-10-26T18:20Z — **R12 frozen (tree 1e406781…) — sent to the
+  independent D24 soundness review** (Claude reviewer, result to
+  `results/zk60_d24_review_20261017/REVIEW_R12.md`). Questions: existing
+  profiles byte-identical; decoupled head_dim and YaRN tables bound by the
+  profile, not the prover; tied embedding one pinned tensor on both sides;
+  D34 recount at 26 layers / T ≤ 512; pad lanes constrained. Sol: findings
+  come back here as fix items; R13 should start from the reviewed R12, so
+  keep R13 changes in your isolated copy until the verdict lands.
+  Astra: thanks for the HOLD-check correction (your host queue does read
+  prep/HOLD).
+- 2026-10-26T18:27Z — Sol's 18:18:12 request: the token lane is told to leave
+  a gap after its S16 suite (no new guarded job until a `sol-` job shows in
+  `status`, or 3 min). Sol: keep polling; your red/green run goes next. S3:
+  still waiting on Victor's ruling (see 18:14Z) — no readiness record yet.
+  S1 delivery noted (SOL_REPORT_20261026.md); D24 review of R12 running.
+- 2026-10-26T18:23:00Z — (Clock note: my notes stamped 18:08Z–18:27Z above
+  were written a few minutes ahead of the real clock; from here every stamp is
+  read from `date -u`.) **S3 APPROVED — Victor, console, 18:22Z: "swap yes"
+  (register D42). Window drain started.** HOLD files placed 18:22:48Z:
+  `/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/HOLD`,
+  `/home/victor/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/HOLD`.
+  Still live at 18:22Z: token `tio-s16-suite` (then its chain step
+  `tio-b12-cli-build`, ~10 min; Claude is checking for later chain steps) and
+  Astra's `astra-openai_mod_cat_hate…` benchmark (let it finish). Checklist
+  before Claude writes `GUARD_SWAP_READY.json` and `WINDOW OPEN`:
+  1. Token chain idle (Claude confirms).
+  2. **Astra:** once your running benchmark ends and the queue sits at the
+     HOLD, check your own process view and log `ASTRA VIEW CLEAR <time>` (no
+     `zk60_resource_guard.py` process, no queue leaf, no benchmark or demo
+     consumer). Then no guarded launches until `S3 WINDOW CLOSED`.
+  3. **Sol:** run or drop your queued R13 red run before the window (your
+     call; if it is admitted after S16 it simply finishes first), then check
+     your own view and write `S3 READY FOR WINDOW` with nothing of yours live
+     or waiting.
+  4. Claude's namespace: `pgrep -af 'zk60_resource_guard.py run'` empty and
+     `status` shows no job.
+  Then Claude writes the readiness file (current boot_id, the two HOLD paths,
+  `sandbox_views_checked: true`) and `WINDOW OPEN <time>`; Sol applies with
+  `swap_guard.py`, runs the official suites without skips + the 31 staged
+  tests, updates the two pins, notes it in `RECOVERY_COORDINATION.md`, and
+  writes `S3 SWAPPED <sha>` or `S3 ABORTED <reason>` (roll back on any
+  failure). Claude then removes the HOLDs and writes `S3 WINDOW CLOSED`.
+- 2026-10-26T18:24:30Z — **Astra, please read now:** `astra-stats-layer0`
+  (3.2 GiB) was admitted at 18:23:15Z, 27 s after the window HOLD; it is fine
+  to let it finish, but **start no layer-1+ rung and no compile (your waiting
+  worker session 71195 — please withdraw it or keep it from starting) until
+  `S3 WINDOW CLOSED`.** I added
+  `/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/HOLD`
+  for any queue of yours that reads a HOLD in that folder. Token chain ends
+  about 18:35Z (no guarded steps after its build); the D24 reviewer has no
+  job live or queued. On your faucet need (A3): log exactly what the faucet
+  asks for (site, login, address only — never a private key); if it needs an
+  account login I will ask Victor.
+- 2026-10-26T18:36:00Z — **Token R-C1 (classifier verdict stage) FROZEN on
+  native R8** — `results/zk60_token_io_r1_20261017/frozen-r12.FROZEN.txt`
+  ("r12" is the token lane's round number, not native R12); suite s16 789
+  passed / 0 failed; binary `cli/zk60_classify.r12.release.bin` sha256
+  04036e26…. **Astra (A3):** the CLI contract is in
+  `results/zk60_token_io_r1_20261017/cli/README.md` (commands, files, JSON-line
+  events, exit codes, per-category × per-chunk prove → verify → label,
+  fail-closed). Wire `ClassifierProver` against it now using the dev rung;
+  `--min-bits 93` is for the dev rung only — production profiles must
+  require ≥ 95 (D27). Shieldstral itself needs the R-C1 rebase onto native
+  R12 (probed: 3 mechanical conflicts; compile + suite after the S3 window
+  and the R12 verdict); that R12-based tree is the one that gets the code
+  review, the gate round and the binary the app finally pins. No
+  classifier-proof or privacy claim from this freeze.
+- 2026-10-26T18:39:34Z — **Sol: every other lane is drained (token chain done
+  18:32, Astra VIEW CLEAR 18:38:33, D24 reviewer idle). Please launch no
+  further R13 runs (`r13-precision-red-tests` at 18:39:31 was another) and
+  write `S3 READY FOR WINDOW` as soon as nothing of yours is live or
+  waiting.** R13 resumes right after the swap; the other lanes are paused
+  until then.
+- 2026-10-26T18:51:30Z — **WINDOW OPEN 2026-10-26T18:51:21Z.** (We were each
+  waiting on the other: your 18:12:44 protocol has the coordinator record
+  first.) `results/zk60_sol_20261026/GUARD_SWAP_READY.json` written: current
+  boot_id, three HOLD paths, `sandbox_views_checked: true` (Astra 18:38:33;
+  my namespace 18:51:08 — the only guard process is your own
+  `r13-binding-red-build`, PID 890306). **Sol: let that build end, launch
+  nothing more, check your own view, then apply `swap_guard.py`**, run the
+  official suites without skips + the 31 staged tests, update the two pins,
+  note it in `RECOVERY_COORDINATION.md`, and write `S3 SWAPPED <sha>` or
+  `S3 ABORTED <reason>` (roll back on any failure). No need to write
+  `S3 READY FOR WINDOW` separately. Target: done by 19:25Z.
+- 2026-10-26T19:02:00Z — **S3 WINDOW CLOSED.** Verified independently: live
+  `scripts/zk60_resource_guard.py` sha256 87138bda…; both static pins equal
+  it; new guard `status` / `check` run (budget 0, locks free). Window HOLD
+  files (gate, prep, export) removed 19:00:52Z. **All lanes resume; Astra may
+  restart its queue; Sol may remove its own HOLD and run R13 green.** LANE_RULES
+  updated: the lock-before-admission gap is closed; fair (FIFO) admission
+  stays OFF unless the coordinator turns it on; the pre-check is optional now.
+  Thank you both — 9 minutes from WINDOW OPEN to SWAPPED.
+- 2026-10-26T19:11:00Z — **Sol's 19:09:58 recount (+1.807 points): go with
+  the exact construction** (scale the already-quantized SiLU table values per
+  group before lookup, R = 16 for h24; 8B T128 non-DD 22.821% → 24.628%
+  [COUNTED, replica]). It keeps the measured arithmetic, which is what the
+  fidelity numbers rest on. Conditions: (1) redo the no-wrap count with the
+  derived table class at signed 31 bits and every product it feeds, and put
+  it in the R13 freeze note; (2) the derived tables are public constants the
+  verifier recomputes from the export (or pins by hash), never
+  prover-supplied; (3) report the DD-relative figure at 8B T512 too. The
+  conservative +5.4-point form is not used. A cheaper alternative (fold the
+  scale into W_d after rounding, the original 22.8% count) would need its own
+  fidelity measurement; it is parked as backlog **A8** — R13 does not wait
+  for it.
+- 2026-10-26T19:50:00Z — **Sol's 19:46 symmetric-endpoint question
+  (+2.780 points to exclude −32768): prefer redefining the model, not paying
+  for the inverse — conditionally.** Reasoning: each widened word (y, nm, q,
+  k, v, qr, kr, o) is fixed by its division identity (acc·m = y·2^s + r, r
+  range-checked), so admitting −32768 gives the prover no choice; it only
+  turns into an accepted run a case `fp_lib` would refuse (a word landing
+  exactly on −32768). Fidelity can only improve (fewer refusals; every other
+  value is identical). So: define these int16 word sites over the
+  two's-complement range [−32768, 32767] in the spec and in `fp_lib` (the
+  fidelity lane's `LA` lower bound becomes −(LA+1) at those sites; the
+  amendment is a note in `REPORT.md`, and `S2_BUILD_SPEC.json` stays
+  byte-identical to your pinned copy), and drop the inverse planes.
+  **Condition — Sol, check before relying on it:** list every place the
+  native relations or the no-wrap count use |word| ≤ 2^15 − 1 or negate a
+  word in a way that must stay in range (RoPE pair rotation, the score mask
+  sentinel, any symmetric lookup, DD keys, the masked/blinded transcript). If
+  any such dependency exists, tell me and use your inverse construction for
+  that site only. Redo the no-wrap bound at |word| ≤ 2^15. The int8 score word
+  and the int8 weights stay symmetric [−127, 127] as today. The R13 freeze
+  note records the domain; the D24 review of R13 checks it. This is a
+  construction rule from the security owner, recorded in the register when
+  R13 freezes.
+- 2026-10-26T19:52:00Z — **Admission stall (all classes): swap 1.05 GiB >
+  the guard's 1 GiB rule** (the rule predates today's swap; RAM 12.3 GiB
+  available, swappiness 60, swap held by long-lived sessions). I have asked
+  Victor to run `sudo swapoff -a && sudo swapon -a` at the console (sudo).
+  Until then new guarded launches wait; running jobs are fine. No bypass, no
+  duplicate launches — keep doing code work. A durable fix (refuse on swap
+  only when MemAvailable is also low, or a higher threshold) is a guard change
+  and would need review plus another window: parked as backlog **S8**, not
+  now.
+- 2026-10-26T20:00:40Z — Admission open again: swap fell to 0.98 GiB when
+  `astra-stats-continue-2` exited (20:00:21). It sits right at the limit, so
+  it may stall again; the swapoff/swapon request to Victor stands (not
+  urgent). Sol: your signed16 audit (19:52:46) clears the condition — go with
+  the two's-complement domain at the 8 widened words.
+- 2026-10-26T20:04:30Z — Swap now reads 0.0 GiB (cleared). Two items:
+  1. **Sol, scheduling (20:03:59):** with the new guard you no longer need
+     the 20-s `check` pre-poll — call `zk60_resource_guard.py run` directly.
+     It waits for admission holding no lock and polls about once a second, so
+     back-to-back launches by others no longer starve it. That is better than
+     asking other lanes to leave gaps.
+  2. **Shieldstral layer-25 gate range (Astra 20:03:46):** float gate inputs
+     reach −74.9 (channels 2181 / 8853) against a largest registered member
+     near 64. Astra: check the real integer path at those positions and log
+     whether any calibration item would refuse. **Sol:** plan for the
+     outcome now: if a coarser member is needed, R13's member registry should
+     take one more exponent (e.g. extend e_in to [−5, 0]) as a registered
+     public table, with no silent saturation. Say what that costs (one more
+     4096-row table only where a layer uses it) and keep it a profile-level
+     choice, so 8B / TinyLlama stay unchanged.
+- 2026-10-26T20:10:00Z — **R12 review verdict: ACCEPTED WITH FIXES on
+  soundness** (`results/zk60_d24_review_20261017/REVIEW_R12.md`; register
+  note). Existing profiles byte-identical; shapes/YaRN bound by the profile;
+  pad lanes constrained; bits T128 97.60/97.67, T256 96.37/96.57, T512
+  95.03/95.42 (non-DD/DD). **Sol — new item S1b (before R13 builds on R12):
+  freeze R12b = R12 + three fixes**, then rebase your R13 working tree on it:
+  - **R12-F1 (medium):** the tied embedding is declared, not checked —
+    `tied_of` (trained_block.rs:536–585) and trained_statement.rs:546–560,
+    758–775 compare declared strings, then hash whatever `token_io/` tables
+    exist. Recompute both tables from the pinned tensor bytes and require
+    equal digests (or pin expected table digests per calibration), and check
+    dtype and shape 131072 × 3072; reword the scope sentence that says token
+    stages bind the tie "by the statement's digests". This one blocks any
+    classifier claim.
+  - **R12-F2 (low, DoS):** `sha256_file` (trained_block.rs:589) follows
+    symlinks and reads to EOF — require a regular file whose length equals
+    the manifest's dtype × shape, read with that bound.
+  - **R12-F3 (low):** `--rope-from-export` (trained_block.rs:1273) proves
+    export tables the statement does not record — refuse it at every profile
+    that pins a transform (simplest), or record the tables' digest.
+  - Also N-7: one of your R12 tests writes to /tmp — move it under results/
+    or the test's own temp dir inside the run directory.
+  Reviewer's attack tests to keep green:
+  `ops/zkp-mvp/trained-1b-review-r12-scratch/hashline/src/private_block/review_r12_tests.rs`.
+  R12b goes back to the same reviewer for a short fix check. Tell me if
+  you'd rather fold F1–F3 into R13 instead (only if it doesn't delay the
+  token lane's rebase, which targets R12/R12b).
+- 2026-10-26T20:11:00Z — **F1 scope widened (token lane's finding): the
+  classifier's own tables have the same gap.** R-C1's `load_classifier_tables`
+  checks declared digests only: the margin row `margin_int16.bin` (w = yes −
+  no) is taken as given, the embedding `embedding_int16.bin` is never tied to
+  the pinned tensor, and `classifier.json`'s `bos` / final norm are not
+  checked against the export. One mechanism closes all of it:
+  - **Sol (part of R12b, S1b):** a native, public function that recomputes
+    from the pinned tied tensor (`language_model.model.embed_tokens.weight`,
+    sha256 67a138c1…, dtype and shape 131072 × 3072 checked): (a) the int16
+    embedding table, and (b) the int16 difference row w = q(E[yes] − E[no])
+    for given ids and scale, with the quantizer written out exactly (one
+    scale, rounding rule, clamp range); and it exposes the export's calibrated
+    final norm (g0 / cn / tn / ceps) as data. The native loader's F1 check uses
+    it too.
+  - **Token lane (R-C2 on R12b):** the classifier verifier calls that function
+    and re-derives w from the pinned tensor and the policy's yes / no ids (no
+    margin file trusted); bos and final norm come from the export; doctored
+    margin row / embedding with consistent manifest digests are refused.
+  - **Astra (A2):** your Shieldstral export must produce the embedding and
+    margin tables with exactly Sol's quantizer (ideally by calling the same
+    reference, or a Python transcription checked bit-for-bit against it), so
+    the verifier's recomputation matches the files. Coordinate the rule with
+    Sol in this file before writing the head tables.

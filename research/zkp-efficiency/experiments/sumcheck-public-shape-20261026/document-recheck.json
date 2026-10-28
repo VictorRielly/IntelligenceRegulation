@@ -1,0 +1,32 @@
+[
+  {
+    "path": "CLAUDE.md",
+    "same": true,
+    "startup_sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "current_sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6"
+  },
+  {
+    "path": "docs/zkmatrix-poc/MVP_STATUS.md",
+    "same": true,
+    "startup_sha256": "d568c5f50ffa019945d17f9fa87dab211aa2cbf0fe48a13ca702229692d73093",
+    "current_sha256": "d568c5f50ffa019945d17f9fa87dab211aa2cbf0fe48a13ca702229692d73093"
+  },
+  {
+    "path": "docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "same": true,
+    "startup_sha256": "060866b842abf4cc12b6e339c7186c7c873adca53f09b5a3894c5fc730f0c5eb",
+    "current_sha256": "060866b842abf4cc12b6e339c7186c7c873adca53f09b5a3894c5fc730f0c5eb"
+  },
+  {
+    "path": "docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+    "same": true,
+    "startup_sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "current_sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f"
+  },
+  {
+    "path": "docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+    "same": true,
+    "startup_sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "current_sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53"
+  }
+]

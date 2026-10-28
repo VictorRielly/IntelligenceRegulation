@@ -1,0 +1,40 @@
+
+running 5 tests
+test tests::group_scale_precedes_product_rounding ... FAILED
+test tests::grouped_products_match_independent_rational_vectors ... FAILED
+test tests::invalid_shifts_multipliers_and_overflow_are_refused ... ok
+test tests::negative_half_ties_round_toward_positive_infinity ... FAILED
+test tests::requantization_matches_independent_rational_vectors ... FAILED
+
+failures:
+
+---- tests::group_scale_precedes_product_rounding stdout ----
+
+thread 'tests::group_scale_precedes_product_rounding' (127) panicked at /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/working-tree/hashline/src/private_block/accuracy.rs:48:42:
+called `Result::unwrap()` on an `Err` value: "R13 grouped product not implemented"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- tests::grouped_products_match_independent_rational_vectors stdout ----
+
+thread 'tests::grouped_products_match_independent_rational_vectors' (128) panicked at /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/working-tree/hashline/src/private_block/accuracy.rs:41:72:
+called `Result::unwrap()` on an `Err` value: "R13 grouped product not implemented"
+
+---- tests::negative_half_ties_round_toward_positive_infinity stdout ----
+
+thread 'tests::negative_half_ties_round_toward_positive_infinity' (130) panicked at /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/working-tree/hashline/src/private_block/accuracy.rs:54:38:
+called `Result::unwrap()` on an `Err` value: "R13 requantization not implemented"
+
+---- tests::requantization_matches_independent_rational_vectors stdout ----
+
+thread 'tests::requantization_matches_independent_rational_vectors' (131) panicked at /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/working-tree/hashline/src/private_block/accuracy.rs:29:66:
+called `Result::unwrap()` on an `Err` value: "R13 requantization not implemented"
+
+
+failures:
+    tests::group_scale_precedes_product_rounding
+    tests::grouped_products_match_independent_rational_vectors
+    tests::negative_half_ties_round_toward_positive_infinity
+    tests::requantization_matches_independent_rational_vectors
+
+test result: FAILED. 1 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

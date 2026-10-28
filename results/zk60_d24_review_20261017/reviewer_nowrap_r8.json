@@ -1,0 +1,97 @@
+{
+ "TinyLlama-1.1B T32": {
+  "admitted_tn_ceps_points": 410,
+  "clauses_log2": {
+   "norm quotient c0 / c6": 43.076,
+   "norm complement c1 / c7": 33.519,
+   "isqrt host": 42.585,
+   "qkv host (sh_qkv 1..8)": 24.99,
+   "score host (sh_s 1..8)": 20.023,
+   "pv host (sh_o 9..16)": 23.584,
+   "ao host (sh_ao 0..8)": 25.313,
+   "gate host (sh_g 1..8)": 24.99,
+   "product host (sh_h 9..16)": 31.585,
+   "down host (sh_z 1..8)": 35.0
+  }
+ },
+ "TinyLlama-1.1B T64": {
+  "admitted_tn_ceps_points": 410,
+  "clauses_log2": {
+   "norm quotient c0 / c6": 43.076,
+   "norm complement c1 / c7": 33.519,
+   "isqrt host": 42.585,
+   "qkv host (sh_qkv 1..8)": 24.99,
+   "score host (sh_s 1..8)": 20.023,
+   "pv host (sh_o 9..16)": 23.996,
+   "ao host (sh_ao 0..8)": 25.313,
+   "gate host (sh_g 1..8)": 24.99,
+   "product host (sh_h 9..16)": 31.585,
+   "down host (sh_z 1..8)": 35.0
+  }
+ },
+ "TinyLlama-1.1B T128": {
+  "admitted_tn_ceps_points": 410,
+  "clauses_log2": {
+   "norm quotient c0 / c6": 43.076,
+   "norm complement c1 / c7": 33.519,
+   "isqrt host": 42.585,
+   "qkv host (sh_qkv 1..8)": 24.99,
+   "score host (sh_s 1..8)": 20.023,
+   "pv host (sh_o 9..16)": 24.578,
+   "ao host (sh_ao 0..8)": 25.313,
+   "gate host (sh_g 1..8)": 24.99,
+   "product host (sh_h 9..16)": 31.585,
+   "down host (sh_z 1..8)": 35.0
+  }
+ },
+ "Llama-3-8B T32": {
+  "admitted_tn_ceps_points": 369,
+  "clauses_log2": {
+   "norm quotient c0 / c6": 43.05,
+   "norm complement c1 / c7": 33.356,
+   "isqrt host": 43.322,
+   "qkv host (sh_qkv 1..8)": 25.989,
+   "score host (sh_s 1..8)": 21.0,
+   "pv host (sh_o 9..16)": 23.584,
+   "ao host (sh_ao 0..8)": 26.16,
+   "gate host (sh_g 1..8)": 25.989,
+   "product host (sh_h 9..16)": 31.585,
+   "down host (sh_z 1..8)": 36.0
+  }
+ },
+ "Llama-3-8B T64": {
+  "admitted_tn_ceps_points": 369,
+  "clauses_log2": {
+   "norm quotient c0 / c6": 43.05,
+   "norm complement c1 / c7": 33.356,
+   "isqrt host": 43.322,
+   "qkv host (sh_qkv 1..8)": 25.989,
+   "score host (sh_s 1..8)": 21.0,
+   "pv host (sh_o 9..16)": 23.996,
+   "ao host (sh_ao 0..8)": 26.16,
+   "gate host (sh_g 1..8)": 25.989,
+   "product host (sh_h 9..16)": 31.585,
+   "down host (sh_z 1..8)": 36.0
+  }
+ },
+ "Llama-3-8B T128": {
+  "admitted_tn_ceps_points": 369,
+  "clauses_log2": {
+   "norm quotient c0 / c6": 43.05,
+   "norm complement c1 / c7": 33.356,
+   "isqrt host": 43.322,
+   "qkv host (sh_qkv 1..8)": 25.989,
+   "score host (sh_s 1..8)": 21.0,
+   "pv host (sh_o 9..16)": 24.578,
+   "ao host (sh_ao 0..8)": 26.16,
+   "gate host (sh_g 1..8)": 25.989,
+   "product host (sh_h 9..16)": 31.585,
+   "down host (sh_z 1..8)": 36.0
+  }
+ },
+ "worst": {
+  "log2": 43.322,
+  "where": "Llama-3-8B T32: isqrt host",
+  "half_p_log2": 63.0
+ }
+}

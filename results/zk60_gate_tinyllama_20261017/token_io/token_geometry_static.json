@@ -1,0 +1,1082 @@
+{
+ "geometries": [
+  {
+   "G2_static": {
+    "B_in": {
+     "fixed": "column coordinate r_emb (challenge-fixed, drawn after A_in and M_in)"
+    },
+    "B_out": {
+     "bit_positions": {
+      "column": [
+       11
+      ],
+      "row": [
+       12,
+       13,
+       14,
+       15
+      ]
+     },
+     "fixed_bits_in_the_column_coordinate": 1,
+     "fixed_bits_in_the_row_coordinate": 4,
+     "fixed_bits_total": 5,
+     "fixed_row": 31,
+     "plane_bits": 16,
+     "row_width_log": 12
+    }
+   },
+   "G4_static": {
+    "endpoints": {
+     "input": {
+      "commitment_rows": 6,
+      "data_rows": 1,
+      "inv_rate": 8,
+      "pad_words_in_plane": 224,
+      "row_tail_words": 0,
+      "row_width_log": 8,
+      "true_words": 32,
+      "words": 256
+     },
+     "output": {
+      "commitment_rows": 6,
+      "data_rows": 1,
+      "inv_rate": 8,
+      "pad_words_in_plane": 255,
+      "row_tail_words": 0,
+      "row_width_log": 8,
+      "true_words": 1,
+      "words": 256
+     }
+    },
+    "p3_lift": {
+     "Do (x, y, norm limbs)": {
+      "domain": 4096,
+      "lifted": true,
+      "lifted_positions": 2048,
+      "natural": 2048
+     },
+     "Lo (isqrt limbs)": {
+      "domain": 4096,
+      "lifted": true,
+      "lifted_positions": 4064,
+      "natural": 18
+     },
+     "Tab (byte table)": {
+      "domain": 4096,
+      "lifted": true,
+      "lifted_positions": 3840,
+      "natural": 256
+     },
+     "Ti (tok, h_q)": {
+      "domain": 4096,
+      "lifted": true,
+      "lifted_positions": 4064,
+      "natural": 32
+     },
+     "Vo (e, lambda limbs)": {
+      "domain": 32768,
+      "lifted": false,
+      "lifted_positions": 0,
+      "natural": 32768
+     },
+     "Voc (m, h_tab)": {
+      "domain": 32768,
+      "lifted": false,
+      "lifted_positions": 0,
+      "natural": 32768
+     }
+    },
+    "row_width_log": 12,
+    "vocabulary": {
+     "V": 32000,
+     "V_pad": 32768,
+     "pad_positions": 768
+    }
+   },
+   "G5": {
+    "stage IN": {
+     "byte_table": false,
+     "holds": null,
+     "why": "stage IN has no byte-table lookup (its one LogUp table is the V-row embedding compression on Voc)"
+    },
+    "stage OUT": {
+     "byte_table": true,
+     "holds": true,
+     "row_width_log": 12,
+     "tab_log": 12
+    }
+   },
+   "V": 32000,
+   "V_pad": 32768,
+   "b_in_b_out": {
+    "data_rows": 16,
+    "inv_rate": 4,
+    "plane": [
+     32,
+     2048
+    ],
+    "row_width_log": 12,
+    "rows": 22,
+    "sites": 2
+   },
+   "byte_limbs": 7,
+   "d": 2048,
+   "d_pad": 2048,
+   "geometry": "R2 TinyLlama-1.1B T32 (public row, mode i)",
+   "input_endpoint": {
+    "commitment_rows": 6,
+    "data_rows": 1,
+    "inv_rate": 8,
+    "row_tail_words": 0,
+    "row_width_log": 8,
+    "words": 256
+   },
+   "keyed_window_bits": 53,
+   "log_V": 15,
+   "not_built": [
+    "D26 variant P (two-site input endpoint) and its SHIFT / IO-s claims (G-7)",
+    "variant F",
+    "mode (ii)",
+    "the hidden-length variant"
+   ],
+   "output_endpoint": {
+    "commitment_rows": 6,
+    "data_rows": 1,
+    "inv_rate": 8,
+    "row_tail_words": 0,
+    "row_width_log": 8,
+    "words": 256
+   },
+   "privacy_acceptance": false,
+   "stage_in": {
+    "A": {
+     "data_rows": 9,
+     "plane_logs": [
+      12,
+      15
+     ],
+     "prox_pair": [
+      15,
+      16
+     ],
+     "rows": 17,
+     "site_pairs": 3
+    },
+    "H": {
+     "data_rows": 20,
+     "plane_logs": [
+      12,
+      15,
+      12
+     ],
+     "prox_pair": [
+      26,
+      27
+     ],
+     "rows": 28,
+     "signs": [
+      1,
+      -1,
+      1
+     ],
+     "site_pairs": 3,
+     "zero_sum_pair": [
+      18,
+      19
+     ]
+    },
+    "M": {
+     "functionals": 8,
+     "mask_specs": [
+      [
+       9,
+       3
+      ],
+      [
+       13,
+       4
+      ],
+      [
+       16,
+       4
+      ],
+      [
+       13,
+       2
+      ]
+     ],
+     "rows": 12
+    },
+    "committed_elements": 184320,
+    "hosts": [],
+    "label": "stage IN",
+    "row_log_A_H_In_Out": [
+     12,
+     12,
+     8,
+     12
+    ],
+    "row_width_log": 12,
+    "slots": [
+     {
+      "a_sites": 1,
+      "degree": 3,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 1,
+      "kind": "Standalone",
+      "main": 8,
+      "name": "IN-00 IO-in"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 1,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "IN-01 query zero-check"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 15,
+      "name": "IN-02 table zero-check"
+     },
+     {
+      "a_sites": 0,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "IN-03 ZS zero-sum row"
+     }
+    ]
+   },
+   "stage_out": {
+    "A": {
+     "data_rows": 82,
+     "plane_logs": [
+      1,
+      1,
+      1,
+      1,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      12
+     ],
+     "prox_pair": [
+      180,
+      181
+     ],
+     "rows": 182,
+     "site_pairs": 49
+    },
+    "H": {
+     "data_rows": 82,
+     "plane_logs": [
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      15,
+      15,
+      15,
+      15,
+      12,
+      12
+     ],
+     "prox_pair": [
+      108,
+      109
+     ],
+     "rows": 110,
+     "signs": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      -1,
+      1
+     ],
+     "site_pairs": 13,
+     "zero_sum_pair": [
+      80,
+      81
+     ]
+    },
+    "M": {
+     "functionals": 20,
+     "mask_specs": [
+      [
+       12,
+       2
+      ],
+      [
+       13,
+       4
+      ],
+      [
+       2,
+       3
+      ],
+      [
+       13,
+       4
+      ],
+      [
+       12,
+       2
+      ],
+      [
+       13,
+       5
+      ],
+      [
+       16,
+       5
+      ],
+      [
+       16,
+       4
+      ],
+      [
+       13,
+       3
+      ],
+      [
+       13,
+       2
+      ],
+      [
+       9,
+       3
+      ]
+     ],
+     "rows": 26
+    },
+    "committed_elements": 1196032,
+    "hosts": [
+     [
+      2,
+      [
+       1
+      ]
+     ],
+     [
+      6,
+      [
+       4
+      ]
+     ]
+    ],
+    "label": "stage OUT",
+    "row_log_A_H_In_Out": [
+     12,
+     12,
+     12,
+     8
+    ],
+    "row_width_log": 12,
+    "slots": [
+     {
+      "a_sites": 1,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 1,
+      "kind": "Standalone",
+      "main": 11,
+      "name": "OUT-00 IO-in"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 0,
+      "kind": "Private",
+      "main": 12,
+      "name": "OUT-01 SS"
+     },
+     {
+      "a_sites": 11,
+      "degree": 3,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 0,
+      "kind": "Host",
+      "main": 1,
+      "name": "OUT-02 TZC"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUT-03 LZC"
+     },
+     {
+      "a_sites": 1,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 0,
+      "kind": "Private",
+      "main": 11,
+      "name": "OUT-04 HEAD"
+     },
+     {
+      "a_sites": 13,
+      "degree": 5,
+      "ext": 1,
+      "h_sites": 6,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUT-05 DZC"
+     },
+     {
+      "a_sites": 10,
+      "degree": 5,
+      "ext": 1,
+      "h_sites": 4,
+      "io_sites": 0,
+      "kind": "Host",
+      "main": 15,
+      "name": "OUT-06 VZC"
+     },
+     {
+      "a_sites": 9,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 15,
+      "name": "OUT-07 RSEL"
+     },
+     {
+      "a_sites": 1,
+      "degree": 3,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUT-08 TAB"
+     },
+     {
+      "a_sites": 0,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUT-09 ZS"
+     },
+     {
+      "a_sites": 1,
+      "degree": 3,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 1,
+      "kind": "Standalone",
+      "main": 8,
+      "name": "OUT-10 IO-out"
+     }
+    ]
+   },
+   "tier": {
+    "ep_inv_rate": 8,
+    "ep_log_n": 8,
+    "lookup_ext_degree": 2,
+    "name": "mvp-95-whole-run (D27)",
+    "opened_cols": 256,
+    "stage_inv_rate": 4,
+    "stage_log_n": 12
+   },
+   "tokens": 32
+  },
+  {
+   "G2_static": {
+    "B_in": {
+     "fixed": "column coordinate r_emb (challenge-fixed, drawn after A_in and M_in)"
+    },
+    "B_out": {
+     "bit_positions": {
+      "column": [
+       12
+      ],
+      "row": [
+       13,
+       14,
+       15,
+       16
+      ]
+     },
+     "fixed_bits_in_the_column_coordinate": 1,
+     "fixed_bits_in_the_row_coordinate": 4,
+     "fixed_bits_total": 5,
+     "fixed_row": 31,
+     "plane_bits": 17,
+     "row_width_log": 13
+    }
+   },
+   "G4_static": {
+    "endpoints": {
+     "input": {
+      "commitment_rows": 6,
+      "data_rows": 1,
+      "inv_rate": 8,
+      "pad_words_in_plane": 224,
+      "row_tail_words": 0,
+      "row_width_log": 8,
+      "true_words": 32,
+      "words": 256
+     },
+     "output": {
+      "commitment_rows": 6,
+      "data_rows": 1,
+      "inv_rate": 8,
+      "pad_words_in_plane": 255,
+      "row_tail_words": 0,
+      "row_width_log": 8,
+      "true_words": 1,
+      "words": 256
+     }
+    },
+    "p3_lift": {
+     "Do (x, y, norm limbs)": {
+      "domain": 4096,
+      "lifted": false,
+      "lifted_positions": 0,
+      "natural": 4096
+     },
+     "Lo (isqrt limbs)": {
+      "domain": 4096,
+      "lifted": true,
+      "lifted_positions": 4064,
+      "natural": 18
+     },
+     "Tab (byte table)": {
+      "domain": 4096,
+      "lifted": true,
+      "lifted_positions": 3840,
+      "natural": 256
+     },
+     "Ti (tok, h_q)": {
+      "domain": 4096,
+      "lifted": true,
+      "lifted_positions": 4064,
+      "natural": 32
+     },
+     "Vo (e, lambda limbs)": {
+      "domain": 131072,
+      "lifted": false,
+      "lifted_positions": 0,
+      "natural": 131072
+     },
+     "Voc (m, h_tab)": {
+      "domain": 131072,
+      "lifted": false,
+      "lifted_positions": 0,
+      "natural": 131072
+     }
+    },
+    "row_width_log": 12,
+    "vocabulary": {
+     "V": 128256,
+     "V_pad": 131072,
+     "pad_positions": 2816
+    }
+   },
+   "G5": {
+    "stage IN": {
+     "byte_table": false,
+     "holds": null,
+     "why": "stage IN has no byte-table lookup (its one LogUp table is the V-row embedding compression on Voc)"
+    },
+    "stage OUT": {
+     "byte_table": true,
+     "holds": true,
+     "row_width_log": 12,
+     "tab_log": 12
+    }
+   },
+   "V": 128256,
+   "V_pad": 131072,
+   "b_in_b_out": {
+    "data_rows": 16,
+    "inv_rate": 4,
+    "plane": [
+     32,
+     4096
+    ],
+    "row_width_log": 13,
+    "rows": 22,
+    "sites": 2
+   },
+   "byte_limbs": 7,
+   "d": 4096,
+   "d_pad": 4096,
+   "geometry": "R3 Llama-3-8B T32 (public row, mode i)",
+   "input_endpoint": {
+    "commitment_rows": 6,
+    "data_rows": 1,
+    "inv_rate": 8,
+    "row_tail_words": 0,
+    "row_width_log": 8,
+    "words": 256
+   },
+   "keyed_window_bits": 56,
+   "log_V": 17,
+   "not_built": [
+    "D26 variant P (two-site input endpoint) and its SHIFT / IO-s claims (G-7)",
+    "variant F",
+    "mode (ii)",
+    "the hidden-length variant"
+   ],
+   "output_endpoint": {
+    "commitment_rows": 6,
+    "data_rows": 1,
+    "inv_rate": 8,
+    "row_tail_words": 0,
+    "row_width_log": 8,
+    "words": 256
+   },
+   "privacy_acceptance": false,
+   "stage_in": {
+    "A": {
+     "data_rows": 33,
+     "plane_logs": [
+      12,
+      17
+     ],
+     "prox_pair": [
+      39,
+      40
+     ],
+     "rows": 41,
+     "site_pairs": 3
+    },
+    "H": {
+     "data_rows": 68,
+     "plane_logs": [
+      12,
+      17,
+      12
+     ],
+     "prox_pair": [
+      74,
+      75
+     ],
+     "rows": 76,
+     "signs": [
+      1,
+      -1,
+      1
+     ],
+     "site_pairs": 3,
+     "zero_sum_pair": [
+      66,
+      67
+     ]
+    },
+    "M": {
+     "functionals": 8,
+     "mask_specs": [
+      [
+       9,
+       3
+      ],
+      [
+       13,
+       4
+      ],
+      [
+       18,
+       4
+      ],
+      [
+       13,
+       2
+      ]
+     ],
+     "rows": 12
+    },
+    "committed_elements": 479232,
+    "hosts": [],
+    "label": "stage IN",
+    "row_log_A_H_In_Out": [
+     12,
+     12,
+     8,
+     13
+    ],
+    "row_width_log": 12,
+    "slots": [
+     {
+      "a_sites": 1,
+      "degree": 3,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 1,
+      "kind": "Standalone",
+      "main": 8,
+      "name": "IN-00 IO-in"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 1,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "IN-01 query zero-check"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 17,
+      "name": "IN-02 table zero-check"
+     },
+     {
+      "a_sites": 0,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "IN-03 ZS zero-sum row"
+     }
+    ]
+   },
+   "stage_out": {
+    "A": {
+     "data_rows": 274,
+     "plane_logs": [
+      1,
+      1,
+      1,
+      1,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      17,
+      17,
+      17,
+      17,
+      17,
+      17,
+      17,
+      17,
+      12
+     ],
+     "prox_pair": [
+      372,
+      373
+     ],
+     "rows": 374,
+     "site_pairs": 49
+    },
+    "H": {
+     "data_rows": 274,
+     "plane_logs": [
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      17,
+      17,
+      17,
+      17,
+      12,
+      12
+     ],
+     "prox_pair": [
+      300,
+      301
+     ],
+     "rows": 302,
+     "signs": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      -1,
+      1
+     ],
+     "site_pairs": 13,
+     "zero_sum_pair": [
+      272,
+      273
+     ]
+    },
+    "M": {
+     "functionals": 20,
+     "mask_specs": [
+      [
+       13,
+       2
+      ],
+      [
+       13,
+       4
+      ],
+      [
+       2,
+       3
+      ],
+      [
+       13,
+       4
+      ],
+      [
+       13,
+       2
+      ],
+      [
+       13,
+       5
+      ],
+      [
+       18,
+       5
+      ],
+      [
+       18,
+       4
+      ],
+      [
+       13,
+       3
+      ],
+      [
+       13,
+       2
+      ],
+      [
+       9,
+       3
+      ]
+     ],
+     "rows": 26
+    },
+    "committed_elements": 2768896,
+    "hosts": [
+     [
+      2,
+      [
+       1
+      ]
+     ],
+     [
+      6,
+      [
+       4
+      ]
+     ]
+    ],
+    "label": "stage OUT",
+    "row_log_A_H_In_Out": [
+     12,
+     12,
+     13,
+     8
+    ],
+    "row_width_log": 12,
+    "slots": [
+     {
+      "a_sites": 1,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 1,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUT-00 IO-in"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 0,
+      "kind": "Private",
+      "main": 12,
+      "name": "OUT-01 SS"
+     },
+     {
+      "a_sites": 11,
+      "degree": 3,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 0,
+      "kind": "Host",
+      "main": 1,
+      "name": "OUT-02 TZC"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUT-03 LZC"
+     },
+     {
+      "a_sites": 1,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 0,
+      "kind": "Private",
+      "main": 12,
+      "name": "OUT-04 HEAD"
+     },
+     {
+      "a_sites": 13,
+      "degree": 5,
+      "ext": 1,
+      "h_sites": 6,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUT-05 DZC"
+     },
+     {
+      "a_sites": 10,
+      "degree": 5,
+      "ext": 1,
+      "h_sites": 4,
+      "io_sites": 0,
+      "kind": "Host",
+      "main": 17,
+      "name": "OUT-06 VZC"
+     },
+     {
+      "a_sites": 9,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 17,
+      "name": "OUT-07 RSEL"
+     },
+     {
+      "a_sites": 1,
+      "degree": 3,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUT-08 TAB"
+     },
+     {
+      "a_sites": 0,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUT-09 ZS"
+     },
+     {
+      "a_sites": 1,
+      "degree": 3,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 1,
+      "kind": "Standalone",
+      "main": 8,
+      "name": "OUT-10 IO-out"
+     }
+    ]
+   },
+   "tier": {
+    "ep_inv_rate": 8,
+    "ep_log_n": 8,
+    "lookup_ext_degree": 2,
+    "name": "mvp-95-whole-run (D27)",
+    "opened_cols": 256,
+    "stage_inv_rate": 4,
+    "stage_log_n": 12
+   },
+   "tokens": 32
+  }
+ ],
+ "privacy_acceptance": false,
+ "what": "token-I/O stage geometry, re-derived (gate round 7); NOT a privacy result"
+}

@@ -1,0 +1,5 @@
+{"event":"loaded","export_variant":"astra-retained-rung-tc","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"4d000793a04c1368e4fe31a5ca2586091e93b32046e1963af67ff8bcafad584d","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.194}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.859}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":2.053}
+{"event":"proved","run":"/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/classifier_fixture/bootstrap-2-run","owner_dir":"/tmp/zk60-astra-classifier-owner-20261026/bootstrap-2-owner","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":2.054,"whole_run_floor_bits":94,"total_seconds":2.231,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}

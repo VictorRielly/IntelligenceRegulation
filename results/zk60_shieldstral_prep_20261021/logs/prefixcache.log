@@ -1,0 +1,29 @@
+layer 0 done 29.6s
+layer 1 done 32.4s
+layer 2 done 33.1s
+layer 3 done 33.8s
+layer 4 done 34.8s
+layer 5 done 35.8s
+layer 6 done 36.7s
+layer 7 done 37.6s
+layer 8 done 38.6s
+layer 9 done 39.5s
+layer 10 done 40.4s
+layer 11 done 41.3s
+layer 12 done 42.1s
+layer 13 done 42.9s
+layer 14 done 43.8s
+layer 15 done 44.5s
+layer 16 done 45.2s
+layer 17 done 45.9s
+layer 18 done 46.6s
+layer 19 done 47.3s
+layer 20 done 47.9s
+layer 21 done 48.5s
+layer 22 done 49.2s
+layer 23 done 49.8s
+layer 24 done 50.5s
+layer 25 done 51.3s
+card_benign      T= 102 margin=-7.1060 d38=0.0008 ref=0.0008 published=None argmax=2649
+card_toxic       T= 102 margin=+11.7442 d38=1.0000 ref=1.0000 published=None argmax=13059
+wrote /home/victor/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/crosscheck/ref_hf_yarn_prefixcache.npz 55.7s

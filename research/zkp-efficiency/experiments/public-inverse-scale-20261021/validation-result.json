@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "checks": 1601,
+  "synthetic_rows": 200,
+  "encoded_positions": 6900,
+  "overlap_rows": 30,
+  "source_pins": 18,
+  "negative_controls": [
+    "wrong_size_or_double_scale",
+    "wrong_root_direction",
+    "q_greater_than_n_included_CPU_only"
+  ],
+  "independent_batch_cases": 144,
+  "independent_schedules": 36,
+  "wall_seconds": 0.40452192598604597,
+  "rss_kib": 24524,
+  "scope": "Independent original-data direct DFT/explicit polynomial only; no native receipt verification"
+}

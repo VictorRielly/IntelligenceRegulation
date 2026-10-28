@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "seed": 20261020110,
+  "checks": 2838,
+  "tree_cases": 42,
+  "consumer_cases": 306,
+  "negative_control_instances": 768,
+  "negative_control_families": [
+    "aliased_fold",
+    "changed_parent",
+    "non_power_of_two",
+    "wrong_right",
+    "zero_denominator_even_zero_numerator"
+  ],
+  "elapsed_s": 28.3522500450199,
+  "maxrss_KiB": 17768,
+  "scope": "Synthetic native-Fp2 reversible storage and unmasked layer consumers only; no private proof"
+}

@@ -1,0 +1,90 @@
+[
+  {
+    "line": 1,
+    "text": "# ZK60 decisions register \u2014 the rulings that govern the proof project"
+  },
+  {
+    "line": 9,
+    "text": "## At a glance"
+  },
+  {
+    "line": 73,
+    "text": "## D1 \u2014 Privacy scope (standing since 2026-09-09)"
+  },
+  {
+    "line": 89,
+    "text": "## D2 \u2014 Two lines (standing since 2026-09-17)"
+  },
+  {
+    "line": 112,
+    "text": "## D3 \u2014 About 97 bits of conjectured soundness accepted for the zkVM intermediate (2026-09-18)"
+  },
+  {
+    "line": 164,
+    "text": "## D4 \u2014 Groth16 trusted setup accepted for soundness (2026-09-18)"
+  },
+  {
+    "line": 219,
+    "text": "## D5 \u2014 Receipt kind: Groth16 only (2026-09-18)"
+  },
+  {
+    "line": 238,
+    "text": "## D6 \u2014 Groth16 proving path on this box (in progress)"
+  },
+  {
+    "line": 258,
+    "text": "## D7 \u2014 New endpoint and weight identity profile (implemented, ruling pending)"
+  },
+  {
+    "line": 294,
+    "text": "## D8 \u2014 Caller-fixed endpoint roots on the custom line (corrected 2026-09-18)"
+  },
+  {
+    "line": 319,
+    "text": "## D11 \u2014 Technical correction to D8 and profile clarification (2026-09-18)"
+  },
+  {
+    "line": 342,
+    "text": "## D12 \u2014 How a complete private block is composed on the custom line (construction rule, 2026-09-19)"
+  },
+  {
+    "line": 406,
+    "text": "## D9 \u2014 `fp()` reduction bias (accepted as stated, 2026-09-19)"
+  },
+  {
+    "line": 446,
+    "text": "## D10 \u2014 Compact-PCS proof-size lever (declined, 2026-09-19)"
+  },
+  {
+    "line": 474,
+    "text": "## D15 \u2014 \"106 bits\" is per opening; the whole 8B proof is about 94 (technical clarification, 2026-09-19)"
+  },
+  {
+    "line": 556,
+    "text": "## D16 \u2014 The private block's norm before it is widened (construction rule, 2026-09-19)"
+  },
+  {
+    "line": 605,
+    "text": "## D17 \u2014 Hiding endpoints beyond the tiny shape (construction rule, 2026-09-19)"
+  },
+  {
+    "line": 646,
+    "text": "## D8/D11 \u2014 note of 2026-09-19: a restatement was attempted and NOT accepted; the obligation stands"
+  },
+  {
+    "line": 669,
+    "text": "## D18 \u2014 Who fixes the commitment to a hidden input (decided 2026-09-19: the prover, for the first MVP)"
+  },
+  {
+    "line": 726,
+    "text": "## D13 \u2014 What the first MVP must prove (decided 2026-09-19)"
+  },
+  {
+    "line": 744,
+    "text": "## D14 \u2014 A costed memo for the fewer-hashed-bytes speed lever (commissioned 2026-09-19)"
+  },
+  {
+    "line": 765,
+    "text": "## D24 \u2014 Norm precision per profile instead of a fifth remainder limb (proposed 2026-10-17)"
+  }
+]

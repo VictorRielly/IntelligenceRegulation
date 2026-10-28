@@ -79,6 +79,21 @@ ZERO_CHECK_SLOTS = {
 # and slots 02, 03 and 19 take no helper into their `mu`.
 HOST_SLOT = {d: s for s, (_n, _t, doms, *_r) in ZERO_CHECK_SLOTS.items()
              for d in doms}
+# [v17, gate round 14] at a DD profile (native R9 / D30): slot 17's DD arm
+# draws tau(log S) + mu(2 + n_help + 2) + nu(2) and never a pad term, and
+# slot 23 (`SC_DD`) draws tau(log Dd) + mu(3 + n_help + 1) (argument.rs R9)
+DD_ZERO_CHECK_SLOTS = {
+    17: ("SC_SZC (DD)", "S", ("Ht", "S"), 1, 4, 2),
+    23: ("SC_DD", "Dd", ("Dd",), 1, 4, 0),
+}
+
+
+def zero_check_slots(bundle) -> dict:
+    """[v17] the zero-check slots of THIS bundle's profile"""
+    z = dict(ZERO_CHECK_SLOTS)
+    if int(bundle.shape.raw.get("dd_cap", 0)) > 0:
+        z.update(DD_ZERO_CHECK_SLOTS)
+    return z
 
 
 def true_size(sh: dict, dom: str) -> int:
@@ -93,6 +108,8 @@ def true_size(sh: dict, dom: str) -> int:
         "S": sh["q_heads"] * sh["tokens"] * sh["tokens"],
         "F": sh["tokens"] * sh["hidden"],
         "Tab": U8_LEN,
+        # [v17] the DD dictionary (h, t | k), unpadded at a DD profile
+        "Dd": sh["q_heads"] * sh["tokens"] * max(sh.get("dd_cap", 0), 1),
     }[dom]
 
 
@@ -111,11 +128,13 @@ def helper_counts(bundle) -> dict:
     """`Shape::helpers(dom)`, read from the plane index: the `H` planes of
     the domain, minus the ONE extra pair helper `Dom::S` and `Dom::F` carry
     (`H_SEXP`, `H_FACT`; shape.rs:486-489)."""
-    extra = {"S": "H_SEXP", "F": "H_FACT"}
+    # [v17] plus the DD tuple helper on Dom::S and the dictionary's table
+    # helper on Dom::Dd at a DD profile
+    extra = {"S": ("H_SEXP", "H_STUPLE"), "F": ("H_FACT",), "Dd": ("H_GDD",)}
     out: dict = {}
     for p in bundle.run["plane_index"]["h_planes"]:
         d = p["domain"]
-        if p["name"] == extra.get(d):
+        if p["name"] in extra.get(d, ()):
             continue
         out[d] = out.get(d, 0) + 1
     return out
@@ -143,12 +162,13 @@ def pad_rule(bundle) -> dict:
             "domain_log": log,
             "padded_size": 1 << log,
             "pads": (1 << log) != ts,
-            "host_slot": HOST_SLOT.get(d),
+            "host_slot": HOST_SLOT.get(d, 23 if d == "Dd" else None),
         })
     slots = []
     declared = [len(s["definition_challenges"]) for s in bundle.stages[0].slots]
-    for s in sorted(ZERO_CHECK_SLOTS):
-        name, tau_dom, hosts, uses_help, base, nu = ZERO_CHECK_SLOTS[s]
+    zcs = zero_check_slots(bundle)
+    for s in sorted(zcs):
+        name, tau_dom, hosts, uses_help, base, nu = zcs[s]
         on = any((1 << logs[d]) != true_size(sh, d) for d in hosts)
         n_pad = 1 if on else 0
         n_help = helps.get(tau_dom, 0) if uses_help else 0
@@ -171,7 +191,7 @@ def pad_rule(bundle) -> dict:
         "domains_that_do_not_pad": [d["domain"] for d in doms
                                     if not d["pads"]],
         "per_zero_check_slot": slots,
-        "slots_whose_draw_count_is_derived_here": sorted(ZERO_CHECK_SLOTS),
+        "slots_whose_draw_count_is_derived_here": sorted(zcs),
         "all_derived_counts_equal_the_capture": all(x["equal"] for x in slots),
         "disagreements": [
             f"slot {x['slot']} ({x['name']}): this module derives "
@@ -524,10 +544,10 @@ def predict(bundle) -> dict:
             "definition_draws_per_stage": n_defs,
             "definition_draws_are_read_from_the_capture": True,
             "definition_draws_derived_for": sorted(
-                set(ZERO_CHECK_SLOTS) | {8, 9}),
+                set(zero_check_slots(bundle)) | {8, 9}),
             "definition_draws_still_read_from_the_capture": [
                 s for s in range(sh.n_slots)
-                if s not in ZERO_CHECK_SLOTS and s not in (8, 9)],
+                if s not in zero_check_slots(bundle) and s not in (8, 9)],
             "bilinear_definition_draws_derived_and_compared": bilinear,
             "sumcheck_rounds_per_stage": sc_rounds,
             "m_proximity_rhos_per_stage": m_prox,
@@ -543,7 +563,8 @@ def predict(bundle) -> dict:
         },
         "masking": {
             "rows": 2 * sh.n_slots + 4,
-            "functionals": 34,
+            # [v17] + SC_DD's eval and Gamma at a DD profile (a Standalone slot)
+            "functionals": 34 + (2 if int(sh.raw.get("dd_cap", 0)) > 0 else 0),
             "slot_lengths": lens,
             "largest_L": max(lens),
             "largest_L_slot": lens.index(max(lens)),
@@ -557,7 +578,7 @@ def predict(bundle) -> dict:
             "slot_checks_expected": sh.n_slots * L,
             "why": "public_tables_included is "
             f"{bundle.public_tables_included}, so "
-            + ("every slot's tables are carried and all 23 can be evaluated"
+            + (f"every slot's tables are carried and all {sh.n_slots} can be evaluated"
                if bundle.public_tables_included
                else "the eleven table-bearing slots stay open"),
         },

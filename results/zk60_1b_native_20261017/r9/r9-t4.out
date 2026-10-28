@@ -1,0 +1,189 @@
+[zk60-guard 12:19:28] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 12:20:28] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 12:21:28] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 12:22:28] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 12:23:28] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 12:24:28] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 12:25:28] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 12:26:28] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 12:27:28] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 12:28:28] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 12:29:28] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 12:30:28] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 12:31:29] waiting for /tmp/zk-heavy.lock (721s)
+[zk60-guard 12:32:29] waiting for /tmp/zk-heavy.lock (781s)
+[zk60-guard 12:33:29] waiting for /tmp/zk-heavy.lock (841s)
+[zk60-guard 12:34:29] waiting for /tmp/zk-heavy.lock (901s)
+[zk60-guard 12:35:29] waiting for /tmp/zk-heavy.lock (961s)
+[zk60-guard 12:36:29] waiting for /tmp/zk-heavy.lock (1021s)
+[zk60-guard 12:37:29] waiting for /tmp/zk-heavy.lock (1081s)
+[zk60-guard 12:38:29] waiting for /tmp/zk-heavy.lock (1141s)
+[zk60-guard 12:39:29] waiting for /tmp/zk-heavy.lock (1201s)
+[zk60-guard 12:40:29] waiting for /tmp/zk-heavy.lock (1261s)
+[zk60-guard 12:41:29] waiting for /tmp/zk-heavy.lock (1322s)
+[zk60-guard 12:42:29] waiting for /tmp/zk-heavy.lock (1382s)
+[zk60-guard 12:43:29] waiting for /tmp/zk-heavy.lock (1442s)
+[zk60-guard 12:44:29] waiting for /tmp/zk-heavy.lock (1502s)
+[zk60-guard 12:45:30] waiting for /tmp/zk-heavy.lock (1562s)
+[zk60-guard 12:46:30] waiting for /tmp/zk-heavy.lock (1622s)
+[zk60-guard 12:47:30] waiting for /tmp/zk-heavy.lock (1682s)
+[zk60-guard 12:48:30] waiting for /tmp/zk-heavy.lock (1742s)
+[zk60-guard 12:49:30] waiting for /tmp/zk-heavy.lock (1802s)
+[zk60-guard 12:50:30] waiting for /tmp/zk-heavy.lock (1862s)
+[zk60-guard 12:51:30] waiting for /tmp/zk-heavy.lock (1922s)
+[zk60-guard 12:52:30] waiting for /tmp/zk-heavy.lock (1982s)
+[zk60-guard 12:53:30] waiting for /tmp/zk-heavy.lock (2042s)
+[zk60-guard 12:54:30] waiting for /tmp/zk-heavy.lock (2102s)
+[zk60-guard 12:55:30] waiting for /tmp/zk-heavy.lock (2163s)
+[zk60-guard 12:56:30] waiting for /tmp/zk-heavy.lock (2223s)
+[zk60-guard 12:57:30] waiting for /tmp/zk-heavy.lock (2283s)
+[zk60-guard 12:58:30] waiting for /tmp/zk-heavy.lock (2343s)
+[zk60-guard 12:59:31] waiting for /tmp/zk-heavy.lock (2403s)
+[zk60-guard 13:00:31] waiting for /tmp/zk-heavy.lock (2463s)
+[zk60-guard 13:01:31] waiting for /tmp/zk-heavy.lock (2523s)
+[zk60-guard 13:02:31] waiting for /tmp/zk-heavy.lock (2583s)
+[zk60-guard 13:03:31] waiting for /tmp/zk-heavy.lock (2643s)
+[zk60-guard 13:04:31] waiting for /tmp/zk-heavy.lock (2703s)
+[zk60-guard 13:05:31] waiting for /tmp/zk-heavy.lock (2763s)
+[zk60-guard 13:06:31] waiting for /tmp/zk-heavy.lock (2823s)
+[zk60-guard 13:07:31] waiting for /tmp/zk-heavy.lock (2883s)
+[zk60-guard 13:08:31] waiting for /tmp/zk-heavy.lock (2944s)
+[zk60-guard 13:09:31] waiting for /tmp/zk-heavy.lock (3004s)
+[zk60-guard 13:10:31] waiting for /tmp/zk-heavy.lock (3064s)
+[zk60-guard 13:11:31] waiting for /tmp/zk-heavy.lock (3124s)
+[zk60-guard 13:12:31] waiting for /tmp/zk-heavy.lock (3184s)
+[zk60-guard 13:13:32] waiting for /tmp/zk-heavy.lock (3244s)
+[zk60-guard 13:14:32] waiting for /tmp/zk-heavy.lock (3304s)
+[zk60-guard 13:15:32] waiting for /tmp/zk-heavy.lock (3364s)
+[zk60-guard 13:16:32] waiting for /tmp/zk-heavy.lock (3424s)
+[zk60-guard 13:17:32] waiting for /tmp/zk-heavy.lock (3484s)
+[zk60-guard 13:18:32] waiting for /tmp/zk-heavy.lock (3544s)
+[zk60-guard 13:19:32] waiting for /tmp/zk-heavy.lock (3604s)
+[zk60-guard 13:20:32] waiting for /tmp/zk-heavy.lock (3664s)
+[zk60-guard 13:21:32] waiting for /tmp/zk-heavy.lock (3724s)
+[zk60-guard 13:22:32] waiting for /tmp/zk-heavy.lock (3785s)
+[zk60-guard 13:23:33] waiting for /tmp/zk-heavy.lock (3845s)
+[zk60-guard 13:24:33] waiting for /tmp/zk-heavy.lock (3905s)
+[zk60-guard 13:25:33] waiting for /tmp/zk-heavy.lock (3965s)
+[zk60-guard 13:26:33] waiting for /tmp/zk-heavy.lock (4025s)
+[zk60-guard 13:27:33] waiting for /tmp/zk-heavy.lock (4085s)
+[zk60-guard 13:28:33] waiting for /tmp/zk-heavy.lock (4145s)
+[zk60-guard 13:29:33] waiting for /tmp/zk-heavy.lock (4205s)
+[zk60-guard 13:30:33] waiting for /tmp/zk-heavy.lock (4265s)
+[zk60-guard 13:31:33] waiting for /tmp/zk-heavy.lock (4325s)
+[zk60-guard 13:32:33] waiting for /tmp/zk-heavy.lock (4385s)
+[zk60-guard 13:33:33] waiting for /tmp/zk-heavy.lock (4446s)
+[zk60-guard 13:34:33] waiting for /tmp/zk-heavy.lock (4506s)
+[zk60-guard 13:35:33] waiting for /tmp/zk-heavy.lock (4566s)
+[zk60-guard 13:36:33] waiting for /tmp/zk-heavy.lock (4626s)
+[zk60-guard 13:37:34] waiting for /tmp/zk-heavy.lock (4686s)
+[zk60-guard 13:38:34] waiting for /tmp/zk-heavy.lock (4746s)
+[zk60-guard 13:39:34] waiting for /tmp/zk-heavy.lock (4806s)
+[zk60-guard 13:40:34] waiting for /tmp/zk-heavy.lock (4866s)
+[zk60-guard 13:41:34] waiting for /tmp/zk-heavy.lock (4926s)
+[zk60-guard 13:42:34] waiting for /tmp/zk-heavy.lock (4986s)
+[zk60-guard 13:43:34] waiting for /tmp/zk-heavy.lock (5046s)
+[zk60-guard 13:44:34] waiting for /tmp/zk-heavy.lock (5106s)
+[zk60-guard 13:45:34] waiting for /tmp/zk-heavy.lock (5166s)
+[zk60-guard 13:46:34] waiting for /tmp/zk-heavy.lock (5226s)
+[zk60-guard 13:47:34] waiting for /tmp/zk-heavy.lock (5287s)
+[zk60-guard 13:48:34] waiting for /tmp/zk-heavy.lock (5347s)
+[zk60-guard 13:49:34] waiting for /tmp/zk-heavy.lock (5407s)
+[zk60-guard 13:49:40] admission waiting: budget: 8+4 GiB > 11.9 GiB with live [gate-tk7-l1-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G)]
+[zk60-guard 13:50:41] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l1-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), fp-L_full_lam_dg0(light,2.5G)]
+[zk60-guard 13:51:41] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l1-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), fp-L_full_lam_dg0(light,2.5G)]
+[zk60-guard 13:52:41] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l1-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), fp-L_full_lam_dg0(light,2.5G)]
+[zk60-guard 13:53:41] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l1-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), fp-L_full_lam_dg0(light,2.5G)]
+[zk60-guard 13:54:41] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l1-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), fp-L_full_lam_dg0(light,2.5G)]
+[zk60-guard 13:55:41] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l1-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), fp-L_full_lam_dg0(light,2.5G)]
+[zk60-guard 13:56:42] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l1-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), fp-L_full_lam_dg0(light,2.5G)]
+[zk60-guard 13:57:42] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l1-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), fp-L_full_lam_dg0(light,2.5G)]
+[zk60-guard 13:58:42] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l1-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), fp-L_full_lam_dg0(light,2.5G)]
+[zk60-guard 13:59:42] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), fp-L_full_lam_dg0(light,2.5G), gate-tk7-l2-dense-everything(light,1.5G)]
+[zk60-guard 14:00:42] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), fp-L_full_lam_dg0(light,2.5G), gate-tk7-l2-dense-everything(light,1.5G)]
+[zk60-guard 14:01:42] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), fp-L_full_lam_dg0(light,2.5G), gate-tk7-l2-dense-everything(light,1.5G)]
+[zk60-guard 14:02:43] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), fp-L_full_lam_dg0(light,2.5G), gate-tk7-l2-dense-everything(light,1.5G)]
+[zk60-guard 14:03:43] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [fp-L_full_lam_dg250(light,2.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), gate-tk7-l2-dense-everything(light,1.5G)]
+[zk60-guard 14:04:43] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [fp-L_full_lam_dg250(light,2.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), gate-tk7-l2-dense-everything(light,1.5G)]
+[zk60-guard 14:05:43] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [fp-L_full_lam_dg250(light,2.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), gate-tk7-l2-dense-everything(light,1.5G)]
+[zk60-guard 14:06:43] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [fp-L_full_lam_dg250(light,2.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), gate-tk7-l2-dense-everything(light,1.5G)]
+[zk60-guard 14:07:43] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [fp-L_full_lam_dg250(light,2.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), gate-tk7-l2-dense-everything(light,1.5G)]
+[zk60-guard 14:08:43] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [fp-L_full_lam_dg250(light,2.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), gate-tk7-l2-dense-everything(light,1.5G)]
+[zk60-guard 14:09:44] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [fp-L_full_lam_dg250(light,2.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), gate-tk7-l2-dense-everything(light,1.5G)]
+[zk60-guard 14:10:44] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [fp-L_full_lam_dg250(light,2.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), gate-tk7-l2-dense-everything(light,1.5G)]
+[zk60-guard 14:11:44] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [fp-L_full_lam_dg250(light,2.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), gate-tk7-l2-dense-everything(light,1.5G)]
+[zk60-guard 14:12:44] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [fp-L_full_lam_dg250(light,2.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), gate-tk7-l2-dense-everything(light,1.5G)]
+[zk60-guard 14:13:44] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [fp-L_full_lam_dg250(light,2.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), gate-tk7-l2-dense-everything(light,1.5G)]
+[zk60-guard 14:14:44] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [fp-L_full_lam_dg250(light,2.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), gate-tk7-l2-dense-everything(light,1.5G)]
+[zk60-guard 14:15:45] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [fp-L_full_lam_dg250(light,2.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), gate-tk7-l2-dense-everything(light,1.5G)]
+[zk60-guard 14:16:45] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l2-zero-everything(light,1.5G), fp-L_full_lam_dg250(light,2.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G)]
+[zk60-guard 14:17:45] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l2-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), fp-L_full_lam_dg500(light,2.5G)]
+[zk60-guard 14:18:45] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l2-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), fp-L_full_lam_dg500(light,2.5G)]
+[zk60-guard 14:19:45] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l2-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), fp-L_full_lam_dg500(light,2.5G)]
+[zk60-guard 14:20:45] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l2-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), fp-L_full_lam_dg500(light,2.5G)]
+[zk60-guard 14:21:46] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l2-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), fp-L_full_lam_dg500(light,2.5G)]
+[zk60-guard 14:22:46] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l2-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), fp-L_full_lam_dg500(light,2.5G)]
+[zk60-guard 14:23:46] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l2-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), fp-L_full_lam_dg500(light,2.5G)]
+[zk60-guard 14:24:46] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l2-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), fp-L_full_lam_dg500(light,2.5G)]
+[zk60-guard 14:25:46] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l2-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-dense-pt1(light,6.5G), fp-L_full_lam_dg500(light,2.5G)]
+[zk60-guard 14:26:46] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l2-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_full_lam_dg500(light,2.5G)]
+[zk60-guard 14:27:47] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l2-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_full_lam_dg500(light,2.5G)]
+[zk60-guard 14:28:47] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l2-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_full_lam_dg500(light,2.5G)]
+[zk60-guard 14:29:47] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l2-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_full_lam_dg500(light,2.5G)]
+[zk60-guard 14:30:47] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l2-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_full_lam_dg750(light,2.5G)]
+[zk60-guard 14:31:47] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l2-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_full_lam_dg750(light,2.5G)]
+[zk60-guard 14:32:47] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l2-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_full_lam_dg750(light,2.5G)]
+[zk60-guard 14:33:48] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-tk7-l2-zero-everything(light,1.5G), gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_full_lam_dg750(light,2.5G)]
+[zk60-guard 14:34:48] admission waiting: budget: 10.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), gate-tk7-schema(light,1.5G), fp-L_full_lam_dg750(light,2.5G)]
+[zk60-guard 14:35:48] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_full_lam_dg750(light,2.5G)]
+[zk60-guard 14:36:48] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_full_lam_dg750(light,2.5G)]
+[zk60-guard 14:37:48] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_full_lam_dg750(light,2.5G)]
+[zk60-guard 14:38:48] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_full_lam_dg750(light,2.5G)]
+[zk60-guard 14:39:48] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_full_lam_dg750(light,2.5G)]
+[zk60-guard 14:40:49] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_full_lam_dg750(light,2.5G)]
+[zk60-guard 14:41:49] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_full_lam_dg750(light,2.5G)]
+[zk60-guard 14:42:49] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_full_lam_dg750(light,2.5G)]
+[zk60-guard 14:43:49] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_w16u_gate(light,2.5G)]
+[zk60-guard 14:44:49] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_w16u_gate(light,2.5G)]
+[zk60-guard 14:45:49] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_w16u_gate(light,2.5G)]
+[zk60-guard 14:46:50] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_w16u_gate(light,2.5G)]
+[zk60-guard 14:47:50] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_w16u_gate(light,2.5G)]
+[zk60-guard 14:48:50] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [fp-L_w16u_gn(light,2.5G), gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G)]
+[zk60-guard 14:49:50] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [fp-L_w16u_gn(light,2.5G), gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G)]
+[zk60-guard 14:50:50] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [fp-L_w16u_gn(light,2.5G), gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G)]
+[zk60-guard 14:51:50] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [fp-L_w16u_gn(light,2.5G), gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G)]
+[zk60-guard 14:52:50] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [fp-L_w16u_gn(light,2.5G), gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G)]
+[zk60-guard 14:53:51] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [fp-L_w16u_gna(light,2.5G), gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G)]
+[zk60-guard 14:54:51] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [fp-L_w16u_gna(light,2.5G), gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G)]
+[zk60-guard 14:55:51] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [fp-L_w16u_gna(light,2.5G), gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G)]
+[zk60-guard 14:56:51] admission waiting: budget: 9+4 GiB > 11.9 GiB with live [fp-L_w16u_gna(light,2.5G), gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G)]
+[zk60-guard 14:57:51] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 14:58:51] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 14:59:52] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:00:52] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:01:52] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:02:52] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:03:52] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:04:52] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:05:52] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:06:53] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:07:53] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:08:53] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:09:53] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:10:53] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:11:53] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:12:54] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:13:54] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:14:54] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:15:54] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:16:54] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:17:54] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:18:55] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:19:55] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:20:55] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:21:55] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:22:55] admission waiting: budget: 9.5+4 GiB > 11.9 GiB with live [gate-token-v10-tinyllama-t32-L22-fixed-pt1(light,6.5G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:23:55] admission waiting: budget: 11+4 GiB > 11.9 GiB with live [tio-r8-profile-llama3_8b_pg_rot1_b7voc0_T128(light,4G), gate-token-v10-llama3-8b-t32-L1-dense-pt1(light,4G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:24:55] admission waiting: budget: 11+4 GiB > 11.9 GiB with live [tio-r8-profile-llama3_8b_dg_rot1_voc0_T128(light,4G), gate-token-v10-llama3-8b-t32-L1-dense-pt1(light,4G), fp-L_e8_dg_gna(light,3G)]
+[zk60-guard 15:25:06] START r9-t4 class=cpu need=4G cap=7G enforce=cgroup+watchdog waited=11138s run=855d5756c187
+[zk60-guard 15:28:45] END r9-t4 exit=0 child_wall=220s peak_rss=1.79G min_avail=10.13G

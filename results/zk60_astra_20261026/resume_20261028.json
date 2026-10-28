@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-28T21:09:25.422557+00:00",
+  "app_tests": {
+    "command": "timeout 60s apps/proven-media/.venv/bin/python -m unittest discover -s apps/proven-media/tests",
+    "passed": 72,
+    "seconds": 2.598,
+    "host": true
+  },
+  "export_tests": {
+    "command": "python3 -m unittest discover -s results/zk60_shieldstral_export_20261026 -p test_*.py",
+    "passed": 20
+  },
+  "testnet": {
+    "chain_id": 84532,
+    "address": "0x775E8A2D741446d74E3f5a02244D1241eceB187d",
+    "balance_wei": 0,
+    "config_exists": false
+  },
+  "scope": "MEASURED local recovery; n=1 shared host; not production/Shieldstral/privacy acceptance"
+}

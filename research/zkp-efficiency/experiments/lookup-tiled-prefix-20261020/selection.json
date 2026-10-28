@@ -1,0 +1,15 @@
+{
+  "tested_rank": 7,
+  "reason": "Top1-3 require owner native/device/capacity evidence and shared locks unavailable to this lane. Continue existing bounded consumer seam; adaptive public-layer budgets materially refine fixed prefix schedule.",
+  "rotation_current": [
+    "sumcheck/GKR",
+    "memory traffic",
+    "batching/amortization"
+  ],
+  "rotation_next": [
+    "GPU NTT/commitments",
+    "quantization/arithmetic",
+    "proof composition"
+  ],
+  "hypotheses": 20
+}

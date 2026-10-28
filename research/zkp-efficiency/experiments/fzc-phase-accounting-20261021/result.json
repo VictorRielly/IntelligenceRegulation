@@ -1,0 +1,68 @@
+{
+  "status": "PASS_SYNTHETIC_ACCOUNTING_ONLY",
+  "seed": 202610210120,
+  "checks": 6829,
+  "differential_traces": 1500,
+  "max_trace_nodes": 32,
+  "random_dags": 400,
+  "negative_control_types": 21,
+  "controls": [
+    "inclusive_children_double_count",
+    "pre_report_and_tail_drop_omission",
+    "nested_allocator_wrapper_driver_counted_once",
+    "allocation_exclusive_label_alone_misses_nested_driver",
+    "mixed_gpu_clock",
+    "floating_timestamp",
+    "duplicate_id",
+    "orphan",
+    "negative_duration",
+    "cross_thread_parent",
+    "outside_parent",
+    "overlapping_siblings",
+    "zero_duration_parent_cycle",
+    "unknown_private_label",
+    "arbitrary_payload",
+    "unknown_outcome",
+    "negative_size",
+    "two_roots_same_thread",
+    "failed_attempt_stays_charged",
+    "parallel_thread_wall_is_not_elapsed",
+    "same_api_fraction_different_causal_saving"
+  ],
+  "illustrative_legacy_gaps": {
+    "body_to_report": 160,
+    "enclosing_attempt": 200,
+    "outside_body_to_report": 40,
+    "tail_timer_before_local_drop": 32,
+    "tail_scope_through_local_drop": 40,
+    "tail_local_drop_omission": 8,
+    "unit": "synthetic integer ns; never native timing"
+  },
+  "critical_path_counterexample": {
+    "overlap": {
+      "before": 30,
+      "after_free_allocation_deletion": 30,
+      "saved": 0,
+      "allocation_api_duration": 8
+    },
+    "serial": {
+      "before": 30,
+      "after_free_allocation_deletion": 22,
+      "saved": 8,
+      "allocation_api_duration": 8
+    }
+  },
+  "wall_seconds": 0.8809245690063108,
+  "rss_kib": 12344,
+  "threads": 1,
+  "estimated_memory_mib": 32,
+  "native_cuda_executed": false,
+  "new_verified_full_stack_proofs": 0,
+  "limitations": [
+    "No actual allocation clocks",
+    "Integer tick oracle tests artificial intervals only",
+    "Metadata partition is not CPU utilization or GPU execution time",
+    "No native instrumentation adapter or causal graph",
+    "No proof/mask/transcript/receipt/verification executed"
+  ]
+}

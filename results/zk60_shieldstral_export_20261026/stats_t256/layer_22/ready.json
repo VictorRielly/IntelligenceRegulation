@@ -1,0 +1,11 @@
+{
+  "layer": 22,
+  "seconds": 104.74377059936523,
+  "residual_sha256": "e0c19751d72af55f7d4936353954633c40bc8cf047cd860cd520fef06bf860ab",
+  "statistics_sha256": "a5b5451ab81a1413ecda7c2f44e82fc0199edca7e9f5ffb5371942e58c68de69",
+  "score_all_max": 856.8043212890625,
+  "score_causal_max": 856.8043212890625,
+  "gate_absmax": 9.215683937072754,
+  "rows": 49152,
+  "vocab0": null
+}

@@ -1,0 +1,31 @@
+
+running 26 tests
+test accuracy::tests::group_scale_precedes_product_rounding ... ok
+test accuracy::tests::grouped_products_match_independent_rational_vectors ... ok
+test accuracy::tests::invalid_shifts_multipliers_and_overflow_are_refused ... ok
+test accuracy::tests::negative_half_ties_round_toward_positive_infinity ... ok
+test accuracy::tests::requantization_matches_independent_rational_vectors ... ok
+test accuracy_aligned::tests::both_stacks_match_every_independent_rational_product_vector ... ok
+test accuracy_aligned::tests::every_registry_combination_respects_the_derived_31_bit_bound ... ok
+test accuracy_aligned::tests::tables_scale_the_quantized_words_without_another_rounding ... ok
+test accuracy_aligned::tests::the_legacy_profile_cannot_select_this_construction ... ok
+test accuracy_groups::tests::common_denominators_preserve_every_rounding_and_remainder ... ok
+test accuracy_groups::tests::folding_matches_the_independent_block_fixture_constants ... ok
+test accuracy_groups::tests::malformed_and_noncanonical_group_data_is_refused ... ok
+test accuracy_groups::tests::the_product_window_grows_when_exact_group_scaling_needs_it ... ok
+test accuracy_precision::low_tests::exports_choose_an_explicit_stack_without_a_global_flag ... ok
+test accuracy_precision::low_tests::low_keeps_h16_and_its_downstream_scale ... ok
+test accuracy_precision::tests::invalid_base_or_derived_windows_are_refused ... ok
+test accuracy_precision::tests::legacy_shifts_and_widths_remain_unchanged ... ok
+test accuracy_precision::tests::low_h24_matches_the_received_build_spec ... ok
+test accuracy_public::tests::a_tampered_table_or_derived_cache_is_refused_on_recheck ... ok
+test accuracy_public::tests::each_public_change_moves_the_binding ... ok
+test accuracy_public::tests::every_multiplier_axis_has_its_exact_shape_and_narrow_class ... ok
+test accuracy_public::tests::honest_data_has_a_canonical_binding_and_exact_context ... ok
+test accuracy_public::tests::the_export_stack_changes_the_binding_and_is_rechecked ... ok
+test accuracy_tables::tests::every_int12_silu_word_matches_the_independent_reference ... ok
+test accuracy_tables::tests::unsupported_members_and_precisions_are_refused ... ok
+test accuracy_tables::tests::zero_and_signed_index_are_unambiguous ... ok
+
+test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+

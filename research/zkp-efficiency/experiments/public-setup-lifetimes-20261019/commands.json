@@ -1,0 +1,20 @@
+[
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "experiments/public-setup-lifetimes-20261019/experiment.py"
+    ],
+    "returncode": 0,
+    "wrapper_wall_seconds": 0.38845726700674277
+  },
+  {
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "experiments/public-setup-lifetimes-20261019/audit.py"
+    ],
+    "returncode": 0,
+    "wrapper_wall_seconds": 0.1269486310047796
+  }
+]

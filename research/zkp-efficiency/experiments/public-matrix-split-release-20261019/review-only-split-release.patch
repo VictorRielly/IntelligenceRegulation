@@ -1,0 +1,26 @@
+--- a/hashline/src/private_block/trained_block.rs
++++ b/hashline/src/private_block/trained_block.rs
+@@ -1042,9 +1042,15 @@
+             pad_matrix(&ga.i8s(), 1, d, 1, dp, &id, &id),
+         ];
+         let fw = [pad_matrix(&gm.i8s(), 1, d, 1, dp, &id, &id), pad_matrix(&wg.i8s(), d, f, dp, fp, &id, &id), pad_matrix(&wu.i8s(), d, f, dp, fp, &id, &id), pad_matrix(&wd.i8s(), f, d, fp, dp, &id, &id)];
++        // Public raw matrices have no byte readers after aw/fw padding.
++        // Preserve the two existing Copy SHA reads before moving their Arrays.
++        let _ = (wq.sha256, exp.sha256);
++        drop((wq, wk, wv, wo, ga, gm, wg, wu, wd));
+         let public = AttentionPublic::new_shaped(sh, &aw[0], &aw[1], &aw[2], &aw[3], &aw[4], &cos, &sin, &exp.i64s()).map_err(ctx)?;
+         let ff = FeedForwardPublic::new_shaped(sh, &fw[0], &fw[1], &fw[2], &fw[3], &act.i16s()).map_err(ctx)?;
+         let blk = BlockPublic::new(public, ff);
++        // Constructors own copied table values; no raw table reader remains.
++        drop((exp, act));
+         // the source tensors the manifest names, if it names any
+         let mut source_tensors: Vec<(String, [u8; 32])> = Vec::new();
+         if let Some(st) = m.opt("source_tensors") {
+@@ -1058,7 +1064,6 @@
+         record.silu_member = tk.silu;
+         record.exp_e_s = tk.exp_e_s;
+         record.own = own;
+-        let _ = (wq.sha256, exp.sha256);
+         Ok(TrainedLayer { index, manifest_sha256, blk, record, rope_note })
+     }
+ 

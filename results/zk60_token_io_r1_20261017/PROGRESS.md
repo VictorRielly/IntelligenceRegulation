@@ -1249,3 +1249,1542 @@ new TR4 tests, t25 green (101 / 0 / 7); full suite s7 738 / 0 / 37.
   owner token 11, input-owner 32 tokens, all with both pins, exit 0.
 - Coordinator add-on: layer-0 refusal pre-check in the demo (13:36).
 No privacy acceptance is claimed.
+
+## Round 6 (coordinator ~14:28): review round 5's TR5-1 .. TR5-3
+
+REVIEW4.md ROUND 5: the token CLI is DEMO-FIT, TR4-1..TR4-4 closed.
+Follow-ups, test-first: TR5-1 (LOW: prove's error path runs
+remove_dir_all(owner dir) even when ITS create failed because a rival prove
+had created it, deleting the winner's decommitments; same for the
+unverified-statement directory; the default owner directory is keyed by
+the base name only), TR5-2 (wording: the pre-check's "clear" must print its
+scope (layer-0 norm/Q/K/V/RoPE sites only, not layer-0 scores or later
+layers); fix the docstring's "Layer-0 values depend on the token only";
+treat d0-precheck.log as prover-private for non-calibration prompts),
+TR5-3 (the demo must take the approved token-profile pin from an approval
+record, not from `profile` over the prover's files; write that record for
+b7_T32, pin e8238cf1...). Then the full suite.
+
+- 14:30 T-A (failing first, `manifest_r6A.sha256`, 84765c1a...; vs final
+  r5: cli.rs, cli_tests.rs): cli.rs gains only a `#[cfg(test)]` seam
+  (`hooks::BEFORE_OWNER_FILES`, called just before the owners' files are
+  written, with the owner and unverified directories) and
+  `default_owner_dir(base, out)` factored out with the OLD behaviour
+  (`<name>.owner-private`). Two tests: `tr5_1_a_prove_never_removes_an_
+  owner_or_statement_directory_it_did_not_create` (a rival prove claims the
+  owner directory, then in a second run the unverified-statement directory,
+  in that window; whichever wins, the directory and the winner's files
+  must survive) and `tr5_1_the_default_owner_directory_is_keyed_by_the_
+  runs_path` (two runs named `same` in different directories must get
+  different default owner directories; same run -> same directory, by
+  canonical path). Launched `t26-tr5-failfirst` (detached, cpu guard,
+  `--lib -- token_io::cli_tests`); it queues behind another lane's
+  r8-suite on the heavy lock. Expected: both tr5 tests FAIL (owner case:
+  "the directory a rival prove created is GONE"; key: "share one default
+  owner directory"), the five existing CLI tests pass.
+- 14:31 T-B prepared in `wip-r6b/` (cli.rs, cli_tests.rs, examples/
+  zk60_token_io.rs; synced only after t26 finishes):
+  * TR5-1: `prove` claims `<out>.incomplete/`, `<out>.unverified-statement/`
+    and the owner directory (0700) ATOMICALLY at its start (`Claimed::dir`:
+    the create fails if the directory exists -> "exists; ... must be new");
+    a `Claimed` guard removes exactly the directories THIS process created
+    on any refusal (Drop) and keeps them after the final rename; the old
+    late `create_private_dir` + unconditional `remove_dir_all` cleanup is
+    gone. The default owner directory is `<name>-<12 hex of SHA-256 of the
+    canonical run path>.owner-private`, printed in the `proved` line. Test
+    added to the race test: an existing owner directory is refused, left
+    untouched, and nothing of the refused prove remains.
+- 14:32 TR5-2 (test-first, python): 3 new/extended tests FAILED first
+  (`logs/p6-precheck-failfirst.log`: no `scope` in "clear"; a RoPE table
+  that is not a prefix of the scanned one still matched (exit 2); no RoPE
+  prefixes in the list), then `tools/layer0_precheck.py` (ddb3fcb3...):
+  "clear" now prints the scan's `scope` and `not_covered` ("the layer-0
+  attention scores (they depend on pairs of tokens) and all later layers
+  (they depend on the context): a clear prompt can still be refused by the
+  prover, which is safe"); the docstring's "Layer-0 values depend on the
+  token only" restated (norm_a/Q/K/V of a position depend on its token
+  alone; scores and later layers not covered); `check` itself now requires
+  the export's RoPE tables to be a byte prefix of the scanned export's (the
+  list holds the SHA-256 of every row prefix; otherwise "not-covered",
+  nothing claimed); the docstring says the log is prover-private for a
+  non-calibration prompt. List re-recorded (`tools/layer0_refusals.json`,
+  43d3e0e9...; same fingerprint f8086a40..., same two tokens;
+  `logs/p6-record.log`). 5 tests OK (`logs/p6-precheck-tests.log`).
+- 14:34 TR5-3: `tools/approval_record.py` (45917be6...) wrote
+  `approvals/token_profile_approval_llama3_8b_pg_rot1_b7_T32.json`
+  (95cc2971...; `logs/p6-approval-record.log`) at the coordinator's
+  instruction, from the CALIBRATION LANE's own files: all 8 files of its
+  `token_io/SHA256SUMS` re-hashed and matched, profile.json = its ledger's
+  209b07ac..., V 128,256 / BOS 128,000 / final norm g0 127, Cn 4,234, tn 9,
+  Ceps 78,617 from its head_manifest.json; pins: expect_statement 47f01943...
+  (the R3 harness's), expect_token_profile e8238cf1... (round-5 `profile`,
+  reproduced by the reviewer's p1/p2), with the evidence paths; "not a
+  privacy acceptance and not a ruling". (Written in this lane's directory:
+  the calibration lane's directory is outside my write set; it can adopt
+  the file.)
+- 14:35 `tools/r4_cli_demo.sh` (d52ec7a5...) for round 6: the pins are READ
+  FROM THE APPROVAL RECORD (the record's export must be the demo's; the
+  `profile` step is gone); the owner directory is read from prove's
+  `proved` line; TAG (default r6) names the binary copy, run, log labels
+  and marker; SEQ (calibration hold-out, default ho00) / SEQ_DIR /
+  PROMPT_IDS; a non-calibration prompt (SEQ_DIR or PROMPT_IDS) is
+  prover-private: its logs go to a 0700 `$HOME/zk60-artifacts/token-io/
+  demo-logs-<TAG>/` and a LOGS inside the repository is refused.
+  Exercised without building: (1) PROMPT_IDS + LOGS inside the repo ->
+  refused, nothing written; (2) PROMPT_IDS (ho00 with 662 at 5, 16309 at
+  20) -> logs in `/home/victor/zk60-artifacts/token-io/demo-logs-r6x/`
+  (0700), d0 exit 2, script exit 1, nothing built or proved.
+- 14:36 launched `tools/r6_chain.sh` (7f2fccf1..., detached; log
+  `logs/r6_chain.log`, marker `logs/r6_chain.done`): waits for t26 ->
+  syncs T-B (`manifest_r6B.sha256`, `logs/r6-sync.log`) -> t27-r6-built
+  (token_io + censuses + native trained CLI tests) -> if green the round-6
+  8B demo (TAG=r6: pre-check, build, prove, verify, re-check, owner,
+  input-owner, s8 full suite). t26 still queued behind another lane's
+  r8-suite on the heavy lock.
+- 14:42 **t26-tr5-failfirst RESULT (exit 101), as predicted: 2 FAILED, 5
+  passed** (waited 483 s for the heavy lock, ran 258 s, peak 1.93 GiB):
+  TR5-1 race "REVIEW TR5-1 (owner): the directory a rival prove created is
+  GONE after this prove's error path" (the old cleanup deleted the rival's
+  owner directory and file); key "two runs named `same` in different
+  directories share one default owner directory". The five existing CLI
+  tests pass.
+- 14:42:59 STAGE T-B synced by the chain (`manifest_r6B.sha256`,
+  2d6626a6...; vs T-A: examples/zk60_token_io.rs, token_io/cli.rs,
+  cli_tests.rs); t27-r6-built queued next.
+- 14:50 **t27-r6-built RESULT (exit 0): 103 passed, 0 failed, 7 ignored**
+  (t25 was 101 + the two TR5-1 tests; 426 s, peak 3.14 GiB, no wait; no
+  warning from the lane's CLI files). Both TR5-1 tests pass: the rival
+  loses its claim and this prove completes with its files; an existing
+  owner directory is refused and untouched, nothing of the refused prove
+  left; default owner directories keyed by the canonical run path. The
+  round-6 demo started (d0 pre-check on seq_ho00: clear, exit 0).
+- 15:11 **THE ROUND-6 8B CLI DEMO, END TO END** (`tools/r4_cli_demo.sh`
+  TAG=r6, `cli/zk60_token_io.r6.release.bin` 3225e577...,
+  `cli/binaries_r6.sha256`) [MEASURED, shared box, n=1], every step exit 0:
+  * d0 layer-0 pre-check (seq_ho00): clear, with its scope line;
+  * pins READ FROM `approvals/token_profile_approval_llama3_8b_pg_rot1_b7_
+    T32.json` (47f01943... / e8238cf1...); no `profile` step;
+  * prove (seq_ho00): run `cli/run-b7_T32-r6-ho00`, owner directory by
+    DEFAULT `/home/victor/zk60-artifacts/token-io/run-b7_T32-r6-ho00-
+    3d3a3b4113bd.owner-private` (keyed by the run's canonical path; 0700,
+    files 0600; read by the script from the `proved` line); 34 segments /
+    471,285,072 B, prove 243.2 s, total 297.5 s, VmHWM 3,451 MiB, parity 32,
+    floor 97;
+  * verify (verifier copy, both pins): published by this verifier, 97.0 s;
+  * verify again: statement-checked, 103.4 s;
+  * owner: **next token 11**, 99.4 s; input-owner: 32 prompt tokens
+    checked, 97.4 s (each re-verified the published statement first).
+  s8 full suite running last in the chain.
+- 15:45 s8 (the full suite, need 6.5 GiB) is WAITING for budget since
+  ~15:25: the fidelity lane's two light jobs commit 5.5-6 GiB (6.39 GiB
+  free) and are refilled as they finish; the waiting guard holds the heavy
+  lock. Not restarted (rules). Scheduling note sent to the coordinator
+  (SendMessage main).
+- 15:59 **s8 FULL SUITE (exit 0): 740 passed, 0 failed, 37 ignored** over
+  29 targets (lib 595 / 0 / 37; s7 was 738 / 0 / 37, +2 TR5-1 tests); ran
+  893 s after 2,001 s of budget wait (admitted 15:44:57), peak 6.01 GiB RSS
+  / 6.26 GiB cgroup (`logs/r6-s8-suite.log`, `.guard.json`). Chain done
+  (`logs/r6_chain.done`).
+- 16:00 FINAL MANIFEST `manifest_final_r6.sha256` (231 files, 2d6626a6...
+  = T-B: the tree t27, the r6 demo binary and s8 ran on; vs final r5:
+  examples/zk60_token_io.rs, token_io/cli.rs, cli_tests.rs). No
+  `*owner-private*` / `*.dec` under this lane's results directory.
+
+## Round 6 REPORT (16:00 UTC)
+
+- TR5-1 (LOW) fixed test-first (t26 failed exactly the two new tests;
+  t27 103 / 0 / 7): `prove` claims `<out>.incomplete/`,
+  `<out>.unverified-statement/` and the owner directory (0700) atomically
+  at its start and removes, on any refusal, only directories this process
+  created (a `Claimed` drop guard); the default owner directory is
+  `<name>-<12 hex of SHA-256 of the canonical run path>.owner-private`.
+- TR5-2 (INFO) done test-first (python, 5 tests): "clear" prints the scan's
+  scope and what it does not cover; docstring restated; `check` requires
+  the RoPE tables to be a byte prefix of the scanned ones; a
+  non-calibration prompt's demo logs go to a 0700 directory outside the
+  repository (a LOGS inside it is refused).
+- TR5-3 (INFO) done: approval record `approvals/token_profile_approval_
+  llama3_8b_pg_rot1_b7_T32.json` (from the calibration lane's own files and
+  ledger, pins 47f01943... / e8238cf1...); the demo reads its pins from it
+  and no longer runs `profile`.
+- Round-6 8B demo end to end, all exit 0 (15:11 entry); s8 740 / 0 / 37.
+No privacy acceptance is claimed.
+
+## Round 7 (coordinator ~16:00): rebase onto native R8; the fidelity-improved 8B demo; TR5-3 (a)/(b)
+
+Round 6 accepted. (1) Rebase onto native R8 (`results/zk60_1b_native_
+20261017/r8/frozen-tree/`, tree 7f64276a..., frozen 14:38:35Z; R8 = R7 +
+every export-chosen calibration constant per layer, D32): tree = R8 + this
+lane's files; the token stages read the per-layer constants where they
+apply (the block stages); the final norm and head keep their token_io
+constants; targeted tests, s9. (2) The fidelity lane's
+`exports/llama3_8b_pg_rot1_b7voc0_T32` (b7 + layer-0 vocabulary
+recalibration; profile.json 82c7c752...c4f6; exhaustive layer-0 check 0 of
+128,256 refuse): approval record, layer-0 refusal list, demo TAG=r7 on ho00,
+next token against the fidelity lane's integer / float references (asked
+for: `runs/llama3-8b/nexttoken_ho00_b7voc0_T32.json`). (3) TR5-3 (a) refuse
+an explicit --owner-dir inside a git working tree; (b) accept the default
+owner directory for a run directly under $HOME. Test-first.
+
+- 16:02 REBASE: R8 vs R7 = 10 files (r4_tests, r6_tests, r8_tests (new),
+  review_d24_tests, run.rs, shape.rs, trained_block.rs, trained_stack_tests,
+  trained_statement.rs, private_block.rs). This lane changed 8 R7 files;
+  THREE overlap, merged by hand with `diff3 -m mine r7 r8` (0 conflicts;
+  each merged file = R8 + exactly this lane's hunks, checked line for
+  line): `private_block.rs` (the token_io module + CLI re-exports),
+  `private_block/run.rs` (the three token-I/O run profiles, their shapes,
+  the blocks-only refusal), `private_block/trained_block.rs` (pub(crate) on
+  ten CLI helpers). The other seven R8 files copied as frozen. Check
+  against r8/frozen-tree: 0 files only in R8; differing = exactly this
+  lane's 8 changed files (private_block.rs, hash_domain_tests.rs, run.rs,
+  run_capture.rs, s24/s25/s33_tests.rs, trained_block.rs) + 13 lane-only
+  files (BASELINE.sha256, examples/zk60_token_io.rs, token_io.rs,
+  token_io/*.rs).
+- 16:07 T-A (failing first, `manifest_r7A.sha256`, 6e510047...): the token
+  code compiles against R8 with R6's reading only (a record's own `sh_s` =
+  `own[0]`; stage shapes still take only the score shift); cli.rs:
+  `owner_dir_at(f, out, home)` factored out with the OLD rule. Three tests:
+  `r7_a_layer_with_its_own_norm_and_shift_constants_is_proved_at_its_stage_
+  shape` (block 1's record carries own norm/shift constants (R8's all-eleven
+  calibration at the rung, or the norm constants, or cn_a, the first whose
+  honest pipeline moves block 1): its stage shape must be that calibration,
+  its schedule line must name each own constant, the receipt must verify,
+  be refused under the run-wide statement, and the run-wide witness must be
+  refused), `tr5_3_a_an_explicit_owner_dir_inside_a_git_working_tree_is_
+  refused` (a `.git` directory or worktree `.git` file among the canonical
+  ancestors: refused by name, nothing written), `tr5_3_b_the_default_owner_
+  dir_is_accepted_for_a_run_directly_under_home`. Launched
+  `t28-r7-failfirst` (`--lib -- token_io r8_tests r6_tests`). Expected: the
+  three new tests FAIL; everything else (incl. R8's own r8_tests and the R6
+  port test) passes.
+- 16:09 T-B prepared in `wip-r7b/` (T-A copies of the three replaced files
+  saved in `wip-r7a/`, = manifest_r7A): token_io/run.rs ported to R8
+  (`stage_cal: Vec<NormCalibration>`; a record with own constants
+  (`has_own`) -> `apply_own` on the run's calibration -> the trained door
+  `with_layer_calibration`; `stage_shape(k)` = that calibration; the stage
+  line names each own constant with R8's labels, R6's text for sh_s alone);
+  cli.rs: the statement lists `layers_with_own_calibration` (each own
+  constant under its export key, canonical order) and its schema is
+  `zk60-token-io-run/2` (a /1 statement is refused by name); TR5-3 (a)
+  `git_working_tree_of` on the canonical owner-dir parent (refused by name
+  for an explicit --owner-dir), (b) the parent rule skipped only for the
+  DEFAULT directory of a run whose canonical parent IS canonical $HOME.
+  The final norm and head are untouched (token profile constants).
+- 16:09 layer-0 list re-recorded with the fidelity lane's b7voc0_T32 scan
+  (`logs/p7-record.log`): entries b7 (662, 16309; exports b7_T128, b7_T32)
+  and b7voc0_T32 (fingerprint cd91e596..., refusing: NONE; profile.json
+  82c7c752...c4f6 = the coordinator's value, checked). Pre-check tests: 6 OK
+  (`logs/p7-precheck-tests.log`; new: the voc0 export is clear for ho00 and
+  even for a prompt holding 662 and 16309).
+- 16:10 `tools/r4_cli_demo.sh`: EXPORT selects the export (verifier copy,
+  approval record and run names follow it), TAG default r7, the suite label
+  `<TAG>-full-suite`. `tools/crosscheck_cli_next_token.py` (the R3
+  cross-check for a CLI demo's token: calibration lane's integer head, R0,
+  float head on the integer row). Launched `tools/r7_chain.sh` (detached;
+  `logs/r7_chain.log`, marker `logs/r7_chain.done`): waits for t28 -> syncs
+  T-B (`manifest_r7B.sha256`) -> t29-r7-built (token_io + censuses + trained
+  stack/block + r4/r6/r8/d24 tests) -> build -> verifier copy of b7voc0_T32
+  -> `profile` on that copy.
+- 16:20 **t28-r7-failfirst RESULT (exit 101), as predicted: 3 FAILED, 48
+  passed, 6 ignored** (waited 494 s, ran 294 s, peak 2.5 GiB): the R8 port
+  test "ROUND 7: block stage 1 is not proved at its layer's own calibration
+  (only sh_s was read)" (left = the run's calibration with only sh_s 6
+  applied); TR5-3 (a) "an owner directory inside a git working tree was
+  accepted" (prove exit 0); TR5-3 (b) "the default owner directory was
+  refused for a run directly under $HOME". R8's own r8_tests / r6_tests and
+  every other token_io test pass on the rebased tree with T-A. The chain
+  synced T-B next.
+- 16:21 the fidelity lane's references landed
+  (`runs/llama3-8b/nexttoken_ho00_b7voc0_T32.json`): ho00 position 31,
+  integer token 11 "," (margin C 313,660,358, ~9.51 logits), float model
+  token 11 (margin 6.96 logits), agree.
+- 16:20:57 STAGE T-B synced by the chain (`manifest_r7B.sha256`,
+  e762b48a...; vs T-A: examples/zk60_token_io.rs, token_io/cli.rs,
+  token_io/run.rs).
+- 16:26 **t29-r7-built RESULT (exit 0): 132 passed, 0 failed, 10 ignored**
+  (token_io + censuses + trained stack/block + r4 / r6 / r8 / d24 tests on
+  the R8-based tree; 341 s, peak 3.06 GiB; no warning from token_io). The
+  three round-7 tests pass: block 1 at its own constants in ALL ELEVEN
+  fields (R8's all-eleven calibration at the rung was the first candidate
+  and moved block 1) proved and verified at its stage shape, refused under
+  the run-wide statement, the run-wide witness refused; TR5-3 (a) refusal
+  text: "--owner-dir .../a-repo/sub/run.owner-private: inside the git
+  working tree .../a-repo (.../a-repo/.git exists); the owners'
+  decommitments are private (D21) and never sit in a repository (review
+  TR5-3 (a))"; TR5-3 (b) accepted. Chain: CLI build next.
+- 16:27 R8-based CLI built by the chain (71 s; `cli/zk60_token_io.r7.release
+  .bin` db3d9825..., `cli/binaries_r7.sha256`); verifier copy
+  `cli/verifier-export-llama3_8b_pg_rot1_b7voc0_T32` (hard links, no
+  seq_*); `profile` on that copy (`logs/r7-profile-voc0.log`): trained
+  identity c3fb8c5b767c0956...58c9 (binds this export's per-layer
+  calibration), token profile digest e8238cf1... (= b7's: the tables, BOS
+  and final norm are the calibration lane's b7_T32 files, same SHA-256s).
+- 16:28 APPROVAL RECORD `approvals/token_profile_approval_llama3_8b_pg_rot1_
+  b7voc0_T32.json` (`tools/approval_record.py`, `logs/p7-approval-record.
+  log`): the 7 files of the export's rewritten token_io/SHA256SUMS
+  re-hashed and matched; profile.json = 82c7c752...c4f6 (the fidelity
+  ledger's and the coordinator's value); V 128,256, BOS 128,000, final norm
+  g0 127 / Cn 4,234 / tn 9 / Ceps 78,617; pins c3fb8c5b... / e8238cf1...;
+  approval = the coordinator's round-7 instruction; not a privacy acceptance
+  and not a ruling.
+- 16:28 DEMO TREE manifest `manifest_r7_demo.sha256` (= r7B, e762b48a...).
+  Launched the round-7 demo (detached; `logs/r7_demo.log`): TAG=r7,
+  EXPORT=b7voc0_T32, BIN=the r7 copy (no rebuild), seq ho00: pre-check
+  (clear, no known refusing token), prove, verify, re-check, owner,
+  input-owner, then the full suite (s9, label r7-full-suite) on the demo
+  tree. Capture work (item 4) is staged in a copy until s9 has compiled.
+- 16:41 **THE ROUND-7 8B DEMO ON THE FIDELITY-IMPROVED EXPORT, END TO END**
+  (`tools/r4_cli_demo.sh` TAG=r7, EXPORT=b7voc0_T32, the R8-based binary
+  `cli/zk60_token_io.r7.release.bin` db3d9825..., pins from the approval
+  record) [MEASURED, shared box, n=1], every step exit 0:
+  * d0 pre-check (ho00): clear, no known refusing token on this export;
+  * prove: run `cli/run-llama3_8b_pg_rot1_b7voc0_T32-r7-ho00`, owner dir
+    `/home/victor/zk60-artifacts/token-io/run-llama3_8b_pg_rot1_b7voc0_T32-
+    r7-ho00-ef2b58a0591d.owner-private` (default, keyed); 34 segments /
+    471,285,072 B, prove 219.2 s, total 264.5 s (after 156 s of guard wait),
+    3.39 GiB, parity 32 layers, floor 97;
+  * verify (published by this verifier) 80.7 s; re-check 78.4 s;
+  * owner: **next token 11** (78.3 s); input-owner: 32 tokens (78.2 s).
+  The fidelity lane's references for ho00 on this export
+  (`runs/llama3-8b/nexttoken_ho00_b7voc0_T32.json`): integer 11 ","
+  (margin ~9.51 logits), float model 11 (margin 6.96): both AGREE with the
+  decommitted token. My public-file cross-check (calibration lane's integer
+  head, R0, float head on the integer row) queued
+  (`logs/p7-crosscheck-voc0.log`, out `runs/r7_crosscheck_voc0_ho00.json`).
+  s9 (the full suite on the demo tree) compiling.
+- 16:45 ITEM 4 (capture hooks for the gate) staged in `wip-r7c/`
+  (run_capture.rs, run.rs, token_io.rs, token_io/{run,stage_in,stage_out,
+  capture_tests}.rs); synced only after s9 has compiled.
+- 16:50 ITEM 4 STEP A coded in `wip-r7c/` (synced by `tools/r7_capture_
+  chain.sh` once the demo's suite has finished, since several tests read
+  source files at run time):
+  * run_capture.rs: `RunHeader.token: Option<TokenFacts>` (None for a block
+    run: its bundle bytes do not move; the token run's header is rebuilt by
+    `begin_run_with` from the same six words, so the header re-check holds
+    for token runs too); `TokenFacts` (profile, V, V_pad, T, d, variant,
+    mode, limbs, window/mult bits, embedding/head digests, BOS, final norm,
+    s_in = s_out, tier, both endpoint specs, both roots, every boundary in
+    token numbering 0 = B_in .. L = B_out, the r_emb length, the two stage
+    layouts); `stage_begin_stage(k, "IN"|"BLOCK"|"OUT", ...)` replaying each
+    stage prefix from the recorder's OWN transcript (IN: stage 0, the
+    embedding digest, B_in, A, M, 3 LogUp + clog2(d_pad) r_emb draws, H;
+    BLOCK: stage k, block k-1's digest, B_k, then a block's A/M/3/H; OUT:
+    stage L+1, the head digest, A, M, 2 draws, H); `stage_slot` (the block
+    slot replay at the stage schedule's (main, ext, degree), same record
+    keys, private tables under the stage's role names, fixed coordinates as
+    {"fixed": v}, public tables with values when asked, every private table
+    located on the stage's plane table); the stage plane table
+    (`stage_plane_index`: planes with names / log sizes / rows, the row
+    bookkeeping, the schedule, per-slot planes OBSERVED); stage_end / take /
+    run_accepted count L + 2 stages for a token run; `write_stage_token`,
+    `write_run_token` (schema `hashline-native-capture/6-token-run`,
+    `token_io`, `token_boundaries`, the token transcript program, "owner
+    decommitments" in not_in_a_capture); 56 new allow-listed keys; the
+    bundle writer handles L + 2 stage files and a token README.
+  * hooks (all `#[cfg(test)]`, placed as run.rs / protocol.rs / argument.rs
+    place theirs): `verify_token_run_with` (stage_begin_stage / stage_end
+    around IN, every block and OUT; the boundary opening wrapped (role
+    "Input", kind "B-in" at block 0 else "internal-boundary", claim sources
+    = the previous stage's outgoing slot + this block's SC_IO_IN);
+    run_accepted after OUT); `stage_in::verify` / `stage_out::verify`
+    (start_slot before each definition; mask + pcs wrappers on M, A-in /
+    H-in / E-token-in, A-out / H-out / B-out / E-token-out with claim
+    sources); `run_stage_slot` (checkpoint before pb-slot, stage_slot after
+    the accumulators, verify side only); `TokenRunStatement::capture_header`
+    / `binding`.
+  * tests (`token_io/capture_tests.rs`): the rung capture checked against
+    itself (L + 2 files, kinds, slot counts 4 / 23 / 11, opening orders,
+    segment pins, plane tables, fixed coordinates, allow-list, no owner
+    decommitment: at most Q of an owner's salts (the opened columns') and
+    none of its pad words); the prover's path records nothing with a
+    recorder attached and seeded, the receipt verifies with and without
+    one; a tampered run writes no bundle; `#[ignore]`d env-driven
+    `capture_a_tinyllama_token_run` and `capture_a_llama3_8b_token_run`
+    (HL_PB_CAPTURE_DIR / _BLOCKS / HL_PB_FIRST_LAYER / HL_PB_TOKEN_INPUT
+    dense|fixed (fixed = T copies of BOS) / HL_RUN_CAPTURE_PUBLIC_TABLES /
+    HL_TEST_SOURCE_COMMIT), streaming, dense checked against the export's
+    activations at every layer.
+- 16:52 **s9 FULL SUITE on the DEMO TREE (exit 0): 748 passed, 0 failed,
+  37 ignored** over 29 targets (lib 603 / 0 / 37; s8 was 740: + R8's five
+  r8_tests + the three round-7 tests), 707 s, peak 5.86 GiB RSS / 6.05 GiB
+  cgroup, no wait (`logs/r7-full-suite.log`). Demo tree manifest:
+  `manifest_r7_demo.sha256` (= r7B, e762b48a...).
+- 16:53 STEP A synced by the chain (`manifest_r7C.sha256`, 4d4b7785...; vs
+  the demo tree: run.rs, run_capture.rs, token_io.rs, token_io/run.rs,
+  stage_in.rs, stage_out.rs changed; token_io/capture_tests.rs added).
+- 17:09 **t30-capture RESULT (exit 0): 59 passed, 0 failed, 17 ignored**
+  (`--lib -- token_io run_capture`: every token_io test, the 3 new capture
+  tests, and the block run-capture tests (block bundles still pass their
+  self-consistency, allow-list, with/without-recorder and two-encodings
+  tests, i.e. block bundle bytes did not move); 758 s, compiled first time):
+  the rung token capture (L = 2): run.json 42,695 B, stage files
+  4,640,048 / 24,028,466 / 24,029,524 / 10,072,336 B (public tables inline),
+  self-consistent; the prover records nothing with a recorder attached and
+  seeded, the receipt verifies with and without one; a tampered run
+  refused ("block 0: A: pcs zk: Merkle path for column 2658 fails"), no
+  bundle.
+- 17:11 THE PRODUCTION BINARY: the release CLI rebuilt from the capture
+  tree (`cli/zk60_token_io.r7c.release.bin` b18ad304...) against the demo
+  binary (db3d9825...): same length (2,241,232 B); 136 bytes differ, ALL in
+  `.note.gnu.build-id` (20 B) and `.data.rel.ro` (110 single bytes: the
+  panic-location line numbers of the source files that gained cfg(test)
+  lines, e.g. +3, +8, +35); `.text` and `.rodata` byte-identical
+  (`logs/r7c-binary-compare.txt`). The run_capture module is cfg(test), so
+  a release build that compiles cannot call a hook. The token prover's
+  randomness is OS-seeded (zkp-core `ZkRng::from_os`, endpoint_g::prepare),
+  so "same seed, same receipt" is not available without touching shared
+  files; the inertness test above stands in for it.
+- 17:12 the gate captures started (TinyLlama T32, L = 1, dense first).
+- 17:23 **STEP A GREEN: the gate's TinyLlama captures** [MEASURED], all
+  exit 0, written to `/home/victor/zk60-artifacts/token-io/captures/`
+  (0700, outside the repository; schema hashline-native-capture/6-token-run,
+  arrays.bin, public tables' values, layers from 0):
+  | bundle | L | prompt | prove | verify+record | peak | size |
+  |---|---|---|---|---|---|---|
+  | tinyllama-t32-L1-dense-pt1 | 1 | ho00 (parity at every layer) | 4.8 s | 1.7 s | 1.02 GiB | 36,935,581 B |
+  | tinyllama-t32-L1-fixed-pt1 | 1 | 32 x BOS (id 1) | 4.5 s | 1.5 s | 0.98 GiB | 36,995,398 B |
+  | tinyllama-t32-L2-dense-pt1 | 2 | ho00 | 7.5 s | 1.8 s | 1.14 GiB | 53,929,341 B |
+  | tinyllama-t32-L2-fixed-pt1 | 2 | 32 x BOS | 7.9 s | 1.9 s | 1.13 GiB | 53,886,291 B |
+  (`logs/cap-tinyllama-t32-*.log`). Each test also re-read its bundle
+  (manifest lengths / SHA-256, allow-list, segment pins, kinds, slot
+  counts, opening orders, no owner decommitment). Step-A tree manifest:
+  `manifest_r7C.sha256` (4d4b7785...). Coordinator told (SendMessage),
+  with the paths. Note: the checker's pad scan over arrays.bin is
+  quadratic (most of each 160 s test); fixed before the L = 22 / 8B runs.
+- 17:24 PUBLIC-FILE CROSS-CHECK of the r7 demo's token
+  (`runs/r7_crosscheck_voc0_ho00.json`, `tools/crosscheck_cli_next_token.py`
+  under a light guard): the calibration lane's integer head on the
+  b7voc0_T32 export's x_out_L31 row 31: 11 (margin C 313,660,358, the same
+  as the fidelity lane's); R0's reference: 11; the float head on that
+  integer row: 11 (margin 9.55 logits). With the fidelity lane's integer
+  (11) and float-model (11) references, all agree with the decommitted 11.
+- 17:25 STEP B: the checker's owner-decommitment scan made linear (salts,
+  JSON integers and arrays.bin words indexed once in hash sets;
+  `index_json` in capture_tests.rs). Launched `tools/r7_capture_b_chain.sh`
+  (detached; `logs/r7d_chain.log`, marker `logs/r7d_chain.done`):
+  manifest r7D -> t31 (the three capture tests) -> TinyLlama L = 22 dense
+  and fixed -> Llama-3-8B T32 (b7voc0_T32) L = 1 dense and fixed, all with
+  the public tables' values. The step-B slot hook (stage_slot with fixed
+  coordinates and public-table values), the new Geom roles and the claim
+  sources were built in step A (the replay needs the slot hook to follow
+  the transcript through IN / OUT); variant P's two-site input endpoint
+  (D26 IO-s / SHIFT) is not built, so "both sites" / IO-s / SHIFT apply to
+  no built geometry (the public-row endpoints have one site each; B_in and
+  B_out list both of their sites).
+- 17:32 t31-capture (exit 0): the three capture tests, 3 passed, 5.3 s
+  (the scan was the earlier cost).
+- 17:35 **TinyLlama WHOLE-MODEL captures (L = 22)** [MEASURED], exit 0:
+  `tinyllama-t32-L22-dense-pt1` (ho00, parity at all 22 layers): prove
+  66.8 s, verify+record 10.8 s, peak 3.02 GiB RSS / 3.15 GiB cgroup,
+  384,939,747 B (arrays.bin 297,994,080 B, 24 stage files);
+  `tinyllama-t32-L22-fixed-pt1` (32 x BOS): prove 67.9 s, verify+record
+  11.0 s, peak 3.01 / 3.74 GiB, 384,536,509 B.
+- 17:57 the 8B captures (need 7 GiB) WAIT for budget since ~17:40: the
+  fidelity lane's two light jobs (5.5 GiB) are refilled as they end; the
+  waiting guard holds the heavy lock. Not restarted. Scheduling note sent
+  to the coordinator (SendMessage).
+- 18:22 **Llama-3-8B T32 captures (b7voc0_T32, L = 1)** [MEASURED], exit 0,
+  admitted 18:20 after 2,738 s of budget wait (the coordinator held the
+  fidelity lane to one job): `llama3-8b-t32-L1-dense-pt1` (ho00, parity
+  at layer 0): load 13.7 s, prove 16.1 s, verify+record 11.1 s, peak
+  3.18 GiB RSS / 3.64 GiB cgroup, 57,068,865 B; `llama3-8b-t32-L1-fixed-pt1`
+  (32 x BOS, id 128,000): prove 16.3 s, verify+record 11.5 s, peak 3.19 /
+  3.88 GiB, 57,079,375 B. Step-B tree manifest `manifest_r7D.sha256`
+  (f895e16b...; vs r7C: capture_tests.rs, the linear scan).
+- 18:23 launched `tools/r7_final_chain.sh` (detached): the 8B captures at
+  L = 2 too (an internal boundary at the 8B geometry; L = 1 held 3.2 GiB),
+  then the final manifest and the full suite s10 on the final tree.
+- 18:27 **Llama-3-8B T32 captures at L = 2** [MEASURED], exit 0:
+  `llama3-8b-t32-L2-dense-pt1`: prove 21.0 s, verify+record 12.1 s, peak
+  3.50 GiB RSS / 3.55 GiB cgroup, 79,971,541 B; `llama3-8b-t32-L2-fixed-pt1`:
+  prove 20.5 s, verify+record 12.2 s, peak 3.49 / 3.84 GiB, 79,929,663 B.
+  FINAL MANIFEST `manifest_final_r7.sha256` (233 files, f895e16b... = r7D;
+  vs the demo tree: run.rs, run_capture.rs, token_io.rs, token_io/run.rs,
+  stage_in.rs, stage_out.rs changed, token_io/capture_tests.rs added).
+  s10 (the full suite on the final tree) queued.
+- 18:43 s10 (the full suite on the final tree) exit 101: 750 passed, ONE
+  failed, 39 ignored — `s25_tests::every_hash_call_site_in_the_lanes_own_
+  sources_is_classified`: "src/private_block/run_capture.rs: 8 call(s) of
+  `sha256_hex(` and the stage-25 call-kind table declares 6". The token
+  capture added two SHA-256 call sites (the token stage file's segment
+  digest, the token run file's endpoint-policy digest), same kind as the
+  six (C1, SHA-256 over bytes the bundle pins). Fixed by classifying them
+  (s25_tests.rs CALL_SITES row 6 -> 8 with the reason), not by weakening
+  the census. Relaunched the final manifest + s11 (`tools/r7_s11_chain.sh`).
+- 19:08 **s11 FULL SUITE on the FINAL TREE (exit 0): 751 passed, 0
+  failed, 39 ignored** over 29 targets (lib 606 / 0 / 39; s9 + the three
+  capture tests; + the two `#[ignore]`d gate captures), 677 s after 722 s
+  of budget wait, peak 6.13 GiB RSS / 6.26 GiB cgroup (`logs/s11-suite.log`).
+  FINAL MANIFEST `manifest_final_r7.sha256` (233 files, eb912dd5...; vs the
+  demo tree: run.rs, run_capture.rs, s25_tests.rs, token_io.rs,
+  token_io/run.rs, stage_in.rs, stage_out.rs changed, token_io/capture_
+  tests.rs added). Final tree vs `r8/frozen-tree`: 0 files only in R8; 8
+  R8 files carry lane changes (private_block.rs, hash_domain_tests.rs,
+  run.rs, run_capture.rs, s24_tests.rs, s25_tests.rs, s33_tests.rs,
+  trained_block.rs); 14 lane-only files (BASELINE.sha256,
+  examples/zk60_token_io.rs, token_io.rs, token_io/*.rs incl. the new
+  capture_tests.rs). No owner-private data under this lane's results.
+
+## Round 7 REPORT (19:09 UTC)
+
+1. Rebase onto native R8: tree = R8 + this lane's files (three overlap
+   files merged by hand with diff3, 0 conflicts: private_block.rs, run.rs,
+   trained_block.rs). The token run reads each block stage's whole R8
+   calibration from its record (stage_cal, with_layer_calibration, R8's
+   schedule clauses); the final norm and head keep the token profile's
+   constants; the token statement's schema is zk60-token-io-run/2
+   (layers_with_own_calibration). Test-first: t28 failed exactly the 3 new
+   tests; t29 132 / 0 / 10; s9 (demo tree) 748 / 0 / 37.
+2. Fidelity-improved 8B demo on b7voc0_T32 (approval record with pins
+   c3fb8c5b... / e8238cf1..., layer-0 list: no refusing token), TAG=r7,
+   every step exit 0: next token 11 = the fidelity lane's integer (11) and
+   float-model (11) references = my public-file cross-check (integer head
+   11, R0 11, float head on the integer row 11).
+3. TR5-3 (a) explicit --owner-dir inside a git working tree refused by
+   name; (b) the default owner directory accepted for a run directly under
+   $HOME. Test-first (t28 -> t29).
+4. Gate capture hooks: step A green (t30 59 / 0 / 17; TinyLlama L = 1, 2
+   dense / fixed captures); step B (slot hook built in A; TinyLlama L = 22
+   and Llama-3-8B L = 1, 2 captures, peak <= 3.5 GiB). Hooks cfg(test),
+   inert on the prover, release .text / .rodata byte-identical. s11 on
+   the final tree 751 / 0 / 39.
+No privacy acceptance is claimed.
+
+## Round 8 (coordinator ~19:10): the 128-token next-token proof
+
+Round 7 accepted; review round 6 (reviewer a62f05d, REVIEW5.md) of rounds 6
+and 7 started. Freeze the round-7 tree. Then: (1) next-token profiles at
+T = 128 for Llama-3-8B and TinyLlama (DESIGN v3's first geometry, T <= 128,
+column half bit; count the whole-run floor, target >= 95 bits, D27;
+test-first: completeness on a generic dense witness, a T32 statement refused
+under a T128 profile and the reverse); (2) exports: 8B b7voc0_T128 (stack
+identity 5585f5ee..., token_io/ hard-linked from b7: approval record from the
+data files and SHA256SUMS, stale wording noted); TinyLlama dg_rot1_T128
+(report exactly what token_io is missing, if any); the newest 8B
+dg_rot1_voc0_T128 (approval record prepared; prove only after the
+coordinator confirms it beats b7voc0); (3) demo chains at T128 on ho00,
+guard needs from measured peaks (8B T128 stack 6.7 GiB), alone on the heavy
+lock; (4) references from the fidelity lane + my public-file cross-check;
+(5) proof time per prompt token T128 vs T32 (264.5 s / 32), MEASURED, box
+state; full suite and manifest.
+
+- 19:11 FROZEN: `frozen-r7/` = the round-7 tree (233 files, every entry
+  re-hashed against `manifest_final_r7.sha256`: match; BASELINE.sha256 and
+  target/ excluded as by the manifest tool); note `frozen-r7.FROZEN.txt`.
+- 19:14 TinyLlama dg_rot1_T128 had no token_io/: told the coordinator
+  exactly what was missing (head_int8_perrow.bin, head_mult12.bin,
+  head_manifest.json with bos and final_norm at this export's tn 10 /
+  Ceps 74,429 and a Cn calibrated on its own final residual, plus
+  calib_final_xhat_rot_absmax.bin, and token_io.json naming them). 19:2x:
+  the fidelity lane added them (head files byte-identical to R2's, Cn 5,664
+  confirmed, 0 final-norm violations on 96 held-out sequences). The 8B
+  dg_rot1_voc0_T128 export is confirmed better than b7 (ppl ratio 1.281 /
+  1.277 vs 1.63 / 1.77): demo it after b7voc0_T128. References landed:
+  8B b7voc0_T128 ho00 integer 11 (margin ~0.55 logits) / float 11 (12.31);
+  TinyLlama dg_T128 integer 491 (~2.26) / float 491 (10.01).
+- 19:16 T-A (failing first, `manifest_r8A.sha256`, 3475006f...): two tests
+  in a new `token_io/t128_tests.rs` (`t128_profiles_exist_and_their_whole_
+  run_floor_reaches_95_bits`: each T128 block shape has its own token
+  profile, the input endpoint is one 256-word row, the derived whole-run
+  figure at L = 22 / 32 >= 95 bits, printed beside T32; `t128_a_dense_
+  tinyllama_run_proves_and_t32_and_t128_are_not_interchangeable`: a dense
+  TinyLlama T128 run (L = 1, prompt over the whole vocabulary, generic
+  tables) proves, verifies, counted length, both owners check; a T32 run
+  likewise; each receipt refused under the other's statement; each shape
+  refused under the other T's profile).
+- 19:28 **t32-r8-failfirst RESULT (exit 101), as predicted: both FAILED**
+  at "ROUND 8: TinyLlama T128 has no token-I/O run profile: ... no
+  token-I/O run profile is registered for the block profile
+  hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-block/1"
+  (waited 451 s, 280 s, peak 1.98 GiB).
+- 19:29 T-B (`wip-r8b/`): run.rs `RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128`
+  ("hashline-zk-mr1/private-token-io-run-tinyllama-t128-trained-statement-
+  public-row/1", constructor 94 B; the "-1.1b-t128-" spelling would give 99
+  B, the length of another kind of the TinyLlama run) and
+  `RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T128` (constructor 95 B), both in
+  TOKEN_IO_RUN_PROFILES and the run-shape table; load.rs maps the two T128
+  block profiles to them; registered_token_runs and the census helpers
+  (tests.rs) carry them.
+- 19:29 STAGE T-B synced (`manifest_r8B.sha256`, bc32cd4a...; vs T-A:
+  run.rs, token_io.rs, token_io/load.rs, token_io/tests.rs).
+- 19:30 layer-0 list re-recorded (`logs/p8-record.log`): b7 (662, 16309),
+  b7voc0_T32 (none), dg_rot1_voc0_T128 (none, its own scan); b7voc0_T128's
+  layer 0 matches the scanned variant l8_b7_voc0 but its RoPE tables are
+  not a prefix of the variant's, so `record` refused it as covered: its
+  pre-check says "not-covered" (nothing claimed). TinyLlama dg_T128: no
+  scan, not-covered. Pre-check tests: 7 OK (`logs/p8-precheck-tests.log`).
+  `tools/r4_cli_demo.sh`: PROVE_NEED / PROVE_CAP / VERIFY_NEED / VERIFY_CAP
+  (defaults the T32 values), max-secs 3600.
+- 19:31 launched `tools/r8_chain.sh` (detached; `logs/r8_chain.log`): t33
+  (token_io + censuses + native trained / r8 tests) -> the round-8 CLI ->
+  verifier copies of b7voc0_T128, dg_rot1_voc0_T128, tinyllama_dg_rot1_T128
+  -> `profile` on each copy.
+- 20:02 reference (c) landed (`runs/llama3-8b/nexttoken_ho00_dg_voc0_T128.json`):
+  8B dg_rot1_voc0_T128 ho00 integer 11 "," (margin ~3.69 logits), float 11
+  (12.31). t33 waits for budget (fidelity + gate light jobs).
+- 20:16 the coordinator holds the other lanes to ~3.8 GiB of light jobs
+  for this round; release marker agreed as `logs/r8_round.done` (exit
+  code) because part A (`tools/r8_chain.sh`, already running) writes
+  `logs/r8_chain.done` before the demos. Launched part B,
+  `tools/r8_round.sh` (detached; `logs/r8_round.log`): waits for part A ->
+  checks t33 and the three profiles -> the three approval records
+  (`tools/approval_record.py`; pins from `profile` over the VERIFIER
+  copies; profile.json against the fidelity ledger's values; b7voc0_T128's
+  stale token_io wording recorded) -> the demos one after another (8B
+  b7voc0_T128 TAG=r8 and dg_rot1_voc0_T128 TAG=r8dg at prove 8 / cap 10,
+  checks 6 / 8; TinyLlama dg_rot1_T128 TAG=r8tl at 4 / 6, 3 / 5) -> the 8B
+  public-file cross-checks -> final manifest -> s12 -> `r8_round.done`.
+- 20:23 the coordinator's order: the gate lane's running queue could not
+  take the hold (its TinyLlama L22 jobs at 6.5 GiB light, then 8B jobs at
+  4-4.5), so the TinyLlama T128 demo goes FIRST (prove need 4.2 / cap 6
+  from the measured TinyLlama T128 peak 3.6 GiB; checks 3.5 / 5), then the
+  8B T128 demos when room opens (declarations kept at 8 / 10 and 6 / 8),
+  each guarded step waiting at most until 23:00 UTC (`WAIT_SECS`, new in
+  `tools/r4_cli_demo.sh`); past 23:00 the 8B demos are skipped and the round
+  reports what it has. Part B was still waiting for part A: its remaining
+  lines were replaced IN PLACE (same inode, the bytes up to its wait loop
+  unchanged) by `exec bash tools/r8_round_v2.sh` (the reordered part B).
+- 20:24 **t33-r8-built RESULT (exit 0): 116 passed, 0 failed, 9 ignored**
+  (waited 2,753 s for budget, ran 396 s, peak 6.27 GiB; the censuses
+  s24 / s25 / s33 with the two new profiles pass: no W-2 collision). The two
+  round-8 tests pass:
+  * WHOLE-RUN FIGURES [COUNTED, derived by the statement]: TinyLlama T32
+    (L 22) 2^-97.33 -> 97 bits; **TinyLlama T128 (L 22) 2^-97.82 -> 97
+    bits** (column 2^-98.98, LogUp 2^-98.67); Llama-3-8B T32 (L 32)
+    2^-97.58 -> 97 bits; **Llama-3-8B T128 (L 32) 2^-96.78 -> 96 bits**
+    (column 2^-98.53, LogUp 2^-97.30: at T128 the stack's lookup term sets
+    the figure, as DESIGN 4.4 says); all >= D27's 95. The input endpoint is
+    one 256-word row at T128 (DESIGN v3's first geometry).
+  * dense TinyLlama T128 (L 1): proves in 11.4 s (27,846,216 B) vs T32 5.6 s
+    (16,031,016 B) [MEASURED, test build, shared box]; both verify, both
+    owners check; T32 receipt under the T128 statement and the reverse:
+    "token I/O wire: this segment belongs to another run"; each shape
+    refused under the other T's profile.
+- 22:26 PART A done (`logs/r8_chain.done`): the round-8 CLI
+  `cli/zk60_token_io.r8.release.bin` (6b601c14..., `cli/binaries_r8.sha256`;
+  its build waited ~50 min for the heavy lock); verifier copies of the three
+  T128 exports; `profile` over each copy (the first waited 5,650 s for
+  budget): b7voc0_T128 trained identity 23e0e365..., token profile
+  1806fcc3...; dg_rot1_voc0_T128 4a99091a... / 5c4668be...; TinyLlama
+  dg_rot1_T128 0f2467fc... / 13679e42... (the T128 profiles' token profile
+  digests differ from the T32 ones: the digest is taken under the run
+  profile). The in-place hand-over worked: part B now runs as
+  `r8_round_v2.sh`. APPROVAL RECORDS written (`approvals/token_profile_
+  approval_{llama3_8b_pg_rot1_b7voc0_T128, llama3_8b_dg_rot1_voc0_T128,
+  tinyllama_dg_rot1_T128}.json`, `logs/p8-approval-records.log`): each
+  export's own token_io SHA256SUMS re-hashed and matched (8 / 6 / 6 files),
+  profile.json = the fidelity ledger's value, pins from the verifier-copy
+  `profile`; b7voc0_T128's records the stale hard-linked wording (data
+  correct). The TinyLlama T128 demo has started (pre-check: not-covered).
+- 22:27 the coordinator's forecast: the gate's queue keeps the TinyLlama
+  prove (4.2) out until ~23:30, so part B will skip the 8B demos at 23:00;
+  then, after part B's suite and `r8_round.done`, the 8B demos run as a
+  follow-up chain with its own marker. Launched `tools/r8_8b.sh` (detached,
+  `logs/r8_8b.log`): waits for `logs/r8_round.done`, then each 8B T128 demo
+  part B did not complete (TAGs r8x / r8dgx, prove 8 / 10, checks 6 / 8),
+  each followed by its public-file cross-check; marker `logs/r8_8b.done`.
+  New `tools/crosscheck_int_next_token.py` (R0's integer semantics on any
+  export's last-layer row T - 1 with its own token_io head; for TinyLlama).
+- 22:38 **THE TINYLLAMA T128 NEXT-TOKEN DEMO, END TO END** (TAG=r8tl,
+  EXPORT=tinyllama_dg_rot1_T128, the round-8 binary 6b601c14..., pins from
+  its approval record) [MEASURED, shared box: the gate lane's L22 job and
+  one fidelity job ran beside it; n=1], every step exit 0:
+  * pre-check: not-covered (no vocabulary scan for this export);
+  * prove (ho00, 128 tokens): run `cli/run-tinyllama_dg_rot1_T128-r8tl-
+    ho00`, owner dir `/home/victor/zk60-artifacts/token-io/run-tinyllama_
+    dg_rot1_T128-r8tl-ho00-a5e544c2a5c1.owner-private`; 24 segments /
+    502,462,848 B; prove 186.0 s, total 192.5 s (after 444 s of budget
+    wait), peak 3.70 GiB RSS / 4.32 GiB cgroup, parity 22 layers, floor 97;
+  * verify (published by this verifier) 23.4 s; re-check 22.9 s; owner:
+    **next token 491** (23.2 s); input-owner: 128 tokens (22.7 s).
+  The fidelity lane's references: integer 491 "by" (margin ~2.26 logits),
+  float model 491 (10.01): both AGREE. My integer cross-check queued
+  (`tools/crosscheck_int_next_token.py`).
+- 22:41 TinyLlama T128 integer cross-check (`runs/r8_crosscheck_tinyllama_
+  dg_rot1_T128_ho00.json`): R0's integer semantics on x_out_L21 row 127
+  with the export's own head: 491 (second 304), margin C 53,591,880
+  (11.4 % of the top value), max |y| 57; agrees with the decommitted 491.
+  Part B moved on to the 8B b7voc0_T128 demo (its prove waits for budget,
+  at most until 23:00 UTC).
+- 23:56 PART B ENDED (`logs/r8_round.done` = 0, the other lanes released):
+  the 8B b7voc0_T128 demo's prove was refused by its guard at the 23:00
+  cutoff ("could not take /tmp/zk-heavy.lock within 1357s", exit 70;
+  nothing proved, nothing written); the dg demo was skipped (past the
+  cutoff); **s12 FULL SUITE (exit 0): 753 passed, 0 failed, 39 ignored**
+  over 29 targets (s11 + the two T128 tests), 750 s after 2,624 s of
+  budget wait, peak 7.11 GiB RSS / 7.17 GiB cgroup (`logs/s12-suite.log`).
+  FINAL MANIFEST `manifest_final_r8.sha256` (234 files, bc32cd4a... = r8B;
+  vs final r7: run.rs, token_io.rs, token_io/load.rs, token_io/tests.rs
+  changed, token_io/t128_tests.rs added). The follow-up 8B chain
+  (`tools/r8_8b.sh`, marker `logs/r8_8b.done`) started on the release.
+- PROOF TIME PER PROMPT TOKEN [MEASURED, shared box, n=1 each]: TinyLlama
+  T128 (CLI, dg_rot1_T128, 22 blocks): prove 186.0 s / total 192.5 s for
+  128 tokens = 1.45 / 1.50 s per token; TinyLlama T32 (R2 harness,
+  pg_rot1_b4, 2026-10-18): prove 85.3 s for 32 = 2.67 s per token (x2.18
+  the time for x4 the tokens). Llama-3-8B T32 (CLI, b7voc0_T32, round 7):
+  prove 219.2 s / total 264.5 s for 32 = 6.85 / 8.27 s per token; 8B T128
+  pending (follow-up chain).
+
+## Round 9 (coordinator, queued ~00:00; coded during the 8B follow-up's waits)
+
+(1) F-T1 (gate finding): every token-stage witness (IN, OUT, endpoints)
+passes its lookup-miss / consistency check in a SEALING PASS before any run
+header, alongside the blocks' CS-3 check, so a refused token run writes
+nothing; test-first. (2) A capture through the CLI token path (the CLI's
+own verify-from-dir on a `prove` output, recorded through the round-7
+hooks), TinyLlama T32 L = 2, under ~/zk60-artifacts/token-io/captures/.
+(3) A named token CPU binary (release, round-9 tree; sha256 in a binaries
+file; a note of its build flags and features, CPU backend only). (4) Full
+suite, manifest, freeze the round-9 tree. Started after the 8B addendum's
+chain is running (the demos use the r8 binary copy; source edits cannot
+reach them).
+
+- 00:04 T-A (failing first, `manifest_r9A.sha256`, 4778f71b...): a
+  test-only run-header counter in `prove_token_run_with` (`run_headers()`),
+  and `token_io/r9_tests.rs`: a stage-IN lookup miss (B_in row 1 not
+  E[tok_1]); a stage-OUT lookup miss (a looked limb 300; R2-5's existing
+  pre-header check, a control); a block-1 exp lookup miss (CS-3); an input
+  endpoint sealed over another prompt and an output endpoint over another
+  token; each must be refused with NO header built and NO segment sunk;
+  the honest run proves with exactly one header. Launched
+  `t34-r9-failfirst`. Expected: stage IN, block and endpoint tests FAIL;
+  the stage-OUT control and the honest run pass.
+
+### Round 9, widened by privacy review round 4 (coordinator ~00:15; replaces the list above)
+
+PR4-4 (seal the token CLI: one sealing pass before any header — builder,
+stage IN / OUT, int16, bit-exact parity at every layer, CS-3 on every
+witness, the next token from the integer pipeline; F-T1 subsumed), PR4-10
+(a named CPU token binary + one CLI-path capture, P-18 style, NO new CLI
+hooks, TinyLlama T32 L = 2), PR4-15 (a refused run's removal not silent; a
+killed run's `<out>.incomplete/` refused by name with how to clear it),
+PR4-16 (owner decommitments under `~/zk60-owner-private/token-io/`, 0700;
+report — not delete — the existing owner-private directories), PR4-17 (no
+prompt on the command line: `--prompt-file` 0600 or stdin; `owner` writes
+the token to a 0600 file, stdout only with `--print`), then full suite,
+manifest, freeze round 9. Test-first; starts for real after the 8B
+addendum; staged meanwhile (nothing below touches the working copy, which
+t34 has yet to compile, or any script the running r8_8b chain uses).
+
+- 00:36 staged (no build yet; heavy lock held by the waiting 8B prove):
+  `wip-r9b/` (T-B: the generic sealing pass in `prove_token_run_with` with
+  `TokenRunSource::seal_check`, `stage_in::lookup_misses`, endpoint-plane
+  checks; the CLI's `seal_chain` (builder chain, int16, parity vs x_out at
+  every layer, CS-3; stage shape derived exactly as
+  `TokenRunStatement::stage_shape`), `read_prompt_file` (0600 / stdin),
+  `--prompt` refused (exit 2), `OWNER_BASE = zk60-owner-private`, removal
+  events + `REMOVAL-FAILED`, `leftover_refusal`, `owner --token-out /
+  --print`; `cli_tests.rs` moved to prompt files, per-call token files and
+  the new base; the CLI capture test rewritten P-18 style: CLI prove, CLI
+  verify (exit 0), then the run directory read with the CLI's own
+  `public_inputs` / `found_statement` / `statement_of` / counted segments
+  and `verify_token_run_with` run with the recorder attached — no hook
+  remains (`cli_capture` gone)). `wip-r9a2/` (T-A2 stubs + the failing-first
+  CLI tests). `wip-r9-tools/`: `layer0_precheck.py --prompt-file` (0600
+  checked) test-first — the new test FAILED on the old tool, then 8/8 OK on
+  the staged copy [MEASURED, bounded Python]; `r9_cli_demo.sh` (prompt file
+  under `~/zk60-owner-private/token-io/prompts/`, owner `--token-out`
+  without `--print`, private logs under the new base, a leftover
+  `<run>[.incomplete|.unverified-statement]` stops the demo before any
+  guard with `rm -r` instructions). `tools/r4_cli_demo.sh` and
+  `tools/layer0_precheck.py` stay as they are until `r8_8b.done` (the
+  running chain calls both).
+- 00:33 sent the coordinator the budget picture (two fidelity jobs, 5.5 GiB,
+  vs the 8 GiB prove); coordinator: HOLD #3 at 00:23 (fp-L_combo2_lam0
+  started 00:17, before it; nothing refills). 00:35:55 the 8B T128 prove
+  (`tio-r8x-d3-cli-prove`) STARTED after 2,366 s of admission wait.
+- PR4-16 inventory [COUNTED, `ls` 00:35], NOT deleted (the coordinator asks
+  Victor): under `~/zk60-artifacts/token-io/`, all 0700:
+  `run-b7_T32-ho00.owner-private` (10-19 04:21 PDT),
+  `run-b7_T32-ho00-r5.owner-private` (06:08), `run-b7_T32-r6-ho00-3d3a3b4113bd.owner-private`
+  (08:04), `run-llama3_8b_pg_rot1_b7voc0_T32-r7-ho00-ef2b58a0591d.owner-private`
+  (09:35), `run-tinyllama_dg_rot1_T128-r8tl-ho00-a5e544c2a5c1.owner-private`
+  (15:35) — the five — plus `run-llama3_8b_pg_rot1_b7voc0_T128-r8x-ho00-aca5d59eaa0c.owner-private`
+  (created 17:35 PDT by the running r8 binary, which predates PR4-16; the
+  r8dgx demo will add one more) and `demo-logs-r6x/` (a private-prompt
+  demo's logs). `~/zk60-owner-private/` does not exist yet.
+- 00:41 the round-9 chain is staged, NOT launched (it goes after the 8B
+  addendum): `tools/r9_chain.sh` (marker `logs/r9_chain.done` = the first
+  failing step's number, 0 = all passed) waits for t34 AND `r8_8b.done`,
+  then: t34's failures checked to be exactly the expected three
+  (`tools/r9_expect.py`, new: the FAILED set must equal the expected set,
+  at least one test passing); the working copy checked = manifest_r9A;
+  sync T-A2 (= manifest_r9B) -> t35 (cli_tests; exactly the seven pr4_*
+  fail) -> sync T-B (= manifest_r9C) -> t36 (token_io module, all pass) ->
+  t37 (staged tools applied, pre-check tests) -> b9 (the named CPU binary
+  `cli/zk60_token_io.r9.release.bin`, `binaries_r9.sha256`, build note
+  `zk60_token_io.r9.BUILD.txt`: command, toolchain rustc/cargo 1.97.1,
+  default features (no gpu-cuda), release profile, no rustflags, source =
+  manifest_r9C) -> c9 (the CLI capture with that binary: its own `prove`
+  and `verify` processes, then the run directory verified in the test with
+  the recorder attached; capture
+  `~/zk60-artifacts/token-io/captures/tinyllama-t32-L2-dense-pt1-cli-r9`,
+  prover-side work tree `~/zk60-owner-private/token-io-cli-capture-r9`) ->
+  s13 full suite (need 7.5 / cap 9.5; s12 peaked 7.11) ->
+  manifest_final_r9. The capture test gained an optional
+  `HL_PB_CLI_BIN` / `HL_PB_CLI_BIN_SHA256` (the named binary as a
+  subprocess; the hash is computed by the launcher, so no new hash call
+  site enters the census).
+- 00:41 8B T128 prove (r8x) at segment 17 / 34, 258.6 s, RSS 8.07 GiB
+  (need 8 / cap 10); fp-L_combo2_lam250 (2.5 GiB) admitted beside it at
+  00:36 (10.5 of 11.9 GiB).
+- 00:44 8B T128 (r8x, b7voc0_T128, r8 binary 6b601c14...) PROVED [MEASURED,
+  shared box: one 2.5-3 GiB fidelity job beside it, guard 8 / cap 10]:
+  prove 464.7 s, total 501.6 s for 128 tokens = 3.63 / 3.92 s per token
+  (8B T32: 6.85 / 8.27 s per token; x0.53 / x0.47 per token); 34
+  segments, receipt 928,442,704 B; witness 76.5 s, block load 35.8 s;
+  parity bit-exact at 32 layers; whole-run floor 96 bits; VmHWM 8,175 MiB
+  (guard peak 7.97 GiB); admission wait 2,366 s. Verify steps follow.
+- 00:50 r8x demo complete, every step exit 0 [MEASURED]: verify (publishes
+  statement/) 56.4 s verify / 91.7 s total, peak 3.27 GiB; re-check 56.5 /
+  89.1 s; owner: decommitted next token 11 = both references (integer 11,
+  margin ~0.55; float 11); input-owner confirmed the prompt. (The r8
+  binary prints the token in the owner log; PR4-17's 0600 token file is
+  round-9 code.) r8dgx demo and the cross-checks follow in the chain.
+- 00:50 r8x public-file cross-check (`runs/r8_crosscheck_llama3_8b_pg_rot1_b7voc0_T128_ho00.json`)
+  [MEASURED]: decommitted 11 = calibration lane's integer head 11 = R0
+  integer 11 = float head on the integer row 11; integer top-2 margin C
+  18,135,586; float-head top-2 margin 0.611 logits (the fidelity lane's
+  ~0.55 is its own float reference's). r8dgx pre-check exit 0 (clear).
+- 00:54 t34 (F-T1 failing first, working copy = manifest_r9A) exit 101 as
+  expected [MEASURED: 212.6 s, peak 1.96 GiB, after 2,720 s waiting for the
+  heavy lock]; `tools/r9_expect.py`: exactly the expected three FAILED
+  (stage-IN miss, block-1 exp miss, endpoint over another prompt / token),
+  the stage-OUT control and the honest run passed. What the old prover
+  did: the stage-IN lookup miss and the input endpoint sealed over another
+  prompt were NOT refused by the prover at all (the run proved; the
+  verifier's own checks are a separate matter, not exercised by this
+  test); the block-1 exp miss was refused by CS-3 only AFTER the run header
+  ("refused (private block: ruling CS-3 ...) only AFTER the run header was
+  built"). This is the gap the sealing pass (T-B) closes.
+- 01:06 8B T128 (r8dgx, dg_rot1_voc0_T128, r8 binary) PROVED [MEASURED,
+  shared box: a 3 GiB fidelity job and a 0.6 GiB gate job beside it]:
+  prove 488.6 s, total 529.2 s for 128 tokens = 3.82 / 4.13 s per token;
+  34 segments, receipt 928,442,704 B (= b7voc0's: same geometry); witness
+  85.2 s, block load 35.6 s; parity bit-exact at 32 layers; floor 96
+  bits; VmHWM 8,104 MiB (guard 7.89 GiB); admission wait 390.5 s.
+- 01:12 r8dgx demo complete, every step exit 0 [MEASURED]: verify 58.8 s /
+  95.1 s total (peak 3.31 GiB); re-check 57.1 / 91.5 s; owner: next token
+  11; input-owner confirmed the 128-token prompt. Cross-check
+  (`runs/r8_crosscheck_llama3_8b_dg_rot1_voc0_T128_ho00.json`): 11 = lane
+  integer head 11 = R0 integer 11 = float head 11; integer top-2 margin C
+  121,758,846; float-head margin 3.662 logits (fidelity lane ~3.69).
+  01:12:56 `logs/r8_8b.done` = 0. ROUND 8 ADDENDUM complete: 8B T128 per
+  token [MEASURED, shared box, not quiesced] b7voc0 3.63 / 3.92 s, dg
+  3.82 / 4.13 s (prove / total) vs 8B T32 6.85 / 8.27 s; TinyLlama T128
+  1.45 / 1.50 s. New owner-private dirs from the r8 binary (pre-PR4-16):
+  `run-llama3_8b_pg_rot1_b7voc0_T128-r8x-ho00-aca5d59eaa0c.owner-private`,
+  `run-llama3_8b_dg_rot1_voc0_T128-r8dgx-ho00-ba0c666497f4.owner-private`
+  (not deleted).
+- 01:13 the 8B addendum SENT to the coordinator (SendMessage). 01:13:35
+  ROUND 9 CHAIN LAUNCHED (setsid nohup; `logs/r9_chain.log`, marker
+  `logs/r9_chain.done`): t34 expectation re-checked ok; working copy =
+  manifest_r9A (changed 0); T-A2 synced (cli.rs stubs + cli_tests.rs) =
+  `manifest_r9B.sha256`; t35 queued on the heavy lock.
+- 01:15 COORDINATOR (on t34): the old prover not refusing a stage-IN miss
+  or an input endpoint over another prompt is an H-1 matter; the question
+  is whether the VERIFIER rejects what such a prover produces (else a
+  soundness bug). Add early: run the round-8 prover path to completion
+  without the sealing check, show `verify` REJECTS naming the failing
+  check (expected: stage-IN LogUp; endpoint IO claim); say where a prover
+  stops; if any output VERIFIES, stop and report at once.
+- 01:17 `token_io/r9v_tests.rs` (new; `#[cfg(test)] mod r9v_tests;` added
+  to the working copy's token_io.rs while t35 still waited for the lock):
+  V1 t34's exact stage-IN miss (B_in row 1 word 3 + 1, downstream as the
+  honest pipeline made it) -> predicted stage IN LogUp; V2 the same miss
+  with everything downstream re-derived (R1 #16b's consistent forger) ->
+  stage IN LogUp; V3 t34's input endpoint over another prompt -> stage IN
+  slot SI_IO; V4 t34's output endpoint over another token -> stage OUT slot
+  SO_IOOUT. Each case runs the PLAIN prover (on a build without the
+  sealing pass = the round-8 path) and the CHEATING prover (no honest
+  refusal, the sealing pass included), lets it finish if it can, verifies
+  what it made; a verify Ok PANICS ("A RUN FROM A PROVER WITHOUT THE
+  SEALING CHECK VERIFIED"); every rejection must be at the predicted site;
+  each case must reach the verifier at least once. Related R1 controls
+  already green since round 1: #16b (InLogUp), #10a (SI_IO), #9 (SO_IOOUT),
+  all with the cheating prover.
+- 01:17 old-code evidence: a snapshot of the working copy (= manifest_r9B +
+  r9v; run.rs is the round-8 prover, no sealing pass) at
+  `r9v-old/token-io/` (hashline, zkp-core, both kernel crates; diff -rq
+  identical to the working copy); `t35v-r9-verifier-oldpath` launched
+  (guard cpu 3 / 5 GiB, CARGO_TARGET_DIR = the lane's target, so the chain's
+  later T-B sync cannot reach it). The T-B build runs the same file in t36
+  (plain prover refused by the seal; cheating prover = the old path).
+- 01:30 t35v (round-8 prover code, snapshot r9v-old/) exit 0 [MEASURED:
+  236.1 s, peak 2.01 GiB, waited 523.6 s]: NOTHING VERIFIED. 8 of 8 runs (V1-V4
+  x plain / cheating prover) FINISHED and were REJECTED by `verify` at the
+  predicted site: V1 (t34's exact stage-IN miss) and V2 (the consistent
+  forger) at "stage IN H (the LogUp sum claim is part of this opening): pcs
+  zk: group 3: <v, c> != combined claim"; V3 (input endpoint over another
+  prompt) at "stage IN slot 00 [IN-00 IO-in: token endpoint = supp_T tok
+  (whole padded plane)]: sumcheck round 0: s(0) + s(1) != claim"; V4
+  (output endpoint over another token; the old plain prover did not refuse
+  it either) at "stage OUT slot 10 [OUT-10 IO-out ...]: sumcheck round 0".
+  The t34 gap is refusal timing (H-1), not soundness; agrees with REVIEW5
+  §2.5 (RV6-8). Reported to the coordinator.
+- 01:20 COORDINATOR: REVIEW5 landed (demo-fit on frozen-r7, nothing
+  affecting soundness). Fold in: TR6-1 (= PR4-17, input-owner too), TR6-2
+  (= PR4-4: stage-IN consistency + every block's CS-3 before the first
+  segment), TR6-3 (check the DEFAULT owner directory for a git working tree
+  when $HOME is a repo), TR6-4 / TR6-6 (voc0 approval record wording; the
+  pre-check's "coming" text), TR6-7 (CLI README: /1-statement runs
+  re-check only with the r6 binary).
+- 01:30 TR6-3 staged into wip-r9b (copied 01:30:36, after t35 started at
+  01:30:19 on the T-A2 working copy, before the chain's T-B sync). FINDING:
+  this box's `$HOME` holds a STUB `.git` (`/home/victor/.git`: only
+  `info/`, Jun 12; no HEAD / objects / refs: git itself walks past it).
+  The TR5-3 (a) rule (any `.git` entry = a working tree) therefore already
+  refuses every explicit `--owner-dir` under `$HOME` (it would have refused
+  c9's), and TR6-3 as worded would refuse every default. Applied git's own
+  rule, to explicit AND default: a `.git` directory holding `HEAD`, or a
+  `.git` file starting `gitdir:` (any other `.git` entry counts,
+  conservatively); a stub without HEAD does not count. NOT detected:
+  GIT_DIR / --git-dir work trees (documented). Tests: TR5-3 (a)'s fixture
+  now writes `.git/HEAD`; new `tr6_3_the_default_owner_directory_is_checked_for_a_git_working_tree`
+  (repo $HOME refused, worktree-file $HOME refused, stub accepted for
+  default and explicit). Flagged to the coordinator for review.
+- 01:31 coordinator: V1-V4 accepted (matches REVIEW5); TR6-3 APPROVED as
+  built (git's rule, default + explicit, stub accepted and tested);
+  document the GIT_DIR / --git-dir gap; do not touch `$HOME/.git`.
+- 01:31 TR6-3 failing first on the old code: the same test added to the
+  snapshot's (T-A2) cli_tests; `t35w-tr63-failfirst` launched (filter
+  `cli_tests::tr6_3` + `cli_tests::tr5_3`; expected: tr6_3 FAILS — the
+  default accepted inside a repo `$HOME` — tr5_3_* pass).
+- 01:33 TR6-4 (wording only; values unchanged, checked field by field):
+  `tools/approval_record.py` named every record after the first one (b7
+  T32, calibration lane); now `record` names the export, `written_by`
+  says "this export's own token_io/ files and its SHA256SUMS", key
+  `token_io_SHA256SUMS_sha256`. The four records written for fidelity-lane
+  exports (b7voc0_T32 5367a930 -> 9ccb9962, b7voc0_T128 c995594f ->
+  2f91ab30, dg_T128 601bd085 -> 165eab37, tinyllama_T128 916bbcd5 ->
+  b42ed9fc; first 8 hex of the file sha256) corrected the same way, each
+  with a `wording_corrected` note holding its old file sha256; the voc0_T32
+  record's evidence gains the reviewer's independent reproduction of
+  expect_statement c3fb8c5b... (TR6-4's "second derivation"). The b7_T32
+  record (the calibration lane's own export) unchanged.
+- 01:33 TR6-6: `tools/layer0_refusals.json` "fix" now points at the landed
+  b7voc0_T32 export and its approval record (was "... is coming");
+  checked: the pre-check prints it. The staged r9 demo header says the
+  same, and documents the TR6-3 rule and the GIT_DIR / --git-dir gap.
+- 01:33 TR6-7: `cli/README.md` (new, at the coordinator's request): the
+  binaries with their sha256 (each checked against the file), and which
+  binary re-checks which run: schema `/1` runs (r4 / r5 / r6) ONLY with
+  `zk60_token_io.r6.release.bin`; schema `/2` runs (r7, r8) with r7 or
+  later; the round-9 interface changes.
+- 01:34 t35 (PR4 CLI tests failing first, working copy = manifest_r9B + r9v)
+  exit 101 as expected [MEASURED: 232.1 s, peak 1.97 GiB, waited 1,003 s];
+  `t35-expect`: exactly the seven pr4_* FAILED, 9 passed. Failures as
+  designed: PR4-15 the leftover refusal lacks `rm -r`; PR4-16 the default
+  under zk60-artifacts; PR4-17 `--prompt` accepted, `--token-out` unknown;
+  PR4-4 parity mismatch and extreme input refused only AFTER the header, no
+  `seal_chain`. T-B synced at 01:34 (incl. TR6-3 and the example's doc
+  header) = `manifest_r9C.sha256` (b666a991...; vs r9B: 9 changed, r9v
+  added). t36 (token_io module) STARTED 01:34:13.
+- 01:40 t36 (token_io module on the T-B tree, manifest_r9C) exit 0
+  [MEASURED: 366.4 s, peak 6.07 GiB]: 61 passed, 0 failed, 9 ignored —
+  incl. the seven pr4_* (now green), tr6_3, the five r9_* (every
+  inadmissible witness refused BEFORE the header; the honest run proves
+  with one header) and both r9v_* (on the sealed build the cheating prover
+  = the old path finishes and is rejected at the predicted sites; nothing
+  verifies). 01:40 t37: the staged tools applied (layer0_precheck.py
+  --prompt-file, its test, r9_cli_demo.sh); pre-check tests 8/8 OK.
+  b9 (the named binary) queued. 01:41 `t38-r9v-sealed` queued: r9v again
+  with --nocapture on the sealed build, to record each path's outcome.
+- 01:44 t35w (TR6-3 failing first, old-code snapshot) exit 101 as expected
+  [MEASURED: 221.3 s, peak 2.0 GiB]: tr6_3 FAILED with "REVIEW TR6-3: the
+  default owner directory inside a git working tree ($HOME a repository)
+  was accepted"; tr5_3_a / tr5_3_b passed on the old code. On the T-B tree
+  tr6_3 passes (t36).
+- 01:44 HANDBACK FORCED by the harness while the round-9 chain is still
+  running: b9 (named binary build) STARTED 01:44:02; then c9 (CLI capture),
+  s13 (full suite), manifest_final_r9 run unattended inside
+  `tools/r9_chain.sh` (marker `logs/r9_chain.done` = first failing step,
+  0 = all passed); `t38-r9v-sealed` queued (marker `logs/t38-r9v-sealed.done`).
+  Still owed after those land: record b9 / c9 / s13 / manifest_final_r9;
+  freeze `frozen-r9/` from manifest_final_r9; the round-9 report.
+- 01:45 b9 exit 0: the named round-9 CPU binary built; b56f1b7152e617e8753c21aa9c77fa5de19862df759081cce514d0766c8d4851 (cli/binaries_r9.sha256; note cli/zk60_token_io.r9.BUILD.txt). c9 (CLI capture) next in the chain.
+- 01:45 t38 (r9v, sealed build, --nocapture) exit 0: the PLAIN prover is
+  now refused in the sealing pass, before any header, in all four cases
+  (V1/V2 "stage IN: the witness's embedding lookup misses", V3 / V4 "the
+  input / output token endpoint's sealed plane is not the stage
+  witnesses'"); the CHEATING prover (= the old path) finishes and verify
+  rejects at the predicted sites (stage IN H LogUp; IN-00; OUT-10).
+- 01:45 c9 exit 0 [MEASURED: 22.4 s, guard peak 1.15 GiB]: the CLI-path
+  capture with the NAMED binary b56f1b71... as its own processes:
+  TinyLlama T32 L = 2 view, `prove` sealed (2 blocks, parity at 2 layers,
+  0.59 s) and proved (4 segments, 27,422,816 B, 7.5 s prove / 11.2 s total,
+  floor 100 bits), `verify` published the statement (2.3 s / 4.2 s); then
+  the run directory read with the CLI's own readers and verified with the
+  recorder attached (P-18, no CLI hook; 4.6 s); bundle at
+  `~/zk60-artifacts/token-io/captures/tinyllama-t32-L2-dense-pt1-cli-r9/`
+  (run.json 42,260 B; stage files 2,551,215 / 3,605,078 / 3,609,108 /
+  4,916,549 B; arrays.bin 39,231,584 B; README.md, manifest.json). The
+  prover-side work tree (export view, owners' decommitments) stays under
+  `~/zk60-owner-private/token-io-cli-capture-r9/`. s13 next.
+- 02:58 (coordinator relay) / 03:00 recorded: s13 full suite on the T-B
+  tree exit 0 [MEASURED: 770.6 s, peak 6.86 GiB, admission wait 3,524 s]:
+  768 passed, 0 failed, 40 ignored over 29 test binaries.
+  `manifest_final_r9.sha256` written by the chain: 236 files, list sha256
+  b666a991... = manifest_r9C (changed 0); vs final_r8: 9 changed, 2 added.
+  `logs/r9_chain.done` = 0.
+- 03:01 FROZEN: `frozen-r9/` copied from the working copy and re-hashed:
+  236 of 236 match manifest_final_r9, none missing, none extra
+  (`frozen-r9.FROZEN.txt`). vs frozen-r7: 12 changed, 3 added, 0
+  removed; ONE block/run file, `private_block/run.rs` (round 8, additive:
+  the two T128 token-run profile constants, TOKEN_IO_RUN_PROFILES 3 -> 5,
+  two run-shape match arms; no existing line changed); the other 14 are
+  token-only (token_io.rs, token_io/{capture_tests, cli, cli_tests, load,
+  r2_tests, r3_tests, run, stage_in, tests}.rs changed; r9_tests, r9v_tests,
+  t128_tests added; examples/zk60_token_io.rs changed). Round 9 complete;
+  report sent.
+
+## Round 10 (coordinator ~03:05 UTC 2026-10-20): the presenter demo kit
+
+Victor will show it to investors. (1) `tools/demo_present.sh`: one command,
+default 8B T32 b7voc0 + ho00 prompt file, precheck -> prove -> verify ->
+owner -> input-owner with plain-language narration, elapsed times and
+proof size; options TinyLlama (fast) and 8B T128; guarded, detached, logs
+outside the repo. (2) `DEMO_PRESENTER.md`: one page — what is shown, what
+each step proves / hides, honest measured numbers, what NOT to claim
+(D33's scope only; next-token statement in review; fidelity below the D32
+bar; no GPU), five-question Q&A. (3) A TinyLlama dry run, transcript saved.
+Frozen-r9 binary b56f1b71...; no prover code changes.
+
+- 03:10 facts gathered: tokenizers on disk (Llama-3:
+  local-models/zk60-llama3-8b/tokenizer.json via `tokenizers` 0.21;
+  TinyLlama: ~/models/tinyllama-1.1b-chat-fe8a4ea1/tokenizer.model via the
+  calibration lane's spm_bpe.py); both ho00 prompts are the opening of the
+  Apache License 2.0 text; 8B b7voc0_T32 ho00 next token 11 = ",". The
+  TinyLlama fast option = the R2 export pg_rot1_b4_T32_cal128 (+ r2_inputs
+  heads), which has NO approval record yet (split layout: embedding in the
+  export root, head in r2_inputs; both manifests carry every table's
+  sha256). Measured step times: 8B T32 CLI prove 264.5 s (peak 3.39 GiB),
+  verifying steps ~80 s (2.8 GiB); TinyLlama T32 prove ~98 s (2.45 GiB),
+  verify ~28 s.
+- 03:09 tools written (no prover code touched): `tools/demo_decode.py`
+  (owner-side id -> text, Llama-3 tokenizer.json / TinyLlama spm_bpe;
+  refuses a prompt file not 0600); `tools/approval_record.py` gains a
+  split-layout mode (`--emb DIR --head DIR`: each binary table re-hashed
+  against the sha256 its own manifest records); the TinyLlama option's
+  approval record `approvals/token_profile_approval_pg_rot1_b4_T32_cal128.json`
+  ("coordinator, round-10 instruction: the presenter demo's TinyLlama
+  option"; export profile 826f7641... = the calibration ledger's; 5 table
+  files checked; pins from `zk60_token_io profile`, r9 binary, over the
+  verifier copy `~/zk60-artifacts/token-io/demo-present/verifier-export-pg_rot1_b4_T32_cal128`:
+  identity 78ccaba5..., token profile 5857be9d...; scope note: b4 is
+  outside D33). `tools/demo_present.sh` (one command; 8b-t32 default /
+  tinyllama / 8b-t128; checks the r9 binary's sha256; pins from the
+  approval record; ho00 written to a 0600 prompt file and decoded for the
+  owner; pre-check -> prove -> verify (public copy) -> owner (token to a
+  0600 file, decoded) -> input-owner; plain-language lines, times, proof
+  size, an inference comparison and a D33 footnote; detaches itself
+  (setsid nohup) and follows its transcript; every heavy step guarded;
+  everything outside the repo: transcript / logs / prompt under
+  `~/zk60-owner-private/token-io/demo-present/<TAG>/` (0700), the proof under
+  `~/zk60-artifacts/token-io/demo-present/run-<TAG>`).
+  `DEMO_PRESENTER.md` drafted (TinyLlama cells filled from the dry run).
+- 03:09 TinyLlama dry run launched (TAG tinyllama-dryrun-r10); its prove
+  step waits for the heavy lock (another lane's build holds it).
+- 03:21 TinyLlama DRY RUN 1 (TAG tinyllama-dryrun-r10) exit 0 [MEASURED]:
+  every step passed; prove 71.5 s (85.9 s with loading; sealing pass 7.5 s),
+  receipt 255,258,816 B, 24 segments, floor 97; verify 10.6 s; owner opened
+  token 29914 "/" (the prompt ends "http://www.apache.org"); input-owner
+  confirmed; work 132.1 s (prove 85.9, verify 16.4, owner 14.8, input-owner
+  15.1; peaks <= 1.26 GiB) after a 551.6 s guard wait. Then the script:
+  summary splits work from waiting; the 8b-t128 option uses the dg export
+  (best 8B fidelity, own approval record, clear pre-check; same speed).
+- 03:47 DRY RUN 2 on the final script (TAG tinyllama-dryrun-r10b) exit 0:
+  prove 68 s (81 s), verify 10 s, token "/", 130 s of work (1,538 s wall,
+  1,408 s waiting for the guard). Transcript (outside the repo):
+  `~/zk60-owner-private/token-io/demo-present/tinyllama-dryrun-r10b/transcript.txt`.
+  Header estimates updated: 8B T32 ~9-10 min, 8B T128 ~15-16 min [MODEL:
+  r7 / r8 step times + the round-9 sealing pass, ~+20% from the TinyLlama
+  ratio]. `DEMO_PRESENTER.md` final (95 lines). Round 10 complete.
+- 03:55 coordinator: round 10 ACCEPTED; the TinyLlama b4 approval record
+  CONFIRMED for demo use (not a privacy acceptance; b4 outside D33); keep
+  8b-t128 on dg. Edit made: DEMO_PRESENTER.md's speed line now says reaching
+  50 needs the whole prover on the GPU near hardware limits plus some design
+  changes (speed plan §5). Round 10 closed; stopping.
+
+## Round 11 (coordinator ~05:05 UTC 2026-10-20): demo polish (REVIEW6)
+
+REVIEW6: frozen-r9 demo-fit, nothing affecting soundness or leaks. Items:
+TR7-1 (ratios labelled by what they cover; the reviewer's measured r9 8B T32
+288.7 s / 36.9 s sealing / 208.6 s prove), TR7-4 (wording: "never given",
+D33's exact scope in Q4, "the integer model's next word"), TR7-3
+(`demo_decode.py --id-file`), TR7-5 (test: the CLI's copied stage-shape
+derivation = the library's at every registered profile), TR7-6 (`owner`
+refuses an existing token-out before re-verifying), TR7-7 (a looser
+pre-existing owner base: refuse or tighten; say which), TR7-2 (dry-run both
+8B options through demo_present.sh), full suite, manifest, freeze r11.
+
+- 05:18 T-A (failing first; manifest_r11A 03807bce...): cli.rs gains a
+  test-only re-verification counter (`check_runs()`, bumped at check_run's
+  start) and a STUB `cli_stage_shape` (returns the run's shape);
+  `token_io/r11_tests.rs` (new): at every registered profile, layers with
+  none / the score shift / every non-window field at once / tn alone /
+  ceps alone own (admissible neighbours probed at that shape), CLI
+  derivation == `TokenRunStatement::stage_shape(k)`, and every own layer
+  changes the shape (non-vacuity); cli_tests: `tr7_6_...` (existing
+  explicit and default token files refused with NO re-verification started,
+  untouched; a fresh path re-verifies once) and `tr7_7_...` (a pre-existing
+  base at 0755 / 0750 ends 0700 at both levels; a base that is a file is
+  refused).
+- 05:21 t39 exit 101 as designed [MEASURED 212.9 s, peak 1.98 GiB]: exactly
+  the 3 new tests FAILED — TR7-5 at the rung's layer 1 (stub), TR7-7 "the
+  pre-existing base ... was left looser than 0700", TR7-6 "the owner
+  re-verified BEFORE refusing the existing --token-out".
+- 05:20 TR7-3 test-first (Python): `tools/test_demo_decode.py` (new) FAILED
+  on the old tool (--id-file unknown; the prompt-file control passed), then
+  `demo_decode.py --id-file` (exactly one id, 0600 required) -> 2/2 OK.
+  `demo_present.sh` reads the answer through `--id-file $OD/next_token`
+  (the id never on a command line); TR7-4 narration ("was never given the
+  prompt or the answer (*)", "(*) and the proof is designed so the verifier
+  learns nothing about them ...", "the integer model's next word"); the
+  8b-t128 prove declared need 8.5 / cap 10 (r8 peak 7.97 GiB + margin).
+  DEMO_PRESENTER.md: TR7-1 ratios labelled (whole next-word proof 8B T32
+  ~135x prove / ~186x with loading on the r9 binary [the reviewer's run];
+  8B T128 ~87-94x [r8 binary]; 32 layers alone, quiet box ~100x / ~77x),
+  the ~320 s estimate replaced by 288.7 s; TR7-4 (verifier "never given";
+  "exact integer version"; Q4 names D33's scope: pg_rot1, R7 build,
+  extension pending Victor, the TinyLlama option b4 on r9 code outside).
+- 05:22 T-B synced (manifest_r11B): `cli_stage_shape` real (as
+  `TokenRunStatement::stage_shape`: the run's shape when the layer's
+  calibration equals the run's, else with_layer_calibration) and used by
+  `seal_chain`; TR7-6: `owner_inner` resolves the token path FIRST and
+  refuses an existing one before `check_run` (create-new still closes the
+  race); TR7-7: CHOSE TIGHTEN — `tighten_to_0700` on both base levels
+  after DirBuilder (a looser pre-existing directory set to 0700, printed as
+  `{"event":"owner-base-tightened","path":...,"was":"755","now":"700"}`;
+  not a directory, or not tightenable, refused). Example doc header updated.
+  t40 (token_io module) launched.
+- 05:23 `tools/r11_chain.sh` launched (marker `logs/r11_chain.done`: 0, or
+  40 / 14 / 11 for the failing step): waits for t40, then s14 (full suite,
+  need 7.5 / cap 9.5), then b11 (the named r11 CPU binary
+  `cli/zk60_token_io.r11.release.bin`, `binaries_r11.sha256`,
+  `zk60_token_io.r11.BUILD.txt`), manifest_r11C. HANDBACK FORCED by the
+  harness here. Still owed after the chain: switch demo_present.sh to the
+  r11 binary (BIN / BIN_SHA / "round-11" wording), TR7-2 dry runs of
+  8b-t32 and 8b-t128 through demo_present.sh (transcripts under
+  ~/zk60-owner-private/token-io/demo-present/), DEMO_PRESENTER.md's 8B
+  rows from those runs, manifest_final_r11, frozen-r11/, the report.
+- 06:56 (coordinator relay) r11_chain.done = 0: t40 (token_io module, T-B)
+  exit 0, 64 passed / 0 failed / 9 ignored [353.2 s, peak 6.11 GiB]; s14
+  full suite exit 0, 771 passed / 0 failed / 40 ignored over 29 test
+  binaries [668.6 s, peak 6.89 GiB, admission wait 3,014 s]; b11: the named
+  round-11 CPU binary `cli/zk60_token_io.r11.release.bin` sha256
+  0c9f247c0f91162177f8ed90285f8664cc4dd36ebd8934dc650804bafe5c2c6b
+  (`cli/binaries_r11.sha256`, `cli/zk60_token_io.r11.BUILD.txt`; the cargo
+  build took 13 s: s14's `cargo test --release` had already rebuilt the
+  release example from the same source); manifest_r11C = r11B (d8075d76...).
+- 06:57 demo_present.sh pinned to the r11 binary (BIN / BIN_SHA / "frozen
+  round-11 CPU build"; the 8B T32 estimate from the reviewer's 288.7 s).
+  TR7-2 dry runs launched (`tools/r11_dryruns.sh`, marker
+  `logs/r11_dryruns.done` = "<8b-t32 exit> <8b-t128 exit>"). The wrapper
+  sent each presenter window's copy to logs/ inside the repo (a duplicate of
+  the transcript, prompt text included): moved at once to the run's 0700
+  folder as `window.log` (the 8b-t128 one moved by a watcher when it
+  appears); nothing of the runs stays in the repo.
+- 07:31 manifest_final_r11 (237 files, list sha256 d8075d76... = r11C) and
+  FROZEN `frozen-r11/`: 237 of 237 re-hashed match, none missing, none extra
+  (`frozen-r11.FROZEN.txt`). vs frozen-r9: 4 changed + 1 added, all
+  token-only (example doc header, token_io.rs mod line, cli.rs,
+  cli_tests.rs, r11_tests.rs); no block / run file changed since frozen-r9.
+- 07:29 the 8b-t32 dry run's prove waits for admission (need 4.5; budget
+  10.5 of 11.9 held by gate-r9 and fidelity light jobs) since 06:57.
+- 07:57 the first 8b-t32 dry run STOPPED: its prove guard refused (exit
+  70) after the default 1-h wait (fidelity's 8B stack eval at 5 GiB + gate
+  light jobs filled the budget); nothing proved. The wrapper then started
+  8b-t128 (prove need 8.5, 1-h wait), which cannot be stopped here (no
+  kill); it waits for the heavy lock / budget and will refuse by ~08:58
+  unless room opens. COORDINATOR (07:58): relaunch 8b-t32 with a >= 4-h
+  wait (gate lane held until its marker appears); run 8b-t128 only when
+  fidelity's four 8B stack runs are done or the guard shows room, same long
+  wait; declarations stay at measured peaks.
+- 07:59 8b-t32 RELAUNCHED: TAG 8b-t32-dryrun-r11b, WAIT_SECS 14400,
+  window output in the private demo-present folder; marker
+  `~/zk60-owner-private/token-io/demo-present/8b-t32-dryrun-r11b/demo.done`
+  (sent to the coordinator).
+- 08:00 HANDBACK FORCED by the harness while the 8B dry runs wait for
+  admission (8b-t32-dryrun-r11b, 4-h wait; the first 8b-t128 with a 1-h
+  wait, which refuses by ~08:58 unless room opens). Owed when resumed:
+  record the 8b-t32 run; relaunch 8b-t128 (TAG 8b-t128-dryrun-r11b,
+  WAIT_SECS 14400) when fidelity's 8B stack runs are done or the guard
+  shows room, unless the first attempt ran; put the measured 8B rows on
+  DEMO_PRESENTER.md; send the round-11 report.
+- 09:01 (coordinator relay; recorded from the runs' own logs) TR7-2 DONE,
+  both through `demo_present.sh` on the r11 binary, every step exit 0,
+  token 11 "," at both lengths [MEASURED, n = 1]:
+  * 8b-t128 (TAG 8b-t128-dryrun-r11, the first attempt; admitted after
+    2,326 s when fidelity's 5 GiB job ended; one 2 GiB fidelity light job
+    beside it): prove 437.3 s / 568.5 s with loading (sealing pass 90.6 s),
+    receipt 928,442,704 B, floor 96, peak 7.99 GiB (VmHWM 8,213 MiB, within
+    the 8.5 / 10 declaration); verify 55.0 s (87.6 s total); owner 89.8 s,
+    input-owner 88.9 s; 839 s of work.
+  * 8b-t32 (TAG 8b-t32-dryrun-r11b, 4-h wait; admitted after 3,052 s; no
+    other guarded job during the prove): prove 216.8 s / 295.8 s (sealing
+    36.3 s), receipt 471,285,072 B, floor 97, peak 3.39 GiB; verify 49.8 s
+    (81.4 s total); owner 78.8 s, input-owner 78.3 s; 538 s of work.
+  DEMO_PRESENTER.md: the 8B columns are these runs; ratios [COUNTED] vs the
+  8-bit engine (1.55 s / 5.6 s): whole next-word proof ~140x (prove) to
+  ~191x (with loading) at 32 tokens, ~78x to ~102x at 128; 32 layers alone,
+  quiet box ~100x / ~77x; verify 50 / 55 s; peaks 3.4 / 8.0 GiB; 0.11 /
+  0.23 tokens/s; the reviewer's r9 288.7 s agrees within 3%. demo_present.sh
+  header times now measured. Round 11 complete.
+
+## Round 12 (coordinator, 2026-10-21): the classifier verdict stage — design first
+
+D38 (Shieldstral-1.0-3B, text only; statement z_yes − z_no > c; disclosure = verdict +
+model + policy). D36 extended to frozen-r11 / 0c9f247c... Paper first; the adversarial check
+follows (routed by the coordinator); implementation after it, on frozen-r11, test-first.
+
+- 02:41 DESIGN v1 written: `classifier/DESIGN_CLASSIFIER.md`.
+  * Input: stage IN plus one template clause with its own fresh coefficient,
+    μ_tmpl·π(t)·(tok(t) − κ(t)), generalising BOS. The endpoint holds the whole plane;
+    the owner check is extended to the template. n is public (public-row variant; T in a
+    profile class, since blocks already run tokens < t_pad). Tokenisation-boundary stability
+    is an open check item. Hidden length is sketched via D26's selector.
+  * Output: stage OUT-C. Final norm (tn 10 at width 3072), then ONE margin slot MRG,
+    Σ y·w_Δ − σΣ λ·256^k = σb + c, with w_Δ = m_yes W'_yes − m_no W'_no public and tied.
+    5 byte limbs (window 40 bits derived, |Δ| ≤ 2^38.56). b is PUBLIC and absorbed by the
+    statement transcript; no output endpoint. Soundness via the integer identity, which is
+    complete incl. the tie (= not flagged).
+  * Leaks: only b. Rule O-1: one threshold per (content, policy), since k thresholds
+    reveal k bits. The refusal channel as D20 / D34.
+  * Binding: RECOMMEND the input endpoint root + the input-owner decommitment + public
+    re-tokenisation; this needs a D23 amendment (Victor). A plain hash in the statement is
+    rejected (unsound: unchecked). The in-circuit hash (D18-B) is the end state.
+  * F6 sketch: counted with the layout replica (native ladder method) on Shieldstral's
+    padded domains, `classifier/f6_count.py` / `.json`. Gain 2.1–4.9x where
+    npow2(n+1) < npow2(n+91) (e.g. n = 32 / 48 / 64 / 200), 1.0x at n = 128 / 256. Verifier:
+    a template K/V cache verified once per (model, template). Gate questions G1–G5.
+  * Test-first plan R-C0 / R-C1 / R-C2. CLI: new classify-* subcommands (the frozen
+    next-token commands stay byte-identical).
+- Waiting for the adversarial check (no code this round until it returns).
+- 03:06 COORDINATOR: the adversarial check landed (`classifier/check/CHECK.md`):
+  buildable with fixes. The margin identity and b's binding hold. HIGH C-1 (lone-space
+  boundary, 9/24) and C-2 (control-token injection under the HF path) were shown with the real
+  tokenizer. Write DESIGN v2 (B-1, B-2, B-3; difference-row option; minor fixes; F6
+  corrections; seeded randomness as an option only); leave the ruling sections (B-4/5/6/8)
+  as marked options; start the R-C0 Python reference for the ruling-free parts.
+- 03:06 DESIGN v2 written (`classifier/DESIGN_CLASSIFIER.md`; v1 kept as
+  `DESIGN_CLASSIFIER.v1.md`, f9fe043f...):
+  * B-1 split adopted: prefix to ':' (84 ids) ‖ tekken.encode(' ' + content) ‖ [/INST].
+  * B-2: the tekken plain-text encoder pinned by digest, plus an in-circuit ctl column
+    (β²·ctl) in the stage-IN tuple; c(t) = ctl(κ(t)) at template positions, 0 at content.
+  * B-3: the verifier re-derives w_Δ, s_Δ, the yes/no ids and c and compares; the int16
+    difference row is ADOPTED (B_Δ 2^33.57, L 5; the two-row form recorded with a
+    min/max m ≥ 2^-4 door).
+  * Minor fixes: c = ⌊θ/κ⌋ exact; Ceps < 2^40; the |w_Δ| typo.
+  * F6 gains corrected (2.00 / 4.13 / 2.06 / ~1.93–2.00×); the prefix guarantee moves into
+    the cache; P0 is a bound RoPE offset.
+  * Option S (seeded endpoint randomness, a 32-byte opening) written up for the security
+    owner, not adopted.
+  * Marked [RULING PENDING]: B-4 refusal rule, B-5 n public (and the hidden-length variant
+    now needs in-circuit length binding), B-6 policy list, B-8 D23 text incl. D39 anchoring
+    and transferability. B-7 is recorded by the coordinator.
+- 03:06 R-C0 (`classifier/rc0/`), test-first: test_classifier_ref.py written
+  first, FAILED (no module), then classifier_ref.py -> 20 / 20 OK [RAN, about 3 s]:
+  * margin: honest b = 0/1, tie, Δ = c ± 1, extreme |Δ| = B_Δ, L = 5 derived for both forms;
+    a flipped b is refused by the byte lookups and accepted without them; no 5-byte value
+    flips; a non-zero limb pad is refused (accepted without the pad clause); a proof for one
+    b fails under the other; the transcript seed absorbs b; the two-row form and its ratio
+    door;
+  * door: a swapped w_Δ with a self-made digest is refused (a trusting verifier accepts it);
+    yes/no ids and c come from the profile;
+  * template clause: a changed id is refused; the shared-coefficient cancellation is ACCEPTED,
+    the fresh coefficient refuses it; a content control id is refused with the ctl column and
+    accepted without it; template control ids are fine;
+  * tokenizer: the B-1 split equals Mistral's reference on 67/67 contents; prefix 84 ids,
+    last piece '>:'; suffix [4]; content ids always ≥ 1000; the lone-space literal prefix
+    (85) is unstable; yes 13059 / no 2649. Pinned ids are in rc0/template_ids.json.
+  * Owed: T < T_pad pad rows (with R-C1) and the ruling-dependent parts.
+
+## Round 12, part 2 (coordinator): R-C1 in Rust on frozen-r11 — the ruling-independent parts
+
+Margin slot (int16 row, 5 limbs), public verdict in the transcript, template clause, ctl
+column, B-3 door, classify-* CLI; rulings behind named switches at the recommended
+defaults (n public, fixed policy list, endpoint-root binding, fail-closed); next-token
+commands byte-identical. Product update (D37 revised): N category proofs per item, both
+outcomes published -> design addendum §12 (v2.1): linking N proofs = N decommitments over
+the same content under option R, or ONE (content, seed) under option S. Native
+interface for Shieldstral noted (model pin 003ec7e2..., tied tensor 67a138c1...; five
+statement fields; T128 fits the laptop, so content <= ~40 tokens at P0 = 84) for R-C2.
+
+- 03:28 code written (new files, plus additive lines in three pinned files):
+  * private_block/run.rs: RUN_PROFILE_CLASSIFY_RUNG_TC (65 chars, = the token rung's length),
+    CLASSIFY_RUN_PROFILES, and its rung_tc arm.
+  * token_io.rs: four production mod lines and one test mod line.
+  * New files: token_io/classify.rs (ruling switches; policy registry with the rung dev
+    policy and Shieldstral's card policy, 84 pinned ids; ClassifierTables; the
+    ClassifierProfile door; ClassifyRunStatement whose transcript absorbs the verdict;
+    whole-run figure), stage_in_c.rs (fork of stage_in plus the template clause with its
+    own mu and the β²·ctl column), stage_out_c.rs (final norm; margin limbs in pad entries
+    32..37 of the isqrt-limb plane; PD private slot Σ y·w_Δ hosted by LZC with host term
+    ν(σ g limb + u0(b + c)); no Vo domain, no output endpoint; seal_check),
+    classify_run.rs (sealing pass, prove, verify, pipeline, owner check), and
+    classify_tests.rs (R-C1: honest runs at both verdicts and the tie; other-verdict
+    refusal; four cheating-prover forgeries each refused at its site and refused before the
+    header by the honest prover; door; switches).
+  * Note on test-first: R-C1's tests mirror the R-C0 forgery vectors written test-first in
+    round 12 part 1; the Rust tests and code were written in the same step, before any
+    compile.
+- 03:28 cargo check: one error in classify.rs (temporary), then one in the tests
+  (borrow), both fixed. r12-t1 (classify_tests) launched. (A label clash with an old
+  'c1-check' log in logs/ made my first waiter return early; round-12 jobs now use r12-*
+  names.)
+
+- 03:39 **D41 (chunks) folded into the design:** DESIGN_CLASSIFIER.md §13 (v2.2).
+  * Split rule: encode the whole content once; chunk size per category `T − P0 − S`, so
+    every chunk proof sits at the profile's T. The card template gives 43 / 171 / 427 at
+    T128 / T256 / T512 [COUNTED].
+  * Overlap: public, one per deployment profile. The last chunk is end-aligned. Short
+    content is refused (route noted).
+  * B-1 at a cut: the input is defined on ids (prefix ‖ c[a:b] ‖ suffix). A mid-content
+    chunk has no leading-space convention; template pinning and the control-id column
+    still hold. The quality question goes to F11.
+  * Linking: L-R bundle now (content plus one endpoint decommitment per (category,
+    chunk); ~10.8 MB for 3 × 40 [MODEL]); L-S seed later.
+  * Label: OR over the chunks, fail-closed. The leak is the flagged range and N.
+- 03:45 **R-C1 code, chunk layer and CLI (not yet compiled; both test jobs queued on the
+  heavy lock, held by other lanes):**
+  * classify.rs: CHUNK_OVERLAPS (rung: 4), ChunkPlan, chunk_ranges, ChunkRef.
+    ClassifyRunStatement::new_chunk derives the range; the transcript absorbs
+    `classify-chunk`; the profile text names the chunk size and overlap.
+  * classify_cli.rs (new): prove (whole content, `--chunk J`, the sealing chain with
+    parity), verify (B-3: the canonical statement is re-rendered from the verifier's own
+    inputs byte for byte, then the segments are verified and the statement published),
+    input-owner (the chunk's slice of the whole content), label (OR over verified chunk
+    runs, fail-closed). Every refusal prints the fail-closed app-outcome line.
+  * classify_cli_tests.rs (new): e2e at both verdicts (w / −w); refusals (other tables,
+    a consistently flipped verdict, a tampered segment, `--content`, unknown policy,
+    control id before any header, wrong length); the tables loader; chunks (27 ids →
+    [0,23) + [4,27): prove, verify, owner, label; fail-closed on a missing, repeated or
+    tampered chunk; a re-labelled chunk refused).
+  * classify_tests.rs gains two chunk tests.
+  * examples/zk60_classify.rs (new).
+  * Additive line in pinned private_block.rs (pub use of the four commands); one more
+    production mod line and one test mod line in token_io.rs.
+  * Jobs: r12-t1-classify (classify_tests) and r12-t2-cli (classify_cli_tests).
+- 04:48 **r12-t1-classify ran:** the tree compiled, including the CLI and chunk code, with no
+  errors. 10 of 12 passed, all [MEASURED, logs/r12-t1-classify.log]:
+  * every forgery: refused by the verifier at its predicted site, and by the honest prover
+    before the header;
+  * the tie (Δ = c = 5,269,429: verdict 0);
+  * the door, and the switches;
+  * both D41 chunk tests (chunk 1 of 2 [4, 27) proves, verifies and owner-checks; read as
+    chunk 0 or under another total, the wire refuses "this segment belongs to another
+    run"; index 2 is refused at the door).
+  * Stage OUT-C layout [COUNTED]: A 76 rows, H 38 rows at 2^12 (466,944 elements); margin
+    window 34 bits, 5 limbs.
+  * The two failures are a FIXTURE property, not a code fault: with c = 0 every generic
+    content had a positive margin, because the synthetic blocks keep the last row near the
+    fixed suffix token's. Fix: `both_verdicts` registers a test policy with c = the least
+    observed margin (as the tie test does), giving one content per verdict. Re-run queued
+    (r12-t3-classify) behind r12-t2-cli; the heavy lock is held by another lane's
+    r12-t2-run.
+- 05:05 **R-C1 green** [MEASURED, logs/r12-t2-cli.log, logs/r12-t3-classify.log]:
+  * classify_cli_tests 6 / 6 on the first run: e2e at verdicts [0, 1]; the B-3 door
+    (other margin vector), a consistently flipped verdict, a tampered segment; `--content`
+    exit 2; unknown policy; control id before any header; wrong length; existing
+    directory; the tables loader; D41 chunks (27 ids → [0, 23) + [4, 27), proved,
+    verified, owner-checked, labelled; fail-closed on missing, repeated and tampered
+    chunks; a re-labelled chunk refused); the aggregation rule.
+  * classify_tests 12 / 12 after the fixture fix. Honest rung runs: verdict 0 at margin
+    5,214,444 and verdict 1 at 5,269,429 under c = 5,214,444; 4 segments
+    [1,224,328; 7,421,464; 7,421,464; 2,489,016] B; floor 93 bits.
+  * Pinned files against frozen-r11: 0 lines removed, 27 added
+    (classifier/rc1_pinned_files_additive.diff).
+  * manifest_r12B: 245 files (list sha256 edbffc75…) vs manifest_final_r11: 3 changed
+    (private_block.rs, run.rs, token_io.rs; additive only), 8 added (examples/zk60_classify.rs
+    and seven token_io/classify* / stage_*_c files). No block or run relation file changed.
+- 05:05 freeze chain tools/r12_chain.sh launched (s15 full suite, then the b12 zk60_classify
+  binary, then manifest_r12C).
+- 05:30 coordinator: tio-s15-suite (7.5 GiB) took the heavy lock before budget admission and
+  holds it until the fidelity 5 GiB job ends. I can't stop it by my own means (setsid launch;
+  the guard has no cancel; no signals), so it is left running; answered via SendMessage. Rule
+  from now on: every launch polls `zk60_resource_guard.py check` until "OK to start now"
+  before `run` (r8_stack.sh pre() pattern). The chain's b12 build step (need 3 GiB) still
+  runs the old way; the running script is not edited.
+
+## 2026-10-26 (resumed after the usage stop)
+
+- 06:32 (10-21) the chain's s15 full suite exited 101 [MEASURED, logs/s15-suite.log: 638
+  passed, 6 failed, 40 ignored; 979 s; peak 6.63 GiB]. The b12 build never ran.
+- 17:33 cause: the six failures are the REGISTRY GATES, which did not yet know the new
+  classifier run profile and its hash and generator sites. They are not code faults:
+  * s24 profile coverage;
+  * s25: the hash-input census; the call-kind table (classify.rs's 7 `blake3::Hasher::new(`
+    sites); the generator scan (a 7th `ZkRng::from_os` site, `prove_classify_run_with`);
+    the twelve-key registry count;
+  * s33 printable registry.
+- Fix, registered the way the token profiles were, with the classifier's own list:
+  * classify.rs (cfg(test)): `registered_classify_runs()` and
+    `census_classify_statement()`;
+  * s24 / s33: the classifier run profile in the covered lists;
+  * s25:
+    - the call-kind row CL1-CL7 (the table grows 20 → 21);
+    - generator sites 6 → 7, plus `token_io/classify_run.rs` in the list;
+    - the prover-body check for `prove_classify_run_with`;
+    - on-path generators 5 → 6;
+    - the registry count;
+    - `kinds_of_classify`: the token census with IN-C / OUT-C, ONE endpoint, the
+      classifier header's two labels (`classify-verdict` 1 B, `classify-chunk` 56 B,
+      declared beside the shared label table so no other profile's length set moves),
+      and CL1-CL7.
+  * The census found NO undeclared equal-length pair at the classifier profile [MEASURED,
+    r12-t5].
+- 17:42 r12-t5 (registry + classifier tests): 49 / 50; the last is a second generator count
+  (5 → 6), fixed; r12-t6 re-run launched (pre-check, then guard).
+- cli/README.md: "The classifier CLI" section written for Astra's A3: commands, arguments,
+  files, the JSON-line output contract per event, exit codes, the statement's fields, and
+  how an app drives it (per category × chunk: prove, verify, label; fail-closed).
+- 17:55 r12-t6 (s24 / s25 / s33): 32 / 32 passed [MEASURED; 369 s, peak 2.44 GiB]. With
+  r12-t5's 18 / 18 classifier tests (classify_tests 12, classify_cli_tests 6), all 50 are
+  green.
+- 17:56 coordinator: Sol's native R12 proofs hold a window. No guarded cpu or build job may be
+  declared above 2.5 GiB until "native window released", so the full suite waits.
+- Prepared for the freeze:
+  * tools/r12_chain.sh (re-run form): the pre-check before each guarded step; suite s16;
+    manifest_r12B2 (r12B of 10-21 kept); marker logs/r12_chain2.done.
+  * tools/r12_freeze.py: computes the changes against frozen-r11 and writes
+    classifier/rc1_changed_files_vs_r11.diff.
+  * Computed check [COUNTED, the tree now, list sha256 f2436b15…]: 6 changed, 8 added.
+    Production files insert-only: private_block.rs −0 +2, run.rs −0 +12, token_io.rs
+    −0 +13. Registry tests: s24 −0 +4, s33 −0 +2, s25 −5 +142. The 5 removed lines are
+    s25's counts and the call-site table length. The claim "removed lines only in registry
+    test files" HOLDS.
+- 17:56 capture hooks (gate round 16, §4 subset), written in staging and applied to a scratch
+  COPY of the tree, so the tree stays at the freeze candidate. The changes:
+  * run_capture.rs, insert-only (0 lines removed, +564):
+    - ClassifyFacts and RunHeader.classify;
+    - the header re-check absorbs `classify-verdict` / `classify-chunk`;
+    - classifier stage branches (IN-C / BLOCK / OUT-C replay);
+    - the classifier stage and run writers;
+    - schema `hashline-native-capture/7-classify-run`;
+    - the classifier source pins, for classifier bundles only;
+    - 30 new allow-list keys.
+  * stage_in_c.rs / stage_out_c.rs: start_slot; the checkpoint + mask / pcs wrappers on M,
+    A, H and E-token-in / B-out; capture_planes (OUT-C roles A-out / H-out / B-out /
+    "none").
+  * classify_run.rs: stage_begin_stage / stage_end / the boundary pcs / run_accepted.
+  * classify.rs: capture_header and binding.
+  * New classify_capture_tests.rs: 4 fast tests and the env-driven
+    capture_a_classify_rung_run.
+  * One line each in run.rs / token_io/run.rs (`classify: None`) and token_io.rs (the
+    module).
+  * Test job r12-c1-copy (declared 2.5 GiB, inside the window rule).
+- 18:14 coordinator: native window released. Freeze chain re-run launched (tools/r12_chain.sh:
+  pre-check, s16 at need 7.5 / cap 9.5 from s15's 6.63 GiB peak, then the b12 build, then
+  manifest_r12C; marker logs/r12_chain2.done). manifest_r12B2 = list sha256 f2436b15….
+- 18:16 r12-c1-copy (the capture hooks in the scratch copy): 4 / 4 passed on the first
+  compile [MEASURED, logs/r12-c1-copy.log]:
+  * the rung L=2 verdict-1 bundle is self-consistent: run.json 44,183 B, stage files
+    [4,732,027; 24,029,485; 24,029,113; 8,370,244] B;
+  * D41 chunk 1 of 2 [4, 27) at the tie is captured (arrays.bin 9.08 MB);
+  * the hooks are inert on the prover, and the run verifies the same with and without a
+    recorder;
+  * a tampered run and a run read as verdict 0 are refused, and no bundle is written.
+  The shared-recorder regression (token capture + run capture tests) runs after the suite,
+  so it does not compete with the suite's admission.
+- 18:16 s16 started (guard admitted after 122 s on the heavy lock).
+- 18:20 coordinator, about the base: native R12 is frozen by Sol (tree 1e406781…, D24 review
+  pending). **R-C1 sits on native R8** (the round-7 rebase; my lane rounds 8–12 did not move
+  the native base). Rebase probe, built in scratch (`tio-r12` = the R-C1 tree + capture hooks
+  + native R8→R12):
+  * 37 native files changed; 31 copied as frozen; 6 overlap (private_block.rs, run.rs,
+    run_capture.rs, s24_tests, s25_tests, trained_block.rs), merged with diff3;
+  * 3 conflicts, all adjacency (both sides inserted run profiles, source-pin entries or
+    call-site rows). Resolved as keep-both plus the summed array lengths (OWN_SOURCE_FILES
+    24 = 24 entries; CALL_SITES 22 = 22 rows).
+  * Compile and tests wait until after the chain and the scheduling holds.
+- 18:23 coordinator scheduling, both acknowledged by SendMessage:
+  * (a) after S16, no new hand-run guarded job until a `sol-` job starts or 3 min pass. The
+    chain's own b12 step may race Sol's waiting job; the guard polls each second, so Sol is
+    likely first.
+  * (b) the D42 guard-swap window: no hand-run guarded job until "S3 WINDOW CLOSED".
+    Remaining chain: b12 (seconds to minutes), then unguarded seconds; natural end about
+    18:35. No HOLD file in the chain.
+- 18:32 **ROUND 12 R-C1 FROZEN** (frozen-r12.FROZEN.txt):
+  * s16 [MEASURED]: exit 0, 789 passed, 0 failed, 40 ignored, 29 test binaries; 898.5 s;
+    peak 6.77 GiB.
+  * Binary cli/zk60_classify.r12.release.bin, sha256 04036e269a5c…; build note
+    zk60_classify.r12.BUILD.txt.
+  * manifest_final_r12 = r12C = r12B2: 245 files, list sha256 f2436b15…. frozen-r12/: 245 of
+    245 re-hashed match, none missing, none extra.
+  * vs frozen-r11: 6 changed (production files insert-only; the registry test s25 loses 5
+    count lines) and 8 added; diff in classifier/rc1_changed_files_vs_r11.diff.
+  * Native base R8 (rebase to R12 probed in scratch). cli/README.md binaries table gains the
+    r12 classifier binary.
+- 18:34 freeze reported to the coordinator (SendMessage). Capture hooks applied to the working
+  tree (tools: scratchpad apply script; originals checked first). Every hooked file is byte
+  for byte the scratch copy that passed r12-c1-copy. Tree test batch and rung captures
+  (tools/r12_capture.sh: pre-check then guard; t4 = token_io::classify + token capture +
+  run_capture tests; then 7 captures to ~/zk60-artifacts/token-io/captures/classify-rung-*)
+  wait for "S3 WINDOW CLOSED" (the D42 guard swap).
+- 19:02 coordinator: S3 window closed (new guard 87138bda…: a job waits for admission before
+  taking the heavy lock; the pre-check is optional). Launched:
+  * tools/r12_capture.sh (t4 tree batch with the hooks, then 7 rung captures);
+  * tools/r12_probe_r12.sh: the rebase probe tio-r12's FULL suite, --no-fail-fast, need
+    7.5 / cap 9.5 from s16's 6.77 GiB.
+- 19:07 **the gate's capture hooks (§4 minimal subset) are GREEN on the tree** (R-C1 + hooks,
+  native R8) [MEASURED]:
+  * r12-t4 tree batch: 40 passed, 0 failed, 13 ignored (classify incl. the 4 capture tests;
+    the token capture and run_capture tests unchanged).
+  * 7 rung captures in ~/zk60-artifacts/token-io/captures/, schema 7-classify-run, public
+    tables with values: classify-rung-L1-{v0,v1,vtie} (~21.3 MB), classify-rung-L2-{v0,v1,vtie}
+    (~31.9 MB), classify-rung-L2-v1-chunk1o27 (D41 [4, 27)). Each 2–4 s, peak 0.19 GiB, 56
+    source pins (the classifier's four included).
+  * Reported to the coordinator.
+- 19:07 R12 probe first suite: 1 compile error. R12's `Provenance.rope_scaling` (F1) was
+  missing in token_io/load.rs; the same field went into r2_tests / capture_tests. Fixed in the
+  probe with `ex.rope_scaling` (encoded only for a scaled RoPE, so pre-R12 statements keep
+  their bytes). Re-run r12-probe-r12b queued. (A `sed -i` slip renamed labels in my own probe
+  script; the .bak is removed and no sed -i from here on.)
+- 19:33 R12 probe second suite: compiles; 669 passed, 5 failed [MEASURED, r12-probe-r12b.log]:
+  * 3 failures are artifacts of the scratch location (token-io/results/ was not copied;
+    those tests read retained files there);
+  * 2 are REAL and come from the capture hooks, so they affect the working tree too (the
+    tree's t4 filter did not reach them):
+    - hash_domain's absorb-label scan: run_capture.rs absorbs `classify-verdict`. The scan
+      had never covered the classifier sources.
+    - s25's call-kind row: run_capture.rs has 11 `sha256_hex(` sites, the table said 8
+      (the hooks add the classifier stage segment, the run file's endpoint-policy digest
+      and the extra source pins).
+  * Fix (scratchpad hook_registry_fix.py):
+    - hash_domain_tests: scan the four classifier sources (lane list 18 → 22); admit the
+      two classifier header labels ONLY in token_io/classify.rs and run_capture.rs;
+    - s25: row 8 → 11 with the reason.
+- 19:40 P-18 written (scratchpad p18_patch.py):
+  * classify_cli.rs: `door()` (the B-3 re-render and the segment reads, returned as
+    `DoorPassed`), shared by check_run; the CLI carries no capture hook;
+  * classify_cli_tests: the fixture `Cc` becomes pub(super);
+  * classify_capture_tests: `check_classify_bundle_parts` and the env-driven
+    `capture_the_classify_cli_verify_path` (the named binary's prove / verify as its own
+    processes, then the door plus the recorder).
+- Both patches applied to the probe (and token-io/results copied in) and to the working tree.
+  The tree and the probe now differ by exactly the 37 native R8→R12 files plus the 3
+  Provenance-fix files. Probe third suite r12-probe-r12c queued.
+- 20:10 coordinator: native R12 D24 review ACCEPTED WITH FIXES; Sol makes R12b with F1 (tied
+  table declared, not checked), F2 and F3. The final R-C1 freeze sits on R12b (small
+  re-merge expected: trained_block.rs). Answered (SendMessage) the F1 question on the
+  classifier side:
+  * load_classifier_tables (classify_cli.rs) has the same declared-not-checked pattern
+    for (1) margin_int16.bin, which in R-C1 is a GIVEN table, not derived from the tied
+    tensor (R-C2), (2) the embedding via token_io.json (source_tensor not read) and (3)
+    classifier.json's bos and final norm (not bound to the export's).
+  * Proposed: Sol's R12b exposes a recompute from the pinned tensor (embedding, and the
+    int16 yes-minus-no row with the quantizer spelled out) plus the export's final norm.
+    R-C2 then derives w from the pinned tensor and the policy's yes / no ids (no
+    margin_int16.bin trusted), with tests for doctored tables carrying consistent
+    digests.
+- 2026-10-28 21:10 UTC (coordinator, resuming after the 10-26 20:33 UTC stop;
+  token agent a1739f8 died with the session): **probe third suite r12-probe-r12c
+  GREEN** — exit 0, 819 passed / 0 failed / 53 ignored [MEASURED,
+  logs/r12-probe-r12c.log, finished 10-26 20:27 UTC]. The two real failures of
+  r12b (hash_domain classifier label scan, s25 call-kind row 8 → 11) are fixed
+  in both the probe and the working tree. Next: wait for Sol's R12b (S1b:
+  F1 tied-tensor recompute + classifier tables, F2, F3, N-7), re-merge
+  (trained_block.rs expected), suite, freeze R-C1 on R12b; then R-C2 (the
+  classifier verifier re-derives w and the embedding from the pinned tensor
+  via Sol's public function; doctored tables with consistent digests refused).

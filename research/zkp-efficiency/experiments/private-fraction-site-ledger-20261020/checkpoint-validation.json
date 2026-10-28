@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "checks": 110,
+  "run_id": "20261020T171854Z-0041295d",
+  "validated_at_utc": "2026-10-20T17:33:57.990631+00:00",
+  "original_production_source_pins_unchanged": 8,
+  "all_local_source_pins_unchanged": 14,
+  "findings_and_sources_prior_prefix_preserved": true,
+  "source_records": 661,
+  "new_records": 11,
+  "research_only_result": true,
+  "verified_full_stack_positions": 0,
+  "documentation_refinement": "Dated progress report explicitly states no measured proving gain; code manifest rechecked."
+}

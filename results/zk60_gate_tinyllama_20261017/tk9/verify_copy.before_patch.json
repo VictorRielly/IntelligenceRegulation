@@ -1,0 +1,7 @@
+{
+ "copy": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-gate-tk9/",
+ "manifest": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/manifest_final_r9.sha256",
+ "listed": 236,
+ "moved": [],
+ "files_on_disk": 236
+}

@@ -1,0 +1,12 @@
+233 files; list sha256 eb912dd56c7cce8b3aec18b1f11ecf55ee609fec9c8ff2cb297a67cb82bbb65d
+vs manifest_r7D.sha256: changed 1, added 0, removed 0
+  changed hashline/src/private_block/s25_tests.rs
+vs manifest_r7_demo.sha256: changed 7, added 1, removed 0
+  changed hashline/src/private_block/run.rs
+  changed hashline/src/private_block/run_capture.rs
+  changed hashline/src/private_block/s25_tests.rs
+  changed hashline/src/private_block/token_io.rs
+  changed hashline/src/private_block/token_io/run.rs
+  changed hashline/src/private_block/token_io/stage_in.rs
+  changed hashline/src/private_block/token_io/stage_out.rs
+  added   hashline/src/private_block/token_io/capture_tests.rs

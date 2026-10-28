@@ -1,0 +1,17 @@
+{
+  "tool": "native tools.web__run",
+  "queries": [
+    "GPU zero knowledge sumcheck prover October 2026 Chimera allocation profiling",
+    "site.github.com sumcheck GPU release 2026 ICICLE Plonky3",
+    "site.docs.nvidia.com nsight systems CUDA API time total time asynchronous overlap NVTX overhead",
+    "site.eprint.iacr.org 2026 lookup softmax zero knowledge transformer batching",
+    "site.eprint.iacr.org/2026 \"lookup\" \"softmax\"",
+    "site.eprint.iacr.org/2026 \"transformer\" \"private\" proof batching",
+    "site.github.com/NVIDIA/NVTX \"7d113f2\"",
+    "site.github.com/Plonky3/Plonky3 \"projective\" \"sumcheck\""
+  ],
+  "query_count": 8,
+  "access_date": "2026-10-21",
+  "upstream_code_executed": false,
+  "untrusted_instructions_ignored": true
+}

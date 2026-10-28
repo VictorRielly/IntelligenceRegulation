@@ -1,0 +1,322 @@
+[
+  {
+    "lane": "gpu",
+    "file": "hashline/src/private_block/shape.rs",
+    "fragment": "const COL_CHECKS: usize = 256;"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/private_block/shape.rs",
+    "fragment": "pub(crate) const LLAMA3_8B_LOG_COLS: usize = 13;"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/private_block/shape.rs",
+    "fragment": "TINYLLAMA_T32_TRAINED_PROFILE, 12),"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/private_block/shape.rs",
+    "fragment": "TINYLLAMA_T64_TRAINED_PROFILE, 13),"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/private_block/shape.rs",
+    "fragment": "TINYLLAMA_T128_TRAINED_PROFILE, 14),"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/private_block/shape.rs",
+    "fragment": "if sh.log(Dom::Tab) != sh.log_cols {"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/private_block/shape.rs",
+    "fragment": "for dom in [Dom::Q, Dom::Kv, Dom::S] {"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/private_block/shape.rs",
+    "fragment": "if sh.natural_log(Dom::T) >= sh.log_cols {"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/private_block/shape.rs",
+    "fragment": "endpoint_log_n.unwrap_or(log_cols), endpoint_inv_rate.unwrap_or(inv_rate)"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/private_block/protocol.rs",
+    "fragment": "PcsParams { log_cols: sh.log_cols as u32, inv_rate: sh.inv_rate, num_col_checks: sh.opened_cols }"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/private_block/protocol.rs",
+    "fragment": "PcsParams { log_cols: sh.endpoint_log_n as u32, inv_rate: sh.endpoint_inv_rate, num_col_checks: sh.opened_cols }"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/private_block/protocol.rs",
+    "fragment": "max(zk::MASK_LOG_DOM)"
+  },
+  {
+    "lane": "gpu",
+    "file": "zkp-core/src/pcs.rs",
+    "fragment": "self.cols() * self.inv_rate"
+  },
+  {
+    "lane": "gpu",
+    "file": "zkp-core/src/pcs.rs",
+    "fragment": "ZkOpts { q_pad: params.num_col_checks, coset: Fp::new(7) }"
+  },
+  {
+    "lane": "gpu",
+    "file": "zkp-core/src/pcs.rs",
+    "fragment": "zk.q_pad >= params.num_col_checks"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/zk.rs",
+    "fragment": "pub const MASK_LOG_MSG: u32 = 9;"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/zk.rs",
+    "fragment": "pub const MASK_LOG_DOM: u32 = 12;"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/zk.rs",
+    "fragment": "pub const MASK_Q: usize = 256;"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/zk.rs",
+    "fragment": "ntt.forward(out);"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/zk.rs",
+    "fragment": "let n_base = 2 * masks.len() + 4;"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/gpu/cuda.rs",
+    "fragment": "pub const NTT_LOG_BLK: u32 = 12;"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/gpu/cuda.rs",
+    "fragment": "self.ntt_rows_view(data, coef, rows, n, log_n, true)?;"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/gpu/cuda.rs",
+    "fragment": "g.ntt_rows(d_data.get(), d_coef.get_mut(), rows, n, log_n, true)?;"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/gpu/cuda.rs",
+    "fragment": "self.ntt_rows(coef2, enc, rows, pw, log_nn, false)?;"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/gpu/cuda.rs",
+    "fragment": "g.ntt_rows(d_coef2.get(), d_enc.get_mut(), rows, nn, log_nn, false)?;"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/gpu/cuda.rs",
+    "fragment": "log_n as i32, n_src as i32, scale"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/gpu/cuda.rs",
+    "fragment": "pw == nn || pw == n + q"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/gpu/kernels.cu",
+    "fragment": "int x = blk * bs + q;"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/gpu/kernels.cu",
+    "fragment": "__brev((u32)x) >> (32 - log_n)"
+  },
+  {
+    "lane": "gpu",
+    "file": "hashline/src/gpu/kernels.cu",
+    "fragment": "sh[q] = (r < n_src) ? s[r] : 0ULL;"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/private_block/shape.rs",
+    "fragment": "const COL_CHECKS: usize = 256;"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/private_block/shape.rs",
+    "fragment": "pub(crate) const LLAMA3_8B_LOG_COLS: usize = 13;"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/private_block/shape.rs",
+    "fragment": "TINYLLAMA_T32_TRAINED_PROFILE, 32, 12),"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/private_block/shape.rs",
+    "fragment": "TINYLLAMA_T64_TRAINED_PROFILE, 64, 13),"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/private_block/shape.rs",
+    "fragment": "TINYLLAMA_T128_TRAINED_PROFILE, 128, 14),"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/private_block/shape.rs",
+    "fragment": "if sh.log(Dom::Tab) != sh.log_cols {"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/private_block/shape.rs",
+    "fragment": "for dom in [Dom::Q, Dom::Kv, Dom::S] {"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/private_block/shape.rs",
+    "fragment": "if sh.natural_log(Dom::T) >= sh.log_cols {"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/private_block/shape.rs",
+    "fragment": "endpoint_log_n.unwrap_or(log_cols), endpoint_inv_rate.unwrap_or(inv_rate)"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/private_block/protocol.rs",
+    "fragment": "PcsParams { log_cols: sh.log_cols as u32, inv_rate: sh.inv_rate, num_col_checks: sh.opened_cols }"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/private_block/protocol.rs",
+    "fragment": "PcsParams { log_cols: sh.endpoint_log_n as u32, inv_rate: sh.endpoint_inv_rate, num_col_checks: sh.opened_cols }"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/private_block/protocol.rs",
+    "fragment": "max(zk::MASK_LOG_DOM)"
+  },
+  {
+    "lane": "r9",
+    "file": "zkp-core/src/pcs.rs",
+    "fragment": "self.cols() * self.inv_rate"
+  },
+  {
+    "lane": "r9",
+    "file": "zkp-core/src/pcs.rs",
+    "fragment": "ZkOpts { q_pad: params.num_col_checks, coset: Fp::new(7) }"
+  },
+  {
+    "lane": "r9",
+    "file": "zkp-core/src/pcs.rs",
+    "fragment": "zk.q_pad >= params.num_col_checks"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/zk.rs",
+    "fragment": "pub const MASK_LOG_MSG: u32 = 9;"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/zk.rs",
+    "fragment": "pub const MASK_LOG_DOM: u32 = 12;"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/zk.rs",
+    "fragment": "pub const MASK_Q: usize = 256;"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/zk.rs",
+    "fragment": "ntt.forward(out);"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/zk.rs",
+    "fragment": "let n_base = 2 * masks.len() + 4;"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/gpu/cuda.rs",
+    "fragment": "pub const NTT_LOG_BLK: u32 = 12;"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/gpu/cuda.rs",
+    "fragment": "self.ntt_rows_view(data, coef, rows, n, log_n, true)?;"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/gpu/cuda.rs",
+    "fragment": "g.ntt_rows(d_data.get(), d_coef.get_mut(), rows, n, log_n, true)?;"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/gpu/cuda.rs",
+    "fragment": "self.ntt_rows(coef2, enc, rows, pw, log_nn, false)?;"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/gpu/cuda.rs",
+    "fragment": "g.ntt_rows(d_coef2.get(), d_enc.get_mut(), rows, nn, log_nn, false)?;"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/gpu/cuda.rs",
+    "fragment": "log_n as i32, n_src as i32, scale"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/gpu/cuda.rs",
+    "fragment": "pw == nn || pw == n + q"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/gpu/kernels.cu",
+    "fragment": "int x = blk * bs + q;"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/gpu/kernels.cu",
+    "fragment": "__brev((u32)x) >> (32 - log_n)"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/gpu/kernels.cu",
+    "fragment": "sh[q] = (r < n_src) ? s[r] : 0ULL;"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/private_block/shape.rs",
+    "fragment": "64 => Some(13),"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/private_block/shape.rs",
+    "fragment": "128 => Some(14),"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/private_block/shape.rs",
+    "fragment": "2 * self.n_slots() + 4"
+  },
+  {
+    "lane": "r9",
+    "file": "hashline/src/private_block/shape.rs",
+    "fragment": "N_SLOTS + usize::from(self.dd_cap > 0)"
+  }
+]

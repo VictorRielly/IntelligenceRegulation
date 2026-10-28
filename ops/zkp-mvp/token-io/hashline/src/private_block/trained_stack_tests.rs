@@ -81,6 +81,23 @@ fn kernel_out(sh: &Shape, w: &[Vec<i8>; 9], x: &[i16], exp: &[i64], act: &[i16])
 /// writes for a per-layer score shift.
 fn write_stack_export_with(dir: &Path, variant: &str, n: usize, per_layer_sh_s: Option<&dyn Fn(usize) -> u32>) -> PathBuf {
     let cal = super::trained_calib_tests::rung_tc_calibration();
+    match per_layer_sh_s {
+        Some(f) => write_stack_export_cal(dir, variant, n, Some(&|k| super::shape::NormCalibration { sh_s: f(k), ..cal })),
+        None => write_stack_export_cal(dir, variant, n, None),
+    }
+}
+
+/// **NATIVE R8: the same with a PER-LAYER CALIBRATION** — `per_layer_cal`
+/// names each layer's whole calibration (any of the eleven constants may
+/// differ); every layer's `x_out` is the INDEPENDENT reference kernel's at
+/// that layer's constants (cross-checked against the native witness here,
+/// and again by `stack-prove`'s parity); `profile.json` names per layer
+/// exactly the constants that vary across the layers (`null` in
+/// `profile_constants`, listed in `per_layer_constants_differ`), and each
+/// manifest carries its layer's values — the export format the calibration
+/// and fidelity lanes write.
+fn write_stack_export_cal(dir: &Path, variant: &str, n: usize, per_layer_cal: Option<&dyn Fn(usize) -> super::shape::NormCalibration>) -> PathBuf {
+    let cal = super::trained_calib_tests::rung_tc_calibration();
     let sh = Shape::rung_tc(&cal).unwrap();
     let ids = Ids::new(&sh).unwrap();
     let (w0, mut x) = super::trained_calib_tests::trained_dense_words(&sh, super::trained_calib_tests::TRAINED_BANDS);
@@ -99,16 +116,15 @@ fn write_stack_export_with(dir: &Path, variant: &str, n: usize, per_layer_sh_s: 
         }
         let (e_s, silu) = keys(k);
         let (public, ff, exp, act) = statement_with_tables(&sh, &w, e_s, silu);
-        let lsh_s = per_layer_sh_s.map(|f| f(k)).unwrap_or(cal.sh_s);
-        let lsh = if lsh_s == cal.sh_s { sh.clone() } else { sh.with_score_shift(lsh_s).unwrap() };
-        let lcal = super::shape::NormCalibration { sh_s: lsh_s, ..cal };
+        let lcal = per_layer_cal.map(|f| f(k)).unwrap_or(cal);
+        let lsh = if lcal == cal { sh.clone() } else { sh.with_layer_calibration(&lcal).unwrap_or_else(|e| panic!("layer {k}: its calibration at the door: {e}")) };
         let wit = witness::build_shaped(&lsh, &public, &ff, &x).unwrap_or_else(|e| panic!("layer {k}: the honest chained witness: {e}"));
         let mut x_out: Vec<i16> = (0..sh.tokens).flat_map(|t| (0..sh.width).map(move |i| (t, i))).map(|(t, i)| wit.planes[ids.at(A_X2)][t * sh.d_pad + i] as i16).collect();
-        if per_layer_sh_s.is_some() {
+        if per_layer_cal.is_some() {
             // the export's x_out is the INDEPENDENT reference's (the parity
             // reference), and it must equal the native witness's output
             let reference = kernel_out(&lsh, &w, &x, &exp, &act);
-            assert_eq!(x_out, reference, "layer {k} (sh_s {lsh_s}): the native witness and the reference kernel disagree");
+            assert_eq!(x_out, reference, "layer {k} ({}): the native witness and the reference kernel disagree", lcal.describe());
             x_out = reference;
         }
         let ldir = vdir.join(format!("layer_{k:02}"));
@@ -148,9 +164,16 @@ fn write_stack_export_with(dir: &Path, variant: &str, n: usize, per_layer_sh_s: 
     // the profile: run-level constants uniform, the table keys per layer
     let mut pc = constants(&cal, sh.f_e, 0, (-3, -11)).replace("\"silu_member\": [-3, -11]", "\"silu_member\": null").replace("\"exp_e_s\": 0", "\"exp_e_s\": null");
     let mut differ = "\"exp_e_s\", \"silu_member\"".to_string();
-    if per_layer_sh_s.is_some() {
-        pc = pc.replace(&format!("\"sh_s\": {}", cal.sh_s), "\"sh_s\": null");
-        differ.push_str(", \"sh_s\"");
+    if let Some(f) = per_layer_cal {
+        for (i, (key, _, _)) in super::trained_statement::OWN_FIELDS.iter().enumerate() {
+            let v0 = super::trained_statement::cal_field(&cal, i);
+            if (0..n).any(|k| super::trained_statement::cal_field(&f(k), i) != v0) {
+                let before = pc.clone();
+                pc = pc.replace(&format!("\"{key}\": {v0}"), &format!("\"{key}\": null"));
+                assert_ne!(before, pc, "{key} is not in the profile constants");
+                differ.push_str(&format!(", \"{key}\""));
+            }
+        }
     }
     let profile = format!(
         "{{\"schema\": \"zk60-trained-profile-export/1\", \"kind\": \"profile\", \"variant\": \"{variant}\", \"geometry\": \"rung-tc-t32-dev\", \"model\": {{\"repo\": \"synthetic/native-stack-export\", \"revision\": \"native-round-2\", \"sha256\": \"{}\"}}, \"calibration_tool\": {{\"path\": \"native-lane\", \"sha256\": {{\"trained_stack_tests.rs\": \"{}\"}}}}, \"T\": 32, \"profile_constants\": {pc}, \"per_layer_constants_differ\": [{differ}], \"layers\": [{}], \"sequences\": [\"seq_s0\"]}}\n",
@@ -632,5 +655,77 @@ fn privacy_q2_the_published_backend_is_one_of_the_builds_names() {
         assert!(pubd.contains(&format!("\"prover_reported\": {{\"backend\": \"{good}\", \"gpu_declines\": 0,")), "{pubd}");
         assert_eq!(verify(&out, &id), 0, "the published statement with `{good}` no longer re-checks");
     }
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// NATIVE R8: the fully per-layer test's calibrations — layers 0 and 3 at the
+/// rung's (the run base, by majority), layer 1 with ALL ELEVEN constants its
+/// own, layer 2 with another seven of its own; each inside its class (the
+/// norm window stays four limbs: tn 9 / 10 at width 384), and the scale
+/// `cn / 2^tn` kept close so every int8 class stays unsaturated
+fn r8_layer_cal(k: usize) -> super::shape::NormCalibration {
+    let base = super::trained_calib_tests::rung_tc_calibration();
+    match k {
+        1 => super::shape::NormCalibration { tn: 9, cn_a: 700, cn_m: 1100, ceps: 16_777_259, sh_ao: 7, sh_qkv: 7, sh_s: 6, sh_o: 11, sh_g: 7, sh_h: 14, sh_z: 6 },
+        2 => super::shape::NormCalibration { cn_a: 1250, cn_m: 2050, ceps: 50_000_017, sh_ao: 5, sh_s: 4, sh_h: 14, sh_z: 6, ..base },
+        _ => base,
+    }
+}
+
+/// **NATIVE R8: A FULLY PER-LAYER CALIBRATION.** Four chained layers whose
+/// calibrations differ in all eleven export-chosen constants (layer 1 has all
+/// eleven of its own; layer 2 seven; layers 0 and 3 are the run base), each
+/// layer's `x_out` the INDEPENDENT reference kernel's at that layer's
+/// constants. The production CLI proves them as ONE bound run with parity
+/// bit-exact at every layer (so every native witness equals the reference at
+/// its own constants); the statement records exactly the own constants; the
+/// fresh-process verifier accepts with every run-level control refusing and
+/// publishes; and for EACH of layer 1's eleven constants, a verifier whose
+/// export says that one constant is the run's — same words and digests, its
+/// own statement pinned — is refused by the run binding.
+#[test]
+fn r8_a_fully_per_layer_calibration_proves_verifies_and_every_constant_is_bound() {
+    let dir = base_dir("stack-r8");
+    let vdir = write_stack_export_cal(&dir, "stack-r8", 4, Some(&r8_layer_cal));
+    let s = |v: &[&str]| -> Vec<String> { v.iter().map(|x| x.to_string()).collect() };
+    let vd = vdir.display().to_string();
+    let p = std::fs::read_to_string(vdir.join("profile.json")).unwrap();
+    for (key, _, _) in super::trained_statement::OWN_FIELDS {
+        assert!(p.contains(&format!("\"{key}\": null")) && p.contains(&format!("\"{key}\"")), "{key} is not named per layer: {p}");
+    }
+    let vc = super::trained_block_tests::verifier_copy(&vdir);
+    let vcd = vc.display().to_string();
+    let out = dir.join("run");
+    let od = out.display().to_string();
+    assert_eq!(trained_stack_prove_command(&s(&["--export", &vd, "--seq", "s0", "--out", &od, "--witness-cache-gib", "0"])), 0, "stack-prove of the fully per-layer export failed");
+    let stmt = std::fs::read_to_string(dir.join("run.unverified-statement").join("statement.json")).unwrap();
+    let base = super::trained_calib_tests::rung_tc_calibration();
+    let l1 = r8_layer_cal(1);
+    let own1: String = super::trained_statement::OWN_FIELDS.iter().enumerate().map(|(i, (key, _, _))| format!(", \"{key}\": {}", super::trained_statement::cal_field(&l1, i))).collect();
+    assert!(stmt.contains(&format!("\"exp_e_s\": 1{own1}}}")), "layer 1's eleven own constants are not in statement.json: {stmt}");
+    assert!(stmt.contains(&format!("\"norm_tn\": {}, \"norm_cn_a\": {}", base.tn, base.cn_a)), "the run's calibration is not the base: {stmt}");
+    let id = stmt.split("\"trained_statement_identity\": \"").nth(1).unwrap().split('"').next().unwrap().to_string();
+    assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &od, "--expect-statement", &id, "--controls"])), 0, "stack-verify of the fully per-layer run failed");
+    assert!(out.join("statement").join("statement.json").exists(), "the verified statement was not published");
+    // the binding, one constant at a time: layer 1's manifest says the run's
+    // value for that constant only; the export's own statement is pinned, so
+    // a refusal is the run binding's
+    let m1 = vc.join("layer_01").join("manifest.json");
+    let m = std::fs::read_to_string(&m1).unwrap();
+    for (i, (key, _, _)) in super::trained_statement::OWN_FIELDS.iter().enumerate() {
+        let flat = vc.with_file_name(format!("stack-r8-flat-{key}"));
+        super::trained_block_tests::copy_tree_for_tests(&vc, &flat);
+        let (own_v, base_v) = (super::trained_statement::cal_field(&l1, i), super::trained_statement::cal_field(&base, i));
+        let m_flat = m.replace(&format!("\"{key}\": {own_v},"), &format!("\"{key}\": {base_v},"));
+        assert_ne!(m_flat, m, "{key} is not in layer 1's manifest");
+        std::fs::write(flat.join("layer_01").join("manifest.json"), &m_flat).unwrap();
+        let pf = std::fs::read_to_string(flat.join("profile.json")).unwrap().replace(&hex(&sha256(m.as_bytes())), &hex(&sha256(m_flat.as_bytes())));
+        std::fs::write(flat.join("profile.json"), &pf).unwrap();
+        let flat_id = hex(&super::trained_block::stack_identity_for_tests(&flat).unwrap_or_else(|e| panic!("{key}: the flat export's statement: {e}")));
+        assert_ne!(flat_id, id, "dropping layer 1's own {key} did not move the statement");
+        assert_eq!(trained_stack_verify_command(&s(&["--export", &flat.display().to_string(), "--artifact", &od, "--expect-statement", &flat_id])), 1, "a run proved with layer 1's own {key} VERIFIED as a run with the run's {key}");
+        let _ = std::fs::remove_dir_all(&flat);
+    }
+    assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &od, "--expect-statement", &id])), 0, "the published fully per-layer run no longer verifies");
     let _ = std::fs::remove_dir_all(&dir);
 }

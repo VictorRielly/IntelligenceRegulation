@@ -1,0 +1,277 @@
+{
+  "status": "PASS",
+  "seed": 2026101982,
+  "rows": [
+    {
+      "rep": 0,
+      "arm": "scalar",
+      "rows": 8192,
+      "nanoseconds": 24998737,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 0,
+      "arm": "unique",
+      "rows": 8192,
+      "nanoseconds": 31537140,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 0,
+      "arm": "shared",
+      "rows": 8192,
+      "nanoseconds": 47678831,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 1,
+      "arm": "unique",
+      "rows": 8192,
+      "nanoseconds": 45150105,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 1,
+      "arm": "shared",
+      "rows": 8192,
+      "nanoseconds": 35833397,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 1,
+      "arm": "scalar",
+      "rows": 8192,
+      "nanoseconds": 42279907,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 2,
+      "arm": "shared",
+      "rows": 8192,
+      "nanoseconds": 39833098,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 2,
+      "arm": "scalar",
+      "rows": 8192,
+      "nanoseconds": 27808930,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 2,
+      "arm": "unique",
+      "rows": 8192,
+      "nanoseconds": 43554645,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 3,
+      "arm": "scalar",
+      "rows": 8192,
+      "nanoseconds": 45759006,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 3,
+      "arm": "unique",
+      "rows": 8192,
+      "nanoseconds": 29185175,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 3,
+      "arm": "shared",
+      "rows": 8192,
+      "nanoseconds": 39108206,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 4,
+      "arm": "unique",
+      "rows": 8192,
+      "nanoseconds": 27442210,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 4,
+      "arm": "shared",
+      "rows": 8192,
+      "nanoseconds": 24566912,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 4,
+      "arm": "scalar",
+      "rows": 8192,
+      "nanoseconds": 43687415,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 5,
+      "arm": "shared",
+      "rows": 8192,
+      "nanoseconds": 32207677,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 5,
+      "arm": "scalar",
+      "rows": 8192,
+      "nanoseconds": 21574170,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 5,
+      "arm": "unique",
+      "rows": 8192,
+      "nanoseconds": 23848877,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 6,
+      "arm": "scalar",
+      "rows": 8192,
+      "nanoseconds": 30252091,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 6,
+      "arm": "unique",
+      "rows": 8192,
+      "nanoseconds": 37086020,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 6,
+      "arm": "shared",
+      "rows": 8192,
+      "nanoseconds": 35025308,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 7,
+      "arm": "unique",
+      "rows": 8192,
+      "nanoseconds": 36841608,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 7,
+      "arm": "shared",
+      "rows": 8192,
+      "nanoseconds": 34112628,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 7,
+      "arm": "scalar",
+      "rows": 8192,
+      "nanoseconds": 49634660,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 8,
+      "arm": "shared",
+      "rows": 8192,
+      "nanoseconds": 49526997,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 8,
+      "arm": "scalar",
+      "rows": 8192,
+      "nanoseconds": 31799885,
+      "checksum": 1348084565749789136
+    },
+    {
+      "rep": 8,
+      "arm": "unique",
+      "rows": 8192,
+      "nanoseconds": 33356590,
+      "checksum": 1348084565749789136
+    }
+  ],
+  "ns_per_row": {
+    "scalar": [
+      3051.6036376953125,
+      5161.1214599609375,
+      3394.644775390625,
+      5585.816162109375,
+      5332.9364013671875,
+      2633.565673828125,
+      3692.8822021484375,
+      6058.91845703125,
+      3881.8218994140625
+    ],
+    "unique": [
+      3849.74853515625,
+      5511.4874267578125,
+      5316.7291259765625,
+      3562.6434326171875,
+      3349.879150390625,
+      2911.2398681640625,
+      4527.10205078125,
+      4497.2666015625,
+      4071.849365234375
+    ],
+    "shared": [
+      5820.1697998046875,
+      4374.1939697265625,
+      4862.438720703125,
+      4773.950927734375,
+      2998.890625,
+      3931.6011962890625,
+      4275.55029296875,
+      4164.13916015625,
+      6045.7760009765625
+    ]
+  },
+  "median_ns_per_row": {
+    "scalar": 3881.8218994140625,
+    "unique": 4071.849365234375,
+    "shared": 4374.1939697265625
+  },
+  "paired_speedups": [
+    0.6614495225354833,
+    1.260000691533655,
+    1.0934285101299428,
+    0.7462672923426863,
+    1.1170394553454663,
+    0.7404718135989752,
+    1.0588349430074961,
+    1.0799991135247626,
+    0.6735031804976991
+  ],
+  "median_ratio": 0.9308799274598498,
+  "compiler_argv": [
+    "rustc",
+    "--edition=2021",
+    "-C",
+    "codegen-units=1",
+    "-C",
+    "opt-level=1",
+    "-L",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-shared-templates-20261019",
+    "-l",
+    "dylib=kernels",
+    "-C",
+    "link-arg=-Wl,-rpath,/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dzc-shared-templates-20261019",
+    "bench.rs",
+    "-o",
+    "bench"
+  ],
+  "compile_seconds": 0.4164381609953125,
+  "child_wall_seconds": 0.9757742529982352,
+  "wall_seconds": 1.394479982998746,
+  "rss_kib": 12296,
+  "child_peak_rss_kib": 122696,
+  "cpu_affinity": [
+    0
+  ],
+  "threads": 1,
+  "finished_utc": "2026-10-19T14:22:18.273274+00:00",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "scope": "Shared-host cache-resident 32 synthetic rows and one arbitrary synthetic parameter pack;8192 rows/sample;9 balanced rotating triplets,256 warmup rows/arm. Exact outputs and checksums agree. Baseline scalar noinline adapters;unique groups and shared templates inline native field. No full-D sampler,fold/reduction,model,witness,masks,PCS,serialization,verification,GPU or target rate. Not quiesced/p95.",
+  "limits": "59s CPU/wall,512MiB address space,one nice19 CPU;no Cargo/dependencies/GPU"
+}

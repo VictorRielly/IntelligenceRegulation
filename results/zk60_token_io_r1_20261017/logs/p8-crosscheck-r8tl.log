@@ -1,0 +1,19 @@
+{
+ "export": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/exports/tinyllama_dg_rot1_T128",
+ "seq": "ho00",
+ "T": 128,
+ "last_layer": 21,
+ "decommitted_next_token": 491,
+ "r0_integer_token": 491,
+ "second_token": 304,
+ "integer_top2_margin_C": 53591880,
+ "integer_top2_margin_relative": 0.11401508801341156,
+ "max_abs_y": 57,
+ "agree_integer": true,
+ "final_norm": {
+  "g0": 127,
+  "cn": 5664,
+  "tn": 10,
+  "ceps": 74429
+ }
+}

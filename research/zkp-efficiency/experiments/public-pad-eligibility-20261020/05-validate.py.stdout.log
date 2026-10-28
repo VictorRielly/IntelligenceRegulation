@@ -1,0 +1,9 @@
+{
+  "status": "PASS_SOURCE_AND_ARTIFACT_AUDIT_ONLY",
+  "source_checks": 51,
+  "source_pins_unchanged": 13,
+  "source_mutation_controls": 6,
+  "native_execution": false,
+  "wall_seconds": 0.016779817990027368,
+  "rss_kib": 17848
+}

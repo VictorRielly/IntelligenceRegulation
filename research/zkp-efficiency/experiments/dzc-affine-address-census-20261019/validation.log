@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "checks": 198,
+  "artifacts": 42,
+  "recorded_at_utc": "2026-10-19T15:31:14.887051+00:00",
+  "wall_seconds": 0.05204497200611513,
+  "rss_kib": 25824,
+  "original_findings_prefix_preserved": true,
+  "original_source_prefix_preserved": true,
+  "target_proofs_passes_positions": [
+    0,
+    0,
+    0
+  ],
+  "cpu_affinity": [
+    0
+  ],
+  "threads": 1,
+  "scope": "Evidence/checkpoint integrity and measurement-scope validation, not a native proof or benchmark"
+}

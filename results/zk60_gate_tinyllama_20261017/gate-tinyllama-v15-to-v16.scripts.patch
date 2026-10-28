@@ -1,0 +1,28 @@
+diff -ruN -x __pycache__ frozen_v15/scripts/zk60_native_rg_tokencal.py frozen_v16/scripts/zk60_native_rg_tokencal.py
+--- frozen_v15/scripts/zk60_native_rg_tokencal.py	2026-10-19 17:45:54.526857511 -0700
++++ frozen_v16/scripts/zk60_native_rg_tokencal.py	2026-10-19 21:27:54.006893220 -0700
+@@ -75,13 +75,21 @@
+     return h.hexdigest()
+ 
+ 
++ATTRIBUTION_START = '{"event":"pr4-9-attribution"'
++
++
+ def read_attributions(path):
++    """[v16] every attribution object in a Rust test log.  The object need
++    not start the line: with `--nocapture`, libtest prints `test <name> ... `
++    without a newline, so the FIRST line a test prints follows that prefix
++    (v12 read only lines starting with `{` and so missed the first object of
++    each test -- the L = 1 line -- and refused those bundles by A1)."""
+     out = []
+     with open(path) as fh:
+         for line in fh:
+-            line = line.strip()
+-            if line.startswith("{") and '"pr4-9-attribution"' in line:
+-                out.append(json.loads(line))
++            i = line.find(ATTRIBUTION_START)
++            if i >= 0:
++                out.append(json.loads(line[i:].strip()))
+     return out
+ 
+ 

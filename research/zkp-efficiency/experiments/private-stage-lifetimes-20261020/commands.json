@@ -1,0 +1,155 @@
+[
+  {
+    "leaf": "model.py",
+    "started_at": "2026-10-20T02:23:27.094299+00:00",
+    "exit_code": 1,
+    "wall_seconds": 0.0709896070038667,
+    "maxrss_kib": 27212,
+    "sha256": "f6172861a0e17ae548b5716a978067cfe06fc3e73cd76d34d18e66c2a34cb393",
+    "stdout": "00-model.py.stdout.log",
+    "stderr": "00-model.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "model.py",
+    "started_at": "2026-10-20T02:23:37.076902+00:00",
+    "exit_code": 1,
+    "wall_seconds": 0.09300227399216965,
+    "maxrss_kib": 27220,
+    "sha256": "94a6ba5ddcec092858050ee6af718ecd5b48007ddaae7a23528b5bdf4fa6f0c1",
+    "stdout": "01-model.py.stdout.log",
+    "stderr": "01-model.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "model.py",
+    "started_at": "2026-10-20T02:23:44.043256+00:00",
+    "exit_code": 1,
+    "wall_seconds": 0.07019152501015924,
+    "maxrss_kib": 27676,
+    "sha256": "5e0ef9e19c32a34eeb053a471f4991d4edb3659c652b88ee419d9fe7cf1cc260",
+    "stdout": "02-model.py.stdout.log",
+    "stderr": "02-model.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "model.py",
+    "started_at": "2026-10-20T02:23:52.791966+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.10329287200875115,
+    "maxrss_kib": 27580,
+    "sha256": "c05f9df18c11f7dca8867fff141b38fcb945c305f9d30492714418309df82e48",
+    "stdout": "03-model.py.stdout.log",
+    "stderr": "03-model.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "audit.py",
+    "started_at": "2026-10-20T02:25:02.451536+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.47119427598954644,
+    "maxrss_kib": 22236,
+    "sha256": "d0efb8b1f9f02f38efa2b152a6977f0b5b21544cfbf073e276084371ae56d7e2",
+    "stdout": "04-audit.py.stdout.log",
+    "stderr": "04-audit.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "model.py",
+    "started_at": "2026-10-20T02:26:10.821989+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.12143196200486273,
+    "maxrss_kib": 27744,
+    "sha256": "a6df8119414dcf2594d64488747f67d889b6e67b1a1cde022db34f9484a002f1",
+    "stdout": "05-model.py.stdout.log",
+    "stderr": "05-model.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "audit.py",
+    "started_at": "2026-10-20T02:26:11.020236+00:00",
+    "exit_code": 1,
+    "wall_seconds": 0.07078196501242928,
+    "maxrss_kib": 25944,
+    "sha256": "b277f7f22b5b1346bd0177bc48544da2705e80f79755c7c6e02de1fb436a4a99",
+    "stdout": "06-audit.py.stdout.log",
+    "stderr": "06-audit.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "audit.py",
+    "started_at": "2026-10-20T02:26:15.644555+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.4747864520031726,
+    "maxrss_kib": 22348,
+    "sha256": "24695e14f12c6b4c59fa888db5850656a9020fcedc1e05ceab60f58b008bde69",
+    "stdout": "07-audit.py.stdout.log",
+    "stderr": "07-audit.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  },
+  {
+    "leaf": "validate.py",
+    "started_at": "2026-10-20T02:31:10.760346+00:00",
+    "exit_code": 0,
+    "wall_seconds": 0.05554738199862186,
+    "maxrss_kib": 25760,
+    "sha256": "4a2034545e31b8462b158a0e1c1e05a70d08012d258891dc0cd12cbdf8e89ce5",
+    "stdout": "08-validate.py.stdout.log",
+    "stderr": "08-validate.py.stderr.log",
+    "limits": {
+      "cpu_s": 59,
+      "alarm_s": 59,
+      "address_space_bytes": 536870912,
+      "threads": 1,
+      "nice": 19
+    }
+  }
+]

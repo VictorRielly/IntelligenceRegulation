@@ -1,0 +1,1887 @@
+{
+ "all_pass": true,
+ "all_tools_equal_v10": true,
+ "manifest": "gate-tinyllama.tools.frozen.v10.sha256",
+ "records": 10,
+ "rows": [
+  {
+   "G1": {
+    "commitments_ranked": 10,
+    "disclosed_by_role": {
+     "BLOCK:A": [
+      0
+     ],
+     "BLOCK:H": [
+      2
+     ],
+     "BLOCK:boundary": [
+      0
+     ],
+     "IN:A-in": [
+      0
+     ],
+     "IN:E-token-in": [
+      0
+     ],
+     "IN:H-in": [
+      2
+     ],
+     "OUT:A-out": [
+      0
+     ],
+     "OUT:B-out": [
+      0
+     ],
+     "OUT:E-token-out": [
+      0
+     ],
+     "OUT:H-out": [
+      2
+     ]
+    },
+    "masking_commitments": 3,
+    "unmet": []
+   },
+   "G1_joint": {
+    "components": 4,
+    "findings": 0,
+    "identified_word_pairs": 266273,
+    "joint_disclosed_fp": 0,
+    "ok": true,
+    "sum_of_parts_fp": 0
+   },
+   "G2_B_out_public_bits": [
+    0,
+    5
+   ],
+   "G2_ok": true,
+   "G2_r_emb_columns": [
+    12,
+    0
+   ],
+   "G3": {
+    "BLOCK": {
+     "differing": 0,
+     "entries": 16240,
+     "functionals": [
+      34
+     ],
+     "stages": 1
+    },
+    "IN": {
+     "differing": 0,
+     "entries": 5362,
+     "functionals": [
+      8
+     ],
+     "stages": 1
+    },
+    "OUT": {
+     "differing": 0,
+     "entries": 9354,
+     "functionals": [
+      20
+     ],
+     "stages": 1
+    }
+   },
+   "G3_ok": true,
+   "G4_ok": true,
+   "G4_required": 7,
+   "G4_required_found": 7,
+   "G5_ok": true,
+   "G6": {
+    "E-token-in": {
+     "disclosed": 0,
+     "distinct_columns": 245,
+     "ok": true,
+     "pad_rank": 245
+    },
+    "E-token-out": {
+     "disclosed": 0,
+     "distinct_columns": 240,
+     "ok": true,
+     "pad_rank": 240
+    }
+   },
+   "NL1": [
+    15,
+    15,
+    true
+   ],
+   "blocks": 1,
+   "bundle": "llama3-8b-t32-L1-dense-pt1",
+   "controls": {
+    "all_fire": true,
+    "fired": 36,
+    "live": 36,
+    "not_applicable": [
+     "TC-9_IN_M4_a_slot_mask_length_declared_one_short",
+     "TC-9_OUT_M4_a_slot_mask_length_declared_one_short"
+    ],
+    "not_fired": []
+   },
+   "false_parts": [],
+   "full_preimage": {
+    "commitments": 10,
+    "differing": 0,
+    "entries": 1700292,
+    "leaves": 2560,
+    "ok": true
+   },
+   "guard": {
+    "exit": 0,
+    "need": 4.0,
+    "peak_rss_gib": 0.89,
+    "wall_s": 799
+   },
+   "hash_columns": [
+    3328,
+    3328
+   ],
+   "joint_preimage": {
+    "C1_identified_word_pairs": 266273,
+    "all_four_couplings_respected": true
+   },
+   "ok": true,
+   "peak_rss_mb": 915,
+   "record": "token-v10-llama3-8b-t32-L1-dense-pt1.json",
+   "replay": {
+    "challenges_checked": 5788,
+    "positions_checked": 220,
+    "run_binding_reproduced": true,
+    "stages": 3
+   },
+   "replay_failures": 0,
+   "seconds": 798.3,
+   "status": "PASS",
+   "terminals_block_stages": {
+    "controls": [
+     "NC-0_shape_rs_reading_not_added",
+     "NC-1_constant_moved",
+     "NC-2_port_fallback_frozen",
+     "NC-3_crosscheck_on_a_moved_run_constant",
+     "NC-4_table_swap"
+    ],
+    "controls_ok": true,
+    "equal": 23,
+    "expected": 23,
+    "not_applicable": [
+     "NC-4_table_swap"
+    ],
+    "status": "PASS"
+   },
+   "terminals_new_slots": [
+    15,
+    15
+   ],
+   "timings": {
+    "G1_joint": 0.9,
+    "G3": 15.1,
+    "G6": 4.2,
+    "boundaries_and_G2": 0.0,
+    "controls": 397.0,
+    "full_preimage": 330.5,
+    "hash_layer": 0.2,
+    "load_and_integrity": 0.7,
+    "per_commitment": 35.6,
+    "replay": 0.5,
+    "terminals_block_stages": 10.7,
+    "terminals_new_slots_and_NL1": 2.9
+   },
+   "tools_equal_v10_manifest": true,
+   "tools_hashed": 54,
+   "tools_not_in_v10": []
+  },
+  {
+   "G1": {
+    "commitments_ranked": 10,
+    "disclosed_by_role": {
+     "BLOCK:A": [
+      0
+     ],
+     "BLOCK:H": [
+      2
+     ],
+     "BLOCK:boundary": [
+      0
+     ],
+     "IN:A-in": [
+      0
+     ],
+     "IN:E-token-in": [
+      0
+     ],
+     "IN:H-in": [
+      2
+     ],
+     "OUT:A-out": [
+      0
+     ],
+     "OUT:B-out": [
+      0
+     ],
+     "OUT:E-token-out": [
+      0
+     ],
+     "OUT:H-out": [
+      2
+     ]
+    },
+    "masking_commitments": 3,
+    "unmet": []
+   },
+   "G1_joint": {
+    "components": 4,
+    "findings": 0,
+    "identified_word_pairs": 266273,
+    "joint_disclosed_fp": 0,
+    "ok": true,
+    "sum_of_parts_fp": 0
+   },
+   "G2_B_out_public_bits": [
+    0,
+    5
+   ],
+   "G2_ok": true,
+   "G2_r_emb_columns": [
+    12,
+    0
+   ],
+   "G3": {
+    "BLOCK": {
+     "differing": 0,
+     "entries": 16240,
+     "functionals": [
+      34
+     ],
+     "stages": 1
+    },
+    "IN": {
+     "differing": 0,
+     "entries": 5362,
+     "functionals": [
+      8
+     ],
+     "stages": 1
+    },
+    "OUT": {
+     "differing": 0,
+     "entries": 9354,
+     "functionals": [
+      20
+     ],
+     "stages": 1
+    }
+   },
+   "G3_ok": true,
+   "G4_ok": true,
+   "G4_required": 7,
+   "G4_required_found": 7,
+   "G5_ok": true,
+   "G6": {
+    "E-token-in": {
+     "disclosed": 0,
+     "distinct_columns": 243,
+     "ok": true,
+     "pad_rank": 243
+    },
+    "E-token-out": {
+     "disclosed": 0,
+     "distinct_columns": 244,
+     "ok": true,
+     "pad_rank": 244
+    }
+   },
+   "NL1": [
+    15,
+    15,
+    true
+   ],
+   "blocks": 1,
+   "bundle": "llama3-8b-t32-L1-fixed-pt1",
+   "controls": {
+    "all_fire": true,
+    "fired": 36,
+    "live": 36,
+    "not_applicable": [
+     "TC-9_IN_M4_a_slot_mask_length_declared_one_short",
+     "TC-9_OUT_M4_a_slot_mask_length_declared_one_short"
+    ],
+    "not_fired": []
+   },
+   "false_parts": [],
+   "full_preimage": {
+    "commitments": 10,
+    "differing": 0,
+    "entries": 1700994,
+    "leaves": 2560,
+    "ok": true
+   },
+   "guard": {
+    "exit": 0,
+    "need": 4.0,
+    "peak_rss_gib": 0.9,
+    "wall_s": 689
+   },
+   "hash_columns": [
+    3328,
+    3328
+   ],
+   "joint_preimage": {
+    "C1_identified_word_pairs": 266273,
+    "all_four_couplings_respected": true
+   },
+   "ok": true,
+   "peak_rss_mb": 921,
+   "record": "token-v10-llama3-8b-t32-L1-fixed-pt1.json",
+   "replay": {
+    "challenges_checked": 5788,
+    "positions_checked": 220,
+    "run_binding_reproduced": true,
+    "stages": 3
+   },
+   "replay_failures": 0,
+   "seconds": 688.9,
+   "status": "PASS",
+   "terminals_block_stages": {
+    "controls": [
+     "NC-0_shape_rs_reading_not_added",
+     "NC-1_constant_moved",
+     "NC-2_port_fallback_frozen",
+     "NC-3_crosscheck_on_a_moved_run_constant",
+     "NC-4_table_swap"
+    ],
+    "controls_ok": true,
+    "equal": 23,
+    "expected": 23,
+    "not_applicable": [
+     "NC-4_table_swap"
+    ],
+    "status": "PASS"
+   },
+   "terminals_new_slots": [
+    15,
+    15
+   ],
+   "timings": {
+    "G1_joint": 0.8,
+    "G3": 13.7,
+    "G6": 4.1,
+    "boundaries_and_G2": 0.0,
+    "controls": 309.7,
+    "full_preimage": 306.0,
+    "hash_layer": 0.2,
+    "load_and_integrity": 1.0,
+    "per_commitment": 40.1,
+    "replay": 0.5,
+    "terminals_block_stages": 10.2,
+    "terminals_new_slots_and_NL1": 2.5
+   },
+   "tools_equal_v10_manifest": true,
+   "tools_hashed": 54,
+   "tools_not_in_v10": []
+  },
+  {
+   "G1": {
+    "commitments_ranked": 13,
+    "disclosed_by_role": {
+     "BLOCK:A": [
+      0
+     ],
+     "BLOCK:H": [
+      2
+     ],
+     "BLOCK:boundary": [
+      0
+     ],
+     "IN:A-in": [
+      0
+     ],
+     "IN:E-token-in": [
+      0
+     ],
+     "IN:H-in": [
+      2
+     ],
+     "OUT:A-out": [
+      0
+     ],
+     "OUT:B-out": [
+      0
+     ],
+     "OUT:E-token-out": [
+      0
+     ],
+     "OUT:H-out": [
+      2
+     ]
+    },
+    "masking_commitments": 4,
+    "unmet": []
+   },
+   "G1_joint": {
+    "components": 5,
+    "findings": 0,
+    "identified_word_pairs": 266273,
+    "joint_disclosed_fp": 0,
+    "ok": true,
+    "sum_of_parts_fp": 0
+   },
+   "G2_B_out_public_bits": [
+    0,
+    5
+   ],
+   "G2_ok": true,
+   "G2_r_emb_columns": [
+    12,
+    0
+   ],
+   "G3": {
+    "BLOCK": {
+     "differing": 0,
+     "entries": 32480,
+     "functionals": [
+      34
+     ],
+     "stages": 2
+    },
+    "IN": {
+     "differing": 0,
+     "entries": 5362,
+     "functionals": [
+      8
+     ],
+     "stages": 1
+    },
+    "OUT": {
+     "differing": 0,
+     "entries": 9354,
+     "functionals": [
+      20
+     ],
+     "stages": 1
+    }
+   },
+   "G3_ok": true,
+   "G4_ok": true,
+   "G4_required": 7,
+   "G4_required_found": 7,
+   "G5_ok": true,
+   "G6": {
+    "E-token-in": {
+     "disclosed": 0,
+     "distinct_columns": 239,
+     "ok": true,
+     "pad_rank": 239
+    },
+    "E-token-out": {
+     "disclosed": 0,
+     "distinct_columns": 238,
+     "ok": true,
+     "pad_rank": 238
+    }
+   },
+   "NL1": [
+    15,
+    15,
+    true
+   ],
+   "blocks": 2,
+   "bundle": "llama3-8b-t32-L2-dense-pt1",
+   "controls": {
+    "all_fire": true,
+    "fired": 36,
+    "live": 36,
+    "not_applicable": [
+     "TC-9_IN_M4_a_slot_mask_length_declared_one_short",
+     "TC-9_OUT_M4_a_slot_mask_length_declared_one_short"
+    ],
+    "not_fired": []
+   },
+   "false_parts": [],
+   "full_preimage": {
+    "commitments": 13,
+    "differing": 0,
+    "entries": 3010156,
+    "leaves": 3328,
+    "ok": true
+   },
+   "guard": {
+    "exit": 0,
+    "need": 4.5,
+    "peak_rss_gib": 0.96,
+    "wall_s": 942
+   },
+   "hash_columns": [
+    4352,
+    4352
+   ],
+   "joint_preimage": {
+    "C1_identified_word_pairs": 266273,
+    "all_four_couplings_respected": true
+   },
+   "ok": true,
+   "peak_rss_mb": 980,
+   "record": "token-v10-llama3-8b-t32-L2-dense-pt1.json",
+   "replay": {
+    "challenges_checked": 10248,
+    "positions_checked": 344,
+    "run_binding_reproduced": true,
+    "stages": 4
+   },
+   "replay_failures": 0,
+   "seconds": 941.5,
+   "status": "PASS",
+   "terminals_block_stages": {
+    "controls": [
+     "NC-0_shape_rs_reading_not_added",
+     "NC-1_constant_moved",
+     "NC-2_port_fallback_frozen",
+     "NC-3_crosscheck_on_a_moved_run_constant",
+     "NC-4_table_swap"
+    ],
+    "controls_ok": true,
+    "equal": 46,
+    "expected": 46,
+    "not_applicable": [],
+    "status": "PASS"
+   },
+   "terminals_new_slots": [
+    15,
+    15
+   ],
+   "timings": {
+    "G1_joint": 0.9,
+    "G3": 20.5,
+    "G6": 3.4,
+    "boundaries_and_G2": 0.0,
+    "controls": 317.5,
+    "full_preimage": 530.3,
+    "hash_layer": 0.2,
+    "load_and_integrity": 1.0,
+    "per_commitment": 37.3,
+    "replay": 0.7,
+    "terminals_block_stages": 27.7,
+    "terminals_new_slots_and_NL1": 2.0
+   },
+   "tools_equal_v10_manifest": true,
+   "tools_hashed": 54,
+   "tools_not_in_v10": []
+  },
+  {
+   "G1": {
+    "commitments_ranked": 13,
+    "disclosed_by_role": {
+     "BLOCK:A": [
+      0
+     ],
+     "BLOCK:H": [
+      2
+     ],
+     "BLOCK:boundary": [
+      0
+     ],
+     "IN:A-in": [
+      0
+     ],
+     "IN:E-token-in": [
+      0
+     ],
+     "IN:H-in": [
+      2
+     ],
+     "OUT:A-out": [
+      0
+     ],
+     "OUT:B-out": [
+      0
+     ],
+     "OUT:E-token-out": [
+      0
+     ],
+     "OUT:H-out": [
+      2
+     ]
+    },
+    "masking_commitments": 4,
+    "unmet": []
+   },
+   "G1_joint": {
+    "components": 5,
+    "findings": 0,
+    "identified_word_pairs": 266273,
+    "joint_disclosed_fp": 0,
+    "ok": true,
+    "sum_of_parts_fp": 0
+   },
+   "G2_B_out_public_bits": [
+    0,
+    5
+   ],
+   "G2_ok": true,
+   "G2_r_emb_columns": [
+    12,
+    0
+   ],
+   "G3": {
+    "BLOCK": {
+     "differing": 0,
+     "entries": 32480,
+     "functionals": [
+      34
+     ],
+     "stages": 2
+    },
+    "IN": {
+     "differing": 0,
+     "entries": 5362,
+     "functionals": [
+      8
+     ],
+     "stages": 1
+    },
+    "OUT": {
+     "differing": 0,
+     "entries": 9354,
+     "functionals": [
+      20
+     ],
+     "stages": 1
+    }
+   },
+   "G3_ok": true,
+   "G4_ok": true,
+   "G4_required": 7,
+   "G4_required_found": 7,
+   "G5_ok": true,
+   "G6": {
+    "E-token-in": {
+     "disclosed": 0,
+     "distinct_columns": 240,
+     "ok": true,
+     "pad_rank": 240
+    },
+    "E-token-out": {
+     "disclosed": 0,
+     "distinct_columns": 243,
+     "ok": true,
+     "pad_rank": 243
+    }
+   },
+   "NL1": [
+    15,
+    15,
+    true
+   ],
+   "blocks": 2,
+   "bundle": "llama3-8b-t32-L2-fixed-pt1",
+   "controls": {
+    "all_fire": true,
+    "fired": 36,
+    "live": 36,
+    "not_applicable": [
+     "TC-9_IN_M4_a_slot_mask_length_declared_one_short",
+     "TC-9_OUT_M4_a_slot_mask_length_declared_one_short"
+    ],
+    "not_fired": []
+   },
+   "false_parts": [],
+   "full_preimage": {
+    "commitments": 13,
+    "differing": 0,
+    "entries": 3004619,
+    "leaves": 3328,
+    "ok": true
+   },
+   "guard": {
+    "exit": 0,
+    "need": 4.5,
+    "peak_rss_gib": 0.96,
+    "wall_s": 916
+   },
+   "hash_columns": [
+    4352,
+    4352
+   ],
+   "joint_preimage": {
+    "C1_identified_word_pairs": 266273,
+    "all_four_couplings_respected": true
+   },
+   "ok": true,
+   "peak_rss_mb": 979,
+   "record": "token-v10-llama3-8b-t32-L2-fixed-pt1.json",
+   "replay": {
+    "challenges_checked": 10248,
+    "positions_checked": 344,
+    "run_binding_reproduced": true,
+    "stages": 4
+   },
+   "replay_failures": 0,
+   "seconds": 915.6,
+   "status": "PASS",
+   "terminals_block_stages": {
+    "controls": [
+     "NC-0_shape_rs_reading_not_added",
+     "NC-1_constant_moved",
+     "NC-2_port_fallback_frozen",
+     "NC-3_crosscheck_on_a_moved_run_constant",
+     "NC-4_table_swap"
+    ],
+    "controls_ok": true,
+    "equal": 46,
+    "expected": 46,
+    "not_applicable": [],
+    "status": "PASS"
+   },
+   "terminals_new_slots": [
+    15,
+    15
+   ],
+   "timings": {
+    "G1_joint": 0.9,
+    "G3": 22.0,
+    "G6": 3.3,
+    "boundaries_and_G2": 0.0,
+    "controls": 319.3,
+    "full_preimage": 501.8,
+    "hash_layer": 0.3,
+    "load_and_integrity": 1.0,
+    "per_commitment": 37.3,
+    "replay": 0.6,
+    "terminals_block_stages": 26.7,
+    "terminals_new_slots_and_NL1": 2.4
+   },
+   "tools_equal_v10_manifest": true,
+   "tools_hashed": 54,
+   "tools_not_in_v10": []
+  },
+  {
+   "G1": {
+    "commitments_ranked": 10,
+    "disclosed_by_role": {
+     "BLOCK:A": [
+      0
+     ],
+     "BLOCK:H": [
+      2
+     ],
+     "BLOCK:boundary": [
+      0
+     ],
+     "IN:A-in": [
+      0
+     ],
+     "IN:E-token-in": [
+      0
+     ],
+     "IN:H-in": [
+      2
+     ],
+     "OUT:A-out": [
+      0
+     ],
+     "OUT:B-out": [
+      0
+     ],
+     "OUT:E-token-out": [
+      0
+     ],
+     "OUT:H-out": [
+      2
+     ]
+    },
+    "masking_commitments": 3,
+    "unmet": []
+   },
+   "G1_joint": {
+    "components": 4,
+    "findings": 0,
+    "identified_word_pairs": 133153,
+    "joint_disclosed_fp": 0,
+    "ok": true,
+    "sum_of_parts_fp": 0
+   },
+   "G2_B_out_public_bits": [
+    0,
+    5
+   ],
+   "G2_ok": true,
+   "G2_r_emb_columns": [
+    11,
+    0
+   ],
+   "G3": {
+    "BLOCK": {
+     "differing": 0,
+     "entries": 16155,
+     "functionals": [
+      34
+     ],
+     "stages": 1
+    },
+    "IN": {
+     "differing": 0,
+     "entries": 5352,
+     "functionals": [
+      8
+     ],
+     "stages": 1
+    },
+    "OUT": {
+     "differing": 0,
+     "entries": 9326,
+     "functionals": [
+      20
+     ],
+     "stages": 1
+    }
+   },
+   "G3_ok": true,
+   "G4_ok": true,
+   "G4_required": 8,
+   "G4_required_found": 8,
+   "G5_ok": true,
+   "G6": {
+    "E-token-in": {
+     "disclosed": 0,
+     "distinct_columns": 242,
+     "ok": true,
+     "pad_rank": 242
+    },
+    "E-token-out": {
+     "disclosed": 0,
+     "distinct_columns": 242,
+     "ok": true,
+     "pad_rank": 242
+    }
+   },
+   "NL1": [
+    15,
+    15,
+    true
+   ],
+   "blocks": 1,
+   "bundle": "tinyllama-t32-L1-dense-pt1",
+   "controls": {
+    "all_fire": true,
+    "fired": 36,
+    "live": 36,
+    "not_applicable": [
+     "TC-9_IN_M4_a_slot_mask_length_declared_one_short",
+     "TC-9_OUT_M4_a_slot_mask_length_declared_one_short"
+    ],
+    "not_fired": []
+   },
+   "false_parts": [],
+   "full_preimage": {
+    "commitments": 10,
+    "differing": 0,
+    "entries": 1376986,
+    "leaves": 2560,
+    "ok": true
+   },
+   "guard": {
+    "exit": 0,
+    "need": 2.0,
+    "peak_rss_gib": 0.55,
+    "wall_s": 715
+   },
+   "hash_columns": [
+    3328,
+    3328
+   ],
+   "joint_preimage": {
+    "C1_identified_word_pairs": 133153,
+    "all_four_couplings_respected": true
+   },
+   "ok": true,
+   "peak_rss_mb": 561,
+   "record": "token-v10-tinyllama-t32-L1-dense-pt1.json",
+   "replay": {
+    "challenges_checked": 5347,
+    "positions_checked": 220,
+    "run_binding_reproduced": true,
+    "stages": 3
+   },
+   "replay_failures": 0,
+   "seconds": 714.4,
+   "status": "PASS",
+   "terminals_block_stages": {
+    "controls": [
+     "NC-0_shape_rs_reading_not_added",
+     "NC-1_constant_moved",
+     "NC-2_port_fallback_frozen",
+     "NC-3_crosscheck_on_a_moved_run_constant",
+     "NC-4_table_swap"
+    ],
+    "controls_ok": true,
+    "equal": 23,
+    "expected": 23,
+    "not_applicable": [
+     "NC-4_table_swap"
+    ],
+    "status": "PASS"
+   },
+   "terminals_new_slots": [
+    15,
+    15
+   ],
+   "timings": {
+    "G1_joint": 0.8,
+    "G3": 17.0,
+    "G6": 4.7,
+    "boundaries_and_G2": 0.0,
+    "controls": 367.1,
+    "full_preimage": 294.4,
+    "hash_layer": 0.2,
+    "load_and_integrity": 0.8,
+    "per_commitment": 21.8,
+    "replay": 0.4,
+    "terminals_block_stages": 6.2,
+    "terminals_new_slots_and_NL1": 0.9
+   },
+   "tools_equal_v10_manifest": true,
+   "tools_hashed": 54,
+   "tools_not_in_v10": []
+  },
+  {
+   "G1": {
+    "commitments_ranked": 10,
+    "disclosed_by_role": {
+     "BLOCK:A": [
+      0
+     ],
+     "BLOCK:H": [
+      2
+     ],
+     "BLOCK:boundary": [
+      0
+     ],
+     "IN:A-in": [
+      0
+     ],
+     "IN:E-token-in": [
+      0
+     ],
+     "IN:H-in": [
+      2
+     ],
+     "OUT:A-out": [
+      0
+     ],
+     "OUT:B-out": [
+      0
+     ],
+     "OUT:E-token-out": [
+      0
+     ],
+     "OUT:H-out": [
+      2
+     ]
+    },
+    "masking_commitments": 3,
+    "unmet": []
+   },
+   "G1_joint": {
+    "components": 4,
+    "findings": 0,
+    "identified_word_pairs": 133153,
+    "joint_disclosed_fp": 0,
+    "ok": true,
+    "sum_of_parts_fp": 0
+   },
+   "G2_B_out_public_bits": [
+    0,
+    5
+   ],
+   "G2_ok": true,
+   "G2_r_emb_columns": [
+    11,
+    0
+   ],
+   "G3": {
+    "BLOCK": {
+     "differing": 0,
+     "entries": 16155,
+     "functionals": [
+      34
+     ],
+     "stages": 1
+    },
+    "IN": {
+     "differing": 0,
+     "entries": 5352,
+     "functionals": [
+      8
+     ],
+     "stages": 1
+    },
+    "OUT": {
+     "differing": 0,
+     "entries": 9326,
+     "functionals": [
+      20
+     ],
+     "stages": 1
+    }
+   },
+   "G3_ok": true,
+   "G4_ok": true,
+   "G4_required": 8,
+   "G4_required_found": 8,
+   "G5_ok": true,
+   "G6": {
+    "E-token-in": {
+     "disclosed": 0,
+     "distinct_columns": 245,
+     "ok": true,
+     "pad_rank": 245
+    },
+    "E-token-out": {
+     "disclosed": 0,
+     "distinct_columns": 243,
+     "ok": true,
+     "pad_rank": 243
+    }
+   },
+   "NL1": [
+    15,
+    15,
+    true
+   ],
+   "blocks": 1,
+   "bundle": "tinyllama-t32-L1-fixed-pt1",
+   "controls": {
+    "all_fire": true,
+    "fired": 36,
+    "live": 36,
+    "not_applicable": [
+     "TC-9_IN_M4_a_slot_mask_length_declared_one_short",
+     "TC-9_OUT_M4_a_slot_mask_length_declared_one_short"
+    ],
+    "not_fired": []
+   },
+   "false_parts": [],
+   "full_preimage": {
+    "commitments": 10,
+    "differing": 0,
+    "entries": 1384340,
+    "leaves": 2560,
+    "ok": true
+   },
+   "guard": {
+    "exit": 0,
+    "need": 2.0,
+    "peak_rss_gib": 0.55,
+    "wall_s": 653
+   },
+   "hash_columns": [
+    3328,
+    3328
+   ],
+   "joint_preimage": {
+    "C1_identified_word_pairs": 133153,
+    "all_four_couplings_respected": true
+   },
+   "ok": true,
+   "peak_rss_mb": 564,
+   "record": "token-v10-tinyllama-t32-L1-fixed-pt1.json",
+   "replay": {
+    "challenges_checked": 5347,
+    "positions_checked": 220,
+    "run_binding_reproduced": true,
+    "stages": 3
+   },
+   "replay_failures": 0,
+   "seconds": 653.1,
+   "status": "PASS",
+   "terminals_block_stages": {
+    "controls": [
+     "NC-0_shape_rs_reading_not_added",
+     "NC-1_constant_moved",
+     "NC-2_port_fallback_frozen",
+     "NC-3_crosscheck_on_a_moved_run_constant",
+     "NC-4_table_swap"
+    ],
+    "controls_ok": true,
+    "equal": 23,
+    "expected": 23,
+    "not_applicable": [
+     "NC-4_table_swap"
+    ],
+    "status": "PASS"
+   },
+   "terminals_new_slots": [
+    15,
+    15
+   ],
+   "timings": {
+    "G1_joint": 0.6,
+    "G3": 18.1,
+    "G6": 4.5,
+    "boundaries_and_G2": 0.0,
+    "controls": 337.1,
+    "full_preimage": 261.9,
+    "hash_layer": 0.2,
+    "load_and_integrity": 0.8,
+    "per_commitment": 23.1,
+    "replay": 0.3,
+    "terminals_block_stages": 5.6,
+    "terminals_new_slots_and_NL1": 0.8
+   },
+   "tools_equal_v10_manifest": true,
+   "tools_hashed": 54,
+   "tools_not_in_v10": []
+  },
+  {
+   "G1": {
+    "commitments_ranked": 13,
+    "disclosed_by_role": {
+     "BLOCK:A": [
+      0
+     ],
+     "BLOCK:H": [
+      2
+     ],
+     "BLOCK:boundary": [
+      0
+     ],
+     "IN:A-in": [
+      0
+     ],
+     "IN:E-token-in": [
+      0
+     ],
+     "IN:H-in": [
+      2
+     ],
+     "OUT:A-out": [
+      0
+     ],
+     "OUT:B-out": [
+      0
+     ],
+     "OUT:E-token-out": [
+      0
+     ],
+     "OUT:H-out": [
+      2
+     ]
+    },
+    "masking_commitments": 4,
+    "unmet": []
+   },
+   "G1_joint": {
+    "components": 5,
+    "findings": 0,
+    "identified_word_pairs": 133153,
+    "joint_disclosed_fp": 0,
+    "ok": true,
+    "sum_of_parts_fp": 0
+   },
+   "G2_B_out_public_bits": [
+    0,
+    5
+   ],
+   "G2_ok": true,
+   "G2_r_emb_columns": [
+    11,
+    0
+   ],
+   "G3": {
+    "BLOCK": {
+     "differing": 0,
+     "entries": 32310,
+     "functionals": [
+      34
+     ],
+     "stages": 2
+    },
+    "IN": {
+     "differing": 0,
+     "entries": 5352,
+     "functionals": [
+      8
+     ],
+     "stages": 1
+    },
+    "OUT": {
+     "differing": 0,
+     "entries": 9326,
+     "functionals": [
+      20
+     ],
+     "stages": 1
+    }
+   },
+   "G3_ok": true,
+   "G4_ok": true,
+   "G4_required": 8,
+   "G4_required_found": 8,
+   "G5_ok": true,
+   "G6": {
+    "E-token-in": {
+     "disclosed": 0,
+     "distinct_columns": 244,
+     "ok": true,
+     "pad_rank": 244
+    },
+    "E-token-out": {
+     "disclosed": 0,
+     "distinct_columns": 232,
+     "ok": true,
+     "pad_rank": 232
+    }
+   },
+   "NL1": [
+    15,
+    15,
+    true
+   ],
+   "blocks": 2,
+   "bundle": "tinyllama-t32-L2-dense-pt1",
+   "controls": {
+    "all_fire": true,
+    "fired": 36,
+    "live": 36,
+    "not_applicable": [
+     "TC-9_IN_M4_a_slot_mask_length_declared_one_short",
+     "TC-9_OUT_M4_a_slot_mask_length_declared_one_short"
+    ],
+    "not_fired": []
+   },
+   "false_parts": [],
+   "full_preimage": {
+    "commitments": 13,
+    "differing": 0,
+    "entries": 2500124,
+    "leaves": 3328,
+    "ok": true
+   },
+   "guard": {
+    "exit": 0,
+    "need": 2.5,
+    "peak_rss_gib": 0.6,
+    "wall_s": 862
+   },
+   "hash_columns": [
+    4352,
+    4352
+   ],
+   "joint_preimage": {
+    "C1_identified_word_pairs": 133153,
+    "all_four_couplings_respected": true
+   },
+   "ok": true,
+   "peak_rss_mb": 609,
+   "record": "token-v10-tinyllama-t32-L2-dense-pt1.json",
+   "replay": {
+    "challenges_checked": 9838,
+    "positions_checked": 344,
+    "run_binding_reproduced": true,
+    "stages": 4
+   },
+   "replay_failures": 0,
+   "seconds": 862.2,
+   "status": "PASS",
+   "terminals_block_stages": {
+    "controls": [
+     "NC-0_shape_rs_reading_not_added",
+     "NC-1_constant_moved",
+     "NC-2_port_fallback_frozen",
+     "NC-3_crosscheck_on_a_moved_run_constant",
+     "NC-4_table_swap"
+    ],
+    "controls_ok": true,
+    "equal": 46,
+    "expected": 46,
+    "not_applicable": [],
+    "status": "PASS"
+   },
+   "terminals_new_slots": [
+    15,
+    15
+   ],
+   "timings": {
+    "G1_joint": 0.7,
+    "G3": 28.7,
+    "G6": 4.6,
+    "boundaries_and_G2": 0.0,
+    "controls": 351.2,
+    "full_preimage": 430.2,
+    "hash_layer": 0.3,
+    "load_and_integrity": 0.9,
+    "per_commitment": 25.7,
+    "replay": 0.5,
+    "terminals_block_stages": 18.6,
+    "terminals_new_slots_and_NL1": 0.8
+   },
+   "tools_equal_v10_manifest": true,
+   "tools_hashed": 54,
+   "tools_not_in_v10": []
+  },
+  {
+   "G1": {
+    "commitments_ranked": 13,
+    "disclosed_by_role": {
+     "BLOCK:A": [
+      0
+     ],
+     "BLOCK:H": [
+      2
+     ],
+     "BLOCK:boundary": [
+      0
+     ],
+     "IN:A-in": [
+      0
+     ],
+     "IN:E-token-in": [
+      0
+     ],
+     "IN:H-in": [
+      2
+     ],
+     "OUT:A-out": [
+      0
+     ],
+     "OUT:B-out": [
+      0
+     ],
+     "OUT:E-token-out": [
+      0
+     ],
+     "OUT:H-out": [
+      2
+     ]
+    },
+    "masking_commitments": 4,
+    "unmet": []
+   },
+   "G1_joint": {
+    "components": 5,
+    "findings": 0,
+    "identified_word_pairs": 133153,
+    "joint_disclosed_fp": 0,
+    "ok": true,
+    "sum_of_parts_fp": 0
+   },
+   "G2_B_out_public_bits": [
+    0,
+    5
+   ],
+   "G2_ok": true,
+   "G2_r_emb_columns": [
+    11,
+    0
+   ],
+   "G3": {
+    "BLOCK": {
+     "differing": 0,
+     "entries": 32310,
+     "functionals": [
+      34
+     ],
+     "stages": 2
+    },
+    "IN": {
+     "differing": 0,
+     "entries": 5352,
+     "functionals": [
+      8
+     ],
+     "stages": 1
+    },
+    "OUT": {
+     "differing": 0,
+     "entries": 9326,
+     "functionals": [
+      20
+     ],
+     "stages": 1
+    }
+   },
+   "G3_ok": true,
+   "G4_ok": true,
+   "G4_required": 8,
+   "G4_required_found": 8,
+   "G5_ok": true,
+   "G6": {
+    "E-token-in": {
+     "disclosed": 0,
+     "distinct_columns": 239,
+     "ok": true,
+     "pad_rank": 239
+    },
+    "E-token-out": {
+     "disclosed": 0,
+     "distinct_columns": 239,
+     "ok": true,
+     "pad_rank": 239
+    }
+   },
+   "NL1": [
+    15,
+    15,
+    true
+   ],
+   "blocks": 2,
+   "bundle": "tinyllama-t32-L2-fixed-pt1",
+   "controls": {
+    "all_fire": true,
+    "fired": 36,
+    "live": 36,
+    "not_applicable": [
+     "TC-9_IN_M4_a_slot_mask_length_declared_one_short",
+     "TC-9_OUT_M4_a_slot_mask_length_declared_one_short"
+    ],
+    "not_fired": []
+   },
+   "false_parts": [],
+   "full_preimage": {
+    "commitments": 13,
+    "differing": 0,
+    "entries": 2493904,
+    "leaves": 3328,
+    "ok": true
+   },
+   "guard": {
+    "exit": 0,
+    "need": 2.5,
+    "peak_rss_gib": 0.6,
+    "wall_s": 833
+   },
+   "hash_columns": [
+    4352,
+    4352
+   ],
+   "joint_preimage": {
+    "C1_identified_word_pairs": 133153,
+    "all_four_couplings_respected": true
+   },
+   "ok": true,
+   "peak_rss_mb": 610,
+   "record": "token-v10-tinyllama-t32-L2-fixed-pt1.json",
+   "replay": {
+    "challenges_checked": 9838,
+    "positions_checked": 344,
+    "run_binding_reproduced": true,
+    "stages": 4
+   },
+   "replay_failures": 0,
+   "seconds": 832.4,
+   "status": "PASS",
+   "terminals_block_stages": {
+    "controls": [
+     "NC-0_shape_rs_reading_not_added",
+     "NC-1_constant_moved",
+     "NC-2_port_fallback_frozen",
+     "NC-3_crosscheck_on_a_moved_run_constant",
+     "NC-4_table_swap"
+    ],
+    "controls_ok": true,
+    "equal": 46,
+    "expected": 46,
+    "not_applicable": [],
+    "status": "PASS"
+   },
+   "terminals_new_slots": [
+    15,
+    15
+   ],
+   "timings": {
+    "G1_joint": 0.9,
+    "G3": 28.9,
+    "G6": 4.9,
+    "boundaries_and_G2": 0.0,
+    "controls": 308.7,
+    "full_preimage": 441.6,
+    "hash_layer": 0.3,
+    "load_and_integrity": 1.2,
+    "per_commitment": 26.3,
+    "replay": 0.6,
+    "terminals_block_stages": 18.0,
+    "terminals_new_slots_and_NL1": 1.0
+   },
+   "tools_equal_v10_manifest": true,
+   "tools_hashed": 54,
+   "tools_not_in_v10": []
+  },
+  {
+   "G1": {
+    "commitments_ranked": 73,
+    "disclosed_by_role": {
+     "BLOCK:A": [
+      0
+     ],
+     "BLOCK:H": [
+      2
+     ],
+     "BLOCK:boundary": [
+      0
+     ],
+     "IN:A-in": [
+      0
+     ],
+     "IN:E-token-in": [
+      0
+     ],
+     "IN:H-in": [
+      2
+     ],
+     "OUT:A-out": [
+      0
+     ],
+     "OUT:B-out": [
+      0
+     ],
+     "OUT:E-token-out": [
+      0
+     ],
+     "OUT:H-out": [
+      2
+     ]
+    },
+    "masking_commitments": 24,
+    "unmet": []
+   },
+   "G1_joint": {
+    "components": 5,
+    "findings": 0,
+    "identified_word_pairs": 133153,
+    "joint_disclosed_fp": 0,
+    "ok": true,
+    "sum_of_parts_fp": 0
+   },
+   "G2_B_out_public_bits": [
+    0,
+    5
+   ],
+   "G2_ok": true,
+   "G2_r_emb_columns": [
+    11,
+    0
+   ],
+   "G3": {
+    "BLOCK": {
+     "differing": 0,
+     "entries": 355410,
+     "functionals": [
+      34
+     ],
+     "stages": 22
+    },
+    "IN": {
+     "differing": 0,
+     "entries": 5352,
+     "functionals": [
+      8
+     ],
+     "stages": 1
+    },
+    "OUT": {
+     "differing": 0,
+     "entries": 9326,
+     "functionals": [
+      20
+     ],
+     "stages": 1
+    }
+   },
+   "G3_ok": true,
+   "G4_ok": true,
+   "G4_required": 8,
+   "G4_required_found": 8,
+   "G5_ok": true,
+   "G6": {
+    "E-token-in": {
+     "disclosed": 0,
+     "distinct_columns": 237,
+     "ok": true,
+     "pad_rank": 237
+    },
+    "E-token-out": {
+     "disclosed": 0,
+     "distinct_columns": 243,
+     "ok": true,
+     "pad_rank": 243
+    }
+   },
+   "NL1": [
+    15,
+    15,
+    true
+   ],
+   "blocks": 22,
+   "bundle": "tinyllama-t32-L22-dense-pt1",
+   "controls": {
+    "all_fire": true,
+    "fired": 36,
+    "live": 36,
+    "not_applicable": [
+     "TC-9_IN_M4_a_slot_mask_length_declared_one_short",
+     "TC-9_OUT_M4_a_slot_mask_length_declared_one_short"
+    ],
+    "not_fired": []
+   },
+   "false_parts": [],
+   "full_preimage": {
+    "commitments": 73,
+    "differing": 0,
+    "entries": 24883666,
+    "leaves": 18688,
+    "ok": true
+   },
+   "guard": {
+    "exit": 0,
+    "need": 6.5,
+    "peak_rss_gib": 1.75,
+    "wall_s": 3756
+   },
+   "hash_columns": [
+    24832,
+    24832
+   ],
+   "joint_preimage": {
+    "C1_identified_word_pairs": 133153,
+    "all_four_couplings_respected": true
+   },
+   "ok": true,
+   "peak_rss_mb": 1791,
+   "record": "token-v10-tinyllama-t32-L22-dense-pt1.json",
+   "replay": {
+    "challenges_checked": 99658,
+    "positions_checked": 2824,
+    "run_binding_reproduced": true,
+    "stages": 24
+   },
+   "replay_failures": 0,
+   "seconds": 3755.6,
+   "status": "PASS",
+   "terminals_block_stages": {
+    "controls": [
+     "NC-0_shape_rs_reading_not_added",
+     "NC-1_constant_moved",
+     "NC-2_port_fallback_frozen",
+     "NC-3_crosscheck_on_a_moved_run_constant",
+     "NC-4_table_swap"
+    ],
+    "controls_ok": true,
+    "equal": 506,
+    "expected": 506,
+    "not_applicable": [],
+    "status": "PASS"
+   },
+   "terminals_new_slots": [
+    15,
+    15
+   ],
+   "timings": {
+    "G1_joint": 0.8,
+    "G3": 192.2,
+    "G6": 3.9,
+    "boundaries_and_G2": 0.0,
+    "controls": 327.3,
+    "full_preimage": 3033.0,
+    "hash_layer": 3.4,
+    "load_and_integrity": 8.8,
+    "per_commitment": 69.3,
+    "replay": 5.3,
+    "terminals_block_stages": 110.9,
+    "terminals_new_slots_and_NL1": 0.8
+   },
+   "tools_equal_v10_manifest": true,
+   "tools_hashed": 54,
+   "tools_not_in_v10": []
+  },
+  {
+   "G1": {
+    "commitments_ranked": 73,
+    "disclosed_by_role": {
+     "BLOCK:A": [
+      0
+     ],
+     "BLOCK:H": [
+      2
+     ],
+     "BLOCK:boundary": [
+      0
+     ],
+     "IN:A-in": [
+      0
+     ],
+     "IN:E-token-in": [
+      0
+     ],
+     "IN:H-in": [
+      2
+     ],
+     "OUT:A-out": [
+      0
+     ],
+     "OUT:B-out": [
+      0
+     ],
+     "OUT:E-token-out": [
+      0
+     ],
+     "OUT:H-out": [
+      2
+     ]
+    },
+    "masking_commitments": 24,
+    "unmet": []
+   },
+   "G1_joint": {
+    "components": 5,
+    "findings": 0,
+    "identified_word_pairs": 133153,
+    "joint_disclosed_fp": 0,
+    "ok": true,
+    "sum_of_parts_fp": 0
+   },
+   "G2_B_out_public_bits": [
+    0,
+    5
+   ],
+   "G2_ok": true,
+   "G2_r_emb_columns": [
+    11,
+    0
+   ],
+   "G3": {
+    "BLOCK": {
+     "differing": 0,
+     "entries": 355410,
+     "functionals": [
+      34
+     ],
+     "stages": 22
+    },
+    "IN": {
+     "differing": 0,
+     "entries": 5352,
+     "functionals": [
+      8
+     ],
+     "stages": 1
+    },
+    "OUT": {
+     "differing": 0,
+     "entries": 9326,
+     "functionals": [
+      20
+     ],
+     "stages": 1
+    }
+   },
+   "G3_ok": true,
+   "G4_ok": true,
+   "G4_required": 8,
+   "G4_required_found": 8,
+   "G5_ok": true,
+   "G6": {
+    "E-token-in": {
+     "disclosed": 0,
+     "distinct_columns": 231,
+     "ok": true,
+     "pad_rank": 231
+    },
+    "E-token-out": {
+     "disclosed": 0,
+     "distinct_columns": 237,
+     "ok": true,
+     "pad_rank": 237
+    }
+   },
+   "NL1": [
+    15,
+    15,
+    true
+   ],
+   "blocks": 22,
+   "bundle": "tinyllama-t32-L22-fixed-pt1",
+   "controls": {
+    "all_fire": true,
+    "fired": 36,
+    "live": 36,
+    "not_applicable": [
+     "TC-9_IN_M4_a_slot_mask_length_declared_one_short",
+     "TC-9_OUT_M4_a_slot_mask_length_declared_one_short"
+    ],
+    "not_fired": []
+   },
+   "false_parts": [],
+   "full_preimage": {
+    "commitments": 73,
+    "differing": 0,
+    "entries": 24834113,
+    "leaves": 18688,
+    "ok": true
+   },
+   "guard": {
+    "exit": 0,
+    "need": 6.5,
+    "peak_rss_gib": 1.74,
+    "wall_s": 3429
+   },
+   "hash_columns": [
+    24832,
+    24832
+   ],
+   "joint_preimage": {
+    "C1_identified_word_pairs": 133153,
+    "all_four_couplings_respected": true
+   },
+   "ok": true,
+   "peak_rss_mb": 1792,
+   "record": "token-v10-tinyllama-t32-L22-fixed-pt1.json",
+   "replay": {
+    "challenges_checked": 99658,
+    "positions_checked": 2824,
+    "run_binding_reproduced": true,
+    "stages": 24
+   },
+   "replay_failures": 0,
+   "seconds": 3428.5,
+   "status": "PASS",
+   "terminals_block_stages": {
+    "controls": [
+     "NC-0_shape_rs_reading_not_added",
+     "NC-1_constant_moved",
+     "NC-2_port_fallback_frozen",
+     "NC-3_crosscheck_on_a_moved_run_constant",
+     "NC-4_table_swap"
+    ],
+    "controls_ok": true,
+    "equal": 506,
+    "expected": 506,
+    "not_applicable": [],
+    "status": "PASS"
+   },
+   "terminals_new_slots": [
+    15,
+    15
+   ],
+   "timings": {
+    "G1_joint": 0.7,
+    "G3": 188.5,
+    "G6": 3.7,
+    "boundaries_and_G2": 0.0,
+    "controls": 308.0,
+    "full_preimage": 2735.7,
+    "hash_layer": 2.7,
+    "load_and_integrity": 6.3,
+    "per_commitment": 69.5,
+    "replay": 3.9,
+    "terminals_block_stages": 108.8,
+    "terminals_new_slots_and_NL1": 0.8
+   },
+   "tools_equal_v10_manifest": true,
+   "tools_hashed": 54,
+   "tools_not_in_v10": []
+  }
+ ],
+ "what": "tools-v10 token gate records, one row each (gate round 7 step 2); NOT a privacy result"
+}

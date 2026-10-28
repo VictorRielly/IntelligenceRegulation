@@ -1,0 +1,6 @@
+toxicchat/mod_hate: 200 selected, 0 done, 200 to do
+prefix 78 tokens K/V in 13.7s
+batch 1/3: 69 items, 4091 tail tokens, 94.4s (43.3 tok/s); total done 69
+batch 2/3: 87 items, 4006 tail tokens, 92.2s (43.4 tok/s); total done 156
+batch 3/3: 44 items, 2741 tail tokens, 70.4s (39.0 tok/s); total done 200
+all 200 items done in 4.7 min

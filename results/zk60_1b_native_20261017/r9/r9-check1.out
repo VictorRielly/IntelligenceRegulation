@@ -1,0 +1,2 @@
+[zk60-guard 09:53:13] START r9-check1 class=build need=3G cap=6G enforce=cgroup+watchdog waited=0s run=9f18ceb1d3a4
+[zk60-guard 09:53:38] END r9-check1 exit=101 child_wall=25s peak_rss=0.89G min_avail=9.95G

@@ -1,0 +1,95 @@
+r9 chain start 2026-10-20T01:13:35Z
+{"event": "expect-failing", "ok": true, "failed": ["r9_a_block_lookup_miss_is_refused_before_the_header", "r9_a_stage_in_lookup_miss_is_refused_before_the_header", "r9_an_endpoint_that_is_not_the_witnesss_is_refused_before_the_header"], "expected": ["r9_a_block_lookup_miss_is_refused_before_the_header", "r9_a_stage_in_lookup_miss_is_refused_before_the_header", "r9_an_endpoint_that_is_not_the_witnesss_is_refused_before_the_header"], "unexpected_failures": [], "expected_but_not_failed": [], "passed": 2, "ran": 5}
+[zk60-guard 18:13:36] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 18:14:36] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 18:15:36] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 18:16:36] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 18:17:36] waiting for /tmp/zk-heavy.lock (240s)
+[zk60-guard 18:18:36] waiting for /tmp/zk-heavy.lock (300s)
+[zk60-guard 18:19:36] waiting for /tmp/zk-heavy.lock (360s)
+[zk60-guard 18:20:36] waiting for /tmp/zk-heavy.lock (420s)
+[zk60-guard 18:21:36] waiting for /tmp/zk-heavy.lock (481s)
+[zk60-guard 18:22:36] waiting for /tmp/zk-heavy.lock (541s)
+[zk60-guard 18:23:36] waiting for /tmp/zk-heavy.lock (601s)
+[zk60-guard 18:24:36] waiting for /tmp/zk-heavy.lock (661s)
+[zk60-guard 18:25:37] waiting for /tmp/zk-heavy.lock (721s)
+[zk60-guard 18:26:37] waiting for /tmp/zk-heavy.lock (781s)
+[zk60-guard 18:27:37] waiting for /tmp/zk-heavy.lock (841s)
+[zk60-guard 18:28:37] waiting for /tmp/zk-heavy.lock (901s)
+[zk60-guard 18:29:37] waiting for /tmp/zk-heavy.lock (961s)
+[zk60-guard 18:30:19] START tio-t35-r9-failfirst-cli class=cpu need=3.5G cap=5.5G enforce=cgroup+watchdog waited=1003s run=f4a2cf8f9844
+[zk60-guard 18:34:11] END tio-t35-r9-failfirst-cli exit=101 child_wall=232s peak_rss=1.97G min_avail=10.88G
+{"event": "expect-failing", "ok": true, "failed": ["pr4_15_leftovers_are_refused_by_name_and_removals_are_reported", "pr4_16_the_default_owner_base_is_outside_the_artifacts_tree", "pr4_17_the_owner_writes_the_token_to_a_0600_file", "pr4_17_the_prompt_never_goes_on_the_command_line", "pr4_4_a_parity_mismatch_is_refused_before_the_header", "pr4_4_an_extreme_input_is_refused_before_the_header", "pr4_4_the_cli_sealing_pass_runs_cs3_and_takes_the_token_from_the_builder"], "expected": ["pr4_15_leftovers_are_refused_by_name_and_removals_are_reported", "pr4_16_the_default_owner_base_is_outside_the_artifacts_tree", "pr4_17_the_owner_writes_the_token_to_a_0600_file", "pr4_17_the_prompt_never_goes_on_the_command_line", "pr4_4_a_parity_mismatch_is_refused_before_the_header", "pr4_4_an_extreme_input_is_refused_before_the_header", "pr4_4_the_cli_sealing_pass_runs_cs3_and_takes_the_token_from_the_builder"], "unexpected_failures": [], "expected_but_not_failed": [], "passed": 9, "ran": 16}
+[zk60-guard 18:34:11] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 18:34:13] START tio-t36-r9-built class=cpu need=6.5G cap=8.5G enforce=cgroup+watchdog waited=2s run=883084af54f1
+[zk60-guard 18:40:20] END tio-t36-r9-built exit=0 child_wall=366s peak_rss=6.07G min_avail=6.77G
+[zk60-guard 18:40:34] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 18:41:35] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 18:42:35] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 18:43:35] waiting for /tmp/zk-heavy.lock (180s)
+[zk60-guard 18:44:02] START tio-b9-cli-build class=build need=3G cap=5G enforce=cgroup+watchdog waited=207s run=53301d22fba1
+[zk60-guard 18:45:07] END tio-b9-cli-build exit=0 child_wall=65s peak_rss=1.12G min_avail=9.88G
+[zk60-guard 18:45:07] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 18:45:14] START tio-c9-cli-capture class=cpu need=4G cap=6G enforce=cgroup+watchdog waited=7s run=116d29780697
+[zk60-guard 18:45:37] END tio-c9-cli-capture exit=0 child_wall=22s peak_rss=1.15G min_avail=9.69G
+[zk60-guard 18:45:37] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-tinyllama-t32-L22-dense-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 18:46:37] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-tinyllama-t32-L22-dense-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 18:47:37] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-tinyllama-t32-L22-dense-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 18:48:37] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-tinyllama-t32-L22-dense-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 18:49:37] admission waiting: budget: 6.1+7.5 GiB > 11.9 GiB with live [gate-v12-tokengate-cli9(light,1G), gate-ts-tinyllama-t32-L22-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 18:50:38] admission waiting: budget: 6.1+7.5 GiB > 11.9 GiB with live [gate-v12-tokengate-cli9(light,1G), gate-ts-tinyllama-t32-L22-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 18:51:38] admission waiting: budget: 7.1+7.5 GiB > 11.9 GiB with live [gate-v12-tokengate-cli9(light,1G), gate-ts-tinyllama-t32-L22-fixed-pt1(light,0.6G), gate-v13-tokengate-cli9(light,1G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 18:52:38] admission waiting: budget: 7.1+7.5 GiB > 11.9 GiB with live [gate-v12-tokengate-cli9(light,1G), gate-ts-tinyllama-t32-L22-fixed-pt1(light,0.6G), gate-v13-tokengate-cli9(light,1G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 18:53:38] admission waiting: budget: 7.1+7.5 GiB > 11.9 GiB with live [gate-v12-tokengate-cli9(light,1G), gate-ts-tinyllama-t32-L22-fixed-pt1(light,0.6G), gate-v13-tokengate-cli9(light,1G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 18:54:38] admission waiting: budget: 7.1+7.5 GiB > 11.9 GiB with live [gate-v12-tokengate-cli9(light,1G), gate-ts-tinyllama-t32-L22-fixed-pt1(light,0.6G), gate-v13-tokengate-cli9(light,1G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 18:55:38] admission waiting: budget: 7.1+7.5 GiB > 11.9 GiB with live [gate-v12-tokengate-cli9(light,1G), gate-ts-tinyllama-t32-L22-fixed-pt1(light,0.6G), gate-v13-tokengate-cli9(light,1G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 18:56:39] admission waiting: budget: 7.1+7.5 GiB > 11.9 GiB with live [gate-v12-tokengate-cli9(light,1G), gate-ts-tinyllama-t32-L22-fixed-pt1(light,0.6G), gate-v13-tokengate-cli9(light,1G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 18:57:39] admission waiting: budget: 7.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), gate-v12-tokengate-cli9(light,1G), gate-v13-tokengate-cli9(light,1G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 18:58:39] admission waiting: budget: 7.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), gate-v12-tokengate-cli9(light,1G), gate-v13-tokengate-cli9(light,1G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 18:59:39] admission waiting: budget: 7.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), gate-v12-tokengate-cli9(light,1G), gate-v13-tokengate-cli9(light,1G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:00:39] admission waiting: budget: 6.7+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), gate-v12-ts-cli9(light,0.6G), gate-v13-tokengate-cli9(light,1G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:01:39] admission waiting: budget: 6.7+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), gate-v12-ts-cli9(light,0.6G), gate-v13-tokengate-cli9(light,1G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:02:40] admission waiting: budget: 6.7+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), gate-v12-ts-cli9(light,0.6G), gate-v13-tokengate-cli9(light,1G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:03:40] admission waiting: budget: 6.5+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), gate-v12-ts-cli9(light,0.6G), gate-unittests-v13(light,0.8G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:04:40] admission waiting: budget: 5.7+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), gate-v12-ts-cli9(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:05:40] admission waiting: budget: 5.7+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), gate-v12-ts-cli9(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:06:40] admission waiting: budget: 5.7+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), gate-v12-ts-cli9(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:07:40] admission waiting: budget: 5.7+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), gate-v12-ts-cli9(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:08:41] admission waiting: budget: 5.7+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), gate-v12-ts-cli9(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:09:41] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:10:41] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:11:41] admission waiting: budget: 6.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), gate-v14-tokengate-cli9(light,1G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:12:41] admission waiting: budget: 6.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), gate-v14-tokengate-cli9(light,1G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:13:41] admission waiting: budget: 6.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), gate-v14-tokengate-cli9(light,1G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:14:42] admission waiting: budget: 6.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), gate-v14-tokengate-cli9(light,1G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:15:42] admission waiting: budget: 6.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), gate-v14-tokengate-cli9(light,1G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:16:42] admission waiting: budget: 6.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), gate-v14-tokengate-cli9(light,1G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:17:42] admission waiting: budget: 6.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), gate-v14-tokengate-cli9(light,1G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:18:42] admission waiting: budget: 6.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), gate-v14-tokengate-cli9(light,1G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:19:42] admission waiting: budget: 6.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), gate-v14-tokengate-cli9(light,1G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:20:42] admission waiting: budget: 6.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), gate-v14-tokengate-cli9(light,1G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:21:43] admission waiting: budget: 6.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-dense-pt1(light,0.6G), gate-v14-tokengate-cli9(light,1G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:22:43] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:23:43] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:24:43] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:25:43] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:26:43] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:27:44] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:28:44] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:29:44] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:30:44] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:31:44] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:32:44] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:33:45] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:34:45] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:35:45] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:36:45] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:37:45] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:38:45] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:39:45] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:40:46] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:41:46] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:42:46] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:43:46] admission waiting: budget: 5.1+7.5 GiB > 11.9 GiB with live [gate-ts-llama3-8b-t32-L1-fixed-pt1(light,0.6G), fp-L_e8_dg_w(light,4.5G)]
+[zk60-guard 19:44:21] START tio-s13-suite class=cpu need=7.5G cap=9.5G enforce=cgroup+watchdog waited=3524s run=47626fa96832
+[zk60-guard 19:57:12] END tio-s13-suite exit=0 child_wall=771s peak_rss=6.86G min_avail=5.85G

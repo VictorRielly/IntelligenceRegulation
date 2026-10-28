@@ -1,0 +1,26 @@
+[
+  {
+    "label": "legacy",
+    "patch": "legacy-count-free.patch",
+    "sha256": "a71730bf0b272cac7a758d66b726f3e138ecd43ee6cfbb352fdc9828441d34ff",
+    "host_clear_sites": 3,
+    "kernel_load_store_sites": 1,
+    "state_u32_per_column": 192,
+    "reserved_depth": 24,
+    "dynamic_depth_in_patch": false,
+    "compiled": false,
+    "applied": false
+  },
+  {
+    "label": "active",
+    "patch": "active-count-free.patch",
+    "sha256": "fa2069f0aea6ebe438b4885bf69da09cc3b863754f307f0984518723dac5c5ac",
+    "host_clear_sites": 3,
+    "kernel_load_store_sites": 2,
+    "state_u32_per_column": 192,
+    "reserved_depth": 24,
+    "dynamic_depth_in_patch": false,
+    "compiled": false,
+    "applied": false
+  }
+]

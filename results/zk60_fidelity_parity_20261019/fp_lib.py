@@ -221,16 +221,24 @@ def real_weights(W_rot: dict, Lw: dict) -> dict:
         (|W| >= 1), s >= 2|We| (W = 0). s = geometric middle of the group's
         feasible interval (least squares if empty)."""
         sumax = 1 - axis
-        a = np.abs(We).astype(np.float64)
-        w = np.abs(W8).astype(np.float64)
-        use = w < 127
-        lo_i = np.where(use, np.where(w >= 1, a / (w + 0.5), 2.0 * a), 0.0).max(sumax)
-        hi_i = np.where(use & (w >= 1), a / np.maximum(w - 0.5, 0.5), np.inf).min(sumax)
-        Wf = W8.astype(np.float64)
-        keep = use.astype(np.float64)
-        num_i = (We * Wf * keep).sum(sumax)
-        den_i = (Wf * Wf * keep).sum(sumax)
-        del a, w, use, Wf, keep
+        n_out = We.shape[axis]
+        lo_i = np.zeros(n_out); hi_i = np.full(n_out, np.inf); num_i = np.zeros(n_out); den_i = np.zeros(n_out)
+        for r0 in range(0, We.shape[0], 1024):      # row blocks: float64 temporaries stay small at 8B
+            Eb = We[r0:r0 + 1024].astype(np.float64)
+            Wb = W8[r0:r0 + 1024].astype(np.float64)
+            a, w = np.abs(Eb), np.abs(Wb)
+            use = w < 127
+            lo_b = np.where(use, np.where(w >= 1, a / (w + 0.5), 2.0 * a), 0.0)
+            hi_b = np.where(use & (w >= 1), a / np.maximum(w - 0.5, 0.5), np.inf)
+            keep = use.astype(np.float64)
+            nb, db = Eb * Wb * keep, Wb * Wb * keep
+            if axis == 0:
+                sl = slice(r0, r0 + Eb.shape[0])
+                lo_i[sl] = lo_b.max(1); hi_i[sl] = hi_b.min(1); num_i[sl] = nb.sum(1); den_i[sl] = db.sum(1)
+            else:
+                lo_i = np.maximum(lo_i, lo_b.max(0)); hi_i = np.minimum(hi_i, hi_b.min(0))
+                num_i += nb.sum(0); den_i += db.sum(0)
+            del Eb, Wb, a, w, use, lo_b, hi_b, keep, nb, db
         ng = int(gid.max()) + 1
         lo = np.zeros(ng); hi = np.full(ng, np.inf); num = np.zeros(ng); den = np.zeros(ng)
         np.maximum.at(lo, gid, lo_i); np.minimum.at(hi, gid, hi_i)
@@ -353,10 +361,20 @@ def _chk(rec, site, v, lo, hi, seq0, exact, extra_bad=None):
     return rec.check(site, v, lo, hi, seq0, clamp=True, extra_bad=extra_bad)
 
 
-def rx_norm(x, g8, cn, tn, ceps, wrho, ex_norm, ex_y, rec, site, seq0):
+def rx_norm(x, g8, cn, tn, ceps, wrho, ex_norm, ex_y, rec, site, seq0, ky=0):
     """y = round(x g Cn / (D 2^tn)), D = isqrt(Ceps + sum x^2). Exact path on
-    integer x uses int64 (== tlcalib.i_norm)."""
+    integer x uses int64 (== tlcalib.i_norm). ky > 0 (WHAT-IF, not native): the
+    norm output class is int(8+ky): y = round(x g Cn 2^ky / (D 2^tn)), range +-(2^(7+ky) - 1)."""
     integer_x = ex_norm and bool(np.all(x == np.floor(x)))
+    if ky and integer_x and ex_y:
+        xi = x.astype(np.int64)
+        ss = ceps + (xi * xi).sum(-1)
+        D = np.maximum(tc.isqrt_vec(ss), 1)
+        dv = (D << tn)[..., None]
+        num = 2 * xi * (g8.astype(np.int64) * cn << ky)[None, None, :] + dv
+        q = (num // (2 * dv)).astype(np.float64)
+        lim = (1 << (7 + ky)) - 1
+        return _chk(rec, f"{site} quotient/remainder", q, -lim, lim, seq0, True)
     if integer_x and ex_y:
         xi = x.astype(np.int64)
         q, _ = tc.i_norm(xi, g8, cn, tn, ceps, wrho, rec if rec is not None else tc.Rec(x.shape[0]), site, seq0, True)
@@ -364,16 +382,30 @@ def rx_norm(x, g8, cn, tn, ceps, wrho, ex_norm, ex_y, rec, site, seq0):
     ss = ceps + (x * x).sum(-1)
     D = np.floor(np.sqrt(ss)) if ex_norm else np.sqrt(ss)
     D = np.maximum(D, 1.0)
-    yv = x * (g8.astype(np.float64) * cn)[None, None, :] / (D[..., None] * float(1 << tn))
+    yv = x * (g8.astype(np.float64) * cn * 2.0 ** ky)[None, None, :] / (D[..., None] * float(1 << tn))
     if ex_y:
         yv = _rnd(yv)
-        yv = _chk(rec, f"{site} quotient/remainder", yv, -127, 127, seq0, True)
+        lim = (1 << (7 + ky)) - 1
+        yv = _chk(rec, f"{site} quotient/remainder", yv, -lim, lim, seq0, True)
     return yv
 
 
 def rq(acc, sh, exact):
+    if sh < 0:                      # width what-ifs only: a finer output than the accumulator (exact integer scaling)
+        return acc * float(1 << -sh)
     v = acc / float(1 << sh) if sh else acc
     return _rnd(v) if exact else v
+
+
+def mm_rq(M, name, x, wexact, sh, exact):
+    """matmul + requant; with a (c2) per-output-channel public multiplier m_j of b bits on this site:
+    out_j = round(m_j acc_j / 2^(sh + b)) (WHAT-IF, not native today)."""
+    acc = M.mat(name, wexact)(x)
+    mult = getattr(M, "mult", None)
+    if mult and name in mult:
+        m, b = mult[name]
+        return rq(acc * m, sh + b, exact)
+    return rq(acc, sh, exact)
 
 
 def rope_apply(x, c, s):
@@ -383,89 +415,125 @@ def rope_apply(x, c, s):
     return np.concatenate([cc * a - ss * b, ss * a + cc * b], axis=-1)
 
 
+def _modk(M, prefix):
+    """integer argument of a width what-if in M.mods (e.g. 'a8' -> 8 for prefix 'a'); 0 if absent."""
+    for m in M.mods:
+        if m.startswith(prefix) and m[len(prefix):].isdigit() and not (prefix == "s" and m.startswith("sh")):
+            return int(m[len(prefix):])
+    return 0
+
+
 def rx_block(x, M: LayerModel, exact: frozenset, rec=None, seq0: int = 0, trace: dict | None = None):
-    """The native block relations with per-site quantizers on/off (see module doc)."""
+    """The native block relations with per-site quantizers on/off (see module doc).
+    WIDTH WHAT-IFS (M.mods, not native today): yK norm outputs int(8+K); fpN F_P = N; aK attention words
+    (q, k, v, qr, kr, o) int(8+K) at a 2^K finer scale; gK SiLU input int(8+K) at a 2^K finer step (table of
+    2^(8+K) rows); oK SiLU output 2^K finer; hK product h int(16+K) 2^K finer; sK score word int(8+K) 2^K
+    finer (exp table over 2^(8+K) differences); ahJ spends J of the aK bits on range instead (attention words
+    stay int(8+K) but are only 2^(K-J) finer: J bits of headroom, zero proof cost). Consumer shifts absorb every
+    change, so real scales downstream are unchanged. With no mods the block is tlcalib.i_block bit for bit."""
     E = lambda s: s in exact  # noqa: E731
     g = GEO
     c = M.c
     x = np.asarray(x, dtype=np.float64)
     N, T, d = x.shape
-    I8N, I16 = (-127, 127), (-32768, 32767)
+    ky = _modk(M, "y")
+    f_p = next((int(m[2:]) for m in M.mods if m.startswith("fp") and m[2:].isdigit()), int(c["f_p"]))
+    ka, kg, ko, kh, ks = _modk(M, "a"), _modk(M, "g"), _modk(M, "o"), _modk(M, "h"), _modk(M, "s")
+    kf = ka - _modk(M, "ah")                              # attention fineness (ka minus headroom bits)
+    sh_o = int(c["sh_o"]) + f_p - int(c["f_p"])          # o comes out 2^ka finer on its own (v is 2^ka finer)
+    I16 = (-32768, 32767)
+    LA = (1 << (7 + ka)) - 1
+    LS = (1 << (7 + ks)) - 1
     y = rx_norm(x, M.w["gamma_a"], int(c["norm_cn_a"]), int(c["norm_tn"]), int(c["norm_ceps"]), c["wrho"],
-                E("norm"), E("y"), rec, "norm_a", seq0)
-    q = _chk(rec, "Q", rq(M.mat("q", E("w_q"))(y), c["sh_qkv"], E("q")), *I8N, seq0, E("q"))
-    k = _chk(rec, "K", rq(M.mat("k", E("w_k"))(y), c["sh_qkv"], E("k")), *I8N, seq0, E("k"))
-    v = _chk(rec, "V", rq(M.mat("v", E("w_v"))(y), c["sh_qkv"], E("v")), *I8N, seq0, E("v"))
+                E("norm"), E("y"), rec, "norm_a", seq0, ky)
+    q = _chk(rec, "Q", mm_rq(M, "q", y, E("w_q"), c["sh_qkv"] + ky - kf, E("q")), -LA, LA, seq0, E("q"))
+    k = _chk(rec, "K", mm_rq(M, "k", y, E("w_k"), c["sh_qkv"] + ky - kf, E("k")), -LA, LA, seq0, E("k"))
+    v = _chk(rec, "V", mm_rq(M, "v", y, E("w_v"), c["sh_qkv"] + ky - kf, E("v")), -LA, LA, seq0, E("v"))
     cr, sr = M.rope_int if E("rope_tab") else M.rope_real
-    qr = _chk(rec, "QR", rq(rope_apply(q.reshape(N, T, g.H, g.dh), cr, sr), c["sh_rope"], E("qr")), *I8N, seq0, E("qr"))
-    kr = _chk(rec, "KR", rq(rope_apply(k.reshape(N, T, g.KV, g.dh), cr, sr), c["sh_rope"], E("kr")), *I8N, seq0, E("kr"))
+    qr = _chk(rec, "QR", rq(rope_apply(q.reshape(N, T, g.H, g.dh), cr, sr), c["sh_rope"], E("qr")), -LA, LA, seq0, E("qr"))
+    kr = _chk(rec, "KR", rq(rope_apply(k.reshape(N, T, g.KV, g.dh), cr, sr), c["sh_rope"], E("kr")), -LA, LA, seq0, E("kr"))
     qg = qr.reshape(N, T, g.KV, g.G, g.dh).transpose(0, 2, 3, 1, 4)
-    kg = kr.transpose(0, 2, 3, 1)[:, :, None]
-    sacc = qg @ kg                                                     # (N,KV,G,T,T)
-    s = _chk(rec, "score", rq(sacc, c["sh_s"], E("s")), *I8N, seq0, E("s"))
+    kg_ = kr.transpose(0, 2, 3, 1)[:, :, None]
+    sacc = qg @ kg_                                                    # (N,KV,G,T,T)
+    s = _chk(rec, "score", rq(sacc, c["sh_s"] + 2 * kf - ks, E("s")), -LS, LS, seq0, E("s"))
     tri = np.tril(np.ones((T, T), dtype=bool))
     if E("s"):
-        masked = np.where(tri, s, float(MASK))
+        masked = np.where(tri, s, -float(LS))
         best = masked.max(-1, keepdims=True)
         delta = best - masked
     else:
         best = np.where(tri, s, -np.inf).max(-1, keepdims=True)
         delta = np.where(tri, best - s, 0.0)
-    if E("s") and E("exp"):
+    if E("s") and E("exp") and ks == 0:
         delta = _chk(rec, "exp difference", delta, 0, M.exp_t.shape[0] - 1, seq0, True)
         Ev = M.exp_t[delta.astype(np.int64)]
     else:
-        Ev = float(1 << int(c["f_e"])) * np.exp(-delta * M.lam)
+        if E("s") and E("exp"):
+            delta = _chk(rec, "exp difference", delta, 0, (1 << (8 + ks)) - 1, seq0, True)
+        Ev = float(1 << int(c["f_e"])) * np.exp(-delta * M.lam / float(1 << ks))
         if E("exp"):
             Ev = _rnd(Ev)
     Ev = np.where(tri, Ev, 0.0)
     total = Ev.sum(-1, keepdims=True)
     if E("exp"):
         total = _chk(rec, "softmax denominator", total, 1 << int(c["f_e"]), T << int(c["f_e"]), seq0, True)
-    p = Ev * float(1 << int(c["f_p"])) / total
+    p = Ev * float(1 << f_p) / total
     if E("p"):
         p = np.floor(p + 0.5) if "pround" in M.mods else np.floor(p)
-        p = _chk(rec, "softmax quotient/remainder", p, 0, 1 << int(c["f_p"]), seq0, True)
+        p = _chk(rec, "softmax quotient/remainder", p, 0, 1 << f_p, seq0, True)
     vg = v.reshape(N, T, g.KV, g.dh).transpose(0, 2, 1, 3)[:, :, None]
     oacc = p @ vg                                                       # (N,KV,G,T,dh)
-    o = _chk(rec, "O", rq(oacc, c["sh_o"], E("o")), *I8N, seq0, E("o"))
+    o = _chk(rec, "O", rq(oacc, sh_o, E("o")), -LA, LA, seq0, E("o"))
     o8 = o.transpose(0, 3, 1, 2, 4).reshape(N, T, d)
-    ao = _chk(rec, "AO", rq(M.mat("o", E("w_o"))(o8), c["sh_ao"], E("ao")), *I16, seq0, E("ao"))
+    ao = _chk(rec, "AO", mm_rq(M, "o", o8, E("w_o"), c["sh_ao"] + kf, E("ao")), *I16, seq0, E("ao"))
     x1 = x + ao
     if E("ao") and E("emb"):
         x1 = _chk(rec, "residual 1", x1, *I16, seq0, True)
     nm = rx_norm(x1, M.w["gamma_m"], int(c["norm_cn_m"]), int(c["norm_tn"]), int(c["norm_ceps"]), c["wrho"],
-                 E("norm"), E("nm"), rec, "norm_m", seq0)
-    gacc = M.mat("g", E("w_g"))(nm)
-    if getattr(M, "gate_pc", None) is not None:
-        gt = rq(gacc, c["sh_g"], False)          # what-if below re-quantizes per channel group
-    else:
-        gt = _chk(rec, "FFN gate", rq(gacc, c["sh_g"], E("gate")), -128, 127, seq0, E("gate"))
-    u = _chk(rec, "FFN up", rq(M.mat("u", E("w_u"))(nm), c["sh_u"], E("up")), *I16, seq0, E("up"))
+                 E("norm"), E("nm"), rec, "norm_m", seq0, ky)
+    u = _chk(rec, "FFN up", mm_rq(M, "u", nm, E("w_u"), c["sh_u"] + ky, E("up")), *I16, seq0, E("up"))
     e_in, e_out = c["silu"]
+    GL, GH = -(1 << (7 + kg)), (1 << (7 + kg)) - 1
+    AL = 32767 * (1 << ko)
     if getattr(M, "gate_pc", None) is not None:
         # WHAT-IF (not native): per-channel-group SiLU tables. Channel j quantizes the gate at its own
-        # 2^e_j (int8, range checked) and looks up silu at its own output scale 2^eo_j; the result is
-        # handed on in the layer's act LSB units (a per-column Wd scale would absorb it natively).
+        # 2^(e_j - kg) and looks up silu at its own output step 2^(eo_j - ko); handed on in the layer's act units
+        # (a per-column Wd scale would absorb it natively).
         ej, eoj, tabs, sat = M.gate_pc
+        gt = mm_rq(M, "g", nm, E("w_g"), c["sh_g"] + ky, False)          # unrounded, units 2^e_in
         xg = gt * (2.0 ** e_in)
-        g8 = _rnd(xg / (2.0 ** ej))
-        if sat:     # negative saturation: silu(x) ~ 0 below the class, no refusal there
-            g8 = np.maximum(g8, -128.0)
-        g8 = _chk(rec, "FFN gate", g8, -128, 127, seq0, True)
-        idx = g8.astype(np.int64) + 128                       # (N, T, f)
-        a = tabs[np.arange(len(ej))[None, None, :], idx]      # tabs (f, 256): channel j's table
-        a = a * (2.0 ** (eoj - e_out))
-    elif E("gate") and E("act"):
-        a = M.act_t[gt.astype(np.int64) + 128]
+        g8 = _rnd(xg / (2.0 ** (ej - kg)))
+        if sat:
+            g8 = np.maximum(g8, float(GL))
+        g8 = _chk(rec, "FFN gate", g8, GL, GH, seq0, True)
+        if kg == 0 and ko == 0:
+            idx = g8.astype(np.int64) + 128
+            a = tabs[np.arange(len(ej))[None, None, :], idx]
+        else:
+            zin = g8 * (2.0 ** (ej - kg))
+            with np.errstate(over="ignore"):
+                a = np.clip(_rnd(zin / (1.0 + np.exp(-zin)) / (2.0 ** (eoj - ko))), -AL, AL)
+        a = a * (2.0 ** (eoj - e_out))                                     # units 2^(e_out - ko)
+    elif kg == 0 and ko == 0:
+        gt = _chk(rec, "FFN gate", mm_rq(M, "g", nm, E("w_g"), c["sh_g"] + ky, E("gate")), -128, 127, seq0, E("gate"))
+        if E("gate") and E("act"):
+            a = M.act_t[gt.astype(np.int64) + 128]
+        else:
+            z_in = gt * (2.0 ** e_in)
+            with np.errstate(over="ignore"):
+                a = z_in / (1.0 + np.exp(-z_in)) / (2.0 ** e_out)
+            if E("act"):
+                a = np.clip(_rnd(a), -32767, 32767)
     else:
-        z_in = gt * (2.0 ** e_in)
+        gt = _chk(rec, "FFN gate", mm_rq(M, "g", nm, E("w_g"), c["sh_g"] + ky - kg, E("gate")), GL, GH, seq0, E("gate"))
+        z_in = gt * (2.0 ** (e_in - kg))
         with np.errstate(over="ignore"):
-            a = z_in / (1.0 + np.exp(-z_in)) / (2.0 ** e_out)
+            a = z_in / (1.0 + np.exp(-z_in)) / (2.0 ** (e_out - ko))
         if E("act"):
-            a = np.clip(_rnd(a), -32767, 32767)
-    h = _chk(rec, "FFN product", rq(a * u, c["sh_h"], E("h")), *I16, seq0, E("h"))
-    z = _chk(rec, "FFN down", rq(M.mat("d", E("w_d"))(h), c["sh_z"], E("z")), *I16, seq0, E("z"))
+            a = np.clip(_rnd(a), -AL, AL)
+    HL, HH = -(1 << (15 + kh)), (1 << (15 + kh)) - 1
+    h = _chk(rec, "FFN product", rq(a * u, c["sh_h"] + ko - kh, E("h")), HL, HH, seq0, E("h"))
+    z = _chk(rec, "FFN down", mm_rq(M, "d", h, E("w_d"), c["sh_z"] + kh, E("z")), *I16, seq0, E("z"))
     x2 = x1 + z
     if E("z") and E("ao") and E("emb"):
         x2 = _chk(rec, "residual 2", x2, *I16, seq0, True)
@@ -475,12 +543,15 @@ def rx_block(x, M: LayerModel, exact: frozenset, rec=None, seq0: int = 0, trace:
     return x2
 
 
-def gate_groups(st: dict, e_min: int = -5, mc: float = 2.0, m2: float = 1.25, sat: bool = False):
+def gate_groups(st: dict, e_min: int = -5, mc: float = 2.0, m2: float = 1.25, sat: bool = False, ngroups: int | None = None):
     """WHAT-IF per-channel-group SiLU members from the calibration statistics of one
     layer: e_j = the finest e_in in [e_min, -1] with 127 2^e >= bound_j, bound_j =
     min(mc * channel max, m2 * tensor max) of |gate| (positive side only with
     negative saturation), e_out the registry's finest non-saturating member
-    (e_in - 8 below the registry). Returns (e_j, eo_j, tables (f, 256), sat, report)."""
+    (e_in - 8 below the registry). ngroups caps the distinct tables per layer (native: groups x 4096 rows <= 2^log_cols
+    with SiLU input int12, i.e. <= 4 groups at T128, <= 8 at T512; r11 ACTIVATION_COST.md section 4): the finest e_in
+    values merge into the ngroups-th coarsest (coarser = more range) and each e_in group takes ONE output member, the
+    coarsest any of its channels needs. Returns (e_j, eo_j, tables (f, 256), sat, report)."""
     sys.path.insert(0, str(CAL))
     gm = np.asarray(st["gate_max"], dtype=np.float64)
     tmax = max(st["gate_pos"], 0.0) if sat else max(st["gate_pos"], st["gate_neg"])
@@ -490,12 +561,18 @@ def gate_groups(st: dict, e_min: int = -5, mc: float = 2.0, m2: float = 1.25, sa
     ej = np.full(gm.shape, -1, dtype=np.int64)
     for e in range(-1, e_min - 1, -1):
         ej = np.where(127.0 * 2.0 ** e >= bound, e, ej)
+    if ngroups:
+        ue = sorted(np.unique(ej).tolist(), reverse=True)              # coarsest first
+        if len(ue) > ngroups:
+            ej = np.maximum(ej, ue[ngroups - 1])
     cache, eoj = {}, np.zeros_like(ej)
     for e in np.unique(ej):
         outs = sorted(eo for (ei, eo) in b3.SILU_MEMBERS if ei == e) or [int(e) - 8]
         for j in np.nonzero(ej == e)[0]:
             eo = next((o for o in outs if amb[j] <= 32767 * 2.0 ** o), outs[-1])
             eoj[j] = eo
+        if ngroups:
+            eoj[ej == e] = eoj[ej == e].max()
     tabs = np.zeros((len(ej), 256))
     for key in set(zip(ej.tolist(), eoj.tolist())):
         if key not in cache:
@@ -505,6 +582,37 @@ def gate_groups(st: dict, e_min: int = -5, mc: float = 2.0, m2: float = 1.25, sa
     rep = {"members": {f"{k[0]},{k[1]}": int(((ej == k[0]) & (eoj == k[1])).sum()) for k in cache},
            "outside_registry": int(sum(1 for k in cache if k not in b3.SILU_DIGESTS))}
     return ej, eoj, tabs, sat, rep
+
+
+MULT_SITES = {"q": ("wq", 0, "sh_qkv", 16), "k": ("wk", 0, "sh_qkv", 16), "v": ("wv", 0, "sh_qkv", 16),
+              "o": ("wo", 0, "sh_ao", 16), "g": ("wg_t", 1, "sh_g", 16), "u": ("wu_t", 1, "sh_u", 8),
+              "d": ("wd_t", 1, "sh_z", 16)}
+
+
+def apply_multipliers(Lw: dict, Wreal: dict, bits: dict):
+    """(c2) WHAT-IF: narrow per-output-channel public multipliers. For site s with b bits (capped so that
+    sh + b fits the site's window: 16 = two bytes, 8 at up): m_j = clip(ceil(2^b rowmax_j / 127), 1, 2^b),
+    words W8'_j = round(W_real_j 2^b / m_j) (every channel's largest word near 127 when m_j is large),
+    out_j = round(m_j acc'_j / 2^(sh + b)) = the same output scale. Returns (new words, mult dict, report)."""
+    w = dict(Lw["w"])
+    mult, rep = {}, {}
+    for site, b in bits.items():
+        key, out_axis, shkey, hi = MULT_SITES[site]
+        b_eff = min(int(b), hi - int(Lw["c"][shkey]))
+        if b_eff <= 0:
+            rep[site] = {"bits": 0}
+            continue
+        Wr = Wreal[key].astype(np.float64)
+        rowmax = np.abs(Wr).max(axis=1 - out_axis)
+        m = np.clip(np.ceil((2.0 ** b_eff) * rowmax / 127.0), 1, 2 ** b_eff)
+        f = (2.0 ** b_eff) / m
+        Wn = Wr * (f[:, None] if out_axis == 0 else f[None, :])
+        w[key] = np.clip(np.floor(Wn + 0.5), -127, 127).astype(np.int8)
+        mult[site] = (m.astype(np.float64), b_eff)
+        med_before = float(np.median(np.abs(Lw["w"][key].astype(np.int16)).max(axis=1 - out_axis)))
+        med_after = float(np.median(np.abs(w[key].astype(np.int16)).max(axis=1 - out_axis)))
+        rep[site] = {"bits": b_eff, "median_channel_max_word": [med_before, med_after]}
+    return w, mult, rep
 
 
 # ====================================================================== heads

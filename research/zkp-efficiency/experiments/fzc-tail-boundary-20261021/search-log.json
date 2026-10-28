@@ -1,0 +1,28 @@
+{
+  "utc": "2026-10-21T01:32:33.670238+00:00",
+  "engine": "native LIVE web__run",
+  "queries": [
+    "GPU sumcheck CPU small rounds tail hybrid 2025 2026 GKR",
+    "site.github.com sumcheck cpu gpu threshold tail ICICLE",
+    "sumcheck prover GPU CPU hybrid round transfer small polynomial",
+    "GPU sumcheck CPU tail threshold small rounds github ICICLE binius 2026",
+    "site.github.com ingonyama-zk icicle sumcheck cpu_threshold",
+    "site.arxiv.org GPU sumcheck 2026 hybrid CPU memory",
+    "site.github.com sumcheck gpu cpu \"tail\"",
+    "sumcheck GPU 2026 October new paper arxiv GKR batch",
+    "\"GPU Acceleration of the Sum-Check Protocol\" 2026",
+    "\"A Time-Space Tradeoff for the Sumcheck Prover\" github",
+    "site.developer.nvidia.com \"CUDA Graphs\" \"2019\" overhead",
+    "site.developer.nvidia.com \"Reducing CUDA API Overhead\" graphs 2024",
+    "\"Garuda\" \"sumcheck\" GPU"
+  ],
+  "query_count": 13,
+  "issues": [
+    "efficient-sumcheck commit9e55dc3a020fe9e94a7617628587685eb39b32ce open429; no bypass",
+    "MIT/Apache bodies efficient-sumcheck and pinnedICICLE LICENSE hadcache misses; currentICICLE MITbody inspected",
+    "UT Austin Oakland2013 PDF not accessible; Microsoft2013 primary metadata accessible",
+    "Unrelated arxiv2502.21235 opened during discovery and excluded; not evidence",
+    "Initial3 query raw results retained in tool history; saved web-access-log contains follow-up URL/access metadata,notfullcopyrightedsource text"
+  ],
+  "upstream_code_executed": false
+}

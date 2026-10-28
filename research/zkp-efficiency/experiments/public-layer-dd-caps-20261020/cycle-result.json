@@ -1,0 +1,90 @@
+{
+  "status": "COMPLETE",
+  "cycle": "0113",
+  "run_id": "20261020T211854Z-71297104",
+  "checkpoint_utc": "2026-10-20T21:30:19.165784+00:00",
+  "probe": {
+    "status": "PASS",
+    "seed": 20261020113,
+    "checks": 53836,
+    "synthetic_rows": 120,
+    "negative_controls": [
+      "cap32_not_admitted",
+      "rounding_cap_down",
+      "private_observed_cardinality",
+      "mode_cap_swap_changes_binding",
+      "table_swap_changes_binding",
+      "cap_rounds_not_free_T128",
+      "cap_does_not_remove_masks_T128",
+      "cap_rounds_not_free_T512",
+      "cap_does_not_remove_masks_T512",
+      "cumulative_is_not_peak"
+    ],
+    "elapsed_s": 1.7779991619754583,
+    "maxrss_KiB": 18720,
+    "limits": {
+      "threads": 1,
+      "CPU_s": 59,
+      "alarm_s": 59,
+      "parent_wall_s": 60,
+      "address_space_MiB": 512,
+      "estimate_MiB": 64
+    }
+  },
+  "audit": {
+    "status": "PASS",
+    "checks": 8915,
+    "Decimal_precision": 90,
+    "enumerated_public_entries": 20480,
+    "independent_arithmetic_positions": 3360,
+    "allocation_events": 4096,
+    "source_pins": 15,
+    "negative_controls": [
+      "rows_only_wire_T128",
+      "reused_AH_mask_rows_T128",
+      "ignored_M_encoded_rows_T128",
+      "rows_only_wire_T512",
+      "reused_AH_mask_rows_T512",
+      "ignored_M_encoded_rows_T512",
+      "capacity_not_mean",
+      "uniform_no_improvement_T128",
+      "uniform_no_improvement_T512"
+    ],
+    "elapsed_s": 0.021773214015411213,
+    "maxrss_KiB": 18000,
+    "scope": "Independent count/wire/synthetic allocation audit; no native proof/privacy validation"
+  },
+  "source_records": 10,
+  "source_ledger": 702,
+  "ranked_hypotheses": 26,
+  "new_verified_full_stack": {
+    "proofs": 0,
+    "passes": 0,
+    "positions": 0,
+    "context_length": null,
+    "accelerator": null,
+    "research_device": "Intel Core Ultra9 185H CPU; no GPU",
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "startup_s": null,
+    "startup_fraction": null,
+    "steady_rate": null,
+    "total_rate": null
+  },
+  "next_local": "Test a public dyadic dictionary partition against the proposed cap256: 156 distinct public outputs could occupy 128+16+8+4 slots per attention row instead of 256. First use synthetic direct-versus-sharded tuple/divmod checks and count every additional slot, fresh mask pair, PCS group, histogram and row-Sum binding. Check the no-lift premise for every shard; small shards may erase the gain. This is an untested new-profile idea, not authorization to alter native D30 or its privacy requirements. Actual HIGH/S12 tables must come from the owner fidelity lane before promotion.",
+  "next_owner": "Owner priorities remain whole-prover high-end GPU phase/capacity clocks and independently verified fixed-context resident 1/2/4/8 workloads, DD context/fidelity scaling, and the all-eleven FZC compiler A/B under shared heavy/build locks. No such job was launched here.",
+  "artifact_audit": {
+    "status": "PASS",
+    "checks": 173,
+    "original_source_records_preserved": 692,
+    "source_ledger": 702,
+    "prior_findings_prefix_preserved": true,
+    "agenda_unchanged": true,
+    "prior_ranked_hypotheses_preserved": 23,
+    "elapsed_s": 0.01109484100015834,
+    "maxrss_KiB": 19232
+  },
+  "finished_utc": "2026-10-20T21:31:19.954709+00:00"
+}

@@ -1,0 +1,59 @@
+{
+ "run": "e8_LOWh8v6_lam0",
+ "seqs": [
+  9,
+  96
+ ],
+ "first_refused_layer": {
+  "96": 15,
+  "9": 21
+ },
+ "overrides": {
+  "gate_pc": "-5:mc8:tm4:ng4",
+  "sh_s_plus": {
+   "15": 1
+  },
+  "to_end": true
+ },
+ "records": [
+  {
+   "layer": 15,
+   "site": "score",
+   "seq": 96,
+   "pos": 93,
+   "token": 433,
+   "constants": {
+    "sh_qkv": 8,
+    "sh_s": 7,
+    "exp_e_s": 2
+   },
+   "max_abs_score_causal": 44.0,
+   "max_abs_score_layer_seq": 66.0,
+   "max_abs_score": 66.0,
+   "limit": 127,
+   "factor": 0.5196850393700787,
+   "extra_sh_s_bits": 0,
+   "kv_head": 7,
+   "q_in_group": 2,
+   "key_pos": 124,
+   "key_token": 1364,
+   "calib_raw_kv_max": 284.87530517578125
+  },
+  {
+   "layer": 21,
+   "site": "FFN gate",
+   "seq": 9,
+   "pos": 50,
+   "token": 279,
+   "constants": {
+    "sh_qkv": 8,
+    "sh_s": 6,
+    "exp_e_s": 2
+   },
+   "channels": [],
+   "n_bad_channels": 0
+  }
+ ],
+ "violations": [],
+ "scope": "fidelity data, not a proof, not a privacy claim"
+}

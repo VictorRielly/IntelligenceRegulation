@@ -1,0 +1,407 @@
+--- scripts/zk60_resource_guard.py (live, sha256 f0b87668b9ad3bc42683d95a16314b54973b8e36be576b25183302287168e772)
++++ scripts/zk60_resource_guard.py (candidate, sha256 87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c)
+@@ -19,15 +19,23 @@
+   zk60_resource_guard.py check --class C      dry run: would this start now?
+ 
+ What `run` does for one command:
+-  1. takes the flock files the detached-run protocol already uses, so guarded
+-     jobs and old-style `flock /tmp/zk-heavy.lock cmd` wrappers serialize
+-     together.  cpu, gpu AND build jobs all hold /tmp/zk-heavy.lock (a build
+-     never overlaps a proof); builds then also hold /tmp/zk-build.lock.  Lock
+-     order is always heavy -> build.  Only `light` jobs (cap 1.5 GiB) run beside
+-     a heavy job;
+-  2. admission: waits until the declared memory of all live guarded jobs plus
+-     this one fits the budget, live MemAvailable covers the job plus a margin,
+-     swap is unused, and (gpu) the card reads idle and readable;
++  1. admission: waits, HOLDING NO LOCK, until the declared memory of all live
++     guarded jobs plus this one fits the budget, live MemAvailable covers the
++     job plus a margin, swap is unused, and (gpu) the card reads idle and
++     readable.  Optional, OFF by default: first-come-first-served for the
++     budget, switched on by `touch <state>/fifo.on` (every guard, next poll) or
++     ZK60_GUARD_FIFO=1 (one process; =0 keeps a process out).  With it on, an
++     older waiter that is blocked by the declared budget counts as if it were
++     already running when a newer job is admitted (tickets under <state>/queue/,
++     held under flock, so a dead waiter's ticket is reaped);
++  2. then takes the flock files the detached-run protocol already uses, so
++     guarded jobs and old-style `flock /tmp/zk-heavy.lock cmd` wrappers
++     serialize together.  cpu, gpu AND build jobs all hold /tmp/zk-heavy.lock (a
++     build never overlaps a proof); builds then also hold /tmp/zk-build.lock.
++     Lock order is always heavy -> build.  Only `light` jobs (cap 1.5 GiB) run
++     beside a heavy job.  Admission is decided again under the locks; if it
++     fails there, the locks are released and the job goes back to step 1, so a
++     job waiting for memory never blocks the heavy lock (2026-10-17 gap);
+   3. runs the command in its own systemd scope (kernel MemoryMax, no swap,
+      nested in zk60.slice, a 12 GiB group cap) when `systemd-run --user` works,
+      so a runaway job is OOM-killed inside its cgroup instead of freezing the
+@@ -118,6 +126,30 @@
+ VRAM_DRAIN_SECS = float(os.environ.get("ZK60_GUARD_DRAIN_SECS", "180"))
+ TERM_GRACE_SECS = float(os.environ.get("ZK60_GUARD_TERM_GRACE_SECS", "15"))
+ 
++
++def _env_secs(name: str, default: float) -> float:
++    try:
++        v = float(os.environ.get(name, default))
++    except ValueError:
++        return default
++    return v if math.isfinite(v) and v > 0 else default
++
++
++# Admission wait and FIFO queue (2026-10-21).  A waiting job re-checks admission
++# every ADMIT_POLL_SECS.  Its ticket counts for newer jobs only while its heartbeat
++# is fresh (TICKET_STALE_SECS: a hung or stopped waiter stops reserving), for at most
++# FIFO_MAX_PRIORITY_SECS of reservation in total (a job that can never fit, e.g.
++# behind a long-lived light job, cannot stall the queue forever), and, once its own
++# verdict says "go", for READY_GRACE_SECS while it takes the heavy lock.
++ADMIT_POLL_SECS = _env_secs("ZK60_GUARD_POLL_SECS", 5.0)
++TICKET_STALE_SECS = _env_secs("ZK60_GUARD_TICKET_STALE_SECS", 60.0)
++FIFO_MAX_PRIORITY_SECS = _env_secs("ZK60_GUARD_FIFO_MAX_PRIORITY_SECS", 3600.0)
++READY_GRACE_SECS = 5.0
++# FIFO is OFF unless switched on: `touch <state>/fifo.on` (all guards, at their next
++# poll) or ZK60_GUARD_FIFO=1 (this process).  ZK60_GUARD_FIFO=0 keeps this process
++# out of the queue even when the file exists.
++FIFO_ENV = os.environ.get("ZK60_GUARD_FIFO", "")
++
+ EXIT_REFUSED = 70
+ EXIT_GUARD_ERROR = 71
+ EXIT_KILLED = 75
+@@ -465,36 +497,214 @@
+     return max(1.0, mem["MemTotal"] / GIB - RESERVE_GIB)
+ 
+ 
+-def admission_verdict(cls: str, need_gib: float, jobs_dir: Path) -> list[str]:
+-    """Reasons the job cannot start right now (empty list = admit)."""
++HEAVY_CLASSES = ("cpu", "gpu", "build")
++# Reason kinds a waiter may have and still reserve its place: it must be blocked by
++# the declared budget (its own or older waiters'); live MemAvailable alone (often
++# unguarded processes) and non-memory reasons (GPU busy, a heavy job live) never
++# reserve, so they cannot stall newer jobs that would not delay this one anyway.
++_RESERVING_KINDS = {"budget", "fifo-budget", "mem", "swap", "fifo-heavy"}
++
++
++def _admission_reasons(cls: str, need_gib: float, jobs_dir: Path,
++                       ahead: list[dict] | tuple = ()) -> list[tuple[str, str]]:
++    """(kind, text) reasons the job cannot start right now; empty list = admit.
++    `ahead` are older waiters holding a FIFO reservation: they count as if they were
++    already running (declared budget, one heavy job at a time) but not against live
++    MemAvailable, which they have not used yet."""
+     mem = meminfo()
+-    reasons = []
++    reasons: list[tuple[str, str]] = []
+     live = _live_jobs(jobs_dir)
+     committed = sum(j["need_gib"] for j in live)
++    reserved = sum(t["need_gib"] for t in ahead)
+     budget = budget_gib(mem)
+     if committed + need_gib > budget + 1e-9:
+         who = ", ".join(f"{j['label']}({j['class']},{j['need_gib']:g}G)" for j in live)
+-        reasons.append(f"budget: {committed:g}+{need_gib:g} GiB > {budget:.1f} GiB "
+-                       f"with live [{who}]")
++        reasons.append(("budget", f"budget: {committed:g}+{need_gib:g} GiB > {budget:.1f} GiB "
++                                  f"with live [{who}]"))
++    elif committed + reserved + need_gib > budget + 1e-9:
++        who = ", ".join(f"{t['label']}({t['class']},{t['need_gib']:g}G)" for t in ahead)
++        reasons.append(("fifo-budget", f"fifo: {committed:g}+{reserved:g} reserved+{need_gib:g} "
++                                       f"GiB > {budget:.1f} GiB; older queued jobs go first [{who}]"))
+     avail = mem["MemAvailable"] / GIB
+     if avail < need_gib + ADMIT_MARGIN_GIB:
+-        reasons.append(f"MemAvailable {avail:.1f} GiB < need {need_gib:g} + "
+-                       f"margin {ADMIT_MARGIN_GIB:g}")
++        reasons.append(("mem", f"MemAvailable {avail:.1f} GiB < need {need_gib:g} + "
++                               f"margin {ADMIT_MARGIN_GIB:g}"))
+     if mem.get("SwapTotal", 0) - mem.get("SwapFree", 0) > 1 * GIB:
+-        reasons.append("swap in use > 1 GiB (box is already under pressure)")
++        reasons.append(("swap", "swap in use > 1 GiB (box is already under pressure)"))
+     if cls == "gpu":
+         g = gpu_used_mib()
+         if g is None:
+-            reasons.append("nvidia-smi unreadable: cannot verify the card is idle")
++            reasons.append(("gpu", "nvidia-smi unreadable: cannot verify the card is idle"))
+         elif g[0] > VRAM_IDLE_MIB:
+-            reasons.append(f"VRAM {g[0]} MiB in use > idle {VRAM_IDLE_MIB} MiB")
++            reasons.append(("gpu", f"VRAM {g[0]} MiB in use > idle {VRAM_IDLE_MIB} MiB"))
+         if any(j["class"] == "gpu" for j in live):
+-            reasons.append("another guarded gpu job is live")
+-    if cls != "light" and any(j["class"] in ("cpu", "gpu", "build") for j in live):
+-        reasons.append("another heavy guarded job is live (one heavy job at a time)")
++            reasons.append(("gpu", "another guarded gpu job is live"))
++    if cls != "light":
++        if any(j["class"] in HEAVY_CLASSES for j in live):
++            reasons.append(("heavy", "another heavy guarded job is live (one heavy job at a time)"))
++        elif any(t["class"] in HEAVY_CLASSES for t in ahead):
++            who = ", ".join(t["label"] for t in ahead if t["class"] in HEAVY_CLASSES)
++            reasons.append(("fifo-heavy", f"fifo: an older queued heavy job goes first [{who}]"))
+     return reasons
+ 
+ 
++def admission_verdict(cls: str, need_gib: float, jobs_dir: Path,
++                      ahead: list[dict] | tuple = ()) -> list[str]:
++    """Reasons the job cannot start right now (empty list = admit)."""
++    return [text for _kind, text in _admission_reasons(cls, need_gib, jobs_dir, ahead)]
++
++
++def _reserves(kinds: set[str]) -> bool:
++    return bool(kinds) and kinds <= _RESERVING_KINDS and bool(kinds & {"budget", "fifo-budget"})
++
++
++def _fifo_on() -> bool:
++    if FIFO_ENV == "0":
++        return False
++    return FIFO_ENV == "1" or (STATE_DIR / "fifo.on").exists()
++
++
++def _queue_ahead(my_name: str | None) -> list[dict]:
++    """Waiters older than `my_name` (all of them if None) that currently hold a FIFO
++    reservation.  A ticket counts only while its guard holds its flock (the kernel
++    drops it when the guard dies; such tickets are reaped here), its heartbeat is
++    fresh, and, for a waiter taking its locks, within its ready grace."""
++    if not _fifo_on():
++        return []
++    qdir = STATE_DIR / "queue"
++    try:
++        names = sorted(os.listdir(qdir))
++    except OSError:
++        return []
++    out = []
++    t_now = now()
++    for n in names:
++        p = qdir / n
++        if n.startswith(".new-"):  # a guard died between creating and publishing its ticket
++            try:
++                if t_now - p.stat().st_mtime > TICKET_STALE_SECS and not _file_held(p):
++                    p.unlink()
++            except OSError:
++                pass
++            continue
++        if not n.endswith(".ticket") or (my_name is not None and n >= my_name):
++            continue
++        try:
++            fd = os.open(p, os.O_RDONLY)
++        except OSError:
++            continue
++        try:
++            try:
++                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
++            except BlockingIOError:  # its guard is alive and waiting
++                try:
++                    t = json.loads(os.read(fd, 1 << 16).decode())
++                    need = float(t["need_gib"])
++                    until = t.get("priority_until")
++                    if (t.get("priority") is True and math.isfinite(need) and need > 0
++                            and t_now - float(t["heartbeat"]) <= TICKET_STALE_SECS
++                            and (until is None or t_now <= float(until))):
++                        out.append({"label": str(t.get("label")), "class": str(t.get("class")),
++                                    "need_gib": need, "run_id": t.get("run_id")})
++                except (ValueError, TypeError, KeyError, AttributeError, UnicodeDecodeError):
++                    pass  # half-written or foreign: never reserves
++                continue
++            try:
++                p.unlink()
++            except OSError:
++                pass
++        finally:
++            os.close(fd)
++    return out
++
++
++class _Ticket:
++    """This waiter's place in the FIFO queue: <state>/queue/<enqueue_ns>-<run_id>.ticket,
++    created under a temporary name, locked, then renamed (so a published ticket is always
++    locked by a live guard), updated in place under the admission lock, and removed at
++    admission or exit.  Older guard versions never read this directory.  Any failure here
++    only disables FIFO for this one job; it never stops the job."""
++
++    def __init__(self, run_id: str, label: str, cls: str, need: float, enq_ns: int,
++                 ident: dict):
++        self.name = f"{enq_ns:020d}-{run_id}.ticket"
++        self.fd: int | None = None
++        self.path: Path | None = None
++        self.broken = False
++        self.last_update: float | None = None
++        self.rec = {"run_id": run_id, "label": label, "class": cls, "need_gib": need,
++                    "pid": os.getpid(), "boot_id": ident.get("boot_id"),
++                    "pid_ns": ident.get("pid_ns"),
++                    "guard_starttime_ticks": ident.get("guard_starttime_ticks"),
++                    "enqueued": iso(enq_ns / 1e9), "enqueued_ns": enq_ns, "state": "new",
++                    "priority": False, "priority_until": None, "priority_secs": 0.0,
++                    "priority_expired": False, "heartbeat": now(), "reasons": []}
++
++    def _create(self) -> None:
++        qdir = STATE_DIR / "queue"
++        qdir.mkdir(parents=True, exist_ok=True)
++        try:
++            os.chmod(qdir, 0o1777)
++        except OSError:
++            pass
++        tmp = qdir / f".new-{self.rec['run_id']}"
++        fd = os.open(tmp, os.O_RDWR | os.O_CREAT | os.O_EXCL, 0o666)
++        try:
++            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
++            os.write(fd, json.dumps(self.rec).encode())
++            os.rename(tmp, qdir / self.name)  # same inode: the lock comes along
++        except BaseException:
++            os.close(fd)
++            try:
++                tmp.unlink()
++            except OSError:
++                pass
++            raise
++        self.fd, self.path = fd, qdir / self.name
++
++    def publish(self, state: str, kinds: set[str], reasons: list[str]) -> None:
++        """Record this waiter's latest verdict.  Call under the admission lock."""
++        if self.broken:
++            return
++        t = now()
++        if self.rec["priority"] and self.last_update is not None:
++            self.rec["priority_secs"] = round(self.rec["priority_secs"] + t - self.last_update, 1)
++        prio = state == "ready" or (state == "waiting" and _reserves(kinds))
++        if prio and self.rec["priority_secs"] > FIFO_MAX_PRIORITY_SECS:
++            if not self.rec["priority_expired"]:
++                log(f"fifo: reservation released after {self.rec['priority_secs']:.0f}s "
++                    "(FIFO_MAX_PRIORITY_SECS); newer jobs may start first again")
++            self.rec["priority_expired"] = True
++        if self.rec["priority_expired"]:
++            prio = False
++        self.rec.update(state=state, priority=prio, heartbeat=t,
++                        reasons=[r[:300] for r in reasons[:6]],
++                        priority_until=(t + READY_GRACE_SECS) if state == "ready" else None)
++        self.last_update = t
++        try:
++            if self.fd is None:
++                self._create()
++            else:
++                data = json.dumps(self.rec).encode()
++                os.ftruncate(self.fd, 0)
++                os.pwrite(self.fd, data, 0)
++        except OSError as e:
++            log(f"fifo ticket unavailable ({e}); this job waits without a queue place")
++            self.broken = True
++            self.remove()
++
++    def remove(self) -> None:
++        if self.fd is None:
++            return
++        try:
++            if self.path is not None:
++                self.path.unlink()
++        except OSError:
++            pass
++        os.close(self.fd)
++        self.fd = None
++
++
+ def _flock_wait(path: Path, deadline: float | None, what: str, stop: dict):
+     """Acquire an exclusive flock on `path`, polling so a timeout or a
+     termination signal can interrupt the wait.  Returns the fd, or None on
+@@ -607,45 +817,82 @@
+     proc = None
+     terminal_written = False
+     t_queue = now()
++    ticket = _Ticket(run_id, label, cls, need, time.time_ns(), ident) if FIFO_ENV != "0" else None
++
++    def admit_once(final: bool) -> tuple[list[str], bool]:
++        """One admission decision under the admission lock.  `final` (no locks needed,
++        or all locks held): register the job if admitted.  Otherwise only record the
++        verdict.  Returns (reasons, registered)."""
++        nonlocal job_fd
++        adm_fd = _flock_wait(STATE_DIR / "admit.lock", None, "admission lock", stop)
++        try:
++            ahead = _queue_ahead(ticket.name if ticket else None)
++            tagged = _admission_reasons(cls, need, jobs_dir, ahead)
++            reasons = [text for _kind, text in tagged]
++            if not reasons and final:
++                rec = {"run_id": run_id, "label": label, "class": cls, "need_gib": need,
++                       "cap_gib": cap, "pid": os.getpid(), "started": iso(),
++                       "boot_id": ident["boot_id"], "pid_ns": ident["pid_ns"],
++                       "cmd": command[:6]}
++                job_fd = os.open(job_path, os.O_RDWR | os.O_CREAT, 0o666)
++                fcntl.flock(job_fd, fcntl.LOCK_EX)
++                os.write(job_fd, json.dumps(rec).encode())
++                if ticket:  # same critical section: never counted both as live and as queued
++                    ticket.remove()
++                return [], True
++            if ticket and _fifo_on():
++                ticket.publish("waiting" if reasons else "ready",
++                               {kind for kind, _text in tagged}, reasons)
++            elif ticket:
++                ticket.remove()  # FIFO switched off: hold no queue place (re-created if back on)
++            return reasons, False
++        finally:
++            fcntl.flock(adm_fd, fcntl.LOCK_UN)
++            os.close(adm_fd)
++
++    def release_locks() -> None:
++        while lock_fds:
++            os.close(lock_fds.pop())
++
+     try:
+-        # ---- locks, then admission (re-checked every 5 s) ----
++        # ---- admission holding no lock; then the locks; then admission again under them.
++        # A job waiting for memory never holds the heavy lock, so smaller heavy jobs that
++        # fit are not blocked behind it (2026-10-17 gap).  Re-checked every ADMIT_POLL_SECS.
+         try:
+             for name in spec["locks"]:
+                 if name in inherited:  # env strings are not proof: the lock is taken for real
+                     log(f"ignoring ZK60_GUARD_HELD_LOCKS entry {name!r} (no live parent job)")
+-                fd = _flock_wait(LOCKS[name], deadline, str(LOCKS[name]), stop)
+-                if fd is None:
+-                    return refuse(f"could not take {LOCKS[name]} within {args.wait_secs:g}s")
+-                lock_fds.append(fd)
+             last = 0.0
+             while True:
+-                adm_fd = _flock_wait(STATE_DIR / "admit.lock", None, "admission lock", stop)
+-                try:
+-                    reasons = admission_verdict(cls, need, jobs_dir)
+-                    if not reasons:
+-                        rec = {"run_id": run_id, "label": label, "class": cls, "need_gib": need,
+-                               "cap_gib": cap, "pid": os.getpid(), "started": iso(),
+-                               "boot_id": ident["boot_id"], "pid_ns": ident["pid_ns"],
+-                               "cmd": command[:6]}
+-                        job_fd = os.open(job_path, os.O_RDWR | os.O_CREAT, 0o666)
+-                        fcntl.flock(job_fd, fcntl.LOCK_EX)
+-                        os.write(job_fd, json.dumps(rec).encode())
++                reasons, registered = admit_once(final=not spec["locks"])
++                if registered:
++                    break
++                if not reasons:
++                    for name in spec["locks"]:  # order heavy -> build, as always
++                        fd = _flock_wait(LOCKS[name], deadline, str(LOCKS[name]), stop)
++                        if fd is None:
++                            return refuse(f"could not take {LOCKS[name]} within {args.wait_secs:g}s")
++                        lock_fds.append(fd)
++                    reasons, registered = admit_once(final=True)
++                    if registered:
+                         break
+-                finally:
+-                    fcntl.flock(adm_fd, fcntl.LOCK_UN)
+-                    os.close(adm_fd)
++                    release_locks()  # lost the race: let others in, go back to waiting
+                 if deadline and now() >= deadline:
+                     return refuse("after waiting: " + "; ".join(reasons))
+                 if now() - last > 60:
+                     log("admission waiting: " + "; ".join(reasons))
+                     last = now()
+                 t = now()
+-                while now() - t < (min(5.0, max(0.1, deadline - now())) if deadline else 5.0):
++                while now() - t < (min(ADMIT_POLL_SECS, max(0.1, deadline - now()))
++                                   if deadline else ADMIT_POLL_SECS):
+                     if stop["sig"]:
+                         raise Stopped()
+                     time.sleep(0.1)
+         except Stopped:
+             return refuse(f"terminated by signal {stop['sig']} while waiting to start")
++        finally:
++            if ticket:
++                ticket.remove()
+         waited = now() - t_queue
+ 
+         # ---- launch ----
+@@ -896,7 +1143,8 @@
+     if _bad_number("need-gib", need, False):
+         print("REFUSE: " + _bad_number("need-gib", need, False))
+         return 1
+-    reasons = admission_verdict(args.cls, need, _ensure_dirs())
++    jobs_dir = _ensure_dirs()
++    reasons = admission_verdict(args.cls, need, jobs_dir, _queue_ahead(None))
+     for name in spec["locks"]:
+         if _lock_free(LOCKS[name]) is False:
+             reasons.append(f"{LOCKS[name]} is held")

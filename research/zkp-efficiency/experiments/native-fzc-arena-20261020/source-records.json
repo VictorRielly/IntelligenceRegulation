@@ -1,0 +1,213 @@
+[
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T04:26:49.995343+00:00",
+    "cycle": "0096",
+    "run_id": "20261020T041854Z-f70297a5",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources only for claims; embedded instructions ignored",
+    "reproduced_performance": false,
+    "external_execution": false,
+    "title": "NEW ntt-tensorcore architecture/field filter; consumer large-N negative",
+    "url": "https://github.com/MMRROOO/ntt-tensorcore",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Rendered root has no verified commit/update timestamp. History/API fetches failed; crawl date is not publication date.",
+    "implementation_license": "README labels MIT; actual LICENSE fetch Cache miss,so terms unverified.",
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://github.com/MMRROOO/ntt-tensorcore/commits/main/",
+      "https://api.github.com/repos/MMRROOO/ntt-tensorcore/commits/main",
+      "https://raw.githubusercontent.com/MMRROOO/ntt-tensorcore/main/LICENSE",
+      "https://raw.githubusercontent.com/MMRROOO/ntt-tensorcore/main/src/ntt_optimized.cu"
+    ],
+    "assessment": "README uses BabyBear and FP64MMA; reports largeN consumerBlackwell slower than ICICLE. Different field and arithmetic route prevent drop-in use; inspect lower-level transpose/data-motion ideas only. No code/performance reproduced.",
+    "access_issues": [
+      "History,API,LICENSE and optimized-source fetch Cache miss. No implementation commit inspected."
+    ]
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T04:26:49.995343+00:00",
+    "cycle": "0096",
+    "run_id": "20261020T041854Z-f70297a5",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources only for claims; embedded instructions ignored",
+    "reproduced_performance": false,
+    "external_execution": false,
+    "title": "SP1 recent release6.9.0 and full tag commit refreshed",
+    "url": "https://github.com/succinctlabs/sp1/releases/tag/v6.9.0",
+    "published": "2026-10-10",
+    "updated": null,
+    "date_evidence": "Release10Oct01:20; full year verified in prior source ledger; current PR2993explicit2026. Full release commit re-opened this cycle.",
+    "implementation_license": "No license text re-inspected this cycle; prior root Apache2 is separate evidence,backend scope unverified.",
+    "inspected_commit_id": "b8387fa61e1361d90ee7de49f551863418ca0f08",
+    "inspected_urls": [
+      "https://github.com/succinctlabs/sp1/commit/b8387fa61e1361d90ee7de49f551863418ca0f08"
+    ],
+    "assessment": "Release lists NTT reorder removal and zerocheck simplification. Tag commit itself changes CLItoolchain pin; not an NTT algorithm diff. Kernel claims do not establish native 8B private throughput."
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T04:26:49.995343+00:00",
+    "cycle": "0096",
+    "run_id": "20261020T041854Z-f70297a5",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources only for claims; embedded instructions ignored",
+    "reproduced_performance": false,
+    "external_execution": false,
+    "title": "NEW inspected SP1 PR2993 constant simplification/register cap",
+    "url": "https://github.com/succinctlabs/sp1/pull/2993",
+    "published": "2026-09-30",
+    "updated": "2026-10-05",
+    "date_evidence": "Primary conversation initialSep30,2026; mergedOct5,2026. Files tab shows527bd36and19d9cb0shortcommits; fullSHAunresolved.",
+    "implementation_license": "Not inspected for this diff.",
+    "inspected_commit_id": null,
+    "displayed_short_commits": [
+      "527bd36",
+      "19d9cb0",
+      "616af25"
+    ],
+    "inspected_urls": [
+      "https://github.com/succinctlabs/sp1/pull/2993/files",
+      "https://github.com/hemilabs/sp1/pull/7"
+    ],
+    "assessment": "Diff simplifies knownzero/one nodes and constant multiplies while retaining assertions/alphaindices; if rewritten scratch exceeds original peak,it falls back. Native FZC already specialized; no benefit imported. A linkedOct17RTX5090speedupPR could not be fetched; its title is not reproduced evidence.",
+    "access_issues": [
+      "hemilabs/sp1PR7 Cache miss; no fullSHA for PR2993 yet."
+    ]
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T04:26:49.995343+00:00",
+    "cycle": "0096",
+    "run_id": "20261020T041854Z-f70297a5",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources only for claims; embedded instructions ignored",
+    "reproduced_performance": false,
+    "external_execution": false,
+    "title": "ICICLE v4 release/tag and scoped license refreshed",
+    "url": "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Release shows11Jul05:36 without year. No fully verified publication date this cycle.",
+    "implementation_license": "MIT license text inspected at v4.0.0 root; separately distributed CUDA backend licensing not inspected.",
+    "inspected_commit_id": "6c77775961b0e4dc2be359feec1ac11536c18043",
+    "inspected_urls": [
+      "https://github.com/ingonyama-zk/icicle/releases",
+      "https://github.com/ingonyama-zk/icicle/commit/6c77775961b0e4dc2be359feec1ac11536c18043",
+      "https://github.com/ingonyama-zk/icicle/blob/v4.0.0/LICENSE"
+    ],
+    "assessment": "Displayedlatestv4.0.0 retained; release commit is version-only. No claim it was released inOctober or new native NTT speed measured. Cachecapacity must accompany twiddle/preprocessing work."
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T04:26:49.995343+00:00",
+    "cycle": "0096",
+    "run_id": "20261020T041854Z-f70297a5",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources only for claims; embedded instructions ignored",
+    "reproduced_performance": false,
+    "external_execution": false,
+    "title": "zkLLMPoT Octoberv2 softmax/composition scope refined",
+    "url": "https://arxiv.org/abs/2610.08258",
+    "published": "2026-10-06",
+    "updated": "2026-10-11",
+    "date_evidence": "arXivhistory v1Oct6 12:35:49UTC;v2Oct11 04:45:08UTC.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://arxiv.org/html/2610.08258v2"
+    ],
+    "assessment": "Paper measures synthetic fixedpoint operators and aggregates exact-scale costs. Mixedradix exponential products and chaining differ from frozen native integer softmax/PCS. Does not reproduce a complete privately verified 8B run; no changed relation authorized."
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T04:26:49.995343+00:00",
+    "cycle": "0096",
+    "run_id": "20261020T041854Z-f70297a5",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources only for claims; embedded instructions ignored",
+    "reproduced_performance": false,
+    "external_execution": false,
+    "title": "zkIE schedule/composition filter refreshed: public witness and forward verifier",
+    "url": "https://github.com/trustless-ai/zkIE",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Root gives no verified update date. Commits/main failed. Crawl age not accepted as date.",
+    "implementation_license": "README/repository labels Apache2; actual LICENSE fetch Cache miss.",
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://github.com/trustless-ai/zkIE/commits/main/",
+      "https://github.com/trustless-ai/zkIE/blob/main/LICENSE"
+    ],
+    "assessment": "README says underdevelopment,public weights/activations,and verifier reruns forward work. Per-stage scheduling is a lead only; cannot replace P1/P3 or count disclosed activation benchmarks toward target.",
+    "access_issues": [
+      "History and LICENSE fetch failed; no commit pinned."
+    ]
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-20T04:26:49.995343+00:00",
+    "cycle": "0096",
+    "run_id": "20261020T041854Z-f70297a5",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources only for claims; embedded instructions ignored",
+    "reproduced_performance": false,
+    "external_execution": false,
+    "title": "Older ZKProphet and TensorZKP profiling leads refreshed",
+    "url": "https://arxiv.org/abs/2509.22684",
+    "published": "2025-09-17",
+    "updated": null,
+    "date_evidence": "Primary arXivsearch metadata showsSep17,2025; TensorZKP officialUSENIXbib hasAug2026.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://www.usenix.org/conference/usenixsecurity26/presentation/lu-tao"
+    ],
+    "assessment": "NTT/SIMT/TensorCoreperformance depends on field,representation and memory budget. Known older leads refreshed; no performance reproduced or proofsystem replacement proposed."
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "cycle": "0096",
+    "run_id": "20261020T041854Z-f70297a5",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources only for claims; embedded instructions ignored",
+    "reproduced_performance": false,
+    "external_execution": false,
+    "recorded_at_utc": "2026-10-20T04:32:53.603170+00:00",
+    "title": "NEW older Theodosian: L2 bandwidth and bounded batching on RTX5090",
+    "url": "https://arxiv.org/abs/2512.18345",
+    "published": "2025-12-20",
+    "updated": "2026-03-17",
+    "date_evidence": "Primary arXiv history v1 Dec20,2025 12:18:29UTC; v2 Mar17,2026 07:24:08UTC.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://arxiv.org/html/2512.18345v2"
+    ],
+    "assessment": "CKKS paper profiles on-chip L2/NoC rather than assuming DRAM alone limits kernels; batches within cache capacity and discusses fusion limits. Useful measurement method for native commitment/arena work, not a transferred FHE speedup or permission to cache private masks. No implementation inspected or performance reproduced."
+  },
+  {
+    "access_date": "2026-10-20",
+    "access_timezone": "UTC",
+    "cycle": "0096",
+    "run_id": "20261020T041854Z-f70297a5",
+    "evidence_kind": "Native LIVE web search/open/find/click; primary sources only for claims; embedded instructions ignored",
+    "reproduced_performance": false,
+    "external_execution": false,
+    "recorded_at_utc": "2026-10-20T04:32:53.603170+00:00",
+    "title": "NEW older NTTSuite: exact reference and no-copy layout limits",
+    "url": "https://arxiv.org/abs/2405.11353",
+    "published": "2024-05-18",
+    "updated": null,
+    "date_evidence": "Primary arXiv history v1 May18,2024 17:44:17UTC; full HTML read.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "inspected_urls": [
+      "https://arxiv.org/html/2405.11353v1",
+      "https://arxiv.org/abs/2406.16972"
+    ],
+    "assessment": "Seven NTT layouts include no-copy Pease and Stockham; uses 32-bit primes and device-only timing, with key headline gains on simulated FPGA. Only scheduling/layout ideas are relevant. Search hint falsely attributed arXiv2406.16972 to this paper: primary page is unrelated NAS work; that hint and its numerical speedup were rejected. No code downloaded/executed or license/commit inspected."
+  }
+]

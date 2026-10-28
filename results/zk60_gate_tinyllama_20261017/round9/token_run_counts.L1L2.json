@@ -1,0 +1,1332 @@
+{
+ "D33_reference_blocks_only": {
+  "1": {
+   "draws": 2381476,
+   "total_log2": -74.82
+  },
+  "2": {
+   "draws": 4741448,
+   "total_log2": -73.82
+  },
+  "22": {
+   "draws": 51940888,
+   "total_log2": -70.37
+  }
+ },
+ "privacy_acceptance": false,
+ "runs": {
+  "llama3-8b-t32-L1-dense-pt1": {
+   "controls": {},
+   "geometry": {
+    "L": 1,
+    "T": 32,
+    "V": 128256,
+    "V_pad": 131072,
+    "boundaries": [
+     {
+      "data": 16,
+      "draws": 54784,
+      "n": 8192,
+      "name": "B_in",
+      "rows": 22,
+      "salts": 32768
+     },
+     {
+      "data": 16,
+      "draws": 54784,
+      "n": 8192,
+      "name": "B_out",
+      "rows": 22,
+      "salts": 32768
+     }
+    ],
+    "endpoints": [
+     {
+      "data": 1,
+      "draws": 2816,
+      "n": 256,
+      "name": "input_endpoint",
+      "q": 256,
+      "rows": 6,
+      "salts": 2048
+     },
+     {
+      "data": 1,
+      "draws": 2816,
+      "n": 256,
+      "name": "output_endpoint",
+      "q": 256,
+      "rows": 6,
+      "salts": 2048
+     }
+    ],
+    "stages": [
+     {
+      "A": {
+       "data": 33,
+       "draws": 43264,
+       "rows": 41
+      },
+      "H": {
+       "data": 68,
+       "draws": 60414,
+       "rows": 76
+      },
+      "M": {
+       "draws": 6514,
+       "slots": 4,
+       "sum_L": 185
+      },
+      "draws": 110192,
+      "inv_rate": 4,
+      "kind": "IN",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 0
+     },
+     {
+      "A": {
+       "data": 1455,
+       "draws": 2416896,
+       "rows": 1697
+      },
+      "H": {
+       "data": 1658,
+       "draws": 1285630,
+       "rows": 1758
+      },
+      "M": {
+       "draws": 17956,
+       "slots": 23,
+       "sum_L": 1042
+      },
+      "draws": 3720482,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 8192,
+      "salts": 69632,
+      "stage": 1
+     },
+     {
+      "A": {
+       "data": 274,
+       "draws": 505344,
+       "rows": 374
+      },
+      "H": {
+       "data": 274,
+       "draws": 200190,
+       "rows": 302
+      },
+      "M": {
+       "draws": 10734,
+       "slots": 11,
+       "sum_L": 503
+      },
+      "draws": 716268,
+      "inv_rate": 4,
+      "kind": "OUT",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 2
+     }
+    ]
+   },
+   "residuals": {
+    "draws": 4662142,
+    "liveness_degenerate_challenges_log2": -60.68,
+    "refusal_arguments_C": 1056,
+    "runs_10^6_linear_log2": -53.92,
+    "runs_2^20_linear_log2": -53.85,
+    "salts": 212992,
+    "terms_log2": {
+     "constructor vs absorb (B10): (A + q) x 2^-256": -128.0,
+     "generator, in-model alternative: 6q x 2^-256 (ASSUMED)": -125.42,
+     "generator-key row: 3 x 4 x 2^-256": -252.42,
+     "input-dependent refusal, two-world: 2 (768 L + T + 256) / |Fp2|": -116.96,
+     "leaf-input collision: C(N_leaf,2) x 2^-256": -221.6,
+     "salt guessing: q x N_leaf x 2^-256": -110.3,
+     "sampler bias (D9): draws x 2^-96": -73.85,
+     "transcript pre-query: q x A x 2^-256": -115.1,
+     "transcript-input collision: C(A,2) x 2^-256": -231.2
+    },
+    "total_distance_log2": -73.85,
+    "transcript_queries_A": 7644
+   },
+   "transcript": {
+    "absorbs_counted": 781,
+    "challenges_checked": 5788,
+    "final_counter": 6620,
+    "replay_ok": true,
+    "squeezes_counted_all_instances": 6851,
+    "stages": 3
+   }
+  },
+  "llama3-8b-t32-L1-fixed-pt1": {
+   "controls": {},
+   "geometry": {
+    "L": 1,
+    "T": 32,
+    "V": 128256,
+    "V_pad": 131072,
+    "boundaries": [
+     {
+      "data": 16,
+      "draws": 54784,
+      "n": 8192,
+      "name": "B_in",
+      "rows": 22,
+      "salts": 32768
+     },
+     {
+      "data": 16,
+      "draws": 54784,
+      "n": 8192,
+      "name": "B_out",
+      "rows": 22,
+      "salts": 32768
+     }
+    ],
+    "endpoints": [
+     {
+      "data": 1,
+      "draws": 2816,
+      "n": 256,
+      "name": "input_endpoint",
+      "q": 256,
+      "rows": 6,
+      "salts": 2048
+     },
+     {
+      "data": 1,
+      "draws": 2816,
+      "n": 256,
+      "name": "output_endpoint",
+      "q": 256,
+      "rows": 6,
+      "salts": 2048
+     }
+    ],
+    "stages": [
+     {
+      "A": {
+       "data": 33,
+       "draws": 43264,
+       "rows": 41
+      },
+      "H": {
+       "data": 68,
+       "draws": 60414,
+       "rows": 76
+      },
+      "M": {
+       "draws": 6514,
+       "slots": 4,
+       "sum_L": 185
+      },
+      "draws": 110192,
+      "inv_rate": 4,
+      "kind": "IN",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 0
+     },
+     {
+      "A": {
+       "data": 1455,
+       "draws": 2416896,
+       "rows": 1697
+      },
+      "H": {
+       "data": 1658,
+       "draws": 1285630,
+       "rows": 1758
+      },
+      "M": {
+       "draws": 17956,
+       "slots": 23,
+       "sum_L": 1042
+      },
+      "draws": 3720482,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 8192,
+      "salts": 69632,
+      "stage": 1
+     },
+     {
+      "A": {
+       "data": 274,
+       "draws": 505344,
+       "rows": 374
+      },
+      "H": {
+       "data": 274,
+       "draws": 200190,
+       "rows": 302
+      },
+      "M": {
+       "draws": 10734,
+       "slots": 11,
+       "sum_L": 503
+      },
+      "draws": 716268,
+      "inv_rate": 4,
+      "kind": "OUT",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 2
+     }
+    ]
+   },
+   "residuals": {
+    "draws": 4662142,
+    "liveness_degenerate_challenges_log2": -60.68,
+    "refusal_arguments_C": 1056,
+    "runs_10^6_linear_log2": -53.92,
+    "runs_2^20_linear_log2": -53.85,
+    "salts": 212992,
+    "terms_log2": {
+     "constructor vs absorb (B10): (A + q) x 2^-256": -128.0,
+     "generator, in-model alternative: 6q x 2^-256 (ASSUMED)": -125.42,
+     "generator-key row: 3 x 4 x 2^-256": -252.42,
+     "input-dependent refusal, two-world: 2 (768 L + T + 256) / |Fp2|": -116.96,
+     "leaf-input collision: C(N_leaf,2) x 2^-256": -221.6,
+     "salt guessing: q x N_leaf x 2^-256": -110.3,
+     "sampler bias (D9): draws x 2^-96": -73.85,
+     "transcript pre-query: q x A x 2^-256": -115.1,
+     "transcript-input collision: C(A,2) x 2^-256": -231.2
+    },
+    "total_distance_log2": -73.85,
+    "transcript_queries_A": 7644
+   },
+   "transcript": {
+    "absorbs_counted": 781,
+    "challenges_checked": 5788,
+    "final_counter": 6620,
+    "replay_ok": true,
+    "squeezes_counted_all_instances": 6851,
+    "stages": 3
+   }
+  },
+  "llama3-8b-t32-L2-dense-pt1": {
+   "controls": {},
+   "geometry": {
+    "L": 2,
+    "T": 32,
+    "V": 128256,
+    "V_pad": 131072,
+    "boundaries": [
+     {
+      "data": 16,
+      "draws": 54784,
+      "n": 8192,
+      "name": "B_in",
+      "rows": 22,
+      "salts": 32768
+     },
+     {
+      "data": 16,
+      "draws": 54784,
+      "n": 8192,
+      "name": "B_1",
+      "rows": 22,
+      "salts": 32768
+     },
+     {
+      "data": 16,
+      "draws": 54784,
+      "n": 8192,
+      "name": "B_out",
+      "rows": 22,
+      "salts": 32768
+     }
+    ],
+    "endpoints": [
+     {
+      "data": 1,
+      "draws": 2816,
+      "n": 256,
+      "name": "input_endpoint",
+      "q": 256,
+      "rows": 6,
+      "salts": 2048
+     },
+     {
+      "data": 1,
+      "draws": 2816,
+      "n": 256,
+      "name": "output_endpoint",
+      "q": 256,
+      "rows": 6,
+      "salts": 2048
+     }
+    ],
+    "stages": [
+     {
+      "A": {
+       "data": 33,
+       "draws": 43264,
+       "rows": 41
+      },
+      "H": {
+       "data": 68,
+       "draws": 60414,
+       "rows": 76
+      },
+      "M": {
+       "draws": 6514,
+       "slots": 4,
+       "sum_L": 185
+      },
+      "draws": 110192,
+      "inv_rate": 4,
+      "kind": "IN",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 0
+     },
+     {
+      "A": {
+       "data": 1455,
+       "draws": 2416896,
+       "rows": 1697
+      },
+      "H": {
+       "data": 1658,
+       "draws": 1285630,
+       "rows": 1758
+      },
+      "M": {
+       "draws": 17956,
+       "slots": 23,
+       "sum_L": 1042
+      },
+      "draws": 3720482,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 8192,
+      "salts": 69632,
+      "stage": 1
+     },
+     {
+      "A": {
+       "data": 1455,
+       "draws": 2416896,
+       "rows": 1697
+      },
+      "H": {
+       "data": 1658,
+       "draws": 1285630,
+       "rows": 1758
+      },
+      "M": {
+       "draws": 17956,
+       "slots": 23,
+       "sum_L": 1042
+      },
+      "draws": 3720482,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 8192,
+      "salts": 69632,
+      "stage": 2
+     },
+     {
+      "A": {
+       "data": 274,
+       "draws": 505344,
+       "rows": 374
+      },
+      "H": {
+       "data": 274,
+       "draws": 200190,
+       "rows": 302
+      },
+      "M": {
+       "draws": 10734,
+       "slots": 11,
+       "sum_L": 503
+      },
+      "draws": 716268,
+      "inv_rate": 4,
+      "kind": "OUT",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 3
+     }
+    ]
+   },
+   "residuals": {
+    "draws": 8437408,
+    "liveness_degenerate_challenges_log2": -60.3,
+    "refusal_arguments_C": 1824,
+    "runs_10^6_linear_log2": -53.06,
+    "runs_2^20_linear_log2": -52.99,
+    "salts": 315392,
+    "terms_log2": {
+     "constructor vs absorb (B10): (A + q) x 2^-256": -128.0,
+     "generator, in-model alternative: 6q x 2^-256 (ASSUMED)": -125.42,
+     "generator-key row: 3 x 4 x 2^-256": -252.42,
+     "input-dependent refusal, two-world: 2 (768 L + T + 256) / |Fp2|": -116.17,
+     "leaf-input collision: C(N_leaf,2) x 2^-256": -220.47,
+     "salt guessing: q x N_leaf x 2^-256": -109.73,
+     "sampler bias (D9): draws x 2^-96": -72.99,
+     "transcript pre-query: q x A x 2^-256": -114.34,
+     "transcript-input collision: C(A,2) x 2^-256": -229.68
+    },
+    "total_distance_log2": -72.99,
+    "transcript_queries_A": 12964
+   },
+   "transcript": {
+    "absorbs_counted": 1253,
+    "challenges_checked": 10248,
+    "final_counter": 11336,
+    "replay_ok": true,
+    "squeezes_counted_all_instances": 11695,
+    "stages": 4
+   }
+  },
+  "llama3-8b-t32-L2-fixed-pt1": {
+   "controls": {},
+   "geometry": {
+    "L": 2,
+    "T": 32,
+    "V": 128256,
+    "V_pad": 131072,
+    "boundaries": [
+     {
+      "data": 16,
+      "draws": 54784,
+      "n": 8192,
+      "name": "B_in",
+      "rows": 22,
+      "salts": 32768
+     },
+     {
+      "data": 16,
+      "draws": 54784,
+      "n": 8192,
+      "name": "B_1",
+      "rows": 22,
+      "salts": 32768
+     },
+     {
+      "data": 16,
+      "draws": 54784,
+      "n": 8192,
+      "name": "B_out",
+      "rows": 22,
+      "salts": 32768
+     }
+    ],
+    "endpoints": [
+     {
+      "data": 1,
+      "draws": 2816,
+      "n": 256,
+      "name": "input_endpoint",
+      "q": 256,
+      "rows": 6,
+      "salts": 2048
+     },
+     {
+      "data": 1,
+      "draws": 2816,
+      "n": 256,
+      "name": "output_endpoint",
+      "q": 256,
+      "rows": 6,
+      "salts": 2048
+     }
+    ],
+    "stages": [
+     {
+      "A": {
+       "data": 33,
+       "draws": 43264,
+       "rows": 41
+      },
+      "H": {
+       "data": 68,
+       "draws": 60414,
+       "rows": 76
+      },
+      "M": {
+       "draws": 6514,
+       "slots": 4,
+       "sum_L": 185
+      },
+      "draws": 110192,
+      "inv_rate": 4,
+      "kind": "IN",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 0
+     },
+     {
+      "A": {
+       "data": 1455,
+       "draws": 2416896,
+       "rows": 1697
+      },
+      "H": {
+       "data": 1658,
+       "draws": 1285630,
+       "rows": 1758
+      },
+      "M": {
+       "draws": 17956,
+       "slots": 23,
+       "sum_L": 1042
+      },
+      "draws": 3720482,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 8192,
+      "salts": 69632,
+      "stage": 1
+     },
+     {
+      "A": {
+       "data": 1455,
+       "draws": 2416896,
+       "rows": 1697
+      },
+      "H": {
+       "data": 1658,
+       "draws": 1285630,
+       "rows": 1758
+      },
+      "M": {
+       "draws": 17956,
+       "slots": 23,
+       "sum_L": 1042
+      },
+      "draws": 3720482,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 8192,
+      "salts": 69632,
+      "stage": 2
+     },
+     {
+      "A": {
+       "data": 274,
+       "draws": 505344,
+       "rows": 374
+      },
+      "H": {
+       "data": 274,
+       "draws": 200190,
+       "rows": 302
+      },
+      "M": {
+       "draws": 10734,
+       "slots": 11,
+       "sum_L": 503
+      },
+      "draws": 716268,
+      "inv_rate": 4,
+      "kind": "OUT",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 3
+     }
+    ]
+   },
+   "residuals": {
+    "draws": 8437408,
+    "liveness_degenerate_challenges_log2": -60.3,
+    "refusal_arguments_C": 1824,
+    "runs_10^6_linear_log2": -53.06,
+    "runs_2^20_linear_log2": -52.99,
+    "salts": 315392,
+    "terms_log2": {
+     "constructor vs absorb (B10): (A + q) x 2^-256": -128.0,
+     "generator, in-model alternative: 6q x 2^-256 (ASSUMED)": -125.42,
+     "generator-key row: 3 x 4 x 2^-256": -252.42,
+     "input-dependent refusal, two-world: 2 (768 L + T + 256) / |Fp2|": -116.17,
+     "leaf-input collision: C(N_leaf,2) x 2^-256": -220.47,
+     "salt guessing: q x N_leaf x 2^-256": -109.73,
+     "sampler bias (D9): draws x 2^-96": -72.99,
+     "transcript pre-query: q x A x 2^-256": -114.34,
+     "transcript-input collision: C(A,2) x 2^-256": -229.68
+    },
+    "total_distance_log2": -72.99,
+    "transcript_queries_A": 12964
+   },
+   "transcript": {
+    "absorbs_counted": 1253,
+    "challenges_checked": 10248,
+    "final_counter": 11336,
+    "replay_ok": true,
+    "squeezes_counted_all_instances": 11695,
+    "stages": 4
+   }
+  },
+  "tinyllama-t32-L1-dense-pt1": {
+   "controls": {
+    "K-1 block stage draws == D33's 2,329,764": true,
+    "K-2 boundary draws == D33's 30,208": true
+   },
+   "geometry": {
+    "L": 1,
+    "T": 32,
+    "V": 32000,
+    "V_pad": 32768,
+    "boundaries": [
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_in",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_out",
+      "rows": 22,
+      "salts": 16384
+     }
+    ],
+    "endpoints": [
+     {
+      "data": 1,
+      "draws": 2816,
+      "n": 256,
+      "name": "input_endpoint",
+      "q": 256,
+      "rows": 6,
+      "salts": 2048
+     },
+     {
+      "data": 1,
+      "draws": 2816,
+      "n": 256,
+      "name": "output_endpoint",
+      "q": 256,
+      "rows": 6,
+      "salts": 2048
+     }
+    ],
+    "stages": [
+     {
+      "A": {
+       "data": 9,
+       "draws": 37120,
+       "rows": 17
+      },
+      "H": {
+       "data": 20,
+       "draws": 48126,
+       "rows": 28
+      },
+      "M": {
+       "draws": 6498,
+       "slots": 4,
+       "sum_L": 177
+      },
+      "draws": 91744,
+      "inv_rate": 4,
+      "kind": "IN",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 0
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 1
+     },
+     {
+      "A": {
+       "data": 82,
+       "draws": 456192,
+       "rows": 182
+      },
+      "H": {
+       "data": 82,
+       "draws": 151038,
+       "rows": 110
+      },
+      "M": {
+       "draws": 10690,
+       "slots": 11,
+       "sum_L": 481
+      },
+      "draws": 617920,
+      "inv_rate": 4,
+      "kind": "OUT",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 2
+     }
+    ]
+   },
+   "residuals": {
+    "draws": 3105476,
+    "liveness_degenerate_challenges_log2": -60.68,
+    "refusal_arguments_C": 1056,
+    "runs_10^6_linear_log2": -54.5,
+    "runs_2^20_linear_log2": -54.43,
+    "salts": 147456,
+    "terms_log2": {
+     "constructor vs absorb (B10): (A + q) x 2^-256": -128.0,
+     "generator, in-model alternative: 6q x 2^-256 (ASSUMED)": -125.42,
+     "generator-key row: 3 x 4 x 2^-256": -252.42,
+     "input-dependent refusal, two-world: 2 (768 L + T + 256) / |Fp2|": -116.96,
+     "leaf-input collision: C(N_leaf,2) x 2^-256": -222.66,
+     "salt guessing: q x N_leaf x 2^-256": -110.83,
+     "sampler bias (D9): draws x 2^-96": -74.43,
+     "transcript pre-query: q x A x 2^-256": -115.19,
+     "transcript-input collision: C(A,2) x 2^-256": -231.38
+    },
+    "total_distance_log2": -74.43,
+    "transcript_queries_A": 7173
+   },
+   "transcript": {
+    "absorbs_counted": 751,
+    "challenges_checked": 5347,
+    "final_counter": 6179,
+    "replay_ok": true,
+    "squeezes_counted_all_instances": 6410,
+    "stages": 3
+   }
+  },
+  "tinyllama-t32-L1-fixed-pt1": {
+   "controls": {
+    "K-1 block stage draws == D33's 2,329,764": true,
+    "K-2 boundary draws == D33's 30,208": true
+   },
+   "geometry": {
+    "L": 1,
+    "T": 32,
+    "V": 32000,
+    "V_pad": 32768,
+    "boundaries": [
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_in",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_out",
+      "rows": 22,
+      "salts": 16384
+     }
+    ],
+    "endpoints": [
+     {
+      "data": 1,
+      "draws": 2816,
+      "n": 256,
+      "name": "input_endpoint",
+      "q": 256,
+      "rows": 6,
+      "salts": 2048
+     },
+     {
+      "data": 1,
+      "draws": 2816,
+      "n": 256,
+      "name": "output_endpoint",
+      "q": 256,
+      "rows": 6,
+      "salts": 2048
+     }
+    ],
+    "stages": [
+     {
+      "A": {
+       "data": 9,
+       "draws": 37120,
+       "rows": 17
+      },
+      "H": {
+       "data": 20,
+       "draws": 48126,
+       "rows": 28
+      },
+      "M": {
+       "draws": 6498,
+       "slots": 4,
+       "sum_L": 177
+      },
+      "draws": 91744,
+      "inv_rate": 4,
+      "kind": "IN",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 0
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 1
+     },
+     {
+      "A": {
+       "data": 82,
+       "draws": 456192,
+       "rows": 182
+      },
+      "H": {
+       "data": 82,
+       "draws": 151038,
+       "rows": 110
+      },
+      "M": {
+       "draws": 10690,
+       "slots": 11,
+       "sum_L": 481
+      },
+      "draws": 617920,
+      "inv_rate": 4,
+      "kind": "OUT",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 2
+     }
+    ]
+   },
+   "residuals": {
+    "draws": 3105476,
+    "liveness_degenerate_challenges_log2": -60.68,
+    "refusal_arguments_C": 1056,
+    "runs_10^6_linear_log2": -54.5,
+    "runs_2^20_linear_log2": -54.43,
+    "salts": 147456,
+    "terms_log2": {
+     "constructor vs absorb (B10): (A + q) x 2^-256": -128.0,
+     "generator, in-model alternative: 6q x 2^-256 (ASSUMED)": -125.42,
+     "generator-key row: 3 x 4 x 2^-256": -252.42,
+     "input-dependent refusal, two-world: 2 (768 L + T + 256) / |Fp2|": -116.96,
+     "leaf-input collision: C(N_leaf,2) x 2^-256": -222.66,
+     "salt guessing: q x N_leaf x 2^-256": -110.83,
+     "sampler bias (D9): draws x 2^-96": -74.43,
+     "transcript pre-query: q x A x 2^-256": -115.19,
+     "transcript-input collision: C(A,2) x 2^-256": -231.38
+    },
+    "total_distance_log2": -74.43,
+    "transcript_queries_A": 7173
+   },
+   "transcript": {
+    "absorbs_counted": 751,
+    "challenges_checked": 5347,
+    "final_counter": 6179,
+    "replay_ok": true,
+    "squeezes_counted_all_instances": 6410,
+    "stages": 3
+   }
+  },
+  "tinyllama-t32-L2-dense-pt1": {
+   "controls": {
+    "K-1 block stage draws == D33's 2,329,764": true,
+    "K-2 boundary draws == D33's 30,208": true
+   },
+   "geometry": {
+    "L": 2,
+    "T": 32,
+    "V": 32000,
+    "V_pad": 32768,
+    "boundaries": [
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_in",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_1",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_out",
+      "rows": 22,
+      "salts": 16384
+     }
+    ],
+    "endpoints": [
+     {
+      "data": 1,
+      "draws": 2816,
+      "n": 256,
+      "name": "input_endpoint",
+      "q": 256,
+      "rows": 6,
+      "salts": 2048
+     },
+     {
+      "data": 1,
+      "draws": 2816,
+      "n": 256,
+      "name": "output_endpoint",
+      "q": 256,
+      "rows": 6,
+      "salts": 2048
+     }
+    ],
+    "stages": [
+     {
+      "A": {
+       "data": 9,
+       "draws": 37120,
+       "rows": 17
+      },
+      "H": {
+       "data": 20,
+       "draws": 48126,
+       "rows": 28
+      },
+      "M": {
+       "draws": 6498,
+       "slots": 4,
+       "sum_L": 177
+      },
+      "draws": 91744,
+      "inv_rate": 4,
+      "kind": "IN",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 0
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 1
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 2
+     },
+     {
+      "A": {
+       "data": 82,
+       "draws": 456192,
+       "rows": 182
+      },
+      "H": {
+       "data": 82,
+       "draws": 151038,
+       "rows": 110
+      },
+      "M": {
+       "draws": 10690,
+       "slots": 11,
+       "sum_L": 481
+      },
+      "draws": 617920,
+      "inv_rate": 4,
+      "kind": "OUT",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 3
+     }
+    ]
+   },
+   "residuals": {
+    "draws": 5465448,
+    "liveness_degenerate_challenges_log2": -60.3,
+    "refusal_arguments_C": 1824,
+    "runs_10^6_linear_log2": -53.69,
+    "runs_2^20_linear_log2": -53.62,
+    "salts": 200704,
+    "terms_log2": {
+     "constructor vs absorb (B10): (A + q) x 2^-256": -128.0,
+     "generator, in-model alternative: 6q x 2^-256 (ASSUMED)": -125.42,
+     "generator-key row: 3 x 4 x 2^-256": -252.42,
+     "input-dependent refusal, two-world: 2 (768 L + T + 256) / |Fp2|": -116.17,
+     "leaf-input collision: C(N_leaf,2) x 2^-256": -221.77,
+     "salt guessing: q x N_leaf x 2^-256": -110.39,
+     "sampler bias (D9): draws x 2^-96": -73.62,
+     "transcript pre-query: q x A x 2^-256": -114.39,
+     "transcript-input collision: C(A,2) x 2^-256": -229.78
+    },
+    "total_distance_log2": -73.62,
+    "transcript_queries_A": 12502
+   },
+   "transcript": {
+    "absorbs_counted": 1201,
+    "challenges_checked": 9838,
+    "final_counter": 10926,
+    "replay_ok": true,
+    "squeezes_counted_all_instances": 11285,
+    "stages": 4
+   }
+  },
+  "tinyllama-t32-L2-fixed-pt1": {
+   "controls": {
+    "K-1 block stage draws == D33's 2,329,764": true,
+    "K-2 boundary draws == D33's 30,208": true
+   },
+   "geometry": {
+    "L": 2,
+    "T": 32,
+    "V": 32000,
+    "V_pad": 32768,
+    "boundaries": [
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_in",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_1",
+      "rows": 22,
+      "salts": 16384
+     },
+     {
+      "data": 16,
+      "draws": 30208,
+      "n": 4096,
+      "name": "B_out",
+      "rows": 22,
+      "salts": 16384
+     }
+    ],
+    "endpoints": [
+     {
+      "data": 1,
+      "draws": 2816,
+      "n": 256,
+      "name": "input_endpoint",
+      "q": 256,
+      "rows": 6,
+      "salts": 2048
+     },
+     {
+      "data": 1,
+      "draws": 2816,
+      "n": 256,
+      "name": "output_endpoint",
+      "q": 256,
+      "rows": 6,
+      "salts": 2048
+     }
+    ],
+    "stages": [
+     {
+      "A": {
+       "data": 9,
+       "draws": 37120,
+       "rows": 17
+      },
+      "H": {
+       "data": 20,
+       "draws": 48126,
+       "rows": 28
+      },
+      "M": {
+       "draws": 6498,
+       "slots": 4,
+       "sum_L": 177
+      },
+      "draws": 91744,
+      "inv_rate": 4,
+      "kind": "IN",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 0
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 1
+     },
+     {
+      "A": {
+       "data": 1487,
+       "draws": 1433856,
+       "rows": 1729
+      },
+      "H": {
+       "data": 1698,
+       "draws": 878078,
+       "rows": 1798
+      },
+      "M": {
+       "draws": 17830,
+       "slots": 23,
+       "sum_L": 979
+      },
+      "draws": 2329764,
+      "inv_rate": 4,
+      "kind": "BLOCK",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 2
+     },
+     {
+      "A": {
+       "data": 82,
+       "draws": 456192,
+       "rows": 182
+      },
+      "H": {
+       "data": 82,
+       "draws": 151038,
+       "rows": 110
+      },
+      "M": {
+       "draws": 10690,
+       "slots": 11,
+       "sum_L": 481
+      },
+      "draws": 617920,
+      "inv_rate": 4,
+      "kind": "OUT",
+      "n": 4096,
+      "salts": 36864,
+      "stage": 3
+     }
+    ]
+   },
+   "residuals": {
+    "draws": 5465448,
+    "liveness_degenerate_challenges_log2": -60.3,
+    "refusal_arguments_C": 1824,
+    "runs_10^6_linear_log2": -53.69,
+    "runs_2^20_linear_log2": -53.62,
+    "salts": 200704,
+    "terms_log2": {
+     "constructor vs absorb (B10): (A + q) x 2^-256": -128.0,
+     "generator, in-model alternative: 6q x 2^-256 (ASSUMED)": -125.42,
+     "generator-key row: 3 x 4 x 2^-256": -252.42,
+     "input-dependent refusal, two-world: 2 (768 L + T + 256) / |Fp2|": -116.17,
+     "leaf-input collision: C(N_leaf,2) x 2^-256": -221.77,
+     "salt guessing: q x N_leaf x 2^-256": -110.39,
+     "sampler bias (D9): draws x 2^-96": -73.62,
+     "transcript pre-query: q x A x 2^-256": -114.39,
+     "transcript-input collision: C(A,2) x 2^-256": -229.78
+    },
+    "total_distance_log2": -73.62,
+    "transcript_queries_A": 12502
+   },
+   "transcript": {
+    "absorbs_counted": 1201,
+    "challenges_checked": 9838,
+    "final_counter": 10926,
+    "replay_ok": true,
+    "squeezes_counted_all_instances": 11285,
+    "stages": 4
+   }
+  }
+ },
+ "what": "Gate round 9: the residual terms of a TOKEN-I/O run (public-row variant,"
+}

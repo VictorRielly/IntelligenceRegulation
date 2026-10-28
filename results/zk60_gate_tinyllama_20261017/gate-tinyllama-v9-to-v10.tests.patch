@@ -1,0 +1,24 @@
+diff -ruN -x __pycache__ frozen_v9/tests/test_v4_status_g10.py tests/test_v4_status_g10.py
+--- frozen_v9/tests/test_v4_status_g10.py	2026-10-19 10:41:38.169357082 -0700
++++ tests/test_v4_status_g10.py	2026-10-19 12:10:55.496105342 -0700
+@@ -716,3 +716,20 @@
+         if os.path.isdir(TL1D):
+             with self.assertRaises(ValueError):
+                 TG.load(TL1D)
++
++
++class TokenGateV10(unittest.TestCase):
++    """[v10] the computed word-level joint and its controls on a real capture"""
++
++    @unittest.skipUnless(os.path.isdir(TOKEN_L1), "the token capture is not on disk")
++    def test_joint_figure_and_controls(self):
++        import zk60_native_rg_tokengate as TG
++        b = TG.load(TOKEN_L1)
++        rp = TG.TokenRunReplay(b).run()
++        s3, views = TG.token_stage3(b, rp, pad_rank=False)
++        j = TG.token_joint_figure(b, views)
++        self.assertTrue(j["ok"], j["findings"])
++        self.assertEqual(j["joint_disclosed_fp"], 0)
++        self.assertGreater(j["identified_word_pairs"], 0)
++        c = TG.token_joint_controls(b, views)
++        self.assertTrue(c["ok"], c)

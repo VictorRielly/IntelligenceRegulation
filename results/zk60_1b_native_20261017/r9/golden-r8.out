@@ -1,0 +1,11 @@
+[zk60-guard 09:26:32] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 09:27:32] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 09:27:49] START r9-golden-r8-build class=build need=3G cap=6G enforce=cgroup+watchdog waited=77s run=28232911e627
+[zk60-guard 09:31:04] END r9-golden-r8-build exit=0 child_wall=195s peak_rss=1.81G min_avail=9.09G
+[zk60-guard 09:31:04] START r9-golden-r8-run class=cpu need=7.5G cap=10.5G enforce=cgroup+watchdog waited=0s run=e6a67e33a822
+[zk60-guard 09:31:26] END r9-golden-r8-run exit=0 child_wall=22s peak_rss=6.09G min_avail=5.51G
+test private_block::r9_golden_tests::r9_golden_seeded_llama3_8b_t128_block_is_byte_identical ... R9-GOLDEN 8B bands Bands { attn: 6, gate: 8, down: 2, gains: (40, 127), xmag: 6000 }
+R9-GOLDEN hashline-zk-mr1/private-block-llama-3-8b-t128-trained/1: 23 slots, 69 absorbs, debug text 101397813 B
+R9-GOLDEN-DIGEST llama3-8b-t128 05a22d72a892aff5fb2e35da4d0ab0c894d696f2e6afa542b6ecece5aeb9f4db
+test private_block::r9_golden_tests::r9_golden_seeded_tinyllama_t128_block_is_byte_identical ... R9-GOLDEN hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-block/1: 23 slots, 69 absorbs, debug text 81760821 B
+R9-GOLDEN-DIGEST tinyllama-t128 782b64c97a88cba4c6c34a2fecb73132f26d5f54adc9bd159f3d6cf9df4205c0

@@ -1,0 +1,52 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/decode-statement-scopes-20261019/result.json",
+    "copy": "prior-result.json",
+    "sha256": "27aaf233914aaa4f39de301d08b1f20500742791f6465c329d3bd1b32477d05f"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/decode-statement-scopes-20261019/audit-result.json",
+    "copy": "prior-audit-result.json",
+    "sha256": "f7c8aa901896044bac1d424c7d6adc1f5713d7b827fe5058ff66dcd3c2c51257"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/decode-statement-scopes-20261019/payload-ledger.json",
+    "copy": "prior-payload-ledger.json",
+    "sha256": "67022f1d15d8126822e440b3e04916db79a5d074985d544addde8f4e06f130d3"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/decode-statement-scopes-20261019/hypotheses.json",
+    "copy": "prior-hypotheses.json",
+    "sha256": "29b62c868153d90373d34e33f1fcce2ff50dcee3abd9e7cf1099feddfd345e1c"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/decode-statement-scopes-20261019/review-only-statement-scopes.patch",
+    "copy": "prior-review-only-statement-scopes.patch",
+    "sha256": "a44da2119dcea1b699a0aaa33eb438a121a7d0b547d548ec789761d91bdf74f2"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/private_block/trained_block.rs",
+    "copy": "native-trained_block.rs",
+    "sha256": "cc401eb4be9d8e8a723894bac837442e01fe96bc67df22461e42582ecd3feec8"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r8/hashline/src/gpu/cuda.rs",
+    "copy": "native-cuda.rs",
+    "sha256": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/manifest_frozen.json",
+    "copy": "native-manifest_frozen.json",
+    "sha256": "98bd6372f1f19d4fd1f83f044d3c367fc7127f2ccae3ceec967fd65517eb733a"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/decode-statement-scopes-20261019/native/report.json",
+    "copy": "carried-report.json",
+    "sha256": "0a4d6c67846a0376b02d98ac65ca955fbcafadb0ca017d5d0dc0e88ad71dc6a8"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/decode-statement-scopes-20261019/native/fid_runs_phases.txt",
+    "copy": "carried-fid_runs_phases.txt",
+    "sha256": "b22bf1de174fba3fd48eeca0c2fd74644121b0caba40784a39ee581396021da2"
+  }
+]

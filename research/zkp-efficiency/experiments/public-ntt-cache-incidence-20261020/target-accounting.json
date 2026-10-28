@@ -1,0 +1,25 @@
+{
+  "full_stack": {
+    "proofs": 0,
+    "passes": 0,
+    "positions": 0,
+    "context_length": null,
+    "accelerator": null,
+    "research_device": "Intel(R) Core(TM) Ultra 9 185H",
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "startup_s": null,
+    "startup_fraction": null,
+    "steady_state_proved_positions_per_s": null,
+    "total_workload_proved_positions_per_s": null,
+    "long_context_prefill": false,
+    "resident_model_proofs": false,
+    "decode": false
+  },
+  "historical_cpu_diagnostic": "Carried R8 non-DD8B T128/L32 one16-threadCPU pass total478.737s; not rerun/reverified",
+  "startup_model": "T_R=S+R*C+drain; rate ceiling context/C; S,C,drain unmeasured",
+  "cache_model_ceiling": "1/(1-f) even for free deletion; exclusivef unknown and added costs remain",
+  "target_achieved": false
+}

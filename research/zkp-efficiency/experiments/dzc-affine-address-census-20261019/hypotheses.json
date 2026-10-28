@@ -1,0 +1,60 @@
+[
+  {
+    "rank": 1,
+    "hypothesis": "Owner: whole-prover GPU D/A and independently verified resident 1/2/4/8 passes",
+    "expected_end_to_end_impact": "Broad recurring scope; no measured GPU saving or steady slope.",
+    "prerequisites": "Admitted profile, named high-end device, shared heavy locks and owner-run complete proofs.",
+    "integration_cost": "High: device arithmetic, layouts, transfer/lifetime/PCS and phase instrumentation.",
+    "exactness": "Same field, relations, masks, degree, refusals and original folds/finals.",
+    "privacy_soundness": "Fresh masks/openings per proof; independent verification; all recurring work and pipeline drain counted.",
+    "falsification": "Enclosing regression, proof backlog, failed verification or privacy gate."
+  },
+  {
+    "rank": 2,
+    "hypothesis": "Refined: immutable public setup reuse across R8 sealing/restart and resident passes",
+    "expected_end_to_end_impact": "Remove only repeated immutable public construction/load/reencoding. Cost and lifetime census first; total ceiling unknown.",
+    "baseline": "Current per-input sealing plus restarted proving, with per-layer calibration/manifest binding. Witness and sealing are recurring, not public startup.",
+    "eliminated_work": "Only source-identified repeated public setup; retain all witness/refusal work and fresh proof-local scalars.",
+    "added_costs": "Complete cache keys, identity checks, retained bytes, eviction/reload and transfer/peak overlap.",
+    "prerequisites": "Read/hash reviewed R8 constructors and StackSource call sites; distinguish run base, layer identity, override and proof-local lifetime.",
+    "integration_cost": "Small local source/cost census, moderate owner cache integration if useful duplication exists.",
+    "exactness": "No altered plane list, field, calibration/refusals or stale per-layer parameters.",
+    "privacy_soundness": "Immutable public data only; no witness, mask, challenge, private opening or transcript reuse. D29 refusal-before-header stays.",
+    "falsification": "No repeated immutable construction, a missing key component, private dependence, higher peak cost or no verified workload gain.",
+    "next_local": "Produce a public-vs-attempt-vs-layer lifetime ledger and synthetic stale-key controls; no build or model data."
+  },
+  {
+    "rank": 3,
+    "hypothesis": "Owner: D30 dictionary and proof architecture comparison",
+    "expected_end_to_end_impact": "Broader committed-plane/lookup scope; counted/unbuilt, no performance forecast.",
+    "prerequisites": "Separately versioned profile, all D30 slot/cap/binding conditions, independent written-relation review and calibration census.",
+    "integration_cost": "High: layout, relation, commitment, rank/hiding and composition work.",
+    "exactness": "Exact division; every true-row slot constrained; accepted float-fidelity direction D32 remains.",
+    "privacy_soundness": "New NL-1/blinding/joint captures and independent verification; no relaxed D10 or privacy requirement.",
+    "falsification": "Unconstrained slots, late multiplicities, missing helper sum claim, cap overflow or failed privacy/fidelity/soundness gate."
+  },
+  {
+    "rank": 4,
+    "hypothesis": "Tested narrow option: parameter/base translations retaining raw and scratch maps",
+    "expected_end_to_end_impact": "At most removes198 logical index bytes/row from shared9162; no field work removed, no runtime/DRAM result. Low priority.",
+    "baseline": "Shared10 templates/19 calls/884 field primitives; previous shared CPU timing loss retained.",
+    "eliminated_work": "99 u16 parameter/base index requests; all raw and scratch maps retained.",
+    "added_costs": "18 nonzero typed pointer adjustments; compiler/stack/register costs unknown.",
+    "prerequisites": "Reviewed lowering, effective load bounds, native sampler/parameter binding and enclosing proof gates.",
+    "integration_cost": "Moderate emitter change; no new kernel emitted this cycle.",
+    "exactness": "2888 symbolic checks and33 synthetic fixtures support exact addresses/values on the captured graph; original59 tables/folds/finals retained.",
+    "privacy_soundness": "Public topology only; rebind proof-local parameters at every layer/attempt; no additional opening or private randomness reuse.",
+    "falsification": "Invalid effective address/alias, native coefficient/final/transcript/RNG mismatch, no resource benefit or enclosing regression."
+  },
+  {
+    "rank": 5,
+    "hypothesis": "ELIMINATED: single raw-pointer shift per repeated helper",
+    "expected_end_to_end_impact": "Incorrect; do not implement.",
+    "evidence": "All9 non-reference instances nonuniform. Minimum raw translation groups2 and3. Full naive candidate can exceed118 endpoints; in-bounds first error changes24/24 random fixtures.",
+    "prerequisites": "Would need a different multi-pointer/general-map hypothesis and new cost justification.",
+    "integration_cost": "Rejected before lowering.",
+    "exactness": "Fails exact source address mapping.",
+    "privacy_soundness": "Changing checked endpoints is not authorized.",
+    "falsification": "Already falsified by source lineage and numerical controls."
+  }
+]

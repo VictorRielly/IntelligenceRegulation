@@ -1,0 +1,1167 @@
+{
+  "schema": "zk60-shieldstral-calibration-input/1",
+  "T": 256,
+  "documents": 32,
+  "sequences": 192,
+  "seed": 20261026,
+  "ids_sha256": "2e7b9654a1d9a6c0b0da3422de5ba4d1165c25d721f76a0e706ca0967a6a0d25",
+  "heldout_ids_sha256": "b8e48b293ee13067f83c05a649e7e6a7d115395a903fd1d1bafa28a4bb718d8e",
+  "dataset": "/home/victor/datasets/toxicchat-29df8e4d/toxic-chat_annotation_test.csv",
+  "dataset_sha256": "3c2e49889626f7738dca0a29bface0ba0a0595b2ffdd17f0e02f19df7c3c4c9b",
+  "padding": "right EOS; all rows included in range statistics; no truncation",
+  "scope": "calibration only; disjoint from A1 ToxicChat-200; no OpenAI benchmark examples used",
+  "metadata": [
+    {
+      "id": "e075f75997a24cbbb3cd9c9010f2288db41a39cec2aaa3b250d8aefd359bee2f",
+      "template": "cat_hate",
+      "selection_label": 0,
+      "length": 91
+    },
+    {
+      "id": "e075f75997a24cbbb3cd9c9010f2288db41a39cec2aaa3b250d8aefd359bee2f",
+      "template": "cat_sexual",
+      "selection_label": 0,
+      "length": 85
+    },
+    {
+      "id": "e075f75997a24cbbb3cd9c9010f2288db41a39cec2aaa3b250d8aefd359bee2f",
+      "template": "cat_violence",
+      "selection_label": 0,
+      "length": 85
+    },
+    {
+      "id": "e075f75997a24cbbb3cd9c9010f2288db41a39cec2aaa3b250d8aefd359bee2f",
+      "template": "mod_hate",
+      "selection_label": 0,
+      "length": 90
+    },
+    {
+      "id": "e075f75997a24cbbb3cd9c9010f2288db41a39cec2aaa3b250d8aefd359bee2f",
+      "template": "mod_sexual",
+      "selection_label": 0,
+      "length": 84
+    },
+    {
+      "id": "e075f75997a24cbbb3cd9c9010f2288db41a39cec2aaa3b250d8aefd359bee2f",
+      "template": "mod_violence",
+      "selection_label": 0,
+      "length": 84
+    },
+    {
+      "id": "0529e8298c888dab020346b945bbb8e604435454eb98543b995df749bbfc444e",
+      "template": "cat_hate",
+      "selection_label": 0,
+      "length": 121
+    },
+    {
+      "id": "0529e8298c888dab020346b945bbb8e604435454eb98543b995df749bbfc444e",
+      "template": "cat_sexual",
+      "selection_label": 0,
+      "length": 115
+    },
+    {
+      "id": "0529e8298c888dab020346b945bbb8e604435454eb98543b995df749bbfc444e",
+      "template": "cat_violence",
+      "selection_label": 0,
+      "length": 115
+    },
+    {
+      "id": "0529e8298c888dab020346b945bbb8e604435454eb98543b995df749bbfc444e",
+      "template": "mod_hate",
+      "selection_label": 0,
+      "length": 120
+    },
+    {
+      "id": "0529e8298c888dab020346b945bbb8e604435454eb98543b995df749bbfc444e",
+      "template": "mod_sexual",
+      "selection_label": 0,
+      "length": 114
+    },
+    {
+      "id": "0529e8298c888dab020346b945bbb8e604435454eb98543b995df749bbfc444e",
+      "template": "mod_violence",
+      "selection_label": 0,
+      "length": 114
+    },
+    {
+      "id": "86061e1a33716efaedbde70727158e879aeab7e5ab6a218c7aa984e98680f40d",
+      "template": "cat_hate",
+      "selection_label": 0,
+      "length": 91
+    },
+    {
+      "id": "86061e1a33716efaedbde70727158e879aeab7e5ab6a218c7aa984e98680f40d",
+      "template": "cat_sexual",
+      "selection_label": 0,
+      "length": 85
+    },
+    {
+      "id": "86061e1a33716efaedbde70727158e879aeab7e5ab6a218c7aa984e98680f40d",
+      "template": "cat_violence",
+      "selection_label": 0,
+      "length": 85
+    },
+    {
+      "id": "86061e1a33716efaedbde70727158e879aeab7e5ab6a218c7aa984e98680f40d",
+      "template": "mod_hate",
+      "selection_label": 0,
+      "length": 90
+    },
+    {
+      "id": "86061e1a33716efaedbde70727158e879aeab7e5ab6a218c7aa984e98680f40d",
+      "template": "mod_sexual",
+      "selection_label": 0,
+      "length": 84
+    },
+    {
+      "id": "86061e1a33716efaedbde70727158e879aeab7e5ab6a218c7aa984e98680f40d",
+      "template": "mod_violence",
+      "selection_label": 0,
+      "length": 84
+    },
+    {
+      "id": "f6478a05f93090ebf616c0dd21851ee7a876e167650b84f55609c2596bf3d9b7",
+      "template": "cat_hate",
+      "selection_label": 0,
+      "length": 96
+    },
+    {
+      "id": "f6478a05f93090ebf616c0dd21851ee7a876e167650b84f55609c2596bf3d9b7",
+      "template": "cat_sexual",
+      "selection_label": 0,
+      "length": 90
+    },
+    {
+      "id": "f6478a05f93090ebf616c0dd21851ee7a876e167650b84f55609c2596bf3d9b7",
+      "template": "cat_violence",
+      "selection_label": 0,
+      "length": 90
+    },
+    {
+      "id": "f6478a05f93090ebf616c0dd21851ee7a876e167650b84f55609c2596bf3d9b7",
+      "template": "mod_hate",
+      "selection_label": 0,
+      "length": 95
+    },
+    {
+      "id": "f6478a05f93090ebf616c0dd21851ee7a876e167650b84f55609c2596bf3d9b7",
+      "template": "mod_sexual",
+      "selection_label": 0,
+      "length": 89
+    },
+    {
+      "id": "f6478a05f93090ebf616c0dd21851ee7a876e167650b84f55609c2596bf3d9b7",
+      "template": "mod_violence",
+      "selection_label": 0,
+      "length": 89
+    },
+    {
+      "id": "6653a7dc169ec83048849316a1f5567b8ebe7108ef9f5f00417111981e0ec47e",
+      "template": "cat_hate",
+      "selection_label": 0,
+      "length": 87
+    },
+    {
+      "id": "6653a7dc169ec83048849316a1f5567b8ebe7108ef9f5f00417111981e0ec47e",
+      "template": "cat_sexual",
+      "selection_label": 0,
+      "length": 81
+    },
+    {
+      "id": "6653a7dc169ec83048849316a1f5567b8ebe7108ef9f5f00417111981e0ec47e",
+      "template": "cat_violence",
+      "selection_label": 0,
+      "length": 81
+    },
+    {
+      "id": "6653a7dc169ec83048849316a1f5567b8ebe7108ef9f5f00417111981e0ec47e",
+      "template": "mod_hate",
+      "selection_label": 0,
+      "length": 86
+    },
+    {
+      "id": "6653a7dc169ec83048849316a1f5567b8ebe7108ef9f5f00417111981e0ec47e",
+      "template": "mod_sexual",
+      "selection_label": 0,
+      "length": 80
+    },
+    {
+      "id": "6653a7dc169ec83048849316a1f5567b8ebe7108ef9f5f00417111981e0ec47e",
+      "template": "mod_violence",
+      "selection_label": 0,
+      "length": 80
+    },
+    {
+      "id": "4f98f142cfd386a47b1db0c709152bf1e0237f077f68f934955175a649175f86",
+      "template": "cat_hate",
+      "selection_label": 0,
+      "length": 99
+    },
+    {
+      "id": "4f98f142cfd386a47b1db0c709152bf1e0237f077f68f934955175a649175f86",
+      "template": "cat_sexual",
+      "selection_label": 0,
+      "length": 93
+    },
+    {
+      "id": "4f98f142cfd386a47b1db0c709152bf1e0237f077f68f934955175a649175f86",
+      "template": "cat_violence",
+      "selection_label": 0,
+      "length": 93
+    },
+    {
+      "id": "4f98f142cfd386a47b1db0c709152bf1e0237f077f68f934955175a649175f86",
+      "template": "mod_hate",
+      "selection_label": 0,
+      "length": 98
+    },
+    {
+      "id": "4f98f142cfd386a47b1db0c709152bf1e0237f077f68f934955175a649175f86",
+      "template": "mod_sexual",
+      "selection_label": 0,
+      "length": 92
+    },
+    {
+      "id": "4f98f142cfd386a47b1db0c709152bf1e0237f077f68f934955175a649175f86",
+      "template": "mod_violence",
+      "selection_label": 0,
+      "length": 92
+    },
+    {
+      "id": "f891d945560c6c9984d9c1b5d3852a963ac960e37ccc1c4ed61d376e1be7e49e",
+      "template": "cat_hate",
+      "selection_label": 0,
+      "length": 87
+    },
+    {
+      "id": "f891d945560c6c9984d9c1b5d3852a963ac960e37ccc1c4ed61d376e1be7e49e",
+      "template": "cat_sexual",
+      "selection_label": 0,
+      "length": 81
+    },
+    {
+      "id": "f891d945560c6c9984d9c1b5d3852a963ac960e37ccc1c4ed61d376e1be7e49e",
+      "template": "cat_violence",
+      "selection_label": 0,
+      "length": 81
+    },
+    {
+      "id": "f891d945560c6c9984d9c1b5d3852a963ac960e37ccc1c4ed61d376e1be7e49e",
+      "template": "mod_hate",
+      "selection_label": 0,
+      "length": 86
+    },
+    {
+      "id": "f891d945560c6c9984d9c1b5d3852a963ac960e37ccc1c4ed61d376e1be7e49e",
+      "template": "mod_sexual",
+      "selection_label": 0,
+      "length": 80
+    },
+    {
+      "id": "f891d945560c6c9984d9c1b5d3852a963ac960e37ccc1c4ed61d376e1be7e49e",
+      "template": "mod_violence",
+      "selection_label": 0,
+      "length": 80
+    },
+    {
+      "id": "72ff66fcb41361687ef965997d9695de83ec7699ac16b9b6a9b28899aa09dcfd",
+      "template": "cat_hate",
+      "selection_label": 0,
+      "length": 118
+    },
+    {
+      "id": "72ff66fcb41361687ef965997d9695de83ec7699ac16b9b6a9b28899aa09dcfd",
+      "template": "cat_sexual",
+      "selection_label": 0,
+      "length": 112
+    },
+    {
+      "id": "72ff66fcb41361687ef965997d9695de83ec7699ac16b9b6a9b28899aa09dcfd",
+      "template": "cat_violence",
+      "selection_label": 0,
+      "length": 112
+    },
+    {
+      "id": "72ff66fcb41361687ef965997d9695de83ec7699ac16b9b6a9b28899aa09dcfd",
+      "template": "mod_hate",
+      "selection_label": 0,
+      "length": 117
+    },
+    {
+      "id": "72ff66fcb41361687ef965997d9695de83ec7699ac16b9b6a9b28899aa09dcfd",
+      "template": "mod_sexual",
+      "selection_label": 0,
+      "length": 111
+    },
+    {
+      "id": "72ff66fcb41361687ef965997d9695de83ec7699ac16b9b6a9b28899aa09dcfd",
+      "template": "mod_violence",
+      "selection_label": 0,
+      "length": 111
+    },
+    {
+      "id": "1750f167b7fc949cc69f4714367ea8848d1910032299c18a87da2cb99b083052",
+      "template": "cat_hate",
+      "selection_label": 0,
+      "length": 85
+    },
+    {
+      "id": "1750f167b7fc949cc69f4714367ea8848d1910032299c18a87da2cb99b083052",
+      "template": "cat_sexual",
+      "selection_label": 0,
+      "length": 79
+    },
+    {
+      "id": "1750f167b7fc949cc69f4714367ea8848d1910032299c18a87da2cb99b083052",
+      "template": "cat_violence",
+      "selection_label": 0,
+      "length": 79
+    },
+    {
+      "id": "1750f167b7fc949cc69f4714367ea8848d1910032299c18a87da2cb99b083052",
+      "template": "mod_hate",
+      "selection_label": 0,
+      "length": 84
+    },
+    {
+      "id": "1750f167b7fc949cc69f4714367ea8848d1910032299c18a87da2cb99b083052",
+      "template": "mod_sexual",
+      "selection_label": 0,
+      "length": 78
+    },
+    {
+      "id": "1750f167b7fc949cc69f4714367ea8848d1910032299c18a87da2cb99b083052",
+      "template": "mod_violence",
+      "selection_label": 0,
+      "length": 78
+    },
+    {
+      "id": "943ad91ab372a4183508d1764f7966c76282559eb91923d9e7c12a36f7ede269",
+      "template": "cat_hate",
+      "selection_label": 0,
+      "length": 95
+    },
+    {
+      "id": "943ad91ab372a4183508d1764f7966c76282559eb91923d9e7c12a36f7ede269",
+      "template": "cat_sexual",
+      "selection_label": 0,
+      "length": 89
+    },
+    {
+      "id": "943ad91ab372a4183508d1764f7966c76282559eb91923d9e7c12a36f7ede269",
+      "template": "cat_violence",
+      "selection_label": 0,
+      "length": 89
+    },
+    {
+      "id": "943ad91ab372a4183508d1764f7966c76282559eb91923d9e7c12a36f7ede269",
+      "template": "mod_hate",
+      "selection_label": 0,
+      "length": 94
+    },
+    {
+      "id": "943ad91ab372a4183508d1764f7966c76282559eb91923d9e7c12a36f7ede269",
+      "template": "mod_sexual",
+      "selection_label": 0,
+      "length": 88
+    },
+    {
+      "id": "943ad91ab372a4183508d1764f7966c76282559eb91923d9e7c12a36f7ede269",
+      "template": "mod_violence",
+      "selection_label": 0,
+      "length": 88
+    },
+    {
+      "id": "39c2c0e0a68c188aadd1660f11bbd06b05e20d80043946691a5a4d4c52a8c9e5",
+      "template": "cat_hate",
+      "selection_label": 0,
+      "length": 109
+    },
+    {
+      "id": "39c2c0e0a68c188aadd1660f11bbd06b05e20d80043946691a5a4d4c52a8c9e5",
+      "template": "cat_sexual",
+      "selection_label": 0,
+      "length": 103
+    },
+    {
+      "id": "39c2c0e0a68c188aadd1660f11bbd06b05e20d80043946691a5a4d4c52a8c9e5",
+      "template": "cat_violence",
+      "selection_label": 0,
+      "length": 103
+    },
+    {
+      "id": "39c2c0e0a68c188aadd1660f11bbd06b05e20d80043946691a5a4d4c52a8c9e5",
+      "template": "mod_hate",
+      "selection_label": 0,
+      "length": 108
+    },
+    {
+      "id": "39c2c0e0a68c188aadd1660f11bbd06b05e20d80043946691a5a4d4c52a8c9e5",
+      "template": "mod_sexual",
+      "selection_label": 0,
+      "length": 102
+    },
+    {
+      "id": "39c2c0e0a68c188aadd1660f11bbd06b05e20d80043946691a5a4d4c52a8c9e5",
+      "template": "mod_violence",
+      "selection_label": 0,
+      "length": 102
+    },
+    {
+      "id": "79cd5d823c8ef10f157ce05938b80a65e9bee81c24c9c97b1c6e6e55f82c22bb",
+      "template": "cat_hate",
+      "selection_label": 0,
+      "length": 87
+    },
+    {
+      "id": "79cd5d823c8ef10f157ce05938b80a65e9bee81c24c9c97b1c6e6e55f82c22bb",
+      "template": "cat_sexual",
+      "selection_label": 0,
+      "length": 81
+    },
+    {
+      "id": "79cd5d823c8ef10f157ce05938b80a65e9bee81c24c9c97b1c6e6e55f82c22bb",
+      "template": "cat_violence",
+      "selection_label": 0,
+      "length": 81
+    },
+    {
+      "id": "79cd5d823c8ef10f157ce05938b80a65e9bee81c24c9c97b1c6e6e55f82c22bb",
+      "template": "mod_hate",
+      "selection_label": 0,
+      "length": 86
+    },
+    {
+      "id": "79cd5d823c8ef10f157ce05938b80a65e9bee81c24c9c97b1c6e6e55f82c22bb",
+      "template": "mod_sexual",
+      "selection_label": 0,
+      "length": 80
+    },
+    {
+      "id": "79cd5d823c8ef10f157ce05938b80a65e9bee81c24c9c97b1c6e6e55f82c22bb",
+      "template": "mod_violence",
+      "selection_label": 0,
+      "length": 80
+    },
+    {
+      "id": "4b2b01ed68fb4cffa1945cdf947289bb0be3bcbce63abce4a6349769e9b20c57",
+      "template": "cat_hate",
+      "selection_label": 0,
+      "length": 100
+    },
+    {
+      "id": "4b2b01ed68fb4cffa1945cdf947289bb0be3bcbce63abce4a6349769e9b20c57",
+      "template": "cat_sexual",
+      "selection_label": 0,
+      "length": 94
+    },
+    {
+      "id": "4b2b01ed68fb4cffa1945cdf947289bb0be3bcbce63abce4a6349769e9b20c57",
+      "template": "cat_violence",
+      "selection_label": 0,
+      "length": 94
+    },
+    {
+      "id": "4b2b01ed68fb4cffa1945cdf947289bb0be3bcbce63abce4a6349769e9b20c57",
+      "template": "mod_hate",
+      "selection_label": 0,
+      "length": 99
+    },
+    {
+      "id": "4b2b01ed68fb4cffa1945cdf947289bb0be3bcbce63abce4a6349769e9b20c57",
+      "template": "mod_sexual",
+      "selection_label": 0,
+      "length": 93
+    },
+    {
+      "id": "4b2b01ed68fb4cffa1945cdf947289bb0be3bcbce63abce4a6349769e9b20c57",
+      "template": "mod_violence",
+      "selection_label": 0,
+      "length": 93
+    },
+    {
+      "id": "d7c44b858655f648dd22b78278ca6d0a29008c4e09bf26eb979c7cd937b7d404",
+      "template": "cat_hate",
+      "selection_label": 0,
+      "length": 92
+    },
+    {
+      "id": "d7c44b858655f648dd22b78278ca6d0a29008c4e09bf26eb979c7cd937b7d404",
+      "template": "cat_sexual",
+      "selection_label": 0,
+      "length": 86
+    },
+    {
+      "id": "d7c44b858655f648dd22b78278ca6d0a29008c4e09bf26eb979c7cd937b7d404",
+      "template": "cat_violence",
+      "selection_label": 0,
+      "length": 86
+    },
+    {
+      "id": "d7c44b858655f648dd22b78278ca6d0a29008c4e09bf26eb979c7cd937b7d404",
+      "template": "mod_hate",
+      "selection_label": 0,
+      "length": 91
+    },
+    {
+      "id": "d7c44b858655f648dd22b78278ca6d0a29008c4e09bf26eb979c7cd937b7d404",
+      "template": "mod_sexual",
+      "selection_label": 0,
+      "length": 85
+    },
+    {
+      "id": "d7c44b858655f648dd22b78278ca6d0a29008c4e09bf26eb979c7cd937b7d404",
+      "template": "mod_violence",
+      "selection_label": 0,
+      "length": 85
+    },
+    {
+      "id": "3184b30cd107f3e03d0dd69a206a3d1e0c8fe57b1f46145723857fb313f03413",
+      "template": "cat_hate",
+      "selection_label": 0,
+      "length": 91
+    },
+    {
+      "id": "3184b30cd107f3e03d0dd69a206a3d1e0c8fe57b1f46145723857fb313f03413",
+      "template": "cat_sexual",
+      "selection_label": 0,
+      "length": 85
+    },
+    {
+      "id": "3184b30cd107f3e03d0dd69a206a3d1e0c8fe57b1f46145723857fb313f03413",
+      "template": "cat_violence",
+      "selection_label": 0,
+      "length": 85
+    },
+    {
+      "id": "3184b30cd107f3e03d0dd69a206a3d1e0c8fe57b1f46145723857fb313f03413",
+      "template": "mod_hate",
+      "selection_label": 0,
+      "length": 90
+    },
+    {
+      "id": "3184b30cd107f3e03d0dd69a206a3d1e0c8fe57b1f46145723857fb313f03413",
+      "template": "mod_sexual",
+      "selection_label": 0,
+      "length": 84
+    },
+    {
+      "id": "3184b30cd107f3e03d0dd69a206a3d1e0c8fe57b1f46145723857fb313f03413",
+      "template": "mod_violence",
+      "selection_label": 0,
+      "length": 84
+    },
+    {
+      "id": "1ef599d76396f87aad9959c8f460b1004f23c71c78a0da9ea59b1a49bdcb986f",
+      "template": "cat_hate",
+      "selection_label": 0,
+      "length": 98
+    },
+    {
+      "id": "1ef599d76396f87aad9959c8f460b1004f23c71c78a0da9ea59b1a49bdcb986f",
+      "template": "cat_sexual",
+      "selection_label": 0,
+      "length": 92
+    },
+    {
+      "id": "1ef599d76396f87aad9959c8f460b1004f23c71c78a0da9ea59b1a49bdcb986f",
+      "template": "cat_violence",
+      "selection_label": 0,
+      "length": 92
+    },
+    {
+      "id": "1ef599d76396f87aad9959c8f460b1004f23c71c78a0da9ea59b1a49bdcb986f",
+      "template": "mod_hate",
+      "selection_label": 0,
+      "length": 97
+    },
+    {
+      "id": "1ef599d76396f87aad9959c8f460b1004f23c71c78a0da9ea59b1a49bdcb986f",
+      "template": "mod_sexual",
+      "selection_label": 0,
+      "length": 91
+    },
+    {
+      "id": "1ef599d76396f87aad9959c8f460b1004f23c71c78a0da9ea59b1a49bdcb986f",
+      "template": "mod_violence",
+      "selection_label": 0,
+      "length": 91
+    },
+    {
+      "id": "14db95266d939617fe96e551d26a49b93455f3f9441c79799da17e78c126bbc2",
+      "template": "cat_hate",
+      "selection_label": 1,
+      "length": 147
+    },
+    {
+      "id": "14db95266d939617fe96e551d26a49b93455f3f9441c79799da17e78c126bbc2",
+      "template": "cat_sexual",
+      "selection_label": 1,
+      "length": 141
+    },
+    {
+      "id": "14db95266d939617fe96e551d26a49b93455f3f9441c79799da17e78c126bbc2",
+      "template": "cat_violence",
+      "selection_label": 1,
+      "length": 141
+    },
+    {
+      "id": "14db95266d939617fe96e551d26a49b93455f3f9441c79799da17e78c126bbc2",
+      "template": "mod_hate",
+      "selection_label": 1,
+      "length": 146
+    },
+    {
+      "id": "14db95266d939617fe96e551d26a49b93455f3f9441c79799da17e78c126bbc2",
+      "template": "mod_sexual",
+      "selection_label": 1,
+      "length": 140
+    },
+    {
+      "id": "14db95266d939617fe96e551d26a49b93455f3f9441c79799da17e78c126bbc2",
+      "template": "mod_violence",
+      "selection_label": 1,
+      "length": 140
+    },
+    {
+      "id": "ffabe014138148dede7982c84bfd93b5d82a94943b4a2c7e8f3a903740b1ffb3",
+      "template": "cat_hate",
+      "selection_label": 1,
+      "length": 87
+    },
+    {
+      "id": "ffabe014138148dede7982c84bfd93b5d82a94943b4a2c7e8f3a903740b1ffb3",
+      "template": "cat_sexual",
+      "selection_label": 1,
+      "length": 81
+    },
+    {
+      "id": "ffabe014138148dede7982c84bfd93b5d82a94943b4a2c7e8f3a903740b1ffb3",
+      "template": "cat_violence",
+      "selection_label": 1,
+      "length": 81
+    },
+    {
+      "id": "ffabe014138148dede7982c84bfd93b5d82a94943b4a2c7e8f3a903740b1ffb3",
+      "template": "mod_hate",
+      "selection_label": 1,
+      "length": 86
+    },
+    {
+      "id": "ffabe014138148dede7982c84bfd93b5d82a94943b4a2c7e8f3a903740b1ffb3",
+      "template": "mod_sexual",
+      "selection_label": 1,
+      "length": 80
+    },
+    {
+      "id": "ffabe014138148dede7982c84bfd93b5d82a94943b4a2c7e8f3a903740b1ffb3",
+      "template": "mod_violence",
+      "selection_label": 1,
+      "length": 80
+    },
+    {
+      "id": "fe49d71fed103c4cfc89f9144b13bcb1df76406f1f6c95cf2edf1ca3fd2a7ef4",
+      "template": "cat_hate",
+      "selection_label": 1,
+      "length": 127
+    },
+    {
+      "id": "fe49d71fed103c4cfc89f9144b13bcb1df76406f1f6c95cf2edf1ca3fd2a7ef4",
+      "template": "cat_sexual",
+      "selection_label": 1,
+      "length": 121
+    },
+    {
+      "id": "fe49d71fed103c4cfc89f9144b13bcb1df76406f1f6c95cf2edf1ca3fd2a7ef4",
+      "template": "cat_violence",
+      "selection_label": 1,
+      "length": 121
+    },
+    {
+      "id": "fe49d71fed103c4cfc89f9144b13bcb1df76406f1f6c95cf2edf1ca3fd2a7ef4",
+      "template": "mod_hate",
+      "selection_label": 1,
+      "length": 126
+    },
+    {
+      "id": "fe49d71fed103c4cfc89f9144b13bcb1df76406f1f6c95cf2edf1ca3fd2a7ef4",
+      "template": "mod_sexual",
+      "selection_label": 1,
+      "length": 120
+    },
+    {
+      "id": "fe49d71fed103c4cfc89f9144b13bcb1df76406f1f6c95cf2edf1ca3fd2a7ef4",
+      "template": "mod_violence",
+      "selection_label": 1,
+      "length": 120
+    },
+    {
+      "id": "2405e335bbb79763a393dcb5692b9836721fa0a5e7a9b8234e064b13a3fc003f",
+      "template": "cat_hate",
+      "selection_label": 1,
+      "length": 86
+    },
+    {
+      "id": "2405e335bbb79763a393dcb5692b9836721fa0a5e7a9b8234e064b13a3fc003f",
+      "template": "cat_sexual",
+      "selection_label": 1,
+      "length": 80
+    },
+    {
+      "id": "2405e335bbb79763a393dcb5692b9836721fa0a5e7a9b8234e064b13a3fc003f",
+      "template": "cat_violence",
+      "selection_label": 1,
+      "length": 80
+    },
+    {
+      "id": "2405e335bbb79763a393dcb5692b9836721fa0a5e7a9b8234e064b13a3fc003f",
+      "template": "mod_hate",
+      "selection_label": 1,
+      "length": 85
+    },
+    {
+      "id": "2405e335bbb79763a393dcb5692b9836721fa0a5e7a9b8234e064b13a3fc003f",
+      "template": "mod_sexual",
+      "selection_label": 1,
+      "length": 79
+    },
+    {
+      "id": "2405e335bbb79763a393dcb5692b9836721fa0a5e7a9b8234e064b13a3fc003f",
+      "template": "mod_violence",
+      "selection_label": 1,
+      "length": 79
+    },
+    {
+      "id": "75dc30f398a871ba112733baddbdb87ebf78a50319389c23ffc84a83a202f37c",
+      "template": "cat_hate",
+      "selection_label": 1,
+      "length": 89
+    },
+    {
+      "id": "75dc30f398a871ba112733baddbdb87ebf78a50319389c23ffc84a83a202f37c",
+      "template": "cat_sexual",
+      "selection_label": 1,
+      "length": 83
+    },
+    {
+      "id": "75dc30f398a871ba112733baddbdb87ebf78a50319389c23ffc84a83a202f37c",
+      "template": "cat_violence",
+      "selection_label": 1,
+      "length": 83
+    },
+    {
+      "id": "75dc30f398a871ba112733baddbdb87ebf78a50319389c23ffc84a83a202f37c",
+      "template": "mod_hate",
+      "selection_label": 1,
+      "length": 88
+    },
+    {
+      "id": "75dc30f398a871ba112733baddbdb87ebf78a50319389c23ffc84a83a202f37c",
+      "template": "mod_sexual",
+      "selection_label": 1,
+      "length": 82
+    },
+    {
+      "id": "75dc30f398a871ba112733baddbdb87ebf78a50319389c23ffc84a83a202f37c",
+      "template": "mod_violence",
+      "selection_label": 1,
+      "length": 82
+    },
+    {
+      "id": "540f6a0b35e7784124f2f8d8bd3ffdae122f363e630437012c02d8e15ee31df8",
+      "template": "cat_hate",
+      "selection_label": 1,
+      "length": 141
+    },
+    {
+      "id": "540f6a0b35e7784124f2f8d8bd3ffdae122f363e630437012c02d8e15ee31df8",
+      "template": "cat_sexual",
+      "selection_label": 1,
+      "length": 135
+    },
+    {
+      "id": "540f6a0b35e7784124f2f8d8bd3ffdae122f363e630437012c02d8e15ee31df8",
+      "template": "cat_violence",
+      "selection_label": 1,
+      "length": 135
+    },
+    {
+      "id": "540f6a0b35e7784124f2f8d8bd3ffdae122f363e630437012c02d8e15ee31df8",
+      "template": "mod_hate",
+      "selection_label": 1,
+      "length": 140
+    },
+    {
+      "id": "540f6a0b35e7784124f2f8d8bd3ffdae122f363e630437012c02d8e15ee31df8",
+      "template": "mod_sexual",
+      "selection_label": 1,
+      "length": 134
+    },
+    {
+      "id": "540f6a0b35e7784124f2f8d8bd3ffdae122f363e630437012c02d8e15ee31df8",
+      "template": "mod_violence",
+      "selection_label": 1,
+      "length": 134
+    },
+    {
+      "id": "2512633abe90a5aa99f2c29e29955f19e8af8d3bb11b6d5742e16f0183692b9d",
+      "template": "cat_hate",
+      "selection_label": 1,
+      "length": 113
+    },
+    {
+      "id": "2512633abe90a5aa99f2c29e29955f19e8af8d3bb11b6d5742e16f0183692b9d",
+      "template": "cat_sexual",
+      "selection_label": 1,
+      "length": 107
+    },
+    {
+      "id": "2512633abe90a5aa99f2c29e29955f19e8af8d3bb11b6d5742e16f0183692b9d",
+      "template": "cat_violence",
+      "selection_label": 1,
+      "length": 107
+    },
+    {
+      "id": "2512633abe90a5aa99f2c29e29955f19e8af8d3bb11b6d5742e16f0183692b9d",
+      "template": "mod_hate",
+      "selection_label": 1,
+      "length": 112
+    },
+    {
+      "id": "2512633abe90a5aa99f2c29e29955f19e8af8d3bb11b6d5742e16f0183692b9d",
+      "template": "mod_sexual",
+      "selection_label": 1,
+      "length": 106
+    },
+    {
+      "id": "2512633abe90a5aa99f2c29e29955f19e8af8d3bb11b6d5742e16f0183692b9d",
+      "template": "mod_violence",
+      "selection_label": 1,
+      "length": 106
+    },
+    {
+      "id": "8ae50c387d66852b474b39a0899bebd4b0ce897ada97dcd2ed1dfe24421ddd05",
+      "template": "cat_hate",
+      "selection_label": 1,
+      "length": 95
+    },
+    {
+      "id": "8ae50c387d66852b474b39a0899bebd4b0ce897ada97dcd2ed1dfe24421ddd05",
+      "template": "cat_sexual",
+      "selection_label": 1,
+      "length": 89
+    },
+    {
+      "id": "8ae50c387d66852b474b39a0899bebd4b0ce897ada97dcd2ed1dfe24421ddd05",
+      "template": "cat_violence",
+      "selection_label": 1,
+      "length": 89
+    },
+    {
+      "id": "8ae50c387d66852b474b39a0899bebd4b0ce897ada97dcd2ed1dfe24421ddd05",
+      "template": "mod_hate",
+      "selection_label": 1,
+      "length": 94
+    },
+    {
+      "id": "8ae50c387d66852b474b39a0899bebd4b0ce897ada97dcd2ed1dfe24421ddd05",
+      "template": "mod_sexual",
+      "selection_label": 1,
+      "length": 88
+    },
+    {
+      "id": "8ae50c387d66852b474b39a0899bebd4b0ce897ada97dcd2ed1dfe24421ddd05",
+      "template": "mod_violence",
+      "selection_label": 1,
+      "length": 88
+    },
+    {
+      "id": "f6e4e6e073f29cb5b4b4c568fd2440476c7d717b607c078f8b62e50363ce8e71",
+      "template": "cat_hate",
+      "selection_label": 1,
+      "length": 88
+    },
+    {
+      "id": "f6e4e6e073f29cb5b4b4c568fd2440476c7d717b607c078f8b62e50363ce8e71",
+      "template": "cat_sexual",
+      "selection_label": 1,
+      "length": 82
+    },
+    {
+      "id": "f6e4e6e073f29cb5b4b4c568fd2440476c7d717b607c078f8b62e50363ce8e71",
+      "template": "cat_violence",
+      "selection_label": 1,
+      "length": 82
+    },
+    {
+      "id": "f6e4e6e073f29cb5b4b4c568fd2440476c7d717b607c078f8b62e50363ce8e71",
+      "template": "mod_hate",
+      "selection_label": 1,
+      "length": 87
+    },
+    {
+      "id": "f6e4e6e073f29cb5b4b4c568fd2440476c7d717b607c078f8b62e50363ce8e71",
+      "template": "mod_sexual",
+      "selection_label": 1,
+      "length": 81
+    },
+    {
+      "id": "f6e4e6e073f29cb5b4b4c568fd2440476c7d717b607c078f8b62e50363ce8e71",
+      "template": "mod_violence",
+      "selection_label": 1,
+      "length": 81
+    },
+    {
+      "id": "07e3088fcb04f90735c4c63bcf0e416e9313a147cfaebf8eb98dc982c7658b9a",
+      "template": "cat_hate",
+      "selection_label": 1,
+      "length": 115
+    },
+    {
+      "id": "07e3088fcb04f90735c4c63bcf0e416e9313a147cfaebf8eb98dc982c7658b9a",
+      "template": "cat_sexual",
+      "selection_label": 1,
+      "length": 109
+    },
+    {
+      "id": "07e3088fcb04f90735c4c63bcf0e416e9313a147cfaebf8eb98dc982c7658b9a",
+      "template": "cat_violence",
+      "selection_label": 1,
+      "length": 109
+    },
+    {
+      "id": "07e3088fcb04f90735c4c63bcf0e416e9313a147cfaebf8eb98dc982c7658b9a",
+      "template": "mod_hate",
+      "selection_label": 1,
+      "length": 114
+    },
+    {
+      "id": "07e3088fcb04f90735c4c63bcf0e416e9313a147cfaebf8eb98dc982c7658b9a",
+      "template": "mod_sexual",
+      "selection_label": 1,
+      "length": 108
+    },
+    {
+      "id": "07e3088fcb04f90735c4c63bcf0e416e9313a147cfaebf8eb98dc982c7658b9a",
+      "template": "mod_violence",
+      "selection_label": 1,
+      "length": 108
+    },
+    {
+      "id": "df3d8e1d46a80ab147b0c1ee11993051472eaba725080cb4dc1bc7dc78123e32",
+      "template": "cat_hate",
+      "selection_label": 1,
+      "length": 134
+    },
+    {
+      "id": "df3d8e1d46a80ab147b0c1ee11993051472eaba725080cb4dc1bc7dc78123e32",
+      "template": "cat_sexual",
+      "selection_label": 1,
+      "length": 128
+    },
+    {
+      "id": "df3d8e1d46a80ab147b0c1ee11993051472eaba725080cb4dc1bc7dc78123e32",
+      "template": "cat_violence",
+      "selection_label": 1,
+      "length": 128
+    },
+    {
+      "id": "df3d8e1d46a80ab147b0c1ee11993051472eaba725080cb4dc1bc7dc78123e32",
+      "template": "mod_hate",
+      "selection_label": 1,
+      "length": 133
+    },
+    {
+      "id": "df3d8e1d46a80ab147b0c1ee11993051472eaba725080cb4dc1bc7dc78123e32",
+      "template": "mod_sexual",
+      "selection_label": 1,
+      "length": 127
+    },
+    {
+      "id": "df3d8e1d46a80ab147b0c1ee11993051472eaba725080cb4dc1bc7dc78123e32",
+      "template": "mod_violence",
+      "selection_label": 1,
+      "length": 127
+    },
+    {
+      "id": "6ee5dfe88d332d1d175e2e037bedf8d1ef9bb070a45cb10a8e3e5c34aeeca0c7",
+      "template": "cat_hate",
+      "selection_label": 1,
+      "length": 117
+    },
+    {
+      "id": "6ee5dfe88d332d1d175e2e037bedf8d1ef9bb070a45cb10a8e3e5c34aeeca0c7",
+      "template": "cat_sexual",
+      "selection_label": 1,
+      "length": 111
+    },
+    {
+      "id": "6ee5dfe88d332d1d175e2e037bedf8d1ef9bb070a45cb10a8e3e5c34aeeca0c7",
+      "template": "cat_violence",
+      "selection_label": 1,
+      "length": 111
+    },
+    {
+      "id": "6ee5dfe88d332d1d175e2e037bedf8d1ef9bb070a45cb10a8e3e5c34aeeca0c7",
+      "template": "mod_hate",
+      "selection_label": 1,
+      "length": 116
+    },
+    {
+      "id": "6ee5dfe88d332d1d175e2e037bedf8d1ef9bb070a45cb10a8e3e5c34aeeca0c7",
+      "template": "mod_sexual",
+      "selection_label": 1,
+      "length": 110
+    },
+    {
+      "id": "6ee5dfe88d332d1d175e2e037bedf8d1ef9bb070a45cb10a8e3e5c34aeeca0c7",
+      "template": "mod_violence",
+      "selection_label": 1,
+      "length": 110
+    },
+    {
+      "id": "cb6358f18330d86cdd5cf007155fb4956be5c03a87a9ab889d9d18b8cedb66b5",
+      "template": "cat_hate",
+      "selection_label": 1,
+      "length": 88
+    },
+    {
+      "id": "cb6358f18330d86cdd5cf007155fb4956be5c03a87a9ab889d9d18b8cedb66b5",
+      "template": "cat_sexual",
+      "selection_label": 1,
+      "length": 82
+    },
+    {
+      "id": "cb6358f18330d86cdd5cf007155fb4956be5c03a87a9ab889d9d18b8cedb66b5",
+      "template": "cat_violence",
+      "selection_label": 1,
+      "length": 82
+    },
+    {
+      "id": "cb6358f18330d86cdd5cf007155fb4956be5c03a87a9ab889d9d18b8cedb66b5",
+      "template": "mod_hate",
+      "selection_label": 1,
+      "length": 87
+    },
+    {
+      "id": "cb6358f18330d86cdd5cf007155fb4956be5c03a87a9ab889d9d18b8cedb66b5",
+      "template": "mod_sexual",
+      "selection_label": 1,
+      "length": 81
+    },
+    {
+      "id": "cb6358f18330d86cdd5cf007155fb4956be5c03a87a9ab889d9d18b8cedb66b5",
+      "template": "mod_violence",
+      "selection_label": 1,
+      "length": 81
+    },
+    {
+      "id": "74f67710fd0f66b568ee79600a24b92ac6024cc5556b3628456c0f259cab4296",
+      "template": "cat_hate",
+      "selection_label": 1,
+      "length": 200
+    },
+    {
+      "id": "74f67710fd0f66b568ee79600a24b92ac6024cc5556b3628456c0f259cab4296",
+      "template": "cat_sexual",
+      "selection_label": 1,
+      "length": 194
+    },
+    {
+      "id": "74f67710fd0f66b568ee79600a24b92ac6024cc5556b3628456c0f259cab4296",
+      "template": "cat_violence",
+      "selection_label": 1,
+      "length": 194
+    },
+    {
+      "id": "74f67710fd0f66b568ee79600a24b92ac6024cc5556b3628456c0f259cab4296",
+      "template": "mod_hate",
+      "selection_label": 1,
+      "length": 199
+    },
+    {
+      "id": "74f67710fd0f66b568ee79600a24b92ac6024cc5556b3628456c0f259cab4296",
+      "template": "mod_sexual",
+      "selection_label": 1,
+      "length": 193
+    },
+    {
+      "id": "74f67710fd0f66b568ee79600a24b92ac6024cc5556b3628456c0f259cab4296",
+      "template": "mod_violence",
+      "selection_label": 1,
+      "length": 193
+    },
+    {
+      "id": "628fbf0bc7492eb277915c4c09c48cad1ab57035642d58ca34f91a87ea9e7862",
+      "template": "cat_hate",
+      "selection_label": 1,
+      "length": 102
+    },
+    {
+      "id": "628fbf0bc7492eb277915c4c09c48cad1ab57035642d58ca34f91a87ea9e7862",
+      "template": "cat_sexual",
+      "selection_label": 1,
+      "length": 96
+    },
+    {
+      "id": "628fbf0bc7492eb277915c4c09c48cad1ab57035642d58ca34f91a87ea9e7862",
+      "template": "cat_violence",
+      "selection_label": 1,
+      "length": 96
+    },
+    {
+      "id": "628fbf0bc7492eb277915c4c09c48cad1ab57035642d58ca34f91a87ea9e7862",
+      "template": "mod_hate",
+      "selection_label": 1,
+      "length": 101
+    },
+    {
+      "id": "628fbf0bc7492eb277915c4c09c48cad1ab57035642d58ca34f91a87ea9e7862",
+      "template": "mod_sexual",
+      "selection_label": 1,
+      "length": 95
+    },
+    {
+      "id": "628fbf0bc7492eb277915c4c09c48cad1ab57035642d58ca34f91a87ea9e7862",
+      "template": "mod_violence",
+      "selection_label": 1,
+      "length": 95
+    },
+    {
+      "id": "238deeeb0cfd6e421d38ed19d5c8b013f6f1fceea24e5a51802a0b3a9db7f1f8",
+      "template": "cat_hate",
+      "selection_label": 1,
+      "length": 88
+    },
+    {
+      "id": "238deeeb0cfd6e421d38ed19d5c8b013f6f1fceea24e5a51802a0b3a9db7f1f8",
+      "template": "cat_sexual",
+      "selection_label": 1,
+      "length": 82
+    },
+    {
+      "id": "238deeeb0cfd6e421d38ed19d5c8b013f6f1fceea24e5a51802a0b3a9db7f1f8",
+      "template": "cat_violence",
+      "selection_label": 1,
+      "length": 82
+    },
+    {
+      "id": "238deeeb0cfd6e421d38ed19d5c8b013f6f1fceea24e5a51802a0b3a9db7f1f8",
+      "template": "mod_hate",
+      "selection_label": 1,
+      "length": 87
+    },
+    {
+      "id": "238deeeb0cfd6e421d38ed19d5c8b013f6f1fceea24e5a51802a0b3a9db7f1f8",
+      "template": "mod_sexual",
+      "selection_label": 1,
+      "length": 81
+    },
+    {
+      "id": "238deeeb0cfd6e421d38ed19d5c8b013f6f1fceea24e5a51802a0b3a9db7f1f8",
+      "template": "mod_violence",
+      "selection_label": 1,
+      "length": 81
+    }
+  ]
+}

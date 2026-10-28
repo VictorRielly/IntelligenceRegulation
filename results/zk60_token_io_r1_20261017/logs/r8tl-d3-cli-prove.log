@@ -1,0 +1,26 @@
+{"event":"loaded","export_variant":"tinyllama_dg_rot1_T128","run_profile":"hashline-zk-mr1/private-token-io-run-tinyllama-t128-trained-statement-public-row/1","blocks":22,"trained_statement_identity":"0f2467fc77336366fdaf335d2ca890051d8fef36498f81d31ad1a6a05e0b998f","V":32000,"seconds":3.902}
+{"event":"segment","index":0,"bytes":1267576,"elapsed_seconds":4.670}
+{"event":"segment","index":1,"bytes":22600792,"elapsed_seconds":12.598}
+{"event":"segment","index":2,"bytes":22600792,"elapsed_seconds":21.016}
+{"event":"segment","index":3,"bytes":22600792,"elapsed_seconds":29.683}
+{"event":"segment","index":4,"bytes":22600792,"elapsed_seconds":37.720}
+{"event":"segment","index":5,"bytes":22600792,"elapsed_seconds":46.236}
+{"event":"segment","index":6,"bytes":22600792,"elapsed_seconds":54.398}
+{"event":"segment","index":7,"bytes":22600792,"elapsed_seconds":62.704}
+{"event":"segment","index":8,"bytes":22600792,"elapsed_seconds":70.907}
+{"event":"segment","index":9,"bytes":22600792,"elapsed_seconds":79.429}
+{"event":"segment","index":10,"bytes":22600792,"elapsed_seconds":87.490}
+{"event":"segment","index":11,"bytes":22600792,"elapsed_seconds":95.504}
+{"event":"segment","index":12,"bytes":22600792,"elapsed_seconds":103.721}
+{"event":"segment","index":13,"bytes":22600792,"elapsed_seconds":111.954}
+{"event":"segment","index":14,"bytes":22600792,"elapsed_seconds":119.959}
+{"event":"segment","index":15,"bytes":22600792,"elapsed_seconds":128.410}
+{"event":"segment","index":16,"bytes":22600792,"elapsed_seconds":136.799}
+{"event":"segment","index":17,"bytes":22600792,"elapsed_seconds":144.372}
+{"event":"segment","index":18,"bytes":22600792,"elapsed_seconds":152.564}
+{"event":"segment","index":19,"bytes":22600792,"elapsed_seconds":160.583}
+{"event":"segment","index":20,"bytes":22600792,"elapsed_seconds":168.864}
+{"event":"segment","index":21,"bytes":22600792,"elapsed_seconds":177.064}
+{"event":"segment","index":22,"bytes":22600792,"elapsed_seconds":185.509}
+{"event":"segment","index":23,"bytes":3977848,"elapsed_seconds":186.025}
+{"event":"proved","run":"/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/run-tinyllama_dg_rot1_T128-r8tl-ho00","owner_dir":"/home/victor/zk60-artifacts/token-io/run-tinyllama_dg_rot1_T128-r8tl-ho00-a5e544c2a5c1.owner-private","segments":24,"receipt_bytes":502462848,"prove_seconds":186.026,"witness_seconds":14.599,"block_load_seconds":4.912,"parity_layers":22,"whole_run_floor_bits":97,"trained_statement_identity":"0f2467fc77336366fdaf335d2ca890051d8fef36498f81d31ad1a6a05e0b998f","vmhwm_mib":3788,"total_seconds":192.340,"backend":"gpu: off (built without --features gpu-cuda)","statement":"UNVERIFIED until zk60_token_io verify publishes <run>/statement/"}

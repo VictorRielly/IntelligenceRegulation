@@ -1,0 +1,23 @@
+{
+  "queries": [
+    "LogUp GKR 2023 1284 fractional sumcheck lookup arguments repository",
+    "2026 lookup arguments GKR GPU prover October 2026 GitHub",
+    "site.eprint.iacr.org \"lookup\" \"2026\" \"GKR\"",
+    "site.github.com/starkware-libs/stwo/releases 2026",
+    "\"lookup\" \"fractional\" \"2025\" \"zero knowledge\"",
+    "\"flookup\" Gabizon Khovratovich eprint",
+    "\"LogUp\" \"2026\" \"October\" prover",
+    "site.github.com/starkware-libs/stwo \"logup\" \"c1bf3e1\"",
+    "site.arxiv.org/abs/2610 \"zero-knowledge\" \"lookup\"",
+    "site.arxiv.org/abs/2610 \"sumcheck\"",
+    "site.github.com \"Pico\" \"3.0\" \"September 30, 2026\"",
+    "site.eprint.iacr.org/2026 \"lookup\" \"GKR\""
+  ],
+  "access_date": "2026-10-20",
+  "primary_assessments": 6,
+  "untrusted_instructions_ignored": true,
+  "external_code_executed": false,
+  "rotation_this_cycle": "lookup arguments/softmax plus sumcheck/GKR and memory/batching cost",
+  "rotation_next": "memory traffic and proof composition: mixed-height private reduction schedule; GPU NTT refresh only if actual phase incidence changes",
+  "retention": "Queries and primary assessment metadata retained; no full upstream articles or source scripts copied."
+}

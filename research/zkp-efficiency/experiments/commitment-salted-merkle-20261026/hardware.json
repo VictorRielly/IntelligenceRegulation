@@ -1,0 +1,21 @@
+{
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "worker_threads": 1,
+  "accelerator": null,
+  "device_count": 0,
+  "gpu_job": false,
+  "estimated_memory_mib": 64,
+  "blake3_version": "1.0.9",
+  "oracle_pins": [
+    {
+      "path": "/home/victor/.local/lib/python3.10/site-packages/blake3/blake3.cpython-310-x86_64-linux-gnu.so",
+      "sha256": "05c769211dc7e9a67440a677311122579af24c6613ac93bfdd1393f46e1a740a"
+    },
+    {
+      "path": "/home/victor/.local/lib/python3.10/site-packages/blake3-1.0.9.dist-info/METADATA",
+      "sha256": "1208c64307205b7dd9b8e4720f104f970b7eedf8fce3d276dda061040652f487"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"status": "PASS", "checks": 646591, "negative_controls": 441, "capacity_traces": 72, "random_traces": 80, "pool_limit_cases": 1, "oversize_cases": 1, "seed": 2026102095, "scope": "Authored independent interval oracle; no native arithmetic,transcripts,security review or proof verification", "wall_seconds": 1.3738895389979007, "rss_kib": 48964, "threads": 1, "affinity": [0]}

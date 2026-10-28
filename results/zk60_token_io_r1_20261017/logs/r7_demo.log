@@ -1,0 +1,18 @@
+{"event": "layer0-precheck", "status": "clear", "prompt_tokens": 32, "known_refusing": [], "scope": "layer 0 only (exhaustive over the vocabulary for norm_a / Q / K / V / RoPE); later layers depend on context", "not_covered": "the layer-0 attention scores (they depend on pairs of tokens) and all later layers (they depend on the context): a clear prompt can still be refused by the prover, which is safe", "fingerprint": "cd91e5969a870f7cda61e8946edb3ffc7c8331618e28e30802f8dacaf87d5cf0", "scan": "/home/victor/IntelligenceRegulation/results/zk60_fidelity_parity_20261019/runs/llama3-8b/vocab0_llama3_8b_pg_rot1_b7voc0_T32.json"}
+pins from /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/approvals/token_profile_approval_llama3_8b_pg_rot1_b7voc0_T32.json: expect-statement c3fb8c5b767c095663ab08fca1524dc53b4bfb3652a5b786865dd07deaa258c9, expect-token-profile e8238cf130a36f369d6453e5579ba294e9eac4ae4b47de5815cc7ef7ac297132
+[zk60-guard 09:28:51] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 09:29:51] waiting for /tmp/zk-heavy.lock (60s)
+[zk60-guard 09:30:51] waiting for /tmp/zk-heavy.lock (120s)
+[zk60-guard 09:31:27] START tio-r7-d3-cli-prove class=cpu need=4.5G cap=6.5G enforce=cgroup+watchdog waited=156s run=bbdc96553e5f
+[zk60-guard 09:35:51] END tio-r7-d3-cli-prove exit=0 child_wall=265s peak_rss=3.39G min_avail=8.11G
+owner directory: /home/victor/zk60-artifacts/token-io/run-llama3_8b_pg_rot1_b7voc0_T32-r7-ho00-ef2b58a0591d.owner-private
+[zk60-guard 09:35:51] START tio-r7-d4-cli-verify class=cpu need=4G cap=6G enforce=cgroup+watchdog waited=0s run=cb628195569b
+[zk60-guard 09:37:12] END tio-r7-d4-cli-verify exit=0 child_wall=81s peak_rss=2.81G min_avail=9.02G
+[zk60-guard 09:37:12] START tio-r7-d5-cli-recheck class=cpu need=4G cap=6G enforce=cgroup+watchdog waited=0s run=0e44606145e6
+[zk60-guard 09:38:31] END tio-r7-d5-cli-recheck exit=0 child_wall=79s peak_rss=2.82G min_avail=8.66G
+[zk60-guard 09:38:31] START tio-r7-d6-cli-owner class=cpu need=4G cap=6G enforce=cgroup+watchdog waited=0s run=9233fe0926c0
+[zk60-guard 09:39:49] END tio-r7-d6-cli-owner exit=0 child_wall=78s peak_rss=2.84G min_avail=8.91G
+[zk60-guard 09:39:49] START tio-r7-d7-cli-input-owner class=cpu need=4G cap=6G enforce=cgroup+watchdog waited=0s run=4bc009a7bb46
+[zk60-guard 09:41:08] END tio-r7-d7-cli-input-owner exit=0 child_wall=78s peak_rss=2.77G min_avail=9.34G
+[zk60-guard 09:41:08] START tio-r7-full-suite class=cpu need=6.5G cap=8G enforce=cgroup+watchdog waited=0s run=c6fa1ce8d0c4
+[zk60-guard 09:52:55] END tio-r7-full-suite exit=0 child_wall=707s peak_rss=5.86G min_avail=5.47G

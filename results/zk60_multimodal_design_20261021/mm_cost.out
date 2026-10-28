@@ -1,0 +1,79 @@
+checks:
+  OK Lay == speed-plan replica at the counted ladder (TinyLlama T32..T512, 8B T32 lc 11..15, 8B T128/512/1024)
+  OK Lay == R10 replica (which == the R9 prover's printed sizes at T128) with DD off and on; 8B T512 DD 525,172,736
+  OK DD receipt delta +235,008 B per block reproduced; R9 counted receipts 23,049,192 / 29,300,856 B reproduced
+  OK cost law through Lay == speed plan's block_phases and witness law at its validation shapes
+
+anchors (whole cold pass, laptop CPU law):
+  TinyLlama T32 (brief: 85 s): model 64.3 s vs 85.0 s (-24.4%), receipt 255.8 MB, mem 1.21 GiB
+  8B T32 (brief: 296 s): model 285.4 s vs 296.0 s (-3.6%), receipt 475.4 MB, mem 1.9 GiB
+  8B T128 (brief: 569 s, receipt 928 MB, peak 8 GiB): model 579.6 s vs 569.0 s (+1.9%), receipt 937.6 MB, mem 6.32 GiB
+  8B T128 R8 quiet (prove 478.7 s + load 27.2 s): model 579.6 s vs 505.9 s (+14.6%), receipt 937.6 MB, mem 6.32 GiB
+
+one block (committed elements, score-domain share, receipt, memory CPU path, laptop proof+witness, verify):
+  8B T128 (reference)                            lc 14  elems    117.9 M  S 12.0%  receipt   29.3 MB  mem    6.3 GiB  VRAM(commit)   1.1  laptop    10.6+  2.5 s  verify  0.77 s (0.39 w/ descriptors)
+  8B T512 (reference)                            lc 15  elems    663.3 M  S 39.2%  receipt   69.6 MB  mem   33.2 GiB  VRAM(commit)   5.1  laptop    52.0+ 13.1 s  verify  6.57 s (0.39 w/ descriptors)
+  Shieldstral decoder T128                       lc 14  elems    117.9 M  S 12.0%  receipt   29.3 MB  mem    6.3 GiB  VRAM(commit)   1.1  laptop    10.6+  1.5 s  verify  0.77 s (0.39 w/ descriptors)
+  Shieldstral decoder T256                       lc 15  elems    272.7 M  S 23.8%  receipt   45.0 MB  mem   14.0 GiB  VRAM(commit)   2.2  laptop    22.9+  3.4 s  verify  1.93 s (0.39 w/ descriptors)
+  Shieldstral decoder T512                       lc 15  elems    663.3 M  S 39.2%  receipt   69.6 MB  mem   33.2 GiB  VRAM(commit)   5.1  laptop    52.0+  8.9 s  verify  6.57 s (0.39 w/ descriptors)
+  Shieldstral decoder T1024                      lc 16  elems   1846.6 M  S 56.3%  receipt  112.6 MB  mem   91.6 GiB  VRAM(commit)  14.0  laptop   139.1+ 25.9 s  verify 25.12 s (0.39 w/ descriptors)
+  Shieldstral decoder T2048                      lc 17  elems   5773.6 M  S 72.1%  receipt  198.6 MB  mem  285.5 GiB  VRAM(commit)  43.2  laptop   421.3+ 84.1 s  verify 99.31 s (0.39 w/ descriptors)
+  Pixtral T256 (224 px) non-DD                   lc 14  elems     91.0 M  S 35.7%  receipt   25.9 MB  mem    5.0 GiB  VRAM(commit)   0.9  laptop     8.1+  0.6 s  verify  0.83 s (0.06 w/ descriptors)
+  Pixtral T256 (224 px) DD                       lc 14  elems     75.4 M  S 18.1%  receipt   24.7 MB  mem    4.2 GiB  VRAM(commit)   0.8  laptop     7.2+  0.6 s  verify  0.83 s (0.06 w/ descriptors)
+  Pixtral T576->1024 (336 px) non-DD (padded)    lc 15  elems    741.9 M  S 70.1%  receipt   74.3 MB  mem   37.1 GiB  VRAM(commit)   5.7  laptop    55.9+  2.1 s  verify 12.42 s (0.06 w/ descriptors)
+  Pixtral T1024 (448 px) non-DD                  lc 15  elems    741.9 M  S 70.1%  receipt   74.3 MB  mem   37.1 GiB  VRAM(commit)   5.7  laptop    55.9+  5.4 s  verify 12.42 s (0.06 w/ descriptors)
+  Pixtral T1024 (448 px) DD                      lc 15  elems    452.8 M  S 48.2%  receipt   57.9 MB  mem   22.9 GiB  VRAM(commit)   3.6  laptop    38.8+  5.4 s  verify 12.42 s (0.06 w/ descriptors)
+  Pixtral T4096 (896 px) non-DD                  lc 17  elems   9208.7 M  S 90.4%  receipt  252.1 MB  mem  455.0 GiB  VRAM(commit)  68.8  laptop   653.9+ 70.4 s  verify 197.89 s (0.06 w/ descriptors)
+  Pixtral T4096 (896 px) DD                      lc 17  elems   4428.5 M  S 78.8%  receipt  183.8 MB  mem  219.1 GiB  VRAM(commit)  33.2  laptop   368.9+ 70.4 s  verify 197.89 s (0.06 w/ descriptors)
+
+text posts (Shieldstral decoder, 26 blocks):
+  64 tokens, no F6       T_pad  256 (keys  256)  laptop     644 s (+loads 69)  5090 today    251 s  5090 port  28.6 s  receipt  1.17 GB  mem  14.0 GiB  verify    50 s
+  64 tokens, F6          T_pad  128 (keys  256)  laptop     329 s (+loads 69)  5090 today    131 s  5090 port  16.7 s  receipt  0.82 GB  mem   7.2 GiB  verify    30 s
+  256 tokens, no F6      T_pad  512 (keys  512)  laptop    1485 s (+loads 69)  5090 today    565 s  5090 port  59.9 s  receipt  1.81 GB  mem  33.2 GiB  verify   171 s
+  256 tokens, F6         T_pad  512 (keys  512)  laptop    1450 s (+loads 69)  5090 today    548 s  5090 port  59.8 s  receipt  1.81 GB  mem  33.2 GiB  verify   171 s
+
+images (24 Pixtral blocks + stages + 26 decoder blocks):
+  224 px, encoder DD, decoder no F6          enc T   256->  256 dec Tq  167-> 256  cold pass laptop    917 / 5090 today   386 s;  laptop     838 s (enc    188, dec    648, stages    2)  5090 today    333 s  port  39.5 s  receipt  1.81 GB  mem   14.0 GiB  VRAM   2.2  verify     70 s (11)  stages/enc-block 0.275
+  224 px, encoder DD, decoder F6             enc T   256->  256 dec Tq   76-> 128  cold pass laptop    602 / 5090 today   265 s;  laptop     523 s (enc    188, dec    332, stages    2)  5090 today    213 s  port  27.6 s  receipt  1.46 GB  mem    7.2 GiB  VRAM   1.2  verify     50 s (11)  stages/enc-block 0.275
+  224 px, encoder non-DD, decoder no F6      enc T   256->  256 dec Tq  167-> 256  cold pass laptop    937 / 5090 today   392 s;  laptop     858 s (enc    208, dec    648, stages    2)  5090 today    339 s  port  40.3 s  receipt  1.84 GB  mem   14.0 GiB  VRAM   2.2  verify     70 s (11)  stages/enc-block 0.228
+  280 px, encoder DD, decoder no F6          enc T   400->  512 dec Tq  205-> 256  cold pass laptop   1258 / 5090 today   512 s;  laptop    1178 s (enc    512, dec    663, stages    4)  5090 today    459 s  port  52.4 s  receipt  2.30 GB  mem   14.0 GiB  VRAM   2.2  verify    126 s (11)  stages/enc-block 0.168
+  280 px, encoder DD, decoder F6             enc T   400->  512 dec Tq  114-> 128  cold pass laptop    941 / 5090 today   391 s;  laptop     862 s (enc    512, dec    346, stages    4)  5090 today    338 s  port  40.5 s  receipt  1.95 GB  mem   12.7 GiB  VRAM   2.0  verify    106 s (11)  stages/enc-block 0.168
+  280 px, encoder non-DD, decoder no F6      enc T   400->  512 dec Tq  205-> 256  cold pass laptop   1258 / 5090 today   512 s;  laptop    1178 s (enc    512, dec    663, stages    4)  5090 today    459 s  port  52.4 s  receipt  2.30 GB  mem   14.0 GiB  VRAM   2.2  verify    126 s (11)  stages/enc-block 0.168
+  336 px, encoder DD, decoder no F6          enc T   576-> 1024 dec Tq  251-> 256  cold pass laptop   2159 / 5090 today   838 s;  laptop    2080 s (enc   1391, dec    682, stages    6)  5090 today    785 s  port  87.9 s  receipt  3.10 GB  mem   37.1 GiB  VRAM   5.7  verify    348 s (11)  stages/enc-block 0.112
+  336 px, encoder DD, decoder F6             enc T   576-> 1024 dec Tq  160-> 256  cold pass laptop   2128 / 5090 today   822 s;  laptop    2048 s (enc   1391, dec    651, stages    6)  5090 today    769 s  port  87.8 s  receipt  3.10 GB  mem   37.1 GiB  VRAM   5.7  verify    348 s (11)  stages/enc-block 0.112
+  336 px, encoder non-DD, decoder no F6      enc T   576-> 1024 dec Tq  251-> 256  cold pass laptop   2159 / 5090 today   838 s;  laptop    2080 s (enc   1391, dec    682, stages    6)  5090 today    785 s  port  87.9 s  receipt  3.10 GB  mem   37.1 GiB  VRAM   5.7  verify    348 s (11)  stages/enc-block 0.112
+  448 px, encoder DD, decoder no F6          enc T  1024-> 1024 dec Tq  367-> 512  cold pass laptop   2644 / 5090 today  1047 s;  laptop    2565 s (enc   1061, dec   1495, stages    8)  5090 today    994 s  port 102.2 s  receipt  3.31 GB  mem   33.2 GiB  VRAM   5.1  verify    469 s (11)  stages/enc-block 0.184
+  448 px, encoder DD, decoder F6             enc T  1024-> 1024 dec Tq  276-> 512  cold pass laptop   2608 / 5090 today  1029 s;  laptop    2529 s (enc   1061, dec   1460, stages    8)  5090 today    976 s  port 102.1 s  receipt  3.31 GB  mem   33.2 GiB  VRAM   5.1  verify    469 s (11)  stages/enc-block 0.184
+  448 px, encoder non-DD, decoder no F6      enc T  1024-> 1024 dec Tq  367-> 512  cold pass laptop   3054 / 5090 today  1178 s;  laptop    2974 s (enc   1472, dec   1495, stages    7)  5090 today   1125 s  port 119.2 s  receipt  3.74 GB  mem   37.1 GiB  VRAM   5.7  verify    469 s (11)  stages/enc-block 0.112
+  896 px, encoder DD, decoder no F6          enc T  4096-> 4096 dec Tq 1151->2048  cold pass laptop  22423 / 5090 today  8533 s;  laptop   22344 s (enc  10544, dec  11767, stages   33)  5090 today   8481 s  port 825.9 s  receipt  9.94 GB  mem  285.5 GiB  VRAM  43.2  verify   7331 s (11)  stages/enc-block 0.075
+  896 px, encoder DD, decoder F6             enc T  4096-> 4096 dec Tq 1060->2048  cold pass laptop  22359 / 5090 today  8501 s;  laptop   22279 s (enc  10544, dec  11703, stages   33)  5090 today   8448 s  port 825.8 s  receipt  9.94 GB  mem  285.5 GiB  VRAM  43.2  verify   7331 s (11)  stages/enc-block 0.075
+  896 px, encoder non-DD, decoder no F6      enc T  4096-> 4096 dec Tq 1151->2048  cold pass laptop  29256 / 5090 today 10744 s;  laptop   29177 s (enc  17383, dec  11767, stages   26)  5090 today  10691 s  port 1109.7 s  receipt 11.72 GB  mem  455.0 GiB  VRAM  68.8  verify   7331 s (11)  stages/enc-block 0.036
+
+video (frames proved as images, one run, one load):
+  30 s at 1.0 fps (30 frames), 224 px, encoder DD, decoder F6  laptop   4.38 h  5090 today  1.79 h  5090 port  13.8 min  receipts   43.9 GB  mem   7.2 GiB
+  30 s at 0.2 fps (6 frames), 224 px, encoder DD, decoder F6   laptop   0.89 h  5090 today  0.37 h  5090 port   2.8 min  receipts    8.8 GB  mem   7.2 GiB
+  30 s at 1.0 fps (30 frames), 224 px, encoder DD, decoder no F6 laptop   7.01 h  5090 today  2.79 h  5090 port  19.7 min  receipts   54.4 GB  mem  14.0 GiB
+  30 s at 0.2 fps (6 frames), 224 px, encoder DD, decoder no F6 laptop   1.42 h  5090 today  0.57 h  5090 port   3.9 min  receipts   10.9 GB  mem  14.0 GiB
+  30 s at 1.0 fps (30 frames), 448 px, encoder DD, decoder F6  laptop  21.10 h  5090 today  8.15 h  5090 port  51.1 min  receipts   99.4 GB  mem  33.2 GiB
+  30 s at 0.2 fps (6 frames), 448 px, encoder DD, decoder F6   laptop   4.24 h  5090 today  1.64 h  5090 port  10.2 min  receipts   19.9 GB  mem  33.2 GiB
+
+batch axis at 224 px with F6 (per frame):
+  B=1: enc   7.85 s/frame/block, receipt  24.7 MB/frame/block (mem 4.2 GiB, lc 14);  dec  12.84 s,  31.6 MB (mem 7.2 GiB, lc 14)
+  B=2: enc   7.06 s/frame/block, receipt  16.7 MB/frame/block (mem 7.6 GiB, lc 14);  dec  12.42 s,  22.5 MB (mem 14.0 GiB, lc 15)
+  B=4: enc   6.93 s/frame/block, receipt  11.9 MB/frame/block (mem 14.8 GiB, lc 15);  dec  11.71 s,  15.4 MB (mem 26.8 GiB, lc 15)
+  B=8: enc   6.60 s/frame/block, receipt   8.1 MB/frame/block (mem 28.4 GiB, lc 15);  dec  11.61 s,  11.0 MB (mem 53.1 GiB, lc 16)
+
+split-width decoder, upper bound on the saving [MODEL]:
+  T128: 117.9 M -> 87.7 M (-25.6%), memory 4.8 GiB
+  T256: 272.7 M -> 212.4 M (-22.1%), memory 11.0 GiB
+  T512: 663.3 M -> 542.7 M (-18.2%), memory 27.3 GiB
+stages at encoder T256 (lc 14): front 8.9 M, projector 11.9 M
+stages at encoder T1024 (lc 15): front 35.7 M, projector 47.4 M
+
+stages at 448 px (encoder T1024, lc 15) [MODEL]:
+  front     pixel plane (u8 range = 1 byte lookup): size 2^20, A 1, lookups 1, helpers 1 -> 3.1 M elements
+  front     conv output int16 + two-byte remainder + ln_pre norm (int16 output, N16 form) + binding plane: size 2^20, A 15, lookups 15, helpers 8 -> 32.5 M elements
+  projector projector RMSNorm (int8 output) on the encoder width: size 2^20, A 9, lookups 10, helpers 5 -> 19.9 M elements
+  projector merging layer output int8 + two-byte remainder (input = the 2x2 unfold, a bit permutation): size 2^18, A 3, lookups 5, helpers 3 -> 2.4 M elements
+  projector linear_1 output int8 + two-byte remainder; GELU a16 (activation lookup); linear_2 output int16 + three-byte remainder: size 2^20, A 10, lookups 11, helpers 7 -> 25.2 M elements
+  front total 35.7 M, projector total 47.4 M elements

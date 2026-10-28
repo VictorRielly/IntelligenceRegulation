@@ -1,0 +1,66 @@
+[zk60-guard 17:59:48] START gate-unittests-v12 class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=28e013416325
+[zk60-guard 18:00:32] END gate-unittests-v12 exit=0 child_wall=44s peak_rss=0.45G min_avail=4.22G
+[zk60-guard 18:00:32] START gate-nl-tinyllama-t32-L1-dense-pt1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=fb23ee1b737b
+[zk60-guard 18:00:44] END gate-nl-tinyllama-t32-L1-dense-pt1 exit=0 child_wall=12s peak_rss=0.11G min_avail=4.87G
+[zk60-guard 18:00:44] START gate-nl-tinyllama-t32-L1-fixed-pt1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=e89402695eb1
+[zk60-guard 18:00:56] END gate-nl-tinyllama-t32-L1-fixed-pt1 exit=0 child_wall=11s peak_rss=0.11G min_avail=4.55G
+[zk60-guard 18:00:56] START gate-nl-tinyllama-t32-L2-dense-pt1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=ef4c53d73a30
+[zk60-guard 18:01:07] END gate-nl-tinyllama-t32-L2-dense-pt1 exit=0 child_wall=12s peak_rss=0.13G min_avail=4.42G
+[zk60-guard 18:01:08] START gate-nl-tinyllama-t32-L2-fixed-pt1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=988ba65e72d4
+[zk60-guard 18:01:21] END gate-nl-tinyllama-t32-L2-fixed-pt1 exit=0 child_wall=13s peak_rss=0.13G min_avail=4.58G
+[zk60-guard 18:01:21] START gate-nl-tinyllama-t32-L22-dense-pt1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=70c101ccb160
+[zk60-guard 18:01:49] END gate-nl-tinyllama-t32-L22-dense-pt1 exit=0 child_wall=28s peak_rss=0.59G min_avail=4.42G
+[zk60-guard 18:01:49] START gate-nl-tinyllama-t32-L22-fixed-pt1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=ada0302bac3b
+[zk60-guard 18:02:16] END gate-nl-tinyllama-t32-L22-fixed-pt1 exit=0 child_wall=28s peak_rss=0.51G min_avail=4.17G
+[zk60-guard 18:02:16] START gate-nl-llama3-8b-t32-L1-dense-pt1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=08033e502720
+[zk60-guard 18:02:32] END gate-nl-llama3-8b-t32-L1-dense-pt1 exit=0 child_wall=16s peak_rss=0.16G min_avail=4.43G
+[zk60-guard 18:02:33] START gate-nl-llama3-8b-t32-L1-fixed-pt1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=f7ea8c02b1d0
+[zk60-guard 18:02:50] END gate-nl-llama3-8b-t32-L1-fixed-pt1 exit=0 child_wall=17s peak_rss=0.16G min_avail=4.43G
+[zk60-guard 18:02:50] START gate-nl-llama3-8b-t32-L2-dense-pt1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=3f75522782d3
+[zk60-guard 18:03:07] END gate-nl-llama3-8b-t32-L2-dense-pt1 exit=0 child_wall=17s peak_rss=0.19G min_avail=4.46G
+[zk60-guard 18:03:07] START gate-nl-llama3-8b-t32-L2-fixed-pt1 class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=870b9d0313bd
+[zk60-guard 18:03:24] END gate-nl-llama3-8b-t32-L2-fixed-pt1 exit=0 child_wall=17s peak_rss=0.19G min_avail=4.51G
+[zk60-guard 18:03:25] START gate-ts-tinyllama-t32-L1-dense-pt1 class=light need=0.6G cap=2G enforce=cgroup+watchdog waited=0s run=573fd6c23597
+[zk60-guard 18:13:46] END gate-ts-tinyllama-t32-L1-dense-pt1 exit=0 child_wall=622s peak_rss=0.11G min_avail=4.05G
+[zk60-guard 18:13:46] START gate-ts-tinyllama-t32-L1-fixed-pt1 class=light need=0.6G cap=2G enforce=cgroup+watchdog waited=0s run=1d34355c855e
+[zk60-guard 18:22:47] END gate-ts-tinyllama-t32-L1-fixed-pt1 exit=0 child_wall=541s peak_rss=0.11G min_avail=9.56G
+[zk60-guard 18:22:47] START gate-ts-tinyllama-t32-L2-dense-pt1 class=light need=0.6G cap=2G enforce=cgroup+watchdog waited=0s run=bec2d3874638
+[zk60-guard 18:31:26] END gate-ts-tinyllama-t32-L2-dense-pt1 exit=0 child_wall=519s peak_rss=0.11G min_avail=10.40G
+[zk60-guard 18:31:26] START gate-ts-tinyllama-t32-L2-fixed-pt1 class=light need=0.6G cap=2G enforce=cgroup+watchdog waited=0s run=d62c15436be4
+[zk60-guard 18:40:59] END gate-ts-tinyllama-t32-L2-fixed-pt1 exit=0 child_wall=573s peak_rss=0.11G min_avail=6.77G
+[zk60-guard 18:40:59] START gate-ts-tinyllama-t32-L22-dense-pt1 class=light need=0.6G cap=2G enforce=cgroup+watchdog waited=0s run=bb59dec624e8
+[zk60-guard 18:48:55] END gate-ts-tinyllama-t32-L22-dense-pt1 exit=0 child_wall=476s peak_rss=0.33G min_avail=9.73G
+[zk60-guard 18:48:55] START gate-ts-tinyllama-t32-L22-fixed-pt1 class=light need=0.6G cap=2G enforce=cgroup+watchdog waited=0s run=d0952da81da3
+[zk60-guard 18:57:23] END gate-ts-tinyllama-t32-L22-fixed-pt1 exit=0 child_wall=508s peak_rss=0.11G min_avail=9.80G
+[zk60-guard 18:57:23] START gate-ts-llama3-8b-t32-L1-dense-pt1 class=light need=0.6G cap=2G enforce=cgroup+watchdog waited=0s run=2b8954117bd7
+[zk60-guard 19:22:06] END gate-ts-llama3-8b-t32-L1-dense-pt1 exit=0 child_wall=1484s peak_rss=0.11G min_avail=10.02G
+[zk60-guard 19:22:06] START gate-ts-llama3-8b-t32-L1-fixed-pt1 class=light need=0.6G cap=2G enforce=cgroup+watchdog waited=0s run=4ff8575da6c8
+[zk60-guard 19:44:55] END gate-ts-llama3-8b-t32-L1-fixed-pt1 exit=0 child_wall=1368s peak_rss=0.11G min_avail=10.65G
+[zk60-guard 19:44:55] START gate-ts-llama3-8b-t32-L2-dense-pt1 class=light need=0.6G cap=2G enforce=cgroup+watchdog waited=0s run=69e18df14d6a
+[zk60-guard 20:12:27] END gate-ts-llama3-8b-t32-L2-dense-pt1 exit=0 child_wall=1652s peak_rss=0.11G min_avail=5.90G
+[zk60-guard 20:12:27] START gate-ts-llama3-8b-t32-L2-fixed-pt1 class=light need=0.6G cap=2G enforce=cgroup+watchdog waited=0s run=39868dd5a01c
+[zk60-guard 20:39:33] END gate-ts-llama3-8b-t32-L2-fixed-pt1 exit=0 child_wall=1626s peak_rss=0.12G min_avail=5.52G
+[zk60-guard 20:39:33] admission waiting: budget: 10.9+1 GiB > 11.9 GiB with live [gate-tk9-l22-dense-a(light,6.2G), gate-tk9-l1-zero-everything(light,1.2G), fp-L_build_l8_dg_w16u(light,3.5G)]
+[zk60-guard 20:40:33] admission waiting: budget: 10.9+1 GiB > 11.9 GiB with live [gate-tk9-l22-dense-a(light,6.2G), gate-tk9-l1-zero-everything(light,1.2G), fp-L_build_l8_dg_w16u(light,3.5G)]
+[zk60-guard 20:41:33] admission waiting: budget: 10.9+1 GiB > 11.9 GiB with live [gate-tk9-l22-dense-a(light,6.2G), gate-tk9-l1-zero-everything(light,1.2G), fp-L_build_l8_dg_w16u(light,3.5G)]
+[zk60-guard 20:42:33] admission waiting: budget: 10.9+1 GiB > 11.9 GiB with live [gate-tk9-l22-dense-a(light,6.2G), gate-tk9-l1-zero-everything(light,1.2G), fp-L_build_l8_dg_w16u(light,3.5G)]
+[zk60-guard 20:43:34] admission waiting: budget: 10.9+1 GiB > 11.9 GiB with live [gate-tk9-l22-dense-a(light,6.2G), gate-tk9-l1-zero-everything(light,1.2G), fp-L_build_l8_dg_w16u(light,3.5G)]
+[zk60-guard 20:44:34] admission waiting: budget: 10.9+1 GiB > 11.9 GiB with live [gate-tk9-l22-dense-a(light,6.2G), gate-tk9-l1-zero-everything(light,1.2G), fp-L_build_l8_dg_w16u(light,3.5G)]
+[zk60-guard 20:45:19] START gate-ts-block-tinyllama-t32-L1-dense-pt1 class=light need=1G cap=2G enforce=cgroup+watchdog waited=346s run=30c9e620c9de
+[zk60-guard 20:58:26] END gate-ts-block-tinyllama-t32-L1-dense-pt1 exit=0 child_wall=787s peak_rss=0.25G min_avail=8.66G
+[zk60-guard 20:58:26] START gate-ts-block-tinyllama-t32-L1-fixed-pt1 class=light need=1G cap=2G enforce=cgroup+watchdog waited=0s run=2f0dbf339a0a
+[zk60-guard 21:11:18] END gate-ts-block-tinyllama-t32-L1-fixed-pt1 exit=0 child_wall=772s peak_rss=0.25G min_avail=10.00G
+[zk60-guard 21:11:18] START gate-cal-all class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=846ee83313ff
+[zk60-guard 21:11:42] END gate-cal-all exit=1 child_wall=24s peak_rss=0.61G min_avail=10.12G
+[zk60-guard 21:11:42] START gate-tk7-cli-l2-dense-a class=light need=0.6G cap=1.5G enforce=cgroup+watchdog waited=0s run=cc39abe70d88
+[zk60-guard 21:12:09] END gate-tk7-cli-l2-dense-a exit=0 child_wall=27s peak_rss=0.18G min_avail=10.21G
+[zk60-guard 21:12:09] START gate-predict-cli-validated class=light need=0.6G cap=1.5G enforce=cgroup+watchdog waited=0s run=7ba5fa27fa27
+[zk60-guard 21:12:10] END gate-predict-cli-validated exit=0 child_wall=1s peak_rss=0.15G min_avail=11.58G
+[zk60-guard 21:12:11] START gate-tk7-cli-l2-dense-everything class=light need=1.2G cap=2G enforce=cgroup+watchdog waited=0s run=42d8349879d5
+[zk60-guard 21:28:40] END gate-tk7-cli-l2-dense-everything exit=0 child_wall=990s peak_rss=0.74G min_avail=5.07G
+[zk60-guard 21:28:40] START gate-tk7-cli-schema class=light need=1G cap=1.5G enforce=cgroup+watchdog waited=0s run=85394e3913a5
+[zk60-guard 21:28:43] END gate-tk7-cli-schema exit=0 child_wall=2s peak_rss=0.10G min_avail=11.94G
+[zk60-guard 21:28:43] START gate-tk7-cli-g10 class=light need=0.6G cap=1.5G enforce=cgroup+watchdog waited=0s run=19856d69210b
+[zk60-guard 21:28:45] END gate-tk7-cli-g10 exit=0 child_wall=2s peak_rss=0.20G min_avail=11.85G
+[zk60-guard 21:28:45] START gate-tk7-cli-tl-controls class=light need=0.6G cap=1.5G enforce=cgroup+watchdog waited=0s run=d2d225b4c2e4
+[zk60-guard 21:29:37] END gate-tk7-cli-tl-controls exit=0 child_wall=52s peak_rss=0.16G min_avail=9.98G

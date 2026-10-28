@@ -1,0 +1,116 @@
+{
+  "removed_decode_allocations_per_load": 9,
+  "removed_decoded_bytes_per_load": 218112000,
+  "largest_removed_decode_buffer_bytes": 58720256,
+  "retained_raw11_bytes": 218114560,
+  "retained_padded_i8_bytes": 243277824,
+  "rows": [
+    {
+      "mode": "borrowed_copy",
+      "native_workers_accounted": 1,
+      "pins": 0,
+      "pad_phase_bytes": 461952000,
+      "constructor_phase_bytes": 705199616,
+      "record_phase_bytes": 772177408,
+      "loader_payload_envelope_bytes": 772177408,
+      "current_next_with_pins_payload_envelope_bytes": 1015588864,
+      "envelope_gib": 0.9458408355712891,
+      "full_envelope_saving_bytes": 0
+    },
+    {
+      "mode": "borrowed_copy",
+      "native_workers_accounted": 1,
+      "pins": 4,
+      "pad_phase_bytes": 461952000,
+      "constructor_phase_bytes": 705199616,
+      "record_phase_bytes": 772177408,
+      "loader_payload_envelope_bytes": 772177408,
+      "current_next_with_pins_payload_envelope_bytes": 1989234688,
+      "envelope_gib": 1.8526191711425781,
+      "full_envelope_saving_bytes": 0
+    },
+    {
+      "mode": "borrowed_copy",
+      "native_workers_accounted": 16,
+      "pins": 0,
+      "pad_phase_bytes": 461952000,
+      "constructor_phase_bytes": 705199616,
+      "record_phase_bytes": 948346368,
+      "loader_payload_envelope_bytes": 948346368,
+      "current_next_with_pins_payload_envelope_bytes": 1191757824,
+      "envelope_gib": 1.1099109649658203,
+      "full_envelope_saving_bytes": 0
+    },
+    {
+      "mode": "borrowed_copy",
+      "native_workers_accounted": 16,
+      "pins": 4,
+      "pad_phase_bytes": 461952000,
+      "constructor_phase_bytes": 705199616,
+      "record_phase_bytes": 948346368,
+      "loader_payload_envelope_bytes": 948346368,
+      "current_next_with_pins_payload_envelope_bytes": 2165403648,
+      "envelope_gib": 2.0166893005371094,
+      "full_envelope_saving_bytes": 0
+    },
+    {
+      "mode": "checked_move",
+      "native_workers_accounted": 1,
+      "pins": 0,
+      "pad_phase_bytes": 461952000,
+      "constructor_phase_bytes": 461790720,
+      "record_phase_bytes": 528768512,
+      "loader_payload_envelope_bytes": 528768512,
+      "current_next_with_pins_payload_envelope_bytes": 772179968,
+      "envelope_gib": 0.7191486358642578,
+      "full_envelope_saving_bytes": 0
+    },
+    {
+      "mode": "checked_move",
+      "native_workers_accounted": 1,
+      "pins": 4,
+      "pad_phase_bytes": 461952000,
+      "constructor_phase_bytes": 461790720,
+      "record_phase_bytes": 528768512,
+      "loader_payload_envelope_bytes": 528768512,
+      "current_next_with_pins_payload_envelope_bytes": 1745825792,
+      "envelope_gib": 1.6259269714355469,
+      "full_envelope_saving_bytes": 0
+    },
+    {
+      "mode": "checked_move",
+      "native_workers_accounted": 16,
+      "pins": 0,
+      "pad_phase_bytes": 461952000,
+      "constructor_phase_bytes": 461790720,
+      "record_phase_bytes": 704937472,
+      "loader_payload_envelope_bytes": 704937472,
+      "current_next_with_pins_payload_envelope_bytes": 948348928,
+      "envelope_gib": 0.8832187652587891,
+      "full_envelope_saving_bytes": 0
+    },
+    {
+      "mode": "checked_move",
+      "native_workers_accounted": 16,
+      "pins": 4,
+      "pad_phase_bytes": 461952000,
+      "constructor_phase_bytes": 461790720,
+      "record_phase_bytes": 704937472,
+      "loader_payload_envelope_bytes": 704937472,
+      "current_next_with_pins_payload_envelope_bytes": 1921994752,
+      "envelope_gib": 1.7899971008300781,
+      "full_envelope_saving_bytes": 0
+    }
+  ],
+  "exclusions": [
+    "allocator/capacity slack",
+    "JSON/manifest/source_tensors",
+    "Rayon stacks and metadata",
+    "file/page cache",
+    "witness/planes",
+    "proof/commitment",
+    "serialization",
+    "GPU/device buffers"
+  ],
+  "scope": "Allocation-free public-only conservative phase envelopes inherited from cycle0086, full sealing load. Not actual RSS/VRAM, hardware fit, native allocation or elapsed time. Largest decode temporary subtraction reduces pad envelope only; later record peak unchanged."
+}

@@ -1,0 +1,18 @@
+{
+  "description": "Independent integer Python oracle, crosschecked at 15 sites against fp_lib; synthetic T32",
+  "source_sha256": "82c07d26caab09706438d465975d3a8615e4e1a636253cfa8109be3f471cd210",
+  "artifacts": [
+    {
+      "path": "working-tree/hashline/src/private_block/r13_vectors/block_fixture_t32.tsv",
+      "sha256": "d5f901eb484c4f0b7c7a8663d4d0feaf15780d707f9b9b7c8b97f6fb76480647"
+    },
+    {
+      "path": "working-tree/hashline/src/private_block/r13_vectors/block_trace_low_t32.tsv",
+      "sha256": "86d0d95ff070434d0dcc47814d1a48af415e8fae63006de12fc0a86643c0f24e"
+    },
+    {
+      "path": "working-tree/hashline/src/private_block/r13_vectors/block_trace_low_h24_t32.tsv",
+      "sha256": "40b82089f654f5dce89a4fdd861a6976852876d273b9579d2c38f7e2a02978e5"
+    }
+  ]
+}

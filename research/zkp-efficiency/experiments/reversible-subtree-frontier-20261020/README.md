@@ -1,0 +1,179 @@
+# Disposable reversible subtrees and immutable frontier
+
+Cycle0111 — `20261020T191854Z-93bbe548` — 2026-10-20 UTC; checkpoint2026-10-20T19:29:45.531119+00:00.
+
+**No proving speed improvement found.** The disposable reversible-subtree
+schedule passes exact arithmetic and ordered-consumer checks. At matched
+frontier/consumer settings it has the same source rereads and the same selected
+peak as direct subtree reduction, with extra build/recovery arithmetic. Demote
+this schedule. This is a bounded operation/payload negative, not a universal
+GPU timing result or a new private protocol.
+
+The baseline is frozenR9 U8 helper payload420.25MiB non-DD /390.25MiB DD for one
+8B T128 block layout. A prospective replacement already has a direct adaptive
+frontier/tiled consumer at36.022216796875MiB of selected arrays. The last cycle's
+whole-column reversible buffer requires80–128MiB selected storage at2^21 leaves.
+No native helper, commitment or proof work has been removed in either study.
+
+`Frontier(read,n,f,mode,leaf_inverse).layer(d)` retains immutable upper levels
+through depthf. Belowf, direct mode reduces only the source subtrees required
+for that layer. Batch mode builds a disposable leaf tile ofB=n/2^f, then reverses
+it back to the requested layer. Every global message precedes its challenge;
+discarded tiles must be rebuilt on the next scan. Cached mode uses current-
+attempt U8 inverses only for original right leaves at the last expansion and
+charges a separate original-source key evaluation per such inverse.
+
+For one below-frontier scan at depthd, direct mode mixes n-2^d internal nodes.
+Disposable tiles mix n-2^f nodes first, then recover2^d-2^f nodes. Thus the
+extra construction alone is3(2^d-2^f)Fp2 multiplications, besides positive
+recovery costs, while the source scan is identical. Smaller scratch is not
+evidence of a saved scan. This tests natural-order strided storage; OpenVM's
+bit-reversed/coalesced GPU layout is a separate untested implementation.
+
+| One 8B T128 block forest, frontier depth 16 | non-DD | DD |
+|---|---:|---:|
+|Source leaf generations, every arm|313,065,984|293,011,968|
+|Direct build Fp2 multiplications|602,998,017|564,069,633|
+|Disposable tile build multiplications|890,832,129|834,209,025|
+|Tile recovery multiplications|467,140,608|440,598,528|
+|Tile recovery inversions|36,175,872|33,226,752|
+|Cached recovery multiplications|378,667,008|357,433,344|
+|Cached recovery inversions|30,277,632|27,328,512|
+|Additional cache-key source reads|35,389,440|33,619,968|
+
+Both non-DD/DD cases include84 columns, one global table and the preliminary
+root-forest source pass. They model one block's lookup forest, **not32 complete
+model passes or a32-layer execution**. Consumer folds/equality work is shared
+between the three arms and is additional to these source-service counts.
+The cache also adds unknown key evaluation, checking and lookup costs; it is
+not fresh proof randomness and is never retained across alpha/gamma attempts.
+
+All three arms peak at36.022216796875MiB selected payload at frontier16,
+including immutable frontier/root forest, full resident capacities/inactive
+tails, source tile, batch-prefix scratch, consumer tile, equality factors and
+the prior scalar allowance. The largest column has2^21 leaves andB32. At
+frontier15/B64, peak34.022216796875MiB in every arm, but source reads rise to
+364,970,496 /341,377,536; the smaller frontier is available to direct reduction
+too. Forty profiles (10 input geometries times4 frontier caps) compare all
+three arms. Counts are symbolic; exact-capacity backing/release is assumed.
+Original A/source owners, histogram/cache allocation, private masks/CFS/PCS,
+allocator pools, driver memory and transfer costs remain excluded. No fit,
+actual-device peak or enclosing runtime saving is established.
+
+Even free deletion of an unknown exclusive affected fractionf of complete
+proving has ceiling1/(1-f); this candidate adds costs and removes no measured
+native work. There is no numerical complete high-endGPU forecast. Falsification
+of the proposed scan-saving benefit is already observed: identical source
+counts plus extra arithmetic at an equal peak. Revisit only a materially
+different retention/algorithm or a measured GPU access effect. Cross-tile
+batch inversion and alternative protocol scheduling are not tested here.
+
+Validation: 3,470main checks,45synthetic fixtures over2..64leaves,
+472unmasked cubic consumers, 592layers
+and63negative controls. U8 affine leaves, table-style multiplicities including0,
+full-extension fractions, zero/one/non-base challenges, ordered layer MLEs and
+both numerator/denominator components are covered. Root-preserving swaps change
+the ordered children; stale-attempt inverse reuse fails the reference; zero
+denominators refuse even at zero numerator or absent looked-table value.
+No native refusal/RNG/transcript order or private view has been validated.
+
+Independent audit: 6,280checks,354consumers/444layers, Boolean MLE
+and native MSB point reversal,528allocation events,22source pins and all10prior
+profile counts. Expected values use tuple polynomial convolution and immutable
+trees, with a separate cubic round evaluator and enumerated operation graph.
+The direct arm exactly reproduces prior source and tree-work counts.
+One initial audit failed on imported-snapshot pin bookkeeping: the local runner
+was adapted at the pinned path and prior outputs had been renamed. Arithmetic
+checks had passed. Original snapshots were preserved under corrected paths;
+source hashes stayed unchanged and the rerun passes. Initial stderr and the
+failed command are retained in `initial-audit-failure.json` and `commands.json`.
+
+Main probe: 0.313116 s / 12,896 KiB RSS.
+Symbolic accounting: 0.294192 s / 16,904 KiB.
+Independent audit: 0.349016 s / 16,696 KiB.
+Intel Core Ultra 9 185H, Linux/WSL2; one worker on first allowed CPU core,
+nice19; each leaf has 59 s CPU/alarm, 60 s parent timeout and 512 MiB address
+space cap. Estimated experiment memory64MiB. No native build, GPU job,
+dependency installation or external code execution. These clocks time research
+checking, not witness/proof phases or an old/new native benchmark.
+
+12native LIVE queries /12source records appended670->682. Source scopes,
+verified histories, exact URLs and access/license/commit limits are retained
+in source-records.json and the append-only ledger. OpenVM release and streaming
+sumcheck source were refreshed; current code timestamps/full commits were not
+established. Two older leads first enter the ledger: NeutronNova group folding
+(received2024-10-09,revised2026-08-18) and the Scorpius/Orion correction
+(2024-07-18,revised2025-02-14). They motivate source-binding/repaired-PCS checks,
+not a drop-in backend. Nova's MIT body was inspected; its NeutronNova source
+fetch failed, and no commit was inspected. Hobbit's chunk-folding input-
+consistency discussion was revisited. No author speed is reproduced.
+
+The detailed September29 quantization paper separates QDQ utility simulation
+and actual small-model proving; some attention/RoPE/reduction operators remain
+floating in its utility evaluator. This sharpens the D32 exactness screen;
+its large-model projection numbers are not complete private8B evidence.
+Owner r11 already distinguishes F_P9->12 from finer S12 and models the latter
+as incompatible with DD's cap. The next local question is to reproduce exact
+public-table/cardinality counts, complementing the owned fidelity lane.
+
+23ranked hypotheses retained. Top3 are completeGPU+resident workloads, DD
+context/fidelity scaling and exclusive phase/capacity telemetry. All-elevenFZC
+A/B remains ahead of lookup protocol redesign. Rank21 now includes this
+disposable-tile negative; rank23 adds exact D32/DD public-cardinality work.
+Rotation this cycle emphasizes memory, sumcheck/GKR, batching, quantization,
+source binding and composition. Next emphasis: public arithmetic/cardinality,
+then GPU NTT/commitment freshness and the owner whole-prover evidence.
+
+New completed independently verified full-stack proofs / passes / positions:
+**0 / 0 / 0**. Actual model context and accelerator: **none**. Research device:
+**Intel Core Ultra 9 185H CPU, no GPU**. Witness, proof, serialization and
+verification clocks: **unmeasured**. Startup duration/fraction, steady-state and
+total-workload proved rates: **unmeasured**. No long-context prefill, repeated
+resident-model pass or decode was run. Symbolic T32/T64/T128/T512 fixtures are
+cost studies, and T512 is counted geometry, not an admitted proof result.
+Longer workloads remain allowed; dense attention may grow quadratically with
+context. The complete private8B >=50 proved positions/s target on RTX5090 or
+another named high-endGPU remains unachieved.
+
+Historical diagnostic carried from the prior checkpoint, not rerun or
+independently reverified here: non-DD 8B T128, L32, one 16-thread CPU pass,
+GPU off; total478.737s =0.267370positions/s. prove_run393.785s includes
+witness98.348s/load17.595s; seal84.824s includes overlapping subwork.
+Receipt922,711,264B; fresh verify42.709s + public load13.681s; recheck34.395s
++load10.739s. Isolated serialization, startup fraction and steady slope remain
+unknown. This is a historical CPU result, not a high-endGPU result.
+
+Next local experiment: independently enumerate exact public exponential-table
+outputs versus score resolution/f_e and include0 in the DD cardinality. Pin the
+owner's r11 public table/count definitions; distinguish F_P output precision
+from S12/finer exponential inputs. Check the cited32-entry cap and cost any
+larger dictionary domain/limbs/lookups without admitting a new profile.
+The owner already models S12 as DD-infeasible; reproduce the actual public
+cardinality before carrying DD savings to a D32 fidelity configuration.
+Avoid duplicating native implementation or model-quality/calibration jobs.
+
+Owner next: whole-prover GPU phase/capacity clocks and independently verified
+fixed-context resident1/2/4/8 workloads, DD context scaling and all-elevenFZC
+compiler A/B under shared build/heavy locks. No such job was launched here.
+
+Only research excluding runtime written. No production/reviewer/instruction/
+Git edits, GPU/build/install/external writes or messages, purchases, escalation
+or merge. D32 and narrow D33/D34/D35 scopes, DDprivacy gate and R9N-r9-a/b
+remain binding. No mask reuse, repeated private opening, weaker privacy or
+changed native refusal/transcript/RNG schedule is authorized. Main/Claude
+reviews any integration; saved reports are not evidence of message delivery
+or supervisor liveness.
+
+
+Reproduce from the research directory (stdlib only):
+
+```
+python3 experiments/reversible-subtree-frontier-20261020/run_bounded.py probe.py
+python3 experiments/reversible-subtree-frontier-20261020/run_bounded.py account.py
+python3 experiments/reversible-subtree-frontier-20261020/run_bounded.py validate.py
+```
+
+Seed20261020111. Source pins, input geometry, synthetic fixtures, allocation
+events, hardware, commands and research-code hashes are retained alongside.
+Do not rerun init.py/record_research.py/checkpoint.py for benchmark reproduction;
+they create cycle bookkeeping and reports.

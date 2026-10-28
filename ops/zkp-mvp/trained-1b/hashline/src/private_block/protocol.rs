@@ -171,7 +171,13 @@ pub(super) fn commitment(root: [u8; 32], rows: usize, log_cols: usize) -> Commit
 pub(crate) fn logup_sum_claim(lay: &Layout) -> ZClaim {
     let (sh, hids) = (lay.shape(), lay.hids());
     let mut parts = Vec::with_capacity(2 * hids.n_h());
+    // (test builds: the lapse of D30 condition 3 leaves the dictionary's two
+    // LogUp columns out of the single sum claim)
+    let out_of_sum = sh.dd_cap > 0 && super::argument::dd_lapse(super::argument::DD_LAPSE_OUT_OF_SUM);
     for p in lay.h_planes() {
+        if out_of_sum && (p == hids.stuple() || p == hids.gdd()) {
+            continue;
+        }
         let sign = if hids.is_table(p) { Fp2::ONE.neg() } else { Fp2::ONE };
         let (re, im) = lay.h_off[p];
         let log_size = sh.log(hids.dom(p)) as u32;
@@ -479,6 +485,85 @@ fn act_histogram(idx: &[i64], a16_plane: &[i64], act: &[i16]) -> (Vec<u64>, usiz
     (m, missed)
 }
 
+/// **NATIVE R9 (D30): the dictionary's tuples as the prover sees them.**
+/// `(queries, table)`: per `Dom::S` position the score entry's compressed
+/// tuple `gamma TAG_DD + Sum + beta (mask E) + beta^2 P`, and per `Dom::Dd`
+/// slot the dictionary's `gamma TAG_DD + Sum + beta e + beta^2 P_dict`, with
+/// `Sum` read at the position's `(h, t)` row (B-4) and `mask` the public
+/// causal support. Shared by the prover's helper columns and (through the
+/// integer form [`dd_misses`]) by the CS-3 check.
+pub(crate) fn dd_tuples(lay: &Layout, wit: &Witness, ecol: &[i64], beta: Fp2, g_dd: Fp2) -> (Vec<Fp2>, Vec<Fp2>) {
+    let (sh, ids) = (lay.shape(), lay.ids());
+    let (tp, cap) = (sh.t_pad, sh.dd_cap);
+    let beta2 = beta.mul(beta);
+    let sum = &wit.planes[ids.at(A_SUM)];
+    let (e, p) = (&wit.planes[ids.at(A_E)], &wit.planes[ids.at(A_P)]);
+    // (test builds: the D-4 lapse drops the key on both sides)
+    let keyed = !super::argument::dd_lapse(super::argument::DD_LAPSE_DROP_KEY);
+    let tup = |s: i64, e: i64, p: i64| g_dd.add(if keyed { Fp2::from_i64(s) } else { Fp2::ZERO }).add(beta.mul(Fp2::from_i64(e))).add(beta2.mul(Fp2::from_i64(p)));
+    let q: Vec<Fp2> = (0..sh.size(Dom::S))
+        .map(|x| {
+            let (ht, j) = (x / tp, x % tp);
+            let me = if j <= ht % tp { e[x] } else { 0 };
+            tup(sum[ht], me, p[x])
+        })
+        .collect();
+    let pd = &wit.planes[ids.pdict()];
+    let t: Vec<Fp2> = (0..sh.size(Dom::Dd)).map(|x| tup(sum[x / cap], ecol[x % cap], pd[x])).collect();
+    (q, t)
+}
+
+/// **NATIVE R9 (D30, CHECK.md B-8): the defensive dictionary-miss count** —
+/// how many score entries' integer tuples `(Sum, mask E, P)` are no tuple of
+/// their own row's dictionary. Zero for any witness the builder admits.
+pub(crate) fn dd_misses(lay: &Layout, wit: &Witness, ecol: &[i64]) -> usize {
+    let (sh, ids) = (lay.shape(), lay.ids());
+    let (tp, cap) = (sh.t_pad, sh.dd_cap);
+    let (e, p, pd) = (&wit.planes[ids.at(A_E)], &wit.planes[ids.at(A_P)], &wit.planes[ids.pdict()]);
+    (0..sh.size(Dom::S))
+        .filter(|&x| {
+            let (ht, j) = (x / tp, x % tp);
+            let me = if j <= ht % tp { e[x] } else { 0 };
+            !(0..cap).any(|k| ecol[k] == me && pd[ht * cap + k] == p[x])
+        })
+        .count()
+}
+
+/// **NATIVE R9: ruling CS-3's refusal for the dictionary family** (the class
+/// of the miss only, never a count — K-2; a cheating prover skips it in test
+/// builds exactly as [`refuse_lookup_misses`])
+fn refuse_dictionary_misses(missed: usize) -> Result<(), String> {
+    #[cfg(test)]
+    if CHEATING_PROVER.with(|c| c.get()) {
+        return Ok(());
+    }
+    if missed == 0 {
+        return Ok(());
+    }
+    Err(format!("{LOOKUP_MISS_REFUSAL}; the table family that missed: the division dictionary (the class of the miss only, never a count — ruling K-2). It is refused before this block's A mask rows are drawn, its A commitment is made or any challenge of it is drawn."))
+}
+
+// CHECK.md D-8, TEST BUILDS ONLY: the multiplicities a cheating prover uses
+// in the dictionary's table helper after alpha, against the honest `A` plane
+#[cfg(test)]
+thread_local! {
+    static DD_MOVED_MULTIPLICITY: std::cell::Cell<Option<(usize, usize)>> = const { std::cell::Cell::new(None) };
+}
+
+/// TEST ONLY: while set, the prover moves one dictionary count from slot
+/// position `from` to `to` in the TABLE HELPER only (the committed `M_dd`
+/// stays honest) — the CHECK.md D-8 attack on a construction that commits
+/// the multiplicities in `A`
+#[cfg(test)]
+pub(crate) fn set_dd_moved_multiplicity(v: Option<(usize, usize)>) {
+    DD_MOVED_MULTIPLICITY.with(|c| c.set(v));
+}
+
+#[cfg(test)]
+fn dd_moved_multiplicity() -> Option<(usize, usize)> {
+    DD_MOVED_MULTIPLICITY.with(|c| c.get())
+}
+
 /// **NATIVE R6 (review r5 note N-r5-a): ruling CS-3's lookup-miss refusal,
 /// run on a witness BEFORE any proof exists.** The trained stack's sealing
 /// pass calls it on every sealed witness, so "every refusal of an
@@ -499,7 +584,13 @@ pub(crate) fn check_lookup_misses(sh: &Shape, lay: &Layout, blk: &BlockPublic, w
     let lookup_words: u64 = looked.iter().map(|(d, cols)| (cols.len() * sh.size(*d)) as u64).sum();
     let (_, exp_missed) = exp_histogram(&exp_deltas(lay, wit), &wit.planes[ids.at(A_E)], &blk.attention().exp);
     let (_, act_missed) = act_histogram(&act_indices(lay, wit), &wit.planes[ids.at(A_A16)], &blk.feed_forward().act);
-    refuse_lookup_misses(u8_misses_of(&looked, lookup_words), exp_missed, act_missed)
+    refuse_lookup_misses(u8_misses_of(&looked, lookup_words), exp_missed, act_missed)?;
+    // NATIVE R9 (D30, CHECK.md B-8): the dictionary family, in the sealing
+    // pass too, before `A` and before the header
+    if sh.dd_cap > 0 {
+        refuse_dictionary_misses(dd_misses(lay, wit, &blk.attention().dd_e_column(sh.dd_cap)?))?;
+    }
+    Ok(())
 }
 
 // **RULING CS-3's test-only switch: the soundness tests' CHEATING PROVER.**
@@ -871,7 +962,7 @@ pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expect
         phases: phases.iter().map(|(n, s)| (n.to_string(), *s)).collect(),
         a_rows: lay.a_rows,
         h_rows: lay.h_rows,
-        m_rows: M_ROWS,
+        m_rows: lay.m_rows(),
         u8_lookups: core.lookups[0],
         exp_lookups: core.lookups[1],
         act_lookups: core.lookups[2],
@@ -985,6 +1076,13 @@ pub(crate) fn prove_core(
     // function already holds, and BEFORE the first draw of the `A` mask rows,
     // the `A` commitment and any absorb or challenge of this block's body.
     refuse_lookup_misses(u8_misses_of(&looked, lookup_words), exp_missed, act_missed)?;
+    // NATIVE R9 (D30, CHECK.md B-8): at a DD profile, the score entries'
+    // tuples against their rows' dictionaries — the same named refusal, its
+    // own family (an admitted witness never misses: the builder writes the
+    // dictionary from the public e column, B-7)
+    if sh.dd_cap > 0 {
+        refuse_dictionary_misses(dd_misses(lay, &wit, &public.dd_e_column(sh.dd_cap)?))?;
+    }
     for i in 0..U8_LEN {
         a_data[lay.a_off[ids.at(A_MU8)] + i] = Fp::new(m_u8[i]);
         a_data[lay.a_off[ids.at(A_MEXP)] + i] = Fp::new(m_exp[i]);
@@ -1033,7 +1131,7 @@ pub(crate) fn prove_core(
     let mask_root = mc.tree.root();
     tr.absorb(b"M", &mask_root);
     // the same: `zk::mask_commit` is `hashline/src/zk.rs`, one enclosing call
-    ph.mark(Half::Commit, "M: mask commit (zk::mask_commit, ONE call)", M_ROWS as u64, "rows");
+    ph.mark(Half::Commit, "M: mask commit (zk::mask_commit, ONE call)", lay.m_rows() as u64, "rows");
     lap(phases, tick, "commit M");
 
     // ---- LogUp challenges, helpers, table helpers, the zero-sum pair, commit H ----
@@ -1072,6 +1170,32 @@ pub(crate) fn prove_core(
     let act_den = act_idx.iter().zip(wit.planes[ids.at(A_A16)].iter()).map(|(i, a)| alpha.sub(Fp2::from_i64(*i).add(beta.mul(Fp2::from_i64(*a))).add(g_act))).collect();
     write_h(&mut h_data, lay.h_off[hids.fact()], &inverses(act_den)?);
     ph.mark_bytes(Half::Commit, "H: exp + activation helper inverses", (sh.size(Dom::S) + sh.size(Dom::F)) as u64, "words", 16 * (sh.size(Dom::S) + sh.size(Dom::F)) as u64);
+    // **NATIVE R9 (D30): the dictionary's two LogUp columns.** The score
+    // entry's single tuple helper `1 / (alpha - (gamma TAG_DD + Sum + beta
+    // mask E + beta^2 P))`, and the TABLE helper `M_dd / (alpha - (gamma
+    // TAG_DD + Sum + beta e + beta^2 P_dict))` at every dictionary slot. D30
+    // condition 4 / CHECK.md P-4: the prover inverts EVERY slot's denominator
+    // on every attempt — unused and padding slots included, before any
+    // multiplicity enters — so whether a zero denominator refuses the attempt
+    // depends on the hidden data only through the set of table values.
+    if sh.dd_cap > 0 {
+        let g_dd = gamma.mul_base(Fp::new(TAG_DD));
+        let (tq, tt) = dd_tuples(lay, &wit, &public.dd_e_column(sh.dd_cap)?, beta, g_dd);
+        write_h(&mut h_data, lay.h_off[hids.stuple()], &inverses(tq.iter().map(|q| alpha.sub(*q)).collect())?);
+        let inv = inverses(tt.iter().map(|q| alpha.sub(*q)).collect())?;
+        #[allow(unused_mut)]
+        let mut m: Vec<i64> = wit.planes[ids.mdd()].clone();
+        // CHECK.md D-8, TEST BUILDS ONLY: a prover whose multiplicities are
+        // chosen AFTER alpha (one count moved) while `A` holds the honest ones
+        #[cfg(test)]
+        if let Some((from, to)) = dd_moved_multiplicity() {
+            m[from] -= 1;
+            m[to] += 1;
+        }
+        let col: Vec<Fp2> = inv.iter().zip(m.iter()).map(|(x, c)| x.mul_base(Fp::from_i64(*c))).collect();
+        write_h(&mut h_data, lay.h_off[hids.gdd()], &col);
+        ph.mark_bytes(Half::Commit, "H: dictionary tuple + table helpers (every slot inverted)", (sh.size(Dom::S) + sh.size(Dom::Dd)) as u64, "words", 16 * (sh.size(Dom::S) + sh.size(Dom::Dd)) as u64);
+    }
     // ---- STEP S2 (C-11): the prover's four transient buffers die HERE ----
     // The two lines above are the LAST reads of the witness planes and of
     // `looked`; the memo's earlier proposal to drop them at the histogram loop
@@ -1145,7 +1269,8 @@ pub(crate) fn prove_core(
     lap(phases, tick, "LogUp helpers + commit H");
 
     // ---- the twenty-three slots ----
-    let ctx = Ctx { lay, public, ff, alpha, beta, g_u8, g_exp, g_act };
+    let g_dd = gamma.mul_base(Fp::new(TAG_DD));
+    let ctx = Ctx { lay, public, ff, alpha, beta, g_u8, g_exp, g_act, g_dd };
     let pd = ProverData { data: [a.data.as_slice(), h.data.as_slice(), io_data[0], io_data[1]], masks: &mc.masks };
     let mut side = Side::Prove { pd, out: Vec::new() };
     let acc = argument(&mut side, &ctx, tr, ph)?;
@@ -1158,7 +1283,7 @@ pub(crate) fn prove_core(
     // ---- ONE M opening, then ONE opening per commitment; each owner dropped after its opening ----
     let mask_open = zk::mask_open(&mc, &acc.fs, ntt, tr);
     drop(mc);
-    ph.mark(Half::Open, "open M (zk::mask_open, ONE call)", M_ROWS as u64, "rows");
+    ph.mark(Half::Open, "open M (zk::mask_open, ONE call)", lay.m_rows() as u64, "rows");
     let order = acc.order;
     let [ac, hc, ic, oc] = finish_claims(acc.claims, lay);
     check_opening(&ac, sh.log_cols, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, sh.a_groups(), tr)?;
@@ -1244,7 +1369,8 @@ pub(crate) fn verify_core(sh: &Shape, lay: &Layout, blk: &BlockPublic, v: CoreVi
     let g_exp = gamma.mul_base(Fp::new(TAG_EXP));
     let g_act = gamma.mul_base(Fp::new(TAG_ACT));
     absorb_root(tr, b"H", &v.h_root, lay.h_rows, sh.log_cols);
-    let ctx = Ctx { lay, public, ff, alpha, beta, g_u8, g_exp, g_act };
+    let g_dd = gamma.mul_base(Fp::new(TAG_DD));
+    let ctx = Ctx { lay, public, ff, alpha, beta, g_u8, g_exp, g_act, g_dd };
     let mut side = Side::Verify { slots: v.slots };
     ph.mark(Half::Setup, "transcript header + the A and H roots", 2, "roots");
     let acc = argument(&mut side, &ctx, tr, ph)?;
@@ -1259,7 +1385,7 @@ pub(crate) fn verify_core(sh: &Shape, lay: &Layout, blk: &BlockPublic, v: CoreVi
     super::capture::mask(&v.mask_root, &acc.fs, v.mask_open, capture_before, tr);
     #[cfg(test)]
     super::run_capture::mask(&lay.mask_specs(), &v.mask_root, &acc.fs, v.mask_open, ntt, run_capture_before, tr);
-    ph.mark(Half::Open, "verify M (zk::mask_verify, ONE call)", M_ROWS as u64, "rows");
+    ph.mark(Half::Open, "verify M (zk::mask_verify, ONE call)", lay.m_rows() as u64, "rows");
     let order = acc.order;
     let [ac, hc, ic, oc] = finish_claims(acc.claims, lay);
     check_opening(&ac, sh.log_cols, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, sh.a_groups(), tr)?;

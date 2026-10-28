@@ -1,0 +1,29 @@
+{
+  "access_date": "2026-10-20",
+  "tool": "mcp__codex_apps__search_service_web_run",
+  "native_live": true,
+  "query_batches": [
+    [
+      "site.eprint.iacr.org 2026 lookup argument small tables batching zero knowledge",
+      "site.github.com openvm logup gkr input consistency 2026",
+      "site.eprint.iacr.org cq cached quotients lookup tables 2022"
+    ],
+    [
+      "site.eprint.iacr.org/2026 lookup \"October\"",
+      "site.eprint.iacr.org/2024/1075 TaSSLE",
+      "site.github.com openvm stark-backend logup-gkr fractional sumcheck"
+    ],
+    [
+      "\"Papini\" \"Hab\u00f6ck\" \"2023\" lookup GKR",
+      "\"TaSSLE\" github implementation"
+    ],
+    [
+      "\"Verifying Jolt zkVM Lookup Semantics\" github",
+      "site.eprint.iacr.org 2026 \"lookup\" \"GKR\"",
+      "site.github.com/openvm-org/stark-backend \"362c7ad\""
+    ]
+  ],
+  "query_count": 11,
+  "source_records": 7,
+  "notes": "Only primary author/repository claims assessed; unrelated/non-primary search hits excluded. Nothing downloaded or executed. URLs and verified dates in source-records.json."
+}

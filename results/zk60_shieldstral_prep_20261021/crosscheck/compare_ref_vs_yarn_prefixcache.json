@@ -1,0 +1,39 @@
+{
+ "A": "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/crosscheck/ref_hf_yarn.npz",
+ "B": "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/crosscheck/ref_hf_yarn_prefixcache.npz",
+ "labelA": "yarn",
+ "labelB": "yarn_prefixcache",
+ "n": 2,
+ "max_abs_logit_diff_over_all": 7.62939453125e-06,
+ "max_abs_margin_diff": 7.62939453125e-06,
+ "rows": [
+  {
+   "name": "card_benign",
+   "max_abs_logit_diff": 7.62939453125e-06,
+   "mean_abs_logit_diff": 4.321049189570658e-07,
+   "argmax_token_of_max_diff": 2649,
+   "abs_diff_yes": 0.0,
+   "abs_diff_no": 7.62939453125e-06,
+   "margin_yarn": -7.10597038269043,
+   "margin_yarn_prefixcache": -7.105978012084961,
+   "margin_diff": 7.62939453125e-06,
+   "logit_scale_max_abs": 33.93582534790039,
+   "argmax_equal": true,
+   "top20_equal": true
+  },
+  {
+   "name": "card_toxic",
+   "max_abs_logit_diff": 3.814697265625e-06,
+   "mean_abs_logit_diff": 3.96202864294537e-07,
+   "argmax_token_of_max_diff": 1268,
+   "abs_diff_yes": 3.814697265625e-06,
+   "abs_diff_no": 1.9073486328125e-06,
+   "margin_yarn": 11.744176864624023,
+   "margin_yarn_prefixcache": 11.744171142578125,
+   "margin_diff": 5.7220458984375e-06,
+   "logit_scale_max_abs": 39.76005172729492,
+   "argmax_equal": true,
+   "top20_equal": true
+  }
+ ]
+}

@@ -111,6 +111,7 @@ fn walk_definitions(sh: &Shape, mut f: impl FnMut(&SlotDef)) {
         g_u8: Fp2::from_u64(13),
         g_exp: Fp2::from_u64(17),
         g_act: Fp2::from_u64(19),
+        g_dd: Fp2::from_u64(23),
     };
     let mut tr = Transcript::new(sh.profile.as_bytes());
     let mut pts = Points::default();
@@ -426,7 +427,7 @@ fn the_capture_writer_pins_every_run_layer_source_it_depends_on() {
     let lines: Vec<&str> = parent.lines().collect();
     let mut production: Vec<String> = Vec::new();
     for (i, l) in lines.iter().enumerate() {
-        let Some(rest) = l.trim().strip_prefix("mod ") else { continue };
+        let Some(rest) = l.trim().strip_prefix("mod ").or_else(|| l.trim().strip_prefix("pub mod ")) else { continue };
         let Some(name) = rest.strip_suffix(';') else { continue };
         if i > 0 && lines[i - 1].trim() == "#[cfg(test)]" {
             continue;
@@ -447,9 +448,11 @@ fn the_capture_writer_pins_every_run_layer_source_it_depends_on() {
             "src/private_block/mvp_driver.rs",
             "src/private_block/pad.rs",
             "src/private_block/protocol.rs",
+            "src/private_block/rope.rs",
             "src/private_block/run.rs",
             "src/private_block/run_sink.rs",
             "src/private_block/shape.rs",
+            "src/private_block/tied_tables.rs",
             "src/private_block/timing.rs",
             "src/private_block/trained_block.rs",
             "src/private_block/trained_statement.rs",
@@ -488,7 +491,7 @@ fn the_capture_writer_pins_every_run_layer_source_it_depends_on() {
     // trained loader and its table registries are pinned, and the GPU-only
     // and older-prover files are deliberately NOT, each with its reason in
     // the list's comment
-    for f in ["src/private_block/trained_block.rs", "src/gpu/mod.rs", "src/tables_v3.rs", "../zkp-core/src/tables.rs"] {
+    for f in ["src/private_block/trained_block.rs", "src/private_block/tied_tables.rs", "src/private_block/tied_tables/derive.rs", "src/gpu/mod.rs", "src/tables_v3.rs", "../zkp-core/src/tables.rs"] {
         assert!(pinned.contains(&f), "{f} — N-r4-d — is not a source pin");
     }
     let rc = source("src/private_block/run_capture.rs");

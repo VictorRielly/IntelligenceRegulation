@@ -1,0 +1,23 @@
+{
+ "what": "PR4-10 / PR4-9 for the CLI-path token capture tinyllama-t32-L2-dense-pt1-cli-r9: its absorbed calibration word against (the trained-statement identity the NAMED binary printed when it loaded the export view, the token-profile digest the gate's tk7 test recomputed from the b4 tables); NOT a privacy result",
+ "capture": "/home/victor/zk60-artifacts/token-io/captures/tinyllama-t32-L2-dense-pt1-cli-r9",
+ "capture_manifest_sha256": "6c6f8ad120607a623d9fe7a3127b561a8539338eff50633fa32abf91672522a1",
+ "absorbed_calibration": "45ce74316e2fe3aca5e2525d05b552c0e2a287486a765760a64e28cd3acf4748",
+ "identity_from": {
+  "log": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/logs/c9-cli-capture.log",
+  "sha256": "e377b653d2719747366395781ee9ea898ed3fa7009f44e8668468bb85febbd11",
+  "event": "loaded (zk60_token_io.r9.release.bin b56f1b71..., its own prove process)",
+  "trained_statement_identity": "0f4cef3ec798761eeeecf1fb4d68e3d35f6c3ae4bedbb155aeb093fec0814b6d"
+ },
+ "token_profile_digest_from": {
+  "log": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round10/r10-pr4-9-tinyllama.log",
+  "tag": "tinyllama-b4-L2",
+  "token_profile_digest": "5857be9d700085dcefa1cefefa1e5a4c9ba40b79c5513631d04dd2b73c3e08d1"
+ },
+ "composed": "45ce74316e2fe3aca5e2525d05b552c0e2a287486a765760a64e28cd3acf4748",
+ "equal": true,
+ "block_digests_equal_the_b4_export_layers_0_1": true,
+ "identity_differs_from_the_full_b4_export_L2_identity": true,
+ "why_the_identity_differs": "the capture's export is a VIEW of pg_rot1_b4_T32_cal128 (files hard-linked, layers 0 and 1, profile.json's layer list cut to two: the capture README), so its export-profile-sha256 field differs; the view itself is in the prover's owner-private tree, which the gate does not read",
+ "written_utc": "2026-10-20T01:51:50Z"
+}

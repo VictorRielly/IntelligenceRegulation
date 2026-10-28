@@ -1,0 +1,32 @@
+{
+  "status": "PASS_SYNTHETIC_PUBLIC_ADDRESS_MODEL_ONLY",
+  "seed": 20261020101,
+  "specs": 21,
+  "checks": 5303,
+  "tile_schedules": 936,
+  "logical_words_checked": 3326208,
+  "stride_identity_cases": 560,
+  "negative_controls": 10,
+  "wall_s": 10.079263505991548,
+  "rss_kib": 22740,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "scope": "Address/zero-tail equivalence, source sector requests and sampled shared-bank address pressure; no native instruction/cache/DRAM/time/proof claims",
+  "full_stack": {
+    "proofs": 0,
+    "passes": 0,
+    "positions": 0,
+    "context_length": null,
+    "device": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "startup_s": null,
+    "startup_fraction": null,
+    "steady_rate": null,
+    "total_rate": null
+  }
+}

@@ -1,0 +1,18 @@
+fn fresh_alloc_gate(len: usize) -> Result<(), String> {
+    let cap = ALLOC_CAP_ELEMS.load(Ordering::SeqCst);
+    if cap != 0 && len > cap {
+        return Err(format!(
+            "cuMemAlloc({} B): injected allocation cap ({} B / {} elements)",
+            len * 8, cap * 8, cap
+        ));
+    }
+    let seen = ALLOC_FRESH_COUNT.fetch_add(1, Ordering::SeqCst);
+    if seen == ALLOC_FAIL_AFTER.load(Ordering::SeqCst) {
+        ALLOC_FAIL_AFTER.store(usize::MAX, Ordering::SeqCst); // one-shot
+        return Err(format!(
+            "cuMemAlloc({} B): injected one-shot failure at fresh allocation #{}",
+            len * 8, seen
+        ));
+    }
+    Ok(())
+}

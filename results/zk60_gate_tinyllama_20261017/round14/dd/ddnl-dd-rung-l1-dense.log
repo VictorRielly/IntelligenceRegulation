@@ -1,0 +1,80 @@
+{
+ "dd_slot_instances": 2,
+ "T0": "2/2",
+ "per_mode": {
+  "run": {
+   "X0": "2/2",
+   "F0": "2/2",
+   "S1": {
+    "premise_holds": 2,
+    "public_factor_every_monomial": 2,
+    "degree_fits": 2,
+    "budget_ok": 2,
+    "of": 2
+   },
+   "S4": {
+    "miniatures_pass": 2,
+    "terminal_map_onto": 2,
+    "of": 2
+   }
+  },
+  "random-1": {
+   "X0": "2/2",
+   "F0": "2/2",
+   "S1": {
+    "premise_holds": 2,
+    "public_factor_every_monomial": 2,
+    "degree_fits": 2,
+    "budget_ok": 2,
+    "of": 2
+   },
+   "S4": {
+    "miniatures_pass": 2,
+    "terminal_map_onto": 2,
+    "of": 2
+   }
+  },
+  "random-2": {
+   "X0": "2/2",
+   "F0": "2/2",
+   "S1": {
+    "premise_holds": 2,
+    "public_factor_every_monomial": 2,
+    "degree_fits": 2,
+    "budget_ok": 2,
+    "of": 2
+   },
+   "S4": {
+    "miniatures_pass": 2,
+    "terminal_map_onto": 2,
+    "of": 2
+   }
+  },
+  "random-3": {
+   "X0": "2/2",
+   "F0": "2/2",
+   "S1": {
+    "premise_holds": 2,
+    "public_factor_every_monomial": 2,
+    "degree_fits": 2,
+    "budget_ok": 2,
+    "of": 2
+   },
+   "S4": {
+    "miniatures_pass": 2,
+    "terminal_map_onto": 2,
+    "of": 2
+   }
+  }
+ },
+ "S3_tight": "5/5",
+ "S5": {
+  "N5_1_fires": "2/2",
+  "N5_2_fires": "2/2 (not applicable at slack > 0: 0)",
+  "N5_3_fires": true,
+  "N5_4_fires": true,
+  "F_1_fires": "2/2",
+  "X_1_fires": "2/2"
+ }
+}
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round14/dd/ddnl-dd-rung-l1-dense.json  status PASS

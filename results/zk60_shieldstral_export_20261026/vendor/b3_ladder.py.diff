@@ -1,0 +1,262 @@
+--- results/zk60_1b_calibration_20260929/b3_ladder.py
++++ results/zk60_shieldstral_export_20261026/vendor/b3_ladder.py
+@@ -39,9 +39,7 @@
+ 
+ import tlcalib as tc  # noqa: E402
+ import b3calib as b3  # noqa: E402
+-from corpus import sequences  # noqa: E402
+-import corpus4  # noqa: E402
+-from spm_bpe import SpmBpe, tokenizer_selfcheck  # noqa: E402
++# Shieldstral data/CLI are provided by prepare_calibration.py and build_export.py.
+ 
+ try:
+     from threadpoolctl import threadpool_limits
+@@ -49,8 +47,8 @@
+     threadpool_limits = None
+ 
+ HERE = tc.HERE
+-MODEL = {"repo": "TinyLlama/TinyLlama-1.1B-Chat-v1.0", "revision": "fe8a4ea1ffedaf415f4da2f062534de366a451e6",
+-         "sha256": tc.MODEL_SHA256, "file": "model.safetensors"}
++from shieldstral_geometry import MODEL
++
+ SCHEMA = "zk60-trained-profile-export/1"
+ 
+ 
+@@ -330,236 +328,5 @@
+ 
+ # ------------------------------------------------------------------ main
+ 
+-def main():
+-    ap = argparse.ArgumentParser()
+-    ap.add_argument("--variant", required=True, help="a | a_t | b | c | d | dg | pg")
+-    ap.add_argument("--tag", default="")
+-    ap.add_argument("--T", type=int, default=32)
+-    ap.add_argument("--calib-per", type=int, default=6)
+-    ap.add_argument("--heldout-per", type=int, default=4)
+-    ap.add_argument("--margin", type=float, default=0.5)
+-    ap.add_argument("--rotate", type=int, default=None, help="seed of a randomized Hadamard residual rotation")
+-    ap.add_argument("--floors", default="auto", choices=["auto", "strict", "none"],
+-                    help="residual-scale floors from SH_AO / SH_Z: strict = raise s_x to them; none = clip the few "
+-                         "infeasible Wo / Wd columns instead (counted); auto = none for one global s_x, strict per layer")
+-    ap.add_argument("--layers", type=int, default=None, help="smoke test: first N layers only (no head metrics)")
+-    ap.add_argument("--chunk", type=int, default=6)
+-    ap.add_argument("--site-seqs", type=int, default=6, help="held-out sequences for the per-site error budget")
+-    ap.add_argument("--probe", action="store_true", help="pass 1 + pre-pass only")
+-    ap.add_argument("--export", action="store_true")
+-    ap.add_argument("--export-seqs", type=int, default=1)
+-    ap.add_argument("--corpus", default="b3", choices=["b3", "b4"],
+-                    help="b4: add FineWeb-Edu documents to calibration and as a second held-out domain")
+-    ap.add_argument("--fw-calib", type=int, default=54)
+-    ap.add_argument("--fw-heldout", type=int, default=36)
+-    ap.add_argument("--calib-T", type=int, default=None, help="calibration sequence length (default T)")
+-    ap.add_argument("--token-io", action="store_true", help="with --export: write the layer-0 integer embedding table")
+-    args = ap.parse_args()
+-    T_cal = args.calib_T or args.T
+-    # provenance: hash the tools as LOADED (at start), not at export time
+-    tool_sha_at_start = {p: sha_file(HERE / p) for p in
+-                         ("tlcalib.py", "b3calib.py", "b3_ladder.py", "corpus.py", "corpus4.py", "spm_bpe.py")}
+-
+-    var = b3.variant_by_name(args.variant, rotate=args.rotate, margin=args.margin)
+-    name = (args.variant.replace("+", "_") + (f"_rot{args.rotate}" if args.rotate is not None else "") + (f"_{args.tag}" if args.tag else "")
+-            + ("_b4" if args.corpus == "b4" else "") + f"_T{args.T}" + (f"_cal{T_cal}" if T_cal != args.T else ""))
+-    if args.layers:
+-        name += f"_L{args.layers}smoke"
+-    out = HERE / "runs" / f"b3_{name}"
+-    out.mkdir(parents=True, exist_ok=True)
+-    t0 = time.time()
+-    log(f"B3 variant {name}: {vars(args)}; {var}")
+-    log(f"exact-mm selfcheck {tc.selfcheck_exact_mm()}; native table pins {b3.verify_tables()['all_pins_ok']}")
+-    ck = tc.open_checkpoint()
+-    tok = SpmBpe(tc.MODEL_DIR / "tokenizer.model")
+-    tcheck = tokenizer_selfcheck(tok)
+-    cal, cal_meta = sequences(tok, "calib", T_cal, args.calib_per)
+-    ho, ho_meta = sequences(tok, "heldout", args.T, args.heldout_per)
+-    for m in cal_meta + ho_meta:
+-        m.setdefault("domain", "licence-docstring")
+-    if args.corpus == "b4":
+-        c2, m2 = corpus4.fineweb_sequences(tok, "calib", T_cal, args.fw_calib)
+-        h2, n2 = corpus4.fineweb_sequences(tok, "heldout", args.T, args.fw_heldout)
+-        cal, cal_meta, ho, ho_meta = cal + c2, cal_meta + m2, ho + h2, ho_meta + n2
+-    domains = np.array([m["domain"] for m in ho_meta])
+-    cal_ids, ho_ids = np.array(cal, dtype=np.int64), np.array(ho, dtype=np.int64)
+-    assert not (set(map(tuple, cal)) & set(map(tuple, ho))), "calibration and held-out sequences overlap"
+-    log(f"tokenizer ok={all(c['ok'] for c in tcheck['cases'].values())}; calib {cal_ids.shape} held-out {ho_ids.shape} "
+-        f"domains {dict(zip(*np.unique(domains, return_counts=True)))} (disjoint documents)")
+-    R = b3.Rotation(tc.GEO.d, args.rotate) if args.rotate is not None else None
+-    emb = tc.tensor_f32(ck.refs["model.embed_tokens.weight"])
+-    xc_f, xh_f = emb[cal_ids], emb[ho_ids]
+-    del emb
+-    if R is not None:
+-        xc_f, xh_f = R.fwd(xc_f).astype(np.float32), R.fwd(xh_f).astype(np.float32)
+-    T, L = args.T, (args.layers or ck.config["layers"])
+-    floors = args.floors if args.floors != "auto" else ("none" if var.residual == "global" else "strict")
+-    rope_f = tc.rope_f32(T)
+-    rope_i = b3.rope_generate(T, tc.GEO.dh, tc.GEO.theta, b3.F_RO)
+-    rope_f_cal = tc.rope_f32(T_cal)
+-    rope_i_cal = b3.rope_generate(T_cal, tc.GEO.dh, tc.GEO.theta, b3.F_RO)
+-
+-    stats = float_stats(ck, xc_f, rope_f_cal, L, R,
+-                        HERE / "runs" / (f"b3_stats4_T{T_cal}_c{args.calib_per}_r{args.rotate}"
+-                                         + (f"_b4fw{args.fw_calib}" if args.corpus == "b4" else "") + ".pkl"))
+-    log(f"pass 1 done ({time.time() - t0:.0f}s)")
+-    glob, caches, ptable = prepass(ck, stats, var, R, L, floors)
+-    prof = {"cn_a": glob.cn_a, "cn_m": glob.cn_m, "e_s": glob.e_s, "silu": glob.silu, "shifts": glob.shifts,
+-            "s_in": glob.s_in, "s_out": glob.s_out, "floors_policy": floors}
+-    log(f"profile decisions: cn {glob.cn_a}/{glob.cn_m} e_s {glob.e_s} silu {glob.silu} s_in {[f'{s:.3g}' for s in glob.s_in]}")
+-    (out / "prepass.json").write_text(tc.jdump({"variant": var.__dict__, "profile": prof, "layers": ptable,
+-                                                "stats_summary": [{k: v for k, v in st.items() if np.isscalar(v)} for st in stats]}))
+-    if args.probe:
+-        log(f"probe done ({time.time() - t0:.0f}s)")
+-        return
+-
+-    # ---------------- pass 2
+-    rec_c, rec_h = tc.Rec(len(cal_ids)), tc.Rec(len(ho_ids))
+-    xi_c = tc.quantize_input(xc_f, glob.s_in[0], rec_c)
+-    xi_h = tc.quantize_input(xh_f, glob.s_in[0], rec_h)
+-    emb_cos = tc.cos_rows(xi_h * glob.s_in[0], xh_f)
+-    log(f"embedding at s_x {glob.s_in[0]:.4g}: cos mean {emb_cos.mean():.5f} min {emb_cos.min():.4f}, zero fraction {float((xi_h == 0).mean()):.3f}")
+-    xf_h = xh_f
+-    ref_c = np.array([f is not None for f in rec_c.first])
+-    ref_h = np.array([f is not None for f in rec_h.first])
+-    first_h = [("input", f) if f else None for f in rec_h.first]
+-    chain_h = [xi_h.astype(np.int16)]
+-    layers = []
+-    exp_root = HERE / "export" / name
+-    for l in range(L):
+-        tl = time.time()
+-        W = load_layer(ck, l, R)
+-        P, rep = b3.solve_layer(W, stats[l], var, glob.s_in[l], glob.s_out[l], glob, caches[l])
+-        # chunked (memory): the float block is per sequence
+-        xf_next = np.concatenate([tc.f_block(xf_h[s0:s0 + 12], W, *rope_f) for s0 in range(0, xf_h.shape[0], 12)])
+-        W_keep = W
+-        rc, rh, ri = tc.Rec(len(cal_ids)), tc.Rec(len(ho_ids)), tc.Rec(len(ho_ids))
+-        xi_c = run_int(xi_c, P, rope_i_cal, rc, args.chunk)
+-        xi_next = run_int(xi_h, P, rope_i, rh, args.chunk)
+-        xq = tc.quantize_input(xf_h, glob.s_in[l], ri)
+-        xiso = run_int(xq, P, rope_i, ri, args.chunk)
+-        si, so = glob.s_in[l], glob.s_out[l]
+-        site = b3.site_errors(xq[:args.site_seqs], P, rope_i, W_keep, rope_f)
+-        iso_cos = tc.cos_rows(xiso * so, xf_next)
+-        iso_dcos = tc.cos_rows(xiso * so - xq * si, xf_next - xf_h)
+-        ch_cos = tc.cos_rows(xi_next * so, xf_next)
+-        ch_dcos = tc.cos_rows(xi_next * so - xi_h * si, xf_next - xf_h)
+-        ref_c |= np.array([f is not None for f in rc.first])
+-        for i, f in enumerate(rh.first):
+-            if f is not None and first_h[i] is None:
+-                first_h[i] = (l, f)
+-        ref_h |= np.array([f is not None for f in rh.first])
+-        entry = {"layer": l, "constants": layer_constants(P, var), "solve": rep,
+-                 "isolated": {"cos": summ(iso_cos), "delta_cos": summ(iso_dcos), "range": ri.summary()},
+-                 "chained": {"cos": summ(ch_cos), "delta_cos": summ(ch_dcos), "rel_l2": tc.rel_l2(xi_next * so, xf_next),
+-                             "range": rh.summary()},
+-                 "calib_chained_range": rc.summary(), "site_rel_error_isolated": site}
+-        del W_keep
+-        if args.export:
+-            man = export_layer(exp_root, l, P, rep, T, var)
+-            entry["export_manifest_sha256"] = sha_file(exp_root / f"layer_{l:02d}" / "manifest.json")
+-        layers.append(entry)
+-        (out / f"layer_{l:02d}.json").write_text(tc.jdump(entry))
+-        c = P.constants()
+-        nv = lambda r: sum(s["violations"] for s in r.summary()["sites"].values())
+-        clip = {k: v for k, v in rep.get("weights_clipped", {}).items() if v}
+-        log(f"L{l:02d} cn {c['cn_a']}/{c['cn_m']} ceps {c['ceps']} e_s {P.e_s} silu {P.silu} sh qkv{c['sh_qkv']} s{c['sh_s']} "
+-            f"ao{c['sh_ao']} g{c['sh_g']} h{c['sh_h']} z{c['sh_z']} r2{c['sh_r2']} | iso cos {iso_cos.mean():.5f} dcos {iso_dcos.mean():.4f} | "
+-            f"chain cos {ch_cos.mean():.5f} dcos {ch_dcos.mean():.4f} | viol iso {nv(ri)} chain {nv(rh)} cal {nv(rc)} | "
+-            f"refused h/c {int(ref_h.sum())}/{int(ref_c.sum())} | clip {clip} ({time.time() - tl:.0f}s)")
+-        log(f"    site rel err: " + " ".join(f"{k} {v:.3f}" for k, v in site.items() if k != "refused_sequences"))
+-        xf_h, xi_h = xf_next, xi_next
+-        chain_h.append(xi_h.astype(np.int16))
+-
+-    summary = {"variant": name, "variant_options": var.__dict__, "args": vars(args), "model": MODEL,
+-               "checkpoint_identity": {k: ck.identity[k] for k in ("schema", "config_sha256", "shard_sha256", "tensor_count")},
+-               "calib_sequences": cal_meta, "heldout_sequences": ho_meta, "profile": prof,
+-               "embedding_cos": summ(emb_cos), "heldout_refused": int(ref_h.sum()), "calib_refused": int(ref_c.sum()),
+-               "heldout_first_refusal": [None if f is None else {"layer": f[0], "site": f[1]} for f in first_h],
+-               "diagnostic_clamping": "values outside a class were clamped to continue; the native kernel refuses such a sequence"}
+-    norm_w = tc.tensor_f32(ck.refs["model.norm.weight"])
+-    lm_head = tc.tensor_f32(ck.refs["lm_head.weight"])
+-    xf_fin, xi_fin = xf_h, xi_h * glob.s_out[-1]
+-    if R is not None:
+-        xf_fin, xi_fin = R.inv(xf_fin).astype(np.float32), R.inv(xi_fin).astype(np.float32)
+-    acc = ~ref_h
+-    summary["floors_policy"] = floors
+-    if L != ck.config["layers"]:
+-        summary["seconds"] = time.time() - t0
+-        (out / "summary.json").write_text(tc.jdump(summary))
+-        log(f"smoke done ({time.time() - t0:.0f}s), no head metrics for a partial stack")
+-        return
+-    summary["head_all_diagnostic"] = head_metrics(xf_fin, xi_fin, ho_ids, norm_w, lm_head)
+-    summary["head_accepted"] = head_metrics(xf_fin, xi_fin, ho_ids, norm_w, lm_head, mask=acc)
+-    summary["by_domain"] = {}
+-    for dom in sorted(set(domains.tolist())):
+-        dm = domains == dom
+-        summary["by_domain"][dom] = {"sequences": int(dm.sum()), "refused": int((ref_h & dm).sum()),
+-                                     "head_all_diagnostic": head_metrics(xf_fin, xi_fin, ho_ids, norm_w, lm_head, mask=dm),
+-                                     "head_accepted": head_metrics(xf_fin, xi_fin, ho_ids, norm_w, lm_head, mask=dm & acc)}
+-        log(f"domain {dom}: {summary['by_domain'][dom]}")
+-    summary["calibration"] = {"T_cal": T_cal, "corpus": args.corpus, "sequences": len(cal_ids)}
+-    log(f"head (all {len(ho_ids)} held-out, refusals clamped = diagnostic): {summary['head_all_diagnostic']}")
+-    log(f"head (accepted {int(acc.sum())} held-out): {summary['head_accepted']}")
+-
+-    if args.export:
+-        doms = list(dict.fromkeys(domains.tolist()))
+-        firsts = [next((i for i in range(len(ho_ids)) if not ref_h[i] and domains[i] == dm), None) for dm in doms]
+-        ok = [i for i in firsts if i is not None]
+-        ok += [i for i in range(len(ho_ids)) if not ref_h[i] and i not in ok]
+-        ok = sorted(ok[:args.export_seqs])
+-        seqs = []
+-        for i in ok:
+-            sd = exp_root / f"seq_ho{i:02d}"
+-            sd.mkdir(parents=True, exist_ok=True)
+-            files = {}
+-            for l in range(L):
+-                files[f"x_in_L{l:02d}"] = write_bin(sd, f"x_in_L{l:02d}", chain_h[l][i], "<i2")
+-                files[f"x_out_L{l:02d}"] = write_bin(sd, f"x_out_L{l:02d}", chain_h[l + 1][i], "<i2")
+-            sman = {"schema": SCHEMA, "kind": "sequence", "id": f"ho{i:02d}", "heldout_index": i, "source": ho_meta[i],
+-                    "token_ids": ho_ids[i].tolist(), "T": T, "accepted_at_every_layer": True,
+-                    "selection": "the first held-out sequence accepted at every layer in each held-out domain (no fidelity-based choice)",
+-                    "basis": ("rotated residual x' = x R^T (randomized Hadamard, seed %d)" % args.rotate) if R is not None else "model residual basis",
+-                    "residual_scales_in_out": [[glob.s_in[l], glob.s_out[l]] for l in range(L)], "arrays": files}
+-            (sd / "manifest.json").write_text(json.dumps(sman, indent=1, sort_keys=True))
+-            seqs.append(sd.name)
+-        tool = {"path": str(HERE.relative_to(tc.REPO)), "sha256": tool_sha_at_start}
+-        pc = layers[0]["constants"]
+-        uniform = {k: pc[k] if all(e["constants"][k] == pc[k] for e in layers) else None for k in pc}
+-        profile = {"schema": SCHEMA, "kind": "profile", "variant": name, "variant_options": var.__dict__, "model": MODEL,
+-                   "calibration_tool": tool, "T": T, "profile_constants": uniform,
+-                   "per_layer_constants_differ": sorted(k for k, v in uniform.items() if v is None),
+-                   "layers": [{"layer": l, "dir": f"layer_{l:02d}", "manifest_sha256": layers[l]["export_manifest_sha256"]} for l in range(L)],
+-                   "sequences": seqs,
+-                   "metadata_out_of_proof": {
+-                       "residual_scale_s_x": glob.s_in[0] if var.residual == "global" else None,
+-                       "residual_scales_in": glob.s_in, "residual_scales_out": glob.s_out,
+-                       "rotation": None if R is None else {"kind": "randomized Sylvester Hadamard R = H diag(sign)/sqrt(2048)",
+-                                                           "seed": args.rotate, "sign_sha256": hashlib.sha256(R.sign.astype("<f8").tobytes()).hexdigest(),
+-                                                           "embedding": "x' = x R^T before layer 0", "head": "x = x' R before the final norm"},
+-                       "per_layer": [{"layer": e["layer"], "scales": e["solve"]["metadata_scales"]} for e in layers],
+-                       "calibration": {"T_cal": T_cal, "corpus": args.corpus, "calibration_sequences": len(cal_ids),
+-                                       "domains": sorted(set(m["domain"] for m in cal_meta)),
+-                                       "fineweb_edu": ({"dataset": corpus4.DATASET, "revision": corpus4.HF_REVISION,
+-                                                        "parquet_sha256": corpus4.PARQUET_SHA256, "licence": corpus4.LICENCE_NOTE}
+-                                                       if args.corpus == "b4" else None)}},
+-                   "fidelity_T": {"heldout_accepted": summary["head_accepted"], "heldout_refused": int(ref_h.sum()),
+-                                  "heldout_sequences": len(ho_ids), "calibration_sequences": len(cal_ids)},
+-                   "scope": "calibration data, not a proof, not a privacy claim"}
+-        (exp_root / "profile.json").write_text(json.dumps(profile, indent=1, sort_keys=True))
+-        if args.token_io:
+-            write_token_io(exp_root, ck, R, glob.s_in[0], glob.s_out[-1], args, ho_ids, chain_h, ok)
+-        summary["export"] = {"root": str(exp_root.relative_to(tc.REPO)), "profile_sha256": sha_file(exp_root / "profile.json"),
+-                             "sequences": seqs}
+-        log(f"export written: {exp_root} profile sha256 {summary['export']['profile_sha256']}")
+-    summary["seconds"] = time.time() - t0
+-    (out / "summary.json").write_text(tc.jdump(summary))
+-    log(f"done ({time.time() - t0:.0f}s) -> {out}")
+-
+-
+ if __name__ == "__main__":
+-    if threadpool_limits is not None:
+-        with threadpool_limits(limits=2):
+-            main()
+-    else:
+-        main()
++    raise SystemExit("Use Shieldstral build_export.py, not the upstream CLI")
