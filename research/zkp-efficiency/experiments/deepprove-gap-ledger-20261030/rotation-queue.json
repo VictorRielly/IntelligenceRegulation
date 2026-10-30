@@ -1,0 +1,21 @@
+{
+  "this_cycle": [
+    "proof composition",
+    "PCS receipt accounting",
+    "batching/amortization",
+    "older multiproofs",
+    "recent sumcheck/GKR kernel scope"
+  ],
+  "next": [
+    "proof composition actual A/H plane dependency census",
+    "lookup/softmax exactness and nondeterministic binding",
+    "GPU NTT/commitments only after critical phase attribution"
+  ],
+  "preserved_other_lanes": [
+    "memory traffic",
+    "quantization/arithmetic",
+    "sumcheck/GKR",
+    "public preprocessing"
+  ],
+  "no_foreign_execution": true
+}

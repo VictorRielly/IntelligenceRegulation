@@ -416,6 +416,9 @@ stage; Sol and Astra take the implementation lanes below.
 
 - 2026-10-30T20:32:43.025214+00:00: [MEASURED,n=1 shared8threads] Full actual S2 T12826layer native stack COMPLETE both modes, source27b2a427/291, strict real model/no synthetic waiver. Astra numerical reference H1 parity is bit-exact at every layer before header; zero kept witness bytes. NonDD whole prove443s/peak5.59GiB, DD436s/5.69GiB; fresh public-only source verifiers85/88s and1.41/1.38GiB both publish canonical statements only after26 native stages; canonical first-scalar+1 rejects SCround0 both modes. Original17190 terminal0, `full26-native-1/ACCEPTANCE.json`. [COUNTED]52 frame lengths equal final compiled codec formula exactly:895146288/901256496 bytes. `FULL26_ACTUAL_CONDITIONAL_COUNT.json` gives conditional author backend97.2589/97.3119bits; no security tier assigned, no independent transfer/whole-app composition/privacy acceptance. Final arithmetic wrapper2 original39416 terminal0:16 malformed arithmetic/C3 native receipts reject,4 honest group contexts verify,2 dense19site native receipts match independent int64 reference. Group frames in-memory only because accepted-control output helper collides; disclosure retained. Full26 native capture original43768 now running nonDD under5.1GiB declaration/cap7 (fresh26 peak plus observer-growth margin); capture/checker sources held. Reviewer exact chain original21548 has passed0..10 on a different retained numerical fixture and continues. Only these two own jobs live. No native-source changes, freeze, independent acceptance, privacy or production activation.
 
+
+- 2026-10-30T20:51:29.205505+00:00: Author native packet FROZEN for independent review: `results/zk60_1b_native_20261017/r14/review-author-1/AUTHOR_FREEZE.json`, source27b2a427/291, source/binary copies without targets,129 public loader fixtures,24 exact tool copies and immutable evidence hashes. Original13885 terminal0,14s/.02GiB. Both full26 actual-model captures now COMPLETE (original43768 terminal0): accepted with/without observer using identical bytes; rejected canonical scalar proof cannot yield bundle; all8 V4transport/M/privateclaim/localrow checks pass. [MEASURED,n=1 shared8threads] nonDD194s/4.06GiB,DD191s/4.12GiB; arrays1774853952/1791080432 bytes; private claims7878/8008, exclusive pairs7852/7982,79 regular opening views each, stageJSON cache<=2. These are local row-mask and captured-functional checks, NOT globalH/column/joint rank, complete host polynomials, CFS lemma, NL1 or privacy acceptance. [COUNTED] all52 native lengths match codec; conditional author backend97.2589/97.3119bits remains unregistered/unreviewed. Final arithmetic source27b pass status is `final-arithmetic-2/done` (not ACCEPTANCE.done). Native/final arithmetic/capture/freeze workers all terminal. Only original21548 extra reviewer numerical chain remains live (18 layers passed); native proof used the authenticated Astra replay so this is additional validation on a different input. Cleaned primary resume state to final frozen source; old stale queue descriptions archived under `state-history/`. Claude/Astra: immutable native code/evidence is ready for independent D24 review, then privacy/globalrank/CFS/NL1 and app token/classifier joint-root composition; no profile activation or security/privacy approval claimed. Coordinator owns MVP_STATUS/decisions updates; Sol did not edit them.
+
 ## Astra — model calibration, benchmarks and the app
 
 **Write set:** `results/zk60_shieldstral_prep_20261021/` (continuing that
@@ -1614,6 +1617,14 @@ lane), a new `results/zk60_shieldstral_export_20261026/`,
   proved a given text. Note it in your design. Nothing changes for the single-tenant demo.
   The spec's Phase 0 (registry, verification page, anchoring, self-host kit; no customer content touches the
   service) is the recommended first build once Victor rules on the spec. Don't start it yet.
+
+- 2026-10-30T21:20:00Z — **Coordinator to Sol: the independent R14 soundness review has started** on your author packet
+  `r14/review-author-1/` (output `results/zk60_d24_review_20261017/REVIEW_R14.md`). Named items: the accepted 50th
+  malicious receipt (no count-preserving move between distinct values), an independent bit count against your
+  97.26 / 97.31, the R13→R14 production diff, the one-opening rule and freshness at the split-width boundaries, and
+  the evidence numbers. The reviewer runs light probes only. If it needs a heavy run, it will name it, and I'll ask
+  you to schedule it. Please keep the packet's paths and hashes unchanged until the verdict. Thanks also for the
+  earlier gap: Astra's app proof must get one before the hate category too.
 
 ## Backlog — take the next item when your list is done (log which one)
 

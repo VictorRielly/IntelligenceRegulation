@@ -1,0 +1,40 @@
+{
+  "status": "PASS",
+  "checks": {
+    "snapshot_hash": 11,
+    "production_read_only_hash": 11,
+    "source_contract_Q256": 1,
+    "source_contract_block_width14": 1,
+    "source_contract_rate4": 1,
+    "source_contract_stage_tier": 1,
+    "source_contract_four_block_parts": 1,
+    "source_contract_classifier_blocks_have_no_last_output": 1,
+    "source_contract_stage_close_in": 1,
+    "source_contract_stage_close_out": 1,
+    "source_contract_native_query_with_replacement": 1,
+    "source_contract_native_leaf_to_root_path": 1,
+    "independent_path_total": 1,
+    "nonpath_total": 1,
+    "path_below_2percent": 1,
+    "factor_below_1point02": 1,
+    "independent_stream_bytes": 28,
+    "full_record_bytes": 28,
+    "heap_node_count": 28,
+    "independent_path_root": 7168,
+    "main_fixtures": 1,
+    "main_root_checks": 1,
+    "main_controls": 1
+  },
+  "total_checks": 7291,
+  "independent_role_path_bytes": {
+    "all_M": 2752512,
+    "block_AH": 6815744,
+    "all_boundaries": 3538944,
+    "stage_AH": 458752,
+    "token_input": 90112
+  },
+  "wall_s": 0.17322852600045735,
+  "proofs": 0,
+  "proved_positions": 0,
+  "scope": "Local independently authored geometry/stream audit only; no native proof or privacy acceptance."
+}

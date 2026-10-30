@@ -1,0 +1,11 @@
+{
+  "started": "2026-10-30T20:33:50.782943+00:00",
+  "steps": [],
+  "source_sha256": {
+    "run_durable_app_demo.py": "6c3ad742e66a7d5b2ed73f45d0a1d5002bcd7c5a2d5fe2983e9bf5fd5b6cb281",
+    "verify_durable_app_store.py": "50cdee4e1406e3799e33a89a55e414223a0d609f966e262f0f6e4cdaf1ab4959",
+    "check_durable_app_demo.py": "4526badc72c5ee58aafc9fa4a53a51ddf16bc39e01aebaf6f2a874f6ed3661e9",
+    "capture_durable_demo.py": "765611eaf56dbcbd5da58b88645a3e839cf0542cab1345c1d9f45f56c2cb6b35",
+    "report_durable_demo.py": "ec713da693e46d950ac41542932293db6709e14e5fc0df5b1c7d971e9f9f1df0"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "kind": "sequence",
+  "arrays": {
+    "x_in_L00": {
+      "file": "x_in_L00.bin",
+      "dtype": "int16",
+      "shape": [
+        32,
+        384
+      ],
+      "sha256": "71d6daa1abe0380957d25694ddf9ae4cfe3ae392a270970f97359065590dc4fa"
+    },
+    "x_out_L00": {
+      "file": "x_out_L00.bin",
+      "dtype": "int16",
+      "shape": [
+        32,
+        384
+      ],
+      "sha256": "bb8efb15011d1bc29b44c82a0ef4e39d8822eb80a22b035887650069a1a0235c"
+    }
+  }
+}

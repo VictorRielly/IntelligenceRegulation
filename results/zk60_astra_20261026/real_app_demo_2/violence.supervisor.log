@@ -9,3 +9,13 @@
 {"category": "violence", "pipeline": {"done": false, "exit": null, "step": "held", "step_since": 1793392438.919467, "waiting_for_machine": false, "guard_line": "", "alive": true}}
 {"category": "violence", "pipeline": {"done": false, "exit": null, "step": "prove", "step_since": 1793392643.9462814, "waiting_for_machine": false, "guard_line": "", "alive": true}}
 {"category": "violence", "pipeline": {"done": false, "exit": null, "step": "held", "step_since": 1793392644.0850325, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "prove", "step_since": 1793392874.1401663, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "held", "step_since": 1793392874.2377799, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "prove", "step_since": 1793393124.439061, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "held", "step_since": 1793393124.5429595, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "prove", "step_since": 1793393359.6179135, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "held", "step_since": 1793393359.7467813, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "prove", "step_since": 1793393609.9929793, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "held", "step_since": 1793393610.0953424, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "prove", "step_since": 1793393825.2153914, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "held", "step_since": 1793393825.3392057, "waiting_for_machine": false, "guard_line": "", "alive": true}}

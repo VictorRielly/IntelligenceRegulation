@@ -1,0 +1,198 @@
+{
+  "stages": [
+    {
+      "stage": 0,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 1,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 2,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 3,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 4,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 5,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 6,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 7,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 8,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 9,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 10,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 11,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 12,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 13,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 14,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 15,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 16,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 17,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 18,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 19,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 20,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 21,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 22,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 23,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 24,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 25,
+      "private_tables": 302,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    }
+  ],
+  "published_claims_checked": 7878,
+  "exclusive_site_pairs_checked": 7852,
+  "schema": "hashline-native-capture/6-split-run",
+  "source": "27b2a427491912cd54969b66f1d6ace29740ba8923dce6ba5ac4e23cfd992191",
+  "checker_sha256": "c49472e9c8806eb1abecbe0913aa9f0c9c0a656e09db4cd8e7ca6d09402ce701",
+  "field_helper_sha256": "35439d03f9e30e906aefb3cf4c5dd9f2a569a604d1a815cf80c26acbe168b5be",
+  "contract_helper_sha256": "e3f0183689888eb799580e03456a9f79a75b7c01617602a3f016c0b8da842ecb",
+  "source_manifest_sha256": "b7d7b77ab65b8b4d83b0ff73d99b6c75d496311919c25c5c121f4838979f47f2",
+  "peak_cached_stage_json": 2,
+  "privacy_acceptance": false,
+  "status": "PASS native Tab/claim provenance, unscaled private projections and public B-gates",
+  "scope": "Exact observed private terminal/PCS claim binding, every captured boundary source, both new norm pieces and all matrix broadcasts/zero lifts. Does not reconstruct all host polynomials or global weight folds; full rank/NL1/privacy review still required."
+}

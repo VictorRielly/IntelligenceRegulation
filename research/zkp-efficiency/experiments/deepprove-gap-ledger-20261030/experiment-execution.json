@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/deepprove-gap-ledger-20261030/experiment.py"
+  ],
+  "utc": "2026-10-30T20:46:46.895998+00:00",
+  "returncode": 0,
+  "wall_s": 0.4685993819948635,
+  "maxrss_kib": 40844,
+  "source_sha256": {
+    "run_bounded.py": "27424e69c8d642a8edfcaac855b9971d46dd782a93217707066310e69df9e77a",
+    "audit.py": "17013597cdab8a1a86b427790a1e9f21242119c128c23896a5bf48acc687225c",
+    "codec.py": "d8b1ffd7e278d0b092a44766e35afb0fcdc580856695b2c7d1bfe445f5a0d550",
+    "experiment.py": "efdb62dab3a40fcf74f4c8f8f8d64783402767f4de66f8b518bd82cb3c498e10",
+    "reference.py": "462c61c4f5498dffd4415b9674612294aa0bf5f509113a9bffd71a5f63b48db3"
+  },
+  "limits": {
+    "threads": 1,
+    "cpu_s": 30,
+    "alarm_s": 40,
+    "parent_s": 45,
+    "address_space_mib": 256,
+    "estimated_memory_mib": 96
+  }
+}

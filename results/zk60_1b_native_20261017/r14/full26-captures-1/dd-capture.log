@@ -1,0 +1,7 @@
+
+running 1 test
+test private_block::trained_block::split_cli::tests::split_cli_actual_full26_native_capture_and_rejected_bundle_suppression ... R14_FULL26_NATIVE_CAPTURE {"dd":true,"stages":26,"group_counts":[3, 3, 4, 3, 3, 3, 3, 3, 3, 4, 3, 4, 4, 4, 3, 4, 4, 4, 4, 4, 4, 3, 3, 4, 4, 4],"test_synthetic_waiver":false,"accepted_without_observer":true,"rejected_bundle_suppressed":true,"scope":"actual public S2 model, public reference fixture, native verifier view; no privacy acceptance"}
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 767 filtered out; finished in 190.97s
+

@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "seed": 20261030172,
+  "fixtures": 50,
+  "full_tuple_roundtrips": 50,
+  "independent_synthetic_path_verifications": 12800,
+  "controls": {
+    "truncated": true,
+    "trailing": true,
+    "lost_repeat_or_query": true,
+    "out_of_bounds": true,
+    "wrong_depth": true,
+    "inconsistent_coordinate": true,
+    "digest_flip_native_stage_required": true,
+    "query_reorder": true,
+    "wrong_root_role": true,
+    "cross_root_dictionary_reuse": true
+  },
+  "diagnostic_codec_clocks": {
+    "encode_s": 0.030691104017023463,
+    "decode_s": 0.02529001998482272
+  },
+  "wall_s": 0.4049058309974498,
+  "native_execution": false,
+  "proofs": 0,
+  "proved_positions": 0,
+  "scope": "Opaque path-byte codec and source byte census only. SHA256 is a synthetic tree oracle; native BLAKE3,PCS,soundness and P1 privacy not verified."
+}

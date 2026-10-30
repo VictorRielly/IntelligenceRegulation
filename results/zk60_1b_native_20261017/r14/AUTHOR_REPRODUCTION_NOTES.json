@@ -1,0 +1,9 @@
+{
+  "utc": "2026-10-30T20:51:29.205505+00:00",
+  "author_freeze_sha256": "f086db8296c3666ef9a4e5b2a69b79d5bf57ce2255e6742e0071205ced103a42",
+  "source_rebuild_manifest": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/review-author-1/source-tree/hashline/Cargo.toml",
+  "loader_fixtures": "review-author-1/loader-fixtures (129files independently hash-pinned)",
+  "tool_copies": "Exact copies under review-author-1/tools preserve code for review. Recorded commands refer to the original lane paths. The copied orchestration scripts keep their original path assumptions and need configured paths before standalone execution.",
+  "reproduction": "Use a fresh attempt/output directory and unique guard label when generating new receipts. Historical output paths refuse overwrites. Fresh verification can consume retained canonical native artifacts with their recorded model/binding pins.",
+  "privacy_accepted": false
+}

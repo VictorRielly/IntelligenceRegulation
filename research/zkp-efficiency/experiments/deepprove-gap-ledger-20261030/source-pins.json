@@ -1,0 +1,68 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/shape.rs",
+    "snapshot": "experiments/deepprove-gap-ledger-20261030/native/0-shape.rs",
+    "sha256": "8e00a144bd194fd5a3dd30c9aaece2869d43d461df623cdcfc5a9da59e51436b",
+    "bytes": 149746
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/wire.rs",
+    "snapshot": "experiments/deepprove-gap-ledger-20261030/native/1-wire.rs",
+    "sha256": "f312067871bb87dc93436263b5820e5f3fb9a9623f190efc924023a28c5d41d0",
+    "bytes": 21671
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/token_io.rs",
+    "snapshot": "experiments/deepprove-gap-ledger-20261030/native/2-token_io.rs",
+    "sha256": "2aabe64f8c9d4c9028f94af87d25dfddd44f0631ddb636616ec8679d09bed337",
+    "bytes": 74520
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/token_io/classify.rs",
+    "snapshot": "experiments/deepprove-gap-ledger-20261030/native/3-classify.rs",
+    "sha256": "c180c83fb50f624d15ef9d17dae4195b53161a1131892ea0bb15b0761da99b1d",
+    "bytes": 69275
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/token_io/classify_run.rs",
+    "snapshot": "experiments/deepprove-gap-ledger-20261030/native/4-classify_run.rs",
+    "sha256": "8abbf72f1c8e18bea1ac99e93a82562bca793afb4d94ed27dea24403850523f9",
+    "bytes": 24443
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/token_io/stage_in_c.rs",
+    "snapshot": "experiments/deepprove-gap-ledger-20261030/native/5-stage_in_c.rs",
+    "sha256": "6a92da0ecfe736537f859bcde5eb3fb89c0852e8d06dfe7f21e0feb9c4bbe6ff",
+    "bytes": 23361
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/token_io/stage_out_c.rs",
+    "snapshot": "experiments/deepprove-gap-ledger-20261030/native/6-stage_out_c.rs",
+    "sha256": "93a79a2b39ab1eb70442b6ee7f0d949cfbf20f7c84b660ec4aa4ebe2ef7a564a",
+    "bytes": 35100
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/zk.rs",
+    "snapshot": "experiments/deepprove-gap-ledger-20261030/native/7-zk.rs",
+    "sha256": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32",
+    "bytes": 254060
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/zkp-core/src/pcs.rs",
+    "snapshot": "experiments/deepprove-gap-ledger-20261030/native/8-pcs.rs",
+    "sha256": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495",
+    "bytes": 77003
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/zkp-core/src/merkle.rs",
+    "snapshot": "experiments/deepprove-gap-ledger-20261030/native/9-merkle.rs",
+    "sha256": "6e7817bd767a883985bfcd62b7a387d0c5f4c361010c4c5db37f5087d965744a",
+    "bytes": 6487
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/zkp-core/src/transcript.rs",
+    "snapshot": "experiments/deepprove-gap-ledger-20261030/native/10-transcript.rs",
+    "sha256": "cc9752d0ef9bcd6d7b20e94e611ff26748593a2ea1a4f55b63d8c221715f1967",
+    "bytes": 10238
+  }
+]

@@ -1,0 +1,39 @@
+{
+  "source_path": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r18/logs/eq/summary.json",
+  "source_sha256": "2f63bc9b64fd6ddd317f18e4a30b566bf5104f458693d74f8509329e361c698a",
+  "scope": "Owner public aggregate metadata only. No receipts, prompts, activations, tokens, weights or entropy copied. Not independently reverified in this cycle.",
+  "wall_batch_vs_three_singles": {
+    "batch_s": 1418.4470851421356,
+    "three_singles_s": 1453.434416294098,
+    "saved_s": 34.98733115196228
+  },
+  "batch_loaded": {
+    "jobs": 3,
+    "model_loads": 1,
+    "table_loads": 1,
+    "load_seconds": 45.296
+  },
+  "batch_jobs": [
+    {
+      "segments": 28,
+      "receipt_bytes": 848412096,
+      "prove_seconds": 372.581,
+      "total_seconds": 460.905,
+      "whole_run_floor_bits": 96
+    },
+    {
+      "segments": 28,
+      "receipt_bytes": 848412096,
+      "prove_seconds": 373.025,
+      "total_seconds": 461.616,
+      "whole_run_floor_bits": 96
+    },
+    {
+      "segments": 28,
+      "receipt_bytes": 848412096,
+      "prove_seconds": 365.671,
+      "total_seconds": 450.493,
+      "whole_run_floor_bits": 96
+    }
+  ]
+}

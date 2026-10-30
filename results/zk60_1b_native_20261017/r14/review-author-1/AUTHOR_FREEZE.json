@@ -1,0 +1,122 @@
+{
+  "utc": "2026-10-30T20:46:50.258273+00:00",
+  "schema": "r14-author-native-review/1",
+  "source": "27b2a427491912cd54969b66f1d6ace29740ba8923dce6ba5ac4e23cfd992191",
+  "source_files": 291,
+  "source_tree": "results/zk60_1b_native_20261017/r14/review-author-1/source-tree",
+  "binaries": {
+    "hashline.test.bin": "29a8be1d08ad537b88db6261663e7af6f34adf004d9e7691e4fb71ff6cc28a1d",
+    "zk60_split_stack.bin": "6625a7f224a44a523a477811d18feadc8b7654f9c9008b3372cf73eeda054896",
+    "zk60_trained_block.bin": "260b66ebdc8887b49e75c8ae992e6489b788851f5ec5de840132c9d8f49f04ba"
+  },
+  "helpers": {
+    "capture_contract_v4.py": "e3f0183689888eb799580e03456a9f79a75b7c01617602a3f016c0b8da842ecb",
+    "validate_capture_v4.py": "7c502930964ae16917f31795683a4b0095c35d48c3e928b0cdea8b2339f65b6c",
+    "native_mask_checks_v4.py": "35439d03f9e30e906aefb3cf4c5dd9f2a569a604d1a815cf80c26acbe168b5be",
+    "native_claim_checks_v4.py": "c49472e9c8806eb1abecbe0913aa9f0c9c0a656e09db4cd8e7ca6d09402ce701",
+    "local_row_rank_v4.py": "d7546ceb96e1e61f38efab3343623875a61a3d0e993bd943f07a194ac9982c5b",
+    "test_capture_streams_v4.py": "18bcb3bc21a2b195b671ab5fd406a50f2db5c8bee0ae712b2ba6052d6590cf43",
+    "check_capture_transport_negatives_v4_2.py": "e5bbe2bf4b0b45fe7e5d030c4c917eba6f08fff6a23b1752000fba4ee9f06cf9",
+    "generic_reference.py": "4fdc7d0c447c4a7fd155cee14d9806e5438bb04ba88da2e90530f8469e08c639",
+    "final_census_checks.py": "046621509861f3f3c64a4b5409d151750b3cfed28f0e6c359f71fd8291d424fe",
+    "final_relation_checks.py": "5fb015cf209b1cb12e3828d08d256ebe8750d78245afaed5b8436ae767efb3bb",
+    "regression_checks_direct.py": "8a2c3bb88cb597c66899bd5f4edcdc41244edfcac55579f5895b8a093877efd0",
+    "final_arithmetic_checks.py": "e831962a215ee86a7aa82111275962dcb9fc99a42779008c8ccdb1969c69c87f",
+    "final_arithmetic_checks_v2.py": "71d8e3342270ac013a31e99987697a45eba16bc7076319f98ddb22a2b0b1ce01",
+    "joint_receipt_checks.py": "705aee77f68489aa05a96bba17ab16f3fb580e69993be1441c5401eab4891aa0",
+    "joint_receipt_checks_v2.py": "67066333e79e34c6461ca969d5ea7a152fab29488640cc941d0b141199a06236",
+    "joint_envelope_checks.py": "bb144213c6db8485922c25828fba482a26214872ab48c072ef4dfa24d448bcaf",
+    "full26_native_checks_v3.py": "5d1bac271546774df75bc10ba6b3a6a85ba115a82cbe37e0a7af436b85592fc7",
+    "full26_capture_checks.py": "afceac3902edf896ca9da5b598a11be6dd82204846be749f9fe63a2096b27ff0",
+    "full26_count.py": "3506b2b698d5b1ad878a2c22cd4d56ce6ab17c2a4ea65a115a9c72c2b9419992",
+    "prepare_astra_prefix.py": "42dbc3364b16b294513c2b98145d1cdf1dd08f35efc39872123b477a99140b5b",
+    "reference_stack_v3.py": "db96164d038051ed55048e217d38da70e29e84a97225fe7b00838eef5e17332d",
+    "reference_sequence_step_v3.py": "2e491befb3277b2e04ecbe69566cd8d58c50d223783c26894b803def9fe2bbea",
+    "detached_stage.py": "8dfe7cb013cf409790f07de34e8281347bcce08342c22153b35ab7797f6e8853",
+    "freeze_author_packet.py": "53e807759aebff71293b4992c6cc2e0043ef1f1cd6161f7a7a5a7ba884d93b18"
+  },
+  "evidence_manifest_sha256": "2e8b76c2cb8f3ab5d73e534eb188f480ca4d99b02d08a47fc553cd7ad3cd51eb",
+  "loader_fixtures_manifest_sha256": "6ba95a7925ff7af1eeeafd2a2335b995dbf245539dd6f49e7c4396e050423842",
+  "facts": {
+    "rust_suite": {
+      "passed": 838,
+      "failed": 0,
+      "ignored": 75,
+      "baseline_outcomes_preserved": 816
+    },
+    "relation_receipts": {
+      "native_rejections": 50,
+      "positive_alias": 1
+    },
+    "arithmetic_C3": {
+      "native_rejections": 16,
+      "positive_group_contexts": 4,
+      "dense_native_receipts": 2,
+      "independent_trace_sites": 19,
+      "group_artifacts": "Complete native group frames verified in memory only; output omitted to avoid test-only accepted-control path collision. Other malicious frames retained."
+    },
+    "joint_receipts": {
+      "honest": 4,
+      "native_Merkle_rejections": 16,
+      "foreign_logical_root_sumcheck_rejections": 2
+    },
+    "envelope_controls": {
+      "honest": 2,
+      "binding_root_ownership_transport_rejections": 16
+    },
+    "full26": {
+      "variants": 2,
+      "stages_each": 26,
+      "strict_model_without_synthetic_waiver": true,
+      "H1_bit_exact_every_layer_before_header": true,
+      "fresh_public_only_verified": true,
+      "canonical_scalar_tamper_rejected": true,
+      "proof_bytes": [
+        895146288,
+        901256496
+      ]
+    },
+    "captures": {
+      "variants": 2,
+      "stages_each": 26,
+      "same_bytes_with_without_observer": true,
+      "rejected_bundle_suppression": true,
+      "regular_opening_views_each": 79,
+      "claimed_values_checked": [
+        7878,
+        8008
+      ],
+      "exclusive_site_pairs_checked": [
+        7852,
+        7982
+      ],
+      "stage_json_cache_max": 2,
+      "scope": "Transport, captured M budgets/functionals/order, private claim/public-gate provenance and local row-mask precheck only."
+    },
+    "whole_count": {
+      "native_lengths_matched": 52,
+      "conditional_backend_bits": [
+        97.25886242493702,
+        97.31187129508328
+      ],
+      "security_tier_assigned": false
+    }
+  },
+  "privacy_accepted": false,
+  "independent_soundness_accepted": false,
+  "profile_registered": false,
+  "production_activated": false,
+  "pending": [
+    "Independent D24 native soundness/code review and lookup/PCS/CFS ceiling transfer",
+    "Complete host-polynomial reconstruction, global H/column/joint rank, CFS lemma, NL1 and privacy acceptance",
+    "O-2 commitment reuse across artifacts and adapted joint-row C-11 coverage confirmation by reviewer",
+    "Token/classifier joint-endpoint integration and whole-application composition before use or registration"
+  ],
+  "additional_reviewer_reference": {
+    "path": "results/zk60_1b_native_20261017/r14/reference-stack-3",
+    "status_at_freeze": "Still running on a different retained reviewer input; not included in the immutable evidence manifest."
+  },
+  "reference_provenance": "Astra numerical evaluator with baseline/cache replay parity and authenticated native export equivalence. Both replay variants share arithmetic; their parity checks caching. The native H1 pass independently matched every layer output before proving.",
+  "joint_attack_scope": "One root per logical ordered piece matrix. Opened-row forgeries, foreign logical-root substitutions and envelope refusals are separately classified; there are no standalone serialized piece roots.",
+  "scope": "Immutable author source/binary/evidence packet for independent review. No inherited approval, security tier, privacy acceptance, classifier/app acceptance or deployment."
+}

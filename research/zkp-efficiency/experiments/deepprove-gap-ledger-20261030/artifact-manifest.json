@@ -1,0 +1,302 @@
+[
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/GAP_ANALYSIS.md",
+    "bytes": 11073,
+    "sha256": "6109868c21f1ebdbee042f7594be08c52ac81a07012b20ef6c4f891382567174"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/README.md",
+    "bytes": 4957,
+    "sha256": "dfd59a30623cf4dff5c8a6e21bf4394c514930fb8e1c9c51cd7407893f1b2b40"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/audit-execution.json",
+    "bytes": 908,
+    "sha256": "14024853c8f10ec3cd58b54b5daa9454dcbc40dd4c3ac206844438ca79d703f5"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/audit-result.json",
+    "bytes": 1235,
+    "sha256": "172e3426e3d1e655c36579772a6cc6fa85b8ea5623637de5c4f52db634f85bce"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/audit.py",
+    "bytes": 4316,
+    "sha256": "17013597cdab8a1a86b427790a1e9f21242119c128c23896a5bf48acc687225c"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/audit.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/audit.stdout.log",
+    "bytes": 1097,
+    "sha256": "1f03686ba2cffca108ee7219c26e612efa451b50255b227e930a21ed03de279c"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/census.json",
+    "bytes": 1906,
+    "sha256": "d6ccde015878e9ce565a6db5822f28e585b8b6a4a1c684d4202bda4f565ae05d"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/closing-documents.json",
+    "bytes": 1279,
+    "sha256": "34cf2fce322f6a121924f1c342e6dac7986cc75633e49315f9b57f1462b3d476"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/codec.py",
+    "bytes": 2362,
+    "sha256": "d8b1ffd7e278d0b092a44766e35afb0fcdc580856695b2c7d1bfe445f5a0d550"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/commands.jsonl",
+    "bytes": 1652,
+    "sha256": "1b461912ca1d46bbf417daa94c1b56e3210c08fb1c14b5085c457621a50e3e23"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/experiment-execution.json",
+    "bytes": 912,
+    "sha256": "8e4471d4462cbc625813b6e3ab4779a39603c08538fb514f3d8950f65ef9d884"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/experiment.py",
+    "bytes": 6760,
+    "sha256": "efdb62dab3a40fcf74f4c8f8f8d64783402767f4de66f8b518bd82cb3c498e10"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/experiment.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/experiment.stdout.log",
+    "bytes": 1695,
+    "sha256": "9c99c104fbb71ff0c4c68c9a7347fe6fc91cceb4a6c946d22dc5e299582816dd"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/finalize.py",
+    "bytes": 11638,
+    "sha256": "473d6dc117a1138dc869d8e76b762c28f9cfe410964e06d4009bda2c48bc9d28"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/finish_cycle.py",
+    "bytes": 17136,
+    "sha256": "2c27f7709aa47884c80c3acc3aceacc9b68132369d85b5d865c1dcf253a2af12"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/fixtures.json",
+    "bytes": 15102,
+    "sha256": "6c5d04aa79b7394331847ca5dd174675d6d04db501d525a2810527bc81552501"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/hardware.json",
+    "bytes": 253,
+    "sha256": "60f42814fe92fce6a3aad22c52e10be7319c1c85222a1317fc0cf45a38b9e1ed"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/hypotheses.json",
+    "bytes": 243389,
+    "sha256": "b402c20335382ae8c9a65fe51d63da2f71f4571487e4c7c79ec8084696979f75"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/initial-report-link-failure.json",
+    "bytes": 443,
+    "sha256": "47e63715eb034f6e1791cbaefeb1cdc006d47f85baf5a6c8855a5dbe40ecdae8"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/late-owner/0-GAP_ANALYSIS.md",
+    "bytes": 35873,
+    "sha256": "341c2b32ff553b34f9416e949e4d22e87a1e1e706f9584081b6375abd5a76922"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/late-owner/1-20261030-deepprove-gap.md",
+    "bytes": 4557,
+    "sha256": "25f6c142994bcc5aa1b10b792faaf868643c6b4df570f2818a7675017b73c9ad"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/late-owner/2-gap_calc.out",
+    "bytes": 5438,
+    "sha256": "5a3ca7d8d8005c755f8da29d2a2f0c3e704a206fd26c36c058e85868795b8233"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/late-owner/3-PROGRESS.md",
+    "bytes": 768,
+    "sha256": "c10802508fa21c2362876deac5969883659f5f4e395c2f0bdf8bcf65155a2b87"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/late-owner/4-ZK60_DECISIONS.md",
+    "bytes": 180649,
+    "sha256": "5aa8865fb17c5626c6956fd2fc67cdd718acf9adc592a50541ecaaa2ea1133ea"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/late-owner-pins.json",
+    "bytes": 1505,
+    "sha256": "feefe8239a3a23f89a5895ddb892367d79e33cf32ef68a00cb8b6188753cd313"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/native/0-shape.rs",
+    "bytes": 149746,
+    "sha256": "8e00a144bd194fd5a3dd30c9aaece2869d43d461df623cdcfc5a9da59e51436b"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/native/1-wire.rs",
+    "bytes": 21671,
+    "sha256": "f312067871bb87dc93436263b5820e5f3fb9a9623f190efc924023a28c5d41d0"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/native/10-transcript.rs",
+    "bytes": 10238,
+    "sha256": "cc9752d0ef9bcd6d7b20e94e611ff26748593a2ea1a4f55b63d8c221715f1967"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/native/2-token_io.rs",
+    "bytes": 74520,
+    "sha256": "2aabe64f8c9d4c9028f94af87d25dfddd44f0631ddb636616ec8679d09bed337"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/native/3-classify.rs",
+    "bytes": 69275,
+    "sha256": "c180c83fb50f624d15ef9d17dae4195b53161a1131892ea0bb15b0761da99b1d"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/native/4-classify_run.rs",
+    "bytes": 24443,
+    "sha256": "8abbf72f1c8e18bea1ac99e93a82562bca793afb4d94ed27dea24403850523f9"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/native/5-stage_in_c.rs",
+    "bytes": 23361,
+    "sha256": "6a92da0ecfe736537f859bcde5eb3fb89c0852e8d06dfe7f21e0feb9c4bbe6ff"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/native/6-stage_out_c.rs",
+    "bytes": 35100,
+    "sha256": "93a79a2b39ab1eb70442b6ee7f0d949cfbf20f7c84b660ec4aa4ebe2ef7a564a"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/native/7-zk.rs",
+    "bytes": 254060,
+    "sha256": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/native/8-pcs.rs",
+    "bytes": 77003,
+    "sha256": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/native/9-merkle.rs",
+    "bytes": 6487,
+    "sha256": "6e7817bd767a883985bfcd62b7a387d0c5f4c361010c4c5db37f5087d965744a"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/owner-aggregate.json",
+    "bytes": 1152,
+    "sha256": "da2b5bd731e336d7eecf5e5b0047dda6cff5ba9cfa0a1c2f5b7baf64810aeff5"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/ranking-current.json",
+    "bytes": 4872,
+    "sha256": "89ac0d6ddc1c93798f14b1ca09bc6f1686420b71771d9ef0d60a3aa548c4c098"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/reference.py",
+    "bytes": 2122,
+    "sha256": "462c61c4f5498dffd4415b9674612294aa0bf5f509113a9bffd71a5f63b48db3"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/result.json",
+    "bytes": 849,
+    "sha256": "d092137c01686f90d4ab02ad98cb7eee3d70d7e41163927d935bed86c7134f06"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/rotation-queue.json",
+    "bytes": 542,
+    "sha256": "01de8766888ca37b1b07b26ca8c1b9c5b7712d23c68132a5b069037a097eef41"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/run_bounded.py",
+    "bytes": 1645,
+    "sha256": "27424e69c8d642a8edfcaac855b9971d46dd782a93217707066310e69df9e77a"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/source-pins.json",
+    "bytes": 3564,
+    "sha256": "750b862702444eff5dc0e88f4f1269376fe67280f367299bc8ea571dc82f2c95"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/sources-cycle.json",
+    "bytes": 13280,
+    "sha256": "4496fe87b854cbfa37ffec5e3e92a6a7ce1d36fa4eeaf33326a9381712b5dff8"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/startup/AGENDA.md",
+    "bytes": 7414,
+    "sha256": "9c499f9d2f68216f7d27b55d83a626b7e6f03399e674d5723832c83979a923f8"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/startup/CLAUDE.md",
+    "bytes": 14089,
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/startup/FINDINGS.md",
+    "bytes": 1271654,
+    "sha256": "805d80e53fd86247acda176cc7671efbaec082302d2447f8f4be355aa9729244"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/startup/MVP_STATUS.md",
+    "bytes": 106429,
+    "sha256": "f75da8ddcf7edefaf3f367ecd6ac63b07ab17f418cae4a3a0c9e9a1c9c09e28b"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/startup/PROGRESS.md",
+    "bytes": 2468,
+    "sha256": "192d26eee51661676a7bc9f86a2b239842078d1451568dba7b34d66619c910e6"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/startup/STATE.md",
+    "bytes": 4586,
+    "sha256": "b4491f9d8a3cae7c9369a1d6e4e3c1b747c6a3e8586f9efaef76b8e179ed8c37"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/startup/ZK60_CODEX_FABLE_COORDINATION.md",
+    "bytes": 64889,
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/startup/ZK60_DECISIONS.md",
+    "bytes": 175994,
+    "sha256": "3f578ffedfbb96b946ec3fbf8f9e8e11520d533047a51f769004c1397eb2519f"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/startup/ZK60_THROUGHPUT_TARGET.md",
+    "bytes": 4941,
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/startup/sources.jsonl",
+    "bytes": 1433111,
+    "sha256": "c82327da84cee12eb331a568789177aec131f05365237354a61f4cdbef6bc81e"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/startup-pins.json",
+    "bytes": 1965,
+    "sha256": "471e27c0fcd2a1ec9745d474a031bce2cbda8ee9a4b8ed65899139a73e1305ec"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/target-accounting.json",
+    "bytes": 1468,
+    "sha256": "289d4a4041b76f70b9e740edb8a25f5e56bbcd3f574d12b1f1d224411da04194"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/web-primary.json",
+    "bytes": 14335,
+    "sha256": "e6412c91f2accdda4e352a98374da27416b1066738008b2710f4d475c5dc8af7"
+  },
+  {
+    "path": "experiments/deepprove-gap-ledger-20261030/web-provenance-blockers.json",
+    "bytes": 14510,
+    "sha256": "824ae762500084a035f6e781fb298af4356d02e7ea913bf85c97681617b1cc4f"
+  }
+]

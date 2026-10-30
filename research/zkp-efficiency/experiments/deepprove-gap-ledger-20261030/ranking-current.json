@@ -1,0 +1,61 @@
+[
+  {
+    "priority": 1,
+    "hypothesis": "Owner complete independently verified high-endGPU resident1/2/4/8 workloads",
+    "ceiling": "unknown full-proof slope",
+    "action": "Owner only,shared locks and fresh masks; no run launched here"
+  },
+  {
+    "priority": 2,
+    "hypothesis": "Admitted context/DD/fidelity/proof-window sweep",
+    "ceiling": "unknown; attention quadratic",
+    "action": "Use actual selected profile and completed verified positions"
+  },
+  {
+    "priority": 3,
+    "hypothesis": "Exclusive native phase and capacity attribution",
+    "ceiling": "unknown A/H,slots,witness,serialization/startup critical shares",
+    "action": "Owner clocks under shared locks,avoid adding nested timings"
+  },
+  {
+    "rank": 107,
+    "priority": 4,
+    "title": "REFINED masked streamed LogUp-GKR removes committed H; derived linear planes companion",
+    "baseline": "Current committedHhelpers;54ns/lookupon16threads and170B/lookupGPU areownermodel laws. Needmatchednativecompletecomparison.",
+    "eliminated_work": "Potential Hcommit/open andhelperzero-checktraffic,not yet eliminated. Keeplookupmultiplicities/ranges/leafbinding;freshroot/layerprivacy.",
+    "added_costs": "Alltree layers,pairtableperalpha,zero-checks,root/layerCFSorLibra masking,M/PCSrows,leafbindings,recomputation andverification.",
+    "prerequisites": "Actual selected accuracy-layout plane/group census and all downstream terminal consumers; new versioned construction reviewed under D8/D11,D12,D18; exact arithmetic/refusals and full history.",
+    "integration_cost": "High architectural Rust/CUDA work,owner review; no production patch.",
+    "exactness": "No changed normalization,rounding,future-pair refusal or precision authorized.",
+    "privacy_soundness": "P1 hides input/output/activations; fresh masks and private openings; no public-IO substitution or deletion of commitments by analogy.",
+    "compatibility": "Current private_block accuracy layout/argument,protocol prove_core/openA/H and PCS groups.",
+    "end_to_end_ceiling": "N/(T-Cremoved+Aadded),unknown exclusive C/A; not100x from author claims or this byte census.",
+    "falsification": "Incorrectleaf/root/orderedbinding/zero/refusal/maskedjointview,oraddedcost>=criticalsaving. Ownerkill>=0.7helperCPUAND>=helperbytes requiresmatchedall-inimplementation.",
+    "next_experiment": "Streamed synthetic Fp2fractiontree andfreshalpha pairtable oracle,initial2^10..2^16lookups;all originalzero/refusal/orderedbinding negatives;specifyrootmaskdistribution. No publicroot or GKRproofclaim.",
+    "initial_candidate_scope": "NEW hidden backward layer chaining: classify deterministic intermediates before removing commitments",
+    "late_owner_evidence": "Coordinator study/handoff received at closing. Historical TinyLlama H30.03/152.2s;1.37..1.57GPUroofline ismodel,not nativeproof improvement.",
+    "resource_limits": "Activeuser1thread/60s/512MiB dominateslooserhandoff1GiB;largernativework proposedownerlocks."
+  },
+  {
+    "priority": 5,
+    "hypothesis": "H103 grouped accuracy-DD algebra native masked/RNG/extension/PCS gates",
+    "ceiling": "prior28.78%fieldproductcount,not timing",
+    "action": "Existing handoff/native owner; no duplicate jobs"
+  },
+  {
+    "rank": 108,
+    "priority": 8,
+    "title": "NEW tested negative: per-opening path interning as explanation for receipt gap",
+    "baseline": "FrozenR18classifier112openings/256checks;allpaths13656064B of848412096B=1.6096%.",
+    "eliminated_work": "Synthetic replacement-random modeled6244288transportB=0.7360%ofreceipt; no NTT,commitment or nativeverification work removed.",
+    "added_costs": "Root-local coordinate dictionary,bounded expansion and copying; native verification still processes original paths.",
+    "prerequisites": "Native full-frame identity,all bounds/keyedroles and fresh-process verification before any future port.",
+    "integration_cost": "Potential bounded Rust outer wrapper; no Rust patch justified by current goal.",
+    "exactness": "50fullsynthetictupleroundtrips,12800stand-inrootchecks,10controls;local independentaudit7291checks. No native proof.",
+    "privacy_soundness": "Coordinates/querymultiplicity only; every salt/vector/mask retained; dictionary resets every root; no cross-proof reuse. Native P1 review still required.",
+    "compatibility": "OpeningZk::write_bytes,MaskOpening::write_bytes,private_block wire/token_io bounded transport seam.",
+    "end_to_end_ceiling": "Timeunknown N/(T-Iremoved+A); impossible deletionallpaths sizefactor1.016359 only. Sizefraction is not a computational phase bound.",
+    "falsification": "Restored bytes/queryorder/multiplicity/rootrole/nativeacceptance/bounds change,orA>=criticalI. Primarysizeexplanation alreadyfalsified.",
+    "disposition": "Demote; prioritize full A/H vector/column accounting and architecture; retain negative result."
+  }
+]

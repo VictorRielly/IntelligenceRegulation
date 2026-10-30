@@ -1,0 +1,308 @@
+{
+  "utc": "2026-10-30T20:32:43.025214+00:00",
+  "phase": "Full26 native DD/nonDD prove/fresh/tamper PASS; final arithmetic/dense PASS; nonDD actual capture running; reviewer chain through10",
+  "live_tool_sessions": [
+    21548,
+    43768
+  ],
+  "source_base_sha256": "b4f7d795c23eef05676dc5fafbc91f7d70391f972ec5d6b46ca9116720a55f9f",
+  "s4_design_review_path": "results/zk60_d24_review_20261017/S4_DESIGN_CHECK.md",
+  "s4_review_sha256": "a1c521ca7eeb3af4bea264b4e4c3dfdb9707bb19d8d53083ec94d0a03c7f3ac5",
+  "adopted_rules": [
+    "B-gate: zero lift folded into existing public factor, never private functional",
+    "single joint commitment per logical endpoint/boundary, ordered row blocks; no additional openings",
+    "new profile and source/hash domains; oldR13 andlegacybytes fixed",
+    "receipt-level attacks for wrong source map/rounding/c2/group/norm, all19 trace-site parity",
+    "native layout+degree+M budget census and whole-run bits before registration",
+    "freeze->D24->privacy gate before any use; T256 proofsdesktoponly"
+  ],
+  "endpoint_plan": {
+    "external": "two sites, two proximity rows and one spare: data24+7=31rows at ShieldstralT128/T256 Nratio",
+    "internal": "four sites plus two proximity rows: data24+10=34rows"
+  },
+  "next": "Poll43768 full26capture and21548 reviewer chain (through10passed). Both are own live jobs; no handback while pending. All nativefull26 and finalarithmetic workers terminal0. Aftercaptures complete collect immutable author handoff/count/source pins and request independent D24/privacy via existing coordination process; do not activate/register anything. Reviewer exact chain remains additional validation on another fixture.",
+  "source_edits_held": true,
+  "live_stage": "multiple guarded serial lanes",
+  "live_tool_session": null,
+  "source_pin": "sol-r14-capture-build-1.source.json",
+  "source_sha256": "3c7b1dcfd47ba8cb257c6f734348f25fb960af3f25f8b1b14ea4e262ff8defda",
+  "staged_modules": [
+    "argument_split.rs",
+    "split_profile.rs",
+    "split_endpoint.rs",
+    "split_definition_tests.rs",
+    "split_witness.rs"
+  ],
+  "receipt_tradeoff": "Native DD/nonDD first/last bytes exactly match counter; T128 backend receipt +~6%, A/H words -24..25%. Coordinator10:23 accepted proceed.",
+  "matched_report": "MATCHED_R13_R14_COMPARISON.json",
+  "source_tree": "capture-working-tree",
+  "retired_tool_sessions": [
+    {
+      "session": 47150,
+      "reason": "Unknown tool handle; host audit00:18:58 found no surviving R14 worker or heavy leaf"
+    },
+    {
+      "session": 24662,
+      "reason": "Unknown tool handle; host audit00:18:58 found no surviving R14 worker or heavy leaf"
+    },
+    {
+      "session": 48014,
+      "reason": "Unknown tool handle; host audit00:18:58 found no surviving R14 worker or heavy leaf"
+    }
+  ],
+  "detached_worker": {
+    "utc": "2026-10-30T00:18:58.978782+00:00",
+    "pid": 490564,
+    "pid_ns": "pid:[4026532216]",
+    "starttime_ticks": "9853210",
+    "boot_id": "9ecf0dc6-8b67-411a-8ac8-042f41dfd9d5",
+    "log": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/recovery-20261030-1/worker.log",
+    "status_file": "recovery-20261030-1/status.json",
+    "contract_file": "recovery-20261030-1/contract.json",
+    "phase_at_recording": "candidate-build",
+    "heartbeat_at_recording": "2026-10-30T00:28:44.661313+00:00",
+    "status": "Historical recovery worker terminal fixture failure; superseded by corrected-candidate-2; DO NOT restart."
+  },
+  "arithmetic_acceptance": "corrected-candidate-2/ACCEPTANCE.json",
+  "arithmetic_source": "79093470047464587140fc63d4ca84b95c11c090bd32d4cbd1057503969d6db5",
+  "guard_continuity": "GUARD_DISK_CONTINUITY.json",
+  "guard_sha256": "67e9478f55518c2808ff65e5f303f70e155a5f21c5987243a39cf579d1a9a6f3",
+  "queue_migration": "NATIVE_CAPTURE_QUEUE_MIGRATION.json",
+  "staged_streaming": "STAGED_STREAMING.json",
+  "native_non_dd_transport": "NATIVE_CAPTURE_non-dd_VALIDATION_v3.json",
+  "native_non_dd_local": [
+    "LOCAL_ROW_PRECHECK_non-dd_v3.json",
+    "NATIVE_MASK_non-dd_v3.json",
+    "NATIVE_CLAIMS_non-dd_v3.json"
+  ],
+  "transport_negatives": "CAPTURE_TRANSPORT_NEGATIVES_v3.json",
+  "both_captures": "BOTH_CAPTURE_HANDOFF.json",
+  "actual_l25_acceptance": "ACTUAL_L25_NATIVE_ACCEPTANCE.json",
+  "goal_complete": false,
+  "failed_compatibility": {
+    "label": "sol-r14-legacy-full-suite-1",
+    "exit_code": 101,
+    "library_passed": 682,
+    "library_failed": 6,
+    "library_ignored": 71,
+    "diagnosis": "3 source-module audits omit R14 modules/cfg(test)+path;3 loader fixture paths absent in isolated checkout",
+    "repair_tree": "results/zk60_1b_native_20261017/r14/compatibility-working-tree"
+  },
+  "fixture_repair": {
+    "link": "results/zk60_1b_native_20261017/r14/loader-fixtures",
+    "target": "../r13/loader-fixtures",
+    "scope": "same independently pinned R13 fixtures, no payload edits"
+  },
+  "streaming_api": {
+    "source": "72ccc3ac292c6f0670a38d58557ae18ea5c74101005379bd4f77dc2e52fa0e3a",
+    "components": "20 passed;0 failed;22 ignored",
+    "checkpoint": "checkpoints/streaming-build-1",
+    "native_acceptance": "streaming-native-1/ACCEPTANCE.json",
+    "native_session_terminal": 0
+  },
+  "experimental_cli": {
+    "prototype_source": "a523345ad1d54b787e9c4b1e0e7bb2c28d0bbb949d3bf37362298e9872eeeef2",
+    "prototype_typecheck": "PASS22sec;1.04GiB;watchdog",
+    "source": "06c540f2a7616e052540ce8dae44f043403ed8974b510f34c47623e54e48856a",
+    "files": 291,
+    "tree": "cli-candidate-working-tree",
+    "status": "BUILD2/actualL25CLI9/M9bothvariants COMPLETE; authorcheckpointonly",
+    "reference": "cli-l25-sequence/PROVENANCE.json",
+    "build_acceptance": "CLI_BUILD_ACCEPTANCE_2.json",
+    "native_acceptance": "cli-native-2/ACCEPTANCE.json",
+    "publication_acceptance": "cli-native-2/M9_ACCEPTANCE.json"
+  },
+  "compatibility_repair": {
+    "source": "8630154267232d1abbd73658ba95d923e6982c7f126c341fc0933b49a0e25f2d",
+    "session": 43519,
+    "status": "queued;unvalidated fullsuite; extracted hash auditPASS2/0",
+    "tree": "compatibility-working-tree",
+    "prior_failed_snapshot": "checkpoints/compatibility-suite-2-failed",
+    "prior_v2_only_failure": "production_text incorrectly cut at external cfg(test) module declaration, fixed only inline-body boundary;37hashsites nowclassified"
+  },
+  "historical_capture_branch": {
+    "tree": "capture-working-tree",
+    "source": "3c7b1dcfd47ba8cb257c6f734348f25fb960af3f25f8b1b14ea4e262ff8defda",
+    "files": 287,
+    "status": "Historical capture build source3c compiled and native/capture/L25 accepted; NOT uncompiled. Old pipeline session/plan retired, DO NOT restart.",
+    "prepared": [
+      "schema6 observer hooks with independent FS replay, native physical metadata and rejected-bundle suppression",
+      "3stage DD/nonDD capture tests and transport/public allow-list/array validator",
+      "actualL25 reviewer causal-prefix19site proof/fresh/corruption gates",
+      "50relation regressions, high bytes onbothD/Fpieces/DDvariants, dictionary unused/counts, pairedhelper supporttail moves"
+    ],
+    "entrypoints": [
+      "capture_gate.py",
+      "capture_checks.py",
+      "actual_l25_checks.py",
+      "regression_checks.py"
+    ],
+    "queue_plan": "sol-r14-observer-pipeline-1.plan.json",
+    "pipeline_session": 95451,
+    "extra_prepared": [
+      "Accepted receipt byte hashes/length and explicit ordered block digests in observer export; transport validator checks binding/profile/stage/header/core roots/trailer and stage links",
+      "Full legacy suite, four seeded old byte goldens, fresh retained R8/R9/R13 CLI receipts and R12 Shieldstral verification"
+    ]
+  },
+  "prepared_cli": [
+    "prepare_cli_candidate.py",
+    "build_cli_candidate.py",
+    "cli_native_checks.py",
+    "staged/split_cli_m9_test.rs"
+  ],
+  "prepared_stack_reference": "reference_sequence_step.py (unstarted; unchanged independent reviewer int64 reference, one guarded layer at a time)",
+  "legacy_compatibility": "LEGACY_COMPATIBILITY_ACCEPTANCE.json",
+  "native_failure_diagnosis": "NATIVE_FAILURE_DIAGNOSIS_1.json",
+  "native_relations": "NATIVE_RELATION_REGRESSIONS.json (49capture3c+1correctedsource06, explicitacceptedaliascontrol, finalsingle-source rerun stillowed)",
+  "full_reference": {
+    "tree": "reference-stack-2",
+    "session": 89393,
+    "completed_layers": 10,
+    "first_l00_int64_reference": "reference-stack-1/layer_00.json",
+    "reviewer_source_sha256": "d7c175e154cef761e7e574e417c6979634e05243e6abf0357fb3cb2c7cdfe4ac",
+    "arithmetic": "unchanged independent int64; authenticated int8mappedweights promotewithint64activations",
+    "measured_memory_gib": 0.48,
+    "class": "light",
+    "need_gib": 0.7,
+    "cap_gib": 1.5
+  },
+  "final_candidate": {
+    "source": "27b2a427491912cd54969b66f1d6ace29740ba8923dce6ba5ac4e23cfd992191",
+    "files": 291,
+    "build_acceptance": "final-validation-1/ACCEPTANCE.json",
+    "suite": {
+      "passed": 838,
+      "failed": 0,
+      "ignored": 75
+    },
+    "status": "compiled, author checkpoint, not frozen"
+  },
+  "v4_capture_controls": {
+    "baseline": "capture-adapters-v4/ACCEPTANCE.json",
+    "streaming_primitive_tests": 4,
+    "negative_controls": "CAPTURE_TRANSPORT_NEGATIVES_v4_2.json",
+    "negative_rejected": 10,
+    "harness_failure": "CAPTURE_TRANSPORT_NEGATIVES_v4_FAILURE.json"
+  },
+  "joint_receipts": {
+    "acceptance": "joint-receipts-2/ACCEPTANCE.json",
+    "session6285": "terminal0",
+    "cases": 22,
+    "native_Merkle_refusals": 16,
+    "native_foreign_root_SC_refusals": 2,
+    "honest_acceptances": 4,
+    "failure": "JOINT_RECEIPT_WRAPPER_FAILURE_1.json"
+  },
+  "prepared_full26": [
+    "full26_native_checks.py",
+    "full26_capture_checks.py",
+    "full26_count.py"
+  ],
+  "final_census": {
+    "acceptance": "final-census-1/ACCEPTANCE.json",
+    "session13479": "terminal0",
+    "inventory_rows": 12,
+    "slot_rows": 126,
+    "group_schedules": 4,
+    "matches_prior": true
+  },
+  "final_arithmetic": {
+    "runner": "final_arithmetic_checks_v2.py",
+    "output": "final-arithmetic-2",
+    "session": 39416,
+    "status": "COMPLETE; original39416 terminal0;16 malformed arithmetic/C3 receipts+4 honest group controls+2 dense19site/reference controls PASS",
+    "failure": "FINAL_ARITHMETIC_WRAPPER_FAILURE_1.json",
+    "acceptance": "final-arithmetic-2/ACCEPTANCE.json"
+  },
+  "envelope_receipts": {
+    "acceptance": "joint-envelopes-1/ACCEPTANCE.json",
+    "session24372": "terminal0",
+    "honest": 2,
+    "negative": 16,
+    "scope": "Binding, repeated-root ownership and exact-size transport; not mathematical forgeries"
+  },
+  "joint_preconditions": "JOINT_ROW_MUTATION_PRECONDITIONS.json",
+  "detached_next": "Use python3 detached_stage.py native after reference-stack-2/ACCEPTANCE.done0; captures via detached_stage.py capture after full26 native acceptance. These retain nohup/setsid worker PROCESS/RESULT/WORKER.done under detached-full26-*; do not relaunch an existing stage. Full26_count.py follows native+census acceptance.",
+  "collaboration_reminder": {
+    "requested_by": "Victor",
+    "utc": "2026-10-30T19:49:53.563814+00:00",
+    "team": [
+      "Claude Opus 5.5",
+      "GPT Astra",
+      "Codex Sol"
+    ],
+    "context": "Claude has worked on the project for many months. Consult established decisions and his project context; preserve lane ownership and coordinate through the existing ledger."
+  },
+  "reference_failure": "REFERENCE_STACK_2_FAILURE.json",
+  "reference_active": {
+    "source_driver": "reference_stack_v3.py",
+    "source_step": "reference_sequence_step_v3.py",
+    "output": "reference-stack-3",
+    "session": 21548,
+    "seed": "retained reviewer shield_input_L00.bin causal first128",
+    "math": "unchanged independent reviewer exactint64; all19 L00 traces must match retained reviewerNPZ causal prefix",
+    "status": "L00PASS19reviewerNPZtraces,181s/.48GiB; L01light.7GiB running. Additional validation on a different retained reviewer fixture; full26native now uses existing Astra baseline/cache chain."
+  },
+  "final_relations": {
+    "acceptance": "final-relations-1/ACCEPTANCE.json",
+    "session33299": "terminal0",
+    "rejections": 50,
+    "positive_alias": 1,
+    "same_final_source": true
+  },
+  "retired_this_turn": {
+    "89393": "terminal1 genuine L25 integer range refusal; no retry of same input",
+    "86587": "terminal1 wrapper demanded SCround0 though native foreign root correctly failed SCround1; adopted in v2",
+    "76604": "terminal1 test-only positive control artifact collision; v2 omits output path for group cases",
+    "33299": "terminal0 PASS51"
+  },
+  "token0_preflight": {
+    "report": "TOKEN0_REAL_INPUT_PREFLIGHT.json",
+    "guard": "token0-real-preflight.guard.json",
+    "session82221": "terminal0",
+    "causal_rows": 1,
+    "layers_passed": 26,
+    "scope": "Retained reviewer numerical L00 input, unchanged int64 reference; not full128 range acceptance or native proof."
+  },
+  "astra_reference": {
+    "acceptance": "astra-smoke-prefix-1/ACCEPTANCE.json",
+    "session10020": "terminal0",
+    "provenance": "Astra8item baseline/cache all27residual files byte-identical; selected367token item causal first128; authenticated native public model2ba vs reviewedT2561d500+fixedL25 candidate, all payload hashes checked",
+    "native_parity_pending": true
+  },
+  "full26_native": {
+    "runner": "full26_native_checks_v3.py",
+    "supervisor": "detached_stage.py native",
+    "session": 17190,
+    "worker_directory": "detached-full26-native-1",
+    "artifact_directory": "full26-native-1",
+    "status": "COMPLETE; original17190 terminal0; all6 gates accepted",
+    "acceptance": "full26-native-1/ACCEPTANCE.json",
+    "bytes_non_dd": 895146288,
+    "bytes_dd": 901256496,
+    "peak_prove_rss_gib": [
+      5.59,
+      5.69
+    ],
+    "fresh_verified": true,
+    "scalar_tamper_rejected": true
+  },
+  "full26_capture": {
+    "session": 43768,
+    "supervisor": "detached_stage.py capture",
+    "worker": "detached-full26-capture-1",
+    "output": "full26-captures-1",
+    "need_gib": 5.1,
+    "cap_gib": 7,
+    "status": "nonDD native capture running; do not edit capture/checker scripts or retry"
+  },
+  "whole_count": {
+    "report": "FULL26_ACTUAL_CONDITIONAL_COUNT.json",
+    "native_segment_lengths_matched": 52,
+    "conditional_bits": [
+      97.25886242493702,
+      97.31187129508328
+    ],
+    "scope": "Conditional author backend arithmetic, no assigned security tier; hash/FS/CFS/PCS/lookup transfers and token/classifier composition still require review"
+  }
+}
